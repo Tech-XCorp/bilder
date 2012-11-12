@@ -1,0 +1,197 @@
+diff -ruN trilinos-10.6.4/packages/amesos/CMakeLists.txt trilinos-10.6.4-new/packages/amesos/CMakeLists.txt
+--- trilinos-10.6.4/packages/amesos/CMakeLists.txt	2011-03-23 09:49:59.000000000 -0600
++++ trilinos-10.6.4-new/packages/amesos/CMakeLists.txt	2012-09-17 16:02:05.000000000 -0600
+@@ -13,9 +13,13 @@
+ #
+ 
+ # if using SuperLUDist, must also link in ParMETIS for some reason
+-IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
+-  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
+-ENDIF()
++#
++# TMA: Not necessary.  Removing this error message for Tech-X.  Will pass onto
++# Trilinos team.
++#
++#IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
++#  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
++#ENDIF()
+ 
+ # if using parallel MUMPS, must also link in scalapack and BLACS
+ 
+diff -ruN trilinos-10.6.4/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10.6.4-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+--- trilinos-10.6.4/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2011-03-23 09:50:25.000000000 -0600
++++ trilinos-10.6.4-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2012-09-17 15:53:58.000000000 -0600
+@@ -13,7 +13,7 @@
+ #endif
+ #include "MLAPI_Error.h"
+ #include "MLAPI_Workspace.h"
+-#ifdef _MSC_VER
++#if defined(_MSC_VER)
+ #include "winprocess.h"
+ #endif
+ 
+@@ -112,6 +112,11 @@
+       if (i == GetMyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++// getpid not on all mingw
++        sprintf(buf, "Host: %s   PID: %d", "mingw32", 0);
++#elif defined(_MSC_VER)
++        sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s\tMyPID(): %d\tPID: %d",
+@@ -119,7 +124,10 @@
+ #endif
+         printf("%s\n",buf);
+         fflush(stdout);
++#if ! defined(__MINGW32__)
++// winprocess.h not being generated for mingw32
+         sleep(1);
++#endif
+       }
+     }
+     if (GetMyPID() == 0) {
+diff -ruN trilinos-10.6.4/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10.6.4-new/packages/ml/src/Utils/ml_epetra_utils.cpp
+--- trilinos-10.6.4/packages/ml/src/Utils/ml_epetra_utils.cpp	2011-03-23 09:50:26.000000000 -0600
++++ trilinos-10.6.4-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2012-09-17 15:53:58.000000000 -0600
+@@ -3459,6 +3459,11 @@
+       if (i == Comm.MyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+     sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++// getpid not present for mingw
++    sprintf(buf, "Host: %s   PID: %d", "mingw32", 0);
++#elif defined(_MSC_VER)
++    sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+     gethostname(hostname, sizeof(hostname));
+     int pid = getpid();
+@@ -3467,7 +3472,10 @@
+ #endif
+     printf("%s\n",buf);
+     fflush(stdout);
++#if ! defined(__MINGW32__)
++// winprocess.h not being generated for mingw32
+     sleep(1);
++#endif
+       }
+     }
+      if(Comm.MyPID() == 0) {
+diff -ruN trilinos-10.6.4/packages/ml/src/Utils/ml_utils.c trilinos-10.6.4-new/packages/ml/src/Utils/ml_utils.c
+--- trilinos-10.6.4/packages/ml/src/Utils/ml_utils.c	2011-03-23 09:50:26.000000000 -0600
++++ trilinos-10.6.4-new/packages/ml/src/Utils/ml_utils.c	2012-09-17 15:53:58.000000000 -0600
+@@ -24,9 +24,9 @@
+ #include "ml_lapack.h"
+ #include <time.h>
+ #include "ml_viz_stats.h"
+-#ifdef _MSC_VER
+-#pragma comment(lib, "Ws2_32.lib") 
+-# include <Winsock2.h>
++#if defined(_MSC_VER) || defined(__MINGW32__)
++#pragma comment(lib, "ws2_32.lib")
++# include <winsock2.h>
+ # include <process.h>
+ void sleep(int sec)
+ {
+@@ -1933,6 +1933,10 @@
+       if (i == mypid) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++        sprintf(buf, "Host: %s   PID: %d", "mingw32", getpid());
++#elif defined(_MSC_VER)
++        sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s   PID: %d (mpi task %d)", hostname, getpid(),mypid);
+diff -ruN trilinos-10.6.4/packages/ml/src/Utils/ml_utils.h trilinos-10.6.4-new/packages/ml/src/Utils/ml_utils.h
+--- trilinos-10.6.4/packages/ml/src/Utils/ml_utils.h	2011-03-23 09:50:26.000000000 -0600
++++ trilinos-10.6.4-new/packages/ml/src/Utils/ml_utils.h	2012-09-17 15:53:58.000000000 -0600
+@@ -21,7 +21,7 @@
+ #endif
+ #endif
+ 
+-#ifndef ICL
++#ifndef _WIN32
+ #include <unistd.h>
+ #endif
+ 
+diff -ruN trilinos-10.6.4/packages/PyTrilinos/src/Epetra.i trilinos-10.6.4-new/packages/PyTrilinos/src/Epetra.i
+--- trilinos-10.6.4/packages/PyTrilinos/src/Epetra.i	2011-03-23 09:50:39.000000000 -0600
++++ trilinos-10.6.4-new/packages/PyTrilinos/src/Epetra.i	2012-09-17 15:53:58.000000000 -0600
+@@ -87,6 +87,7 @@
+ %{
+ // System includes
+ #include <sstream>
++#include <cstddef>
+ 
+ // Configuration includes
+ #include "PyTrilinos_config.h"
+diff -ruN trilinos-10.6.4/packages/teuchos/src/Teuchos_Array.hpp trilinos-10.6.4-new/packages/teuchos/src/Teuchos_Array.hpp
+--- trilinos-10.6.4/packages/teuchos/src/Teuchos_Array.hpp	2011-03-23 09:50:56.000000000 -0600
++++ trilinos-10.6.4-new/packages/teuchos/src/Teuchos_Array.hpp	2012-09-17 15:53:58.000000000 -0600
+@@ -29,6 +29,7 @@
+ #ifndef TEUCHOS_ARRAY_H
+ #define TEUCHOS_ARRAY_H
+ 
++#include <cstddef>
+ /*! \file Teuchos_Array.hpp
+   \brief Templated array class derived from the STL std::vector
+ */
+diff -ruN trilinos-10.6.4/packages/teuchos/src/Teuchos_CommandLineProcessor.cpp trilinos-10.6.4-new/packages/teuchos/src/Teuchos_CommandLineProcessor.cpp
+--- trilinos-10.6.4/packages/teuchos/src/Teuchos_CommandLineProcessor.cpp	2011-03-23 09:50:56.000000000 -0600
++++ trilinos-10.6.4-new/packages/teuchos/src/Teuchos_CommandLineProcessor.cpp	2012-09-17 15:53:58.000000000 -0600
+@@ -29,6 +29,7 @@
+ // //////////////////////////////////////////////////
+ // Teuchos_CommandLineProcessor.cpp
+ 
++#include <cstddef>
+ #include "Teuchos_CommandLineProcessor.hpp"
+ #include "Teuchos_GlobalMPISession.hpp"
+ #include "Teuchos_VerboseObject.hpp"
+diff -ruN trilinos-10.6.4/packages/teuchos/src/Teuchos_CompObject.cpp trilinos-10.6.4-new/packages/teuchos/src/Teuchos_CompObject.cpp
+--- trilinos-10.6.4/packages/teuchos/src/Teuchos_CompObject.cpp	2011-03-23 09:50:56.000000000 -0600
++++ trilinos-10.6.4-new/packages/teuchos/src/Teuchos_CompObject.cpp	2012-09-17 15:53:58.000000000 -0600
+@@ -31,6 +31,7 @@
+ 
+ // Constructor
+ 
++#include <cstddef>
+ #include "Teuchos_CompObject.hpp"
+ 
+ namespace Teuchos
+diff -ruN trilinos-10.6.4/packages/teuchos/src/Teuchos_ConfigDefs.hpp trilinos-10.6.4-new/packages/teuchos/src/Teuchos_ConfigDefs.hpp
+--- trilinos-10.6.4/packages/teuchos/src/Teuchos_ConfigDefs.hpp	2011-03-23 09:50:56.000000000 -0600
++++ trilinos-10.6.4-new/packages/teuchos/src/Teuchos_ConfigDefs.hpp	2012-09-17 15:53:58.000000000 -0600
+@@ -62,6 +62,7 @@
+ 
+ #include <cstdio>
+ #include <cstdarg>
++#include <cstddef>
+ #include <cerrno>
+ #include <climits>
+ #include <cstdlib>
+diff -ruN trilinos-10.6.4/packages/teuchos/src/Teuchos_CTimeMonitor.cpp trilinos-10.6.4-new/packages/teuchos/src/Teuchos_CTimeMonitor.cpp
+--- trilinos-10.6.4/packages/teuchos/src/Teuchos_CTimeMonitor.cpp	2011-03-23 09:50:56.000000000 -0600
++++ trilinos-10.6.4-new/packages/teuchos/src/Teuchos_CTimeMonitor.cpp	2012-09-17 15:53:58.000000000 -0600
+@@ -26,6 +26,7 @@
+ // ***********************************************************************
+ // @HEADER
+ 
++#include <cstddef>
+ #include "Teuchos_CTimeMonitor.h"
+ #include "Teuchos_TimeMonitor.hpp"
+ #include "Teuchos_implicit_cast.hpp"
+diff -ruN trilinos-10.6.4/packages/teuchos/src/Teuchos_TestForException.hpp trilinos-10.6.4-new/packages/teuchos/src/Teuchos_TestForException.hpp
+--- trilinos-10.6.4/packages/teuchos/src/Teuchos_TestForException.hpp	2011-03-23 09:50:57.000000000 -0600
++++ trilinos-10.6.4-new/packages/teuchos/src/Teuchos_TestForException.hpp	2012-09-17 15:53:58.000000000 -0600
+@@ -29,6 +29,7 @@
+ #ifndef TEUCHOS_TEST_FOR_EXCEPTION_H
+ #define TEUCHOS_TEST_FOR_EXCEPTION_H
+ 
++#include <cstddef>
+ #include <Teuchos_TypeNameTraits.hpp>
+ 
+ /*! \file Teuchos_TestForException.hpp

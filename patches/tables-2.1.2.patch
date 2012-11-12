@@ -1,0 +1,13 @@
+diff -ruN ./setup.py ../tables-2.1.2-new/setup.py
+--- ./setup.py	2009-03-05 10:12:19.000000000 -0700
++++ ../tables-2.1.2-new/setup.py	2011-01-24 07:14:48.810596600 -0700
+@@ -234,8 +234,7 @@
+         'BZ2': ['bzip2', 'bzip2'], }
+     # Copy the next DLL's to binaries by default.
+     # Update these paths for your own system!
+-    dll_files = ['\\windows\\system\\zlib1.dll',
+-                 '\\windows\\system\\szlibdll.dll',
++    dll_files = ['\\winsame\\contrib-mingw\\zlib-1.2.5-ser\\bin\\zlib1.dll',
+                  ]
+     if '--debug' in sys.argv:
+         _platdep['HDF5'] = ['hdf5ddll', 'hdf5ddll']

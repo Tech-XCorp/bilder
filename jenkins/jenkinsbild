@@ -1,0 +1,332 @@
+#!/bin/bash
+#
+# $Id: jenkinsbild 6987 2012-11-11 16:28:52Z cary $
+#
+# Script run in bash.  Started by jenkinsbild.bat on cygwin.
+# One or other started by jenkins.
+#
+
+
+#
+# Method to print out general and script specific options
+#
+usage() {
+  cat >&2 <<EOF
+Usage: $0 [options] <bilder command basename>
+GENERAL OPTIONS
+  -E <env pairs> .... comma separated list of environment variables and values,
+                      e.g., FOO=f,BAR=b
+  -h ................ Print this and exit
+  -m ................ Use minggw on cygwin
+  -n ................ Do not add tests
+  -p ................ Print the command only.
+  -s <step> ......... Sets which build step: 1 = internal, 2 = volatile.
+  -2 ................ Sets build step to 2.
+  -f ................ Force build step 2 to execute independent of the
+                      results of step 1.
+EOF
+}
+
+#
+# Get startup parameters
+#
+args="$*"
+
+#
+# Extract options.
+#
+ADD_TESTS=true
+DEBUG=false
+EXTRA_ENV=
+USE_MINGW=false
+PRINT_ONLY=false
+FORCESTEP2=false
+STEP=1
+while getopts "d:E:hmnps:2f" arg; do
+  case "$arg" in
+    E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
+    h) usage; exit;;
+    m) USE_MINGW=true;;
+    n) ADD_TESTS=false;;
+    p) PRINT_ONLY=true;;
+    s) STEP=$OPTARG;;
+    2) STEP=2;;
+    f) FORCESTEP2=true;;
+  esac
+done
+shift $(($OPTIND - 1))
+# The remaining args are the scriptbase followed by any additional
+# args to it
+scriptbase=$1
+shift
+
+# Find execution directory
+defscript=${scriptbase}-default.sh
+if [[ $defscript =~ "^/" ]]; then
+  projdir=`dirname $defscript`
+else
+  projdir=`dirname $0`
+  projdir=`(cd $projdir/../..; pwd -P)`
+  cd $projdir
+  defscript=./$defscript
+fi
+
+lecho() {
+  echo "$1" >> ${projdir}/jenkinsbild.log
+  echo "  jenkinsbild: $1"
+}
+
+# Remove the log if first step
+case $STEP in
+  1) rm -f ${projdir}jenkinsbild.log;;
+esac
+
+# Beginning output
+lecho "======= Executing jenkinsBild ======="
+lecho "$0 started with arguments, $args, in ${projdir} at `date`."
+if declare -f module 1>/dev/null; then
+  lecho "This system has modules."
+fi
+
+#
+# Jenkins does not use a login shell, which we need to get modules.
+# So source any bashrc as needed.
+#
+srcbashrc=true
+if test `shopt | grep login_shell | sed 's/login_shell *//'` = on; then
+  lecho "This is a login shell."
+  if test -f $HOME/.bash_profile -o -f $HOME/.profile; then
+    srcbashrc=false
+  fi
+fi
+if $srcbashrc; then
+  cmd=
+  if test -f $HOME/.bashrc; then
+    cmd="source $HOME/.bashrc"
+    lecho "$cmd"
+  elif test -f /etc/bashrc; then
+    cmd="source /etc/bashrc"
+    lecho "$cmd"
+  fi
+  $cmd
+fi
+if test -d /contrib/bin; then
+  if ! echo $PATH | egrep -q "(^|:)/contrib/bin($|:)"; then
+    lecho "Prepending /contrib/bin to path."
+    PATH=/contrib/bin:"$PATH"
+  fi
+fi
+
+# Add possible environment variables
+lecho "Adding extra environment variables."
+if test -n "$EXTRA_ENV"; then
+  for i in `echo $EXTRA_ENV | tr ',' ' '`; do
+    cmd="export $i"
+    techo "$cmd"
+    $cmd
+  done
+fi
+
+# Determine the Jenkins file system root
+up3=`(cd ../../..; pwd -P)`
+if test `basename $up3` = workspace; then
+  JENKINS_FSROOT=`(cd ../../../..; pwd -P)`
+else
+  up1=`(cd ..; pwd -P)`
+  if test `basename $up1` = workspace; then
+    JENKINS_FSROOT=`(cd ../..; pwd -P)`
+  else
+    JENKINS_FSROOT="$JENKINS_HOME"
+  fi
+fi
+export JENKINS_FSROOT
+
+#
+# Make sure Windows svnversion is used, if found.
+#
+export BLDR_SVNVERSION
+if [[ `uname` =~ CYGWIN ]]; then
+# Convert some env vars
+  if ! test -z "$JENKINS_HOME";then
+    JENKINS_HOME=`cygpath -au $JENKINS_HOME`
+  fi
+  if ! test -z "$WORKSPACE";then
+    WORKSPACE=`cygpath -au $WORKSPACE`
+  fi
+# Subversion must be compatible with the svnkit used by jenkins, which is
+# Windows client, version 1.6.  Try a custom installation:
+  BLDR_SVNVERSION=
+  BILDER_SVN=
+  for cand in \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Server 1.6.17/svnversion.exe" \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Server/svnversion.exe" \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Client 1.6.17/svnversion.exe" \
+      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client 1.6.17/svnversion.exe" \
+      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client/svnversion.exe" \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Client/svnversion.exe"; do
+    if test -f "$cand"; then
+      BLDR_SVNVERSION="$cand"
+      break
+    fi
+  done
+  if test -z "$BLDR_SVNVERSION"; then
+    BLDR_SVNVERSION=`which svnversion`
+    if [[ $BLDR_SVNVERSION =~ /usr/bin ]]; then
+      lecho "Wrong svnversion.  Fix the path."
+      exit 1
+    fi
+  fi
+  lecho "BLDR_SVNVERSION='$BLDR_SVNVERSION' found."
+  BILDER_SVNDIR=`dirname "$BLDR_SVNVERSION"`
+  BILDER_SVN=$BILDER_SVNDIR/svn.exe
+  if ! test -e "$BILDER_SVN"; then
+     lecho "svn not found in $BILDER_SVNDIR.  Fix the path."
+	 exit 1
+  fi
+fi
+
+lecho "<<<< Recording Final Environment >>>>"
+lecho "   USER = $USER"
+lecho "   HOME = $HOME"
+lecho "   PATH = $PATH"
+lecho "   which svn = `which svn`"
+lecho "   BUILD_NUMBER = $BUILD_NUMBER"
+lecho "   BUILD_URL = $BUILD_URL"
+lecho "   JENKINS_HOME = $JENKINS_HOME"
+lecho "   WORKSPACE = $WORKSPACE"
+lecho "   JENKINS_FSROOT = $JENKINS_FSROOT"
+lecho "   JOB_NAME = $JOB_NAME"
+lecho "   JOB_URL = $JOB_URL"
+lecho "   BLDR_SVNVERSION = $BLDR_SVNVERSION"
+lecho "   BILDER_SVN = $BILDER_SVN"
+lecho "   BILDER_CONFDIR = $BILDER_CONFDIR"
+
+#
+# Additional options for mkall-default.sh.
+#
+addlopts=
+if $USE_MINGW; then
+  case `uname` in
+    CYGWIN*WOW64*)
+      addlopts="-m cygwin.mingw64"
+      ;;
+    CYGWIN*)
+      addlopts="-m cygwin.mingw32"
+      ;;
+  esac
+fi
+
+#
+# Put in separator if not present
+#
+defopts="$addlopts $*"
+if ! echo $defopts | grep -- -- 1>/dev/null 2>&1; then
+  defopts="$defopts --"
+fi
+
+# Use internal/volatile build directory naming 
+case $STEP in
+  1) defopts="-b builds-i $defopts"
+     ;;
+  2) defopts="-b builds-v $defopts"
+     ;;
+esac
+
+
+#
+# If using old internal/volatile projects, locate subject in another directory
+#
+jenkins_jobdir=`(cd $WORKSPACE/../..; pwd -P)`
+jenkins_subdir=`(cd $WORKSPACE; pwd -P | sed "s?^$jenkins_jobdir/??")`
+firstrunsubjfile=firstrunsubj.txt
+secondrunsubjfile=secondrunsubj.txt
+
+#
+# Set other options and invoke depending on step
+# 1: internal installation
+# 2: volatile installation
+#
+case $STEP in
+
+  1)
+# Always test on first run.
+    defopts="-Ci $defopts"
+    if $ADD_TESTS; then
+      defopts="-t $defopts"
+    fi
+# If wait period not specified, make it 7 days.
+    if ! echo " $defopts" | sed 's/^.*--//' | grep ' -w'; then
+      defopts="$defopts -w 7"
+    fi
+    ;;
+
+  2)
+    defopts="$defopts -2"
+    if test -f $firstrunsubjfile; then
+      thesubj=`cat $firstrunsubjfile`
+      lecho "Querying first run subject of '$thesubj'."
+# If first run successful, no need for second run
+      if grep -q SUCCESS $firstrunsubjfile; then
+        if $FORCESTEP2; then
+          lecho "First run reported SUCCESS. Executing step 2 due to -f."
+          ADD_TESTS=false
+        else
+          lecho "First run reported SUCCESS.  No need for second."
+          lecho "jenkinsbild completing with result 0."
+          exit 0
+        fi
+      else
+        lecho "First run did not report SUCCESS.  Will run a second time."
+      fi
+# If first run failed, no need to run tests again
+      if grep -q FAILED $firstrunsubjfile; then
+        lecho "First run FAILED.  Will not test during second run."
+        ADD_TESTS=false
+      fi
+    else
+      lecho "$firstrunsubjfile NOT found."
+    fi
+    defopts="-C $defopts"
+    if $ADD_TESTS; then
+      lecho "First run not present or inconclusive.  Will test during second run."
+      defopts="-t $defopts"
+    else
+      lecho "Tests disabled by choice or because first run passed."
+    fi
+    ;;
+
+esac
+cmd="${defscript} $defopts"
+if $PRINT_ONLY; then
+  lecho "Command is:"
+  lecho "$cmd"
+  lecho "jenkinsbild completing with result 0."
+  exit 0
+fi
+
+# Execute the command
+lecho "Executing $cmd in `pwd -P` at `date`."
+lecho "$cmd"
+eval "$cmd"
+res=$?
+
+# Reinterpret failure so that test failures do not count
+case $STEP in
+  1)
+    firstrunsubjfile=firstrunsubj.txt
+# Get non test part
+    if grep -q FAILED $firstrunsubjfile; then
+      lecho "Failures seen on first run."
+      nontest=`cat $firstrunsubjfile | sed -e 's/- Tests:.*$//' -e 's/^.*FAILED *//'`
+      if test -z "$nontest"; then
+        lecho "Only test failures seen on first run so returning success."
+        res=0
+      fi
+    fi
+    ;;
+esac
+
+#  Finish up.
+lecho "  jenkinsbild completing with result = $res."
+exit $res
+

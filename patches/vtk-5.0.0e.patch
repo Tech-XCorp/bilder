@@ -1,0 +1,108 @@
+diff -ruN ./CMakeLists.txt ../vtk-5.0.0d/CMakeLists.txt
+--- ./CMakeLists.txt	2009-11-13 15:57:53.000000000 -0700
++++ ../vtk-5.0.0d/CMakeLists.txt	2010-03-11 15:08:36.000000000 -0700
+@@ -302,11 +302,11 @@
+ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ 
+ IF(APPLE)
+-  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
+-  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
++  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-twolevel_namespace,-headerpad_max_install_names")
++  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-twolevel_namespace,-headerpad_max_install_names")
+   IF(CMAKE_COMPILER_IS_GNUCXX)
+-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -no-cpp-precomp")
+-    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -no-cpp-precomp")
++    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -fno-common -fexceptions")
++    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fno-common -fexceptions")
+     IF(VTK_USE_CARBON)
+       SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fpascal-strings")
+     ENDIF(VTK_USE_CARBON)
+diff -ruN ./Rendering/vtkImagingFactory.cxx ../vtk-5.0.0d/Rendering/vtkImagingFactory.cxx
+--- ./Rendering/vtkImagingFactory.cxx	2009-11-13 15:57:53.000000000 -0700
++++ ../vtk-5.0.0d/Rendering/vtkImagingFactory.cxx	2010-03-11 15:08:36.000000000 -0700
+@@ -202,14 +202,32 @@
+     {
+     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
+       {
++#if defined(VTK_USE_MANGLED_MESA)
++      if ( vtkImagingFactory::UseMesaClasses )
++        {
++        return vtkMesaFreeTypeTextMapper::New();
++        }
++#endif
+       return vtkOpenGLFreeTypeTextMapper::New();
+       }
+     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
+       {
++#if defined(VTK_USE_MANGLED_MESA)
++      if ( vtkImagingFactory::UseMesaClasses )
++        {
++        return vtkMesaImageMapper::New();
++        }
++#endif
+       return vtkOpenGLImageMapper::New();
+       }
+     if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
+       {
++#if defined(VTK_USE_MANGLED_MESA)
++      if ( vtkImagingFactory::UseMesaClasses )
++        {
++        return vtkMesaPolyDataMapper2D::New();
++        }
++#endif
+       return vtkOpenGLPolyDataMapper2D::New();
+       }
+     }
+diff -ruN ./Utilities/DICOMParser/DICOMAppHelper.cxx ../vtk-5.0.0d/Utilities/DICOMParser/DICOMAppHelper.cxx
+--- ./Utilities/DICOMParser/DICOMAppHelper.cxx	2009-11-13 15:57:54.000000000 -0700
++++ ../vtk-5.0.0d/Utilities/DICOMParser/DICOMAppHelper.cxx	2010-03-11 13:06:00.000000000 -0700
+@@ -31,7 +31,7 @@
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+-#include <string>
++#include <cstring>
+ #include <math.h>
+ #include <algorithm>
+ 
+diff -ruN ./Utilities/DICOMParser/DICOMFile.cxx ../vtk-5.0.0d/Utilities/DICOMParser/DICOMFile.cxx
+--- ./Utilities/DICOMParser/DICOMFile.cxx	2009-11-13 15:57:54.000000000 -0700
++++ ../vtk-5.0.0d/Utilities/DICOMParser/DICOMFile.cxx	2010-03-11 13:06:00.000000000 -0700
+@@ -23,7 +23,7 @@
+ #endif 
+ 
+ #include <stdio.h>
+-#include <string>
++#include <cstring>
+ 
+ #include "DICOMConfig.h"
+ #include "DICOMFile.h"
+diff -ruN ./Utilities/DICOMParser/DICOMParser.cxx ../vtk-5.0.0d/Utilities/DICOMParser/DICOMParser.cxx
+--- ./Utilities/DICOMParser/DICOMParser.cxx	2009-11-13 15:57:54.000000000 -0700
++++ ../vtk-5.0.0d/Utilities/DICOMParser/DICOMParser.cxx	2010-03-11 13:06:00.000000000 -0700
+@@ -36,7 +36,7 @@
+ #include <sys/types.h>
+ #endif
+ 
+-#include <string>
++#include <cstring>
+ #include <map>
+ 
+ #include "DICOMConfig.h"
+diff -ruN ./Utilities/ftgl/CMakeLists.txt ../vtk-5.0.0d/Utilities/ftgl/CMakeLists.txt
+--- ./Utilities/ftgl/CMakeLists.txt	2009-11-13 15:57:54.000000000 -0700
++++ ../vtk-5.0.0d/Utilities/ftgl/CMakeLists.txt	2010-03-11 15:08:36.000000000 -0700
+@@ -134,11 +134,11 @@
+ ENDIF(NOT OPENGL_FOUND)
+ SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${OPENGL_gl_LIBRARY}")
+ 
+-IF(WIN32)
++IF(APPLE OR WIN32)
+   IF (FTGL_SUPPORT_MANGLE_MESA)
+     SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${MANGLED_MESA_LIBRARY}")
+   ENDIF (FTGL_SUPPORT_MANGLE_MESA)
+-ENDIF(WIN32)
++ENDIF(APPLE OR WIN32)
+ 
+ #
+ # We obviously need FreeType

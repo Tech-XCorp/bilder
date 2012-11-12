@@ -1,0 +1,11 @@
+--- setupext.py	2009-08-01 13:15:24.000000000 -0600
++++ setupext.py.new	2009-08-30 11:52:10.000000000 -0600
+@@ -51,7 +51,7 @@
+     'linux'  : ['/usr/local', '/usr',],
+     'cygwin' : ['/usr/local', '/usr',],
+     'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
+-                '/usr', '/sw'],
++                '/usr', '/sw', '/usr/X11R6'],
+     'freebsd4' : ['/usr/local', '/usr'],
+     'freebsd5' : ['/usr/local', '/usr'],
+     'freebsd6' : ['/usr/local', '/usr'],

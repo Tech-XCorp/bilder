@@ -1,0 +1,28 @@
+diff -ruN ./fortran/test/tH5A_1_8.f90 ../hdf5-1.8.4-new/fortran/test/tH5A_1_8.f90
+--- ./fortran/test/tH5A_1_8.f90	2009-11-10 14:12:09.000000000 -0700
++++ ../hdf5-1.8.4-new/fortran/test/tH5A_1_8.f90	2011-01-08 08:15:48.000000000 -0700
+@@ -158,13 +158,13 @@
+ !!$              CALL test_attr_corder_transition(my_fcpl, my_fapl)
+ !!$              CALL test_attr_corder_delete(my_fcpl, my_fapl)
+            ret_total_error = 0
+-           CALL test_attr_info_by_idx(new_format, my_fcpl, my_fapl, ret_total_error)
++           CALL test_attr_info_by_idx(new_format(i), my_fcpl, my_fapl, ret_total_error)
+            CALL write_test_status(ret_total_error, &
+                 '   - Testing querying attribute info by index', &
+                 total_error)
+            
+            ret_total_error = 0
+-           CALL test_attr_delete_by_idx(new_format, my_fcpl, my_fapl, ret_total_error)
++           CALL test_attr_delete_by_idx(new_format(i), my_fcpl, my_fapl, ret_total_error)
+            CALL write_test_status(ret_total_error, &
+                 '   - Testing deleting attribute by index', &
+                 total_error)
+@@ -718,7 +718,7 @@
+            CALL check("h5aclose_f",error,total_error)
+ 
+            ! /* Verify information for NEW attribute */
+-           CALL attr_info_by_idx_check(my_dataset, attrname, INT(u,HSIZE_T), use_index, total_error)
++           CALL attr_info_by_idx_check(my_dataset, attrname, INT(u,HSIZE_T), use_index(i), total_error)
+          !   CALL check("FAILED IN attr_info_by_idx_check",total_error)
+         ENDDO
+ 

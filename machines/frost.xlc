@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+######################################################################
+# $Id: frost.xlc 6409 2012-07-20 11:35:59Z cary $
+#
+# Define variables.
+# Do not override existing definitions.
+# Put any comments between the first block starting with '# KEEP THIS'
+# and ending with '# END KEEP THIS'
+#
+######################################################################
+
+# KEEP THIS
+# These contents are not sourced or changed on a file update, but
+# they are sourced for an actual build.
+# cmd="mkdir -p /scratch/$USER/tmp"
+# techo "$cmd"
+# $cmd
+# cmd="export TMP=/scratch/$USER/tmp"
+# techo "$cmd"
+# $cmd
+
+USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
+USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
+
+# END KEEP THIS
+
+
+# Serial compilers
+CC=${CC:-"icc"}
+CXX=${CXX:-"icpc"}
+FC=${FC:-"ifort"}
+F77=${F77:-"ifort"}
+
+# GCC compilers:
+GCC_CC=${GCC_CC:-"icc"}
+GCC_CXX=${GCC_CXX:-"icpc"}
+GCC_FC=${GCC_FC:-"ifort"}
+GCC_F77=${GCC_F77:-"ifort"}
+
+
+# Parallel compilers:
+MPICC=${MPICC:-"icc"}
+MPICXX=${MPICXX:-"icpc"}
+MPIFC=${MPIFC:-"ifort"}
+MPIF77=${MPIF77:-"ifort"}
+
+
+#
+# Compilation flags:
+#
+
+# Serial
+CFLAGS="-fPIC -O2 -mkl"
+CXXFLAGS="-fPIC -O2 -mkl"
+#FCFLAGS=${FCFLAGS:-""}
+#FFLAGS=${FFLAGS:-""}
+
+# Parallel
+MPI_CFLAGS=${MPI_CFLAGS:-"-lmpi -mkl"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-lmpi -mkl"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-lmpi -mkl"}
+MPI_FFLAGS=${MPI_FFLAGS:-"-lmpi -mkl"}
+
+# HDF5 directories:
+HDF5_BUILDS=${HDF5_BUILDS:-"ser,par"}
+# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_TOOLS:BOOL=OFF  -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
+HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_TOOLS:BOOL=OFF  -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
+
+# FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"} # need this?
+FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}         # need this?
+FFTW_PAR_OTHER_ARGS=${FFTW_PAR_OTHER_ARGS:-"--disable-fortran --enable-mpi"}
+FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-fortran --disable-mpi"}
+
+TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,par"}
+#TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DCXX_COMP_LIB_SUBDIR=icpc11"}
+#TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-"-DCXX_COMP_LIB_SUBDIR=icpc11"}
+
+PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+
+POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
+#POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DCXX_VERSION=11.1 -DCXX_COMP_LIB_SUBDIR=icpc11"}
+#POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DCXX_VERSION=11.1 -DCXX_COMP_LIB_SUBDIR=icpc11"}
+
+
+# Old settings
+# POLYSWIFT_BLDRVERSION=${POLYSWIFT_BLDRVERSION:-""}
+# "-DPYTHON_INCLUDE_DIRS:PATH=/bgsys/drivers/ppcfloor/gnu-linux/include/python2.6 -DPYTHON_LIBRARIES:FILEPATH=/bgsys/drivers/ppcfloor/gnu-linux/lib/libpython2.6.so -DZ_DIR:PATH=/sw/bgp/zlib/1.2.3/sles10.1_xlc9.0 -DSZ_DIR:PATH=/sw/bgp/szip/2.1/cnk1.2_bgxlc9.0 -DCMAKE_EXE_LINKER_FLAGS=-qnostaticlink"}
+#-DMPI_COMPILER=icpc -DMPI_INCLUDE_PATH=/sw/frost/mpt/1.25/rhel5.3_binary_a/include -DMPI_CXX_LIBRARIES='/sw/frost/mpt/1.25/rhel5.3_binary_a/lib/libmpi++.so;/sw/frost/mpt/1.25/rhel5.3_binary_a/lib/libmpi.so' -DMPI_C_LIBRARIES=/sw/frost/mpt/1.25/rhel5.3_binary_a/lib/libmpi.so -DCMAKE_C_COMPILER:FILEPATH=icc -DCMAKE_CXX_COMPILER:FILEPATH=icpc -DCMAKE_Fortran_COMPILER:FILEPATH=ifort"}

@@ -1,0 +1,136 @@
+diff -ruN mesa-7.5/configs/autoconf.in mesa-7.5-new/configs/autoconf.in
+--- mesa-7.5/configs/autoconf.in	2009-06-26 12:21:59.000000000 -0600
++++ mesa-7.5-new/configs/autoconf.in	2010-03-12 04:44:43.000000000 -0700
+@@ -37,8 +37,8 @@
+ PYTHON_FLAGS = -t -O -O
+ 
+ # Library names (base name)
+-GL_LIB = GL
+-GLU_LIB = GLU
++GL_LIB=MesaGL
++GLU_LIB=MesaGLU
+ GLUT_LIB = glut
+ GLW_LIB = GLw
+ OSMESA_LIB = @OSMESA_LIB@
+diff -ruN src/glu/sgi/glu.exports.darwin mesa-7.5-new/src/glu/sgi/glu.exports.darwin
+--- mesa-7.5/src/glu/sgi/glu.exports.darwin	2009-06-11 10:46:24.000000000 -0600
++++ mesa-7.5-new/src/glu/sgi/glu.exports.darwin	2010-03-12 04:46:38.000000000 -0700
+@@ -1,59 +1,59 @@
+-_*gluBeginCurve
+-_*gluBeginPolygon
+-_*gluBeginSurface
+-_*gluBeginTrim
+-_*gluBuild1DMipmapLevels
+-_*gluBuild1DMipmaps
+-_*gluBuild2DMipmapLevels
+-_*gluBuild2DMipmaps
+-_*gluBuild3DMipmapLevels
+-_*gluBuild3DMipmaps
+-_*gluCheckExtension
+-_*gluCylinder
+-_*gluDeleteNurbsRenderer
+-_*gluDeleteQuadric
+-_*gluDeleteTess
+-_*gluDisk
+-_*gluEndCurve
+-_*gluEndPolygon
+-_*gluEndSurface
+-_*gluEndTrim
+-_*gluErrorString
+-_*gluGetNurbsProperty
+-_*gluGetString
+-_*gluGetTessProperty
+-_*gluLoadSamplingMatrices
+-_*gluLookAt
+-_*gluNewNurbsRenderer
+-_*gluNewQuadric
+-_*gluNewTess
+-_*gluNextContour
+-_*gluNurbsCallback
+-_*gluNurbsCallbackData
+-_*gluNurbsCallbackDataEXT
+-_*gluNurbsCurve
+-_*gluNurbsProperty
+-_*gluNurbsSurface
+-_*gluOrtho2D
+-_*gluPartialDisk
+-_*gluPerspective
+-_*gluPickMatrix
+-_*gluProject
+-_*gluPwlCurve
+-_*gluQuadricCallback
+-_*gluQuadricDrawStyle
+-_*gluQuadricNormals
+-_*gluQuadricOrientation
+-_*gluQuadricTexture
+-_*gluScaleImage
+-_*gluSphere
+-_*gluTessBeginContour
+-_*gluTessBeginPolygon
+-_*gluTessCallback
+-_*gluTessEndContour
+-_*gluTessEndPolygon
+-_*gluTessNormal
+-_*gluTessProperty
+-_*gluTessVertex
+-_*gluUnProject
+-_*gluUnProject4
++_mgluBeginCurve
++_mgluBeginPolygon
++_mgluBeginSurface
++_mgluBeginTrim
++_mgluBuild1DMipmapLevels
++_mgluBuild1DMipmaps
++_mgluBuild2DMipmapLevels
++_mgluBuild2DMipmaps
++_mgluBuild3DMipmapLevels
++_mgluBuild3DMipmaps
++_mgluCheckExtension
++_mgluCylinder
++_mgluDeleteNurbsRenderer
++_mgluDeleteQuadric
++_mgluDeleteTess
++_mgluDisk
++_mgluEndCurve
++_mgluEndPolygon
++_mgluEndSurface
++_mgluEndTrim
++_mgluErrorString
++_mgluGetNurbsProperty
++_mgluGetString
++_mgluGetTessProperty
++_mgluLoadSamplingMatrices
++_mgluLookAt
++_mgluNewNurbsRenderer
++_mgluNewQuadric
++_mgluNewTess
++_mgluNextContour
++_mgluNurbsCallback
++_mgluNurbsCallbackData
++_mgluNurbsCallbackDataEXT
++_mgluNurbsCurve
++_mgluNurbsProperty
++_mgluNurbsSurface
++_mgluOrtho2D
++_mgluPartialDisk
++_mgluPerspective
++_mgluPickMatrix
++_mgluProject
++_mgluPwlCurve
++_mgluQuadricCallback
++_mgluQuadricDrawStyle
++_mgluQuadricNormals
++_mgluQuadricOrientation
++_mgluQuadricTexture
++_mgluScaleImage
++_mgluSphere
++_mgluTessBeginContour
++_mgluTessBeginPolygon
++_mgluTessCallback
++_mgluTessEndContour
++_mgluTessEndPolygon
++_mgluTessNormal
++_mgluTessProperty
++_mgluTessVertex
++_mgluUnProject
++_mgluUnProject4

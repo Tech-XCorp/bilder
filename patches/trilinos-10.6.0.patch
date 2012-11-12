@@ -1,0 +1,53 @@
+diff -ruN ./packages/epetra/src/Epetra_ConfigDefs.h ../trilinos-10.6.0-new/packages/epetra/src/Epetra_ConfigDefs.h
+--- ./packages/epetra/src/Epetra_ConfigDefs.h	2010-09-29 17:37:34.000000000 -0500
++++ ../trilinos-10.6.0-new/packages/epetra/src/Epetra_ConfigDefs.h	2010-10-13 04:29:37.143652046 -0500
+@@ -138,7 +138,7 @@
+ using std::fabs;
+ using std::atoi;
+ using std::atof;
+-using std::abs;
++// using std::abs;
+ using std::pow;
+ using std::sqrt;
+ using std::asin;
+diff -ruN ./packages/tpetra/inout/Tpetra_MatrixIO.cpp ../trilinos-10.6.0-new/packages/tpetra/inout/Tpetra_MatrixIO.cpp
+--- ./packages/tpetra/inout/Tpetra_MatrixIO.cpp	2010-09-29 17:38:32.000000000 -0500
++++ ../trilinos-10.6.0-new/packages/tpetra/inout/Tpetra_MatrixIO.cpp	2010-10-13 04:37:52.170664433 -0500
+@@ -210,15 +210,15 @@
+         char *linePtr = lineBuf;
+         for (int ind=0; ind < indsPerLine; ++ind) {
+           if (indicesRead == numNZ) break;
+-          int ind;
++          int iind;
+           // terminate the string at the end of the current ind block, saving the character in that location
+           std::swap(NullSub,linePtr[indWidth]);
+           // read the ind
+-          std::sscanf(linePtr, "%d", &ind);
++          std::sscanf(linePtr, "%d", &iind);
+           // put the saved character back, and put the '\0' back into NullSub for use again
+           std::swap(NullSub,linePtr[indWidth]);
+           linePtr += indWidth;
+-          rowInds[indicesRead++] = ind;
++          rowInds[indicesRead++] = iind;
+         }
+       }
+       TEST_FOR_EXCEPT(indicesRead != numNZ);
+@@ -245,15 +245,15 @@
+         char *linePtr = lineBuf;
+         for (int val=0; val < valsPerLine; ++val) {
+           if (valsRead == totalNumVals) break;
+-          double val;
++          double dval;
+           // terminate the string at the end of the current val block, saving the character in that location
+           std::swap(NullSub,linePtr[valWidth]);
+           // read the val
+-          std::sscanf(linePtr, "%le", &val);
++          std::sscanf(linePtr, "%le", &dval);
+           // put the saved character back, and put the '\0' back into NullSub for use again
+           std::swap(NullSub,linePtr[valWidth]);
+           linePtr += valWidth;
+-          vals[valsRead++] = val;
++          vals[valsRead++] = dval;
+         }
+       }
+       TEST_FOR_EXCEPT(valsRead != totalNumVals);

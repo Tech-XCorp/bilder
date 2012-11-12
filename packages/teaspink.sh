@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# Version and build information for teaspink
+#
+# $Id: teaspink.sh 6515 2012-08-08 23:38:59Z dabell $
+#
+######################################################################
+
+######################################################################
+#
+# Version
+#
+######################################################################
+
+# Built from repo.
+
+######################################################################
+#
+# Other values
+#
+######################################################################
+
+if test -z "$TEASPINK_BUILDS"; then
+  TEASPINK_BUILDS=ser
+fi
+
+# Deps include autotools for configuring packages
+TEASPINK_DEPS=gsl,fftw,libxml2,pcre,gperf,xercesc,muparser,autotools,cmake
+
+######################################################################
+#
+# Launch teaspink builds.
+#
+######################################################################
+
+buildTeaspink() {
+
+# Check for svn version or package
+  if test -d $PROJECT_DIR/teaspink; then
+    getVersion teaspink
+    bilderPreconfig -c teaspink
+    res=$?
+  else
+    bilderUnpack teaspink
+    res=$?
+  fi
+  TEASPINK_MAKE_ARGS="$JMAKEARGS"
+
+# Regular build
+  if test $res = 0; then
+# Do quotes around compilers cause problems with cygwin.vs9?
+    if bilderConfig -c teaspink ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_SER_OTHER_ARGS"; then
+      bilderBuild teaspink ser "$TEASPINK_MAKE_ARGS"
+    fi
+  fi
+}
+
+######################################################################
+#
+# Test teaspink
+#
+######################################################################
+
+testTeaspink() {
+  bilderRunTests teaspink TsTests
+}
+
+######################################################################
+#
+# Install teaspink
+#
+######################################################################
+
+installTeaspink() {
+  bilderInstallTestedPkg -r -p open teaspink TsTests
+}
+

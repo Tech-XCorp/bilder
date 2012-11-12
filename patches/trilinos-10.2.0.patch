@@ -1,0 +1,100 @@
+diff -ruN trilinos-10.2.0/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10.2.0-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+--- trilinos-10.2.0/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2010-04-01 10:13:57.000000000 -0600
++++ trilinos-10.2.0-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2011-02-15 15:23:06.423987300 -0700
+@@ -13,7 +13,7 @@
+ #endif
+ #include "MLAPI_Error.h"
+ #include "MLAPI_Workspace.h"
+-#ifdef _MSC_VER
++#if defined(_MSC_VER)
+ #include "winprocess.h"
+ #endif
+ 
+@@ -112,6 +112,11 @@
+       if (i == GetMyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++// getpid not on all mingw
++        sprintf(buf, "Host: %s   PID: %d", "mingw32", 0);
++#elif defined(_MSC_VER)
++        sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s\tMyPID(): %d\tPID: %d",
+@@ -119,7 +124,10 @@
+ #endif
+         printf("%s\n",buf);
+         fflush(stdout);
++#if ! defined(__MINGW32__)
++// winprocess.h not being generated for mingw32
+         sleep(1);
++#endif
+       }
+     }
+     if (GetMyPID() == 0) {
+diff -ruN trilinos-10.2.0/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10.2.0-new/packages/ml/src/Utils/ml_epetra_utils.cpp
+--- trilinos-10.2.0/packages/ml/src/Utils/ml_epetra_utils.cpp	2010-04-01 10:13:57.000000000 -0600
++++ trilinos-10.2.0-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2011-02-15 14:45:05.084336500 -0700
+@@ -3459,6 +3459,11 @@
+       if (i == Comm.MyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+     sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++// getpid not present for mingw
++    sprintf(buf, "Host: %s   PID: %d", "mingw32", 0);
++#elif defined(_MSC_VER)
++    sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+     gethostname(hostname, sizeof(hostname));
+     int pid = getpid();
+@@ -3467,7 +3472,10 @@
+ #endif
+     printf("%s\n",buf);
+     fflush(stdout);
++#if ! defined(__MINGW32__)
++// winprocess.h not being generated for mingw32
+     sleep(1);
++#endif
+       }
+     }
+      if(Comm.MyPID() == 0) {
+diff -ruN trilinos-10.2.0/packages/ml/src/Utils/ml_utils.c trilinos-10.2.0-new/packages/ml/src/Utils/ml_utils.c
+--- trilinos-10.2.0/packages/ml/src/Utils/ml_utils.c	2010-04-01 10:13:57.000000000 -0600
++++ trilinos-10.2.0-new/packages/ml/src/Utils/ml_utils.c	2011-02-15 14:41:52.251275100 -0700
+@@ -24,9 +24,9 @@
+ #include "ml_lapack.h"
+ #include <time.h>
+ #include "ml_viz_stats.h"
+-#ifdef _MSC_VER
+-#pragma comment(lib, "Ws2_32.lib") 
+-# include <Winsock2.h>
++#if defined(_MSC_VER) || defined(__MINGW32__)
++#pragma comment(lib, "ws2_32.lib")
++# include <winsock2.h>
+ # include <process.h>
+ void sleep(int sec)
+ {
+@@ -1933,6 +1933,10 @@
+       if (i == mypid) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++        sprintf(buf, "Host: %s   PID: %d", "mingw32", getpid());
++#elif defined(_MSC_VER)
++        sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s   PID: %d (mpi task %d)", hostname, getpid(),mypid);
+diff -ruN trilinos-10.2.0/packages/ml/src/Utils/ml_utils.h trilinos-10.2.0-new/packages/ml/src/Utils/ml_utils.h
+--- trilinos-10.2.0/packages/ml/src/Utils/ml_utils.h	2010-04-01 10:13:57.000000000 -0600
++++ trilinos-10.2.0-new/packages/ml/src/Utils/ml_utils.h	2011-02-15 14:41:52.907541900 -0700
+@@ -21,7 +21,7 @@
+ #endif
+ #endif
+ 
+-#ifndef ICL
++#ifndef _WIN32
+ #include <unistd.h>
+ #endif
+ 

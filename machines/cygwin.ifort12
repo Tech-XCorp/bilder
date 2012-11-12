@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# $Id: cygwin.ifort12 6870 2012-10-22 22:00:51Z jhurani $
+#
+# Modify the environment so that ifort can run from command line
+# and compile.  Linking requires link.exe which can be provided
+# by adding visual studio directory with link.exe to path.
+#
+######################################################################
+
+IS_64_BIT=false
+
+case `uname` in
+  CYGWIN*64)
+    IS_64_BIT=true
+    programfiles='Program Files (x86)'
+    ifortarch=intel64
+    ;;
+  CYGWIN*)
+    programfiles='Program Files'
+    ifortarch=ia32
+    ;;
+esac
+
+# Note that INCLUDE and LIB must be "Windows-like" env variables
+# and PATH must be "Cygwin-like"
+
+# Candidate directories
+
+INTEL_FORTRAN_ROOT_1="C:\\$programfiles\\Intel\\ComposerXE-2011"
+INTEL_FORTRAN_ROOT_1_CYG="`cygpath -u \"$INTEL_FORTRAN_ROOT_1\"`"
+
+INTEL_FORTRAN_ROOT_2="C:\\$programfiles\\Intel\\Composer XE 2011 SP1"
+INTEL_FORTRAN_ROOT_2_CYG="`cygpath -u \"$INTEL_FORTRAN_ROOT_2\"`"
+
+# See which one is found
+INTEL_FORTRAN_INSTALL_FOUND=0
+
+if test -d "$INTEL_FORTRAN_ROOT_1_CYG"; then
+  INTEL_FORTRAN_ROOT="$INTEL_FORTRAN_ROOT_1"
+  INTEL_FORTRAN_ROOT_CYG="$INTEL_FORTRAN_ROOT_1_CYG"
+  INTEL_FORTRAN_INSTALL_FOUND=1
+elif test -d "$INTEL_FORTRAN_ROOT_2_CYG"; then
+  INTEL_FORTRAN_ROOT="$INTEL_FORTRAN_ROOT_2"
+  INTEL_FORTRAN_ROOT_CYG="$INTEL_FORTRAN_ROOT_2_CYG"
+  INTEL_FORTRAN_INSTALL_FOUND=1
+else
+  INTEL_FORTRAN_INSTALL_FOUND=0
+fi
+
+if [[ $INTEL_FORTRAN_INSTALL_FOUND -eq 1 ]]; then
+
+  export F77=ifort
+  export FC=ifort
+
+  # Keep INCLUDE and LIB before Intel ones so that the Visual Studio C and C++
+  # compiler does not pick up Intel's files
+
+  export INCLUDE="$INCLUDE;$INTEL_FORTRAN_ROOT\\compiler\\include;$INTEL_FORTRAN_ROOT\\compiler\\include\\$ifortarch;$INTEL_FORTRAN_ROOT\\mkl\\include"
+  export LIB="$LIB;$INTEL_FORTRAN_ROOT\\compiler\\lib;$INTEL_FORTRAN_ROOT\\compiler\\lib\\$ifortarch;$INTEL_FORTRAN_ROOT\\mkl\\lib\\$ifortarch"
+  export PATH="$PATH:$INTEL_FORTRAN_ROOT_CYG/bin/$ifortarch:$INTEL_FORTRAN_ROOT_CYG/redist/$ifortarch/compiler:$INTEL_FORTRAN_ROOT_CYG/redist/$ifortarch/mkl"
+
+fi
+

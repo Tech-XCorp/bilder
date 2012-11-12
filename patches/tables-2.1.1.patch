@@ -1,0 +1,39 @@
+diff -ruN ./tables/numexpr/interpreter.c ../tables-2.1.1.1/tables/numexpr/interpreter.c
+--- ./tables/numexpr/interpreter.c	2009-01-23 09:41:54.000000000 -0700
++++ ../tables-2.1.1.1/tables/numexpr/interpreter.c	2009-07-21 11:55:18.000000000 -0600
+@@ -1016,7 +1016,7 @@
+     struct index_data *index_data;
+ };
+ 
+-static inline unsigned int
++static unsigned int
+ flat_index(struct index_data *id, unsigned int j) {
+     int i, k = id->count - 1;
+     unsigned int findex = id->findex;
+@@ -1072,7 +1072,7 @@
+     return 0;
+ }
+ 
+-static inline int
++static int
+ vm_engine_1(int start, int blen, struct vm_params params, int *pc_error)
+ {
+     unsigned int index;
+@@ -1084,7 +1084,7 @@
+     return 0;
+ }
+ 
+-static inline int
++static int
+ vm_engine_2(int start, int blen, struct vm_params params, int *pc_error)
+ {
+     unsigned int index;
+@@ -1096,7 +1096,7 @@
+     return 0;
+ }
+ 
+-static inline int
++static int
+ vm_engine_rest(int start, int blen, struct vm_params params, int *pc_error)
+ {
+     unsigned int index = start;

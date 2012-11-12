@@ -1,0 +1,165 @@
+diff -ruN ./Makefile ../lapack-3.2.1-new/Makefile
+--- ./Makefile	2008-11-07 10:20:55.000000000 -0700
++++ ../lapack-3.2.1-new/Makefile	2010-02-18 11:19:05.000000000 -0700
+@@ -6,17 +6,23 @@
+ 
+ include make.inc
+ 
+-all: lapack_install lib lapack_testing blas_testing
++all: blaslib lapack_install lib lapack_testing blas_testing
+ 
+ lib: lapacklib tmglib
+-#lib: blaslib variants lapacklib tmglib
+ 
+-clean: cleanlib cleantesting cleanblas_testing 
++clean: cleanlib cleantesting cleanblas_testing
+ 
+ lapack_install:
+ 	( cd INSTALL; $(MAKE); ./testlsame; ./testslamch; \
+ 	  ./testdlamch; ./testsecond; ./testdsecnd; ./testversion )
+ 
++install:
++	for i in libblas.a liblapack.a; do \
++	  mkdir -p $(PREFIX)/lib; \
++	  /usr/bin/install -m 664 $$i $(PREFIX)/lib/$$i; \
++	done
++	# OS X does not have -D for install
++
+ blaslib:
+ 	( cd BLAS/SRC; $(MAKE) )
+ 
+@@ -25,7 +31,7 @@
+ 
+ variants:
+ 	( cd SRC/VARIANTS ; $(MAKE))
+-	
++
+ tmglib:
+ 	( cd TESTING/MATGEN; $(MAKE) )
+ 
+@@ -45,13 +51,13 @@
+ 	mv stest.out stest_lurec.out ; mv dtest.out dtest_lurec.out ; mv ctest.out ctest_lurec.out ; mv ztest.out ztest_lurec.out )
+ 	( cd TESTING ;  rm -f xlintst* ; $(MAKE)  LAPACKLIB='SRC/VARIANTS/LIB/qrll.a ../../$(LAPACKLIB)' ; \
+ 	mv stest.out stest_qrll.out ; mv dtest.out dtest_qrll.out ; mv ctest.out ctest_qrll.out ; mv ztest.out ztest_qrll.out )
+-		
++
+ blas_testing:
+ 	( cd BLAS/TESTING; $(MAKE) -f Makeblat1 )
+ 	( cd BLAS; ./xblat1s > sblat1.out    ; \
+ 	           ./xblat1d > dblat1.out    ; \
+ 	           ./xblat1c > cblat1.out    ; \
+-	           ./xblat1z > zblat1.out    ) 
++	           ./xblat1z > zblat1.out    )
+ 	( cd BLAS/TESTING; $(MAKE) -f Makeblat2 )
+ 	( cd BLAS; ./xblat2s < sblat2.in     ; \
+ 	           ./xblat2d < dblat2.in     ; \
+@@ -61,7 +67,7 @@
+ 	( cd BLAS; ./xblat3s < sblat3.in     ; \
+ 	           ./xblat3d < dblat3.in     ; \
+ 	           ./xblat3c < cblat3.in     ; \
+-	           ./xblat3z < zblat3.in     ) 
++	           ./xblat3z < zblat3.in     )
+ 
+ cleanlib:
+ 	( cd INSTALL; $(MAKE) clean )
+@@ -70,7 +76,7 @@
+ 	( cd SRC/VARIANTS; $(MAKE) clean )
+ 	( cd TESTING/MATGEN; $(MAKE) clean )
+ 
+-cleanblas_testing:	
++cleanblas_testing:
+ 	( cd BLAS/TESTING; $(MAKE) -f Makeblat1 clean )
+ 	( cd BLAS/TESTING; $(MAKE) -f Makeblat2 clean )
+ 	( cd BLAS/TESTING; $(MAKE) -f Makeblat3 clean )
+@@ -81,6 +87,6 @@
+ 	( cd TESTING/EIG; $(MAKE) clean )
+ 	( cd TESTING; rm -f xlin* xeig* )
+ 
+-cleanall: cleanlib cleanblas_testing cleantesting 
++cleanall: cleanlib cleanblas_testing cleantesting
+ 	rm -f *.a TESTING/*.out INSTALL/test*  BLAS/*.out
+ 
+diff -ruN ./make.inc ../lapack-3.2.1-new/make.inc
+--- ./make.inc	1969-12-31 17:00:00.000000000 -0700
++++ ../lapack-3.2.1-new/make.inc	2010-02-18 11:18:43.000000000 -0700
+@@ -0,0 +1,80 @@
++# -*- Makefile -*-
++####################################################################
++#  LAPACK make include file.                                       #
++#  LAPACK, Version 3.2.1                                           #
++#  April 2009                                                      #
++####################################################################
++#
++# See the INSTALL/ directory for more examples.
++#
++SHELL = /bin/sh
++#
++#  The machine (platform) identifier to append to the library names
++#
++PLAT = _LINUX
++#
++# Installation prefix
++PREFIX = /usr/local
++#
++#  Modify the FORTRAN and OPTS definitions to refer to the
++#  compiler and desired compiler options for your machine.  NOOPT
++#  refers to the compiler options desired when NO OPTIMIZATION is
++#  selected.  Define LOADER and LOADOPTS to refer to the loader
++#  and desired load options for your machine.
++#
++PIC_FLAG = -fPIC
++ifeq ($(F77),xlf_r)
++  PIC_FLAG = -q64
++endif
++ifeq ($(F77),xlf)
++  PIC_FLAG = -q64
++endif
++FORTRAN  = $(F77) -g
++OPTS     = -O2 $(PIC_FLAG)
++DRVOPTS  = $(OPTS)
++NOOPT    = $(OPTS)
++LOADER   = $(F77) -g
++LOADOPTS =
++#
++# Timer for the SECOND and DSECND routines
++#
++# Default : SECOND and DSECND will use a call to the EXTERNAL FUNCTION ETIME
++# TIMER    = EXT_ETIME
++# For RS6K : SECOND and DSECND will use a call to the EXTERNAL FUNCTION ETIME_
++# TIMER    = EXT_ETIME_
++# For gfortran compiler: SECOND and DSECND will use a call to the INTERNAL FUNCTION ETIME
++# TIMER    = INT_ETIME
++# If your Fortran compiler does not provide etime (like Nag Fortran Compiler, etc...)
++# SECOND and DSECND will use a call to the Fortran standard INTERNAL FUNCTION CPU_TIME 
++TIMER    = INT_CPU_TIME
++# If neither of this works...you can use the NONE value... In that case, SECOND and DSECND will always return 0
++# TIMER     = NONE
++#
++#  The archiver and the flag(s) to use when building archive (library)
++#  If you system has no ranlib, set RANLIB = echo.
++#
++ARCH     = ar
++ARCHFLAGS= cr
++RANLIB   = ranlib
++#
++#  The location of BLAS library for linking the testing programs.
++#  The target's machine-specific, optimized BLAS library should be
++#  used whenever possible.
++#
++BLASLIB      = ../../libblas.a
++#
++#  Location of the extended-precision BLAS (XBLAS) Fortran library
++#  used for building and testing extended-precision routines.  The
++#  relevant routines will be compiled and XBLAS will be linked only if
++#  USEXBLAS is defined.
++#
++# USEXBLAS    = Yes
++XBLASLIB     =
++# XBLASLIB    = -lxblas
++#
++#  Names of generated libraries.
++#
++LAPACKLIB    = liblapack.a
++TMGLIB       = tmglib$(PLAT).a
++EIGSRCLIB    = eigsrc$(PLAT).a
++LINSRCLIB    = linsrc$(PLAT).a

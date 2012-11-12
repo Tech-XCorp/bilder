@@ -1,0 +1,12 @@
+diff -ruN openmpi-1.6.1/configure openmpi-1.6.1-new/configure
+--- openmpi-1.6.1/configure	2012-08-22 08:27:32.000000000 -0600
++++ openmpi-1.6.1-new/configure	2012-09-05 13:44:32.000000000 -0600
+@@ -154636,7 +154636,7 @@
+ 
+ case $host_os in
+   darwin*)
+-    lock_old_archive_extraction=yes ;;
++    lock_old_archive_extraction=no ;;
+   *)
+     lock_old_archive_extraction=no ;;
+ esac

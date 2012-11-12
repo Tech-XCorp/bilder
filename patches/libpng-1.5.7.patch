@@ -1,0 +1,53 @@
+diff -ruN libpng-1.5.7/CMakeLists.txt libpng-1.5.7-new/CMakeLists.txt
+--- libpng-1.5.7/CMakeLists.txt	2011-12-15 08:45:32.000000000 -0700
++++ libpng-1.5.7-new/CMakeLists.txt	2012-04-09 17:25:29.544769400 -0600
+@@ -264,13 +264,13 @@
+         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+     # Create a symlink for libpng.dll.a => libpng15.dll.a on Cygwin
+-    if(CYGWIN OR MINGW)
++    if(CYGWIN)
+        get_target_property(BUILD_TARGET_LOCATION ${PNG_LIB_NAME} LOCATION_${CMAKE_BUILD_TYPE})
+        get_filename_component(BUILD_TARGET_FILE ${BUILD_TARGET_LOCATION} NAME)
+        CREATE_SYMLINK(${BUILD_TARGET_FILE} libpng${CMAKE_IMPORT_LIBRARY_SUFFIX})
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng${CMAKE_IMPORT_LIBRARY_SUFFIX}
+          DESTINATION ${CMAKE_INSTALL_LIBDIR})
+-    endif(CYGWIN OR MINGW)
++    endif()
+ 
+     if(NOT WIN32)
+       get_target_property(BUILD_TARGET_LOCATION ${PNG_LIB_NAME} LOCATION_${CMAKE_BUILD_TYPE})
+@@ -300,11 +300,12 @@
+   install(FILES ${libpng_public_hdrs}   DESTINATION include)
+   install(FILES ${libpng_public_hdrs}   DESTINATION include/${PNGLIB_NAME})
+ endif()
+-if(NOT SKIP_INSTALL_EXECUTABLES AND NOT SKIP_INSTALL_ALL )
+-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/libpng-config DESTINATION bin)
+-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${PNGLIB_NAME}-config
+-          DESTINATION bin)
+-endif()
++# These are below
++# if(NOT SKIP_INSTALL_EXECUTABLES AND NOT SKIP_INSTALL_ALL )
++#   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/libpng-config DESTINATION bin)
++#   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${PNGLIB_NAME}-config
++#           DESTINATION bin)
++# endif()
+ if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+   # Install man pages
+   if(NOT PNG_MAN_DIR)
+@@ -313,6 +314,7 @@
+   install(FILES libpng.3 libpngpf.3      DESTINATION ${PNG_MAN_DIR}/man3)
+   install(FILES png.5                    DESTINATION ${PNG_MAN_DIR}/man5)
+   # Install pkg-config files
++  if(NOT WIN32)
+   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng.pc
+           DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/libpng-config
+@@ -321,6 +323,7 @@
+           DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${PNGLIB_NAME}-config
+           DESTINATION bin)
++  endif()
+ endif()
+ 
+ # On versions of CMake that support it, create an export file CMake

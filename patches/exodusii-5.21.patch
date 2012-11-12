@@ -1,0 +1,48 @@
+diff -crB exodus-5.21/exodus/cbind/CMakeLists.txt exodusii-5.21/cbind/CMakeLists.txt
+*** exodus-5.21/exodus/cbind/CMakeLists.txt	2012-04-05 10:51:13.000000000 -0600
+--- exodusii-5.21/cbind/CMakeLists.txt	2012-07-19 10:53:57.232005144 -0600
+***************
+*** 1,6 ****
+--- 1,7 ----
+  
+  find_path( NETCDF_INCLUDE_DIR netcdf.h
+     $ENV{ACCESS}/inc
++    ${netcdf_ROOT_DIR}/include
+     $ENV{NETCDF_DIR}/inc
+     $ENV{NETCDF_DIR}/include
+     $ENV{NETCDF_DIR}/libsrc
+***************
+*** 9,26 ****
+--- 10,30 ----
+  find_library( NETCDF_LIBRARY
+     NAMES netcdf
+     PATHS "$ENV{ACCESS}/lib"
++    	 "${netcdf_ROOT_DIR}/lib"
+           "$ENV{NETCDF_DIR}/lib"
+  	 "$ENV{NETCDF_DIR}/libsrc/.libs"
+  )
+  
+  find_program (NETCDF_NCDUMP ncdump
+     $ENV{ACCESS}/bin
++    ${netcdf_ROOT_DIR}/bin
+     $ENV{NETCDF_DIR}/bin
+     $ENV{NETCDF_DIR}/ncdump
+  )
+  
+  # Hack for HDF5
+  find_library( HDF5_LIBRARY hdf5
++   ${Hdf5_ROOT_DIR}/lib
+    $ENV{ACCESS}/lib/shared
+    $ENV{ACCESS}/lib
+    $ENV{NETCDF_DIR}/lib
+***************
+*** 28,33 ****
+--- 32,38 ----
+    /usr/local/hdf5/lib
+    )
+  find_library( HDF5HL_LIBRARY hdf5_hl
++   ${Hdf5_ROOT_DIR}/lib
+    $ENV{ACCESS}/lib/shared
+    $ENV{ACCESS}/lib
+    $ENV{NETCDF_DIR}/lib
+Only in exodusii-5.21/cbind: CMakeLists.txt~

@@ -1,0 +1,12 @@
+diff -ruN zlib-1.2.6/CMakeLists.txt zlib-1.2.6-new/CMakeLists.txt
+--- zlib-1.2.6/CMakeLists.txt	2012-01-16 19:51:23.000000000 -0700
++++ zlib-1.2.6-new/CMakeLists.txt	2012-03-21 10:19:06.642589400 -0600
+@@ -72,7 +72,7 @@
+ 
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.cmakein
+                ${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)
+-include_directories(${CMAKE_CURRENT_BINARY_DIR})
++include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+ 
+ 
+ #============================================================================

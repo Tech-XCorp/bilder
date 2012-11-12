@@ -1,0 +1,79 @@
+## ######################################################################
+##
+## File:    alcf.anl.gov
+##
+## Purpose: Helper functions for setting variables and queues by domain
+##
+## Version: $Id: alcf.anl.gov 5429 2012-03-09 14:15:24Z cary $
+##
+## /* vim: set filetype=sh : */
+##
+## ######################################################################
+
+#
+# Adjust the auxiliary names:
+#   MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR, FQMAILHOST, BLDRHOSTID
+#
+runnrSetNamesByDomain() {
+  DOMAINNAME=alcf.anl.gov
+  RUNNRSYSTEM=BGP
+}
+runnrSetNamesByDomain
+
+#
+# Determine RUNNR_QTARGET, RUNNR_QUEUE, RUNNR_ACCOUNT, RUNNR_PPN
+#
+runnrSetQInfoByDomain() {
+  RUNNR_QTARGET=${RUNNR_QTARGET:-"computenode"}
+  RUNNR_ACCOUNT=${RUNNR_ACCOUNT:-"compasstxc"}
+  RUNNR_QUEUE=${RUNNR_QUEUE:-"production"}
+}
+runnrSetQInfoByDomain
+
+#
+# Set default options.  This has to be called after option parsing.
+# Should set
+#  CONTRIB_ROOTDIR    Root directory for contrib installation
+#  INSTALL_SUBDIR     Subdir appended to $CONTRIB_ROOTDIR or
+#                      $CONTRIB_ROOTDIR/$USER if not $COMMON_CONTRIB
+#  INSTALL_SUBDIR_SFX Added to contrib to complete the installation dir
+#  INSTALL_ROOTDIR    Root directory for repo installations
+#  BUILD_ROOTDIR      Where builds are to take place
+#  BILDER_ADDL_ARGS   Any additional args to pass to Bilder
+#  MACHINEFILE        The machine file to use
+#
+setBilderHostVars() {
+
+#
+# Preliminary variables
+#   Determine the compiler and version for machinefile and namespacing
+#
+  local compkey=xlc
+  local compver=`xlc -qversion | grep ^IBM | sed 's/^.* V//'`
+
+# Set the installation and project subdirs
+  CONTRIB_ROOTDIR=/home/projects/facets/$build_host
+  INSTALL_SUBDIR=$UQMAILHOST
+  INSTALL_SUBDIR_SFX="-$compkey-$compver"
+  if test -z "$PROJECT_INSTSUBDIR"; then
+    echo "PROJECT_INSTSUBDIR not set.  Quitting."
+    exit 1
+  fi
+  INSTALL_ROOTDIR=/project/projectdirs/$PROJECT_INSTSUBDIR/$build_host
+
+# Set the build directory
+  if test -n "$GSCRATCH"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH"}
+  elif test -n "$SCRATCH"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH"}
+  fi
+  BUILD_ROOTDIR=$BUILD_ROOTDIR/builds-${UQHOSTNAME}-$compkey
+
+# Add to BILDER_ARGS
+  BILDER_ADDL_ARGS=-P
+
+# Set machine file
+  MACHINEFILE=${MACHINEFILE:-"bgp.xlc"};;
+
+}
+

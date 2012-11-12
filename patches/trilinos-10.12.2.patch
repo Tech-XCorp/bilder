@@ -1,0 +1,172 @@
+diff -ruN trilinos-10.12.2/packages/amesos/CMakeLists.txt trilinos-10.12.2-new/packages/amesos/CMakeLists.txt
+--- trilinos-10.12.2/packages/amesos/CMakeLists.txt	2012-08-02 11:44:28.000000000 -0600
++++ trilinos-10.12.2-new/packages/amesos/CMakeLists.txt	2012-10-05 10:19:10.000000000 -0600
+@@ -12,10 +12,15 @@
+ # B) Set up package-specific options
+ #
+ 
++#
++# TMA: We can actually build SuperLU_Dist without ParMETIS per a recent Tech-X
++# change made with the help of Sherry Li.
++#
++
+ # if using SuperLUDist, must also link in ParMETIS for some reason
+-IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
+-  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
+-ENDIF()
++#IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
++#  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
++#ENDIF()
+ 
+ # if using parallel MUMPS, must also link in scalapack and BLACS
+ 
+diff -ruN trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+--- trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2012-08-02 11:44:06.000000000 -0600
++++ trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2012-10-05 10:12:24.000000000 -0600
+@@ -13,8 +13,10 @@
+ #endif
+ #include "MLAPI_Error.h"
+ #include "MLAPI_Workspace.h"
+-#ifdef _MSC_VER
+-#include "winprocess.h"
++#if defined(_MSC_VER)
++# include "winprocess.h"
++#elif defined(__MINGW32__)
++# include "windows.h"
+ #endif
+ 
+ namespace MLAPI {
+@@ -119,8 +121,10 @@
+ #endif
+         printf("%s\n",buf);
+         fflush(stdout);
+-#ifdef ICL
++#if defined(ICL)
+         Sleep(1);
++#elif defined(__MINGW32__)
++        Sleep(1000.);  // Windows sleep is in milliseconds
+ #else
+         sleep(1);
+ #endif
+diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10.12.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp
+--- trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp	2012-08-02 11:44:05.000000000 -0600
++++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2012-10-05 10:12:24.000000000 -0600
+@@ -39,8 +39,10 @@
+ #ifdef HAVE_ML_TEUCHOS
+ #include "Teuchos_ParameterList.hpp"
+ #endif
+-#ifdef _MSC_VER
++#if defined(_MSC_VER)
+ # include "winprocess.h"
++#elif defined(__MINGW32__)
++# include "windows.h"
+ #endif
+ 
+ #ifdef HAVE_ML_TEUCHOS
+@@ -3515,6 +3517,11 @@
+       if (i == Comm.MyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+     sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++// getpid not present for mingw
++    sprintf(buf, "Host: %s   PID: %d", "mingw32", 0);
++#elif defined(_MSC_VER)
++    sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+     gethostname(hostname, sizeof(hostname));
+     int pid = getpid();
+@@ -3523,8 +3530,10 @@
+ #endif
+     printf("%s\n",buf);
+     fflush(stdout);
+-#ifdef ICL
++#if defined(ICL)
+     Sleep(1);
++#elif defined(__MINGW32__)
++    Sleep(1000.);  // Windows sleep is in milliseconds
+ #else
+     sleep(1);
+ #endif
+diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.c
+--- trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c	2012-08-02 11:44:05.000000000 -0600
++++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.c	2012-10-05 10:12:24.000000000 -0600
+@@ -1935,13 +1935,15 @@
+       if (i == mypid) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++        sprintf(buf, "Host: %s   PID: %d", "mingw", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s   PID: %d (mpi task %d)", hostname, getpid(),mypid);
+ #endif
+         printf("%s\n",buf);
+         fflush(stdout);
+-#ifdef ICL
++#if defined(ICL) || defined(__MINGW32__)
+         Sleep(1);
+ #else
+         sleep(1);
+diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.h
+--- trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h	2012-08-02 11:44:05.000000000 -0600
++++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.h	2012-10-05 10:12:24.000000000 -0600
+@@ -21,7 +21,8 @@
+ #endif
+ #endif
+ 
+-#ifndef ICL
++// #ifndef ICL
++#if ! (defined(ICL) || defined(_MSC_VER))
+ #include <unistd.h>
+ #endif
+ 
+diff -ruN trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_BLAS.cpp
+--- trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp	2012-08-02 11:42:41.000000000 -0600
++++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_BLAS.cpp	2012-10-05 10:12:24.000000000 -0600
+@@ -93,7 +93,8 @@
+ 
+ //Explicitly instantiating these templates for windows due to an issue with
+ //resolving them when linking dlls.
+-#ifdef _WIN32
++// JRC #ifdef _WIN32
++#ifdef _MSC_VER
+ #  ifdef HAVE_TEUCHOS_COMPLEX
+      template BLAS<long int, std::complex<float> >;
+      template BLAS<long int, std::complex<double> >;
+diff -ruN trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp
+--- trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-08-02 11:42:41.000000000 -0600
++++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-10-05 10:20:33.000000000 -0600
+@@ -424,6 +424,12 @@
+   : public DirectSerializationTraits<Ordinal, long long int>
+ {};
+ 
++template<typename Ordinal>
++class SerializationTraits<Ordinal, unsigned long long int>
++  : public DirectSerializationTraits<Ordinal, unsigned long long int>
++{};
++
++
+ #endif // HAVE_TEUCHOS_LONG_LONG_INT
+ 
+ } // namespace Teuchos
+diff -ruN trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c trilinos-10.12.2-new/packages/zoltan/src/zz/murmur3.c
+--- trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c	2012-08-02 11:41:42.000000000 -0600
++++ trilinos-10.12.2-new/packages/zoltan/src/zz/murmur3.c	2012-10-05 10:12:24.000000000 -0600
+@@ -42,7 +42,7 @@
+ /*--------------------------------------------------------------------------- */
+ /* Finalization mix - force all bits of a hash block to avalanche */
+ 
+-FORCE_INLINE uint32_t fmix32 ( uint32_t h )
++/* FORCE_INLINE */ inline uint32_t fmix32 ( uint32_t h )
+ {
+   h ^= h >> 16;
+   h *= 0x85ebca6b;
+@@ -55,7 +55,7 @@
+ 
+ /*---------- */
+ 
+-FORCE_INLINE uint64_t fmix64 ( uint64_t k )
++/* FORCE_INLINE */ inline uint64_t fmix64 ( uint64_t k )
+ {
+   k ^= k >> 33;
+   k *= BIG_CONSTANT(0xff51afd7ed558ccd);

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# This script is for Cray systems that use aprun instead of mpiexec
+# Copied from PETSC on hopper.
+#
+# Usage: bin/mpiexec.aprun [-n n] programname programoptions
+#
+two=$2
+if [ $1 = "-np" ]; then
+        shift
+        shift
+        aprun -n $two $*
+else
+        aprun -n 1 $*
+fi

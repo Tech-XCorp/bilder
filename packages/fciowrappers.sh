@@ -1,0 +1,105 @@
+#!/bin/bash
+#
+# Version and build information for fciowrappers
+#
+# $Id: fciowrappers.sh 6594 2012-09-01 15:12:46Z cary $
+#
+######################################################################
+
+######################################################################
+#
+# Version
+#
+######################################################################
+
+FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-"1.1.1-r171"}
+
+######################################################################
+#
+# Other values
+#
+######################################################################
+
+FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-"ser,par"}
+FCIOWRAPPERS_DEPS=hdf5,netcdf,openmpi
+
+######################################################################
+#
+# Launch fciowrappers builds.
+#
+######################################################################
+
+buildFciowrappersCM() {
+
+  if ! $FC_HDF5; then
+    techo "$FC cannot build hdf5, so cannot build fciowrappers."
+    return
+  fi
+
+# Allow fciowrappers to be either from svnrepo or tarball.
+  if test -d $PROJECT_DIR/fciowrappers; then
+    getVersion fciowrappers
+    bilderPreconfig -c fciowrappers
+    res=$?
+  else
+    bilderUnpack fciowrappers
+    res=$?
+  fi
+
+# Build both builds
+  if test $res = 0; then
+    if bilderConfig -c fciowrappers ser "$CMAKE_COMPILERS_SER $FCIOWRAPPERS_FORTRAN_ARGS $CMAKE_COMPFLAGS_SER $FCIOWRAPPERS_SER_OTHER_ARGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild fciowrappers ser
+    fi
+    if bilderConfig -c fciowrappers par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $FCIOWRAPPERS_FORTRAN_ARGS $CMAKE_COMPFLAGS_SER $FCIOWRAPPERS_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild fciowrappers par $LD_RUN_VAR
+    fi
+  fi
+
+}
+
+buildFciowrappers() {
+  if test -d $PROJECT_DIR/fciowrappers; then
+    techo "WARNING: Building the repo, $PROJECT_DIR/fciowrappers."
+  fi
+  if test $CONTRIB_DIR != $BLDR_INSTALL_DIR; then
+    local insts=`\ls -d $BLDR_INSTALL_DIR/fciowrappers*`
+    if test -n "$insts"; then
+      techo "WARNING: fciowrappers is installed in $BLDR_INSTALL_DIR."
+    fi
+  fi
+  buildFciowrappersCM
+}
+
+######################################################################
+#
+# Test fciowrappers
+#
+######################################################################
+
+testFciowrappers() {
+  #techo "Not testing fciowrappers."
+  startdir=$PWD
+# This is currently an error.  Need to use waitBuild to see if there
+# was a build.  Iffing out for now.
+  if false; then
+  for dir in $BUILD_DIR/fciowrappers-*; do
+    cd $dir
+    make test
+  done
+  fi
+  cd $startdir
+}
+
+######################################################################
+#
+# Install fciowrappers
+#
+######################################################################
+
+installFciowrappers() {
+  bilderInstall fciowrappers ser
+  bilderInstall fciowrappers par
+  # techo "Quitting at end of fciowrappers.sh."; cleanup
+}
+

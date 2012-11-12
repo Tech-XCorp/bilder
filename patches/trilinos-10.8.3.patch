@@ -1,0 +1,23 @@
+diff -ruN trilinos-10.8.3/packages/amesos/CMakeLists.txt trilinos-10.8.3-new/packages/amesos/CMakeLists.txt
+--- trilinos-10.8.3/packages/amesos/CMakeLists.txt	2011-10-12 09:22:26.000000000 -0600
++++ trilinos-10.8.3-new/packages/amesos/CMakeLists.txt	2012-10-16 14:03:56.000000000 -0600
+@@ -12,10 +12,16 @@
+ # B) Set up package-specific options
+ #
+ 
++#
++# TMA: We can actually build SuperLU_Dist without ParMETIS per a recent Tech-X
++# change made with the help of Sherry Li.
++#
++
+ # if using SuperLUDist, must also link in ParMETIS for some reason
+-IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
+-  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
+-ENDIF()
++#IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
++#  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires
++#  the ParMETIS TPL.  Either disable Amesos Su perLUDist support or enable the ParMETIS TPL.")
++#ENDIF()
+ 
+ # if using parallel MUMPS, must also link in scalapack and BLACS
+ 

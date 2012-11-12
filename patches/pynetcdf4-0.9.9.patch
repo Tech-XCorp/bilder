@@ -1,0 +1,20 @@
+diff -cr pynetcdf4-0.9.9/setup.py pynetcdf4-0.9.9-new/setup.py
+*** pynetcdf4-0.9.9/setup.py	2011-12-12 12:09:49.000000000 -0700
+--- pynetcdf4-0.9.9-new/setup.py	2012-01-04 17:09:11.837545723 -0700
+***************
+*** 15,21 ****
+                  return None
+      hdf5_version = None
+      for line in f:
+!         if line.startswith('#define H5_VERSION'):
+              hdf5_version = line.split()[2]
+      return hdf5_version
+  
+--- 15,21 ----
+                  return None
+      hdf5_version = None
+      for line in f:
+!         if line.startswith('#define VERSION'):
+              hdf5_version = line.split()[2]
+      return hdf5_version
+  

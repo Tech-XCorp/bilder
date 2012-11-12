@@ -1,0 +1,30 @@
+Index: visit/databases/VCellMTMD/avtVCellMTMDFileFormat.C
+===================================================================
+--- visit/databases/VCellMTMD/avtVCellMTMDFileFormat.C	(revision 16187)
++++ visit/databases/VCellMTMD/avtVCellMTMDFileFormat.C	(working copy)
+@@ -1430,12 +1430,13 @@
+                     }
+                 }
+             }
++            delete [] regionValues;
+         }else{
+             dataHolder->SetNumberOfTuples(varDataBlock->size);
+             double *values = (double *)dataHolder->GetVoidPointer(0);
+             readDoubles(fp, values, varDataBlock->size);
+         }
+-}
++    }
+ 
+     fclose(fp);
+ }
+@@ -2298,7 +2299,9 @@
+                 ss << "_" << SPECIAL_XYZT[i] << "_";
+                 SPECIAL_XYZT[i] = ss.str();
+             }
+-            vcellExpr->substituteInPlace(& VCell::Expression(RESERVE_XYZT[i]),& VCell::Expression(SPECIAL_XYZT[i]));
++        VCell::Expression reserveExp(RESERVE_XYZT[i]);
++        VCell::Expression specialExp(SPECIAL_XYZT[i]);
++        vcellExpr->substituteInPlace(& reserveExp,& specialExp);
+         }
+ 
+         //Convert VCell function syntax to Visit

@@ -1,0 +1,154 @@
+#!/bin/bash
+#
+# $Id: eugene.xlc 5246 2012-02-19 11:02:38Z cary $
+#
+# Define variables.
+# Do not override existing definitions.
+# Put any comments between the first block starting with '# KEEP THIS'
+# and ending with '# END KEEP THIS'
+#
+######################################################################
+
+# KEEP THIS
+# These contents are not sourced or changed on a file update, but
+# they are sourced for an actual build.
+cmd="svn up $PROJECT_DIR/numpkgs/Toolchain-BlueGeneP-mpixl.cmake"
+techo "$cmd"
+$cmd
+cmd="mkdir -p /scratch/$USER/tmp"
+techo "$cmd"
+$cmd
+cmd="export TMP=/scratch/$USER/tmp"
+techo "$cmd"
+$cmd
+
+USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
+USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
+
+# Make sure we have the XL mpi.mod, as the one in
+# /bgsys/drivers/V1R4M2_200_2010-100508P/ppc/comm/default/include
+# was compiled by gfortran.
+if ! test -f $CONTRIB_DIR/include/mpi.mod; then
+  mkdir -p $CONTRIB_DIR/include
+  chmod 775 $CONTRIB_DIR/include
+  cp /bgsys/drivers/ppcfloor/comm/fast/include/mpi.mod $CONTRIB_DIR/include
+  chmod 664 $CONTRIB_DIR/include/mpi.mod
+fi
+
+# END KEEP THIS
+
+# Serial compilers
+# FC should be a compiler that compiles F77 or F90 but takes free format.
+# F77 should be a compiler that compiles F77 or F90 but takes fixed format.
+# Typically this means that both are the F90 compiler, and they figure out the
+# format from the file suffix.  The exception is the XL suite, where xlf
+# compiles F77 or F90, and expects fixed format, while xlf9x ignores
+# the suffix and looks for the -qfixed flag or else fails on fixed format.
+CC=${CC:-"xlc_r"}
+CXX=${CXX:-"xlC_r"}
+FC=${FC:-"xlf95_r"}
+F77=${F77:-"xlf_r"}
+
+# PYC compilers:
+# Some of the packages, in particular distutils, build with only PYC
+# Python gcc compilers:
+PYC_CC=${PYC_CC:-"gcc"}
+PYC_CXX=${PYC_CXX:-"g++"}
+PYC_FC=${PYC_FC:-"gfortran"}
+PYC_F77=${PYC_F77:-"gfortran"}
+
+# Backend compilers:
+BENCC=${BENCC:-"bgxlc_r"}
+BENCXX=${BENCXX:-"bgxlC_r"}
+BENFC=${BENFC:-"bgxlf95_r"}
+BENF77=${BENF77:-"bgxlf_r"}
+
+# Parallel compilers:
+MPICC=${MPICC:-"mpixlc_r"}
+MPICXX=${MPICXX:-"mpixlcxx_r"}
+## MPIFC=${MPIFC:-"mpixlf95_r"}
+## MPIF77=${MPIF77:-"mpixlf77_r"}
+
+# Compilation flags:
+# Do not set optimization flags as packages should add good defaults
+# pic flags are added later
+
+# Serial
+# CFLAGS=${CFLAGS:-"-q64 -qlanglvl=redefmac"}
+# CXXFLAGS=${CXXFLAGS:-"-q64 -qlanglvl=redefmac"}
+# FCFLAGS=${FCFLAGS:-"-q64 -qextname=flush"}
+# FFLAGS=${FFLAGS:-"-q64 -qextname=flush"}
+
+# PYC flags:
+# PYC_LDFLAGS is for creating an executable.
+# PYC_MODFLAGS is for creating a module.
+# PYC_CFLAGS=${PYC_CFLAGS:-"-m64"}
+# PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-m64"}
+# PYC_FCFLAGS=${PYC_FCFLAGS:-"-m64"}
+# PYC_FFLAGS=${PYC_FFLAGS:-"-m64"}
+# PYC_LDFLAGS=${PYC_LDFLAGS:-"-m64 -pthread"}
+# PYC_MODFLAGS=${PYC_MODFLAGS:-"-m64 -pthread -shared"}
+# PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
+
+# Parallel
+# MPI_CFLAGS=${MPI_CFLAGS:-"-qlanglvl=redefmac"}
+# MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-qlanglvl=redefmac"}
+# MPI_FCFLAGS=${MPI_FCFLAGS:-"-qextname=flush"}
+# MPI_FFLAGS=${MPI_FFLAGS:-"-qextname=flush"}
+
+# HDF5 directories:
+# This is special
+HDF5_BUILDS=${HDF5_BUILDS:-"NONE"}
+SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-"/sw/bgp/hdf5/1.8.5/sles10.2_xlc9.0xlf11.1/install"}
+SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/sw/bgp/hdf5/1.8.5/cnk1.2_mpixlc9.0mpixlf11.1-par"}
+# HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
+# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF"}
+# HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
+# HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
+# HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
+
+
+# All variables override defaults in files in bilder/packages.
+# <PKG>_BLDRVERSION contains the version to be built.
+# <PKG>_BUILDS contains the desired builds. Use of NOBUILD is deprecated.
+# <PKG>_<BUILD>_OTHER_ARGS contains the other configuration arguments
+#   for build <BUILD>.  If a package could have a cmake or an autotools
+#   build, then the variables are <PKG>_<BUILD>_CMAKE_OTHER_ARGS
+#   and <PKG>_<BUILD>_CONFIG_OTHER_ARGS
+
+FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"} # need this?
+FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}         # need this?
+FFTW_PAR_OTHER_ARGS=${FFTW_PAR_OTHER_ARGS:-"--disable-type-prefix --enable-mpi"}
+FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-type-prefix --disable-mpi"}
+
+
+# TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-""}
+# TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,par"}
+TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-"-DZ_DIR:PATH=/sw/bgp/zlib/1.2.3/sles10.1_xlc9.0 -DSZ_DIR:PATH=/sw/bgp/szip/2.1/cnk1.2_bgxlc9.0"}
+TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DZ_DIR:PATH=/sw/bgp/zlib/1.2.3/sles10.1_xlc9.0 -DSZ_DIR:PATH=/sw/bgp/szip/2.1/sles10.1_xlc9.0"}
+
+# ZLIB_BLDRVERSION=${ZLIB_BLDRVERSION:-""}
+ZLIB_BUILDS=${ZLIB_BUILDS:-"NONE"}
+# ZLIB_CC4PY_OTHER_ARGS=${ZLIB_CC4PY_OTHER_ARGS:-""}
+# ZLIB_SER_OTHER_ARGS=${ZLIB_SER_OTHER_ARGS:-""}
+# ZLIB_SERSH_OTHER_ARGS=${ZLIB_SERSH_OTHER_ARGS:-""}
+
+# PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
+# export PATH=/bgsys/drivers/ppcfloor/gnu-linux/include/python2.6:$PATH
+# export PATH=/bgsys/drivers/ppcfloor/gnu-linux/lib:$PATH
+PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+# PYTHON_INCDIR=${PYTHON_INCDIR:-"/bgsys/drivers/ppcfloor/gnu-linux/include"}
+# PYTHON_LIB=${PYTHON_LIB:-"/bgsys/drivers/ppcfloor/gnu-linux/lib/libpython2.6.so"}
+# PYTHON_DIR=${PYTHON_DIR:-"/bgsys/drivers/ppcfloor/gnu-linux"}
+# PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
+# PYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS:-"/bgsys/drivers/ppcfloor/gnu-linux/include/python2.6"}
+# PYTHON_LIBRARIES=${PYTHON_LIBRARIES:-"/bgsys/drivers/ppcfloor/gnu-linux/lib/libpython2.6.so"}
+
+# POLYSWIFT_BLDRVERSION=${POLYSWIFT_BLDRVERSION:-""}
+# POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
+# POLYSWIFT_WEBDOCS_CMAKE_OTHER_ARGS=${POLYSWIFT_WEBDOCS_CMAKE_OTHER_ARGS:-""}
+# POLYSWIFT_WEBDOCS_CONFIG_OTHER_ARGS=${POLYSWIFT_WEBDOCS_CONFIG_OTHER_ARGS:-""}
+
+POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPYTHON_INCLUDE_DIRS:PATH=/bgsys/drivers/ppcfloor/gnu-linux/include/python2.6 -DPYTHON_LIBRARIES:FILEPATH=/bgsys/drivers/ppcfloor/gnu-linux/lib/libpython2.6.so -DZ_DIR:PATH=/sw/bgp/zlib/1.2.3/sles10.1_xlc9.0 -DSZ_DIR:PATH=/sw/bgp/szip/2.1/cnk1.2_bgxlc9.0 -DCMAKE_EXE_LINKER_FLAGS=-qnostaticlink"}
+
+POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPYTHON_INCLUDE_DIRS:PATH=/bgsys/drivers/ppcfloor/gnu-linux/include/python2.6 -DPYTHON_LIBRARIES:FILEPATH=/bgsys/drivers/ppcfloor/gnu-linux/lib/libpython2.6.so -DZ_DIR:PATH=/sw/bgp/zlib/1.2.3/sles10.1_xlc9.0 -DSZ_DIR:PATH=/sw/bgp/szip/2.1/sles10.1_xlc9.0 -DCMAKE_EXE_LINKER_FLAGS=-lutil"}

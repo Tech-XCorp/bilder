@@ -1,0 +1,61 @@
+Index: msvc9compiler.py
+===================================================================
+--- msvc9compiler.py	(revision 77958)
++++ msvc9compiler.py	(working copy)
+@@ -646,6 +646,8 @@
+                 mfid = 1
+             else:
+                 mfid = 2
++            root, ext = os.path.splitext(output_filename)
++            if ext.lower() == '.pyd':
+                 try:
+                     # Remove references to the Visual C runtime, so they will
+                     # fall through to the Visual C dependency of Python.exe.
+@@ -653,9 +655,9 @@
+                     # runtimes are not in WinSxS folder, but in Python's own
+                     # folder), the runtimes do not need to be in every folder
+                     # with .pyd's.
+-                    manifest_f = open(temp_manifest, "rb")
+-                    manifest_buf = manifest_f.read()
+-                    manifest_f.close()
++                    with open(temp_manifest, "rb") as manifest_f:
++                        manifest_buf = manifest_f.read()
++
+                     pattern = re.compile(
+                         r"""<assemblyIdentity.*?name=("|')Microsoft\."""\
+                         r"""VC\d{2}\.CRT("|').*?(/>|</assemblyIdentity>)""",
+@@ -663,17 +665,25 @@
+                     manifest_buf = re.sub(pattern, "", manifest_buf)
+                     pattern = "<dependentAssembly>\s*</dependentAssembly>"
+                     manifest_buf = re.sub(pattern, "", manifest_buf)
+-                    manifest_f = open(temp_manifest, "wb")
+-                    manifest_f.write(manifest_buf)
+-                    manifest_f.close()
++
++                    # remove entire manifest if no other dependencies
++                    pattern = re.compile(
++                        r"""<assemblyIdentity.*?name=(?:"|')(.+?)(?:"|')"""\
++                        r""".*?(?:/>|</assemblyIdentity>)""", re.DOTALL)
++                    if re.search(pattern, manifest_buf) is None:
++                        ld_args.append('/MANIFEST:NO')
++
++                    with open(temp_manifest, "wb") as manifest_f:
++                        manifest_f.write(manifest_buf)
+                 except IOError:
+                     pass
+-            out_arg = '-outputresource:%s;%s' % (output_filename, mfid)
+-            try:
+-                self.spawn(['mt.exe', '-nologo', '-manifest',
+-                            temp_manifest, out_arg])
+-            except DistutilsExecError as msg:
+-                raise LinkError(msg)
++            if not '/MANIFEST:NO' in ld_args:
++                out_arg = '-outputresource:%s;%s' % (output_filename, mfid)
++                try:
++                    self.spawn(['mt.exe', '-nologo', '-manifest',
++                                temp_manifest, out_arg])
++                except DistutilsExecError as msg:
++                    raise LinkError(msg)
+         else:
+             log.debug("skipping %s (up-to-date)", output_filename)
+ 

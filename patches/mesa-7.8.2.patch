@@ -1,0 +1,230 @@
+diff -ruN mesa-7.10.2/configs/autoconf.in mesa-7.10.2-new/configs/autoconf.in
+--- mesa-7.10.2/configs/autoconf.in	2011-02-11 15:49:47.000000000 -0700
++++ mesa-7.10.2-new/configs/autoconf.in	2011-10-06 07:34:54.071134175 -0600
+@@ -54,8 +54,8 @@
+ PYTHON_FLAGS = -t -O -O
+ 
+ # Library names (base name)
+-GL_LIB = GL
+-GLU_LIB = GLU
++GL_LIB = MesaGL
++GLU_LIB = MesaGLU
+ GLUT_LIB = glut
+ GLW_LIB = GLw
+ OSMESA_LIB = @OSMESA_LIB@
+diff -ruN mesa-7.10.2/src/glu/sgi/glu.exports.darwin mesa-7.10.2-new/src/glu/sgi/glu.exports.darwin
+--- mesa-7.10.2/src/glu/sgi/glu.exports.darwin	2010-02-04 17:10:40.000000000 -0700
++++ mesa-7.10.2-new/src/glu/sgi/glu.exports.darwin	2011-10-06 07:35:49.125134309 -0600
+@@ -1,59 +1,59 @@
+-_*gluBeginCurve
+-_*gluBeginPolygon
+-_*gluBeginSurface
+-_*gluBeginTrim
+-_*gluBuild1DMipmapLevels
+-_*gluBuild1DMipmaps
+-_*gluBuild2DMipmapLevels
+-_*gluBuild2DMipmaps
+-_*gluBuild3DMipmapLevels
+-_*gluBuild3DMipmaps
+-_*gluCheckExtension
+-_*gluCylinder
+-_*gluDeleteNurbsRenderer
+-_*gluDeleteQuadric
+-_*gluDeleteTess
+-_*gluDisk
+-_*gluEndCurve
+-_*gluEndPolygon
+-_*gluEndSurface
+-_*gluEndTrim
+-_*gluErrorString
+-_*gluGetNurbsProperty
+-_*gluGetString
+-_*gluGetTessProperty
+-_*gluLoadSamplingMatrices
+-_*gluLookAt
+-_*gluNewNurbsRenderer
+-_*gluNewQuadric
+-_*gluNewTess
+-_*gluNextContour
+-_*gluNurbsCallback
+-_*gluNurbsCallbackData
+-_*gluNurbsCallbackDataEXT
+-_*gluNurbsCurve
+-_*gluNurbsProperty
+-_*gluNurbsSurface
+-_*gluOrtho2D
+-_*gluPartialDisk
+-_*gluPerspective
+-_*gluPickMatrix
+-_*gluProject
+-_*gluPwlCurve
+-_*gluQuadricCallback
+-_*gluQuadricDrawStyle
+-_*gluQuadricNormals
+-_*gluQuadricOrientation
+-_*gluQuadricTexture
+-_*gluScaleImage
+-_*gluSphere
+-_*gluTessBeginContour
+-_*gluTessBeginPolygon
+-_*gluTessCallback
+-_*gluTessEndContour
+-_*gluTessEndPolygon
+-_*gluTessNormal
+-_*gluTessProperty
+-_*gluTessVertex
+-_*gluUnProject
+-_*gluUnProject4
++_*mgluBeginCurve
++_*mgluBeginPolygon
++_*mgluBeginSurface
++_*mgluBeginTrim
++_*mgluBuild1DMipmapLevels
++_*mgluBuild1DMipmaps
++_*mgluBuild2DMipmapLevels
++_*mgluBuild2DMipmaps
++_*mgluBuild3DMipmapLevels
++_*mgluBuild3DMipmaps
++_*mgluCheckExtension
++_*mgluCylinder
++_*mgluDeleteNurbsRenderer
++_*mgluDeleteQuadric
++_*mgluDeleteTess
++_*mgluDisk
++_*mgluEndCurve
++_*mgluEndPolygon
++_*mgluEndSurface
++_*mgluEndTrim
++_*mgluErrorString
++_*mgluGetNurbsProperty
++_*mgluGetString
++_*mgluGetTessProperty
++_*mgluLoadSamplingMatrices
++_*mgluLookAt
++_*mgluNewNurbsRenderer
++_*mgluNewQuadric
++_*mgluNewTess
++_*mgluNextContour
++_*mgluNurbsCallback
++_*mgluNurbsCallbackData
++_*mgluNurbsCallbackDataEXT
++_*mgluNurbsCurve
++_*mgluNurbsProperty
++_*mgluNurbsSurface
++_*mgluOrtho2D
++_*mgluPartialDisk
++_*mgluPerspective
++_*mgluPickMatrix
++_*mgluProject
++_*mgluPwlCurve
++_*mgluQuadricCallback
++_*mgluQuadricDrawStyle
++_*mgluQuadricNormals
++_*mgluQuadricOrientation
++_*mgluQuadricTexture
++_*mgluScaleImage
++_*mgluSphere
++_*mgluTessBeginContour
++_*mgluTessBeginPolygon
++_*mgluTessCallback
++_*mgluTessEndContour
++_*mgluTessEndPolygon
++_*mgluTessNormal
++_*mgluTessProperty
++_*mgluTessVertex
++_*mgluUnProject
++_*mgluUnProject4
+diff -c a/src/mesa/drivers/osmesa/osmesa.c Mesa-7.8.2/src/mesa/drivers/osmesa/osmesa.c
+*** a/src/mesa/drivers/osmesa/osmesa.c
+--- Mesa-7.8.2/src/mesa/drivers/osmesa/osmesa.c
+***************
+*** 1328,1336 ****
+      * that converts rendering from CHAN_BITS to the user-requested channel
+      * size.
+      */
+!    osmesa->rb = new_osmesa_renderbuffer(&osmesa->mesa, osmesa->format, type);
+!    _mesa_add_renderbuffer(osmesa->gl_buffer, BUFFER_FRONT_LEFT, osmesa->rb);
+!    assert(osmesa->rb->RefCount == 2);
+  
+     /* Set renderbuffer fields.  Set width/height = 0 to force 
+      * osmesa_renderbuffer_storage() being called by _mesa_resize_framebuffer()
+--- 1328,1339 ----
+      * that converts rendering from CHAN_BITS to the user-requested channel
+      * size.
+      */
+!    if (!osmesa->rb) {
+!       osmesa->rb = new_osmesa_renderbuffer(&osmesa->mesa, osmesa->format, type);
+!       _mesa_remove_renderbuffer(osmesa->gl_buffer, BUFFER_FRONT_LEFT);
+!       _mesa_add_renderbuffer(osmesa->gl_buffer, BUFFER_FRONT_LEFT, osmesa->rb);
+!       assert(osmesa->rb->RefCount == 2);
+!    }
+  
+     /* Set renderbuffer fields.  Set width/height = 0 to force 
+      * osmesa_renderbuffer_storage() being called by _mesa_resize_framebuffer()
+diff --git a/src/gallium/auxiliary/util/u_atomic.h b/Mesa-7.8.2/src/gallium/auxiliary/util/u_atomic.h
+index a156823..8434491 100644
+--- a/src/gallium/auxiliary/util/u_atomic.h
++++ b/Mesa-7.8.2/src/gallium/auxiliary/util/u_atomic.h
+@@ -29,6 +29,8 @@
+ #define PIPE_ATOMIC_ASM_MSVC_X86                
+ #elif (defined(PIPE_CC_GCC) && defined(PIPE_ARCH_X86))
+ #define PIPE_ATOMIC_ASM_GCC_X86
++#elif (defined(PIPE_CC_GCC) && defined(PIPE_ARCH_X86_64))
++#define PIPE_ATOMIC_ASM_GCC_X86_64
+ #elif defined(PIPE_CC_GCC) && (PIPE_CC_GCC_VERSION >= 401)
+ #define PIPE_ATOMIC_GCC_INTRINSIC
+ #else
+@@ -36,6 +38,51 @@
+ #endif
+ 
+ 
++#if defined(PIPE_ATOMIC_ASM_GCC_X86_64)
++#define PIPE_ATOMIC "GCC x86_64 assembly"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#define p_atomic_set(_v, _i) (*(_v) = (_i))
++#define p_atomic_read(_v) (*(_v))
++
++static INLINE boolean
++p_atomic_dec_zero(int32_t *v)
++{
++   unsigned char c;
++
++   __asm__ __volatile__("lock; decl %0; sete %1":"+m"(*v), "=qm"(c)
++			::"memory");
++
++   return c != 0;
++}
++
++static INLINE void
++p_atomic_inc(int32_t *v)
++{
++   __asm__ __volatile__("lock; incl %0":"+m"(*v));
++}
++
++static INLINE void
++p_atomic_dec(int32_t *v)
++{
++   __asm__ __volatile__("lock; decl %0":"+m"(*v));
++}
++
++static INLINE int32_t
++p_atomic_cmpxchg(int32_t *v, int32_t old, int32_t _new)
++{
++   return __sync_val_compare_and_swap(v, old, _new);
++}
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* PIPE_ATOMIC_ASM_GCC_X86_64 */
++
+ 
+ #if defined(PIPE_ATOMIC_ASM_GCC_X86)
+ 
+-- 
+1.7.0.2

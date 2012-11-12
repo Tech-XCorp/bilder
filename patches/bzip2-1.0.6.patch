@@ -1,0 +1,17 @@
+diff -ruN ser/makefile.msc ser-new/makefile.msc
+--- ser/makefile.msc	2012-05-15 13:38:40.360857500 -0600
++++ ser-new/makefile.msc	2012-05-15 13:39:50.623334600 -0600
+@@ -44,7 +44,12 @@
+ 	fc sample2.tst sample2.ref
+ 	fc sample3.tst sample3.ref
+ 
+-
++install:
++	- mkdir $(PREFIX)
++	- mkdir $(PREFIX)\bin
++	copy bzip2.exe $(PREFIX)\bin
++	- mkdir $(PREFIX)\lib
++	copy libbz2.lib $(PREFIX)\lib
+ 
+ clean: 
+ 	del *.obj

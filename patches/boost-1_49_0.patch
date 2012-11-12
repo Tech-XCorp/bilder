@@ -1,0 +1,12 @@
+diff -ruN ser/tools/build/v2/tools/darwin.jam ser-new/tools/build/v2/tools/darwin.jam
+--- ser/tools/build/v2/tools/darwin.jam	2011-06-06 14:36:21.000000000 -0600
++++ ser-new/tools/build/v2/tools/darwin.jam	2012-05-17 16:49:14.000000000 -0600
+@@ -183,7 +183,7 @@
+     #   archives in darwin is complicated.
+     local archiver =
+         [ common.get-invocation-command darwin
+-            : libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
++            : /usr/bin/libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
+     flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
+     if $(.debug-configuration)
+     {

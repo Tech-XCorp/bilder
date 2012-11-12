@@ -1,0 +1,19 @@
+diff -ruN cmake-2.8.6/Modules/FindSubversion.cmake cmake-2.8.6-new/Modules/FindSubversion.cmake
+--- cmake-2.8.6/Modules/FindSubversion.cmake	2011-10-04 10:09:24.000000000 -0600
++++ cmake-2.8.6-new/Modules/FindSubversion.cmake	2011-11-05 08:23:33.000000000 -0600
+@@ -73,11 +73,13 @@
+     SET(_Subversion_SAVED_LC_ALL "$ENV{LC_ALL}")
+     SET(ENV{LC_ALL} C)
+ 
+-    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info ${dir}
++    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info
+       OUTPUT_VARIABLE ${prefix}_WC_INFO
+       ERROR_VARIABLE Subversion_svn_info_error
+       RESULT_VARIABLE Subversion_svn_info_result
+-      OUTPUT_STRIP_TRAILING_WHITESPACE)
++      WORKING_DIRECTORY ${dir}
++      OUTPUT_STRIP_TRAILING_WHITESPACE
++    )
+ 
+     IF(NOT ${Subversion_svn_info_result} EQUAL 0)
+       MESSAGE(SEND_ERROR "Command \"${Subversion_SVN_EXECUTABLE} info ${dir}\" failed with output:\n${Subversion_svn_info_error}")

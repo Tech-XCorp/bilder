@@ -1,0 +1,27 @@
+diff -ruN ./ConfigureChecks.cmake ../hdf5-1.8.5-patch1-new/ConfigureChecks.cmake
+--- ./ConfigureChecks.cmake	2010-08-26 08:21:55.000000000 -0600
++++ ../hdf5-1.8.5-patch1-new/ConfigureChecks.cmake	2011-01-19 12:08:47.403770000 -0700
+@@ -323,7 +323,7 @@
+   SET (H5_HAVE_DIFFTIME 1)
+   SET (H5_HAVE_LONGJMP 1)
+   SET (H5_STDC_HEADERS 1)
+-  SET (H5_HAVE_GETHOSTNAME 1)
++  # SET (H5_HAVE_GETHOSTNAME 1)
+ ENDIF (WINDOWS)
+ 
+ CHECK_FUNCTION_EXISTS (alarm             H5_HAVE_ALARM)
+diff -ruN ./src/H5public.h ../hdf5-1.8.5-patch1-new/src/H5public.h
+--- ./src/H5public.h	2010-08-26 08:27:23.000000000 -0600
++++ ../hdf5-1.8.5-patch1-new/src/H5public.h	2011-01-19 12:08:26.481493300 -0700
+@@ -42,11 +42,9 @@
+ #ifdef H5_STDC_HEADERS
+ #   include <limits.h>		/*for H5T_NATIVE_CHAR defn in H5Tpublic.h    */
+ #endif
+-#ifndef __cplusplus
+ #ifdef H5_HAVE_STDINT_H
+ #   include <stdint.h>		/*for C9x types				     */
+ #endif
+-#endif
+ #ifdef H5_HAVE_INTTYPES_H
+ #   include <inttypes.h>        /* For uint64_t on some platforms            */
+ #endif

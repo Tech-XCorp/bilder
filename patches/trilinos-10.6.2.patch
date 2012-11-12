@@ -1,0 +1,71 @@
+diff -ruN ./packages/ml/src/MLAPI/MLAPI_Workspace.cpp ../trilinos-10.6.2-new//packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+--- ./packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2010-12-09 10:25:11.000000000 -0700
++++ ../trilinos-10.6.2-new//packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2011-02-13 19:05:50.082773600 -0700
+@@ -13,7 +13,7 @@
+ #endif
+ #include "MLAPI_Error.h"
+ #include "MLAPI_Workspace.h"
+-#ifdef _MSC_VER
++#if defined(_WIN32)
+ #include "winprocess.h"
+ #endif
+ 
+@@ -112,6 +112,10 @@
+       if (i == GetMyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(MINGW32)
++        sprintf(buf, "Host: %s   PID: %d", "mingw32", getpid());
++#elif defined(_MSC_VER)
++        sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s\tMyPID(): %d\tPID: %d",
+@@ -119,7 +123,9 @@
+ #endif
+         printf("%s\n",buf);
+         fflush(stdout);
++#ifndef _WIN32
+         sleep(1);
++#endif
+       }
+     }
+     if (GetMyPID() == 0) {
+diff -ruN ./packages/ml/src/Utils/ml_epetra_utils.cpp ../trilinos-10.6.2-new//packages/ml/src/Utils/ml_epetra_utils.cpp
+--- ./packages/ml/src/Utils/ml_epetra_utils.cpp	2010-12-09 10:25:11.000000000 -0700
++++ ../trilinos-10.6.2-new//packages/ml/src/Utils/ml_epetra_utils.cpp	2011-02-13 19:16:59.913085700 -0700
+@@ -3459,6 +3459,10 @@
+       if (i == Comm.MyPID() ) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+     sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(MINGW32)
++    sprintf(buf, "Host: %s   PID: %d", "mingw32", getpid());
++#elif defined(_MSC_VER)
++    sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+     gethostname(hostname, sizeof(hostname));
+     int pid = getpid();
+@@ -3467,7 +3471,9 @@
+ #endif
+     printf("%s\n",buf);
+     fflush(stdout);
++#ifndef _WIN32
+     sleep(1);
++#endif
+       }
+     }
+      if(Comm.MyPID() == 0) {
+diff -ruN ./packages/ml/src/Utils/ml_utils.c ../trilinos-10.6.2-new//packages/ml/src/Utils/ml_utils.c
+--- ./packages/ml/src/Utils/ml_utils.c	2010-12-09 10:25:11.000000000 -0700
++++ ../trilinos-10.6.2-new//packages/ml/src/Utils/ml_utils.c	2011-02-13 19:16:12.350365300 -0700
+@@ -1933,6 +1933,10 @@
+       if (i == mypid) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(MINGW32)
++        sprintf(buf, "Host: %s   PID: %d", "mingw32", getpid());
++#elif defined(_MSC_VER)
++        sprintf(buf, "Host: %s   PID: %d", "msvc", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s   PID: %d (mpi task %d)", hostname, getpid(),mypid);

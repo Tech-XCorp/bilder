@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# $Id: cygwin.vs11 5041 2012-01-23 18:31:59Z jhurani $
+#
+# Define variables.
+# Do not override existing definitions.
+# Put any comments between the first block starting with '# KEEP THIS'
+# and ending with '# END KEEP THIS'
+#
+######################################################################
+
+# KEEP THIS
+# HAVE_SER_FORTRAN=false
+VISUALSTUDIO_VERSION=11
+QMAKESPECARG="-spec win32-msvc2012"
+if test -z "$BILDER_DIR"; then
+  mdir=`dirname $BASH_SOURCE`
+  mdir=`(cd $mdir; pwd -P)`
+  bdir=`dirname $mdir`
+  BILDER_DIR=`(cd $bdir; pwd -P)`
+fi
+cmd="source $BILDER_DIR/machines/cygwin.vs"
+echo $cmd
+$cmd
+# END KEEP THIS
+

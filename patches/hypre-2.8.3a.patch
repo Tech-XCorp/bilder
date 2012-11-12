@@ -1,0 +1,26 @@
+diff -ruN hypre-2.8.3a/src/CMakeLists.txt hypre-2.8.3a-new/src/CMakeLists.txt
+--- hypre-2.8.3a/src/CMakeLists.txt	2012-09-28 11:15:23.000000000 -0600
++++ hypre-2.8.3a-new/src/CMakeLists.txt	2012-10-28 12:34:52.000000000 -0600
+@@ -13,14 +13,16 @@
+ endif ()
+ 
+ # Set default installation directory, but provide a means for users to change
+-set (HYPRE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/hypre" CACHE PATH
+-  "Installation directory for HYPRE")
+-set (CMAKE_INSTALL_PREFIX "${HYPRE_INSTALL_PREFIX}" CACHE INTERNAL "" FORCE)
++# TA: Patching this to allow Tech-X bilder to see the instal prefix
++#set (HYPRE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/hypre" CACHE PATH
++#  "Installation directory for HYPRE")
++#set (CMAKE_INSTALL_PREFIX "${HYPRE_INSTALL_PREFIX}" CACHE INTERNAL "" FORCE)
+ 
+ # Set default compile optimization flag
+-set (HYPRE_BUILD_TYPE "Release" CACHE STRING
+-  "Optimization flags: set to Debug, Release, RelWithDebInfo, or MinSizeRel")
+-set (CMAKE_BUILD_TYPE "${HYPRE_BUILD_TYPE}" CACHE INTERNAL "" FORCE)
++# TA: Patching this to allow Tech-X bilder to set the build type
++#set (HYPRE_BUILD_TYPE "Release" CACHE STRING
++#  "Optimization flags: set to Debug, Release, RelWithDebInfo, or MinSizeRel")
++#set (CMAKE_BUILD_TYPE "${HYPRE_BUILD_TYPE}" CACHE INTERNAL "" FORCE)
+ 
+ # Configuration options
+ option(HYPRE_SHARED               "Build a shared library" OFF)

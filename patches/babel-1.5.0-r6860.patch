@@ -1,0 +1,86 @@
+Index: configure
+===================================================================
+--- babel-1.5.0-r6860/configure	2010-05-14 17:45:32.000000000 -0500
++++ babel-1.5.0-r6860-new/configure	2010-10-01 13:42:38.076752790 -0500
+@@ -3892,6 +3892,9 @@
+     sidl_cv_f77_true=1
+     sidl_cv_f90_false=0
+     sidl_cv_f90_true=1
++    llnl_cv_F77_logical_size=4
++    llnl_cv_F90_logical_size=4
++    ac_cv_f90_pointer_size=8
+     llnl_cv_F77_string_passing="far int32_t"
+     llnl_cv_F90_string_passing="far int32_t"
+     ac_cv_func_malloc_0_nonnull=yes
+@@ -26244,7 +26247,7 @@
+           pgCC* | pgcpp*)
+             # Portland Group C++ compiler
+ 	    case `$CC -V` in
+-	    *pgCC\ [1-5]* | *pgcpp\ [1-5]*)
++	    *pgCC\ [1-5][\ \.]* | *pgcpp\ [1-5][\ \.]*)
+ 	      prelink_cmds_CXX='tpldir=Template.dir~
+ 		rm -rf $tpldir~
+ 		$CC --prelink_objects --instantiation_dir $tpldir $objs $libobjs $compile_deplibs~
+Index: runtime/configure
+===================================================================
+--- babel-1.5.0-r6860/runtime/configure	2010-05-14 17:45:32.000000000 -0500
++++ babel-1.5.0-r6860-new/runtime/configure	2010-10-01 13:42:49.326714663 -0500
+@@ -3892,6 +3892,9 @@
+     sidl_cv_f77_true=1
+     sidl_cv_f90_false=0
+     sidl_cv_f90_true=1
++    llnl_cv_F77_logical_size=4
++    llnl_cv_F90_logical_size=4
++    ac_cv_f90_pointer_size=8
+     llnl_cv_F77_string_passing="far int32_t"
+     llnl_cv_F90_string_passing="far int32_t"
+     ac_cv_func_malloc_0_nonnull=yes
+@@ -26314,7 +26317,7 @@
+           pgCC* | pgcpp*)
+             # Portland Group C++ compiler
+ 	    case `$CC -V` in
+-	    *pgCC\ [1-5]* | *pgcpp\ [1-5]*)
++	    *pgCC\ [1-5][\ \.]* | *pgcpp\ [1-5][\ \.]*)
+ 	      prelink_cmds_CXX='tpldir=Template.dir~
+ 		rm -rf $tpldir~
+ 		$CC --prelink_objects --instantiation_dir $tpldir $objs $libobjs $compile_deplibs~
+Index: runtime/libltdl/m4/libtool.m4
+===================================================================
+--- babel-1.5.0-r6860/runtime/libltdl/m4/libtool.m4	2008-10-07 15:37:44.000000000 -0500
++++ babel-1.5.0-r6860-new/runtime/libltdl/m4/libtool.m4	2010-10-01 13:42:15.445684271 -0500
+@@ -5887,7 +5887,7 @@
+           pgCC* | pgcpp*)
+             # Portland Group C++ compiler
+ 	    case `$CC -V` in
+-	    *pgCC\ [[1-5]]* | *pgcpp\ [[1-5]]*)
++	    *pgCC\ [[1-5][\ \.]]* | *pgcpp\ [[1-5][\ \.]]*)
+ 	      _LT_TAGVAR(prelink_cmds, $1)='tpldir=Template.dir~
+ 		rm -rf $tpldir~
+ 		$CC --prelink_objects --instantiation_dir $tpldir $objs $libobjs $compile_deplibs~
+Index: runtime/m4/libtool.m4
+===================================================================
+--- babel-1.5.0-r6860/runtime/m4/libtool.m4	2010-05-14 17:45:32.000000000 -0500
++++ babel-1.5.0-r6860-new/runtime/m4/libtool.m4	2010-10-01 13:42:15.325690709 -0500
+@@ -5887,7 +5887,7 @@
+           pgCC* | pgcpp*)
+             # Portland Group C++ compiler
+ 	    case `$CC -V` in
+-	    *pgCC\ [[1-5]]* | *pgcpp\ [[1-5]]*)
++	    *pgCC\ [[1-5][\ \.]]* | *pgcpp\ [[1-5][\ \.]]*)
+ 	      _LT_TAGVAR(prelink_cmds, $1)='tpldir=Template.dir~
+ 		rm -rf $tpldir~
+ 		$CC --prelink_objects --instantiation_dir $tpldir $objs $libobjs $compile_deplibs~
+Index: runtime/m4/llnl_cross_compiling.m4
+===================================================================
+--- babel-1.5.0-r6860/runtime/m4/llnl_cross_compiling.m4	2010-05-14 17:45:32.000000000 -0500
++++ babel-1.5.0-r6860-new/runtime/m4/llnl_cross_compiling.m4	2010-10-01 13:43:00.666676231 -0500
+@@ -54,6 +54,9 @@
+     sidl_cv_f77_true=1
+     sidl_cv_f90_false=0
+     sidl_cv_f90_true=1
++    llnl_cv_F77_logical_size=4
++    llnl_cv_F90_logical_size=4
++    ac_cv_f90_pointer_size=8
+     llnl_cv_F77_string_passing="far int32_t"
+     llnl_cv_F90_string_passing="far int32_t"
+     ac_cv_func_malloc_0_nonnull=yes

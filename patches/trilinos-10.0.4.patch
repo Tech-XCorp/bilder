@@ -1,0 +1,12 @@
+diff -ruN ./packages/epetra/src/Epetra_ConfigDefs.h ../trilinos-10.0.4p1/packages/epetra/src/Epetra_ConfigDefs.h
+--- ./packages/epetra/src/Epetra_ConfigDefs.h	2009-12-18 13:19:05.000000000 -0700
++++ ../trilinos-10.0.4p1/packages/epetra/src/Epetra_ConfigDefs.h	2009-12-24 21:07:26.000000000 -0700
+@@ -126,7 +126,7 @@
+ using std::fabs;
+ using std::atoi;
+ using std::atof;
+-using std::abs;
++// using std::abs;
+ using std::pow;
+ using std::sqrt;
+ using std::asin;

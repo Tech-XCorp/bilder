@@ -1,0 +1,59 @@
+diff -ruN ./PKG-INFO ../matplotlib-0.99.1.2/PKG-INFO
+--- ./PKG-INFO	2009-09-23 20:44:44.000000000 -0600
++++ ../matplotlib-0.99.1.2/PKG-INFO	2009-12-06 09:25:44.000000000 -0700
+@@ -1,6 +1,6 @@
+ Metadata-Version: 1.0
+ Name: matplotlib
+-Version: 0.99.1.1
++Version: 0.99.1.2
+ Summary: Python plotting package
+ Home-page: http://matplotlib.sourceforge.net
+ Author: John D. Hunter
+diff -ruN ./lib/matplotlib/__init__.py ../matplotlib-0.99.1.2/lib/matplotlib/__init__.py
+--- ./lib/matplotlib/__init__.py	2009-09-23 20:38:50.000000000 -0600
++++ ../matplotlib-0.99.1.2/lib/matplotlib/__init__.py	2009-12-06 09:26:37.000000000 -0700
+@@ -89,7 +89,7 @@
+ """
+ from __future__ import generators
+ 
+-__version__  = '0.99.1.1'
++__version__  = '0.99.1.2'
+ __revision__ = '$Revision: 7813 $'
+ __date__     = '$Date: 2009-09-21 12:12:47 -0500 (Mon, 21 Sep 2009) $'
+ 
+diff -ruN ./lib/matplotlib.egg-info/PKG-INFO ../matplotlib-0.99.1.2/lib/matplotlib.egg-info/PKG-INFO
+--- ./lib/matplotlib.egg-info/PKG-INFO	2009-09-23 20:43:09.000000000 -0600
++++ ../matplotlib-0.99.1.2/lib/matplotlib.egg-info/PKG-INFO	2009-12-06 09:26:25.000000000 -0700
+@@ -1,6 +1,6 @@
+ Metadata-Version: 1.0
+ Name: matplotlib
+-Version: 0.99.1.1-r7813
++Version: 0.99.1.2-r7813
+ Summary: Python plotting package
+ Home-page: http://matplotlib.sourceforge.net
+ Author: John D. Hunter
+diff -ruN ./make.osx ../matplotlib-0.99.1.2/make.osx
+--- ./make.osx	2009-09-23 20:44:26.000000000 -0600
++++ ../matplotlib-0.99.1.2/make.osx	2009-12-06 09:25:54.000000000 -0700
+@@ -1,7 +1,7 @@
+ # build mpl into a local install dir with 
+ # PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
+ 
+-MPLVERSION=0.99.1.1
++MPLVERSION=0.99.1.2
+ PYVERSION=2.6
+ PYTHON=python${PYVERSION}
+ ZLIBVERSION=1.2.3
+diff -ruN ./setupext.py ../matplotlib-0.99.1.2/setupext.py
+--- ./setupext.py	2009-08-22 23:27:32.000000000 -0600
++++ ../matplotlib-0.99.1.2/setupext.py	2009-12-06 09:25:23.000000000 -0700
+@@ -57,7 +57,8 @@
+     # people to :
+     #   make -f make.osx fetch deps mpl_build mpl_install
+ 
+-    'darwin' : [],
++    'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
++                '/usr', '/sw', '/usr/X11R6'],
+ 
+     'freebsd4' : ['/usr/local', '/usr'],
+     'freebsd5' : ['/usr/local', '/usr'],

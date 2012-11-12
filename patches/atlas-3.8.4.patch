@@ -1,0 +1,94 @@
+diff -ruN atlas-3.8.4/Make.top atlas-3.8.4-new/Make.top
+--- atlas-3.8.4/Make.top	2011-05-14 11:33:23.000000000 -0600
++++ atlas-3.8.4-new/Make.top	2012-02-20 07:25:58.276585200 -0700
+@@ -10,7 +10,7 @@
+ 	mv error_$(ARCH).tar.gz error_$(ARCH).tgz
+ 
+ leafstart:
+-	cd $(leaf) ; ln -s $(BLDdir)/Make.inc Make.inc
++	cd $(leaf) ; ln -sf $(BLDdir)/Make.inc Make.inc
+ 
+ build:
+ 	cd bin/ ; $(MAKE) xatlas_build
+@@ -117,31 +117,31 @@
+ 	$(MAKE) -f Make.top leafstart leaf=src/testing
+ 	$(MAKE) -f Make.top leafstart leaf=lib
+ 	$(MAKE) -f Make.top leafstart leaf=bin
+-	cd src/blas/gemm ; mkdir KERNEL
+-	cd tune/blas/gemm ; mkdir KERNEL
+-	cd tune/blas/gemm ; mkdir res
+-	cd tune/blas/gemv ; mkdir res
+-	cd tune/blas/ger ; mkdir res
+-	cd tune/blas/level1 ; mkdir res
+-	cd tune/blas/level1 ; mkdir GEN
+-	cd tune/blas/level3 ; mkdir res
+-	cd tune/sysinfo ; mkdir res
+-	cd bin ; mkdir INSTALL_LOG
+-	cd tune/blas/gemv ; ln -s $(SRCdir)/tune/blas/gemv/CASES CASES
+-	cd tune/blas/ger ; ln -s $(SRCdir)/tune/blas/ger/CASES CASES
+-	cd tune/blas/gemm ; ln -s $(SRCdir)/tune/blas/gemm/CASES CASES
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/SWAP SWAP
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/SET SET
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/SCAL SCAL
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/ROT ROT
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/NRM2 NRM2
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/IAMAX IAMAX
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/DOT DOT
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/CPSC CPSC
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/COPY COPY
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/AXPY AXPY
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/AXPBY AXPBY
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/ASUM ASUM
++	cd src/blas/gemm ; mkdir -p KERNEL
++	cd tune/blas/gemm ; mkdir -p KERNEL
++	cd tune/blas/gemm ; mkdir -p res
++	cd tune/blas/gemv ; mkdir -p res
++	cd tune/blas/ger ; mkdir -p res
++	cd tune/blas/level1 ; mkdir -p res
++	cd tune/blas/level1 ; mkdir -p GEN
++	cd tune/blas/level3 ; mkdir -p res
++	cd tune/sysinfo ; mkdir -p res
++	cd bin ; mkdir -p INSTALL_LOG
++	cd tune/blas/gemv ; ln -sf $(SRCdir)/tune/blas/gemv/CASES CASES
++	cd tune/blas/ger ; ln -sf $(SRCdir)/tune/blas/ger/CASES CASES
++	cd tune/blas/gemm ; ln -sf $(SRCdir)/tune/blas/gemm/CASES CASES
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/SWAP SWAP
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/SET SET
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/SCAL SCAL
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/ROT ROT
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/NRM2 NRM2
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/IAMAX IAMAX
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/DOT DOT
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/CPSC CPSC
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/COPY COPY
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/AXPY AXPY
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/AXPBY AXPBY
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/ASUM ASUM
+ 	$(MAKE) -f Make.top refresh arch=$(arch)
+ 
+ refresh :
+@@ -270,10 +270,10 @@
+ 	cd bin ; rm -f *.grd
+ 
+ lib :
+-	mkdir lib
++	mkdir -p lib
+ 
+ include/:
+-	mkdir include
++	mkdir -p include
+ 	touch include/atlas_cacheedge.h
+ 	touch include/atlas_zdNKB.h
+ 	touch include/atlas_csNKB.h
+diff -ruN atlas-3.8.4/tune/sysinfo/emit_buildinfo.c atlas-3.8.4-new/tune/sysinfo/emit_buildinfo.c
+--- atlas-3.8.4/tune/sysinfo/emit_buildinfo.c	2011-05-14 11:34:09.000000000 -0600
++++ atlas-3.8.4-new/tune/sysinfo/emit_buildinfo.c	2012-02-20 07:29:12.731707400 -0700
+@@ -65,7 +65,7 @@
+ 
+    for (i=0; ln[i]; i++) if (ln[i] == '"' || ln[i] == '`') ln[i] = '\'';
+ 
+-   for (i--; i >= 0 && (ln[i] == ' ' || ln[i] == '\n' || ln[i] == '\t'); i--)
++   for (i--; i >= 0 && (ln[i] == ' ' || ln[i] == '\n' || ln[i] == '\t' || ln[i] == '\r'); i--)
+       ln[i] = '\0';
+ }
+ 

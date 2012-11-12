@@ -1,0 +1,13 @@
+diff -ruN subversion-1.6.17/subversion/tests/libsvn_subr/dirent_uri-test.c subversion-1.6.17-works/subversion/tests/libsvn_subr/dirent_uri-test.c
+--- subversion-1.6.17/subversion/tests/libsvn_subr/dirent_uri-test.c	2009-05-04 09:19:29.000000000 -0600
++++ subversion-1.6.17-works/subversion/tests/libsvn_subr/dirent_uri-test.c	2012-01-15 09:34:51.623942100 -0700
+@@ -1437,7 +1437,8 @@
+ 
+   curdir = svn_dirent_internal_style(buf, pool);
+ 
+-#if defined(WIN32) || defined(__CYGWIN__)
++/* #if defined(WIN32) || defined(__CYGWIN__) */
++#if defined(WIN32)
+   if (! getdcwd(3, buf, sizeof(buf))) /* 3 stands for drive C: */
+     return svn_error_create(SVN_ERR_BASE, NULL, "getdcwd() failed");
+ 

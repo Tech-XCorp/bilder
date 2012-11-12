@@ -1,0 +1,11 @@
+diff -ruN ./src/m4.h ../m4-1.4.14-new/src/m4.h
+--- ./src/m4.h	2010-01-28 06:01:57.000000000 -0700
++++ ../m4-1.4.14-new/src/m4.h	2010-08-27 07:48:15.765599443 -0600
+@@ -32,6 +32,7 @@
+ #include <stdbool.h>
+ #include <stdint.h>
+ #include <string.h>
++#include <sys/stat.h>
+ #include <sys/types.h>
+ 
+ #include "binary-io.h"

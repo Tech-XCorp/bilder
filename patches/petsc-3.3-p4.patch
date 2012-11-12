@@ -1,0 +1,36 @@
+diff -rupN petsc-3.3-p4/config/PETSc/packages/SuperLU_DIST.py petsc-3.3-p4-new/config/PETSc/packages/SuperLU_DIST.py
+--- petsc-3.3-p4/config/PETSc/packages/SuperLU_DIST.py	2012-08-29 10:26:23.000000000 -0600
++++ petsc-3.3-p4-new/config/PETSc/packages/SuperLU_DIST.py	2012-11-06 09:04:40.127627600 -0700
+@@ -19,8 +19,8 @@ class Configure(PETSc.package.NewPackage
+   def setupDependencies(self, framework):
+     PETSc.package.NewPackage.setupDependencies(self, framework)
+     self.blasLapack = framework.require('config.packages.BlasLapack',self)
+-    self.parmetis   = framework.require('PETSc.packages.parmetis',self)
+-    self.deps       = [self.mpi,self.blasLapack,self.parmetis]
++    #self.parmetis   = framework.require('PETSc.packages.parmetis',self)
++    self.deps       = [self.mpi,self.blasLapack]#,self.parmetis]
+     return
+ 
+   def Install(self):
+@@ -33,7 +33,7 @@ class Configure(PETSc.package.NewPackage
+     g.write('BLASLIB      = '+self.libraries.toString(self.blasLapack.dlib)+'\n')
+     g.write('IMPI         = '+self.headers.toString(self.mpi.include)+'\n')
+     g.write('MPILIB       = '+self.libraries.toString(self.mpi.lib)+'\n')
+-    g.write('PMETISLIB    = '+self.libraries.toString(self.parmetis.lib)+'\n')
++    #g.write('PMETISLIB    = '+self.libraries.toString(self.parmetis.lib)+'\n')
+     g.write('LIBS         = $(DSUPERLULIB) $(BLASLIB) $(PMETISLIB) $(MPILIB)\n')
+     g.write('ARCH         = '+self.setCompilers.AR+'\n')
+     g.write('ARCHFLAGS    = '+self.setCompilers.AR_FLAGS+'\n')
+
+diff -rupN petsc-3.3-p4/src/sys/ftn-custom/zstart.c petsc-3.3-p4-new/src/sys/ftn-custom/zstart.c
+--- petsc-3.3-p4/src/sys/ftn-custom/zstart.c	Fri Nov 02 14:24:41 2012 -0500
++++ petsc-3.3-p4-new/src/sys/ftn-custom/zstart.c	Thu Nov 08 16:20:52 2012 -0800
+@@ -438,7 +438,7 @@
+     *ierr = PetscHMPISpawn((PetscMPIInt) nodesize);/* worker nodes never return from here; they go directly to PetscEnd() */
+     if (*ierr) {(*PetscErrorPrintf)("PetscInitialize:PetscHMPIS-pawn()\n");return;}
+ #else
+-    SETERRQ(PETSC_COMM_SELF,PETSC_ERR_SUP,"PETSc built without MPI 2 (MPI_Comm_spawn) support, use -hmpi_merge_size instead");
++    SETERRABORT(PETSC_COMM_SELF,PETSC_ERR_SUP,"PETSc built without MPI 2 (MPI_Comm_spawn) support, use -hmpi_merge_size instead");
+ #endif
+   } else {
+     *ierr = PetscOptionsGetInt(PETSC_NULL,"-hmpi_merge_size",&nodesize,&flg);

@@ -1,0 +1,13 @@
+diff -ruN Imaging-1.1.7/setup.py Imaging-1.1.7macpatched/setup.py
+--- Imaging-1.1.7/setup.py	2009-11-15 09:06:10.000000000 -0700
++++ Imaging-1.1.7macpatched/setup.py	2010-05-06 12:04:59.000000000 -0600
+@@ -137,6 +137,9 @@
+                 ))
+ 
+         elif sys.platform == "darwin":
++            # sv@txc patch: find libraries that have both ppc and x86 stubs
++            add_directory(library_dirs, "/usr/lib")
++            add_directory(include_dirs, "/usr/include")
+             # attempt to make sure we pick freetype2 over other versions
+             add_directory(include_dirs, "/sw/include/freetype2")
+             add_directory(include_dirs, "/sw/lib/freetype2/include")

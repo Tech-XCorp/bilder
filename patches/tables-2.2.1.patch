@@ -1,0 +1,28 @@
+diff -ruN tables-2.2.1/blosc/blosc.c tables-2.2.1-new/blosc/blosc.c
+--- tables-2.2.1/blosc/blosc.c	2010-11-05 02:27:11.000000000 -0700
++++ tables-2.2.1-new/blosc/blosc.c	2011-04-10 08:11:54.461761380 -0700
+@@ -69,7 +69,9 @@
+ pthread_attr_t ct_attr;          /* creation time attributes for threads */
+ #endif
+ 
+-#if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 20012L) >= 0
++/* #if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 20012L) >= 0 */
++/* below works on benten.gat.com */
++#if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 200112L) > 0
+ #define _POSIX_BARRIERS_MINE
+ #endif
+ 
+diff -ruN tables-2.2.1/setup.py tables-2.2.1-new/setup.py
+--- tables-2.2.1/setup.py	2010-11-05 02:27:14.000000000 -0700
++++ tables-2.2.1-new/setup.py	2011-04-10 08:11:43.539838599 -0700
+@@ -259,9 +259,7 @@
+         }
+     # Copy the next DLL's to binaries by default.
+     # Update these paths for your own system!
+-    dll_files = ['\\windows\\system\\zlib1.dll',
+-                 '\\windows\\system\\szip.dll',
+-                 ]
++    dll_files = []
+     if '--debug' in sys.argv:
+         _platdep['HDF5'] = ['hdf5ddll', 'hdf5ddll']
+ 

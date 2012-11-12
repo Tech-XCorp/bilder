@@ -1,0 +1,144 @@
+diff -ruN ./CMakeLists.txt ../vtk-5.0.0f-new//CMakeLists.txt
+--- ./CMakeLists.txt	2010-06-14 14:40:16.000000000 -0600
++++ ../vtk-5.0.0f-new//CMakeLists.txt	2010-08-08 09:00:45.280001200 -0600
+@@ -302,11 +302,11 @@
+ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ 
+ IF(APPLE)
+-  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
+-  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
++  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-twolevel_namespace,-headerpad_max_install_names")
++  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-twolevel_namespace,-headerpad_max_install_names")
+   IF(CMAKE_COMPILER_IS_GNUCXX)
+-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -no-cpp-precomp")
+-    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -no-cpp-precomp")
++    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -fno-common -fexceptions")
++    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fno-common -fexceptions")
+     IF(VTK_USE_CARBON)
+       SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fpascal-strings")
+     ENDIF(VTK_USE_CARBON)
+diff -ruN ./Graphics/vtkStreamer.h ../vtk-5.0.0f-new//Graphics/vtkStreamer.h
+--- ./Graphics/vtkStreamer.h	2010-06-14 14:40:30.000000000 -0600
++++ ../vtk-5.0.0f-new//Graphics/vtkStreamer.h	2010-08-08 09:00:45.295002100 -0600
+@@ -59,6 +59,9 @@
+ #define VTK_INTEGRATE_BACKWARD 1
+ #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
+ 
++// Now StreamArray is exported
++#define VTK_STREAM_ARRAY_EXPORTED
++
+ class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkPolyDataAlgorithm
+ {
+ public:
+@@ -217,7 +220,7 @@
+ 
+   class StreamArray;
+   friend class StreamArray;
+-  class StreamArray { //;prevent man page generation
++  class VTK_GRAPHICS_EXPORT StreamArray { //;prevent man page generation
+   public:
+     StreamArray();
+     ~StreamArray()
+diff -ruN ./Rendering/vtkImagingFactory.cxx ../vtk-5.0.0f-new//Rendering/vtkImagingFactory.cxx
+--- ./Rendering/vtkImagingFactory.cxx	2010-06-14 14:40:57.000000000 -0600
++++ ../vtk-5.0.0f-new//Rendering/vtkImagingFactory.cxx	2010-08-08 09:00:45.304002600 -0600
+@@ -202,14 +202,32 @@
+     {
+     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
+       {
++#if defined(VTK_USE_MANGLED_MESA)
++      if ( vtkImagingFactory::UseMesaClasses )
++        {
++        return vtkMesaFreeTypeTextMapper::New();
++        }
++#endif
+       return vtkOpenGLFreeTypeTextMapper::New();
+       }
+     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
+       {
++#if defined(VTK_USE_MANGLED_MESA)
++      if ( vtkImagingFactory::UseMesaClasses )
++        {
++        return vtkMesaImageMapper::New();
++        }
++#endif
+       return vtkOpenGLImageMapper::New();
+       }
+     if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
+       {
++#if defined(VTK_USE_MANGLED_MESA)
++      if ( vtkImagingFactory::UseMesaClasses )
++        {
++        return vtkMesaPolyDataMapper2D::New();
++        }
++#endif
+       return vtkOpenGLPolyDataMapper2D::New();
+       }
+     }
+diff -ruN ./Rendering/vtkWin32OpenGLRenderWindow.cxx ../vtk-5.0.0f-new//Rendering/vtkWin32OpenGLRenderWindow.cxx
+--- ./Rendering/vtkWin32OpenGLRenderWindow.cxx	2010-06-14 14:40:57.000000000 -0600
++++ ../vtk-5.0.0f-new//Rendering/vtkWin32OpenGLRenderWindow.cxx	2010-08-08 09:00:45.314003200 -0600
+@@ -31,7 +31,7 @@
+ 
+ #if defined(_MSC_VER) || defined (__BORLANDC__)
+ # include "vtkWindows.h"
+-# include <GL/glaux.h>
++// # include <GL/glaux.h>
+ #else
+ # include "vtkOpenGL.h"
+ #endif
+diff -ruN ./Utilities/DICOMParser/DICOMAppHelper.cxx ../vtk-5.0.0f-new//Utilities/DICOMParser/DICOMAppHelper.cxx
+--- ./Utilities/DICOMParser/DICOMAppHelper.cxx	2010-06-14 14:41:11.000000000 -0600
++++ ../vtk-5.0.0f-new//Utilities/DICOMParser/DICOMAppHelper.cxx	2010-08-08 09:00:45.324003700 -0600
+@@ -31,7 +31,7 @@
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+-#include <string>
++#include <cstring>
+ #include <math.h>
+ #include <algorithm>
+ #include <cstring>
+diff -ruN ./Utilities/DICOMParser/DICOMParser.cxx ../vtk-5.0.0f-new//Utilities/DICOMParser/DICOMParser.cxx
+--- ./Utilities/DICOMParser/DICOMParser.cxx	2010-06-14 14:41:11.000000000 -0600
++++ ../vtk-5.0.0f-new//Utilities/DICOMParser/DICOMParser.cxx	2010-08-08 09:00:45.331004100 -0600
+@@ -36,7 +36,7 @@
+ #include <sys/types.h>
+ #endif
+ 
+-#include <string>
++#include <cstring>
+ #include <map>
+ #include <cstring>
+ 
+diff -ruN ./Utilities/ftgl/CMakeLists.txt ../vtk-5.0.0f-new//Utilities/ftgl/CMakeLists.txt
+--- ./Utilities/ftgl/CMakeLists.txt	2010-06-14 14:41:02.000000000 -0600
++++ ../vtk-5.0.0f-new//Utilities/ftgl/CMakeLists.txt	2010-08-08 09:00:45.337004500 -0600
+@@ -134,11 +134,11 @@
+ ENDIF(NOT OPENGL_FOUND)
+ SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${OPENGL_gl_LIBRARY}")
+ 
+-IF(WIN32)
++IF(APPLE OR WIN32)
+   IF (FTGL_SUPPORT_MANGLE_MESA)
+     SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${MANGLED_MESA_LIBRARY}")
+   ENDIF (FTGL_SUPPORT_MANGLE_MESA)
+-ENDIF(WIN32)
++ENDIF(APPLE OR WIN32)
+ 
+ #
+ # We obviously need FreeType
+diff -ruN ./VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx ../vtk-5.0.0f-new//VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx
+--- ./VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx	2010-06-14 14:41:12.000000000 -0600
++++ ../vtk-5.0.0f-new//VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx	2010-08-08 10:01:19.225851000 -0600
+@@ -178,7 +178,9 @@
+   double InvW;
+   
+ private:
+-  vtkVertexEntry &operator=(const vtkVertexEntry &other);
++// Visual Studio 10 does not like the below.  Perhaps because
++// copy constructor is not private?
++  // vtkVertexEntry &operator=(const vtkVertexEntry &other);
+ };
+ 
+ 

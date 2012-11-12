@@ -1,0 +1,28 @@
+diff -r 192d89c65397 configure
+--- a/configure	Wed Jan 07 16:24:59 2009 -0600
++++ b/configure	Wed Jan 07 16:25:15 2009 -0600
+@@ -4173,8 +4173,8 @@
+ 
+ 
+ 
+-CFLAGS=""
+-FFLAGS=""
++#CFLAGS=""
++#FFLAGS=""
+ 
+ { $as_echo "$as_me:$LINENO: checking whether to enable large file support" >&5
+ $as_echo_n "checking whether to enable large file support... " >&6; }
+diff -r 192d89c65397 configure.in
+--- a/configure.in	Wed Jan 07 16:24:59 2009 -0600
++++ b/configure.in	Wed Jan 07 16:25:15 2009 -0600
+@@ -166,8 +166,8 @@
+ dnl -----------------------------------------------
+ 
+ dnl Take control of CFLAGS and FFLAGS, we set them up from now on
+-CFLAGS=""
+-FFLAGS=""
++dnl CFLAGS=""
++dnl FLAGS=""
+ 
+ dnl ===========
+ dnl LARGE FILES

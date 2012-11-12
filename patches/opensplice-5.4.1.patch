@@ -1,0 +1,43 @@
+diff -crB OpenSplice-5.4.1/bin/configure_functions OpenSplice-5.4.1-txc/bin/configure_functions
+*** OpenSplice-5.4.1/bin/configure_functions	2011-01-21 06:43:54.000000000 -0700
+--- OpenSplice-5.4.1-txc/bin/configure_functions	2011-08-26 12:07:40.000000000 -0600
+***************
+*** 162,183 ****
+              echo $n ">" $i
+              n=`expr $n + 1`
+          done
+-         echo -n "Please select a target number:"
+-         read ARGUMENT
+-         n=1
+          for i in $SELECTED_TARGETS
+          do
+!             if [ "$n" = "$ARGUMENT" ]
+              then
+                  SPLICE_TARGET=$i
+              fi
+              n=`expr $n + 1`
+          done
+-         if [ -z "$SPLICE_TARGET" ]
+-         then
+-             echo
+-             echo "Invalid selection, try again!"
+-         fi
+      done
+  }
+  
+--- 162,176 ----
+              echo $n ">" $i
+              n=`expr $n + 1`
+          done
+          for i in $SELECTED_TARGETS
+          do
+!             if [ "x86_64.linux2.6-release*" = "$i" -o "x86_64.linux2.6-release" = "$i" ]
+              then
+                  SPLICE_TARGET=$i
++ 		echo "Selected target: " $SPLICE_TARGET
+              fi
+              n=`expr $n + 1`
+          done
+      done
+  }
+  

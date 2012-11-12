@@ -1,0 +1,45 @@
+diff -ruN ./cmake/TrilinosFortranMangling.cmake ../trilinos-10.0.5.new/cmake/TrilinosFortranMangling.cmake
+--- ./cmake/TrilinosFortranMangling.cmake	2010-02-16 10:53:43.000000000 -0600
++++ ../trilinos-10.0.5.new/cmake/TrilinosFortranMangling.cmake	2010-04-30 10:00:44.596528240 -0500
+@@ -23,8 +23,13 @@
+   # be too hard.
+ 
+ ELSE()
+- 
+-  IF(CYGWIN)
++
++# jrc 28mar10: Apparently no CMAKE_FORTRAN_COMPILER_ID?
++  # IF("${CMAKE_FORTRAN_COMPILER_ID}" STREQUAL "XL")
++  IF("${CMAKE_C_COMPILER_ID}" STREQUAL "XL")
++    SET(F77_FUNC_DEFAULT "(name,NAME) name" )
++    SET(F77_FUNC__DEFAULT "(name,NAME) name" )
++  ELSEIF(CYGWIN)
+     SET(F77_FUNC_DEFAULT "(name,NAME) name ## _" )
+     SET(F77_FUNC__DEFAULT "(name,NAME) name ## __" )
+   ELSEIF(WIN32)
+diff -ruN ./packages/epetra/src/CMakeLists.txt ../trilinos-10.0.5.new/packages/epetra/src/CMakeLists.txt
+--- ./packages/epetra/src/CMakeLists.txt	2010-02-16 10:53:54.000000000 -0600
++++ ../trilinos-10.0.5.new/packages/epetra/src/CMakeLists.txt	2010-04-30 10:02:34.705824010 -0500
+@@ -7,7 +7,9 @@
+ 
+ SET(HAVE_FORTRAN_SUPPORT ${Trilinos_ENABLE_Fortran})
+ SET(EPETRA_MPI ${TPL_ENABLE_MPI})
+-IF(CMAKE_SIZEOF_VOID_P GREATER 4)
++# IF(CMAKE_SIZEOF_VOID_P GREATER 4)
++# JRC 30Apr10: above changed to below
++IF(CMAKE_CXX_SIZEOF_DATA_PTR GREATER 4 AND CMAKE_C_SIZEOF_DATA_PTR GREATER 4)
+   SET(EPETRA_ADDRESS64BIT ON)
+ ENDIF()
+ 
+diff -ruN ./packages/epetra/src/Epetra_ConfigDefs.h ../trilinos-10.0.5.new/packages/epetra/src/Epetra_ConfigDefs.h
+--- ./packages/epetra/src/Epetra_ConfigDefs.h	2010-02-16 10:53:54.000000000 -0600
++++ ../trilinos-10.0.5.new/packages/epetra/src/Epetra_ConfigDefs.h	2010-04-30 10:00:44.696527601 -0500
+@@ -126,7 +126,7 @@
+ using std::fabs;
+ using std::atoi;
+ using std::atof;
+-using std::abs;
++// using std::abs;
+ using std::pow;
+ using std::sqrt;
+ using std::asin;

@@ -1,0 +1,90 @@
+diff -ruN hdf5-1.8.6/config/cmake/ConfigureChecks.cmake hdf5-1.8.6-new/config/cmake/ConfigureChecks.cmake
+--- hdf5-1.8.6/config/cmake/ConfigureChecks.cmake	2011-02-14 09:23:41.000000000 -0700
++++ hdf5-1.8.6-new/config/cmake/ConfigureChecks.cmake	2011-03-11 08:00:15.590741000 -0700
+@@ -351,7 +351,7 @@
+   SET (H5_HAVE_DIFFTIME 1)
+   SET (H5_HAVE_LONGJMP 1)
+   SET (H5_STDC_HEADERS 1)
+-  SET (H5_HAVE_GETHOSTNAME 1)
++  # SET (H5_HAVE_GETHOSTNAME 1)
+ ENDIF (WINDOWS)
+ 
+ CHECK_FUNCTION_EXISTS (alarm             H5_HAVE_ALARM)
+@@ -517,7 +517,7 @@
+ # Check a bunch of other functions
+ #-----------------------------------------------------------------------------
+ IF (WINDOWS)
+-  SET (H5_HAVE_TIMEZONE 1)
++  # SET (H5_HAVE_TIMEZONE 1)
+   SET (H5_HAVE_FUNCTION 1)
+   SET (H5_LONE_COLON 0)
+ ELSE (WINDOWS)
+diff -ruN hdf5-1.8.6/config/cmake/HDF5Macros.cmake hdf5-1.8.6-new/config/cmake/HDF5Macros.cmake
+--- hdf5-1.8.6/config/cmake/HDF5Macros.cmake	2011-02-14 09:23:41.000000000 -0700
++++ hdf5-1.8.6-new/config/cmake/HDF5Macros.cmake	2011-03-12 08:54:26.665489200 -0700
+@@ -35,7 +35,9 @@
+ 
+ #-------------------------------------------------------------------------------
+ MACRO (H5_NAMING target)
+-  IF (WIN32 AND NOT MINGW)
++# Allow legacy naming for mingw
++  # IF (WIN32 AND NOT MINGW)
++  IF (WIN32)
+     IF (BUILD_SHARED_LIBS)
+       IF (H5_LEGACY_NAMING)
+         SET_TARGET_PROPERTIES (${target} PROPERTIES OUTPUT_NAME "dll")
+@@ -44,14 +46,16 @@
+         SET_TARGET_PROPERTIES (${target} PROPERTIES OUTPUT_NAME "${target}dll")
+       ENDIF (H5_LEGACY_NAMING)
+     ENDIF (BUILD_SHARED_LIBS)
+-  ENDIF (WIN32 AND NOT MINGW)
++  ENDIF ()
+ ENDMACRO (H5_NAMING)
+ 
+ #-------------------------------------------------------------------------------
+ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
+   # message (STATUS "${libname} libtype: ${libtype}")
+   IF (${libtype} MATCHES "SHARED")
+-    IF (WIN32 AND NOT MINGW)
++# Allow legacy naming for mingw
++    # IF (WIN32 AND NOT MINGW)
++    IF (WIN32)
+       IF (H5_LEGACY_NAMING)
+         SET (LIB_RELEASE_NAME "${libname}dll")
+         SET (LIB_DEBUG_NAME "${libname}ddll")
+@@ -59,12 +63,14 @@
+         SET (LIB_RELEASE_NAME "${libname}")
+         SET (LIB_DEBUG_NAME "${libname}_D")
+       ENDIF (H5_LEGACY_NAMING)
+-    ELSE (WIN32 AND NOT MINGW)
++    ELSE ()
+       SET (LIB_RELEASE_NAME "${libname}")
+       SET (LIB_DEBUG_NAME "${libname}_debug")
+-    ENDIF (WIN32 AND NOT MINGW)
++    ENDIF ()
+   ELSE (${libtype} MATCHES "SHARED")
+-    IF (WIN32 AND NOT MINGW)
++# Allow legacy naming for mingw
++    # IF (WIN32 AND NOT MINGW)
++    IF (WIN32)
+       IF (H5_LEGACY_NAMING)
+         SET (LIB_RELEASE_NAME "${libname}")
+         SET (LIB_DEBUG_NAME "${libname}d")
+@@ -72,7 +78,7 @@
+         SET (LIB_RELEASE_NAME "lib${libname}")
+         SET (LIB_DEBUG_NAME "lib${libname}_D")
+       ENDIF (H5_LEGACY_NAMING)
+-    ELSE (WIN32 AND NOT MINGW)
++    ELSE ()
+       # if the generator supports configuration types or if the CMAKE_BUILD_TYPE has a value
+       IF (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+         SET (LIB_RELEASE_NAME "${libname}")
+@@ -81,7 +87,7 @@
+         SET (LIB_RELEASE_NAME "lib${libname}")
+         SET (LIB_DEBUG_NAME "lib${libname}_debug")
+       ENDIF (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+-    ENDIF (WIN32 AND NOT MINGW)
++    ENDIF ()
+   ENDIF (${libtype} MATCHES "SHARED")
+   
+   SET_TARGET_PROPERTIES (${libtarget}

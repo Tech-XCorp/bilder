@@ -1,0 +1,36 @@
+diff -ruN trilinos-10.10.2/packages/amesos/CMakeLists.txt trilinos-10.10.2-new/packages/amesos/CMakeLists.txt
+--- trilinos-10.10.2/packages/amesos/CMakeLists.txt	2012-04-24 13:31:14.000000000 -0600
++++ trilinos-10.10.2-new/packages/amesos/CMakeLists.txt	2012-09-23 17:38:11.000000000 -0600
+@@ -13,9 +13,13 @@
+ #
+ 
+ # if using SuperLUDist, must also link in ParMETIS for some reason
+-IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
+-  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
+-ENDIF()
++#
++# TMA: Not necessary.  Removing this error message for Tech-X.  Will pass onto
++# Trilinos team.
++#
++#IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
++#  MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
++#ENDIF()
+ 
+ # if using parallel MUMPS, must also link in scalapack and BLACS
+ 
+diff -ruN trilinos-10.10.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp trilinos-10.10.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp
+--- trilinos-10.10.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-04-24 13:30:39.000000000 -0600
++++ trilinos-10.10.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-09-23 17:40:12.000000000 -0600
+@@ -424,6 +424,12 @@
+   : public DirectSerializationTraits<Ordinal, long long int>
+ {};
+ 
++template<typename Ordinal>
++class SerializationTraits<Ordinal,unsigned long long int>
++  : public DirectSerializationTraits<Ordinal, unsigned long long int>
++{};
++
++
+ #endif // HAVE_TEUCHOS_LONG_LONG_INT
+ 
+ } // namespace Teuchos

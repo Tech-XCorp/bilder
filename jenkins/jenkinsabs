@@ -1,0 +1,258 @@
+#!/bin/bash
+#
+# $Id: jenkinsabs 6961 2012-11-08 13:48:48Z cary $
+#
+# Script run in bash.  Started by jenkinsabs.bat on cygwin.
+# One or other started by jenkins.
+#
+
+
+#
+# Method to print out general and script specific options
+#
+usage() {
+  cat >&2 <<EOF
+Usage: $0 [options] dir
+GENERAL OPTIONS
+  -e <email> ... where to send the results to
+  -E <env pairs> comma separated list of environment variables and values,
+                 e.g., FOO=f,BAR=b
+  -h             print this help output
+  -H <hours> ... abstracts must have been created in this number of recent hours
+  -m <machine> . machine containing the abstracts
+  -s <script> .. file to source, either absolute or relative from working
+                 directory.  This file could contain email for projects.
+  -t ........... when set, this is a super directory and abstracts
+                 should be obtained for all subdirectories
+EOF
+  exit $1
+}
+
+#
+# Get startup parameters
+#
+args="$*"
+
+#
+# Extract options.
+#
+istopdir=false
+args="$*"
+EXTRA_ENV=
+HOURS=20
+while getopts "e:E:hH:m:s:t" arg; do
+  case "$arg" in
+# Use dir, not root dir, as this is particular to a build
+    e) EMAIL=$OPTARG;;
+    E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
+    h) usage 0;;
+    H) HOURS=$OPTARG;;
+    m) ABSTRACTHOST=$OPTARG;;
+    s) SOURCEFILE=$OPTARG;;
+    t) istopdir=true;;
+  esac
+done
+shift $(($OPTIND - 1))
+jabsdir=$1
+ABSMAILHOST=${ABSTRACTHOST:-"`hostname -f`"}
+
+workdir=${workdir:-"."}
+workdir=`(cd $workdir; pwd -P)`
+cd $workdir
+
+#
+# Echo a statement to the log and stdout
+#
+lecho() {
+  echo "$1" >> ${workdir}/jenkinsabs.log
+  echo "  jenkinsabs: $1"
+}
+
+#
+# Take and name and return a valid bash variable
+#
+# Args:
+# 1: The name used to generate the variable name
+#
+genbashvar() {
+  local bashvar=`echo $1 | tr 'a-z./-' 'A-Z___'`
+  echo $bashvar
+}
+
+# Start log
+rm ${workdir}/jenkinsabs.log
+lecho "Executing: '$0 $args' in ${workdir} on `date`."
+
+#
+# Jenkins does not use a login shell, which we need to get modules.
+# So source any bashrc as needed.
+#
+srcbashrc=true
+if test `shopt | grep login_shell | sed 's/login_shell *//'` = on; then
+  lecho "This is a login shell."
+  if test -f $HOME/.bash_profile -o -f $HOME/.profile; then
+    srcbashrc=false
+  fi
+fi
+if $srcbashrc; then
+  cmd=
+  if test -f $HOME/.bashrc; then
+    cmd="source $HOME/.bashrc"
+    lecho "$cmd"
+  elif test -f /etc/bashrc; then
+    cmd="source /etc/bashrc"
+    lecho "$cmd"
+  fi
+  $cmd
+fi
+if test -d /contrib/bin; then
+  if ! echo $PATH | egrep -q "(^|:)/contrib/bin($|:)"; then
+    lecho "Prepending /contrib/bin to path."
+    PATH=/contrib/bin:"$PATH"
+  fi
+fi
+
+#
+# Source the requested sourcefile
+#
+if test -n "$SOURCEFILE"; then
+  if test -f "$SOURCEFILE"; then
+    lecho "Sourcing $SOURCEFILE."
+    source $SOURCEFILE
+  else
+    lecho "$SOURCEFILE not found."
+  fi
+fi
+
+# Add possible environment variables
+lecho "Adding extra environment variables."
+if test -n "$EXTRA_ENV"; then
+  for i in `echo $EXTRA_ENV | tr ',' ' '`; do
+    cmd="export $i"
+    techo "$cmd"
+    $cmd
+  done
+fi
+
+lecho "<<<< Environment >>>>"
+lecho "   USER = $USER"
+lecho "   HOME = $HOME"
+lecho "   PATH = $PATH"
+lecho "   BUILD_NUMBER = $BUILD_NUMBER"
+lecho "   BUILD_URL = $BUILD_URL"
+lecho "   JENKINS_HOME = $JENKINS_HOME"
+lecho "   WORKSPACE = $WORKSPACE"
+lecho "   JENKINS_FSROOT = $JENKINS_FSROOT"
+lecho "   JOB_NAME = $JOB_NAME"
+lecho "   JOB_URL = $JOB_URL"
+
+# Return assumed good
+res=0
+
+# Whether through ssh
+cmdprefix=
+if test -n "$ABSTRACTHOST"; then
+  cmdprefix="ssh $ABSTRACTHOST"
+fi
+if $istopdir; then
+  absdirs=`$cmdprefix ls -tr $jabsdir | tr '\n' ' '`
+  topdir=$jabsdir
+else
+  absdirs=`basename $jabsdir`
+  topdir=`dirname $jabsdir`
+fi
+lecho "   topdir  = $topdir"
+lecho "   absdirs = $absdirs"
+
+# Loop over all the abstract dirs, analyze and email
+
+MINUTES=`expr $HOURS \* 60`
+for absdir in $absdirs; do
+# Do find to get abstracts in last number of hours.
+# This find syntax not valid on Darwin.
+  # cmd="$cmdprefix find $topdir/$absdir -type f -ctime -${DAYS}"
+  cmd="$cmdprefix find $topdir/$absdir -type f -cmin -${MINUTES}"
+  lecho "$cmd"
+  $cmd | sed -e "s%/.*/%%" >abstracts.txt
+  echo "abstracts:"
+  cat abstracts.txt
+  bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
+  lecho "bilderhosts = $bilderhosts."
+  numhosts=`echo $bilderhosts | wc -w | sed 's/^ *//'`
+  lecho "$numhosts hosts."
+  firsthost=`echo $bilderhosts | sed 's/ .*$//'`
+  lecho "firsthost = $firsthost."
+  if test -n "$firsthost"; then
+    # bilderbuilds=`grep $firsthost abstracts.txt | sed -e "s/${firsthost}_//" -e 's/_.*$//' | sort | uniq | tr '\n' ' '`
+    bilderbuilds=`sed -e "s/^[^_]*_//" -e 's/_.*$//' <abstracts.txt | sort | uniq | tr '\n' ' '`
+  else
+    res=1
+  fi
+  lecho "bilderbuilds = $bilderbuilds."
+  numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
+  lecho "$numbuilds builds."
+  numlines=`expr $numhosts \* $numbuilds`
+  lecho "$numlines lines to keep."
+
+# Get the last distinct builds of the distinct hosts
+  abs2get=
+  for h in $bilderhosts; do
+    for b in $bilderbuilds; do
+      abs2get="$abs2get "`grep $h abstracts.txt | grep $b | tail -1`
+    done
+  done
+  rm abstracts.txt
+  lecho "Will get $abs2get."
+
+# Get the project email
+  if test -n "$EMAIL"; then
+      projemail=$EMAIL
+  else
+    emailvar=`genbashvar ${absdir}_EMAIL`
+    # lecho "emailvar = $emailvar"
+    eval projemail=\$$emailvar
+  fi
+  lecho "Project email is $projemail."
+
+# Get these abstracts into a file
+  rm -rf allabs-${absdir}.html
+# Create local date stamp
+  datestamp=`date +%F`  
+  lecho "Creating datestamp for email subject: $datestamp"
+# This line seems necessary for mailmain
+  echo "From: ${absdir}-abstracts@$ABSMAILHOST" >>allabs-${absdir}.html
+  echo "To: ${projemail}" >>allabs-${absdir}.html
+  echo "Subject: $datestamp Abstracts for $absdir from $ABSMAILHOST" >>allabs-${absdir}.html
+  echo "Content-Type: text/html; charset=UTF-8" >> allabs-${absdir}.html
+  echo "<html>" >>allabs-${absdir}.html
+  if test -n "$abs2get"; then
+    for i in $abs2get; do
+      if test -n "${ABSTRACTHOST}"; then
+        cmd="scp ${ABSTRACTHOST}:${topdir}/$absdir/$i tempabs.html"
+      else
+        cmd="cp ${topdir}/$absdir/$i tempabs.html"
+      fi
+      lecho "$cmd"
+      $cmd
+      cat tempabs.html >>allabs-${absdir}.html
+      rm tempabs.html
+      echo '<br>' >>allabs-${absdir}.html
+    done
+  else
+    echo "No abstracts found in last $HOURS hours.<br>" >>allabs-${absdir}.html
+  fi
+  echo "</html>" >>allabs-${absdir}.html
+
+# Email this file to the specified email address.  Assuming sendmail exists.
+  if test -n "$projemail"; then
+    cmd="sendmail -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
+    lecho "$cmd"
+    eval "$cmd"
+  fi
+  rm allabs-${absdir}.html
+done
+
+#  Finish up.
+lecho "  jenkinsabs completing with result = $res."
+exit $res
+

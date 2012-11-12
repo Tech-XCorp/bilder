@@ -1,0 +1,12 @@
+diff -ruN chombo-3.0.0/src/BaseTools/ParmParse.cpp chombo-3.0.0-new/src/BaseTools/ParmParse.cpp
+--- chombo-3.0.0/src/BaseTools/ParmParse_orig.cpp	2008-11-01 16:32:12.000000000 -0600
++++ chombo-3.0.0-new/src/BaseTools/ParmParse.cpp	2011-09-15 11:38:23.000000000 -0600
+@@ -1084,7 +1084,7 @@
+ PP_String::getline (istream& is)
+ {
+     char      c;
+-    const int BufferSize = 256;
++    const int BufferSize = 512;
+     char      buf[BufferSize + 1];
+     int       index = 0;
+ 

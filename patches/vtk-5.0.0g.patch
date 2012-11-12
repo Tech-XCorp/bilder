@@ -1,0 +1,14 @@
+diff -ruN ./VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx ../vtk-5.0.0g-new/VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx
+--- ./VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx	2010-08-26 11:32:18.000000000 -0600
++++ ../vtk-5.0.0g-new/VolumeRendering/vtkUnstructuredGridVolumeZSweepMapper.cxx	2010-08-29 07:18:09.658805000 -0600
+@@ -178,7 +178,9 @@
+   double InvW;
+   
+ private:
+-  vtkVertexEntry &operator=(const vtkVertexEntry &other);
++// Visual Studio 10 does not like the below.  Perhaps because
++// copy constructor is not private?
++  // vtkVertexEntry &operator=(const vtkVertexEntry &other);
+ };
+ 
+ 

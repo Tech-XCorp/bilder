@@ -1,0 +1,221 @@
+diff -ruN mesa-7.10.2/configs/autoconf.in mesa-7.10.2-new/configs/autoconf.in
+--- mesa-7.10.2/configs/autoconf.in	2011-02-11 15:49:47.000000000 -0700
++++ mesa-7.10.2-new/configs/autoconf.in	2011-10-06 07:34:54.071134175 -0600
+@@ -54,8 +54,8 @@
+ PYTHON_FLAGS = -t -O -O
+ 
+ # Library names (base name)
+-GL_LIB = GL
+-GLU_LIB = GLU
++GL_LIB = MesaGL
++GLU_LIB = MesaGLU
+ GLUT_LIB = glut
+ GLW_LIB = GLw
+ OSMESA_LIB = @OSMESA_LIB@
+diff -ruN mesa-7.10.2/src/glu/sgi/glu.exports.darwin mesa-7.10.2-new/src/glu/sgi/glu.exports.darwin
+--- mesa-7.10.2/src/glu/sgi/glu.exports.darwin	2010-02-04 17:10:40.000000000 -0700
++++ mesa-7.10.2-new/src/glu/sgi/glu.exports.darwin	2011-10-06 07:35:49.125134309 -0600
+@@ -1,59 +1,59 @@
+-_*gluBeginCurve
+-_*gluBeginPolygon
+-_*gluBeginSurface
+-_*gluBeginTrim
+-_*gluBuild1DMipmapLevels
+-_*gluBuild1DMipmaps
+-_*gluBuild2DMipmapLevels
+-_*gluBuild2DMipmaps
+-_*gluBuild3DMipmapLevels
+-_*gluBuild3DMipmaps
+-_*gluCheckExtension
+-_*gluCylinder
+-_*gluDeleteNurbsRenderer
+-_*gluDeleteQuadric
+-_*gluDeleteTess
+-_*gluDisk
+-_*gluEndCurve
+-_*gluEndPolygon
+-_*gluEndSurface
+-_*gluEndTrim
+-_*gluErrorString
+-_*gluGetNurbsProperty
+-_*gluGetString
+-_*gluGetTessProperty
+-_*gluLoadSamplingMatrices
+-_*gluLookAt
+-_*gluNewNurbsRenderer
+-_*gluNewQuadric
+-_*gluNewTess
+-_*gluNextContour
+-_*gluNurbsCallback
+-_*gluNurbsCallbackData
+-_*gluNurbsCallbackDataEXT
+-_*gluNurbsCurve
+-_*gluNurbsProperty
+-_*gluNurbsSurface
+-_*gluOrtho2D
+-_*gluPartialDisk
+-_*gluPerspective
+-_*gluPickMatrix
+-_*gluProject
+-_*gluPwlCurve
+-_*gluQuadricCallback
+-_*gluQuadricDrawStyle
+-_*gluQuadricNormals
+-_*gluQuadricOrientation
+-_*gluQuadricTexture
+-_*gluScaleImage
+-_*gluSphere
+-_*gluTessBeginContour
+-_*gluTessBeginPolygon
+-_*gluTessCallback
+-_*gluTessEndContour
+-_*gluTessEndPolygon
+-_*gluTessNormal
+-_*gluTessProperty
+-_*gluTessVertex
+-_*gluUnProject
+-_*gluUnProject4
++_*mgluBeginCurve
++_*mgluBeginPolygon
++_*mgluBeginSurface
++_*mgluBeginTrim
++_*mgluBuild1DMipmapLevels
++_*mgluBuild1DMipmaps
++_*mgluBuild2DMipmapLevels
++_*mgluBuild2DMipmaps
++_*mgluBuild3DMipmapLevels
++_*mgluBuild3DMipmaps
++_*mgluCheckExtension
++_*mgluCylinder
++_*mgluDeleteNurbsRenderer
++_*mgluDeleteQuadric
++_*mgluDeleteTess
++_*mgluDisk
++_*mgluEndCurve
++_*mgluEndPolygon
++_*mgluEndSurface
++_*mgluEndTrim
++_*mgluErrorString
++_*mgluGetNurbsProperty
++_*mgluGetString
++_*mgluGetTessProperty
++_*mgluLoadSamplingMatrices
++_*mgluLookAt
++_*mgluNewNurbsRenderer
++_*mgluNewQuadric
++_*mgluNewTess
++_*mgluNextContour
++_*mgluNurbsCallback
++_*mgluNurbsCallbackData
++_*mgluNurbsCallbackDataEXT
++_*mgluNurbsCurve
++_*mgluNurbsProperty
++_*mgluNurbsSurface
++_*mgluOrtho2D
++_*mgluPartialDisk
++_*mgluPerspective
++_*mgluPickMatrix
++_*mgluProject
++_*mgluPwlCurve
++_*mgluQuadricCallback
++_*mgluQuadricDrawStyle
++_*mgluQuadricNormals
++_*mgluQuadricOrientation
++_*mgluQuadricTexture
++_*mgluScaleImage
++_*mgluSphere
++_*mgluTessBeginContour
++_*mgluTessBeginPolygon
++_*mgluTessCallback
++_*mgluTessEndContour
++_*mgluTessEndPolygon
++_*mgluTessNormal
++_*mgluTessProperty
++_*mgluTessVertex
++_*mgluUnProject
++_*mgluUnProject4
+diff -ruN mesa-7.10.2/src/mesa/main/APIspec.py mesa-7.10.2-new/src/mesa/main/APIspec.py
+--- mesa-7.10.2/src/mesa/main/APIspec.py	2010-10-05 10:56:52.000000000 -0600
++++ mesa-7.10.2-new/src/mesa/main/APIspec.py	2011-10-06 07:18:47.623259325 -0600
+@@ -262,7 +262,11 @@
+         args = []
+         if declaration:
+             for param in self.params:
+-                sep = "" if param.type.endswith("*") else " "
++                #sep = "" if param.type.endswith("*") else " "
++                if param.type.endswith("*"):
++                    sep = ""
++                else:
++                    sep = " "
+                 args.append("%s%s%s" % (param.type, sep, param.name))
+             if not args:
+                 args.append("void")
+diff -ruN mesa-7.10.2/src/mesa/main/APIspecutil.py mesa-7.10.2-new/src/mesa/main/APIspecutil.py
+--- mesa-7.10.2/src/mesa/main/APIspecutil.py	2010-10-05 10:56:52.000000000 -0600
++++ mesa-7.10.2-new/src/mesa/main/APIspecutil.py	2011-10-06 07:18:52.590259344 -0600
+@@ -129,7 +129,11 @@
+             if dep_desc.checker.switches:
+                 print >>sys.stderr, "%s: deep nested dependence" % func.name
+ 
+-            convert = None if dep_desc.convert else "noconvert"
++            #convert = None if dep_desc.convert else "noconvert"
++            if dep_desc.convert:
++                convert = None
++            else:
++                convert = "noconvert"
+             for val in desc.values:
+                 valid_values.append((val, dep_desc.size_str, dep_desc.name,
+                                      dep_desc.values, dep_desc.error, convert))
+@@ -241,7 +245,11 @@
+     """Return a C-style parameter declaration string."""
+     string = []
+     for p in params:
+-        sep = "" if p[1].endswith("*") else " "
++        #sep = "" if p[1].endswith("*") else " "
++        if p[1].endswith("*"):
++            sep = ""
++        else:
++            sep = " "
+         string.append("%s%s%s" % (p[1], sep, p[0]))
+     if not string:
+         return "void"
+@@ -257,13 +265,21 @@
+ def Alias(funcname):
+     """Return the name of the function the named function is an alias of."""
+     alias, need_conv = __aliases[funcname]
+-    return alias.name if not need_conv else None
++    if need_conv:
++        return None
++    else:
++        return alias.name
++    #return alias.name if not need_conv else None
+ 
+ 
+ def ConversionFunction(funcname):
+     """Return the name of the function the named function converts to."""
+     alias, need_conv = __aliases[funcname]
+-    return alias.name if need_conv else None
++    if need_conv:
++        return alias.name
++    else:
++        return None
++    #return alias.name if need_conv else None
+ 
+ 
+ def Categories(funcname):
+diff -ruN mesa-7.10.2/src/mesa/main/es_generator.py mesa-7.10.2-new/src/mesa/main/es_generator.py
+--- mesa-7.10.2/src/mesa/main/es_generator.py	2010-12-14 14:43:15.000000000 -0700
++++ mesa-7.10.2-new/src/mesa/main/es_generator.py	2011-10-06 07:18:57.804133963 -0600
+@@ -741,7 +741,11 @@
+ """ % (shortname, shortname, shortname, shortname)
+ 
+ for func in keys:
+-    prefix = "_es_" if func not in allSpecials else "_check_"
++    #prefix = "_es_" if func not in allSpecials else "_check_"
++    if func in allSpecials:
++        prefix = "_check_"
++    else:
++        prefix = "_es_"
+     for spec in apiutil.Categories(func):
+         ext = spec.split(":")
+         # version does not match

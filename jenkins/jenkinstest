@@ -1,0 +1,204 @@
+#!/bin/bash
+#
+# $Id: jenkinstest 6409 2012-07-20 11:35:59Z cary $
+#
+# Script run in bash.  Started by jenkinstest.bat on cygwin.
+# One or other started by jenkins.
+#
+
+lecho() {
+  echo "$1" | tee -a jenkinstest.log
+}
+
+successExit() {
+  lecho "jenkinstest determined $1. SUCCESS."
+  exit 0
+}
+
+errorExit() {
+  lecho "WARNING: $1. jenkinstest quitting as failed."
+  exit 1
+}
+
+#
+# Method to print out general and script specific options
+#
+usage() {
+  cat >&2 <<EOF
+Usage: $0 [options]
+GENERAL OPTIONS
+EOF
+}
+
+#
+# Get startup parameters
+#
+curdir=`pwd -P`
+jenkins_dir=`dirname $0`
+jenkins_dir=${jenkins_dir:-"."}
+jenkins_dir=`(cd $jenkins_dir; pwd -P)`
+args="$*"
+
+#
+# We are in the work directory.
+#
+rm -f jenkinstest.log
+lecho ""
+lecho "$0 started with arguments, $args, in $curdir."
+if declare -f module 1>/dev/null; then
+  echo "This system has modules."
+fi
+
+#
+# Jenkins does not use a login shell, which we need to get modules.
+#
+# if test -f $HOME/.bashrc -a -z "$NUMBASHRCSRCS"; then
+srcbashrc=true
+if test `shopt | grep login_shell | sed 's/login_shell *//'` = on; then
+  lecho "This is a login shell."
+  if test -f $HOME/.bash_profile -o -f $HOME/.profile; then
+    srcbashrc=false
+  fi
+fi
+lecho "srcbashrc = $srcbashrc."
+lecho "PATH = $PATH."
+if $srcbashrc; then
+  lecho "Sourcing bashrc if found."
+  cmd=
+  if test -f $HOME/.bashrc; then
+    cmd="source $HOME/.bashrc"
+  elif test -f /etc/bashrc; then
+    cmd="source /etc/bashrc"
+  fi
+  lecho "$cmd"
+  $cmd
+fi
+if test -d /contrib/bin; then
+  lecho "Adding /contrib/bin to path."
+  PATH=/contrib/bin:"$PATH"
+fi
+
+# Determine the file system root
+up3=`(cd ../../..; pwd -P)`
+if test `basename $up3` = workspace; then
+# For slave builds
+  JENKINS_FSROOT=`(cd ../../../..; pwd -P)`
+else
+# For direct builds
+  up1=`(cd ..; pwd -P)`
+  if test `basename $up1` = workspace; then
+    JENKINS_FSROOT=`(cd ../..; pwd -P)`
+  else
+    JENKINS_FSROOT="$JENKINS_HOME"
+  fi
+fi
+export JENKINS_FSROOT
+
+#
+# Some output
+#
+lecho "jenkinsdir = $jenkinsdir, USER = $USER, HOME = $HOME."
+lecho "up3 = $up3"
+lecho "BUILD_NUMBER = $BUILD_NUMBER."
+lecho "BUILD_URL = $BUILD_URL."
+lecho "JENKINS_HOME = $JENKINS_HOME."
+lecho "JENKINS_FSROOT = $JENKINS_FSROOT."
+lecho "JOB_NAME = $JOB_NAME."
+lecho "JOB_URL = $JOB_URL."
+lecho "PATH = $PATH."
+lecho "WORKSPACE = $WORKSPACE."
+
+#
+# Make sure Windows Python is used.
+#
+export BLDR_SVNVERSION=svnversion
+if [[ `uname` =~ CYGWIN ]]; then
+# Convert some env vars
+  JENKINS_HOME=`cygpath -au $JENKINS_HOME`
+  WORKSPACE=`cygpath -au $WORKSPACE`
+# Subversion must be compatible with the svnkit used by jenkins, which is
+# Windows client, version 1.6.  Try a custom installation:
+  cand="/cygdrive/c/Program Files/CollabNet/Subversion Server 1.6.17/svnversion.exe"
+  if test -f "$cand"; then
+    BLDR_SVNVERSION="$cand"
+  else # Hope the installed client is right
+    lecho "'$cand' not found."
+    BLDR_SVNVERSION=`which svnversion`
+  fi
+fi
+# Correct for non jenkins testing
+if test -z "$WORKSPACE"; then
+  WORKSPACE=`dirname $0`
+  WORKSPACE=`(cd $WORKSPACE; pwd -P)`
+fi
+lecho "USER = $USER."
+lecho "HOME = $HOME."
+lecho "PATH = $PATH."
+lecho "which svn = `which svn`."
+lecho "After conversion:"
+lecho "BLDR_SVNVERSION = $BLDR_SVNVERSION."
+lecho "JENKINS_HOME = $JENKINS_HOME."
+lecho "WORKSPACE = $WORKSPACE."
+
+# Determine the Jenkins job directory
+jenkins_jobdir=`(cd $WORKSPACE/../..; pwd -P)`
+jenkins_subdir=`(cd $WORKSPACE; pwd -P | sed "s?^$jenkins_jobdir/??")`
+jenkins_builddir=`dirname $jenkins_jobdir`/`basename $jenkins_jobdir -test`-build/$jenkins_subdir
+lecho "jenkins_jobdir = $jenkins_jobdir."
+lecho "jenkins_subdir = $jenkins_subdir."
+lecho "jenkins_builddir = $jenkins_builddir."
+
+#
+# Look for any failures in the subject files
+#
+firstrunsubjfile=$jenkins_builddir/firstrunsubj.txt
+lecho "Looking for $firstrunsubjfile."
+if ! test -f "$firstrunsubjfile"; then
+  errorExit "Subject file for first run not found"
+fi
+
+# At this point, we know first run file was found, so we 
+# examine results:
+# 
+# Case 1: One or more failures. Bail out, tests failed.
+# Case 2: All tests passed. No second file should exist.
+# Case 3: Already installed in last $BILDER_WAIT_DAYS, so
+#         no tests run. Second file should exist.
+# Case 4: Bilder problem resulted in missing second subject
+#         file.
+
+echo "$firstrunsubjfile found: "`cat $firstrunsubjfile`
+
+if grep -q FAIL $firstrunsubjfile; then
+  errorExit "First run failed."
+fi
+
+# At this point we did not find FAILURE in first file, so
+# it's either case 2, 3, or 4, OR case 5 = All tests passed
+# on second run. If it's case 2, there will be no second file.
+
+secondrunsubjfile=$jenkins_builddir/secondrunsubj.txt
+lecho "Looking for $secondrunsubjfile."
+
+if test -f "$secondrunsubjfile"; then
+  echo "$secondrunsubjfile found: "`cat $secondrunsubjfile`
+# Case 3: Already installed.
+  if grep -q FAIL $secondrunsubjfile; then
+    errorExit "Second run failed"
+  else
+# Case 5: All tests passed on second run.
+    successExit "all tests passed on second run"
+  fi
+else
+# Case 2: All tests passed.
+  if grep -q SUCCESS $firstrunsubjfile; then
+    successExit "all tests passed"
+  else
+# Case 4: No second file, but no success either.
+    errorExit "Subject file for second run not found"
+  fi
+fi
+
+# Can't get here!
+
+errorExit "Shouldn't be here"

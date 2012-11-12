@@ -1,0 +1,611 @@
+diff -ruN qscintilla/Qt4/Qsci/qscilexerthas.h qscintilla-new/Qt4/Qsci/qscilexerthas.h
+--- qscintilla/Qt4/Qsci/qscilexerthas.h	1969-12-31 17:00:00.000000000 -0700
++++ qscintilla-new/Qt4/Qsci/qscilexerthas.h	2010-04-06 14:41:52.000000000 -0600
+@@ -0,0 +1,207 @@
++// This defines the interface to the QsciLexerTHAS class.
++//
++
++
++
++#ifndef QSCILEXERTHAS_H
++#define QSCILEXERTHAS_H
++
++#ifdef __APPLE__
++extern "C++" {
++#endif
++
++#include <qobject.h>
++
++#include <Qsci/qsciglobal.h>
++#include <Qsci/qscilexer.h>
++
++
++//! \brief The QsciLexerTHAS class encapsulates the Scintilla HTML lexer.
++class QSCINTILLA_EXPORT QsciLexerTHAS : public QsciLexer
++{
++    Q_OBJECT
++
++public:
++    //! This enum defines the meanings of the different styles used by the
++    //! HTML lexer.
++    enum {
++        //! The default.
++        Default = 0,
++
++        //! A # line of comments.
++        CommentLine = 1,
++
++        //! A number.
++        Number = 2,
++
++        //! A character string.
++        String = 3,
++
++        //! A single character.
++        Character = 4,
++
++        //! A keyword.
++        Word = 5,
++
++        //! A python triple quoted string.
++        Triple = 6,
++
++        //! A python triple double-quoted string.
++        TripleDouble = 7,
++
++        //! A python class name.
++        ClassName = 8,
++
++        //! A python definition name.
++        DefName = 9,
++
++        //! A python operator.
++        Operator = 10,
++
++        //! A python identifier.
++        Identifier = 11,
++
++        //! A ## comment line.
++        CommentBlock = 12,
++
++        //! A python string eol.
++        StringEol = 13,
++
++        //! A keyword in the second set.
++        Word2 = 14,
++
++        //! A python decorator.
++        Decorator = 15,
++
++        //! The header lines at the beginning of a file.
++        StartHeader = 16,
++
++        //! The beginning of a python preprocessor line.
++        Python = 17,
++
++        //! An Xml tag.
++        Xml = 18,
++
++        //! An invalid keyword
++        InvalidWord = 19,
++    };
++
++    //! Construct a QsciLexerTHAS with parent \a parent.  \a parent is
++    //! typically the QsciScintilla instance.
++    QsciLexerTHAS(QObject *parent = 0);
++
++    //! Destroys the QsciLexerTHAS instance.
++    virtual ~QsciLexerTHAS();
++
++    //! Returns the name of the language.
++    const char *language() const;
++
++    //! Returns the name of the lexer.  Some lexers support a number of
++    //! languages.
++    const char *lexer() const;
++
++    //! \internal Returns the string of characters that comprise a word.
++    const char *wordCharacters() const;
++
++    //! Returns the foreground colour of the text for style number \a style.
++    //!
++    //! \sa defaultPaper()
++    QColor defaultColor(int style) const;
++
++    //! Returns the end-of-line fill for style number \a style.
++    bool defaultEolFill(int style) const;
++
++    //! Returns the font for style number \a style.
++    QFont defaultFont(int style) const;
++
++    //! Returns the background colour of the text for style number \a style.
++    //!
++    //! \sa defaultColor()
++    QColor defaultPaper(int style) const;
++
++    //! Returns the set of keywords for the keyword set \a set recognised
++    //! by the lexer as a space separated string.
++    const char *keywords(int set) const;
++
++    //! Assigns the list of keywords for the keyword set \a set.
++    //! \a keywords must be a space-delimited string
++    void setKeywords(int set, QString keywords);
++
++    //! Returns the descriptive name for style number \a style.  If the
++    //! style is invalid for this language then an empty QString is returned.
++    //! This is intended to be used in user preference dialogs.
++    QString description(int style) const;
++
++    //! Causes all properties to be refreshed by emitting the
++    //! propertyChanged() signal as required.
++    void refreshProperties();
++
++    //! Returns true if trailing blank lines are included in a fold block.
++    //!
++    //! \sa setFoldCompact()
++    bool foldCompact() const;
++
++    //! Returns true if preprocessor blocks can be folded.
++    //!
++    //! \sa setFoldPreprocessor()
++    bool foldPreprocessor() const;
++
++    //! Returns true if tags are case sensitive.
++    //!
++    //! \sa setCaseSensitiveTags()
++    bool caseSensitiveTags() const;
++
++public slots:
++    //! If \a fold is true then trailing blank lines are included in a fold
++    //! block. The default is true.
++    //!
++    //! \sa foldCompact()
++    virtual void setFoldCompact(bool fold);
++
++    //! If \a fold is true then preprocessor blocks can be folded.  The
++    //! default is false.
++    //!
++    //! \sa foldPreprocessor()
++    virtual void setFoldPreprocessor(bool fold);
++
++    //! If \a sens is true then tags are case sensitive.  The default is false.
++    //!
++    //! \sa caseSensitiveTags()
++    virtual void setCaseSensitiveTags(bool sens);
++
++protected:
++    //! The lexer's properties are read from the settings \a qs.  \a prefix
++    //! (which has a trailing '/') should be used as a prefix to the key of
++    //! each setting.  true is returned if there is no error.
++    //!
++    bool readProperties(QSettings &qs,const QString &prefix);
++
++    //! The lexer's properties are written to the settings \a qs.
++    //! \a prefix (which has a trailing '/') should be used as a prefix to
++    //! the key of each setting.  true is returned if there is no error.
++    //!
++    bool writeProperties(QSettings &qs,const QString &prefix) const;
++
++private:
++    void setCompactProp();
++    void setPreprocProp();
++    void setCaseSensTagsProp();
++
++    bool fold_compact;
++    bool fold_preproc;
++    bool case_sens_tags;
++
++    //These two strings hold the list of block and attribute names
++    //These are used in the lexer for syntax highlighting and folding
++    QString blockTags;
++    QString attributeTags;
++
++    QsciLexerTHAS(const QsciLexerTHAS &);
++    QsciLexerTHAS &operator=(const QsciLexerTHAS &);
++};
++
++#ifdef __APPLE__
++}
++#endif
++
++#endif
+diff -ruN qscintilla/Qt4/qscilexerthas.cpp qscintilla-new/Qt4/qscilexerthas.cpp
+--- qscintilla/Qt4/qscilexerthas.cpp	1969-12-31 17:00:00.000000000 -0700
++++ qscintilla-new/Qt4/qscilexerthas.cpp	2010-04-06 14:41:52.000000000 -0600
+@@ -0,0 +1,340 @@
++// This module implements the QsciLexerTHAS class.
++//
++
++
++#include "Qsci/qscilexerthas.h"
++
++#include <qcolor.h>
++#include <qfont.h>
++#include <qsettings.h>
++
++#include "Qsci/qscilexerjavascript.h"
++#include "Qsci/qscilexerpython.h"
++
++
++// The ctor.
++QsciLexerTHAS::QsciLexerTHAS(QObject *parent)
++    : QsciLexer(parent),
++      fold_compact(false), fold_preproc(true), case_sens_tags(true)
++{
++  blockTags = "";
++  attributeTags = "";
++}
++
++
++// The dtor.
++QsciLexerTHAS::~QsciLexerTHAS()
++{
++}
++
++
++// Returns the language name.
++const char *QsciLexerTHAS::language() const
++{
++    return "THAS";
++}
++
++
++// Returns the lexer name.
++const char *QsciLexerTHAS::lexer() const
++{
++    return "THAS";
++}
++
++
++// Return the string of characters that comprise a word.
++const char *QsciLexerTHAS::wordCharacters() const
++{
++        return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
++}
++
++
++// Returns the foreground colour of the text for a style.
++QColor QsciLexerTHAS::defaultColor(int style) const
++{
++    switch (style)
++    {
++    case Default:
++        return QColor(0x00,0x00,0x00);
++
++    case Identifier:
++        return QColor(0x00,0x00,0x80);
++
++    case Word2:
++        return QColor(0x00,0x00,0xff);
++
++    case Number:
++    case Character:
++        return QColor(0xff,0x00,0x00);
++
++    case String:
++        return QColor(0x00,0x80,0x80);
++
++    case Word:
++        return QColor(0x00,0x00,0x00);
++
++    case Triple:
++    case TripleDouble:
++        return QColor(0x7f,0x00,0x7f);
++
++    case ClassName:
++    case Operator:
++        return QColor(0x80,0x00,0x80);
++
++    case DefName:
++    case CommentLine:
++    case CommentBlock:
++        return QColor(0x80,0x80,0x00);
++
++    case StringEol:
++        return QColor(0x00,0x00,0xff);
++
++    case StartHeader:
++        return QColor(0x99,0x99,0x99);
++
++    case Python:
++        return QColor(0x00,0xbb,0xbb);
++
++    case InvalidWord:
++        return QColor(0xff,0x00,0x00);
++
++    }
++
++    return QsciLexer::defaultColor(style);
++}
++
++// Returns the background colour of the text for a style.
++QColor QsciLexerTHAS::defaultPaper(int style) const
++{
++    switch (style)
++    {
++    case Decorator:
++        return QColor(0xff,0xff,0x00);
++    }
++
++    return QsciLexer::defaultPaper(style);
++}
++
++// Returns the end-of-line fill for a style.
++bool QsciLexerTHAS::defaultEolFill(int style) const
++{
++    return QsciLexer::defaultEolFill(style);
++}
++
++
++// Returns the font of the text for a style.
++QFont QsciLexerTHAS::defaultFont(int style) const
++{
++    QFont f;
++
++    switch (style)
++    {
++    case Word:
++    case Python:
++        f = QFont(QsciLexer::defaultFont(style).family(), QsciLexer::defaultFont(style).pointSize(), QFont::Bold, false);
++        break;
++
++    default:
++        f = QsciLexer::defaultFont(style);
++    }
++
++    return f;
++}
++
++/*
++
++
++*/
++
++// Returns the set of keywords.
++const char *QsciLexerTHAS::keywords(int set) const
++{
++    if (set == 1)
++        return blockTags.toStdString().c_str();
++
++    if (set == 2)
++        return attributeTags.toStdString().c_str();
++
++    return 0;
++}
++
++// Initializes the keyword lists
++void QsciLexerTHAS::setKeywords(int set, QString keywords) {
++    if (set == 1)
++         blockTags = keywords;
++
++    if (set == 2)
++        attributeTags = keywords;
++}
++
++// Returns the user name of a style.
++QString QsciLexerTHAS::description(int style) const
++{
++    switch (style)
++    {
++    case Default:
++        return tr("THAS default");
++
++    case CommentLine:
++        return tr("Comment line");
++
++    case Number:
++        return tr("Number");
++
++    case String:
++        return tr("String");
++
++    case Character:
++        return tr("Character");
++
++    case Word:
++        return tr("Word");
++
++    case Triple:
++        return tr("Triple quoted string");
++
++    case TripleDouble:
++        return tr("Triple double-quoted string");
++
++    case ClassName:
++        return tr("Class name");
++
++    case DefName:
++        return tr("Definition name");
++
++    case Operator:
++        return tr("Operator");
++
++    case Identifier:
++        return tr("Identifier");
++
++    case CommentBlock:
++        return tr("Comment block");
++
++    case StringEol:
++        return tr("String eol");
++
++    case Word2:
++        return tr("Word2");
++
++    case Decorator:
++        return tr("Decorator");
++
++    case StartHeader:
++        return tr("Header lines");
++
++    case Python:
++        return tr("Start of Python script");
++
++    case Xml:
++        return tr("Xml tag");
++
++    case InvalidWord:
++        return tr("Invalid keyword");
++    }
++
++    return QString();
++}
++
++// Refresh all properties.
++void QsciLexerTHAS::refreshProperties()
++{
++    setCompactProp();
++    setPreprocProp();
++    setCaseSensTagsProp();
++}
++
++
++// Read properties from the settings.
++bool QsciLexerTHAS::readProperties(QSettings &qs,const QString &prefix)
++{
++    int rc = true;
++
++    fold_compact = qs.value(prefix + "foldcompact", true).toBool();
++    fold_preproc = qs.value(prefix + "foldpreprocessor", false).toBool();
++    case_sens_tags = qs.value(prefix + "casesensitivetags", false).toBool();
++
++    return rc;
++}
++
++
++// Write properties to the settings.
++bool QsciLexerTHAS::writeProperties(QSettings &qs,const QString &prefix) const
++{
++    int rc = true;
++
++    qs.setValue(prefix + "foldcompact", fold_compact);
++    qs.setValue(prefix + "foldpreprocessor", fold_preproc);
++    qs.setValue(prefix + "casesensitivetags", case_sens_tags);
++
++    return rc;
++}
++
++
++// Return true if tags are case sensitive.
++bool QsciLexerTHAS::caseSensitiveTags() const
++{
++    return case_sens_tags;
++}
++
++
++// Set if tags are case sensitive.
++void QsciLexerTHAS::setCaseSensitiveTags(bool sens)
++{
++    case_sens_tags = sens;
++
++    setCaseSensTagsProp();
++}
++
++
++// Set the "html.tags.case.sensitive" property.
++void QsciLexerTHAS::setCaseSensTagsProp()
++{
++    emit propertyChanged("html.tags.case.sensitive",(case_sens_tags ? "1" : "0"));
++}
++
++
++// Return true if folds are compact.
++bool QsciLexerTHAS::foldCompact() const
++{
++    return fold_compact;
++}
++
++
++// Set if folds are compact
++void QsciLexerTHAS::setFoldCompact(bool fold)
++{
++    fold_compact = fold;
++
++    setCompactProp();
++}
++
++
++// Set the "fold.compact" property.
++void QsciLexerTHAS::setCompactProp()
++{
++    emit propertyChanged("fold.compact",(fold_compact ? "1" : "0"));
++}
++
++
++// Return true if preprocessor blocks can be folded.
++bool QsciLexerTHAS::foldPreprocessor() const
++{
++    return fold_preproc;
++}
++
++
++// Set if preprocessor blocks can be folded.
++void QsciLexerTHAS::setFoldPreprocessor(bool fold)
++{
++    fold_preproc = fold;
++
++    setPreprocProp();
++}
++
++
++// Set the "fold.html.preprocessor" property.
++void QsciLexerTHAS::setPreprocProp()
++{
++    emit propertyChanged("fold.html.preprocessor",(fold_preproc ? "1" : "0"));
++}
+diff -ruN qscintilla/Qt4/qscintilla.pro qscintilla-new/Qt4/qscintilla.pro
+--- qscintilla/Qt4/qscintilla.pro	2010-04-06 14:51:22.000000000 -0600
++++ qscintilla-new/Qt4/qscintilla.pro	2011-01-13 14:47:49.289807722 -0700
+ # This must be kept in sync with configure.py.
+ !win32:VERSION = 6.1.0
+ 
++message ("Using install directory = $$(QSCINTILLA_INSTALL_DIR)")
+ TEMPLATE = lib
+ TARGET = qscintilla2
+ CONFIG += qt warn_off release dll thread
+@@ -38,25 +39,25 @@
+ DEFINES = QSCINTILLA_MAKE_DLL QT SCI_LEXER
+ 
+ # Handle both Qt v4 and v3.
+-target.path = $$[QT_INSTALL_LIBS]
++target.path = $$(QSCINTILLA_INSTALL_DIR)/lib
+ isEmpty(target.path) {
+ 	target.path = $(QTDIR)/lib
+ }
+ 
+-header.path = $$[QT_INSTALL_HEADERS]
++header.path = $$(QSCINTILLA_INSTALL_DIR)/include
+ header.files = Qsci
+ isEmpty(header.path) {
+ 	header.path = $(QTDIR)/include/Qsci
+ 	header.files = Qsci/qsci*.h
+ }
+ 
+-trans.path = $$[QT_INSTALL_TRANSLATIONS]
++trans.path = $$(QSCINTILLA_INSTALL_DIR)/translations
+ trans.files = qscintilla_*.qm
+ isEmpty(trans.path) {
+ 	trans.path = $(QTDIR)/translations
+ }
+ 
+-qsci.path = $$[QT_INSTALL_DATA]
++qsci.path = $$(QSCINTILLA_INSTALL_DIR)/data
+ qsci.files = ../qsci
+ isEmpty(qsci.path) {
+ 	qsci.path = $(QTDIR)
+@@ -65,6 +66,7 @@
+ INSTALLS += header trans qsci target
+ 
+ HEADERS = \
++        ./Qsci/qscilexerthas.h \
+ 	./Qsci/qsciglobal.h \
+ 	./Qsci/qsciscintilla.h \
+ 	./Qsci/qsciscintillabase.h \
+@@ -160,6 +162,7 @@
+ 	../src/XPM.h
+ 
+ SOURCES = \
++        qscilexerthas.cpp \
+ 	qsciscintilla.cpp \
+ 	qsciscintillabase.cpp \
+ 	qsciabstractapis.cpp \

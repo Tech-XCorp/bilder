@@ -1,0 +1,212 @@
+diff -crB ne7ssh-1.3.2/CMakeLists.txt ne7ssh-1.3.2-edited/CMakeLists.txt
+*** ne7ssh-1.3.2/CMakeLists.txt	2009-11-19 13:22:04.000000000 -0700
+--- ne7ssh-1.3.2-edited/CMakeLists.txt	2012-09-21 17:02:35.000000000 -0600
+***************
+*** 1,12 ****
+! cmake_minimum_required(VERSION 2.0)
+  project(net7ssh CXX)
+  INCLUDE(CheckIncludeFileCXX)
+  check_include_file_cxx("botan/botan.h" HAVE_BOTAN)
+! if (NOT ${HAVE_BOTAN})
+! MESSAGE(FATAL_ERROR "Could not find Botan library.")
+! endif()
+! set(CMAKE_INSTALL_PREFIX "/usr")
+! add_subdirectory ( src )
+  include_directories ( src )
+  if ( UNIX )
+    SET(UNIX_STYLE_FLAGS 1)
+--- 1,29 ----
+! cmake_minimum_required(VERSION 2.8.3)
+  project(net7ssh CXX)
++ message("BOTAN_DIR = ${BOTAN_DIR}.")
++ set(CMAKE_REQUIRED_INCLUDES "${BOTAN_DIR}/include")
++ message("CMAKE_REQUIRED_INCLUDES = ${CMAKE_REQUIRED_INCLUDES}.")
+  INCLUDE(CheckIncludeFileCXX)
+  check_include_file_cxx("botan/botan.h" HAVE_BOTAN)
+! if (HAVE_BOTAN)
+!   if (WIN32)
+!     add_definitions(-D_WINDOWS -DNE7SSH_EXPORTS -DWIN32)
+!     set(BOTAN_LIBRARIES ${BOTAN_DIR}/botan.lib)
+!   else ()
+!     set(BOTAN_LIBRARIES ${BOTAN_DIR}/lib/libbotan.a)
+!   endif ()
+!   if (APPLE) 
+!     add_definitions(-D__APPLE__)
+!   endif ()
+!   set(BOTAN_INCLUDE_DIRS ${BOTAN_DIR}/include)
+!   message("BOTAN_INCLUDE_DIRS = ${BOTAN_INCLUDE_DIRS}")
+!   message("BOTAN_LIBRARIES    = ${BOTAN_LIBRARIES}")
+!   include_directories(${BOTAN_INCLUDE_DIRS})
+! else ()
+!   message(FATAL_ERROR "Could not find Botan library.")
+! endif ()
+! # set(CMAKE_INSTALL_PREFIX "/usr")
+! # add_subdirectory ( src )
+  include_directories ( src )
+  if ( UNIX )
+    SET(UNIX_STYLE_FLAGS 1)
+***************
+*** 57,72 ****
+      src/ne7ssh_mutex.cpp
+      src/ne7ssh_mutex.h)
+  
+! add_library(ne7ssh STATIC ${net7ssh_LIB_SRCS})
+! 
+! add_library(net7ssh SHARED ${net7ssh_LIB_SRCS})
+! target_link_libraries(net7ssh botan)
+! set_target_properties(net7ssh PROPERTIES VERSION 0.3.1 SOVERSION 0)
+  
+  
+  ########### install files ###############
+  
+! install(TARGETS net7ssh LIBRARY DESTINATION lib)
+  install(FILES src/ne7ssh.h src/ne7ssh_types.h src/ne7ssh_error.h src/ne7ssh_mutex.h DESTINATION include)
+  install(FILES LICENSE.QPL AUTHORS INSTALL COPYING CHANGELOG DESTINATION share/doc/ne7ssh)
+  install(DIRECTORY doc DESTINATION share/doc/ne7ssh)
+--- 74,91 ----
+      src/ne7ssh_mutex.cpp
+      src/ne7ssh_mutex.h)
+  
+! if (WIN32)
+!   add_library(net7ssh SHARED ${net7ssh_LIB_SRCS})
+!   target_link_libraries(net7ssh ws2_32.lib ${BOTAN_LIBRARIES})
+! else ()
+!   add_library(net7ssh STATIC ${net7ssh_LIB_SRCS})
+!   target_link_libraries(net7ssh ${BOTAN_LIBRARIES})
+! endif ()
+  
+  
+  ########### install files ###############
+  
+! install(TARGETS net7ssh DESTINATION lib)
+  install(FILES src/ne7ssh.h src/ne7ssh_types.h src/ne7ssh_error.h src/ne7ssh_mutex.h DESTINATION include)
+  install(FILES LICENSE.QPL AUTHORS INSTALL COPYING CHANGELOG DESTINATION share/doc/ne7ssh)
+  install(DIRECTORY doc DESTINATION share/doc/ne7ssh)
+diff -crB ne7ssh-1.3.2/src/ne7ssh.cpp ne7ssh-1.3.2-edited/src/ne7ssh.cpp
+*** ne7ssh-1.3.2/src/ne7ssh.cpp	2009-11-19 13:20:54.000000000 -0700
+--- ne7ssh-1.3.2-edited/src/ne7ssh.cpp	2012-09-21 17:02:35.000000000 -0600
+***************
+*** 69,75 ****
+      Locking_AutoSeeded_RNG() { rng = new Botan::AutoSeeded_RNG(); }
+      ~Locking_AutoSeeded_RNG() { delete rng; }
+      
+!     void randomize(byte output[], u32bit length)
+      {
+        mutex.lock();
+        rng->randomize(output, length);
+--- 69,75 ----
+      Locking_AutoSeeded_RNG() { rng = new Botan::AutoSeeded_RNG(); }
+      ~Locking_AutoSeeded_RNG() { delete rng; }
+      
+!     void randomize(Botan::byte output[], u32bit length)
+      {
+        mutex.lock();
+        rng->randomize(output, length);
+***************
+*** 99,105 ****
+        mutex.unlock();
+      }
+  
+!     void add_entropy(const byte in[], u32bit length)
+      {
+        mutex.lock();
+        rng->add_entropy(in, length);
+--- 99,105 ----
+        mutex.unlock();
+      }
+  
+!     void add_entropy(const Botan::byte in[], u32bit length)
+      {
+        mutex.lock();
+        rng->add_entropy(in, length);
+diff -crB ne7ssh-1.3.2/src/ne7ssh_mutex.cpp ne7ssh-1.3.2-edited/src/ne7ssh_mutex.cpp
+*** ne7ssh-1.3.2/src/ne7ssh_mutex.cpp	2009-02-25 10:32:34.000000000 -0700
+--- ne7ssh-1.3.2-edited/src/ne7ssh_mutex.cpp	2012-09-21 17:02:35.000000000 -0600
+***************
+*** 24,30 ****
+--- 24,34 ----
+      pthread_mutexattr_t mattr;
+  
+      pthread_mutexattr_init (&mattr);
++ #if defined(__APPLE__)
++     pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_ERRORCHECK);
++ #else
+      pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_ERRORCHECK_NP);
++ #endif
+      pthread_mutex_init (&mutint, &mattr);
+      pthread_mutexattr_destroy (&mattr);
+  #endif
+diff -crB ne7ssh-1.3.2/src/ne7ssh_sftp.cpp ne7ssh-1.3.2-edited/src/ne7ssh_sftp.cpp
+*** ne7ssh-1.3.2/src/ne7ssh_sftp.cpp	2009-05-27 11:47:39.000000000 -0600
+--- ne7ssh-1.3.2-edited/src/ne7ssh_sftp.cpp	2012-09-21 17:02:54.000000000 -0600
+***************
+*** 184,190 ****
+  
+      prevSize = commBuffer.length();
+  
+!     usleep (10000);
+      
+      if (sftpCmd == _cmd) return true;
+      if (!cutoff) continue;
+--- 184,190 ----
+  
+      prevSize = commBuffer.length();
+  
+!     usleep (100);
+      
+      if (sftpCmd == _cmd) return true;
+      if (!cutoff) continue;
+***************
+*** 219,225 ****
+  
+      prevSize = commBuffer.length();
+  
+!     usleep (10000);
+      
+      if (sftpCmd != _cmd) return true;
+  
+--- 219,225 ----
+  
+      prevSize = commBuffer.length();
+  
+!     usleep (100);
+      
+      if (sftpCmd != _cmd) return true;
+  
+***************
+*** 623,631 ****
+    uint32 len, pos, last_char, i = 0;
+    
+    if (!filename) return ne7ssh_string();
+    len = strlen (filename);
+  
+!   buffer = (char*) malloc (len + 1);
+    memcpy (buffer, filename, len);
+  
+    while (isspace (buffer[i])) i++;
+--- 623,635 ----
+    uint32 len, pos, last_char, i = 0;
+    
+    if (!filename) return ne7ssh_string();
++ 
+    len = strlen (filename);
++   if ((len > 0) && (filename[0] == '/')) {
++     return ne7ssh_string(filename, 0);
++   }
+  
+!   buffer = (char*) calloc (len + 1, sizeof(char*));
+    memcpy (buffer, filename, len);
+  
+    while (isspace (buffer[i])) i++;
+***************
+*** 1101,1106 ****
+--- 1105,1112 ----
+      if (longNames)  tmpVar.addVector (fileName);
+    }
+    fileBuffer.swap (tmpVar.value());
++   //Add the string terminator character just in case
++   fileBuffer.append(0);
+  
+    if (!closeFile (fileID)) return 0;
+    return (const char*)fileBuffer.begin();
+

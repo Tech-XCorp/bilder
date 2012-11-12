@@ -1,0 +1,212 @@
+## ######################################################################
+##
+## File:    nersc.gov
+##
+## Purpose: Helper functions for setting variables and queues by domain
+##
+## Version: $Id: nersc.gov 6747 2012-09-25 13:15:04Z cary $
+##
+## /* vim: set filetype=sh : */
+##
+## ######################################################################
+
+#
+# Adjust the auxiliary names:
+#   MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR, FQMAILHOST, BLDRHOSTID
+#
+runnrSetNamesByDomain() {
+
+# Hosts for which FQMAILHOST is not obvious.  Also ensure that an
+# install host name is set for all cases.
+  case $UQHOSTNAME in
+    cvrsvc[0-9]*)
+      FQMAILHOST=carver.nersc.gov
+      ;;
+    dirac[0-9]*)
+      FQMAILHOST=dirac.nersc.gov
+      ;;
+    freedom[0-9]*)
+      FQMAILHOST=freedom.nersc.gov
+      RUNNRSYSTEM=XT4
+      ;;
+    hopper[01][0-9]*)
+      FQMAILHOST=hopper.nersc.gov
+      RUNNRSYSTEM=XE6
+      ;;
+    nid[0-9]*)
+      FQMAILHOST=franklin.nersc.gov
+      RUNNRSYSTEM=XT4
+      ;;
+  esac
+
+}
+runnrSetNamesByDomain
+
+cat >/dev/null <<EOF  ## (Block comment)
+MODULES AT NERSC
+
+This is an incomplete list of modules that have to be loaded
+on the machines that use modules.
+
+FRANKLIN:
+Currently Loaded Modulefiles:
+  1) modules/3.1.6.5
+  2) moab/5.2.5
+  3) torque/2.4.1b1-snap.200905131530
+  4) xtpe-barcelona
+  5) xtpe-target-cnl
+  6) MySQL/5.0.45
+  7) xt-service/2.1.50HDB_PS13A
+  8) xt-libc/2.1.50HDB_PS13A
+  9) xt-os/2.1.50HDB_PS13A
+ 10) xt-boot/2.1.50HDB_PS13A
+ 11) xt-lustre-ss/2.1.50HDB_PS13A_1.6.5
+ 12) Base-opts/2.1.50HDB_PS13A
+ 13) PrgEnv-gnu/2.1.50HDB_PS13A
+ 14) xt-asyncpe/3.3
+ 15) xt-pe/2.1.50HDB_PS13A
+ 16) xt-mpt/3.5.0
+ 17) xt-libsci/10.4.0
+ 18) gcc/4.4.1
+ 19) java/jdk1.6.0_07
+ 20) python/2.6.2
+ 21) subversion/1.6.4
+ 22) szip/2.1
+
+HOPPER:
+Currently Loaded Modulefiles:
+  1) modules/3.1.6             9) xt-asyncpe/3.4
+  2) torque/2.4.1b1           10) PrgEnv-pgi/2.2.41
+  3) moab/5.3.4               11) xtpe-target-cnl
+  4) pgi/9.0.4                12) eswrap/1.0.5
+  5) xt-libsci/10.4.0         13) xtpe-shanghai
+  6) xt-mpt/3.5.0             14) gcc/4.3.3
+  7) xt-pe/2.2.41             15) java/jdk1.6.0_15
+  8) xt-sysroot/2.2.20090720  16) szip/2.1
+
+CARVER:
+bilder needs to find either a pgi or a gcc module in your
+modules list.
+EOF
+
+#
+# Determine RUNNR_QTARGET, RUNNR_QUEUE, RUNNR_ACCOUNT, RUNNR_PPN
+#
+runnrSetQInfoByDomain() {
+  RUNNR_QTARGET=${RUNNR_QTARGET:-"headnode"}
+  local fqdn
+  if ! fqdn=`hostname -f 2>/dev/null`; then
+    fqdn=`hostname`
+  fi
+  case $SCRIPT_NAME in
+    mkfcall | mkfcpkgs)
+      RUNNR_ACCOUNT=${RUNNR_ACCOUNT:-"m681"}    # FACETS
+      ;;
+    mkvpall)
+      RUNNR_ACCOUNT=${RUNNR_ACCOUNT:-"m778"}    # ComPASS
+      ;;
+    *)
+      RUNNR_ACCOUNT=${RUNNR_ACCOUNT:-"m778"}    # ComPASS
+      ;;
+  esac
+  RUNNR_QUEUE=${RUNNR_QUEUE:-"regular"}
+  RUNNR_NCPUSVAR=mppwidth
+}
+runnrSetQInfoByDomain
+
+#
+# Set default options.  This has to be called after option parsing.
+# Should set
+#  CONTRIB_ROOTDIR    The root directory for common installations of tarballs
+#  INSTALL_ROOTDIR    The root directory for common installations of repos
+#  USERINST_ROOTDIR   The root directory for user installations (same for
+#                     tarballs and repos)
+#  INSTALL_SUBDIR_SFX Added to subdir (software, contrib, volatile, internal)
+#                     to complete the installation dir
+#  BUILD_ROOTDIR      Where builds are to take place
+#  BILDER_ADDL_ARGS   Any additional args to pass to Bilder
+#  MACHINEFILE        The machine file to use
+#
+setBilderHostVars() {
+
+#
+# Preliminary variables
+#   Determine the compiler and version for machinefile and namespacing
+#
+  local compkey=`modulecmd bash list -t 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
+  # echo compkey = $compkey
+  if test -z "$compkey"; then
+    local comp=
+    for comp in pgi gcc gnu; do
+      compkey=`module list -t 2>&1 | grep ^$comp | sed -e 's?/.*$??'`
+      if test -n "$compkey"; then
+        break
+      fi
+    done
+  fi
+  if test -z "$compkey"; then
+    echo "Cannot determine the compkey.  Quitting."
+    exit 1
+  fi
+  # echo "compkey = $compkey."
+  # Cray doesn't have a straightforward listing so put in a temporary
+  # compkey so that the version works and then reset
+  case $compkey in
+    gnu)   compkey=gcc;;
+    path*) compkey=path;;
+    cray*) compkey=PrgEnv-cray;;
+  esac
+  local compver=`modulecmd bash list -t 2>&1 | grep ^$compkey | sed -e 's?^.*/??'`
+  if test -z "$compver"; then
+    compver=`module list -t 2>&1 | grep ^$compkey | sed -e 's?^.*/??'`
+  fi
+  if test "$compkey" = "PrgEnv-cray"; then
+      compkey="cray"
+  fi
+  echo compkey = $compkey
+  echo compver = $compver
+  # echo exit; exit
+  local majorminor=`echo $compver | sed -e "s/\(^[^\.]*\.[^\.]*\).*/\1/"`
+  compver=$majorminor
+  echo compver = $compver
+  # echo "Quitting in nersc.gov."; exit
+
+# Set the installation and project subdirs
+  CONTRIB_ROOTDIR=/project/projectdirs/facets
+  if test -z "$PROJECT_INSTSUBDIR"; then
+    echo "PROJECT_INSTSUBDIR not set.  Quitting."
+    exit 1
+  fi
+  INSTALL_ROOTDIR=/project/projectdirs/$PROJECT_INSTSUBDIR
+  local machinedir=$UQMAILHOST
+  if test $UQMAILHOST = freedom; then
+    machinedir=franklin
+  fi
+  if test $UQMAILHOST = dirac; then
+    machinedir=carver
+  fi
+  CONTRIB_ROOTDIR=$CONTRIB_ROOTDIR/$machinedir
+  USERINST_ROOTDIR=$INSTALL_ROOTDIR/$USER/$machinedir
+  INSTALL_ROOTDIR=$INSTALL_ROOTDIR/$machinedir
+  INSTALL_SUBDIR_SFX="-$compkey-$compver"
+
+# Set the build directory
+  if test -n "$SCRATCH2"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH2/builds-${UQMAILHOST}-$compkey"}
+  elif test -n "$SCRATCH"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH/builds-${UQHOSTNAME}-$compkey"}
+  elif test -n "$GSCRATCH"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH/builds-${UQMAILHOST}-$compkey"}
+  fi
+
+# Add to BILDER_ARGS
+  # BILDER_ADDL_ARGS=-P
+
+# Set machine file
+  case $machinedir in
+    hopper | franklin) MACHINEFILE=${MACHINEFILE:-"cray.$compkey"};;
+    *) MACHINEFILE=${MACHINEFILE:-"nersclinux.$compkey"};;
+  esac
+
+}
+

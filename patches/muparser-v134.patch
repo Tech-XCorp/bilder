@@ -1,0 +1,11 @@
+--- muparser-v134/include/muParserDef.h	2010-09-04 07:01:39.000000000 -0600
++++ muparser-v134-new/include/muParserDef.h	2011-11-22 13:34:09.000000000 -0700
+@@ -186,7 +186,7 @@
+     cmOPRT_POSTFIX,        ///< code for postfix operators
+     cmOPRT_INFIX,          ///< code for infix operators
+     cmEND,                 ///< end of formula
+-    cmUNKNOWN,             ///< uninitialized item
++    cmUNKNOWN              ///< uninitialized item
+   };
+ 
+   //------------------------------------------------------------------------------
