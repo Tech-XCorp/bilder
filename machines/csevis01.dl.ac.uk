@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: csevis01.dl.ac.uk 6264 2012-06-23 19:22:01Z cary $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.

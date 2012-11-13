@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: cygwin.ifort12 6870 2012-10-22 22:00:51Z jhurani $
+# $Id$
 #
 # Modify the environment so that ifort can run from command line
 # and compile.  Linking requires link.exe which can be provided

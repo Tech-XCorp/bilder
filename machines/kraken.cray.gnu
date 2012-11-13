@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: cray.gnu 5246 2012-02-19 11:02:38Z cary $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: hector.gnu 6409 2012-07-20 11:35:59Z cary $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.

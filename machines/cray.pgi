@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: cray.pgi 6655 2012-09-11 16:40:16Z jking $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.
