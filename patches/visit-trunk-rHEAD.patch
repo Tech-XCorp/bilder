@@ -1,6 +1,6 @@
 Index: visit/CMake/PluginMacros.cmake
 ===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 19142)
+--- visit/CMake/PluginMacros.cmake	(revision 19559)
 +++ visit/CMake/PluginMacros.cmake	(working copy)
 @@ -68,26 +68,15 @@
              # not configure, so the dollar sign must be escaped in the string
@@ -39,9 +39,9 @@ Index: visit/CMake/PluginMacros.cmake
          IF(APPLE)
 Index: visit/operators/CMakeLists.txt
 ===================================================================
---- visit/operators/CMakeLists.txt	(revision 19142)
+--- visit/operators/CMakeLists.txt	(revision 19559)
 +++ visit/operators/CMakeLists.txt	(working copy)
-@@ -153,6 +153,11 @@
+@@ -164,6 +164,11 @@
    LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
  ENDIF(HAVE_LIB_R)
  
@@ -55,9 +55,9 @@ Index: visit/operators/CMakeLists.txt
      ADD_SUBDIRECTORY(${operator})
 Index: visit/databases/SimV2/CMakeLists.txt
 ===================================================================
---- visit/databases/SimV2/CMakeLists.txt	(revision 19142)
+--- visit/databases/SimV2/CMakeLists.txt	(revision 19559)
 +++ visit/databases/SimV2/CMakeLists.txt	(working copy)
-@@ -57,6 +57,9 @@
+@@ -55,6 +55,9 @@
  
  
  LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
@@ -69,9 +69,9 @@ Index: visit/databases/SimV2/CMakeLists.txt
  TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
 Index: visit/databases/CMakeLists.txt
 ===================================================================
---- visit/databases/CMakeLists.txt	(revision 19142)
+--- visit/databases/CMakeLists.txt	(revision 19559)
 +++ visit/databases/CMakeLists.txt	(working copy)
-@@ -356,6 +356,11 @@
+@@ -360,6 +360,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
  ENDIF(VISIT_BUILD_ALL_PLUGINS)
  
@@ -85,7 +85,7 @@ Index: visit/databases/CMakeLists.txt
      ADD_SUBDIRECTORY(${db})
 Index: visit/plots/CMakeLists.txt
 ===================================================================
---- visit/plots/CMakeLists.txt	(revision 19142)
+--- visit/plots/CMakeLists.txt	(revision 19559)
 +++ visit/plots/CMakeLists.txt	(working copy)
 @@ -89,6 +89,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
