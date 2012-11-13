@@ -2,7 +2,7 @@
 #
 # Version and build information for hdf5
 #
-# $Id: hdf5.sh 6948 2012-11-05 21:16:50Z roopa $
+# $Id$
 #
 # For mingw: http://www.swarm.org/index.php/Swarm_and_MinGW#HDF5_.28Optional.29
 #

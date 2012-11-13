@@ -2,7 +2,7 @@
 #
 # Version and build information for mercurial
 #
-# $Id: mercurial.sh 6649 2012-09-10 21:00:42Z pletzer $
+# $Id$
 #
 ######################################################################
 

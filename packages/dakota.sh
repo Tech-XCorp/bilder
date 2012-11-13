@@ -2,7 +2,7 @@
 #
 # Version and build information for dakota
 #
-# $Id: dakota.sh 5625 2012-03-30 18:22:53Z kruger $
+# $Id$
 #
 ######################################################################
 

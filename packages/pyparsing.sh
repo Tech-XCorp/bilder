@@ -2,7 +2,7 @@
 #
 # Version and build information for pyparsing
 #
-# $Id: pyparsing.sh 4587 2011-11-08 23:09:01Z alexanda $
+# $Id$
 #
 ######################################################################
 

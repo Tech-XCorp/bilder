@@ -2,7 +2,7 @@
 #
 # Version and build information for chombo
 #
-# $Id: chombo.sh 6943 2012-11-05 16:30:05Z swsides $
+# $Id$
 #
 ######################################################################
 

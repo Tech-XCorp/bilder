@@ -2,7 +2,7 @@
 #
 # Version and build information for libtool
 #
-# $Id: libtool.sh 6607 2012-09-05 13:43:44Z cary $
+# $Id$
 #
 ######################################################################
 

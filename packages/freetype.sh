@@ -2,7 +2,7 @@
 #
 # Version and build information for freetype
 #
-# $Id: freetype.sh 6163 2012-06-01 15:28:49Z alexanda $
+# $Id$
 #
 ######################################################################
 

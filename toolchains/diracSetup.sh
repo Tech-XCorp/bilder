@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: diracSetup.sh 6193 2012-06-08 20:21:36Z benc $
+# $Id$
 #
 # A script to set the correct modules for building on Dirac.
 #

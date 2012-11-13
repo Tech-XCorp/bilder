@@ -2,7 +2,7 @@
 #
 # Version and build information for simyan
 #
-# $Id: simyan.sh 6700 2012-09-19 19:08:00Z alexanda $
+# $Id$
 #
 ######################################################################
 

@@ -4,7 +4,7 @@
 #
 # Script to remove arch args before running gfortran
 #
-# $Id: scipygfortran.sh 5735 2012-04-08 14:09:02Z cary $
+# $Id$
 
 unset args
 while test -n "$1"; do

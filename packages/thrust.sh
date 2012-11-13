@@ -2,7 +2,7 @@
 #
 # Version and build information for thrust
 #
-# $Id: thrust.sh 5691 2012-04-06 01:18:36Z pletzer $
+# $Id$
 #
 ######################################################################
 

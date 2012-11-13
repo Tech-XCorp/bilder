@@ -2,7 +2,7 @@
 #
 # Version and build information for libpng
 #
-# $Id: libpng.sh 6937 2012-11-04 17:06:25Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for gelus
 #
-# $Id: gelus.sh 6107 2012-05-23 22:13:30Z kruger $
+# $Id$
 #
 ######################################################################
 

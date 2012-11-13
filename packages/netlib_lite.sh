@@ -2,7 +2,7 @@
 #
 # Version and build information for netlib_lite
 #
-# $Id: netlib_lite.sh 6889 2012-10-25 14:10:23Z cary $
+# $Id$
 #
 ######################################################################
 

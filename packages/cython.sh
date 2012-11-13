@@ -2,7 +2,7 @@
 #
 # Version and build information for cython
 #
-# $Id: cython.sh 6152 2012-05-29 13:51:32Z cary $
+# $Id$
 #
 ######################################################################
 

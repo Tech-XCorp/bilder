@@ -2,7 +2,7 @@
 #
 # Version and build information for valgrind
 #
-# $Id: valgrind.sh 6956 2012-11-07 14:38:46Z cary $
+# $Id$
 #
 ######################################################################
 

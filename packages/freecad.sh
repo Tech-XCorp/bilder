@@ -9,7 +9,7 @@
 # To run this, for OS X:
 #  export DYLD_LIBRARY_PATH=/volatile/FreeCAD/lib:/volatile/FreeCAD/Mod/PartDesign:/contrib/boost-1_47_0-ser/lib:/volatile/oce-r747-ser/lib
 #
-# $Id: freecad.sh 6594 2012-09-01 15:12:46Z cary $
+# $Id$
 #
 ######################################################################
 

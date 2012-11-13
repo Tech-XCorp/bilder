@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mkvorpal.sh 6594 2012-09-01 15:12:46Z cary $
+# $Id$
 #
 # Builds Vorpal only, in case a special build is needed for Vorpal but
 # not dependent packages.  This is created for the case of Dirac,

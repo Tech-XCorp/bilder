@@ -2,7 +2,7 @@
 #
 # Version and build information for ZeroMQ
 #
-# $Id: zeromq.sh 4858 2012-01-11 19:13:22Z cary $
+# $Id$
 #
 ######################################################################
 

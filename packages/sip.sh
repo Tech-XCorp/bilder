@@ -2,7 +2,7 @@
 #
 # Automate the build of sip, required for PyQt4
 #
-# @version $Id: sip.sh 6831 2012-10-12 13:36:19Z cary $
+# @version $Id$
 #
 ########################################################################
 

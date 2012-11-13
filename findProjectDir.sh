@@ -2,7 +2,7 @@
 # This fragment is keep here for copying into top level bilder scripts
 # Changes should be made here then copied over
 #
-# $Id: findProjectDir.sh 5997 2012-05-08 18:14:24Z cary $
+# $Id$
 #
 
 ######################################################################

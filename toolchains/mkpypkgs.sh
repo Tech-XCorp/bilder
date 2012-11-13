@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mkpypkgs.sh 6661 2012-09-13 12:44:31Z cary $
+# $Id$
 #
 # Builds python packages for postprocessing and plotting
 #

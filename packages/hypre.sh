@@ -2,7 +2,7 @@
 #
 # Version and build information for hypre (only build parallel for PETSc)
 #
-# $Id: hypre.sh 6908 2012-10-31 20:05:54Z austin $
+# $Id$
 #
 ######################################################################
 

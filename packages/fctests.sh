@@ -2,7 +2,7 @@
 #
 # Version and build information for fctests
 #
-# $Id: fctests.sh 6891 2012-10-26 11:24:20Z cary $
+# $Id$
 #
 ######################################################################
 

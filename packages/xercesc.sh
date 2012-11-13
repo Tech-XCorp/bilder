@@ -2,7 +2,7 @@
 #
 # Version and build information for xercesc.
 #
-# $Id: xercesc.sh 6127 2012-05-27 11:57:06Z cary $
+# $Id$
 #
 ######################################################################
 

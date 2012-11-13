@@ -6,7 +6,7 @@
 #          do not return this from hostname or hostname -f.  This
 #          can set FQHOSTNAME, FQMAILHOST, DOMAINNAME, RUNNRSYSTEM
 #
-# Version: $Id: fqdn.sh 6678 2012-09-17 19:56:13Z kruger $
+# Version: $Id$
 #
 ##########
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for a python tutorial
 #
-# $Id: tutorial_python.sh 4901 2012-01-14 13:34:01Z cary $
+# $Id$
 #
 ######################################################################
 

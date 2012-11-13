@@ -2,7 +2,7 @@
 #
 # Version and build information for tables
 #
-# $Id: tables.sh 6982 2012-11-10 14:21:48Z cary $
+# $Id$
 #
 ######################################################################
 

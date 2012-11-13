@@ -2,7 +2,7 @@
 #
 # Version and build information for shiboken
 #
-# $Id: shiboken.sh 6074 2012-05-17 15:46:01Z cary $
+# $Id$
 #
 ######################################################################
 

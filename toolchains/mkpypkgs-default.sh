@@ -3,7 +3,7 @@
 # Build and install in places following our conventions for LCFs,
 # clusters, and workstations.  Logic in bilder/mkall-default.sh
 #
-# @version $Id: mkpypkgs-default.sh 6537 2012-08-15 23:37:28Z alexanda $
+# @version $Id$
 #
 ######################################################################
 

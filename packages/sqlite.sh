@@ -2,7 +2,7 @@
 #
 # Version and build information for sqlite.
 #
-# $Id: sqlite.sh 4377 2011-10-03 12:35:05Z cary $
+# $Id$
 #
 ######################################################################
 

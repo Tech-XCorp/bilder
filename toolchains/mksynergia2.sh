@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mksynergia2.sh 6594 2012-09-01 15:12:46Z cary $
+# $Id$
 #
 # This file builds the Synergia2 toolchain.
 # or may not become part of the normal toolchain for other packages.

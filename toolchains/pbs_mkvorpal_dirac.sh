@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: pbs_mkvorpal_dirac.sh 6168 2012-06-02 16:28:27Z benc $
+# $Id$
 #
 # Default script for building Vorpal on a Dirac compute node to link
 # correctly to the CUDA libraries

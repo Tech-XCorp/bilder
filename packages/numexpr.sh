@@ -2,7 +2,7 @@
 #
 # Version and build information for numexpr
 #
-# $Id: numexpr.sh 6974 2012-11-09 18:38:51Z cary $
+# $Id$
 #
 ######################################################################
 

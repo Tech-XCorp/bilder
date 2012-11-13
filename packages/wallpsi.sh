@@ -2,7 +2,7 @@
 #
 # Version and build information for wallpsi
 #
-# $Id: wallpsi.sh 5916 2012-04-26 23:58:47Z alexanda $
+# $Id$
 #
 ######################################################################
 

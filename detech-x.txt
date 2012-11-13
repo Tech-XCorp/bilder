@@ -1,4 +1,4 @@
-$Id: detech-x.txt 6546 2012-08-18 12:56:38Z cary $
+$Id$
 
 Remove remaining txcorp-specific references to or in sphinx
 

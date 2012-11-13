@@ -2,7 +2,7 @@
 #
 # Version and build information for magma
 #
-# $Id: magma.sh 6860 2012-10-18 23:27:52Z mgalloy $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@ Sourcing icl11.sh, PATH = .:/home/research/cary/txcenv:/usr/local/contrib/autoto
 Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/ia32/bin:/cygdrive/c/Program Files/Intel/Compiler/11.1/065/mkl/ia32/bin:/cygdrive/c/Program Files/Intel/Compiler/11.1/065/tbb/ia32/vc9/bin:/cygdrive/c/Program Files/Intel/Compiler/11.1/065/Bin/ia32:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/Common7/IDE:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/VC/BIN:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/Common7/Tools:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v3.5:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v2.0.50727:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/VC/VCPackages:/cygdrive/c/Program Files/Microsoft SDKs/Windows/v6.0A/bin:.:/home/research/cary/txcenv:/usr/local/contrib/autotools-lt-2.4/bin:/usr/local/contrib/hdf5-1.8.7-ser/bin:/usr/local/contrib/cmake-2.8.3-ser/bin:/usr/local/contrib/openmpi-1.4.2-nodl/bin:/usr/local/contrib/Python-2.6.5-cc4py/bin:/usr/local/contrib/qt-4.7.3-ser/bin:/usr/local/contrib/swig-1.3.40-ser/bin:/usr/local/contrib/bin:/usr/local/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/lib64/ccache:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/sbin
 #!/bin/bash
 #
-# $Id: icl11.sh 6264 2012-06-23 19:22:01Z cary $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.

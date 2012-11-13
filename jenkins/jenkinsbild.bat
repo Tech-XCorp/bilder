@@ -3,7 +3,7 @@ rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 rem
 rem Purpose: This starts jenkinsbild through cygwin on windows.
 rem
-rem $Id: jenkinsbild.bat 6467 2012-07-31 16:31:27Z jdelamere $
+rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 

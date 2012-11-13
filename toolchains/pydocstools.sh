@@ -2,7 +2,7 @@
 #
 # Source this file to build python numerical tools
 #
-# $Id: pydocstools.sh 4901 2012-01-14 13:34:01Z cary $
+# $Id$
 #
 ######################################################################
 

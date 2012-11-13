@@ -2,7 +2,7 @@
 #
 # Version and build information for gacode
 #
-# $Id: gacode.sh 6594 2012-09-01 15:12:46Z cary $
+# $Id$
 #
 ######################################################################
 

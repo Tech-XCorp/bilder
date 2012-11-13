@@ -2,7 +2,7 @@
 #
 # Version and build information for lp_solve
 #
-# $Id: lp_solve.sh 5096 2012-01-27 18:07:09Z kruger $
+# $Id$
 #
 ######################################################################
 

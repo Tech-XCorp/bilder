@@ -1,2 +1,10 @@
+Bilder: a cross-platform, package management system.
 
-The wiki describing bilder is located at https://sourceforge.net/p/bilder/wiki/Home/
+$Id$
+
+See https://sourceforge.net/p/bilder/wiki/Home/
+
+To commit code:
+
+svn switch --relocate svn://svn.code.sf.net/p/bilder/code/trunk https://SOURCEFORGE_USERNAME@svn.code.sf.net/p/bilder/code/trunk
+

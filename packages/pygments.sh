@@ -2,7 +2,7 @@
 #
 # Version and build information for pygments
 #
-# $Id: pygments.sh 5239 2012-02-17 19:34:01Z cary $
+# $Id$
 #
 ######################################################################
 

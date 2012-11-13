@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mkvars.sh 6264 2012-06-23 19:22:01Z cary $
+# $Id$
 #
 # For creating a template file with all needed variables
 #
@@ -89,7 +89,7 @@ fi
 cat <<END
 #!/bin/bash
 #
-# \$Id: mkvars.sh 6264 2012-06-23 19:22:01Z cary $
+# \$Id$
 #
 # Define variables.
 # Do not override existing definitions.

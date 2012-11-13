@@ -2,7 +2,7 @@
 #
 # Version and build information for psuserdocs
 #
-# $Id: psuserdocs.sh 6767 2012-09-28 22:43:10Z alexanda $
+# $Id$
 #
 ######################################################################
 

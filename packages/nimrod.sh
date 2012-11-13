@@ -2,7 +2,7 @@
 #
 # Version and build information for nimrod
 #
-# $Id: nimrod.sh 6699 2012-09-19 19:04:13Z alexanda $
+# $Id$
 #
 ######################################################################
 

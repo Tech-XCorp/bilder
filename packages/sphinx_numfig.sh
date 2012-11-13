@@ -2,7 +2,7 @@
 #
 # Version and build information for sphinx_numfig
 #
-# $Id: sphinx_numfig.sh 6819 2012-10-08 16:38:22Z cary $
+# $Id$
 #
 # This package was taken from bitbucket and put into sourceforge:
 # https://svn.code.sf.net/p/numfig/code-0/trunk

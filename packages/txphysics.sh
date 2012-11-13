@@ -2,7 +2,7 @@
 #
 # Version and build information for txphysics
 #
-# $Id: txphysics.sh 5979 2012-05-07 12:51:48Z cary $
+# $Id$
 #
 ######################################################################
 

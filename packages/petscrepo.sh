@@ -2,7 +2,7 @@
 #
 # Version and build information for petsc developer version
 #
-# $Id: petscrepo.sh 6957 2012-11-07 21:43:09Z jhurani $
+# $Id$
 #
 ######################################################################
 

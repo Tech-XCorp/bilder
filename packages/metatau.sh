@@ -2,7 +2,7 @@
 #
 # Version and build information for metatau
 #
-# $Id: metatau.sh 5591 2012-03-24 14:35:40Z cary $
+# $Id$
 #
 ######################################################################
 

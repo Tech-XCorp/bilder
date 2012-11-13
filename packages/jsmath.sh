@@ -2,7 +2,7 @@
 #
 # Version and build information for jsmath
 #
-# $Id: jsmath.sh 4901 2012-01-14 13:34:01Z cary $
+# $Id$
 #
 ######################################################################
 

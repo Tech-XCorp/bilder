@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: setinstald.sh 6981 2012-11-10 13:40:44Z cary $
+# $Id$
 #
 # To set a package as installed or uninstalled.
 #

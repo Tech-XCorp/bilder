@@ -2,7 +2,7 @@
 #
 # Version and build information for netcdf
 #
-# $Id: netcdf.sh 6109 2012-05-24 17:15:49Z kruger $
+# $Id$
 #
 ######################################################################
 

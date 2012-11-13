@@ -8,7 +8,7 @@
 # For matplotlib, also install libfreetype-devel
 # In general we need to make sure that the link to the .so library is made.
 #
-# $Id: visit.sh 6989 2012-11-12 15:44:29Z cary $
+# $Id$
 #
 ######################################################################
 

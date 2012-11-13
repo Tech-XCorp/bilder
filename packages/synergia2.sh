@@ -2,7 +2,7 @@
 #
 # Version and build information for Synergia2
 #
-# $Id: synergia2.sh 6766 2012-09-28 20:52:55Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: extrepodrive.sh 4213 2011-08-31 21:26:26Z cary $
+# $Id$
 #
 # Get other repos that aren't normally needed for 
 #

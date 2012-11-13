@@ -2,7 +2,7 @@
 #
 # Version and build information for setuptools
 #
-# $Id: setuptools.sh 5629 2012-03-30 19:30:37Z kruger $
+# $Id$
 #
 ######################################################################
 

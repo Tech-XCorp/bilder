@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: bildvars.sh 6988 2012-11-11 17:14:39Z cary $
+# $Id$
 #
 # There are three parts to this file
 # 1. Get per-machine parameters

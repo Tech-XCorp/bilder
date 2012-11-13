@@ -1,4 +1,4 @@
-# $Id: bildopts.sh 6716 2012-09-21 13:02:56Z cary $
+# $Id$
 #
 # General stuff for extracting options
 #

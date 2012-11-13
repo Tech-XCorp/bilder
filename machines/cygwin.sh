@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: cygwin.sh 6987 2012-11-11 16:28:52Z cary $
+# $Id$
 #
 # Modify the environment as needed by Visual Studio if not already
 # done.  Looks for Visual Studio 10 first, then 9.  Environment

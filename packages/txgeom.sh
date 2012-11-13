@@ -2,7 +2,7 @@
 #
 # Version and build information for txgeom
 #
-# $Id: txgeom.sh 6265 2012-06-23 23:51:58Z cary $
+# $Id$
 #
 ######################################################################
 

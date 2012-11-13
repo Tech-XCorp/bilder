@@ -2,7 +2,7 @@
 #
 # Version and build information for eigen3
 #
-# $Id: eigen3.sh 6121 2012-05-26 16:05:40Z cary $
+# $Id$
 #
 # To fix the package:
 #

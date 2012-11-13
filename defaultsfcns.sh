@@ -1,5 +1,5 @@
 #
-# $Id: defaultsfcns.sh 6596 2012-09-03 14:48:14Z cary $
+# $Id$
 #
 # Defines the following functions
 #

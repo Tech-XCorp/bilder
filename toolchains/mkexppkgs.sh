@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mkexppkgs.sh 4901 2012-01-14 13:34:01Z cary $
+# $Id$
 #
 # This is for compiling varioius experimental tarballs that may 
 # or may not become part of the normal toolchain for other packages.

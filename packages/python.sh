@@ -2,7 +2,7 @@
 #
 # Version and build information for python
 #
-# $Id: python.sh 6972 2012-11-09 14:41:00Z cary $
+# $Id$
 #
 ######################################################################
 

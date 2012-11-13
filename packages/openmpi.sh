@@ -2,7 +2,7 @@
 #
 # Version and build information for openmpi
 #
-# $Id: openmpi.sh 6986 2012-11-11 13:39:41Z cary $
+# $Id$
 #
 ######################################################################
 

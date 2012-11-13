@@ -7,7 +7,7 @@
 # creation of a completely unpacked tarball, which can then
 # be put into the repo.
 #
-# $Id: f2c.sh 6090 2012-05-20 18:31:48Z cary $
+# $Id$
 #
 ######################################################################
 

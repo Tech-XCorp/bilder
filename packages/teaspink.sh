@@ -2,7 +2,7 @@
 #
 # Version and build information for teaspink
 #
-# $Id: teaspink.sh 6515 2012-08-08 23:38:59Z dabell $
+# $Id$
 #
 ######################################################################
 

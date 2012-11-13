@@ -3,7 +3,7 @@
 # Build and install in places following our conventions for LCFs,
 # clusters, and workstations.  Logic in bilder/mkall-default.sh
 #
-# @version $Id: mktrilinos-default.sh 4901 2012-01-14 13:34:01Z cary $
+# @version $Id$
 #
 ######################################################################
 

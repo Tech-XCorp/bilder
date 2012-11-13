@@ -5,7 +5,7 @@
 #   source ./bilder/changeprogenv.sh pgi
 # to change to pgi paths.
 #
-# $Id: changeprogenv.sh 6596 2012-09-03 14:48:14Z cary $
+# $Id$
 
 #
 # Method to print out general and script specific options

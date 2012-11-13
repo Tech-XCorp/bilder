@@ -2,7 +2,7 @@
 #
 # Version and build information for matplotlib
 #
-# $Id: matplotlib.sh 6984 2012-11-10 16:59:16Z alexanda $
+# $Id$
 #
 ######################################################################
 

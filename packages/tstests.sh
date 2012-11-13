@@ -2,7 +2,7 @@
 #
 # Version and build information for tstests
 #
-# $Id: tstests.sh 6257 2012-06-20 18:30:41Z bala $
+# $Id$
 #
 ######################################################################
 

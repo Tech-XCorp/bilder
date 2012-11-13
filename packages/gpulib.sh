@@ -2,7 +2,7 @@
 #
 # Version and build information for gpulib
 #
-# $Id: gpulib.sh 6861 2012-10-19 16:44:24Z mgalloy $
+# $Id$
 #
 ######################################################################
 

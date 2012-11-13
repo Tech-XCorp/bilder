@@ -2,7 +2,7 @@
 #
 # Version and build information for Ncurses
 #
-# $Id: ncurses.sh 4858 2012-01-11 19:13:22Z cary $
+# $Id$
 #
 ######################################################################
 

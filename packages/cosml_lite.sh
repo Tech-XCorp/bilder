@@ -2,7 +2,7 @@
 #
 # Version and build information for cosml_lite
 #
-# $Id: cosml_lite.sh 6496 2012-08-06 21:21:26Z kruger $
+# $Id$
 #
 ######################################################################
 

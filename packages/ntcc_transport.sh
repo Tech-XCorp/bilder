@@ -2,7 +2,7 @@
 #
 # Version and build information for ntcc_transport
 #
-# $Id: ntcc_transport.sh 5734 2012-04-08 14:03:51Z cary $
+# $Id$
 #
 ######################################################################
 

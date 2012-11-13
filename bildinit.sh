@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: bildinit.sh 6977 2012-11-09 22:35:25Z cary $
+# $Id$
 #
 # Some of the initial setup that's common to the mk*.sh scripts
 #

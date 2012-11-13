@@ -2,7 +2,7 @@
 #
 # Version and build information for rst2pdf
 #
-# $Id: rst2pdf.sh 4804 2012-01-07 10:43:55Z cary $
+# $Id$
 #
 ######################################################################
 

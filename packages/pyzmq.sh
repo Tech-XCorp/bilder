@@ -2,7 +2,7 @@
 #
 # Version and build information for pyzmq
 #
-# $Id: pyzmq.sh 5630 2012-03-30 19:32:23Z kruger $
+# $Id$
 #
 ######################################################################
 

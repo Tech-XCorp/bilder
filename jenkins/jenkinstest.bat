@@ -3,7 +3,7 @@ rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 rem
 rem Purpose: This starts jenkinstest through cygwin on windows.
 rem
-rem $Id: jenkinstest.bat 5798 2012-04-15 12:27:43Z cary $
+rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 

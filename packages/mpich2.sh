@@ -4,7 +4,7 @@
 # We have not yet created the bilder package file for mpich2, so
 # here we simply store some notes.
 #
-# $Id: mpich2.sh 6163 2012-06-01 15:28:49Z alexanda $
+# $Id$
 #
 ######################################################################
 

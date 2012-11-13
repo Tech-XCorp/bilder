@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: bilderpy.sh 6979 2012-11-09 23:55:29Z cary $
+# $Id$
 #
 # Determine the python version and library path
 #

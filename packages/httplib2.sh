@@ -2,7 +2,7 @@
 #
 # Version and build information for httplib2
 #
-# $Id: httplib2.sh 5433 2012-03-09 22:47:58Z srinath $
+# $Id$
 #
 ######################################################################
 

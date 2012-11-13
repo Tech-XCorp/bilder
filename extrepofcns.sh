@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: extrepofcns.sh 6533 2012-08-13 19:21:05Z sveta $
+# $Id$
 #
 # Get other repos that aren't normally needed for 
 #

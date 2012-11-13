@@ -2,7 +2,7 @@
 #
 # Version and build information for pythonocc
 #
-# $Id: pythonocc.sh 6142 2012-05-28 21:07:43Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for subversion
 #
-# $Id: subversion.sh 5963 2012-05-04 22:00:36Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -12,7 +12,7 @@
 #		new thing to be executed. So $$ will be the PID of the
 #		to-be-spawned process.
 #
-# Version:	$Id: exec.sh 5429 2012-03-09 14:15:24Z cary $
+# Version:	$Id$
 #
 ##########
 

@@ -1,4 +1,4 @@
-# $Id: bildall.sh 6527 2012-08-10 15:48:19Z kruger $
+# $Id$
 #
 # Collecting the sourced files
 #

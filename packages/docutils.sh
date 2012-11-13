@@ -3,7 +3,7 @@
 # Version and build information for docutils
 # Pure Python package
 #
-# $Id: docutils.sh 5239 2012-02-17 19:34:01Z cary $
+# $Id$
 #
 ######################################################################
 

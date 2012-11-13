@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mktrilinos.sh 6594 2012-09-01 15:12:46Z cary $
+# $Id$
 #
 # Builds toolchain needed to get to Trilinos
 #

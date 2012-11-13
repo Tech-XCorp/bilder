@@ -2,7 +2,7 @@
 #
 # Source this file to build all of autotools
 #
-# $Id: autotools.sh 6390 2012-07-19 10:18:44Z cary $
+# $Id$
 #
 ######################################################################
 

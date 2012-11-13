@@ -2,7 +2,7 @@
 #
 # Version and build information for qscintilla
 #
-# $Id: qscintilla.sh 5963 2012-05-04 22:00:36Z cary $
+# $Id$
 #
 ######################################################################
 

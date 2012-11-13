@@ -2,7 +2,7 @@
 #
 # Version and build information for Adios io library
 #
-# $Id: adios.sh 5209 2012-02-09 23:23:28Z dws $
+# $Id$
 #
 ######################################################################
 

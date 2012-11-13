@@ -3,7 +3,7 @@ rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 rem
 rem Purpose: This starts jenkinsabs through cygwin on windows.
 rem
-rem $Id: jenkinsabs.bat 6516 2012-08-09 13:27:06Z cary $
+rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 

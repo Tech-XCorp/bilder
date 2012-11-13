@@ -2,7 +2,7 @@
 #
 # Version and build information for swim gui
 #
-# $Id: swimgui.sh 5209 2012-02-09 23:23:28Z dws $
+# $Id$
 #
 ######################################################################
 

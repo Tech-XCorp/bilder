@@ -6,7 +6,7 @@
 #   ridiculously confusing.  The web page is here:
 #   http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
 #
-# $Id: pynetcdf4.sh 4855 2012-01-11 17:26:11Z kruger $
+# $Id$
 #
 #
 ######################################################################

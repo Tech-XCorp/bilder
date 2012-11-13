@@ -2,7 +2,7 @@
 #
 # Version and build information for autotools
 #
-# $Id: autotools.sh 6750 2012-09-25 23:03:54Z dws $
+# $Id$
 #
 ######################################################################
 

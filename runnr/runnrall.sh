@@ -2,7 +2,7 @@
 #
 # Cron script to build vorpal and run tests, possibly in queue.
 #
-# $Id: runnrall.sh 5529 2012-03-19 16:33:16Z cary $
+# $Id$
 #
 ######################################################################
 

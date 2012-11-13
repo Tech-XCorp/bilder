@@ -2,7 +2,7 @@
 #
 # Version and build information for txphysics
 #
-# $Id: cfitsio.sh 4213 2011-08-31 21:26:26Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Source this file to build python numerical tools
 #
-# $Id: pytools.sh 6191 2012-06-08 17:09:05Z benc $
+# $Id$
 #
 ######################################################################
 

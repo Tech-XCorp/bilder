@@ -2,7 +2,7 @@
 #
 # Version and build information for chrpath
 #
-# $Id: chrpath.sh 6682 2012-09-18 00:01:59Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # For setting the defaults for the mkxxxx-default.sh scripts.
 #
-# $Id: mkall-default.sh 6884 2012-10-24 18:21:34Z lagae $
+# $Id$
 #
 # Also see defaultsfcns.sh for concomitant functions
 #

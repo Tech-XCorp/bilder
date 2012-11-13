@@ -2,7 +2,7 @@
 #
 # Version and build information for sparskit
 #
-# $Id: sparskit.sh 6364 2012-07-15 09:04:57Z cary $
+# $Id$
 #
 ######################################################################
 

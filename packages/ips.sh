@@ -2,7 +2,7 @@
 #
 # Version and build information for IPS from swim
 #
-# $Id: ips.sh 6854 2012-10-17 14:58:41Z cary $
+# $Id$
 #
 ######################################################################
 

@@ -4,7 +4,7 @@
 ##
 ## Purpose: Define helper functions for running simulations.
 ##
-## Version: $Id: runnrfcns.sh 6611 2012-09-05 14:34:19Z cary $
+## Version: $Id$
 ##
 ## ######################################################################
 

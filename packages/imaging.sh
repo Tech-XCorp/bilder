@@ -2,7 +2,7 @@
 #
 # Version and build information for python imaging library
 #
-# $Id: imaging.sh 6627 2012-09-07 03:03:19Z cary $
+# $Id$
 #
 ######################################################################
 

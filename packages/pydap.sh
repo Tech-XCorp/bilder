@@ -2,7 +2,7 @@
 #
 # Version and build information for pydap
 #
-# $Id: pydap.sh 5435 2012-03-09 23:05:08Z srinath $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for OpenSplice
 #
-# $Id: opensplice.sh 6372 2012-07-16 23:16:53Z roopa $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for pspline
 #
-# $Id: pspline.sh 6942 2012-11-04 23:37:57Z swsides $
+# $Id$
 #
 ######################################################################
 

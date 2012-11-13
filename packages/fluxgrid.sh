@@ -2,7 +2,7 @@
 #
 # Version and build information for fluxgrid
 #
-# $Id: fluxgrid.sh 6107 2012-05-23 22:13:30Z kruger $
+# $Id$
 #
 ######################################################################
 

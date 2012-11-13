@@ -2,7 +2,7 @@
 #
 # Version and build information for MathJax
 #
-# $Id: mathjax.sh 6690 2012-09-18 23:43:49Z alexanda $
+# $Id$
 #
 ######################################################################
 

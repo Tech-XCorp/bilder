@@ -3,7 +3,7 @@
 # Version and build information for pyreadline
 # Pure python implemention of readline for Windows only
 #
-# $Id: pyreadline.sh 5209 2012-02-09 23:23:28Z dws $
+# $Id$
 #
 ######################################################################
 

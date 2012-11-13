@@ -2,7 +2,7 @@
 #
 # Version and build information for gotoblas2
 #
-# $Id: gotoblas2.sh 5429 2012-03-09 14:15:24Z cary $
+# $Id$
 #
 # Notes on building gotoblas2 are at
 # http://www.pgroup.com/resources/gotoblas/gotoblas_pgi2011.htm

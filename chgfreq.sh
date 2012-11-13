@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: chgfreq.sh 5226 2012-02-13 18:54:33Z alexanda $
+# $Id$
 #
 # Change the clock frequency (throttling).
 #

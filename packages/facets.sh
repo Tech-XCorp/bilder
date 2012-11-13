@@ -2,7 +2,7 @@
 #
 # Version and build information for facets
 #
-# $Id: facets.sh 6695 2012-09-19 17:57:35Z alexanda $
+# $Id$
 #
 ######################################################################
 

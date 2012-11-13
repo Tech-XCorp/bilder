@@ -2,7 +2,7 @@
 #
 # Version and build information for sphinx
 #
-# $Id: sphinx.sh 6777 2012-09-30 15:51:17Z cary $
+# $Id$
 #
 ######################################################################
 

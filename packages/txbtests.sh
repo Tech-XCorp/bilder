@@ -2,7 +2,7 @@
 #
 # Version and build information for txbtests
 #
-# $Id: txbtests.sh 6891 2012-10-26 11:24:20Z cary $
+# $Id$
 #
 ######################################################################
 

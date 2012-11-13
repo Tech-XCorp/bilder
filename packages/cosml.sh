@@ -2,7 +2,7 @@
 #
 # Version and build information for cosml
 #
-# $Id: cosml.sh 6949 2012-11-06 13:38:46Z austin $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for fmcfm
 #
-# $Id: fmcfm.sh 6696 2012-09-19 17:59:21Z alexanda $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for mesa
 #
-# $Id: mesa.sh 6712 2012-09-21 12:04:49Z cary $
+# $Id$
 #
 # Repackage for bilder:
 #   tar xzf MesaLib-7.10.2.tar.gz:w

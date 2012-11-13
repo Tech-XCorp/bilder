@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: cleaninstalls.sh 6973 2012-11-09 17:40:05Z cary $
+# $Id$
 #
 # To clean up installations.txt, removing records of installations
 # that are no longer present.

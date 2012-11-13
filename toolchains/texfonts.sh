@@ -2,7 +2,7 @@
 #
 # This is not a bilder package, but just a convenient shell script
 #
-# $Id: texfonts.sh 5429 2012-03-09 14:15:24Z cary $
+# $Id$
 #
 ######################################################################
 

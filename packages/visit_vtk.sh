@@ -2,7 +2,7 @@
 #
 # Version and build information for visit_vtk
 #
-# $Id: visit_vtk.sh 6929 2012-11-03 16:10:38Z alexanda $
+# $Id$
 #
 ######################################################################
 

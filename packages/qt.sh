@@ -16,7 +16,7 @@
 # configure.exe -prefix C:\winsame\contrib-vs10\qt-4.6.3-ser -debug-and-release -platform win32-msvc2008  -opensource -confirm-license -fast -no-qt3support -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-libtiff -webkit -phonon -no-script -no-scripttools
 # Have not tried -phonon on windows.
 #
-# $Id: qt.sh 6989 2012-11-12 15:44:29Z cary $
+# $Id$
 #
 ######################################################################
 
