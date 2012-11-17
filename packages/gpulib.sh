@@ -49,15 +49,15 @@ buildGPULib() {
   case `uname` in
     AIX)
       GPULIB_MAKE_ARGS=${GPULIB_MAKE_ARGS:-"RANLIB=:"}
-      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $JMAKEARGS"
+      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $GPULIB_MAKEJ_ARGS"
       ;;
     CYGWIN*)
       if which jom 1>/dev/null 2>/dev/null; then
-        GPULIB_MAKE_ARGS="$JMAKEARGS"
+        GPULIB_MAKE_ARGS="$GPULIB_MAKEJ_ARGS"
       fi
       ;;
     Darwin | Linux)
-      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $JMAKEARGS"
+      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $GPULIB_MAKEJ_ARGS"
       export LD_LIBRARY_PATH=/usr/local/cuda-4.2/cuda/lib64:/usr/local/cuda/4.2/cuda/lib64:$LD_LIBRARY_PATH
       ;;
   esac

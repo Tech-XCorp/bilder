@@ -170,7 +170,7 @@ buildPetsc33() {
     fi
     if test -z "$PETSC_PAR_COMPILERS"; then
       if test -n "$F77"; then
-        PETSC_PAR_FORTRAN_CONF="--with-fortran=1 --with-fc='$PF77'"
+        PETSC_PAR_FORTRAN_CONF="--with-fortran=1 --with-fc='$PMPIF77'"
       fi
 
       PETSC_PAR_COMPILERS=`echo "--with-cc='$PMPICC' --with-cxx='$PMPICXX' $PETSC_PAR_FORTRAN_CONF" | sed "s/='[C-N]:/='/g"`

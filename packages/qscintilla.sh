@@ -71,7 +71,7 @@ buildQScintilla() {
     local QSCINTILLA_MAKE_ARGS
     case `uname` in
       Linux)
-        QSCINTILLA_MAKE_ARGS="$JMAKEARGS"
+        QSCINTILLA_MAKE_ARGS="$QSCINTILLA_MAKEJ_ARGS"
         ;;
       *)	# make -j can fail on Darwin
         QSCINTILLA_MAKE_ARGS=""

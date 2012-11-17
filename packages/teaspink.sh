@@ -44,7 +44,7 @@ buildTeaspink() {
     bilderUnpack teaspink
     res=$?
   fi
-  TEASPINK_MAKE_ARGS="$JMAKEARGS"
+  TEASPINK_MAKE_ARGS="$TEASPINK_MAKEJ_ARGS"
 
 # Regular build
   if test $res = 0; then

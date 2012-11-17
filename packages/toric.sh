@@ -38,11 +38,11 @@ buildToric() {
 # Fortran into a C code.
     local TORIC_CONFIG_COMPILERS_PAR="CC=$MPICC CXX=$MPICXX FC=$MPIFC F77=$MPIFC"
     if bilderConfig toric par "--enable-parallel $TORIC_CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $TORIC_PAR_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-#    bilderBuild toric par "$JMAKEARGS"
-      bilderBuild toric par	# Cannot use JMAKEARGS since Fortran
+#    bilderBuild toric par "$TORIC_MAKEJ_ARGS"
+      bilderBuild toric par	# Cannot use TORIC_MAKEJ_ARGS since Fortran
     fi
     if bilderConfig toric ser "--disable-parallel $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $TORIC_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-      bilderBuild toric ser	# Cannot use JMAKEARGS since Fortran
+      bilderBuild toric ser	# Cannot use TORIC_MAKEJ_ARGS since Fortran
     fi
   fi
 }

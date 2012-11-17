@@ -105,24 +105,24 @@ buildTrilinos() {
 
 # Build the shared libs
     if bilderConfig -p trilinos-${TRILINOS_BLDRVERSION}-serbare trilinos serbaresh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON  $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SERSH_OTHER_ARGS"; then
-      bilderBuild trilinos serbaresh "$JMAKEARGS"
+      bilderBuild trilinos serbaresh "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig -p trilinos-${TRILINOS_BLDRVERSION}-serfull trilinos serfullsh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-sersh/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-sersh/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu -DBUILD_SHARED_LIBS:BOOL=ON  $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SERSH_OTHER_ARGS"; then
-      bilderBuild trilinos serfullsh "$JMAKEARGS"
+      bilderBuild trilinos serfullsh "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig -p trilinos-${TRILINOS_BLDRVERSION}-sercomm trilinos sercommsh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-sersh/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-sersh/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu -DBUILD_SHARED_LIBS:BOOL=ON  $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SERSH_OTHER_ARGS"; then
-      bilderBuild trilinos sercommsh "$JMAKEARGS"
+      bilderBuild trilinos sercommsh "$TRILINOS_MAKEJ_ARGS"
     fi
 
     # Need to enable parmetis here and metis???
     if bilderConfig -p trilinos-${TRILINOS_BLDRVERSION}-parbare trilinos parbaresh "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_BLAS_LIB_ARG -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PARSH_OTHER_ARGS"; then
-      bilderBuild trilinos parbaresh "$JMAKEARGS"
+      bilderBuild trilinos parbaresh "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig -p trilinos-${TRILINOS_BLDRVERSION}-parfull trilinos parfullsh "-DTPL_ENABLE_MPI:BOOL=ON -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parsh/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parsh/lib -DSuperLUDist_LIBRARY_NAMES:STING=superlu_dist  -DTPL_ENABLE_PARMETIS:BOOL=ON -DParMETIS_INCLUDE_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}}-par/include  -DParMETIS_LIBRARY_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}}-par/lib $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_BLAS_LIB_ARG -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PARSH_OTHER_ARGS"; then
-      bilderBuild trilinos parfullsh "$JMAKEARGS"
+      bilderBuild trilinos parfullsh "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig -p trilinos-${TRILINOS_BLDRVERSION}-parcomm trilinos parcommsh "-DTPL_ENABLE_MPI:BOOL=ON -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/lib -DSuperLUDist_LIBRARY_NAMES:STING=superlu_dist $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_BLAS_LIB_ARG -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PARSH_OTHER_ARGS"; then
-      bilderBuild trilinos parcommsh "$JMAKEARGS"
+      bilderBuild trilinos parcommsh "$TRILINOS_MAKEJ_ARGS"
     fi
 
 # Build the static libs.  This needs fixing.
@@ -133,23 +133,23 @@ buildTrilinos() {
       TRILINOS_STATIC_LINLIB_ARGS="$CMAKE_LINLIB_SER_ARGS"
     fi
     if bilderConfig trilinos serbare "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SER_OTHER_ARGS"; then
-      bilderBuild trilinos serbare "$JMAKEARGS"
+      bilderBuild trilinos serbare "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig trilinos serfull "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SER_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu"; then
-      bilderBuild trilinos serfull "$JMAKEARGS"
+      bilderBuild trilinos serfull "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig trilinos sercomm "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SER_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu"; then
-      bilderBuild trilinos sercomm "$JMAKEARGS"
+      bilderBuild trilinos sercomm "$TRILINOS_MAKEJ_ARGS"
     fi
 
     if bilderConfig trilinos parbare "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PAR_OTHER_ARGS"; then
-      bilderBuild trilinos parbare "$JMAKEARGS"
+      bilderBuild trilinos parbare "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig trilinos parfull "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PAR_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-par/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-par/lib -DSuperLUDist_LIBRARY_NAMES:STING=superlu_dist -DTPL_ENABLE_PARMETIS:BOOL=ON -DParMETIS_INCLUDE_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}}-par/include  -DParMETIS_LIBRARY_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}}-par/lib"; then
-      bilderBuild trilinos parfull "$JMAKEARGS"
+      bilderBuild trilinos parfull "$TRILINOS_MAKEJ_ARGS"
     fi
     if bilderConfig trilinos parcomm "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PAR_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib -DSuperLUDist_LIBRARY_NAMES:STING=superlu_dist"; then
-      bilderBuild trilinos parcomm "$JMAKEARGS"
+      bilderBuild trilinos parcomm "$TRILINOS_MAKEJ_ARGS"
     fi
 
   fi

@@ -98,8 +98,9 @@ buildScipy() {
         SCIPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
         ;;
       Linux-*)
+        local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-sersh/lib
+        SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN LAPACK='$LAPACK_LIB_DIR'"
 	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
-        SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN"
         ;;
       *)
         techo "WARNING: [scipy.sh] uname `uname` not recognized.  Not building."
@@ -121,7 +122,6 @@ buildScipy() {
 # On hopper, cannot include LD_LIBRARY_PATH
     bilderDuBuild scipy "$SCIPY_ARGS" "$SCIPY_ENV"
   fi
-
 }
 
 ######################################################################

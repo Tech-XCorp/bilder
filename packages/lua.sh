@@ -44,7 +44,7 @@ buildLua() {
     bilderUnpack lua
     res=$?
   fi
-  LUA_MAKE_ARGS="$JMAKEARGS"
+  LUA_MAKE_ARGS="$LUA_MAKEJ_ARGS"
 
 # Regular build
   if test $res = 0; then

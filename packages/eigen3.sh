@@ -52,7 +52,7 @@ buildEigen3() {
 
 # Configure and build
     if bilderConfig eigen3 ser "$EIGEN3_OTHER_ARGS"; then
-      bilderBuild eigen3 ser "$JMAKEARGS"
+      bilderBuild eigen3 ser "$EIGEN3_MAKEJ_ARGS"
     fi
 
   fi

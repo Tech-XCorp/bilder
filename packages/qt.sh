@@ -26,9 +26,11 @@
 #
 ######################################################################
 
-if test -z "$QT_BLDRVERSION"; then
-  QT_BLDRVERSION=4.8.1
-fi
+case `uname`-`uname -r` in
+  Darwin-12.2.*) QT_BLDRVERSION_STD=4.8.3;;
+  *) QT_BLDRVERSION_STD=4.8.1;;
+esac
+QT_BLDRVERSION_EXP=4.8.3
 
 ######################################################################
 #
@@ -84,7 +86,15 @@ buildQt() {
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
 # with a comma.
+        local extras_libdir=
+        if test -e $CONTRIB_DIR/extras/lib; then
+          extras_libdir=$CONTRIB_DIR/extras/lib
+        fi
+        # QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:${extras_libdir}:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/ser/lib:${extras_libdir}:$LD_LIBRARY_PATH"
         QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/ser/lib:$LD_LIBRARY_PATH"
+        if test -n "${extras_libdir}"; then
+          QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
+        fi
         case `uname -m` in
           x86_64)
             QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++-64"
@@ -103,13 +113,20 @@ buildQt() {
 #  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
 #  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
         local incdir=
+        local libdir=
         for i in gstreamer libxml2; do
 # Get the latest
           incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
+          if test -z "$incdir"; then
+            incdir=`ls -1d $CONTRIB_DIR/extras/include/$i{,-*} 2>/dev/null | tail -1`
+          fi
           if test -n "$incdir"; then
             QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
           else
             techo "WARNING: [qt.sh] May need to install ${i}-devel."
+          fi
+          if test -n "$libdir"; then
+            QT_PHONON_ARGS="$QT_PHONON_ARGS -L$libdir"
           fi
         done
 # glib a little special to deal with versions
@@ -150,7 +167,8 @@ buildQt() {
     esac
 
 # PyQt will not build on Linux when Qt is built without phonon, so restoring.
-# This will cause a problem elsewhere, likely, but now we can record that.
+# Phonon is also required for WebKit, which the composers need.
+# On Linux, this requires glib-devel and gstreamer-plugins-base-devel
     QT_WITH_PHONON=${QT_WITH_PHONON:-"true"}
     if ! $QT_WITH_PHONON; then
       techo "NOTE: Building Qt without phonon."
@@ -161,7 +179,7 @@ buildQt() {
     # techo "Before qt's bilderConfig, QT_SER_INSTALL_DIR=$QT_SER_INSTALL_DIR."
     if bilderConfig -i qt ser "$QT_PLATFORM_ARGS -confirm-license -make libs -make tools -buildkey bilder -fast -opensource -opengl -webkit -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-libtiff -no-javascript-jit -no-scripttools $QT_PHONON_ARGS $QT_SER_OTHER_ARGS" "" "$QT_ENV"; then
       # techo exit; exit
-      bilderBuild qt ser "$JMAKEARGS" "$QT_ENV"
+      bilderBuild qt ser "$QT_MAKEJ_ARGS" "$QT_ENV"
     else
 # Remove linked file if present
       if $QT_GXX_LINKED; then
@@ -212,19 +230,20 @@ postInstallQt() {
           oldDebugSOName=$(otool -D $debugFilename | tail -n -1)
           internalFWPath=$(echo $oldSOName | sed -e 's/.*\.framework\///')
           internalDebugFWPath=$(echo $oldDebugSOName | sed -e 's/.*\.framework\///')
-#          These are the original lines, which install a relative path
-#          newSOName="@executable_path/../lib/${QtFW}.framework/$internalFWPath"
-#          newDebugSOName="@executable_path/../lib/${QtFW}.framework/$internalDebugFWPath"
-#          These are the "new" lines that install a path-less library name (relies on system frameworks)
+# These are the original lines, which install a relative path
+          # newSOName="@executable_path/../lib/${QtFW}.framework/$internalFWPath"
+          # newDebugSOName="@executable_path/../lib/${QtFW}.framework/$internalDebugFWPath"
+# These are the "new" lines that install a path-less library name, and so
+# relies on DYLD_LIBRARY_PATH.
           newSOName="${QtFW}.framework/$internalFWPath"
 	  newDebugSOName="${QtFW}.framework/$internalDebugFWPath"
           install_name_tool -id $newSOName $filename
           install_name_tool -id $newDebugSOName $debugFilename
-          #This loop changes the name of THIS library in all the OTHER libraries
+# This loop changes the name of THIS library in all the OTHER libraries
           for otherQtFW in $QtFrameworks; do
             install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}
             install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}_debug
-	    #QtCLucene is not a framework, so it's a special case
+# QtCLucene is not a framework, so it's a special case
 	    install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/libQtCLucene.dylib
 	    install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/libQtCLucene_debug.dylib
           done
@@ -241,7 +260,7 @@ postInstallQt() {
         internalFWPath=$(echo $oldSOName | sed -e 's/.*\lib\///')
 	techo "for QtCLUcene,internalFWPath is ${internalFWPath}"
         internalDebugFWPath=$(echo $oldDebugSOName | sed -e 's/.*\lib\///')
-#        These are the new lines which install a no-path library name
+# These are the new lines which install a no-path library name
         newSOName="${internalFWPath}"
         newDebugSOName="${internalDebugFWPath}"
 	techo "Calling install_name_tool -d ${newSOName} ${filename}"
@@ -253,6 +272,7 @@ postInstallQt() {
           install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}_debug
         done
         ;;
+
     esac
 
 }
@@ -305,7 +325,7 @@ and then follow with the usual installation.
 EOF
     cd $BUILD_DIR/qt-$QT_BLDRVERSION/ser
     make -i install 2>&1 | tee qt-install2.txt
-    bilderBuild qt ser "$JMAKEARGS"
+    bilderBuild qt ser "$QT_MAKEJ_ARGS"
     if bilderInstall -r qt ser; then
       fixQtInstall
       findQt

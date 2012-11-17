@@ -96,6 +96,7 @@ case `uname` in
     CXX=${CXX:-"cl"}
     LIBEXT=.lib
     unset LIBPREFIX
+# Should be able to use systeminfo to get the number of cores
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
@@ -146,6 +147,9 @@ case `uname` in
     SYSTEM_LAPACK_SER_LIB="-framework Accelerate"
     LIBEXT=.a
     LIBPREFIX=lib
+    if ! MAKEJ_MAX=`hwprefs cpu_count 2>/dev/null`; then
+      MAKEJ_MAX=`sysctl -n hw.ncpu`
+    fi
     OSVER=`uname -r`
 # On Darwin, jenkins is not getting /usr/local/bin
     if ! echo $PATH | egrep -q "(^|:)/usr/local/bin($|:)"; then
@@ -159,12 +163,18 @@ case `uname` in
         PYC_LDSHARED=${PYC_LDSHARED:-"gcc-4.0"}
         PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
-      10.* | 11.*)
+      10.*)
         READLINK=readlink
         # PYC_MODFLAGS=${PYC_MODFLAGS:-"-bundle -undefined dynamic_lookup -arch i386 -arch x86_64"}
 # 16Jan2010: arch flags appear not to be needed on Darwin 10.5.0.
+# Needed on earlier 10.X?
+        PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup -arch i386 -arch x86_64"}
+        ;;
+      11.* | 12.*)
+        READLINK=readlink
+        # PYC_MODFLAGS=${PYC_MODFLAGS:-"-bundle -undefined dynamic_lookup"}
 # 20120329: -bundle seems to be wrong?
-# 20121108: but it was present in many packages
+# 20121108: but it was present in many packages without harm.
         PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
     esac
@@ -178,6 +188,7 @@ case `uname` in
     ARCHIVER=ar
     LIBEXT=.a
     LIBPREFIX=lib
+    MAKEJ_MAX=`grep ^processor /proc/cpuinfo | wc -l`
     case `uname -m` in
       x86_64)
 # CMAKE_LIBRARY_PATH_ARG is needed by cmake on ubuntu, where libraries
@@ -208,6 +219,27 @@ case `uname` in
 
 esac
 IS_MINGW=${IS_MINGW:-"false"}
+
+######################################################################
+#
+# Set the maximum value for the j arg to make
+#
+######################################################################
+
+# Default -j value for make is half the number of processors,
+# but not less than 1, and not greater than MKJMAX.
+if test -n "$MAKEJ_MAX"; then
+  MAKEJ_DEFVAL=`expr $MAKEJ_MAX / 2`
+  if test $MAKEJ_DEFVAL -le 0; then
+    MAKEJ_DEFVAL=1
+  fi
+  if test -n "$JMAKE"; then
+    if test  "$MAKEJ_DEFVAL" -gt "$JMAKE"; then
+      MAKEJ_DEFVAL=$JMAKE
+    fi
+  fi
+  MKJ_DEFARG="-j $MAKEJ_DEFVAL"
+fi
 
 ######################################################################
 #
@@ -390,6 +422,11 @@ case `uname` in
           trimvar PYC_LD_RUN_PATH :
           ;;
       esac
+    fi
+# If extras installed, add in the libdir
+    if test -e $CONTRIB_DIR/extras/lib; then
+      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_LIBRARY_PATH
+      PYC_LD_RUN_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_RUN_PATH
     fi
     ;;
 esac

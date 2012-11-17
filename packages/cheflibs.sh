@@ -73,7 +73,7 @@ buildCheflibs() {
     fi
   fi
 
-  CHEF_LIBS_MAKE_ARGS="$JMAKEARGS"
+  CHEF_LIBS_MAKE_ARGS="$CHEFLIBS_MAKEJ_ARGS"
 
 # Look for glib
   if test -d /usr/lib64/glib-2.0/include; then

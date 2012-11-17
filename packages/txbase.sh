@@ -63,7 +63,7 @@ buildTxbase() {
     bilderUnpack txbase
     res=$?
   fi
-  TXBASE_MAKE_ARGS="$JMAKEARGS"
+  TXBASE_MAKE_ARGS="$TXBASE_MAKEJ_ARGS"
 
 # Regular build
   if test $res = 0; then

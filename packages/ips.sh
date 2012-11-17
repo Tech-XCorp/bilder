@@ -44,7 +44,7 @@ buildIPS() {
   if bilderPreconfig ips; then
 # Serial build
     if bilderConfig -c ips cc4py " $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $IPS_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG" ips; then
-      bilderBuild ips cc4py "all $ips_docs $JMAKEARGS"
+      bilderBuild ips cc4py "all $ips_docs $IPS_MAKEJ_ARGS"
     fi
   fi
 }

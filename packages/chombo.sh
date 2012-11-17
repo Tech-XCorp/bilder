@@ -61,44 +61,44 @@ buildChombo() {
 
      # ser2d
      if bilderConfig -c chombo ser2d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo ser2d "$JMAKEARGS"
+        bilderBuild chombo ser2d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # ser3d
      if bilderConfig -c chombo ser3d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo ser3d "$JMAKEARGS"
+        bilderBuild chombo ser3d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # par2d
      if bilderConfig -c chombo par2d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo par2d "$JMAKEARGS"
+        bilderBuild chombo par2d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # par3d
      if bilderConfig -c chombo par3d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo par3d "$JMAKEARGS"
+        bilderBuild chombo par3d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      if [ $USER != 'swsides' ]; then
 
      # ser2ddbg
      if bilderConfig -c chombo ser2ddbg "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo ser2ddbg "$JMAKEARGS"
+        bilderBuild chombo ser2ddbg "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # ser3ddbg
      if bilderConfig -c chombo ser3ddbg "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo ser3ddbg "$JMAKEARGS"
+        bilderBuild chombo ser3ddbg "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # par2ddbg
      if bilderConfig -c chombo par2ddbg "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo par2ddbg "$JMAKEARGS"
+        bilderBuild chombo par2ddbg "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # par3ddbg
      if bilderConfig -c chombo par3ddbg "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo par3ddbg "$JMAKEARGS"
+        bilderBuild chombo par3ddbg "$CHOMBO_MAKEJ_ARGS"
      fi 
 
    fi

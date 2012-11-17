@@ -50,7 +50,7 @@ buildQhull() {
 
   if bilderUnpack qhull; then
       if bilderConfig $USE_CMAKE_ARG qhull ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $QHULL_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-	        bilderBuild qhull ser "$JMAKEARGS $QHULL_MAKE_ARGS"
+	        bilderBuild qhull ser "$QHULL_MAKEJ_ARGS $QHULL_MAKE_ARGS"
       fi
   fi
 

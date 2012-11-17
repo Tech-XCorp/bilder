@@ -52,10 +52,10 @@ buildDakota() {
   if bilderUnpack dakota; then
 # Regular build
     if bilderConfig dakota ser "--disable-mpi $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_BASE_ARGS $DAKOTA_SER_OTHER_ARGS"; then
-      bilderBuild dakota ser "$JMAKEARGS"
+      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
     fi
     if bilderConfig dakota par "$CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $BEN_CONFIG_LDFLAGS $DAKOTA_BASE_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
-      bilderBuild dakota par "$JMAKEARGS"
+      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
     fi
   fi
 }

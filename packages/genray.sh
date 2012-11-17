@@ -33,9 +33,9 @@ buildGenray() {
   getVersion genray
   if bilderPreconfig genray; then
     bilderConfig genray par "--enable-parallel $CONFIG_COMPILERS_PAR $LAPACK_ARG $BLAS_LIB_CONFIG__ARG $GENRAY_PAR_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"
-    bilderBuild genray par "$JMAKEARGS"
+    bilderBuild genray par "$GENRAY_MAKEJ_ARGS"
     bilderConfig genray ser "$CONFIG_COMPILERS_SER $LAPACK_ARG $GENRAY_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"
-    bilderBuild genray ser "$JMAKEARGS"
+    bilderBuild genray ser "$GENRAY_MAKEJ_ARGS"
   fi
 }
 

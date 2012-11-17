@@ -32,38 +32,36 @@ setBilderOsVars() {
       ;;
 
     Darwin)
-      if ! jval=`hwprefs cpu_count 2>/dev/null`; then
-        jval=`sysctl -n hw.ncpu`
-      fi
-      if test -n "$jval" -a $jval -ge 4; then
-        jval=`expr $jval / 2`
-        if test -n "$MKJMAX"; then
-          if test $jval -gt "$MKJMAX"; then
-            jval=$MKJMAX
-          fi
-        fi
-        MKJARG="-j $jval"
-      fi
+      # if ! MAX_MAKEJ=`hwprefs cpu_count 2>/dev/null`; then
+        # MAX_MAKEJ=`sysctl -n hw.ncpu`
+      # fi
       ;;
 
     Linux)
-      jval=`grep ^processor /proc/cpuinfo | wc -l`
-      if test -n "$jval" -a $jval -ge 4; then
-        jval=`expr $jval / 2`
-        # echo "MKJMAX = $MKJMAX. jval = $jval."
-        if test -n "$MKJMAX"; then
-          if test $jval -gt "$MKJMAX"; then
-            jval=$MKJMAX
-          fi
-        fi
-        MKJARG="-j $jval"
-      fi
       if uname -a | grep -q Ubuntu; then
         MACHINEFILE=${MACHINEFILE:-"ubuntu-x86_64"}
       fi
+      # MAX_MAKEJ=`grep ^processor /proc/cpuinfo | wc -l`
       ;;
 
   esac
+
+# Default -j value for make is half the number of processors,
+# but not less than 1, and not greater than MKJMAX.
+if false; then
+  if test -n "$MAX_MAKEJ"; then
+    MAKEJ_DEFVAL=`expr $MAX_MAKEJ / 2`
+    if test $MAKEJ_DEFVAL -le 0; then
+      MAKEJ_DEFVAL=1
+    fi
+    if test -n "$MKJMAX"; then
+      if test  "$MAKEJ_DEFVAL" -gt "$MKJMAX"; then
+        MAKEJ_DEFVAL=$MKJMAX
+      fi
+    fi
+    MKJARG="-j $MAKEJ_DEFVAL"
+  fi
+fi
 
 }
 
@@ -226,7 +224,8 @@ runBilderCmd() {
   fi
 
 # Construct command
-  local scriptargs=`echo $BILDER_ARGS $EXTRA_ARGS $MKJARG $machinefile_args $builddir_arg $tarballdir_arg $installdir_arg $nobuild_arg $email_arg $SCRIPT_ADDL_ARGS $BILDER_ADDL_ARGS | sed 's/  */ /'`
+  # local scriptargs=`echo $BILDER_ARGS $EXTRA_ARGS $MKJARG $machinefile_args $builddir_arg $tarballdir_arg $installdir_arg $nobuild_arg $email_arg $SCRIPT_ADDL_ARGS $BILDER_ADDL_ARGS | sed 's/  */ /'`
+  local scriptargs=`echo $BILDER_ARGS $EXTRA_ARGS $machinefile_args $builddir_arg $tarballdir_arg $installdir_arg $nobuild_arg $email_arg $SCRIPT_ADDL_ARGS $BILDER_ADDL_ARGS | sed 's/  */ /'`
   if test -n "$QUEUE_TIME"; then
     if $USE_NOHUP; then
       runnrscript=$SCRIPT_BASE-runnr.sh

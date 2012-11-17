@@ -106,7 +106,7 @@ buildOce() {
 
 # Configure and build
     if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $OCE_ADDL_ARGS $OCE_OTHER_ARGS"; then
-      bilderBuild oce ser "$JMAKEARGS" "$OCE_ENV"
+      bilderBuild oce ser "$OCE_MAKEJ_ARGS" "$OCE_ENV"
     fi
 
   fi

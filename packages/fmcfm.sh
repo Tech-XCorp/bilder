@@ -38,11 +38,11 @@ buildFmcfmCM() {
 # Order is from longest to shortest to build
 # Parallel build
     if bilderConfig -c fmcfm par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_LINLIB_SER_ARGS $FMCFM_PAR_OTHER_ARGS $CMAKE_SUPRA_SP_ARG"; then
-      bilderBuild fmcfm par "$JMAKEARGS"
+      bilderBuild fmcfm par "$FMCFM_MAKEJ_ARGS"
     fi
 # Serial build
     if bilderConfig -c fmcfm ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_LINLIB_SER_ARGS $FMCFM_SER_OTHER_ARGS $CMAKE_SUPRA_SP_ARG"; then
-      bilderBuild fmcfm ser "$JMAKEARGS"
+      bilderBuild fmcfm ser "$FMCFM_MAKEJ_ARGS"
     fi
 
   fi

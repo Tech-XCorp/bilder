@@ -44,7 +44,7 @@ buildLuabind() {
     bilderUnpack luabind
     res=$?
   fi
-  LUABIND_MAKE_ARGS="$JMAKEARGS"
+  LUABIND_MAKE_ARGS="$LUABIND_MAKEJ_ARGS"
 
 # Regular build
   if test $res = 0; then

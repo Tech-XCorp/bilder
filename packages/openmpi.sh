@@ -80,10 +80,10 @@ EOF
     esac
 
     if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
-      bilderBuild openmpi nodl "$JMAKEARGS $SER_CONFIG_LDFLAGS"
+      bilderBuild openmpi nodl "$OPENMPI_MAKEJ_ARGS $SER_CONFIG_LDFLAGS"
     fi
     if bilderConfig openmpi static "$CONFIG_COMPILERS_SER --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
-      bilderBuild openmpi static "$JMAKEARGS $SER_CONFIG_LDFLAGS"
+      bilderBuild openmpi static "$OPENMPI_MAKEJ_ARGS $SER_CONFIG_LDFLAGS"
     fi
   fi
 }
@@ -113,10 +113,10 @@ EOF
   fi
   if bilderUnpack openmpi; then
     if bilderConfig -c openmpi nodl "$CMAKE_COMPILERS_SER $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
-      bilderBuild openmpi nodl "$JMAKEARGS"
+      bilderBuild openmpi nodl "$OPENMPI_MAKEJ_ARGS"
     fi
     if bilderConfig -c openmpi static "$CMAKE_COMPILERS_SER --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
-      bilderBuild openmpi static "$JMAKEARGS"
+      bilderBuild openmpi static "$OPENMPI_MAKEJ_ARGS"
     fi
   fi
 }

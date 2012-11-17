@@ -2651,6 +2651,29 @@ findQt() {
 }
 
 #
+# Compute the make jvalue from the builds
+#
+# Args:
+# 1: package name
+# 2: comma delimited list of builds
+#
+computeMakeJ() {
+  local numblds=`echo $builds | tr ',' ' ' | wc -w | sed 's/^ *//'`
+  local jval=`expr $MAKEJ_MAX / $numblds`
+  if test -n "$jval"; then
+    if test $jval -le 0; then
+      jval=1
+    fi
+  fi
+  local makejvar=`genbashvar $1`_MAKEJ_MAX
+  eval $makejvar=$jval
+  local makejargs=`genbashvar $1`_MAKEJ_ARGS
+  eval $makejargs="-j${jval}"
+  # printf "computeMakeJ: MAKEJ_MAX = $MAKEJ_MAX.  numblds = $numblds. $numbildsvar = $jval.\n"
+  printf "computeMakeJ: $makejvar = $jval, $makejargs = -j${jval}.\n"
+}
+
+#
 # Unpack a package and link to non versioned name.
 # Sets start time, $1_START_TIME.
 #
@@ -2940,6 +2963,8 @@ bilderUnpack() {
       fi
     fi
     techo "$tarball unpacked."
+# Determine number of builds
+    computeMakeJ $1 $builds
     return 0
   fi
   return 1
@@ -3149,8 +3174,10 @@ bilderPreconfig() {
     RESULT=1
   fi
 
-# Diagnostics and return
+# Print result and return
   if test $RESULT = 0; then
+# Compute -j arg for make
+    computeMakeJ $1 $builds
     techo "Package $1 preconfigured (if needed)."
   else
     techo "Package $1 not needed or preconfigure failed."

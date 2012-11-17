@@ -41,7 +41,7 @@ case $HDF5_UNAME in
   *) HDF5_BLDRVERSION_STD=1.8.9;;
 esac
 
-HDF5_BLDRVERSION_EXP=1.8.9
+HDF5_BLDRVERSION_EXP=1.8.10
 
 ######################################################################
 #
@@ -273,12 +273,12 @@ buildHdf5() {
 # of 1.8.6, windows builds cannot go in the same directory.
     if test -n "$HDF5_SER_SHARED_ARGS"; then
       if bilderConfig -c $HDF5_SERSH_PREFIX_ARG hdf5 sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_SER_SHARED_ARGS $HDF5_SERSH_ADDL_ARGS -DHDF5_BUILD_HL_LIB:BOOL=ON $HDF5_LEGACY_NAMING_ARG"; then
-        bilderBuild hdf5 sersh
+        bilderBuild hdf5 sersh "$HDF5_MAKEJ_ARGS"
       fi
     fi
     if test -n "$HDF5_PAR_SHARED_ARGS"; then
       if bilderConfig -c $HDF5_PARSH_PREFIX_ARG hdf5 parsh "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DHDF5_ENABLE_PARALLEL:BOOL=ON $HDF5_PAR_SHARED_ARGS $HDF5_PARSH_ADDL_ARGS -DHDF5_BUILD_HL_LIB:BOOL=ON $HDF5_LEGACY_NAMING_ARG"; then
-        bilderBuild hdf5 parsh
+        bilderBuild hdf5 parsh "$HDF5_MAKEJ_ARGS"
       fi
     fi
 
@@ -290,20 +290,20 @@ buildHdf5() {
 # ser build
 # Legacy naming irrelevant for static builds
     if bilderConfig -c hdf5 ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_SER_STATIC_ARGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $HDF5_SER_ADDL_ARGS"; then
-      bilderBuild hdf5 ser
+      bilderBuild hdf5 ser "$HDF5_MAKEJ_ARGS"
     fi
 
 # cc4py build is always shared
 # Legacy naming irrelevant for cc4py builds
 # On Windows, need $DISTUTILS_NOLV_ENV
     if bilderConfig -c hdf5 cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $HDF5_PYC_ADDL_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-      bilderBuild hdf5 cc4py "" "$DISTUTILS_NOLV_ENV"
+      bilderBuild hdf5 cc4py "$HDF5_MAKEJ_ARGS" "$DISTUTILS_NOLV_ENV"
     fi
 
 # uedgeC.so requires shared libraries.
 # Legacy naming irrelevant for static builds
     if bilderConfig -c hdf5 par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HDF5_ENABLE_PARALLEL $HDF5_PAR_STATIC_ARGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $HDF5_PAR_ADDL_ARGS"; then
-      bilderBuild hdf5 par
+      bilderBuild hdf5 par "$HDF5_MAKEJ_ARGS"
     fi
 
 #  alexanda: reverting back to 1.8.7, but leaving this section in case

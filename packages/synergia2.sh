@@ -62,7 +62,7 @@ buildSynergia2() {
     fi
   fi
 
-  SYNERGIA2_MAKE_ARGS="$JMAKEARGS"
+  SYNERGIA2_MAKE_ARGS="$SYNERGIA2_MAKEJ_ARGS"
 
 # Find python
   if [ ! -n "${PYTHON_BLDRVERSION}" ]

@@ -66,19 +66,19 @@ buildFacets() {
       FACETS_TAU_ARGS="TAU_MAKEFILE=$TAU_MAKEFILE TAU_OPTIONS=\"-optVerbose -optPdtGnuFortranParser -optPreProcess -optNoCompInst -optRevert -optTauSelectFile=$PROJECT_DIR/facets/fcutils/select.tau -optTauMakefile=$TAU_MAKEFILE\""
 
       if bilderConfig -c facets partau "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PARTAU $CMAKE_COMPFLAGS_PAR $FACETS_ALL_ADDL_ARGS $FACETS_PARTAU_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG" "" "$FACETS_TAU_ARGS"; then
-        bilderBuild facets partau "$JMAKEARGS" "$FACETS_TAU_ARGS"
+        bilderBuild facets partau "$FACETS_MAKEJ_ARGS" "$FACETS_TAU_ARGS"
       fi
 
     fi
 
 # Parallel build
     if bilderConfig -c facets par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $FACETS_ALL_ADDL_ARGS $FACETS_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG" facets; then
-      bilderBuild facets par "$JMAKEARGS"
+      bilderBuild facets par "$FACETS_MAKEJ_ARGS"
     fi
 
 # Serial build
     if bilderConfig -c facets ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $FACETS_ALL_ADDL_ARGS $FACETS_SER_OTHER_ARGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG" facets; then
-      bilderBuild facets ser "$JMAKEARGS"
+      bilderBuild facets ser "$FACETS_MAKEJ_ARGS"
     fi
 
 # Developer documentation build

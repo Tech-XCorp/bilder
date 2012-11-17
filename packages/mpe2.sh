@@ -61,7 +61,7 @@ buildMpe2() {
     javadir=`dirname $javadir`
 # Do it
     if bilderConfig mpe2 nodl "MPI_CC='$mpibindir/mpicc' CC='$CC' MPI_F77='$mpibindir/mpif77' F77='$F77' --with-java2=$javadir"; then
-      bilderBuild mpe2 nodl "$JMAKEARGS"
+      bilderBuild mpe2 nodl "$MPE2_MAKEJ_ARGS"
     fi
   fi
 }

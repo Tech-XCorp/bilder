@@ -86,7 +86,7 @@ buildFreecad() {
 
 # Configure and build
     if bilderConfig -c FreeCAD ser "$FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
-      bilderBuild FreeCAD ser "$JMAKEARGS $FREECAD_ENV"
+      bilderBuild FreeCAD ser "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
     fi
 
   fi

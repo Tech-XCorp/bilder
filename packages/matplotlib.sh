@@ -252,7 +252,7 @@ installMatplotlib() {
     for i in mpl_toolkits pytz pylab.py; do
       if test -e $PYTHON_SITEPKGSDIR/$i; then
         for j in $PYTHON_SITEPKGSDIR/${i}*; do
-          setOpenPerms $PYTHON_SITEPKGSDIR/$j
+          setOpenPerms ${j}
         done
       else
         techo "WARNING: No longer need to set perms on $i."
@@ -264,7 +264,7 @@ installMatplotlib() {
       for i in dateutil; do
         if test -e $PYTHON_SITEPKGSDIR/${i}; then
           for j in $PYTHON_SITEPKGSDIR/${i}*; do
-            setOpenPerms $PYTHON_SITEPKGSDIR/${j}
+            setOpenPerms ${j}
           done
         else
           techo "WARNING: No longer need to set perms on $i."

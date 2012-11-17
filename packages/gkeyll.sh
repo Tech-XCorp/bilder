@@ -36,16 +36,16 @@ trimvar GKEYLL_DEPS ','
 buildGkeyll() {
   getVersion gkeyll
   bilderPreconfig -c gkeyll
-  GKEYLL_MAKE_ARGS="$JMAKEARGS"
+  GKEYLL_MAKE_ARGS="$GKEYLL_MAKEJ_ARGS"
 
 # Order is from longest to shortest to build
 # Parallel build
     if bilderConfig -c gkeyll par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $GKEYLL_ALL_ADDL_ARGS $GKEYLL_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG" gkeyll; then
-      bilderBuild gkeyll par "$JMAKEARGS"
+      bilderBuild gkeyll par "$GKEYLL_MAKEJ_ARGS"
     fi
 # Serial build
     if bilderConfig -c gkeyll ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $GKEYLL_ALL_ADDL_ARGS $GKEYLL_SER_OTHER_ARGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG" gkeyll; then
-      bilderBuild gkeyll ser "$JMAKEARGS"
+      bilderBuild gkeyll ser "$GKEYLL_MAKEJ_ARGS"
     fi
 }
 

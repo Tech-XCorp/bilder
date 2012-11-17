@@ -254,7 +254,7 @@ fi
     case `uname` in
       CYGWIN*)
         if which jom 1>/dev/null 2>/dev/null; then
-          VISIT_MAKEARGS="$JMAKEARGS"
+          VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         fi
 # Add our configuration file if not in distro
         if ! test -f $PROJECT_DIR/visit/config-site/windows-bilder.cmake; then
@@ -265,10 +265,12 @@ fi
         fi
         ;;
       Darwin)
-        VISIT_MAKEARGS="$JMAKEARGS"
+        # VISIT_MAKEARGS="$JMAKEARGS"
+        VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         ;;
       Linux)
-        VISIT_MAKEARGS="$JMAKEARGS"
+        # VISIT_MAKEARGS="$JMAKEARGS"
+        VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$LD_RUN_PATH
         local VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
         ;;

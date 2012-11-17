@@ -41,7 +41,7 @@ addtopathvar PATH $CONTRIB_DIR/tau/bin
 buildMetatau() {
   if bilderUnpack metatau; then
     bilderConfig $LD_RUN_FLAG metatau par "$METATAU_PAR_OTHER_ARGS"
-    export TAU_JMAKEARGS=$JMAKEARGS
+    export TAU_METATAU_MAKEJ_ARGS=$METATAU_MAKEJ_ARGS
     bilderBuild metatau par $LD_RUN_VAR
   fi
 }

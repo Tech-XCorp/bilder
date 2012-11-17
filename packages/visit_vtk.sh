@@ -20,7 +20,7 @@
 #
 ######################################################################
 
-VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-"5.8"}
+VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-"5.8.0.a"}
 
 ######################################################################
 #
@@ -105,7 +105,7 @@ buildVisIt_Vtk() {
           local VISIT_VTK_ENV=$VISIT_VTK_LD_RUN_ARGS $VISIT_VTK_LD_LIB_ARGS
         fi
         trimvar VISIT_VTK_ENV ' '
-        VISIT_VTK_MAKE_ARGS="$JMAKEARGS"
+        VISIT_VTK_MAKE_ARGS="$VISIT_VTK_MAKEJ_ARGS"
         if test -z "$PYTHON"; then
           techo "PYTHON NOT SET.  VISIT_VTK Python wrappers will not build."
           return

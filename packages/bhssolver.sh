@@ -34,10 +34,10 @@ buildBhssolver() {
   getVersion bhssolver
   if bilderPreconfig bhssolver; then
     if bilderConfig bhssolver ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $CONFIG_LDFLAGS $CONFIG_SUPRA_SP_ARG"; then
-      bilderBuild bhssolver ser "$JMAKEARGS"
+      bilderBuild bhssolver ser "$BHSSOLVER_MAKEJ_ARGS"
     fi
     if bilderConfig bhssolver ben "$CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $CONFIG_LDFLAGS $CONFIG_SUPRA_SP_ARG"; then
-      bilderBuild bhssolver ben "$JMAKEARGS"
+      bilderBuild bhssolver ben "$BHSSOLVER_MAKEJ_ARGS"
     fi
   fi
 }

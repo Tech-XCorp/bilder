@@ -20,12 +20,6 @@ if $BUILD_EXPERIMENTAL; then
 else
   PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"$PYTHON_BLDRVERSION_STD"}
 fi
-# Recompute as if version unknown, previous calculation wrong
-PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
-# Set additional load flags if known.
-if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
-  setCc4pyAddlLdflags
-fi
 
 ######################################################################
 #
@@ -54,6 +48,13 @@ if test `uname` = Linux; then
   addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
 fi
 # techo "paths added."
+# Recompute as if version unknown, previous calculation wrong
+# Need to do after path fixed to find python.
+PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
+# Set additional load flags if known.
+if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
+  setCc4pyAddlLdflags
+fi
 
 ######################################################################
 #

@@ -96,7 +96,7 @@ buildVtk() {
         if test -n "$VTK_ENV"; then
           VTK_ENV_ARGS="-e $VTK_ENV"
         fi
-        VTK_MAKE_ARGS="$JMAKEARGS"
+        VTK_MAKE_ARGS="$VTK_MAKEJ_ARGS"
 # build_visit uses MANGLED_OSMESA_LIB=libMesaGL on Linux.
         MANGLED_OSMESA_LIB=libMesaGL${SHOBJEXT}	# per build_visit
         if test -z "$PYTHON"; then

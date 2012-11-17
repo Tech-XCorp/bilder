@@ -42,7 +42,7 @@ buildFusion_machine() {
   if bilderPreconfig fusion_machine; then
 # cc4py build
     if bilderConfig -c fusion_machine cc4py "$FUSION_MACHINE_OTHER_ARGS $CMAKE_SUPRA_SP_ARG" fusion_machine; then
-      bilderBuild fusion_machine cc4py "$JMAKEARGS"
+      bilderBuild fusion_machine cc4py "$FUSION_MACHINE_MAKEJ_ARGS"
     fi
   fi
 
