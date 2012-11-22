@@ -640,7 +640,7 @@ fi
 #
 ######################################################################
 
-decho "Setting parallel flags."
+techo -2 "Setting parallel flags."
 # Parallel flags default to serial
 MPI_CFLAGS=${MPI_CFLAGS:-"$CFLAGS"}
 MPI_CXXFLAGS=${MPI_CXXFLAGS:-"$CXXFLAGS"}
@@ -803,7 +803,7 @@ case `uname` in
     ;;
 esac
 findCc4pyDir Hdf5
-# techo "Quitting in bildvar.sh."; cleanup
+# techo "Quitting in bildvars.sh."; cleanup
 
 #SEK: Just trying to get pynetcdf to work
 findContribPackage netcdf netcdf ser par
@@ -873,7 +873,7 @@ USING_BUILD_CHAIN=false
 #
 ######################################################################
 
-decho "Writing out all variables."
+techo -2 "Writing out all variables."
 hostvars="USER BLDRHOSTID FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
 pathvars="PATH CMAKE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh

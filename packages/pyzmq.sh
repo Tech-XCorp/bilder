@@ -41,7 +41,7 @@ buildPyzmq() {
 
 # Build away
     PYZMQ_ENV="$DISTUTILS_ENV"
-    decho PYZMQ_ENV = $PYZMQ_ENV
+    techo -2 PYZMQ_ENV = $PYZMQ_ENV
     ZEROMQ_ARG="--rpath=$CONTRIB_DIR/zeromq --zmq=$CONTRIB_DIR/zeromq"
     bilderDuBuild -p pyzmq pyzmq "build_ext $ZEROMQ_ARG --inplace" "$PYZMQ_ENV"
   fi

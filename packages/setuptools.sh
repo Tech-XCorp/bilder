@@ -40,7 +40,7 @@ buildSetuptools() {
 
 # Build away
     SETUPTOOLS_ENV="$DISTUTILS_ENV $SETUPTOOLS_GFORTRAN"
-    decho SETUPTOOLS_ENV = $SETUPTOOLS_ENV
+    techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
     bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
   fi
 

@@ -41,7 +41,7 @@ buildParamiko() {
 
 # Build away
     PARAMIKO_ENV="$DISTUTILS_ENV"
-    decho PARAMIKO_ENV = $PARAMIKO_ENV
+    techo -2 PARAMIKO_ENV = $PARAMIKO_ENV
     bilderDuBuild -p paramiko paramiko '-' "$PARAMIKO_ENV"
   fi
 

@@ -41,7 +41,7 @@ buildPygments() {
 
 # Build away
     PYGMENTS_ENV="$DISTUTILS_ENV $PYGMENTS_GFORTRAN"
-    decho PYGMENTS_ENV = $PYGMENTS_ENV
+    techo -2 PYGMENTS_ENV = $PYGMENTS_ENV
     bilderDuBuild -p pygments Pygments '-' "$PYGMENTS_ENV"
   fi
 

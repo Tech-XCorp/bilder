@@ -10,7 +10,7 @@
 if test -z "$SCRIPT_DIR"; then
     SCRIPT_DIR="${PROJECT_DIR}"
 fi
-decho "SCRIPT_DIR = $SCRIPT_DIR"
+techo -2 "SCRIPT_DIR = $SCRIPT_DIR"
 source $SCRIPT_DIR/bilder/extrepofcns.sh
 
 ######################################################################

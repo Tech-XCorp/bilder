@@ -54,7 +54,7 @@ buildSphinx() {
 
 # Build away
     SPHINX_ENV="$DISTUTILS_ENV $SPHINX_GFORTRAN"
-    decho SPHINX_ENV = $SPHINX_ENV
+    techo -2 SPHINX_ENV = $SPHINX_ENV
     bilderDuBuild -p sphinx Sphinx '-' "$SPHINX_ENV"
   fi
 

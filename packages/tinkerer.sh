@@ -56,7 +56,7 @@ buildTinkerer() {
 
 # Build away
     TINKERER_ENV="$DISTUTILS_ENV $TINKERER_GFORTRAN"
-    decho TINKERER_ENV = $TINKERER_ENV
+    techo -2 TINKERER_ENV = $TINKERER_ENV
     bilderDuBuild -p tinkerer tinkerer '-' "$TINKERER_ENV"
   fi
 

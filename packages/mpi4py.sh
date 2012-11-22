@@ -41,7 +41,7 @@ buildMpi4py() {
 
 # Build away
     MPI4PY_ENV="$DISTUTILS_ENV"
-    decho MPI4PY_ENV = $MPI4PY_ENV
+    techo -2 MPI4PY_ENV = $MPI4PY_ENV
     bilderDuBuild -p mpi4py mpi4py "build_ext --inplace" "$MPI4PY_ENV"
   fi
 

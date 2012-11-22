@@ -44,7 +44,7 @@ if test -n "$MINGW_BINDIR"; then
   MINGW_BINDIR=`dirname $MINGW_BINDIR`
 fi
 
-# Add python to front of path.  This may create two copies of 
+# Add python to front of path.  This may create two copies of
 # the python directory in the path, but that's ok. In a fresh
 # cygwin shell /usr/bin/python will be found, which is needed
 # for Petsc.  However, if this file is sourced we will find
@@ -71,23 +71,33 @@ fi
 # the correct subversion is unchanged.  Otherwise, svnversion looks modified.
 # Restoring for now.  What we need to figure out is why the qar machines
 # do not have the correct paths.
-if echo ${PATH}: | grep -qi '/cygdrive/c/Python26:'; then
-  techo "Before /usr/bin move, PATH = $PATH."
+techo -2 "Before /usr/bin move, PATH = $PATH."
+if echo ${PATH}: | grep -qi '/cygdrive/c/Python2'; then
+# Find locations to be moved
   if echo $PATH | grep -q :/usr/bin:/bin: ; then
     ubp=/usr/bin:/bin
   else
     ubp=/usr/bin
   fi
-# Move /usr/bin  or /usr/bin:/bin to after Python
   mvaft=$ubp
-  aftloc="/cygdrive/c/Python26"
-  if echo "$PATH" | grep -q "/cygdrive/c/python26"; then
-    $TECHO "WARNING: This machine was set up wrong.  It should have Python26 in the path, not python26.  Please fix."
-    aftloc="/cygdrive/c/python26"
+# Move /usr/bin last to find any other python first
+  PATH_SAV="$PATH"
+  PATH=`echo $PATH | sed -e 's?/usr/bin??'`:/usr/bin
+  pythonexec=`which python`
+  # echo "pythonexec = $pythonexec."
+  aftloc=
+  if echo $pythonexec | egrep -q "(p|P)ython2(6|7)"; then
+    aftloc=`dirname $pythonexec`
   fi
-  PATH=`echo $PATH | sed -e "s?:$mvaft:?:?" -e "s?:$aftloc:?:$aftloc:$mvaft:?"`
-  techo "After /usr/bin move, PATH = $PATH."
+# Do the move if python found in Windows area
+  if test -n "$aftloc"; then
+    : # PATH=`echo $PATH_SAV | sed -e "s?:$mvaft:?:?" -e "s?:$aftloc:?:$aftloc:$mvaft:?"`
+    PATH=`echo $PATH_SAV | sed -e "s?:$mvaft:?:?" -e "s?:$aftloc:?:$aftloc:$mvaft:?"`
+  else
+    PATH="$PATH_SAV"
+  fi
 fi
+techo -2 "After /usr/bin move, PATH = $PATH."
 
 # Determine the paths needed by Visual Studio
 #
@@ -120,7 +130,7 @@ getVsPaths() {
   if $IS_64_BIT; then
     arch=amd64
   fi
-   
+
   cat >$BUILD_DIR/getvsvars${vsver}.bat <<EOF
 @echo off
 echo PATHOLD="%PATH%"

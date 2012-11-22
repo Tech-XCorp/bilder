@@ -8,53 +8,64 @@
 #
 # ---------------------------------------------------------------------
 
-usage() {
+defaultsUsage() {
+  script=`basename $SCRIPT_NAME -default.sh`.sh
+  echo
+# WRAPPER OPTIONS STYLE needs changing to be consistent with what
+# is in bildopts
   cat >&2 <<_
-Usage: $0 [options]
-This script is meant to handle some of the vagaries that occur
-at LCFs and clusters in large systems (which have complicated file
-systems) such as those that have high performance scratch systems
-and NFS mounted home systems.  This script is also meant to ease
-the use of non-gfortran compilers.
-OPTIONS
-  -b <dir>        Set builds directory. If not used, bilder chooses a default. 
-  -c              common installations: for non-LCFS, goes into /contrib,
-                  /volatile or /internal, for LCFSs, goes into group areas
-  -C              Install in separate tarball and repo install dirs
-                  (internal/volatile) rather than in one area (software).
-  -E <env pairs>  Comma-delimited list of environment var=value pair
-  -f <file>       File that contains extra arguments to pass
-                  Default: .extra_args
-  -F <compiler>   Specify fortran compiler on non-LCF systems
-  -g              Label the gnu builds the same way other builds occur.
-  -H <host name>  use rules for this hostname (carver, surveyor, intrepid)
-  -h              print this message
-  -i <dir>        Software directory is labeled with "internal" if '\$USER'
-                  is member of internal install list
-  -I              Install in \$HOME instead of default location
-                  (projects directory at LCFs, BUILD_ROOTDIR on non-LCFs)
-  -j              Maximum allowed value of the arg of make -j
-  -k <dir>        On non-LCFs: Try to find a tarball directory (/contrib)
-                  On LCFs:     Install tarballs (instead of using facetspkgs)
-  -m              force this machine file
-  -n              invoke with a nohup and a redirect output
-  -p              just print the command
-  -q <timelimit>  run in queue if possible, with limit of timelimit time
-  -r <rootinst>   use this directory as the root for the installation, under
-                  which will be the contrib, volatile, and internal dirs
-  -R <subdir>     Install both repo and tarball packages into 
-                  /internal/<subdir>. This used for releases builds.
-  -t              Pass the -t flag to the  mk script (turn on testing)
-  -v <file>       A file containing a list (without commas) of declared
-                  environment variables to be passed to mk*.sh script
-  -w <file>       Specify the name of a file which has a comma-delimited
-                  list of packages not to build (e.g.,
-                  plasma_state,nubeam,uedge) Default: .nobuild
-  -X              build experimental versions of packages
-  --              End processing of args for mkall-default.sh, all remaining
-                  args are passed to the script.
+Usage: $0 [WRAPPER OPTIONS] -- [BILDER OPTIONS]
+
+This wrapper script calls the main Bilder script with arguments
+to set default locations for build and installation directories
+on a domainname basis.  It also handles launching the build in a
+queue.  This script is also meant to ease the use of non-gfortran
+compilers.  It uses these values to form arguments for the main
+bilder script, $script, which it additionally sends the arguments
+after the double dash, --.
+
+WRAPPER OPTIONS
+  -b <dir> .......... Set builds directory. If not used, bilder chooses a default.
+  -c ................ Common installations: for non-LCFS, goes into /contrib,
+                        /volatile or /internal, for LCFSs, goes into group areas
+  -C ................ Install in separate tarball and repo install dirs
+                        (internal/volatile) rather than in one area (software).
+  -E <env pairs> .... Comma-delimited list of environment var=value pair
+  -f <file> ......... File that contains extra arguments to pass
+                        Default: .extra_args
+  -F <compiler> ..... Specify fortran compiler on non-LCF systems
+  -g ................ Label the gnu builds the same way other builds occur.
+  -H <host name> .... Use rules for this hostname (carver, surveyor, intrepid)
+  -h ................ Print this message
+  -i <dir> .......... Software directory is labeled with "internal" if '\$USER'
+                        is member of internal install list
+  -I ................ Install in \$HOME instead of default location
+                        (projects directory at LCFs, BUILD_ROOTDIR on non-LCFs)
+  -j ................ Maximum allowed value of the arg of make -j
+  -k <dir> .......... On non-LCFs: Try to find a tarball directory (/contrib)
+                        On LCFs: Install tarballs (instead of using facetspkgs)
+  -m ................ Force this machine file
+  -n ................ Invoke with a nohup and a redirect output
+  -p ................ just print the command
+  -q <timelimit> .... Run in queue if possible, with limit of timelimit time
+  -r <rootinst> ..... Use this directory as the root for the installation, under
+                        which will be the contrib, volatile, and internal dirs
+  -R <subdir> ....... Install both repo and tarball packages into
+                        /internal/<subdir>. This used for releases builds.
+  -t ................ Pass the -t flag to the  mk script (turn on testing)
+  -v <file> ......... File containing a list (without commas) of declared
+                        environment variables to be passed to mk*.sh script
+  -w <file> ......... Specify the name of a file which has a comma-delimited
+                        list of packages not to build (e.g.,
+                        plasma_state,nubeam,uedge) Default: .nobuild
+  -X                    build experimental versions of packages
+  -- ................ End processing of args for mkall-default.sh, all remaining
+                        args are passed to the script.
 _
-  if declare -f extrausage > /dev/null; then extrausage; fi
+  if declare -f extraDefaultsUsage > /dev/null; then extraDefaultsUsage; fi
+  SET_BILDER_OPTIONS=false
+  source $BILDER_DIR/bildopts.sh
+  bilderUsage -s
   exit $1
 }
 
@@ -74,7 +85,7 @@ redoargs="$*"
 
 # Get machine info
 cmd="source $BILDER_DIR/runnr/runnrfcns.sh"
-echo $cmd
+# echo $cmd
 $cmd
 
 #
@@ -90,7 +101,7 @@ processArg() {
     f) EXTRA_ARG_FILE="$OPTARG";;
     g) COMPKEY="gnu";;
     H) hostnm=$OPTARG;;
-    h) usage 0;;
+    h) defaultsUsage 0;;
     i) INSTDIR_IS_INTERNAL=true;;
     j) MKJMAX=$OPTARG;;
     I) INSTALL_IN_HOME=true;;
@@ -105,7 +116,7 @@ processArg() {
     v) ENV_VARS_FILE="$OPTARG";;
     w) BILDER_NOBUILD_FILE="$OPTARG";;
     X) BUILD_EXPERIMENTAL=true;;
-    \?) usage 1;;
+    \?) defaultsUsage 1;;
   esac
 }
 
@@ -122,6 +133,7 @@ PRINTONLY=false
 QUEUE_TIME=
 USE_NOHUP=false
 USE_COMMON_INSTDIRS=true
+VERBOSITY=0
 if test -f $HOME/.bilderrc; then
   cmd="source $HOME/.bilderrc"
   techo "$cmd"
@@ -161,13 +173,8 @@ fi
 if $COMMON_CONTRIB || $INSTDIR_IS_INTERNAL; then
   USE_COMMON_INSTDIRS=false
 fi
-# if test -n "$QUEUE_TIME" && $USE_NOHUP; then
-#   echo "Cannot specify queue when using nohup."
-#   usage
-#   exit 1
-# fi
 
-if test -n "$FIXED_INSTALL_SUBDIR"; then 
+if test -n "$FIXED_INSTALL_SUBDIR"; then
   case `uname` in
     CYGWIN*)
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
@@ -239,9 +246,10 @@ SCRIPT_ADDL_ARGS=`echo -- $SCRIPT_ADDL_ARGS | sed "s?--??" `
 #   CONTRIB_ROOTDIR, CONTRIB_SUBDIR
 #------------------------------------------------------
 
-if test -n "$ROOTDIR_CVI"; then 
+if test -n "$ROOTDIR_CVI"; then
   export INSTALL_ROOTDIR=$ROOTDIR_CVI
   export CONTRIB_ROOTDIR=$ROOTDIR_CVI
+  export USERINST_ROOTDIR=$ROOTDIR_CVI
 fi
 source $BILDER_DIR/defaultsfcns.sh
 if test -n "$QUEUE_TIME"; then

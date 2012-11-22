@@ -40,7 +40,7 @@ buildMercurial() {
 
 # Build away
     MERCURIAL_ENV="$DISTUTILS_ENV"
-    decho MERCURIAL_ENV = $MERCURIAL_ENV
+    techo -2 MERCURIAL_ENV = $MERCURIAL_ENV
     bilderDuBuild -p mercurial mercurial "build_ext --inplace" "$MERCURIAL_ENV"
   fi
 }

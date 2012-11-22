@@ -49,7 +49,7 @@ buildMako() {
 
 # Build away
     MAKO_ENV="$DISTUTILS_ENV"
-    decho MAKO_ENV = $MAKO_ENV
+    techo -2 MAKO_ENV = $MAKO_ENV
     bilderDuBuild -p mako Mako '-' "$MAKO_ENV"
   fi
 

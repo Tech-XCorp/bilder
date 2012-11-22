@@ -40,7 +40,7 @@ buildSimplejson() {
 
 # Build away
     SIMPLEJSON_ENV="$DISTUTILS_ENV"
-    decho SIMPLEJSON_ENV = $SIMPLEJSON_ENV
+    techo -2 SIMPLEJSON_ENV = $SIMPLEJSON_ENV
     bilderDuBuild -p simplejson simplejson '-' "$SIMPLEJSON_ENV"
   fi
 

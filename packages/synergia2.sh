@@ -10,7 +10,7 @@
 if test -z "$SCRIPT_DIR"; then
   SCRIPT_DIR="${PROJECT_DIR}"
 fi
-decho "SCRIPT_DIR = $SCRIPT_DIR"
+techo -2 "SCRIPT_DIR = $SCRIPT_DIR"
 source $SCRIPT_DIR/bilder/extrepofcns.sh
 
 ######################################################################
@@ -117,7 +117,7 @@ buildSynergia2() {
       techo "ERROR: CHEF ${bld} install dir not found, Synergia2 build aborted"
       res=1
     else
-      decho "install for ${bld} is ${instdirval}"
+      techo -2 "install for ${bld} is ${instdirval}"
     fi
   done
 
@@ -162,7 +162,7 @@ buildSynergia2() {
       local instdirvar=CHEF_LIBS_INSTALL_DIR_`genbashvar ${bld}`
       local instdirval=`deref $instdirvar`
       PATH="${PATH}:${instdirval}/bin"
-      decho "PATH for Synergia2 build is: ${PATH}"
+      techo -2 "PATH for Synergia2 build is: ${PATH}"
 
       if bilderConfig synergia2 $bld "${bldargval}"; then
         bilderBuild synergia2 $bld "$SYNERGIA2_MAKE_ARGS"
@@ -171,7 +171,7 @@ buildSynergia2() {
       fi
 # Now, we need to take the CHEF path back off
       PATH=`echo $PATH | sed 's/:[^:]*$//'`
-      decho "PATH for Synergia2 after build is: ${PATH}"
+      techo -2 "PATH for Synergia2 after build is: ${PATH}"
     fi
   done
 

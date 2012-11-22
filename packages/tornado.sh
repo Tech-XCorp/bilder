@@ -41,7 +41,7 @@ buildTornado() {
 
 # Build away
     TORNADO_ENV="$DISTUTILS_ENV"
-    decho TORNADO_ENV = $TORNADO_ENV
+    techo -2 TORNADO_ENV = $TORNADO_ENV
     bilderDuBuild -p tornado tornado '-' "$TORNADO_ENV"
   fi
 

@@ -415,7 +415,7 @@ EOF
             break
           fi
         done
-        decho "MPI_LIBDIR = $MPI_LIBDIR."
+        techo -2 "MPI_LIBDIR = $MPI_LIBDIR."
         if test -z "$MPI_LIBDIR"; then
           techo "WARNING: Cannot find the mpi library directory, so linking may fail."
         fi

@@ -61,20 +61,29 @@ buildGPULib() {
       export LD_LIBRARY_PATH=/usr/local/cuda-4.2/cuda/lib64:/usr/local/cuda/4.2/cuda/lib64:$LD_LIBRARY_PATH
       ;;
   esac
+  
+  GPULIB_ADDL_ARGS=""
+  if [[ `uname` =~ CYGWIN ]]; then
+    pkgdir=`cygpath -am /winsame/$USER/pkggpulib`
+    GPULIB_ADDL_ARGS="-DCPACK_PACKAGE_DIRECTORY:PATH=$pkgdir"
+    if $CREATE_RELEASE; then
+      GPULIB_ADDL_ARGS="$GPULIB_ADDL_ARGS -DSIGN_FLAVOR_PACKAGE:BOOL=TRUE"
+    fi
+  fi
+
   GPULIB_PAR_MAKE_ARGS="$GPULIB_MAKE_ARGS"
   GPULIB_SER_MAKE_ARGS="$GPULIB_MAKE_ARGS"
 
 # Configure and build serial and parallel
   getVersion gpulib
   if bilderPreconfig gpulib; then
-    if bilderConfig $forcecmake gpulib gpu "$MAGMA_CONFIG $GEN_SUPRA_SP_ARG"; then
+    if bilderConfig $forcecmake gpulib gpu "$MAGMA_CONFIG $GEN_SUPRA_SP_ARG $GPULIB_ADDL_ARGS"; then
       if test -z "$forcecmake"; then
         GPULIB_SINGLE_MAKE_ARGS=""
       fi
       bilderBuild gpulib gpu "gpulib"
     fi
   fi
-
 }
 
 ######################################################################
@@ -104,6 +113,15 @@ testGPULib() {
 ######################################################################
 
 installGPULib() {
+# Set perms to closed on machines with not all Tech-X employees, otherwise open
+  local perms=open
+  case $FQMAILHOST in
+    *.ornl.gov | *.nersc.gov | *.alcf.anl.gov | iter.txcorp.com | multipole.txcorp.com | runvorpal.txcorp.com)
+      perms=closed
+      ;;
+  esac
+  
   bilderInstall gpulib gpu
+  bilderInstallTestedPkg -r -s /proprietary/gpulib -p $perms -t gpulib
 }
 

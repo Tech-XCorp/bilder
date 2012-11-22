@@ -15,7 +15,7 @@
 PYTHON_BLDRVERSION_STD=2.6.5
 PYTHON_BLDRVERSION_EXP=2.7.3
 # Need to compute version and majmin here for additional load flags
-if $BUILD_EXPERIMENTAL; then
+if $BUILD_EXPERIMENTAL -a -z "$PYTHON_BLDRVERSION"; then
   PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"$PYTHON_BLDRVERSION_EXP"}
 else
   PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"$PYTHON_BLDRVERSION_STD"}
@@ -29,9 +29,7 @@ fi
 
 if test -z "$PYTHON_BUILDS"; then
   case `uname` in
-    Linux)
-      PYTHON_BUILDS=${PYTHON_BUILDS:-"cc4py"}
-      ;;
+    Linux) PYTHON_BUILDS=${PYTHON_BUILDS:-"cc4py"};;
   esac
 fi
 PYTHON_DEPS=chrpath,sqlite,bzip2
@@ -43,7 +41,6 @@ PYTHON_DEPS=chrpath,sqlite,bzip2
 ######################################################################
 
 addtopathvar PATH $CONTRIB_DIR/python/bin
-# techo "Python = `which python`"
 if test `uname` = Linux; then
   addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
 fi

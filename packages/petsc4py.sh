@@ -41,7 +41,7 @@ buildPetsc4py() {
 
 # Build away
     PETSC4PY_ENV="$DISTUTILS_ENV PETSC_DIR=$CONTRIB_DIR/petsc"
-    decho PETSC4PY_ENV = $PETSC4PY_ENV
+    techo -2 PETSC4PY_ENV = $PETSC4PY_ENV
     bilderDuBuild -p petsc4py petsc4py '-' "$PETSC4PY_ENV"
   fi
 

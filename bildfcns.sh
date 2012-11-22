@@ -1,6 +1,8 @@
-
+######################################################################
 #
-# A set of methods for configuring and building packages
+# bildfcns.sh: A set of methods for configuring and building packages
+#
+# $Rev$ $Date$
 #
 ######################################################################
 
@@ -18,7 +20,7 @@
 # 1: The day to compare with in YYYY-MM-DD format
 # 2: The number of days that one must be later by
 isLaterByDays() {
-  decho "Comparing to date, $1."
+  techo -2 "Comparing to date, $1."
   cursecs=`date -u +%s`
   case `uname` in
     Darwin)
@@ -59,7 +61,7 @@ isBuildTime() {
     esac
     shift
   done
-  decho "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
+  techo -2 "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
   if test -z "$2"; then
     return 1
   fi
@@ -334,10 +336,10 @@ bilderSvnversion() {
   while test -n "$1"; do
 # Single quotes not working on cygwin, so removing
     if test $# -eq 1; then
-      decho "Working on last arg, $1." 1>&2
+      techo -2 "Working on last arg, $1." 1>&2
 # If using the windows client, convert path if not an option
       if [[ "$1" =~ ^- ]]; then
-        decho "Last arg, $1, is an option.  Adding to list." 1>&2
+        techo -2 "Last arg, $1, is an option.  Adding to list." 1>&2
         args="$args $1"
       elif [[ "$svnver" =~ "Program Files" ]]; then
         techo "Using windows: '$svnver'.  Will convert last arg, $1, using cygpath." 1>&2
@@ -348,7 +350,7 @@ bilderSvnversion() {
           args="$args $1"
         fi
       else
-        decho "Not using windows: '$svnver'.  Will add last arg, $1, to list." 1>&2
+        techo -2 "Not using windows: '$svnver'.  Will add last arg, $1, to list." 1>&2
         args="$args $1"
       fi
     else
@@ -361,7 +363,7 @@ bilderSvnversion() {
     techo "Command svnversion failed.  BLDR_SVNVERSION = $BLDR_SVNVERSION." 1>&2
     version=unknown
   fi
-  version=`echo $version | tr : -`
+  version=`echo $version | tr -d '\r' | tr : -`
   echo "$version"
 }
 
@@ -893,7 +895,7 @@ printEnvMods() {
 #
 finish() {
 
-  decho "finish called with '$*'."
+  techo -2 "finish called with '$*'."
   local doQuit=true
   local subject=
   while test -n "$1"; do
@@ -906,9 +908,9 @@ finish() {
   done
 
 # Summarize (which constructs the email subject)
-  decho "Calling summarize."
+  techo -2 "Calling summarize."
   summarize $1 $2
-  decho "After summarize, EMAIL_SUBJECT = '$EMAIL_SUBJECT'."
+  techo -2 "After summarize, EMAIL_SUBJECT = '$EMAIL_SUBJECT'."
 
 # Put summary at top of logfile
   cp $LOGFILE $LOGFILE.sav
@@ -1064,14 +1066,14 @@ getVersion() {
 #     applied patches, I believe that your repo could get a different number
 #     for the same code tree or the same number for a different code tree. (SG)
     if ! rev=`git rev-list HEAD | wc -l | awk '{print $1}'`; then
-      techo "Git branch failed.  In path?  Quitting."
+      techo "Git branch failed.  In path?  Returning."
       cd $origdir
       return 1
     fi
   elif test "$repotype" == "HG"; then
     techo "Getting the current hg id (hash) of $1 at `date`."
     if ! rev=`hg id -i`; then
-      techo "Hg failed.  In path?  Quitting."
+      techo "Hg failed.  In path?  Returning."
       cd $origdir
       return 1
     fi
@@ -1278,7 +1280,7 @@ fi
   techo "Looking for $installation in $instdir/installations.txt."
   if test -f $instdir/installations.txt; then
     local hasit=`grep -- ^${installation}" " $instdir/installations.txt | tail -1`
-    decho "Found '$hasit'. checkempty = $checkempty."
+    techo -2 "Found '$hasit'. checkempty = $checkempty."
     if test -n "$hasit"; then
 
 # Look for patch up to date
@@ -1438,7 +1440,7 @@ areAllInstalled() {
 #    CONTRIB_DIR that builds and or dependencies might be found.
 #
 shouldInstall() {
-  decho "shouldInstall called with $*"
+  techo -2 "shouldInstall called with $*"
 
 # Determine installation directory
   local instdirs=
@@ -1500,7 +1502,7 @@ shouldInstall() {
 
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
-  decho "pkgline = $pkgline."
+  techo -2 "pkgline = $pkgline."
   if test -z "$pkgline"; then
     techo "Package $proj not found in $dir/installations.txt.  Proceeding with next step."
     return 0
@@ -1567,10 +1569,10 @@ shouldInstall() {
       for dir in `echo $instdirs | tr ',' ' '`; do
         local depline=`grep ^${dep}- $dir/installations.txt | tail -1`
         if test -n "$depline"; then
-          decho "$dep installation found in $dir/installations.txt."
+          techo -2 "$dep installation found in $dir/installations.txt."
           depdate=`(echo $depline | awk '{ print $4 }'; echo $depdate) | sort -r | head -1`
         else
-          decho "$dep installation not found in $dir/installations.txt."
+          techo -2 "$dep installation not found in $dir/installations.txt."
         fi
       done
       if test -z "$depdate"; then
@@ -1722,7 +1724,7 @@ removeInstallFiles() {
 #
 removeInstallRecord() {
   local instdirvar=`genbashvar ${1}`_INSTALL_DIR
-  decho instdirvar = $instdirvar
+  techo -2 instdirvar = $instdirvar
   local instdirval=`deref $instdirvar`
   if test -z "$instdirval"; then
     instdirval=$BLDR_INSTALL_DIR
@@ -1738,7 +1740,7 @@ removeInstallRecord() {
 # Returns whether CC contains the equivalent of gcc
 #
 isCcGcc() {
-  # decho "CC = $CC, PYC_CC = $PYC_CC."
+  # techo -2 "CC = $CC, PYC_CC = $PYC_CC."
   case $CC in
     */gcc* | gcc*)
      return 0
@@ -1961,10 +1963,10 @@ findParallelFcComps() {
 #
 getCombinedCompVars() {
 
-  decho "Setting the combined compiler variables."
+  techo -2 "Setting the combined compiler variables."
   for i in SER BEN PYC PAR; do
 
-    # decho "Working on $i."
+    # techo -2 "Working on $i."
 
 # Compiler variable names for autotools
     case $i in
@@ -1975,15 +1977,15 @@ getCombinedCompVars() {
     esac
 
 # Configure compilers
-    # decho "Adding to COMPILERS_$i."
+    # techo -2 "Adding to COMPILERS_$i."
     unset CONFIG_COMPILERS_$i
     for j in CC CXX FC F77; do
-      decho "COMPILER $j."
+      techo -2 "COMPILER $j."
       local var=${varprfx}$j
       local comp=`deref ${var}`
 # Why is the below here?  Breaks names with spaces in them.
       # comp=`echo $comp | sed 's/ .*$//'`
-      # decho "compbin = $compbin."
+      # techo -2 "compbin = $compbin."
       if test -n "$comp"; then
         local compbin=
         if ! compbin=`which "$comp" 2>/dev/null` && [[ `uname` =~ CYGWIN ]]; then
@@ -1998,7 +2000,7 @@ getCombinedCompVars() {
     trimvar CONFIG_COMPILERS_$i ' '
 
 # Cmake compilers.
-    decho "Adding to CMAKE_COMPILERS_$i."
+    techo -2 "Adding to CMAKE_COMPILERS_$i."
     unset CMAKE_COMPILERS_$i
 # Trilinos wants F77, but that should be fixed in trilinos
     # for j in CC CXX F77; do
@@ -2038,7 +2040,7 @@ getCombinedCompVars() {
     trimvar CMAKE_COMPILERS_$i ' '
 
   done
-  decho "The combined compiler variables have been set."
+  techo -2 "The combined compiler variables have been set."
 
 }
 
@@ -2058,7 +2060,7 @@ findLibraries() {
 # Get the cmake args
   local argprfx=$1
   local libval=$2
-  decho "Finding variables for $argprfx for libraries, $libval."
+  techo -2 "Finding variables for $argprfx for libraries, $libval."
   if test -z "$libval"; then
     return
   fi
@@ -2391,11 +2393,11 @@ findBlasLapack() {
 # Set defaults
   setDefaultPkgVars ATLAS "SER CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   for BLD in SER CC4PY BEN; do
-    decho "ATLAS_${BLD}_DIR = `deref ATLAS_${BLD}_DIR`."
-    decho "ATLAS_${BLD}_LIB = `deref ATLAS_${BLD}_LIB`."
-    decho "ATLAS_${BLD}_LIBDIR = `deref ATLAS_${BLD}_LIBDIR`."
-    decho "CMAKE_ATLAS_${BLD}_DIR_ARG = `deref CMAKE_ATLAS_${BLD}_DIR_ARG`."
-    decho "CONFIG_ATLAS_${BLD}_DIR_ARG = `deref CONFIG_ATLAS_${BLD}_DIR_ARG`."
+    techo -2 "ATLAS_${BLD}_DIR = `deref ATLAS_${BLD}_DIR`."
+    techo -2 "ATLAS_${BLD}_LIB = `deref ATLAS_${BLD}_LIB`."
+    techo -2 "ATLAS_${BLD}_LIBDIR = `deref ATLAS_${BLD}_LIBDIR`."
+    techo -2 "CMAKE_ATLAS_${BLD}_DIR_ARG = `deref CMAKE_ATLAS_${BLD}_DIR_ARG`."
+    techo -2 "CONFIG_ATLAS_${BLD}_DIR_ARG = `deref CONFIG_ATLAS_${BLD}_DIR_ARG`."
   done
 # Compute vars
   USE_ATLAS_CC4PY=${USE_ATLAS_CC4PY:-"true"}
@@ -2416,8 +2418,8 @@ findBlasLapack() {
         eval BLAS_${BLD}_LIBS="\"-L$atlaslibdir -lcblas -lf77blas -latlas\""
       fi
     fi
-    decho "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
-    decho "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
   done
 
 # Find the lapack in the contrib dir, but use it only if requested.
@@ -2658,19 +2660,22 @@ findQt() {
 # 2: comma delimited list of builds
 #
 computeMakeJ() {
-  local numblds=`echo $builds | tr ',' ' ' | wc -w | sed 's/^ *//'`
-  local jval=`expr $MAKEJ_MAX / $numblds`
-  if test -n "$jval"; then
-    if test $jval -le 0; then
+  if test -n "$MAKEJ_MAX" -a -n "$2"; then
+    local numblds=`echo $2 | tr ',' ' ' | wc -w | sed 's/^ *//'`
+    local jval=`expr $MAKEJ_MAX / $numblds`
+    if test -n "$jval"; then
+      if test $jval -le 0; then
+        jval=1
+      fi
+    else
       jval=1
     fi
+    local makejvar=`genbashvar $1`_MAKEJ_MAX
+    eval $makejvar=$jval
+    local makejargs=`genbashvar $1`_MAKEJ_ARGS
+    eval $makejargs="-j${jval}"
+    techo -2 "computeMakeJ: $makejvar = $jval, $makejargs = -j${jval}."
   fi
-  local makejvar=`genbashvar $1`_MAKEJ_MAX
-  eval $makejvar=$jval
-  local makejargs=`genbashvar $1`_MAKEJ_ARGS
-  eval $makejargs="-j${jval}"
-  # printf "computeMakeJ: MAKEJ_MAX = $MAKEJ_MAX.  numblds = $numblds. $numbildsvar = $jval.\n"
-  printf "computeMakeJ: $makejvar = $jval, $makejargs = -j${jval}.\n"
 }
 
 #
@@ -2693,7 +2698,7 @@ bilderUnpack() {
   if ! $USING_BUILD_CHAIN; then
     techo "bilderUnpack not using build chain."
   fi
-  decho "bilderUnpack called with $*"
+  techo -2 "bilderUnpack called with $*"
 
 # Determine whether to force install
   local inplace=false   # Whether to build in place
@@ -2749,7 +2754,7 @@ bilderUnpack() {
   local builds=$2
   local bldsvar=`genbashvar $1`_BUILDS
   local bldsval=`deref $bldsvar`
-  decho "$bldsvar = $bldsval"
+  techo -2 "$bldsvar = $bldsval"
   local builds=${builds:-"$bldsval"}
   if test -z "$builds" -o "$builds" = NONE; then
     techo "No builds so not unpacking $1-$verval."
@@ -2776,7 +2781,7 @@ bilderUnpack() {
   local instdirsvar=`genbashvar ${1}`_INSTALL_DIRS
   local instdirsval=${installdir:-"`deref $instdirsvar`"}
   if test -z "$instdirsval"; then
-    decho "bilderUnpack $1 $2 $3: instdirsval not set"
+    techo -2 "bilderUnpack $1 $2 $3: instdirsval not set"
     instdirsval=$CONTRIB_DIR
     eval $instdirsvar=$instdirsval
   fi
@@ -2790,7 +2795,7 @@ bilderUnpack() {
 
   if $unpack; then
 
-    decho "inplace = $inplace"
+    techo -2 "inplace = $inplace"
     techo "Unpacking $1."
     techo "$vervar = $verval."
 
@@ -2884,15 +2889,15 @@ bilderUnpack() {
       *.tar.xz) pretar="unxz -c";;
     esac
     if $inplace; then
-      decho "inplace evaluated to true."
+      techo -2 "inplace evaluated to true."
       mkdir -p $1-$verval
       cd $1-$verval
       local builds=`echo $builds | tr ',' ' '`
-      decho builds = $builds
+      techo -2 builds = $builds
       for i in $builds; do
         techo "Unpacking for $i build in $PWD."
         cmd="rmall $i"
-        decho "$cmd"
+        techo -2 "$cmd"
         $cmd
         if test ! -f $tarball; then
           TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack.  Tarball $tarball did not show up."
@@ -2906,14 +2911,14 @@ bilderUnpack() {
           cleanup
         fi
         cmd="mv $1-$verval $i"
-        decho "$cmd"
+        techo -2 "$cmd"
         if ! $cmd; then
-          techo "Catastrophic failure in move. Trying again. (bilderUnpack)"
+          techo "Catastrophic failure with mv in bilderUnpack."
           sleep 1
-          decho "$cmd"
+          techo -2 "$cmd"
           if ! $cmd; then
-            techo "Catastrophic failure in move. Quitting. (bilderUnpack)"
-            exit 1
+            TERMINATE_ERROR_MSG="Catastrophic failure with mv in bilderUnpack."
+            cleanup
           fi
         fi
         if test -n "$patchval"; then
@@ -2936,15 +2941,15 @@ bilderUnpack() {
       rmall $1-$verval/*
       techo "Unpacking for all builds in $PWD."
       if test ! -f  $tarball; then
-        techo "Catastrophic failure. Tarball$tarball did not show up. Quitting. (bilderUnpack)"
-        exit 1
+        TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack. Tarball$tarball did not show up."
+        cleanup
       fi
       cmd="$pretar $tarball | $TAR -xf -"
       techo "$cmd"
       eval "$cmd"
       if test $? != 0; then
-        techo "Catastrophic error.  Unpacking failed.  Quitting."
-        exit 1
+        techo "Catastrophic error in bilderUnpack.  Unpacking failed."
+        cleanup
       fi
       if test -n "$patchval"; then
         techo "Patching $1."
@@ -2995,7 +3000,7 @@ bilderUnpack() {
 #
 bilderPreconfig() {
 
-  decho "bilderPreconfig called with $*"
+  techo -2 "bilderPreconfig called with $*"
 
 # Default option values
   local usecmake=false
@@ -3023,7 +3028,7 @@ bilderPreconfig() {
   local starttimevar=`genbashvar $1`_START_TIME
   local starttimeval=`date +%s`
   eval $starttimevar=$starttimeval
-  # decho "$starttimevar = $starttimeval"
+  # techo -2 "$starttimevar = $starttimeval"
 
 # If preconfigaction not defined, set it, to local if it exists, then general
   if ! cd $PROJECT_DIR/$1 2>/dev/null; then
@@ -3136,7 +3141,7 @@ bilderPreconfig() {
 
 # Preconfigure as needed
     if test -x ${preconfigaction} && ! $usecmake; then
-      decho "${preconfigaction} found"
+      techo -2 "${preconfigaction} found"
       local preconfig_txt=$FQMAILHOST-$1-preconfig.txt
       case `uname` in
         # CYGWIN* | MINGW*)
@@ -3238,7 +3243,7 @@ rminterlibdeps() {
 #
 bilderConfig() {
 
-  decho "bilderConfig called with $*"
+  techo -2 "bilderConfig called with $*"
 
 # Default option values
   unset DEPS
@@ -3311,7 +3316,7 @@ bilderConfig() {
   fi
 # Set from default
   if test -z "$instdirval"; then
-    decho "instdirval = $instdirvar is empty in bilderConfig"
+    techo -2 "instdirval = $instdirvar is empty in bilderConfig"
     instdirval=$BLDR_INSTALL_DIR
   fi
   eval $instdirvar=$instdirval
@@ -3371,7 +3376,7 @@ bilderConfig() {
     else
       fullinstalldir=$instdirval
     fi
-    decho Full installation directory is $fullinstalldir.
+    techo -2 Full installation directory is $fullinstalldir.
 
 #
 # If unpacked, we know the build directory, up to a subdirectory
@@ -3514,8 +3519,8 @@ bilderConfig() {
     fi
 # Validate presence of config command
     if ! which "$configexec" 1>/dev/null 2>&1; then
-      techo "Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
-      exit 1
+      TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
+      cleanup
     else
       configexec=`which "$configexec"`
     fi
@@ -3527,9 +3532,9 @@ bilderConfig() {
     if test -n "$configcmdin" && $stripbuilddir; then
       configexec="$configcmdin"
     fi
-	if test "$cmval" = petsc; then
-	  configexec="$CYGWIN_PYTHON '$configexec'"
-	fi	
+    if test "$cmval" = petsc; then
+      configexec="$CYGWIN_PYTHON '$configexec'"
+    fi	
     techo "Will configure with '$configexec'."
 
 #
@@ -3638,24 +3643,24 @@ bilderConfig() {
         ;;
     esac
 # Fix up srcarg for Windows
-    decho "srcarg = $srcarg, uname = `uname`"
+    techo -2 "srcarg = $srcarg, uname = `uname`"
     sleep 1 # Give cygwin time to catch up.
     case `uname` in
       CYGWIN*)
 # Add cygwin root on windows
         if test -n "$srcarg"; then
           if test -d "$srcarg" -a ! -h "$srcarg"; then
-            decho "Directory, $srcarg, exists."
+            techo -2 "Directory, $srcarg, exists."
           else
 # Might not be a repo and have to add version
-            decho "Directory, $srcarg, does not exist."
+            techo -2 "Directory, $srcarg, does not exist."
             srcarg=${srcarg}-${verval}
           fi
           srcarg=`cygpath -am ${srcarg}`
         fi
         ;;
     esac
-    decho "After Windows fix, srcarg = $srcarg"
+    techo -2 "After Windows fix, srcarg = $srcarg"
 
 # Ready to start configuring
     local configure_txt=$FQMAILHOST-$1-$2-config.txt
@@ -3836,7 +3841,7 @@ bilderBuild() {
 # Presence of file enough to know it built.
   if $NOBUILD || ! $dobuildval; then
     techo "Not building $1-$verval-$2."
-    decho "NOBUILD = $NOBUILD.  $dobuildvar = $dobuildval."
+    techo -2 "NOBUILD = $NOBUILD.  $dobuildvar = $dobuildval."
     return 1
   fi
 
@@ -3851,8 +3856,8 @@ bilderBuild() {
   cd $builddir
   res=$?
   if test $res != 0; then
-    techo "Catastrophic error for building $1-$2.  Cannot change directory to $builddir."
-    return 1
+    TERMINATE_ERROR_MSG="Catastrophic error in building $1-$2.  Cannot change directory to $builddir."
+    cleanup
   fi
   # This needs to match what waitBuild uses
   local bilderbuild_resfile=bilderbuild-$1-$2.res
@@ -4245,7 +4250,7 @@ waitTests() {
 # Return true if should be installed
 #
 shouldInstallTestedPkg() {
-  decho "shouldInstallTestedPkg called."
+  techo -2 "shouldInstallTestedPkg called."
 
 # Get options
   local tstsnm=
@@ -4482,7 +4487,7 @@ bilderInstall() {
 
 # Determine where it will be installed
     local instdirvar=`genbashvar $1-$2`_INSTALL_DIR
-    decho instdirvar = $instdirvar
+    techo -2 instdirvar = $instdirvar
     local instdirval=`deref $instdirvar`
     if test -z "$instdirval"; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $instdirvar is empty."
@@ -4713,7 +4718,7 @@ fi
 # Assumes installation by svn revision.
       allinstalls=`(cd $instdirval; \ls -d $instsubdirbase-r* 2>/dev/null)`
       if test -n "$allinstalls"; then
-        decho "All installations are $allinstalls"
+        techo -2 "All installations are $allinstalls"
         if $REMOVE_OLD; then
           for i in $allinstalls; do
             isCurrent=`echo $i | grep $verval`
@@ -4735,7 +4740,7 @@ fi
       techo "Package $1-$2 installed."
       local starttimevar=`genbashvar $1`_START_TIME
       local starttimeval=`deref $starttimevar`
-      decho "$starttimevar = $starttimeval"
+      techo -2 "$starttimevar = $starttimeval"
       local endtimeval=`date +%s`
       local buildtime=`expr $endtimeval - $starttimeval`
       techo "Package $1-$2 took `myTime $buildtime` to build and install." | tee -a $BILDER_LOGDIR/timers.txt
@@ -4860,7 +4865,7 @@ fi
 #
 bilderInstallTestedPkg() {
 
-  decho "bilderInstallTestedPkg called with args: '$*'."
+  techo -2 "bilderInstallTestedPkg called with args: '$*'."
 
 # Default option values
   local ignorebuilds=
@@ -5025,7 +5030,7 @@ bilderDuBuild() {
     techo "Distutils package $dupkg does not have __version__.  Treat as not installed."
     doBuild=true
   fi
-  decho "doBuild = $doBuild"
+  techo -2 "doBuild = $doBuild"
 
 # See whether installation forced
   if test -z "$FORCE_PYINSTALL"; then
@@ -5042,14 +5047,14 @@ bilderDuBuild() {
     instdirval=$CONTRIB_DIR
     eval $instdirvar=$instdirval
   fi
-  decho "bilderDuBuild: $instdirvar = $instdirval"
+  techo -2 "bilderDuBuild: $instdirvar = $instdirval"
 
 # If not yet asked to install check dependencies
-  decho "doBuild = $doBuild"
+  techo -2 "doBuild = $doBuild"
   if shouldInstall -I $instdirval $1-$verval cc4py $DEPS; then
     doBuild=true
   fi
-  decho "doBuild = $doBuild"
+  techo -2 "doBuild = $doBuild"
 
 # If required, build
   if $doBuild; then
@@ -5117,7 +5122,7 @@ EOF
 #
 bilderDuInstall() {
 
-  decho "bilderDuInstall called with '$*'"
+  techo -2 "bilderDuInstall called with '$*'"
 
 # Default option values
   local dupkg=
@@ -5145,7 +5150,7 @@ bilderDuInstall() {
   cd $PROJECT_DIR
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
-  decho "$vervar = $verval."
+  techo -2 "$vervar = $verval."
   # local installstrval=$1-$verval-cc4py
 
 # Wait on the build.  waitBuild writes SUCCESS or FAILURE.
@@ -5791,10 +5796,12 @@ getDeps() {
         pkgfile=$BILDER_DIR/packages/$pkgfile
       else
         TERMINATE_ERROR_MSG="Catastrophic error in getDeps.  Bilder package file, $pkgfile, not found."
-        cleanup
+# Cannot use cleanup here, as the print gives the dependencies
+        techo "$TERMINATE_ERROR_MSG" 1>&2
+        exit 1
       fi
       cmd="source $pkgfile"
-      # techo "$cmd" 1>&2
+      techo "$cmd" 1>&2
       $cmd 1>&2
       local buildsvar=`genbashvar $pkg`_BUILDS
       builds=`deref $buildsvar | tr ',' ' '`
@@ -5878,7 +5885,9 @@ getAddlPkgs() {
       source $BILDER_DIR/packages/$pkgfile 1>&2
     else
       TERMINATE_ERROR_MSG="Catastrophic error in getAddlPkgs.  Bilder package file, $pkgfile, not found."
-      cleanup
+# Cannot use cleanup here, as the print gives the dependencies
+      techo "$TERMINATE_ERROR_MSG" 1>&2
+      exit 1
     fi
     if test -e $PROJECT_DIR/${WAIT_PACKAGE}.conf; then
       source $PROJECT_DIR/${WAIT_PACKAGE}.conf
@@ -5946,6 +5955,7 @@ buildChain() {
   if ! $analyzeonly; then
     USING_BUILD_CHAIN=true
   fi
+  techo -2 "buildChain start: PATH=$PATH."
 
 # Source any .conf file
   if test -e $PROJECT_DIR/${WAIT_PACKAGE}.conf; then
@@ -6011,7 +6021,9 @@ buildChain() {
     elif test -f $BILDER_DIR/packages/$pkgfile; then
       pkgfile="$BILDER_DIR/packages/$pkgfile"
     else
-      techo "Catastrophic error: Bilder package file, $pkgfile, not found."
+      TERMINATE_ERROR_MSG="Catastrophic error in buildChain: Bilder package file, $pkgfile, not found."
+# Cannot use cleanup here, as the print gives the dependencies
+      techo "$TERMINATE_ERROR_MSG" 1>&2
       exit 1
     fi
 
@@ -6019,7 +6031,9 @@ buildChain() {
     techo "Looking for build command in $pkgfile."
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
-      techo "Catastrophic error: build method for $pkg not found."
+      TERMINATE_ERROR_MSG="Catastrophic error in buildChain: build method for $pkg not found."
+# Cannot use cleanup here, as the print gives the dependencies
+      techo "$TERMINATE_ERROR_MSG" 1>&2
       exit 1
     fi
     if ! declare -f $cmd 1>/dev/null; then
@@ -6040,8 +6054,8 @@ buildChain() {
     fi
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
-      techo "Catastrophic error: install method for $pkg not found."
-      exit 1
+      TERMINATE_ERROR_MSG="Catastrophic error in buildChain: install method for $pkg not found."
+      cleanup
     fi
     techo "--------> Executing $cmd <--------"
     $cmd

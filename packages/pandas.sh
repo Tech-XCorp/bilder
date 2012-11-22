@@ -41,7 +41,7 @@ buildPandas() {
 
 # Build away
     PANDAS_ENV="$DISTUTILS_ENV"
-    decho PANDAS_ENV = $PANDAS_ENV
+    techo -2 PANDAS_ENV = $PANDAS_ENV
     ZEROMQ_ARG="--rpath=$CONTRIB_DIR/zeromq --zmq=$CONTRIB_DIR/zeromq"
     bilderDuBuild -p pandas pandas "build_ext $ZEROMQ_ARG --inplace" "$PANDAS_ENV"
   fi

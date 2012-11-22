@@ -9,15 +9,6 @@
 ## ######################################################################
 
 #
-# Print debug information
-#
-decho() {
-  if test $VERBOSITY -ge 2; then
-    echo $*
-  fi
-}
-
-#
 # Find the value of the variable whose name is in a variable
 #
 # Args:
@@ -45,15 +36,15 @@ rmall() {
 #
 trimvar() {
   local varname=$1
-  # decho varname = "'$varname'"
+  # techo -2 varname = "'$varname'"
   local trimchar="$2"
-  # decho trimchar = "'$trimchar'"
+  # techo -2 trimchar = "'$trimchar'"
   local varval
   eval varval=\"`deref $varname`\"
   varval=`echo $varval | sed -e "s/${trimchar}${trimchar}/${trimchar}/g" -e "s/^${trimchar}//" -e "s/${trimchar}\$//"`
   # echo "varval = '$varval'"
   eval $varname="\"$varval\""
-  # decho $varname = `deref $varname`
+  # techo -2 $varname = `deref $varname`
 }
 
 #
@@ -63,25 +54,31 @@ trimvar() {
 #   1: the string to echo.
 #
 # Named args (must come first)
-#   -n passed to echo
+#   -1 Print only for verbosity of 1 or greater
+#   -2 Print only for verbosity of 2 or greater
+#   -n Do not print newline
 #
 techo() {
-  local echoargs
-  while test -n "$1"; do
-    case "$1" in
-      -n)
-        echoargs="$echoargs -n"
-        ;;
-      *)
-        break
-        ;;
+# Get options
+  set -- "$@"
+  OPTIND=1
+  eol='\n'
+  pverbosity=0
+  while getopts ":n12" arg; do
+    case $arg in
+      n) unset eol;;
+      1) pverbosity=1;;
+      2) pverbosity=2;;
     esac
-    shift
   done
-  if test -n "$LOGFILE"; then
-    echo $echoargs "$1" | tee -a $LOGFILE
-  else
-    echo $echoargs "$1"
+  shift $(($OPTIND - 1))
+# Print
+  if test $VERBOSITY -ge $pverbosity; then
+    if test -n "$LOGFILE"; then
+      printf -- "${1}${eol}" | tee -a $LOGFILE
+    else
+      printf -- "${1}${eol}"
+    fi
   fi
 }
 
@@ -254,12 +251,19 @@ runnrGetHostVars() {
 
 # Make any adjustments to MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR,
 # FQMAILHOST, BLDRHOSTID
-  if test -f $BILDER_CONFDIR/${DOMAINNAME}; then
-    cmd="source $BILDER_CONFDIR/${DOMAINNAME}"
+  if test -f $BILDER_CONFDIR/domains/${DOMAINNAME}; then
+    cmd="source $BILDER_CONFDIR/domains/${DOMAINNAME}"
     $runnrdebug && echo "$cmd"
     $cmd
-  elif test -f $RUNNR_DIR/${DOMAINNAME}; then
-    cmd="source $RUNNR_DIR/${DOMAINNAME}"
+  elif test -f $BILDER_DIR/domains/${DOMAINNAME}; then
+    cmd="source $BILDER_DIR/domains/${DOMAINNAME}"
+    $runnrdebug && echo "$cmd"
+    $cmd
+  fi
+
+# Get any private queue information
+  if test -f $BILDER_CONFDIR/bilderqs; then
+    cmd="source $BILDER_CONFDIR/bilderqs"
     $runnrdebug && echo "$cmd"
     $cmd
   fi
@@ -573,11 +577,11 @@ runnrRun() {
   local runtime=$2
   local scriptargs="$3"
   local nprocs=${4:-"8"}
-# Cannot use decho yet, as verbosity not known
-  # decho "script = $script."
-  # decho "runtime = $runtime."
-  # decho "scriptargs = $scriptargs."
-  # decho "nprocs = $nprocs."
+# Cannot use techo -2 yet, as verbosity not known
+  # techo -2 "script = $script."
+  # techo -2 "runtime = $runtime."
+  # techo -2 "scriptargs = $scriptargs."
+  # techo -2 "nprocs = $nprocs."
   scriptbase=`basename $script .sh`
 
 # Rotate the log and summary

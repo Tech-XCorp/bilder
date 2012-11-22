@@ -74,7 +74,7 @@ for i in m4 autoconf automake libtool; do
   verval=`deref $vervar`
   echo $i needs to be at version $verval.
   if which $i 1>/dev/null 2>&1; then
-    decho "verval = $verval.  version = $version."
+    techo -2 "verval = $verval.  version = $version."
     version=`$i --version | head -1 | sed 's/^.* //'`
     echo $i is at version $version.
     if test $version != $verval; then

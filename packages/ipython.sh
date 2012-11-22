@@ -50,7 +50,7 @@ buildIpython() {
 
 # Build away
     IPYTHON_ENV="$DISTUTILS_ENV"
-    decho IPYTHON_ENV = $IPYTHON_ENV
+    techo -2 IPYTHON_ENV = $IPYTHON_ENV
     bilderDuBuild -p ipython ipython '-' "$IPYTHON_ENV"
   fi
 

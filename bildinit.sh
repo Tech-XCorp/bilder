@@ -111,14 +111,14 @@ export BLDR_SVNVERSION=${BLDR_SVNVERSION:-"svnversion"}
 techo "PATH = $PATH."
 techo "svnversion = `which svnversion`."
 BILDER_VERSION=`bilderSvnversion $BILDER_DIR`
-SVN_BLDRVERSION=`bilderSvn -q --version --quiet`
+SVN_BLDRVERSION=`bilderSvn -q --version --quiet | tr -d '\r'`
 techo "Subversion version = $SVN_BLDRVERSION."
 case $SVN_BLDRVERSION in
   1.[8-9].*)
-    techo "WARNING: Subversion version $SVN_BLDRVERSION is too new to work with Jenkins.  Please have 1.6.x installed and fix your path."
+    techo "WARNING: Subversion version $SVN_BLDRVERSION is too new to work with Jenkins.  Please have 1.6-7.x installed and fix your path."
     ;;
   1.[1-5].*)
-    techo "WARNING: Subversion version $SVN_BLDRVERSION is too old.  Lacks --trust-server-cert.  Please have 1.6.x installed and fix your path."
+    techo "WARNING: Subversion version $SVN_BLDRVERSION is too old.  Lacks --trust-server-cert.  Please have 1.6-7.x installed and fix your path."
     ;;
 esac
 # techo exit; exit
@@ -146,13 +146,13 @@ if false; then
 techo "Moving old bilder configure/build/... files."
 for i in svnup preconfig config depend distclean build install; do
   cmd="find $BUILD_DIR -maxdepth 3 -name '*-$i.txt' -exec mv '{}' '{}'.bak \;"
-  decho "$cmd"
+  techo -2 "$cmd"
   eval "$cmd"
 done
 # JRC: not moving aside old .sh files.
 for i in preconfig config build install; do
   cmd="find $BUILD_DIR -maxdepth 3 -name '*${i}.sh' -exec mv '{}' '{}'.bak \;"
-  decho "$cmd"
+  techo -2 "$cmd"
   eval "$cmd"
 done
 fi
@@ -164,7 +164,7 @@ if test -n "$testdirs"; then
   for i in $testdirs; do
     if test -d $i; then
       cmd="find $i -name '*-txtest.log' -exec mv '{}' '{}'.bak \;"
-      decho "$cmd"
+      techo -2 "$cmd"
       eval "$cmd"
     fi
   done

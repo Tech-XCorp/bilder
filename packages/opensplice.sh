@@ -175,7 +175,7 @@ installOpensplice() {
     techo "opensplice-ser installed."
     local starttimevar=`genbashvar opensplice`_START_TIME
     local starttimeval=`deref $starttimevar`
-    decho "$starttimevar = $starttimeval"
+    techo -2 "$starttimevar = $starttimeval"
     local endtimeval=`date +%s`
     local buildtime=`expr $endtimeval - $starttimeval`
     techo "opensplice-ser took `myTime $buildtime` to build and install." | tee -a $BILDER_LOGDIR/timers.txt

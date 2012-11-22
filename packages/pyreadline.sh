@@ -57,7 +57,7 @@ buildPyreadline() {
 
 # Build away
     PYREADLINE_ENV="$DISTUTILS_ENV"
-    decho PYREADLINE_ENV = $PYREADLINE_ENV
+    techo -2 PYREADLINE_ENV = $PYREADLINE_ENV
     bilderDuBuild -p pyreadline pyreadline "--inplace" "$PYREADLINE_ENV"
   fi
 

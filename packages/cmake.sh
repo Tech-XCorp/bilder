@@ -13,7 +13,7 @@
 ######################################################################
 
 CMAKE_BLDRVERSION_STD=2.8.9
-CMAKE_BLDRVERSION_EXP=2.8.9
+CMAKE_BLDRVERSION_EXP=2.8.10.1
 
 ######################################################################
 #
@@ -50,7 +50,7 @@ buildCmake() {
       local cmakever=`"$cmakepath" --version | sed 's/^cmake version //'`
       techo "$cmakepath is version $cmakever."
       case "$cmakever" in
-        2.8.[2-9] | 2.8.[1-9][0-9]) # Minimum version to build 2.8.9
+        2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.10.1) # Minimum version to build 2.8.9
           CMAKE_CONFIG_ARGS=-c
           ;;
         *)

@@ -40,7 +40,7 @@ buildRpy2() {
     $cmd
 
 # Build away
-    decho RPY2_ENV = $RPY2_ENV
+    techo -2 RPY2_ENV = $RPY2_ENV
     RHOME_DIR=$CONTRIB_DIR/R
 #    See numpy for some of this logic
     case `uname`-$CC in

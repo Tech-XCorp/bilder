@@ -50,7 +50,7 @@ BILDER_CONFDIR=${BILDER_CONFDIR:-"$RUNNR_DIR"}
 ######################################################################
 
 if source $RUNNR_DIR/runnrfcns.sh; then
-  echo "$RUNNR_DIR/runnrfcns.sh sourced."
+  : # echo "$RUNNR_DIR/runnrfcns.sh sourced."
 # techo now available but cannot be used until log are rotated (in bildopts).
 else
   echo "Error sourcing $RUNNR_CONFDIR/runnrfcns.sh.  Is your directory current?"
@@ -73,7 +73,7 @@ if test -z "$1"; then
     set -- $args
     OPTIND=1
   else
-    decho "No args file found.  Continuing."
+    techo -2 "No args file found.  Continuing."
   fi
 fi
 

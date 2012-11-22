@@ -56,7 +56,7 @@ buildScitools() {
 
 # Build away
     SCITOOLS_ENV="$DISTUTILS_ENV $SCITOOLS_GFORTRAN"
-    decho SCITOOLS_ENV = $SCITOOLS_ENV
+    techo -2 SCITOOLS_ENV = $SCITOOLS_ENV
     bilderDuBuild -p scitools scitools '-' "$SCITOOLS_ENV"
   fi
 

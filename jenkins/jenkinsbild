@@ -154,7 +154,7 @@ if [[ `uname` =~ CYGWIN ]]; then
     WORKSPACE=`cygpath -au $WORKSPACE`
   fi
 # Subversion must be compatible with the svnkit used by jenkins, which is
-# Windows client, version 1.6.  Try a custom installation:
+# version 1.4-7, as selected in jenkins.  Try a custom installation:
   BLDR_SVNVERSION=
   BILDER_SVN=
   for cand in \

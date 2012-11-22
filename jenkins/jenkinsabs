@@ -163,36 +163,39 @@ else
 fi
 lecho "   topdir  = $topdir"
 lecho "   absdirs = $absdirs"
+lecho "<<<< ---------- >>>>"
+lecho " "
 
 # Loop over all the abstract dirs, analyze and email
 
+lecho "Looking in $topdir for abstracts in subdirectories: $absdirs." 
 MINUTES=`expr $HOURS \* 60`
 for absdir in $absdirs; do
 # Do find to get abstracts in last number of hours.
 # This find syntax not valid on Darwin.
-  # cmd="$cmdprefix find $topdir/$absdir -type f -ctime -${DAYS}"
   cmd="$cmdprefix find $topdir/$absdir -type f -cmin -${MINUTES}"
   lecho "$cmd"
   $cmd | sed -e "s%/.*/%%" >abstracts.txt
-  echo "abstracts:"
-  cat abstracts.txt
+  lecho "<<< Analyzing $absdir Abstracts from $topdir >>>"
+  absinfile=`cat abstracts.txt`
+  lecho "Found abstracts.txt with contents: $absinfile"
   bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
   lecho "bilderhosts = $bilderhosts."
   numhosts=`echo $bilderhosts | wc -w | sed 's/^ *//'`
-  lecho "$numhosts hosts."
+  lecho "$numhosts unique hosts."
   firsthost=`echo $bilderhosts | sed 's/ .*$//'`
   lecho "firsthost = $firsthost."
   if test -n "$firsthost"; then
-    # bilderbuilds=`grep $firsthost abstracts.txt | sed -e "s/${firsthost}_//" -e 's/_.*$//' | sort | uniq | tr '\n' ' '`
     bilderbuilds=`sed -e "s/^[^_]*_//" -e 's/_.*$//' <abstracts.txt | sort | uniq | tr '\n' ' '`
+    lecho "Builds directory labels found were: $bilderbuilds."
   else
+    lecho "ERROR: No hosts found for $absdir directory. Setting return result to 1."
     res=1
   fi
-  lecho "bilderbuilds = $bilderbuilds."
   numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
-  lecho "$numbuilds builds."
+  lecho "$numbuilds build directory lables found."
   numlines=`expr $numhosts \* $numbuilds`
-  lecho "$numlines lines to keep."
+  lecho "$numlines lines to keep from abstracts.txt file."
 
 # Get the last distinct builds of the distinct hosts
   abs2get=
@@ -232,7 +235,7 @@ for absdir in $absdirs; do
       else
         cmd="cp ${topdir}/$absdir/$i tempabs.html"
       fi
-      lecho "$cmd"
+      lecho "Adding $i to email."
       $cmd
       cat tempabs.html >>allabs-${absdir}.html
       rm tempabs.html
@@ -250,6 +253,7 @@ for absdir in $absdirs; do
     eval "$cmd"
   fi
   rm allabs-${absdir}.html
+  lecho "<<< --------------- >>>"
 done
 
 #  Finish up.

@@ -34,9 +34,9 @@ XZ_UMASK=002
 #
 ######################################################################
 
-decho "Adding $CONTRIB_DIR/xz/bin to PATH."
+techo -2 "Adding $CONTRIB_DIR/xz/bin to PATH."
 addtopathvar PATH $CONTRIB_DIR/xz/bin
-decho "PATH = $PATH."
+techo -2 "PATH = $PATH."
 
 ######################################################################
 #
