@@ -439,8 +439,9 @@ fixCopiedHdf5() {
   local instdir=$1
   local hdf5rootdir=$2
   local installfixfile=$3
-# Fix installation libraries
+
   case `uname` in
+
     CYGWIN*)
       if test -f $instdir/hdf5dll.dll; then
         techo "VisIt correctly installed hdf5dll.dll."
@@ -461,10 +462,12 @@ fixCopiedHdf5() {
       techo "$cmd"
       eval "$cmd"
       ;;
-    Darwin)
-      ;;
+
+    Darwin) ;;
+
     *)
 # If link to soname of hdf5 not installed, make link
+# JRC: still necessary as of visit-r19672
       local hdf5soname=`objdump -p $instdir/libhdf5.so.${HDF5_BLDRVERSION} | grep SONAME | sed -e 's/ *SONAME *//'`
       if test -f $instdir/$hdf5soname; then
         techo "VisIt correctly installed $hdf5soname."
@@ -475,6 +478,7 @@ fixCopiedHdf5() {
       techo "$cmd"
       eval "$cmd"
       ;;
+
   esac
 }
 
