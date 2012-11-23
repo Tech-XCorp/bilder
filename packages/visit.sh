@@ -58,7 +58,6 @@ addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
 
 getVisitArch() {
 
-  # local os=`uname -s | tr '[A-Z]' '[a-z]' | tr -d '[0-9]'`
 # jrc 20apr10: I think the following works? If you change, please leave a note.
   local os=`uname | tr '[A-Z]' '[a-z]'`
   local mach=`uname -m`
@@ -67,32 +66,25 @@ getVisitArch() {
   case $os in
     darwin)
       case $mach in
-        Power*)
-          mach=ppc
-          ;;
+        Power*) mach=ppc;;
         *)
           case `uname -r` in
-            1*)
-              mach=x86_64	# This is what VisIt does in CMake
-              ;;
+            1*) mach=x86_64;; # This is what VisIt does in CMake
           esac
           ;;
       esac
       ;;
     linux)
       case $mach in
-        i[3-6]86)
-        mach=intel
-        ;;
+        i[3-6]86) mach=intel;;
       esac
       ;;
   esac
 
   local visit_arch="$os-$mach"
   case `uname`  in
-    CYGWIN*) # arch not used for cygwin
-      visit_arch=
-      ;;
+    CYGWIN*) visit_arch=;;
+# arch not used for cygwin
   esac
 
 # Done
@@ -115,12 +107,8 @@ setVisitRepoPatch() {
 
 # Set is-trunk variable for later use
   case $branch in
-    trunk)
-      IS_VISIT_TRUNK=true
-      ;;
-    *)
-      IS_VISIT_TRUNK=false
-      ;;
+    trunk) IS_VISIT_TRUNK=true;;
+    *) IS_VISIT_TRUNK=false;;
   esac
 
 # Determine the visit patch.
@@ -207,7 +195,7 @@ fi
 # Determine the visit patch for repo
     setVisitRepoPatch
     if $IS_VISIT_TRUNK; then
-# First dash ends the base name, so move to underscore
+# First dash ends the base name, so use underscore
       VISIT_SUBDIR_BASE=visit_trunk
     else
       VISIT_SUBDIR_BASE=visit
@@ -223,7 +211,6 @@ fi
     else
       techo "Patch up to date.  Not a reason to rebuild."
     fi
-    # techo exit; exit
 
 # Patch visit
 # Generate the patch via svn diff visit >numpkgs/visit-${branch}-${lbl}.patch
@@ -265,11 +252,9 @@ fi
         fi
         ;;
       Darwin)
-        # VISIT_MAKEARGS="$JMAKEARGS"
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         ;;
       Linux)
-        # VISIT_MAKEARGS="$JMAKEARGS"
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$LD_RUN_PATH
         local VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
@@ -330,7 +315,6 @@ fi
     VISIT_SER_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-ser"
     VISIT_PAR_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-par"
     techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
-    # techo exit; exit
 
 # Get actual paths
     VISIT_QT_BIN="$QT_BINDIR"
@@ -361,7 +345,6 @@ fi
       fi
     done
     techo "VISIT_PKG_ARGS = $VISIT_PKG_ARGS."
-    # techo exit; exit
 
 # Get Python args
 # Brad Whitlock writes (April 17, 9:58)
@@ -374,27 +357,23 @@ EOF
     local VISIT_OS_ARGS=
     case `uname` in
       CYGWIN*)
-        # VISIT_PYTHON_ARGS="-DVISIT_PYTHON_DIR:PATH='$PYTHON_DIR' -DPYTHON_LIBRARY:FILEPATH='$PYTHON_LIB'"
         VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`"
         ;;
       Darwin)
         VISIT_PYTHON_ARGS="$VISIT_PYTHON_ARGS -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
         ;;
       *)
-        # VISIT_PYTHON_ARGS="-DPYTHON_INCLUDE_PATH:PATH=$PYTHON_INCDIR -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
         ;;
     esac
 
 # Build serial
-    # techo "WARNING: Quitting in visit.sh"; exit
     if bilderConfig $VISIT_SER_PREFIX_ARGS -c visit ser "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $VISIT_COMPILERS $VISIT_COMPILER_FLAGS $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_SER_OTHER_ARGS" "" "$VISIT_ENV"; then
 # Build
-      # techo exit; exit
       bilderBuild visit ser "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
 
 # Build parallel doing optional builds
-    if $BUILD_OPTIONAL; then
+    if bilderConfig $VISIT_PAR_PREFIX_ARGS -c visit par "-DVISIT_PARALLEL:BOOL=ON -DVISIT_OPTION_DEFAULT_NOFORCE:BOOL=ON -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_PAR_OTHER_ARGS" "" "$VISIT_ENV"; then
 
 # Find the mpi c++ library
       local MPI_LIBDIR
@@ -420,11 +399,8 @@ EOF
           techo "WARNING: Cannot find the mpi library directory, so linking may fail."
         fi
       fi
-
 # Visit uses serial hdf5 even in parallel.
-      if bilderConfig $VISIT_PAR_PREFIX_ARGS -c visit par "-DVISIT_PARALLEL:BOOL=ON -DVISIT_OPTION_DEFAULT_NOFORCE:BOOL=ON -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_PAR_OTHER_ARGS" "" "$VISIT_ENV"; then
-        bilderBuild visit par "$VISIT_MAKEARGS" "$VISIT_ENV"
-      fi
+      bilderBuild visit par "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
 
   fi
