@@ -629,7 +629,7 @@ installVisit() {
       fi
 
 # Packaging only if creating a release
-      if $IS_VISIT_TRUNK && $CREATE_RELEASE; then
+      if $IS_VISIT_TRUNK && $BUILD_INSTALLERS; then
 # Create the package
         runnrExec "cd $BUILD_DIR/visit/$bld"
         case `uname` in
