@@ -447,39 +447,6 @@ testVisit() {
 #
 ######################################################################
 
-#
-# Fix up the libraries on Darwin for wrong paths
-#
-# Args:
-# 1: Library directory
-#
-fixMesaDarwinLibs() {
-
-  local VISIT_LIBDIR=$1
-  techo "VISIT_LIBDIR=$VISIT_LIBDIR"
-
-# Fix the paths inside the MesaGL library if on Darwin.
-  mesalib=$VISIT_LIBDIR/libMesaGL.1.5.dylib
-  if test -f $mesalib; then
-    dylibs=`otool -L $mesalib | grep '@executable.*libX' | sed -e 's/^.*@/@/' -e 's/ (.*$//'`
-    dylibs=`echo $dylibs | tr '\t\n' '  ' | tr -s ' ' | sed -e 's/^  *//' -e 's/  *$//'`
-    if test -n "$dylibs"; then
-      techo "# NOTE: Fixing dylib names, $dylibs, in $mesalib."
-      for dylib in $dylibs; do
-        newlib=`echo $dylib | sed 's?@executable_path/..?/usr/X11R6?'`
-        cmd="install_name_tool -change $dylib $newlib $mesalib"
-        techo "$cmd"
-        $cmd
-      done
-    else
-      techo "# NOTE: dylibs in $mesalib no longer need fixing."
-    fi
-  else
-    techo "# NOTE: $mesalib longer present."
-  fi
-
-}
-
 ######################################################################
 #
 # Fix up hdf5 libraries that are copied
@@ -556,8 +523,7 @@ installVisit() {
         *) sfx="-$bld" ;;
     esac
 
-# Create the package and install it
-    # if bilderInstall -r visit $bld visit2${sfx}; then
+# Install
     if bilderInstall -r visit $bld; then
 
 # Remove old links
@@ -567,11 +533,6 @@ installVisit() {
       local VISIT_ARCH=`getVisitArch`
       techo "VISIT_DISTVERSION = $VISIT_DISTVERSION"
       local visit_uscrversion=`echo $VISIT_DISTVERSION | sed 's/\./_/g'`
-
-# Copy the patch into place
-      # if test -n "$VISIT_PATCH"; then
-        # cp $VISIT_PATCH $BLDR_INSTALL_DIR/visit-${VISIT_BLDRVERSION}-$bld
-      # fi
 
 # File to contain installation fixes
       local installfixfile=$BUILD_DIR/visit/$bld/installfix.out
@@ -664,10 +625,6 @@ installVisit() {
       esac
 
 # Fix installation libraries
-# Fix mesa
-      if [[ `uname` =~ Darwin ]]; then
-        fixMesaDarwinLibs $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld/$VISIT_DISTVERSION/$VISIT_ARCH/lib >>$installfixfile
-      fi
 # Fix hdf5
       local hdf5dirs=
       if [[ $bld =~ ^ser ]]; then
@@ -691,25 +648,12 @@ installVisit() {
         fixCopiedHdf5 $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld/$VISIT_DISTVERSION/$VISIT_ARCH/lib $hdf5rootdir/lib $installfixfile
       fi
 
+# Packaging only if creating a release
+      if $IS_VISIT_TRUNK && $CREATE_RELEASE; then
 # Create the package
-      if $IS_VISIT_TRUNK; then
-
         runnrExec "cd $BUILD_DIR/visit/$bld"
         techo "make package" | tee package.out
         make package 1>>package.out 2>&1
-
-# Fix package libraries.  Retar?
-        local packagefixfile=$BUILD_DIR/visit/$bld/packagefix.out
-        case `uname` in
-          Darwin)
-            fixMesaDarwinLibs $BUILD_DIR/visit/$bld/_CPack_Packages/Darwin/TGZ/visit${visit_uscrversion}.${VISIT_ARCH}/$VISIT_DISTVERSION/$VISIT_ARCH/lib >$packagefixfile
-            (cd $BUILD_DIR/visit/$bld/_CPack_Packages/Darwin/TGZ; tar czf visit${visit_uscrversion}.${VISIT_ARCH}.tar.gz visit${visit_uscrversion}.${VISIT_ARCH})
-            cp $BUILD_DIR/visit/$bld/_CPack_Packages/Darwin/TGZ/visit${visit_uscrversion}.${VISIT_ARCH}.tar.gz .
-            ;;
-        esac
-
-# Must be done now after package is made and _CPack_Packages is present.
-
 # Install the package
         cmd="rmall $BLDR_INSTALL_DIR/visitpkg$sfx"
         techo "$cmd" | tee installpkg.out
@@ -730,7 +674,6 @@ installVisit() {
 
 # Restore umask
   umask $umasksav
-  # techo "WARNING: Quitting at end of visit.sh."; exit
 
 }
 
