@@ -632,15 +632,23 @@ installVisit() {
       if $IS_VISIT_TRUNK && $CREATE_RELEASE; then
 # Create the package
         runnrExec "cd $BUILD_DIR/visit/$bld"
-        techo "make package" | tee package.out
-        make package 1>>package.out 2>&1
-# Install the package
+        case `uname` in
+          CYGWIN*) cmd="nmake package";;
+          *) cmd="make package";;
+        esac
+        techo "$cmd" | tee package.out
+        $cmd 1>>package.out 2>&1
+# Install the package.
+# JRC 20121119: need to do something that works with Windows.
+# At least post as in bilderInstall, look for POST2DEPOT
+if false; then
         cmd="rmall $BLDR_INSTALL_DIR/visitpkg$sfx"
         techo "$cmd" | tee installpkg.out
         $cmd
         cmd="$PROJECT_DIR/visit/svn_bin/visit-install -c none -b bvidp $VISIT_DISTVERSION $VISIT_ARCH $BLDR_INSTALL_DIR/visitpkg$sfx"
         techo "$cmd" | tee -a installpkg.out
         $cmd 1>>installpkg.out 2>&1
+fi
       fi
 
       techo "Post installation of ${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld concluded at `date`."
