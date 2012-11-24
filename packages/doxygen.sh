@@ -61,6 +61,8 @@ testDoxygen() {
 
 installDoxygen() {
 # Ignore installation errors.  Doxygen tries to set perms of /contrib/bin.
-  bilderInstall doxygen ser "" "-i"
+  bilderInstall -p open doxygen ser "" "-i"
+# Because doxygen mucks with perms, have to reset
+  setOpenPerms $CONTRIB_DIR/bin
 }
 

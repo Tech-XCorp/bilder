@@ -132,8 +132,7 @@ fi
 
 # Determine the version variable name
 installstrval=${package}-${verval}-${build}
-pkgScriptRev=`svn info $PKG_FILE |\
-  grep 'Last Changed Rev:' | sed 's/.* //'`
+pkgScriptRev=`svn info $PKG_FILE | grep 'Last Changed Rev:' | sed 's/.* //'`
 fullstrval="$installstrval $USER $BILDER_PACKAGE `date +%F-%T` bilder-r$pkgScriptRev"
 
 # Put string into file

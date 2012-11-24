@@ -20,6 +20,8 @@ if $BUILD_EXPERIMENTAL -a -z "$PYTHON_BLDRVERSION"; then
 else
   PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"$PYTHON_BLDRVERSION_STD"}
 fi
+# Export so available to setinstald.sh
+export PYTHON_BLDRVERSION
 
 ######################################################################
 #
