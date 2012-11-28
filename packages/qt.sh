@@ -1,20 +1,17 @@
 # #!/bin/bash
 #
 # Version and build information for qt.  Latest source packages
-# available from http://get.qt.nokia.com/qt/source/. These have to be
-# unpacked and repacked for Bilder standards.
+# available from http://get.qt.nokia.com/qt/source/.
+# 20121125: Moved to http://qt-project.org/downloads.
 #
-# Latest buildvisit on
-# Darwin: ./configure --prefix=/scr_multipole/cary/buildvisit/visit/qt/4.7.4/linux-x86_64_gcc-4.4/ -platform linux-g++-64 -make libs -make tools -fast -no-separate-debug-info  -no-qt3support -no-dbus -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-libtiff -no-libjpeg -nomake docs -nomake examples -nomake demos -opensource -confirm-license
-#
-# The Qt installer cannot use an arbitrary location.  This errors out with
-# focus.cary$ /cygdrive/c/Qt/4.6.3-vs9/bin/qmake qscintilla.pro -spec win32-msvc 2008
-# Could not find mkspecs for your QMAKESPEC(win32-msvc2008) after trying:
-#         C:\Qt\4.6.3\mkspecs
-#
-# Windows:
-# configure.exe -prefix C:\winsame\contrib-vs10\qt-4.6.3-ser -debug-and-release -platform win32-msvc2008  -opensource -confirm-license -fast -no-qt3support -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-libtiff -webkit -phonon -no-script -no-scripttools
-# Have not tried -phonon on windows.
+# These have to be unpacked and repacked for Bilder standards.  E.g.:
+#   tar xzf qt-everywhere-opensource-src-4.8.3.tar.gz
+#   mv qt-everywhere-opensource-src-4.8.3 qt-4.8.3
+#   tar cjf qt-4.8.3.tar.bz2 qt-4.8.3
+# OR
+#   tar xzf qt-everywhere-opensource-src-5.0.0-beta2.tar.gz
+#   mv qt-everywhere-opensource-src-5.0.0-beta2 qt-5.0.0b2
+#   tar cjf qt-5.0.0b2.tar.bz2 qt-5.0.0b2
 #
 # $Id$
 #
@@ -30,7 +27,10 @@ case `uname`-`uname -r` in
   Darwin-12.2.*) QT_BLDRVERSION_STD=4.8.3;;
   *) QT_BLDRVERSION_STD=4.8.1;;
 esac
-QT_BLDRVERSION_EXP=4.8.3
+case $UQHOSTNAME in
+  octet) QT_BLDRVERSION_EXP=5.0.0b2;;
+  *) QT_BLDRVERSION_EXP=4.8.3;;
+esac
 
 ######################################################################
 #
@@ -175,9 +175,16 @@ buildQt() {
       QT_PHONON_ARGS=-no-phonon
     fi
 
+# Version dependent args
+    case $QT_BLDRVERSION in
+      5.*)
+        ;;
+      *) QT_VERSION_ARGS="-buildkey bilder -no-libtiff -no-scripttools -webkit $QT_PHONON_ARGS";;
+    esac
+
 # Restore dbus and xmlpatterns or get wrong one
     # techo "Before qt's bilderConfig, QT_SER_INSTALL_DIR=$QT_SER_INSTALL_DIR."
-    if bilderConfig -i qt ser "$QT_PLATFORM_ARGS -confirm-license -make libs -make tools -buildkey bilder -fast -opensource -opengl -webkit -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-libtiff -no-javascript-jit -no-scripttools $QT_PHONON_ARGS $QT_SER_OTHER_ARGS" "" "$QT_ENV"; then
+    if bilderConfig -i qt ser "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit $QT_SER_OTHER_ARGS" "" "$QT_ENV"; then
       # techo exit; exit
       bilderBuild qt ser "$QT_MAKEJ_ARGS" "$QT_ENV"
     else

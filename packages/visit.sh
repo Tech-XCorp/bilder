@@ -101,9 +101,9 @@ setVisitRepoPatch() {
   fi
 
 # Determine the branch to find the patch.
-  local branchurl=`svn info $PROJECT_DIR/visit | grep ^URL: | sed -e 's/^URL: *//' -e 's?/src$??'`
+  local branchurl=`bilderSvn info $PROJECT_DIR/visit | grep ^URL: | sed -e 's/^URL: *//' -e 's?/src$??'`
   local branch=`echo $branchurl | sed 's?^https*://portal.nersc.gov/svn/visit/??' | tr '/' '_'`
-  local svnrev=`svnversion -c $PROJECT_DIR/visit | sed 's/^.*://'`
+  local svnrev=`bilderSvnversion -c $PROJECT_DIR/visit | sed 's/^.*://'`
 
 # Set is-trunk variable for later use
   case $branch in
@@ -144,21 +144,19 @@ buildVisit() {
   if test -d $PROJECT_DIR/visit; then
 
 # Remove our windows config file if not part of repo.
+if false; then
     if [[ `uname` =~ CYGWIN ]]; then
-      if ! svn ls $PROJECT_DIR/visit/config-site | grep -q windows-bilder.cmake; then
+      if ! bilderSvn ls $PROJECT_DIR/visit/config-site | grep -q windows-bilder.cmake; then
         cmd="rm -f $PROJECT_DIR/visit/config-site/windows-bilder.cmake"
         techo "$cmd"
         $cmd
       fi
     fi
+fi
+
 # Move back files that we modify below.
 # On Windows, using native svn, so cd to directory and revert
-    # cmd="svn revert --recursive $PROJECT_DIR/visit"
-    # techo "$cmd"
-    # $cmd
-    cmd="svn revert --recursive ."
-    techo "Executing '$cmd' in $PROJECT_DIR/visit using `which svn`."
-    (cd $PROJECT_DIR/visit; $cmd 1>/dev/null)
+    bilderSvn revert --recursive $PROJECT_DIR/visit
     VISIT_DISTVERSION=`cat $PROJECT_DIR/visit/VERSION`
     getVersion visit
     techo "After reverting, VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
@@ -177,10 +175,10 @@ if false; then
             fi
           fi
 fi
-          cmd="svn up"
+          cmd="bilderSvn up"
           techo "Executing '$cmd' in $PROJECT_DIR/visit."
           (cd $PROJECT_DIR/visit; $cmd 1>/dev/null)
-          cmd="svn revert --recursive ."
+          cmd="bilderSvn revert --recursive ."
           techo "Executing '$cmd' in $PROJECT_DIR/visit."
           (cd $PROJECT_DIR/visit; $cmd 1>/dev/null)
           getVersion visit
@@ -238,18 +236,15 @@ fi
 
 # Args for make and environment, and configuration file
     local VISIT_MAKEARGS       # This to be set as needed, since can fail
+    local VISIT_ENV
     case `uname` in
       CYGWIN*)
         if which jom 1>/dev/null 2>/dev/null; then
           VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         fi
-# Add our configuration file if not in distro
-        if ! test -f $PROJECT_DIR/visit/config-site/windows-bilder.cmake; then
-          bilderSvn -2 up $PROJECT_DIR/numpkgs/windows-bilder.cmake
-          cmd="cp $PROJECT_DIR/numpkgs/windows-bilder.cmake $PROJECT_DIR/visit/config-site"
-          techo "$cmd"
-          $cmd
-        fi
+# Remove cygwin paths when configuring
+        PATH_CYGWIN_LAST=`echo :$PATH: | sed -e 's?:/usr/bin:?:?' -e 's?:/bin:?:?'`:/usr/bin
+        VISIT_ENV="PATH='$PATH_CYGWIN_LAST'"
         ;;
       Darwin)
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
@@ -257,7 +252,7 @@ fi
       Linux)
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$LD_RUN_PATH
-        local VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
+        VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
         ;;
     esac
 

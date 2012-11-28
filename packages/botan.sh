@@ -16,14 +16,21 @@ BOTAN_BLDRVERSION=${BOTAN_BLDRVERSION:-"1.8.13"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-BOTAN_BUILDS=${BOTAN_BUILDS:-"ser"}
-BOTAN_UMASK=007
+if test -z "$BOTAN_ADDBUILDS"; then
+  case `uname` in
+    CYGWIN*) addVals BOTAN_ADDBUILDS sersh;; # Botan is built shared.
+  esac
+fi
+computeBuilds botan
+if ! [[ `uname` =~ CYGWIN ]]; then
+  addCc4pyBuild botan
+fi
 BOTAN_DEPS=${BOTAN_DEPS:-"cmake"}
-
+BOTAN_UMASK=007
 
 ######################################################################
 #
@@ -33,23 +40,27 @@ BOTAN_DEPS=${BOTAN_DEPS:-"cmake"}
 
 buildBotan() {
   if bilderUnpack -i botan; then
-    botaninstdir=$CONTRIB_DIR/botan-$BOTAN_BLDRVERSION-ser
+# This configures with python configure.py but is not riverbank
+# type because it uses --prefix= instead of --dist-dir.
+  # if bilderUnpack botan; then
+    local instdir="$CONTRIB_DIR/botan-$BOTAN_BLDRVERSION"
     case `uname` in
       CYGWIN*)
-        cygfullinstalldir=`cygpath -w $botaninstdir`
-        BOTAN_CONFIG_ARGS="--cc=msvc --prefix=\"$cygfullinstalldir\""
-        if bilderConfig -i -s -m "./configure.py" botan ser "$BOTAN_CONFIG_ARGS"; then
-          BOTAN_MAKE_ARGS="-m nmake"
-          bilderBuild $BOTAN_MAKE_ARGS botan ser
-        fi
+        instdir=`cygpath -aw ${instdir}-sersh`
+        BOTAN_CONFIG_ARGS="--cc=msvc --prefix='$instdir'"
+        BOTAN_MAKE_ARGS="-m nmake"
         ;;
       *)
-        BOTAN_CONFIG_ARGS="--prefix=$botaninstdir"
-        if bilderConfig -i -m "configure.py" botan ser "$BOTAN_CONFIG_ARGS"; then
-          bilderBuild botan ser
-        fi
-	;;
+        instdir=${instdir}-cc4py
+        BOTAN_CONFIG_ARGS="--prefix='$instdir'"
+        ;;
     esac
+    if bilderConfig -s -i -m "./configure.py" botan sersh "$BOTAN_CONFIG_ARGS $BOTAN_SERSH_OTHER_ARGS"; then
+      bilderBuild $BOTAN_MAKE_ARGS botan sersh
+    fi
+    if bilderConfig -s -i -m "./configure.py" botan cc4py "$BOTAN_CONFIG_ARGS $BOTAN_CC4PY_OTHER_ARGS"; then
+      bilderBuild $BOTAN_MAKE_ARGS botan cc4py
+    fi
   fi
 }
 
@@ -74,10 +85,8 @@ installBotan() {
     CYGWIN*)
       BOTAN_MAKE_ARGS="-m nmake"
       ;;
-    *)
-      BOTAN_MAKE_ARGS=""
-      ;;
   esac
-  bilderInstall $BOTAN_MAKE_ARGS botan ser
+  bilderInstall $BOTAN_MAKE_ARGS botan sersh
+  bilderInstall $BOTAN_MAKE_ARGS botan cc4py
 }
 

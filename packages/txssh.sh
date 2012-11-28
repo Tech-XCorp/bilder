@@ -14,14 +14,22 @@
 
 TXSSH_BLDRVERSION=${TXSSH_BLDRVERSION:-""}
 
-# Built from package only
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-TXSSH_BUILDS=${TXSSH_BUILDS:-"ser"}
+if test -z "$TXSSH_ADDBUILDS"; then
+  TXSSH_ADDBUILDS=ser
+  case `uname` in
+    CYGWIN*) TXSSH_ADDBUILDS=${TXSSH_ADDBUILDS},sersh;;
+  esac
+fi
+computeBuilds txssh
+if ! [[ `uname` =~ CYGWIN ]]; then
+  addCc4pyBuild txssh
+fi
 TXSSH_DEPS=${TXSSH_DEPS:-"cmake,botan,ne7ssh"}
 TXSSH_UMASK=007
 
@@ -32,6 +40,7 @@ TXSSH_UMASK=007
 ######################################################################
 
 buildTxssh() {
+
   getVersion txssh
 
 # On windows, we configure with shared library support to match Qt
@@ -56,8 +65,14 @@ buildTxssh() {
 
 # Standard sequence
   if bilderPreconfig -c txssh; then
-    if bilderConfig -c txssh ser "$TXSSH_COMPILERS $TXSSH_COMPILER_FLAGS $SHARED_LIBS_FLAG $CMAKE_SUPRA_SP_ARG $TXSSH_SER_OTHER_ARGS"; then
+    if bilderConfig txssh ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG $TXSSH_SER_OTHER_ARGS"; then
       bilderBuild txssh ser
+    fi
+    if bilderConfig txssh sersh "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG $TXSSH_SERSH_OTHER_ARGS"; then
+      bilderBuild txssh sersh
+    fi
+    if bilderConfig txssh cc4py "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG $TXSSH_PYC_OTHER_ARGS"; then
+      bilderBuild txssh cc4py
     fi
   fi
 
@@ -68,6 +83,7 @@ buildTxssh() {
 # Test txssh must be driven from top level qdstests
 #
 ######################################################################
+
 testTxssh() {
   techo "Not testing txssh. Driven from top level qdstests."
 }
@@ -81,5 +97,7 @@ testTxssh() {
 
 installTxssh() {
   bilderInstall txssh ser
+  bilderInstall txssh sersh
+  bilderInstall txssh cc4py
 }
 

@@ -16,45 +16,34 @@
 #
 ######################################################################
 
-if test -z "$TRILINOS_BLDRVERSION"; then
-  if $BUILD_EXPERIMENTAL; then
-    case `uname`-`uname -r` in
-      CYGWIN*-*) TRILINOS_BLDRVERSION=10.12.2;;
-# 10.10.2 does not put lapack and blas in Trilinos_TPL_LIBRARIES on Lion.
-      # Darwin-11.*) TRILINOS_BLDRVERSION=10.10.1;;
-      *) TRILINOS_BLDRVERSION=10.12.2;;
-    esac
-  else
-    case `uname`-`uname -r` in
-      CYGWIN*WOW64-*) TRILINOS_BLDRVERSION=10.10.1;;
-      CYGWIN*-*) TRILINOS_BLDRVERSION=10.10.1;;
-      Darwin-11.*) TRILINOS_BLDRVERSION=10.10.1;;
-      *) TRILINOS_BLDRVERSION=10.10.2;;
-    esac
-  fi
-fi
+case `uname`-`uname -r` in
+  CYGWIN* | Darwin-11.*) TRILINOS_BLDRVERSION_STD=10.10.1;;
+  *) TRILINOS_BLDRVERSION_STD=10.10.2;;
+esac
+TRILINOS_BLDRVERSION_EXP=10.12.2
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-if test -z "$TRILINOS_BUILDS"; then
-  TRILINOS_BUILDS="serfull,parfull"
+# Can add builds in package file only if no add builds defined.
+if test -z "$TRILINOS_ADDBUILDS"; then
+  TRILINOS_ADDBUILDS="serbare,parbare,serfull,parfull,sercomm,parcomm"
   case `uname` in
     CYGWIN* | Darwin) ;;
-    *) TRILINOS_BUILDS="${TRILINOS_BUILDS},serfullsh,parfullsh";;
+    *) TRILINOS_ADDBUILDS="${TRILINOS_ADDBUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh";;
   esac
 fi
+# Can remove builds based on OS here, as this decides what can build.
+case `uname` in
+    CYGWIN* | Darwin) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh;;
+esac
+computeBuilds trilinos
 
-TRILINOS_DEPS=${TRILINOS_DEPS:-"numpy,swig,openmpi,boost,hdf5,atlas,lapack"}
-
-# Add superlu/superlu_dist if this is a full or commercial build but not bare build
-if (grep -q full <<<$TRILINOS_BUILDS) || (grep -q comm <<<$TRILINOS_BUILDS); then
-  TRILINOS_DEPS="${TRILINOS_DEPS},superlu,superlu_dist"
-fi
-
+# Add in superlu all the time.  May be needed elsewhere
+TRILINOS_DEPS=${TRILINOS_DEPS:-"numpy,swig,openmpi,boost,hdf5,superlu,superlu_dist,atlas,lapack"}
 TRILINOS_UMASK=002
 
 ######################################################################

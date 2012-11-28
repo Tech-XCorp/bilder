@@ -208,11 +208,20 @@ deref() {
 }
 
 #
-# svn action on a node, using txjenkins if first does not work
+# svn action on a node.
+# This is to work around a windows/unix incompatibility, such
+# that doing "window-svn cygwin-node" or vice-versa does not work as
+# neither os-svn understands the file system of the other.  So when
+# there is an action on a node, one cd's to that node, then executes
+# the action.
+#
+# Use:
+#   bilderSvn <bilderSvn args> <svn cmd> <svn args> <svn target>
+# where the svn args must be of the --foo=bar form.
 #
 # Args:
 # 1: the svn action (co, up, ...)
-# 2: if present, the name of the node to svn up
+# 2-n: args to svn in the --foo=bar form followed by a target
 #
 # Named args
 # -q  do not echo command
@@ -220,6 +229,8 @@ deref() {
 # -2  If USE_2ND_SVNAUTH is true, don't bother trying first checkout
 #
 bilderSvn() {
+
+# Get the args for bilderSvn
   local usesecondauth=false
   local redirecttoerr=false
   local echocmd=true
@@ -235,75 +246,63 @@ bilderSvn() {
   local svncmd=$1
   shift
 
-# Just in case dir is locked, we do an svn cleanup.
-# Won't hurt anything if dir is not locked.
-  case $svncmd  in
-    up)
-# Need to clean the directory.  Might be absolute path, like a patch.
-# Find first non -- arg
-      local dir=
-      for i in $*; do
-        case $i in
-          -*) ;;
-          *)  dir=$i; break;;
-        esac
-      done
-# If a file, change to contained directory
-      if test -n "$dir"; then
-        if test ! -d "$dir"; then
-          dir=`dirname $dir`
-          dir=`(cd $dir; pwd -P)`
-        fi
-      fi
-      if test -n "$dir"; then
-        cmd="svn cleanup $dir"
-        $echocmd && techo "$cmd" 1>&2
-        $cmd 1>&2
-      fi
-      ;;
-  esac
+# Get the args for svn
+  local svnargs=
+  while test -n "$1"; do
+    case "$1" in
+      -*) svnargs="$svnargs $1";;
+      *) break;;
+    esac
+    shift
+  done
+  local origtarget=$1
 
-# Can comment this out now.  Working well.
-  if ! $usesecondauth || ! $USE_2ND_SVNAUTH; then
-    cmd="svn $svncmd $*"
-    if $redirecttoerr; then
-      techo "$cmd" 1>&2
-      $cmd 1>&2
-      res=$?
-    else
-      $echocmd && techo "$cmd"
-      $cmd
-      res=$?
-    fi
+# Save current directory to go back to if needed
+  local origdir=`pwd -P`
+
+# Determine directory in which to execute command and what target is needed.
+  local svntarget=
+  local execdir=
+  if test -z "$origtarget"; then
+    execdir=$origdir
+  elif test -d "$origtarget"; then
+    execdir=`(cd $origtarget; pwd -P)`
   else
-    res=1
-  fi
-
-  if test $res != 0; then
-    if $usesecondauth; then
-      USE_2ND_SVNAUTH=true  # After a failure, always skip first try for -2
-      techo "USE_2ND_SVNAUTH set to $USE_2ND_SVNAUTH. (bilderSvn)" 1>&2
-      cmd="svn $svncmd --non-interactive --trust-server-cert --no-auth-cache --username=txjenkins --password=txjenkins $*"
-      if $redirecttoerr; then
-        techo "$cmd" 1>&2
-        $cmd 1>&2
-        res=$?
-      else
-        $echocmd && techo "$cmd"
-        $cmd
-        res=$?
-      fi
+    local targetdir=`dirname $origtarget`
+    if test -z "$targetdir" || test "$targetdir" = .; then
+      execdir=$origdir
+    else
+      execdir=`(cd $targetdir; pwd -P)`
     fi
   fi
+  if test -z "$svntarget" && test "$svncmd" = revert; then
+    svntarget=.
+  fi
+
+# Change to target's directory, cleanup and execute command
+  cd $execdir
+  $echocmd && techo "In $PWD:" 1>&2
+  cmd="svn cleanup"
+  $echocmd && techo "$cmd" 1>&2
+  $cmd 1>&2
+  cmd="svn $svncmd $svnargs $svntarget"
+  $echocmd && techo "$cmd" 1>&2
+  $cmd 1>&2
+  res=$?
+  cd $origdir
+  $echocmd && techo "Back in $PWD."
+
   return $res
+
 }
 
+#
 # Perform svn cleanup recursively, even on svn:externals, which svn
 # doesn't do.
 #
 # Get the externals, then recursively call ourselves for each one.
 #
-
+#
 bilderSvnCleanup() {
   for dir in `svn pg svn:externals . | awk '{ print $1 }'`; do
     cd $dir
@@ -321,7 +320,7 @@ bilderSvnCleanup() {
 
 
 #
-# svn version on a node
+# svn version on a node.  This 
 #
 # Args:
 # 1: the node
@@ -642,6 +641,68 @@ checkDirWritable() {
 genbashvar() {
   local bashvar=`echo $1 | tr 'a-z./-' 'A-Z___'`
   echo $bashvar
+}
+
+#
+# Remove values from a variable containing comma delimited values
+#
+# Args:
+# 1: the variable
+# 2: comma separated list of values to remove
+#
+rmVals() {
+  if test -z "$2"; then
+    return
+  fi
+  local var=$1
+  local vals=`deref $var`
+  for v in `echo $2 | tr ',' ' '`; do
+    vals=`echo ,${vals}, | sed -e "s/,${v},/,/"`
+  done
+  trimvar vals ','
+  eval ${var}=$vals
+}
+
+#
+# Compute the builds from a package by taking the add builds
+# minus the no-builds
+#
+# Args:
+# 1: the package
+#
+computeBuilds() {
+  buildsvar=`genbashvar $1`_BUILDS
+  buildsval=`deref $buildsvar`
+  if test -z "$buildsval"; then
+    addbuildsvar=`genbashvar $1`_ADDBUILDS
+    addbuildsval=`deref $addbuildsvar`
+    nobuildsvar=`genbashvar $1`_NOBUILDS
+    nobuildsval=`deref $nobuildsvar`
+    addVals $buildsvar $addbuildsval
+    rmVals $buildsvar $nobuildsval
+  fi
+}
+
+#
+# Add values to a variable containing comma delimited values
+#
+# Args:
+# 1: the variable
+# 2: comma separated list of values to add
+#
+addVals() {
+  if test -z "$2"; then
+    return
+  fi
+  local var=$1
+  local vals=`deref $var`
+  for v in `echo $2 | tr ',' ' '`; do
+    if ! echo ${vals} | egrep -q "(^|,)$v($|,)" ; then
+      vals=${vals},$v
+    fi
+  done
+  trimvar vals ','
+  eval ${var}=$vals
 }
 
 #
@@ -2362,11 +2423,11 @@ findBlasLapack() {
 
   techo "----------------------------------------"
   techo "--------> Executing findBlasLapack <--------"
-# The favored configuration args:
+# The favored configuration args in order:
 #   system
 #   contrib atlas, contrib lapack
-  USE_ATLAS=${USE_ATLAS:-"false"}
 #   atlas-clapack, clapack
+  USE_ATLAS=${USE_ATLAS:-"false"}
 
 # Temps
   local lapack_libs=
@@ -2408,7 +2469,6 @@ findBlasLapack() {
     local useatlas=`deref USE_ATLAS_$BLD`
     useatlas=${useatlas:-"$USE_ATLAS"}
     useatlas=${useatlas:-"false"}
-    # techo "BLD = $BLD.  haveatlas = $haveatlas.  useatlas = $useatlas."
     if $useatlas && $haveatlas && test -z "$lapack_libs" -o -z "$blas_libs"; then
       local atlaslibdir=`deref ATLAS_${BLD}_DIR`/lib
       eval LAPACK_${BLD}_LIBS="\"-L$atlaslibdir -llapack\""
@@ -3214,9 +3274,9 @@ rminterlibdeps() {
 # Named args (must come first):
 # -b Build in a subdir relative to where the configure takes place
 #     (e.g., petscdev uses this)
-# -B Same as -b only the typing of make is in place even though the 
+# -B Same as -b only the typing of make is in place even though the
 #     actual build is out-of-place.  This is for legacy petsc builds
-#     of the petscrepo (yes, petsc is ridiculously complicated
+#     of the petscrepo (yes, petsc is ridiculously complicated).
 # -c force use of cmake even when a configure is present
 # -d <dependencies>
 # -f force regardless of dependencies
@@ -3226,8 +3286,9 @@ rminterlibdeps() {
 # -I use optarg for install directory
 # -l removes previous install if found
 # -n uses a space instead of an equals for the prefix command.
-# -m Use this command instead of autotool/cmake configure.  Looks in the build dir
-#    of the package/buildname and then in the package for the command.
+# -m Use this command instead of autotool/cmake configure.  Looks in
+#    the build dir of the package/buildname and then in the package
+#    for the command.
 # -s if specified with -m, strips off the builddir and uses only the command
 #    specified with -m option
 # -p <specified prefix subdir>.  '-' means none.
@@ -3463,7 +3524,7 @@ bilderConfig() {
         configexec="$builddir/../configure"
         configargs="--prefix=$fullinstalldir"
         cmval=autotools
-        # If configure is a python script like PETSc, then use the 
+        # If configure is a python script like PETSc, then use the
         # cygwin python.
         if head -1 $configexec | egrep -q python; then
           if test -n "$CYGWIN_PYTHON"; then
@@ -4179,10 +4240,10 @@ bilderRunTests() {
     source $BILDER_CONFDIR/packages/$tstsname.sh
   elif test -f $BILDER_DIR/packages/$tstsname.sh; then
     source $BILDER_DIR/packages/$tstsname.sh
-  else 
+  else
     techo "Test package file $tstsname.sh not found."
   fi
-  
+
 
 # The var $FOOTESTS_RUN is used to indicate whether or not we are running
 # footests or whether they were skipped.
@@ -4775,15 +4836,15 @@ fi
               break
             fi
           done
-          
+
           installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
           local depotdir=$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
           cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
           if ! $cmd 1>/dev/null 2>&1; then
             cmd="ssh ${INSTALLER_HOST} mkdir ${depotdir}"
-            $cmd 1>/dev/null 2>&1 
+            $cmd 1>/dev/null 2>&1
             cmd="ssh ${INSTALLER_HOST} chmod 775 ${depotdir}"
-            $cmd 1>/dev/null 2>&1 
+            $cmd 1>/dev/null 2>&1
             cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
             if ! $cmd 1>/dev/null 2>&1; then
               techo "WARNING: For depot copy, failed to make target directory '${depotdir}' on host '${INSTALLER_HOST}'."

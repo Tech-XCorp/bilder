@@ -148,11 +148,13 @@ buildVisIt_Vtk() {
       if [[ `uname` =~ CYGWIN ]]; then
         VISIT_VTK_HDF5_DIR=`cygpath -am $VISIT_VTK_HDF5_DIR`
       fi
-# As of 1.8.8, the location of hdf5-config.cmake is share/cmake/hdf5, but Darwin
-# still using 1.8.7, which has it in different dir.
-    case `uname` in
-      Darwin) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5-1.8.7";;
-      *) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5";;
+# The location of hdf5-config.cmake has been changing with each version.
+# When it settles, we will have the * case.
+    case $HDF5_BLDRVERSION in
+      1.8.7) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5-1.8.7";;
+      1.8.8 | 1.8.9) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5";;
+      1.8.10) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/cmake/hdf5";;
+      1.8.*) techo "WARNING: Location of hdf5-config.cmake not known.  Please update visit_vtk.sh."
     esac
     fi
 

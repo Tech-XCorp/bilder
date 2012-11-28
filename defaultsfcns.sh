@@ -225,7 +225,7 @@ runBilderCmd() {
 
 # Construct command
   # local scriptargs=`echo $BILDER_ARGS $EXTRA_ARGS $MKJARG $machinefile_args $builddir_arg $tarballdir_arg $installdir_arg $nobuild_arg $email_arg $SCRIPT_ADDL_ARGS $BILDER_ADDL_ARGS | sed 's/  */ /'`
-  local scriptargs=`echo $BILDER_ARGS $EXTRA_ARGS $machinefile_args $builddir_arg $tarballdir_arg $installdir_arg $nobuild_arg $email_arg $SCRIPT_ADDL_ARGS $BILDER_ADDL_ARGS | sed 's/  */ /'`
+  local scriptargs=`echo $BILDER_ARGS $EXTRA_ARGS $machinefile_args $builddir_arg $tarballdir_arg $installdir_arg $nobuild_arg $email_arg $BILDER_ADDL_ARGS $SCRIPT_ADDL_ARGS | sed 's/  */ /'`
   if test -n "$QUEUE_TIME"; then
     if $USE_NOHUP; then
       runnrscript=$SCRIPT_BASE-runnr.sh
