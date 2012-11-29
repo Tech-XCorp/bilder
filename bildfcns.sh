@@ -287,10 +287,11 @@ bilderSvn() {
   $cmd 1>&2
   cmd="svn $svncmd $svnargs $svntarget"
   $echocmd && techo "$cmd" 1>&2
-  $cmd 1>&2
+# Need to capture output of this command
+  $cmd
   res=$?
   cd $origdir
-  $echocmd && techo "Back in $PWD."
+  $echocmd && techo "Back in $PWD." 1>&2
 
   return $res
 
