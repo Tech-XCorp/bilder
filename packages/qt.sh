@@ -28,7 +28,7 @@ case `uname`-`uname -r` in
   *) QT_BLDRVERSION_STD=4.8.1;;
 esac
 case $UQHOSTNAME in
-  octet) QT_BLDRVERSION_EXP=5.0.0b2;;
+  octet | cleon*) QT_BLDRVERSION_EXP=5.0.0b2;;
   *) QT_BLDRVERSION_EXP=4.8.3;;
 esac
 
@@ -153,15 +153,17 @@ buildQt() {
       Darwin)
         local PLATFORM=macx-g++
 # jpeg present, but qt cannot find headers
-        QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -cocoa -no-gif"
+        QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
         case `uname -r` in
           10.*)
             case `uname -m` in
-              i386)
-                QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64"
-                ;;
+              i386) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64";;
             esac
             ;;
+        esac
+        case $QT_BLDRVERSION in
+          5.*) ;;
+          *) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -cocoa";;
         esac
         ;;
     esac
@@ -177,8 +179,7 @@ buildQt() {
 
 # Version dependent args
     case $QT_BLDRVERSION in
-      5.*)
-        ;;
+      5.*) QT_VERSION_ARGS="-no-c++11";;
       *) QT_VERSION_ARGS="-buildkey bilder -no-libtiff -no-scripttools -webkit $QT_PHONON_ARGS";;
     esac
 

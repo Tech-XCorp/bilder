@@ -44,7 +44,9 @@ buildTeaspink() {
     bilderUnpack teaspink
     res=$?
   fi
-  TEASPINK_MAKE_ARGS="$TEASPINK_MAKEJ_ARGS"
+  #TEASPINK_MAKE_ARGS="$TEASPINK_MAKEJ_ARGS"
+  #DM 11/29/2012: Currently teaspink can't be built in parallel.
+  TEASPINK_MAKE_ARGS=
 
 # Regular build
   if test $res = 0; then

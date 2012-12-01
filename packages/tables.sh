@@ -142,7 +142,7 @@ addDarwinRpathToExtensions() {
     cmd="install_name_tool -change libhdf5.${TABLES_HDF5_VERSION}.dylib @rpath/libhdf5.${TABLES_HDF5_VERSION}.dylib $i"
     techo "$cmd"
     $cmd
-    cmd="install_name_tool -add_rpath . $i"
+    cmd="install_name_tool -add_rpath @loader_path/ $i"
     techo "$cmd"
     $cmd
   done

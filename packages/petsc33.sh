@@ -83,14 +83,24 @@ get_petsc_sh_args() {
   fi
 }
 get_petsc_cplx_args() {
+  # If real, then add in the hypre flags if defined
   cplxflag=${1:3:4}      # Pull of the cplx from the build
   if test "$cplxflag" == "cplx"; then
     echo "--with-scalar-type=complex"
   else
+    buildstrip=${1:-2:2}     # This determins if shared
+    # Hypre is incompatible with complex types
+    if test "$buildstrip" == "sh"; then
+      echo_args=${PETSC_HYPRE_SHFLAGS}
+    else
+      echo_args=${PETSC_HYPRE_FLAGS}
+    fi
+    # Complex and c-support are incompatible
     buildstrip=${1:0:3}     # This converts sersh or sercplx to ser
-    #if test "$buildstrip" == "par"; then
-    #  echo "--download-hypre"   # Hypre cannot be used with complex
-    #fi
+    if test "$buildstrip" == "ser"; then
+      echo_args="${echo_args} --with-c-support"
+    fi
+    echo $echo_args
   fi
 }
 
@@ -166,7 +176,7 @@ buildPetsc33() {
         PETSC_SER_FORTRAN_CONF="--with-fortran=1 --with-fc='$PF77'"
       fi
 
-      PETSC_SER_COMPILERS=`echo "--with-clanguage=C++ --with-c-support=1 --with-cc='$PCC' --with-cxx='$PCXX' $PETSC_SER_FORTRAN_CONF" | sed "s/='[C-N]:/='/g"`
+      PETSC_SER_COMPILERS=`echo "--with-clanguage=C++ --with-cc='$PCC' --with-cxx='$PCXX' $PETSC_SER_FORTRAN_CONF" | sed "s/='[C-N]:/='/g"`
     fi
     if test -z "$PETSC_PAR_COMPILERS"; then
       if test -n "$F77"; then
@@ -269,19 +279,27 @@ buildPetsc33() {
     fi
 
     ###
-    ## Set up Hypre
+    ## Set up Hypre  
+    ## Hypre does not work with cplx types so it is actually added in get_petsc_cplx_args()
     ##
     if $BUILD_PETSC_WITH_HYPRE; then
       case `uname` in
 	    CYGWIN*)
-          PETSC_PAR_PKGS="$PETSC_PAR_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/HYPRE.lib"
-          PETSC_PARSH_PKGS="$PETSC_PARSH_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/HYPRE.dll"
+          PETSC_HYPRE_FLAGS="--with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/HYPRE.lib"
+          PETSC_HYPRE_SHFLAGS="--with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/HYPRE.dll"
 	      ;;
+#          Darwin) 
+#	      PETSC_HYPRE_FLAGS="--with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.a"
+#            PETSC_HYPRE_SHFLAGS="--with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.dylib"
+#            ;;
 	    *)
-	      PETSC_PAR_PKGS="$PETSC_PAR_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.a"
-          PETSC_PARSH_PKGS="$PETSC_PARSH_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.so"
+	      PETSC_HYPRE_FLAGS="--with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.a"
+            PETSC_HYPRE_SHFLAGS="--with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.so"
           ;;
 	  esac
+    else
+	  PETSC_HYPRE_FLAGS=""
+	  PETSC_HYPRE_SHFLAGS=""
     fi
 
     ###

@@ -263,12 +263,14 @@ bilderSvn() {
 # Determine directory in which to execute command and what target is needed.
   local svntarget=
   local execdir=
+  local targetdir=
   if test -z "$origtarget"; then
     execdir=$origdir
   elif test -d "$origtarget"; then
     execdir=`(cd $origtarget; pwd -P)`
   else
-    local targetdir=`dirname $origtarget`
+    targetdir=`dirname $origtarget`
+    svntarget=`basename $origtarget`
     if test -z "$targetdir" || test "$targetdir" = .; then
       execdir=$origdir
     else
@@ -2877,7 +2879,7 @@ bilderUnpack() {
           case ${PACKAGE_REPO_METHODS[$i]} in
             svn)
               techo " svn."
-              (cd $pkgdir; bilderSvn -2 up $tarballbase)
+              (cd $pkgdir; bilderSvn up $tarballbase)
               ;;
             direct)
 # Determine whether to use wget or curl
@@ -3406,6 +3408,7 @@ bilderConfig() {
 # Store result
   local dobuildvar=`genbashvar $1-$2`_DOBUILD
   eval $dobuildvar=$dobuildval
+  local builddirvar=`genbashvar $1-$2`_BUILD_DIR
 
 # If not installed, configure.  If successful, put install string into
 # the config file.
@@ -3460,7 +3463,6 @@ bilderConfig() {
     else
       unset builddir
     fi
-    local builddirvar=`genbashvar $1-$2`_BUILD_DIR
     eval $builddirvar=$builddir
 
 # Determine the configuration command and any required args.

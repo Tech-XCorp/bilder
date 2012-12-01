@@ -22,11 +22,15 @@ HDF5_UNAME=`uname`
 # Need to recheck
 
 case $HDF5_UNAME in
-  CYGWIN*) if [[ "$CC" =~ mingw ]]; then
-             HDF5_BLDRVERSION_STD=1.8.7
-           else
-             HDF5_BLDRVERSION_STD=1.8.8
-           fi;;
+  CYGWIN*)
+    if [[ "$CC" =~ mingw ]]; then
+      HDF5_BLDRVERSION_STD=1.8.7
+    else
+      HDF5_BLDRVERSION_STD=1.8.8
+    fi
+# 1.8.10 fails to build on Windows.
+    HDF5_BLDRVERSION_EXP=$HDF5_BLDRVERSION_STD
+    ;;
 
 # Failure of 1.8.8 on Lion and Snow Leopard confirmed.
 # h5diff 1.8.8 and 1.8.9 seg fault on Lion consistently.
@@ -34,14 +38,19 @@ case $HDF5_UNAME in
 # With cmake.2.8.9 and Xcode 3.2.6 hdf5-1.8.9 works on Snowleopard
 # h5diff 1.8.9 built with autotools does not seg fault on lion
 # but we have seen incorrect results from it.  So, sticking with 1.8.7
-  Darwin) HDF5_BLDRVERSION_STD=1.8.7;;
+  Darwin)
+    HDF5_BLDRVERSION_STD=1.8.7
+    HDF5_BLDRVERSION_EXP=1.8.10
+    ;;
 
 # Linux will utilize hdf5-1.8.9
 # With cmake.2.8.9 and new Xcode (Oct 2 2012) hdf5-1.8.9 works on Lion
-  *) HDF5_BLDRVERSION_STD=1.8.9;;
+  *)
+    HDF5_BLDRVERSION_STD=1.8.9
+    HDF5_BLDRVERSION_EXP=1.8.10
+    ;;
 esac
 
-HDF5_BLDRVERSION_EXP=1.8.10
 
 ######################################################################
 #
