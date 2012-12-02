@@ -16,11 +16,15 @@ PYZMQ_BLDRVERSION=${PYZMQ_BLDRVERSION:-"63d88b0"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-PYZMQ_BUILDS=${PYZMQ_BUILDS:-"cc4py"}
+if test -z "$PYZMQ_BUILDS"; then
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    PYZMQ_BUILDS="cc4py"
+  fi
+fi
 # setuptools gets site-packages correct
 PYZMQ_DEPS=setuptools,Python,zeromq,Cython
 PYZMQ_UMASK=002
@@ -34,16 +38,12 @@ PYZMQ_UMASK=002
 buildPyzmq() {
 
   if bilderUnpack pyzmq; then
-# Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/pyzmq*"
-    techo "$cmd"
-    $cmd
-
 # Build away
     PYZMQ_ENV="$DISTUTILS_ENV"
-    techo -2 PYZMQ_ENV = $PYZMQ_ENV
-    ZEROMQ_ARG="--rpath=$CONTRIB_DIR/zeromq --zmq=$CONTRIB_DIR/zeromq"
-    bilderDuBuild -p pyzmq pyzmq "build_ext $ZEROMQ_ARG --inplace" "$PYZMQ_ENV"
+    techo -2 "PYZMQ_ENV = $PYZMQ_ENV"
+# 20121202: Is rpath correct?  Why not lib subdir?  Only for Linux?
+    ZEROMQ_ARG="--rpath=$CONTRIB_DIR/zeromq-cc4py --zmq=$CONTRIB_DIR/zeromq-cc4py"
+    bilderDuBuild pyzmq "build_ext $ZEROMQ_ARG --inplace" "$PYZMQ_ENV"
   fi
 
 }
@@ -65,18 +65,8 @@ testPyzmq() {
 ######################################################################
 
 installPyzmq() {
-  case `uname` in
-    CYGWIN*)
-# Windows does not have a lib versus lib64 issue
-      bilderDuInstall -p pyzmq pyzmq '-' "$PYZMQ_ENV"
-      ;;
-    *)
-# For Unix, must install in correct lib dir
-      # SWS/SK this is not generic and should be generalized in bildfcns.sh
-      #        with a bilderDuInstallPureLib
-      mkdir -p $PYTHON_SITEPKGSDIR
-      bilderDuInstall -p pyzmq pyzmq "--install-purelib=$PYTHON_SITEPKGSDIR" "$PYZMQ_ENV"
-      ;;
-  esac
+  # mkdir -p $PYTHON_SITEPKGSDIR
+  # bilderDuInstall -r pyzmq pyzmq "--install-purelib=$PYTHON_SITEPKGSDIR" "$PYZMQ_ENV"
+  bilderDuInstall -r pyzmq pyzmq "" "$PYZMQ_ENV"
 }
 

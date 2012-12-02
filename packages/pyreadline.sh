@@ -17,29 +17,18 @@ PYREADLINE_BLDRVERSION=${PYREADLINE_BLDRVERSION:-"1.7.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-PYREADLINE_BUILDS=${PYREADLINE_BUILDS:-"cc4py"}
+if test -z "$PYREADLINE_BUILDS"; then
+  if [[ `uname` =~ CYGWIN* ]]; then
+    PYREADLINE_BUILDS=cc4py
+  fi
+fi
 # setuptools gets site-packages correct
 PYREADLINE_DEPS=Python
 PYREADLINE_UMASK=002
-
-######################################################################
-#
-# This is only for Windows
-#
-######################################################################
-case `uname` in
-  Darwin*)
-	  unset PYREADLINE_BUILDS
-	  ;;
-  Linux)
-	  unset PYREADLINE_BUILDS
-    ;;
-esac
-
 
 #####################################################################
 #
@@ -50,15 +39,10 @@ esac
 buildPyreadline() {
 
   if bilderUnpack pyreadline; then
-# Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/pyreadline*"
-    techo "$cmd"
-    $cmd
-
 # Build away
     PYREADLINE_ENV="$DISTUTILS_ENV"
     techo -2 PYREADLINE_ENV = $PYREADLINE_ENV
-    bilderDuBuild -p pyreadline pyreadline "--inplace" "$PYREADLINE_ENV"
+    bilderDuBuild pyreadline
   fi
 
 }
@@ -80,11 +64,6 @@ testPyreadline() {
 ######################################################################
 
 installPyreadline() {
-  case `uname` in
-    CYGWIN*)
-# Windows does not have a lib versus lib64 issue
-      bilderDuInstall -p pyreadline pyreadline '-' "$PYREADLINE_ENV"
-      ;;
-  esac
+  bilderDuInstall -r pyreadline pyreadline
 }
 

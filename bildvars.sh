@@ -346,8 +346,6 @@ if test -z "$BILDER_CHAIN"; then
       ;;
   esac
 fi
-# techo "ccbase = $ccbase.  BILDER_CHAIN = $BILDER_CHAIN."
-# techo exit; exit
 
 ######################################################################
 #
@@ -359,13 +357,13 @@ fi
 
 if test -n "$WAIT_PACKAGE"; then
 
-  # Look to see if WAIT_PACKAGE is in BILDER_CONFDIR or BILDER_DIR
+# Search for the package
   if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${WAIT_PACKAGE}.sh; then
     waitPkg="$BILDER_CONFDIR/packages/${WAIT_PACKAGE}.sh"
   elif test -f $BILDER_DIR/packages/${WAIT_PACKAGE}.sh; then
     waitPkg="$BILDER_DIR/packages/${WAIT_PACKAGE}.sh"
   fi
-  echo "----------------------------- Found $waitPkg ------------------------------ "
+  echo "----------------------- Found $waitPkg ------------------------------ "
 
   if source $waitPkg; then
     bldsvar=`genbashvar ${WAIT_PACKAGE}`_BUILDS

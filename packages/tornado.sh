@@ -16,7 +16,7 @@ TORNADO_BLDRVERSION=${TORNADO_BLDRVERSION:-"2.1.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -27,29 +27,22 @@ TORNADO_UMASK=002
 
 #####################################################################
 #
-# Launch tornado builds.
+# Launch builds
 #
 ######################################################################
 
 buildTornado() {
-
   if bilderUnpack tornado; then
-# Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/tornado*"
-    techo "$cmd"
-    $cmd
-
 # Build away
     TORNADO_ENV="$DISTUTILS_ENV"
     techo -2 TORNADO_ENV = $TORNADO_ENV
-    bilderDuBuild -p tornado tornado '-' "$TORNADO_ENV"
+    bilderDuBuild tornado "" "$TORNADO_ENV"
   fi
-
 }
 
 ######################################################################
 #
-# Test tornado
+# Test
 #
 ######################################################################
 
@@ -59,23 +52,25 @@ testTornado() {
 
 ######################################################################
 #
-# Install tornado
+# Install
 #
 ######################################################################
 
 installTornado() {
+if false; then
   case `uname` in
     CYGWIN*)
 # Windows does not have a lib versus lib64 issue
-      bilderDuInstall -p tornado tornado '-' "$RPY_ENV"
+      bilderDuInstall -r tornado tornado "" "$TORNADO_ENV"
       ;;
     *)
 # For Unix, must install in correct lib dir
-      # SWS/SK this is not generic and should be generalized in bildfcns.sh
-      #        with a bilderDuInstallPureLib
       mkdir -p $PYTHON_SITEPKGSDIR
-      bilderDuInstall -p tornado tornado "--install-purelib=$PYTHON_SITEPKGSDIR" "$RPY_ENV"
+      bilderDuInstall -r tornado tornado "--install-purelib=$PYTHON_SITEPKGSDIR" "$TORNADO_ENV"
       ;;
   esac
+fi
+# 20121202: There is only one lib dir.  No lib64 now.
+  bilderDuInstall -r tornado tornado "" "$TORNADO_ENV"
 }
 

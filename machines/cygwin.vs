@@ -11,6 +11,9 @@
 
 # KEEP THIS
 
+# Set defaults for when not run through Bilder
+VERBOSITY=${VERBOSITY:-"0"}
+
 # Determine whether we're on a 32-bit or 64-bit system
 if uname | grep -c 'WOW64' 1>/dev/null; then
   IS_64BIT=true
