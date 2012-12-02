@@ -2748,6 +2748,84 @@ computeMakeJ() {
 }
 
 #
+# Get a package
+#
+# Args:
+# 1: package base name
+#
+# return by echo the name of the package
+#
+getPkg() {
+
+# Search for the package in all repos with all suffixes
+  local tarball=
+  local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
+    local pkgdir=$PROJECT_DIR/${PACKAGE_REPO_DIRS[$i]}
+    local sfx
+    local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
+    for sfx in $sfxs; do
+      local tarballbase=${1}${sfx}
+      techo -n "Seeking $tarballbase in $pkgdir using" 1>&2
+      local tarballtry=$pkgdir/$tarballbase
+      if test -f $tarballtry; then
+        tarball=$tarballtry
+      fi
+      if $SVNUP_PKGS; then
+        case ${PACKAGE_REPO_METHODS[$i]} in
+          svn)
+            techo " svn." 1>&2
+            (cd $pkgdir; bilderSvn up $tarballbase) 1>&2
+            ;;
+          direct)
+# Determine whether to use wget or curl
+            local DIRECT_METHOD=
+            if which wget 1>/dev/null 2>&1; then
+              DIRECT_METHOD="wget -N -nv"
+              techo " wget." 1>&2
+            else
+              DIRECT_METHOD="curl -f -o $tarballbase"
+              techo " curl." 1>&2
+            fi
+            cd $pkgdir
+            if ! test -f $tarballbase; then
+              cmd="${DIRECT_METHOD} ${PACKAGE_REPO_URLS[$i]}/$tarballbase"
+              techo "$cmd" 1>&2
+              $cmd 1>&2
+            fi
+            cd - 1>/dev/null 2>&1
+            ;;
+        esac
+      fi
+      if test -f $tarballtry; then
+        techo "$tarballbase found." 1>&2
+        tarball=$tarballtry
+        tarballbase=`basename $tarballtry`
+        pkgsandpatches="$pkgsandpatches $tarballbase"
+        break
+      else
+        techo "$tarballbase not found." 1>&2
+      fi
+    done
+    if test -n "$tarball"; then
+      break
+    fi
+    i=`expr $i + 1`
+  done
+
+# Not found
+  if test -z $tarball; then
+    TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  No tarball of any compression appeared.  Network okay?"
+    cleanup
+  fi
+
+# Found
+  techo "Found $tarball." 1>&2
+  echo "$tarball"
+
+}
+
+
+#
 # Unpack a package and link to non versioned name.
 # Sets start time, $1_START_TIME.
 #
@@ -2864,73 +2942,12 @@ bilderUnpack() {
 
   if $unpack; then
 
+# Get the package
     techo -2 "inplace = $inplace"
     techo "Unpacking $1."
     techo "$vervar = $verval."
-
-# Search for the package in all repos with all suffixes
-    local tarball=
-    local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
-      local pkgdir=$PROJECT_DIR/${PACKAGE_REPO_DIRS[$i]}
-      local sfx
-      local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
-      for sfx in $sfxs; do
-        local tarballbase=$1-${verval}${sfx}
-        techo -n "Seeking $tarballbase in $pkgdir using"
-        local tarballtry=$pkgdir/$tarballbase
-        if test -f $tarballtry; then
-          tarball=$tarballtry
-        fi
-        if $SVNUP_PKGS; then
-          case ${PACKAGE_REPO_METHODS[$i]} in
-            svn)
-              techo " svn."
-              (cd $pkgdir; bilderSvn up $tarballbase)
-              ;;
-            direct)
-# Determine whether to use wget or curl
-              local DIRECT_METHOD=
-              if which wget 1>/dev/null 2>&1; then
-                DIRECT_METHOD="wget -N -nv"
-                techo " wget."
-              else
-                DIRECT_METHOD="curl -f -o $tarballbase"
-                techo " curl."
-              fi
-              cd $pkgdir
-              if ! test -f $tarballbase; then
-                cmd="${DIRECT_METHOD} ${PACKAGE_REPO_URLS[$i]}/$tarballbase"
-                techo "$cmd"
-                $cmd
-              fi
-              cd - 1>/dev/null 2>&1
-              ;;
-          esac
-        fi
-        if test -f $tarballtry; then
-          techo "$tarballbase found."
-          tarball=$tarballtry
-          tarballbase=`basename $tarballtry`
-          pkgsandpatches="$pkgsandpatches $tarballbase"
-          break
-        else
-          techo "$tarballbase not found."
-        fi
-      done
-      if test -n "$tarball"; then
-        break
-      fi
-      i=`expr $i + 1`
-    done
-
-# Not found
-    if test -z $tarball; then
-      TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  No tarball of any compression appeared.  Network okay?"
-      cleanup
-    fi
-
-# Found
-    techo "Found $tarball."
+    local tarball=`getPkg $1-$verval`
+    techo -2 "tarball = $tarball."
 
 # If patch already set, do not change
     local patchvar=`genbashvar $1`_PATCH

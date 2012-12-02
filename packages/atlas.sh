@@ -147,12 +147,19 @@ buildAtlas() {
       fi
     fi
 
+# Get lapack if needed
+    if grep -q with-netlib-lapack-tarfile $BUILD_DIR/atlas-$ATLAS_BLDRVERSION/configure; then
+      if test -z ${LAPACK_BLDRVERSION}; then
+        source $BILDER_DIR/packages/lapack.sh
+      fi
+      local lapack_tarfilebase=lapack-${LAPACK_BLDRVERSION}
+      local lapack_tarfile=`getPkg $lapack_tarfilebase`
+    fi
+
 # Lapack ser args
     for BLD in SER CC4PY CLP; do
       if grep -q with-netlib-lapack-tarfile $BUILD_DIR/atlas-$ATLAS_BLDRVERSION/configure; then
-        local lapack_tarfile=$PROJECT_DIR/numpkgs/lapack-${LAPACK_BLDRVERSION}.tar.gz
-        bilderSvn -2 up $lapack_tarfile
-        eval ATLAS_${BLD}_LP_ARGS="--with-netlib-lapack-tarfile='$lapack_tarfile'"
+        eval ATLAS_${BLD}_LP_ARGS="--with-netlib-lapack-tarfile='${lapack_tarfile}'"
       else
         local lapack_lib=`deref CONTRIB_LAPACK_${BLD}_LIB`
         if test -n "$lapack_lib"; then
@@ -190,7 +197,7 @@ fi
 
 # On multipole, atlas does not correctly detect that this is a 32 bit system
     case `uname`-`uname -m` in
-      CYGWIN*WOW64)
+      CYGWIN*WOW64-*)
         ATLAS_PTR_ARG="-b 64"
         ;;
       CYGWIN*)

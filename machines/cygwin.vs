@@ -21,9 +21,9 @@ else
   IS_64BIT=false
 fi
 
-# Trying no atlas builds on windows.  Trilinos may have problems,
-# but numpy is building.
-ATLAS_BUILDS=${ATLAS_BUILDS:-"NONE"}
+# Do not build atlas by default on Windows.
+# Trilinos has problems, but numpy is building.
+BUILD_ATLAS=${BUILD_ATLAS:-"false"}
 
 # Set any variables based on 32/64 bit
 FC=

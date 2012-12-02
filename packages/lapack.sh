@@ -2,9 +2,7 @@
 #
 # Version and build information for lapack.
 # The original tarball was obtained here:
-#   http://www.netlib.org/lapack/lapack-3.3.0.tgz
-# and renamed:
-#   lapack-3.3.0.tar.gz
+#   http://www.netlib.org/lapack/lapack-3.4.0.tgz
 #
 # $Id$
 #
