@@ -616,6 +616,12 @@ checkDirWritable() {
 # Errors (not owner) to /dev/null.
   cmd="chmod 2775 $dir"
   $cmd 2>/dev/null
+  local subdirs="bin include share"
+  if [[ `uname` =~ CYGWIN ]]; then
+    subdirs="bin include share Lib"
+  else
+    subdirs="bin include share lib"
+  fi
   for j in bin include lib share; do
     if ! test -d $dir/$j; then
       mkdir -p $dir/$j

@@ -138,7 +138,7 @@ if ! $NO_PYTHON; then
   PYINSTDIR=${BLDR_INSTALL_DIR}/${PYTHON_LIBSUBDIR}/${PYTHON_VERDIR}/site-packages
   case `uname` in
     CYGWIN*)
-      PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/lib/site-packages
+      PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/Lib/site-packages
       NATIVE_PYTHON_SITEPKGSDIR=`cygpath -aw ${PYTHON_SITEPKGSDIR}`
       ;;
     *)
@@ -147,7 +147,7 @@ if ! $NO_PYTHON; then
       ;;
   esac
 # Must at least have this path
-  addtopathvar PYTHONPATH "$PYTHON_SITEPKGSDIR"
+  addtopathvar PYTHONPATH "$NATIVE_PYTHON_SITEPKGSDIR"
   case `uname` in
     CYGWIN*)
       trimvar PYTHONPATH ';'
@@ -159,7 +159,7 @@ if ! $NO_PYTHON; then
   techo "Starting with PYTHONPATH = $PYTHONPATH"
   export PYTHONPATH
 fi
-# techo exit; exit
+# techo "Quitting in bilderpy after setting PYTHONPATH."; exit
 
 ######################################################################
 #

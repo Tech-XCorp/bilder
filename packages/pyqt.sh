@@ -24,7 +24,14 @@ esac
 #
 ######################################################################
 
-PYQT_BUILDS=${PYQT_BUILDS:-"cc4py"}
+if test -z "$PYQT_BUILDS"; then
+  if [[ $(uname) =~ CYGWIN ]]; then
+# PyQt does not build on windows due to crash of sip.
+    PYQT_BUILDS=NONE
+  else
+    PYQT_BUILDS=cc4py
+  fi
+fi
 PYQT_DEPS=qt,sip,Python
 PYQT_UMASK=002
 
