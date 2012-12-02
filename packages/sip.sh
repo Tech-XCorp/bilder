@@ -40,15 +40,18 @@ buildSip() {
     techo "$cmd"
     $cmd
 
-    SIP_ARGS="--sipdir=$MIXED_CONTRIB_DIR/share/sip --incdir=$MIXED_CONTRIB_DIR/include/python2.6"
+    SIP_CONFIG_ARGS="--sipdir=$MIXED_CONTRIB_DIR/share/sip --incdir=$MIXED_CONTRIB_DIR/include/python2.6"
     case `uname`-`uname -r` in
-      CYGWIN*) SIP_ARGS="$SIP_ARGS -p win32-msvc";;
-      Darwin-1?.*) SIP_ARGS="$SIP_ARGS -p macx-g++";;
+      CYGWIN*) SIP_CONFIG_ARGS="$SIP_CONFIG_ARGS -p win32-msvc";;
+      Darwin-1?.*) SIP_CONFIG_ARGS="$SIP_CONFIG_ARGS -p macx-g++";;
     esac
 
 # Configure
-    if bilderConfig -r sip cc4py "$SIP_ARGS"; then
-      bilderBuild sip cc4py
+    if bilderConfig -r sip cc4py "$SIP_CONFIG_ARGS"; then
+      case `uname`-`uname -r` in
+        CYGWIN*) SIP_BUILD_ARGS="-m nmake";;
+      esac
+      bilderBuild $SIP_BUILD_ARGS sip cc4py
     fi
   fi
 
@@ -72,7 +75,10 @@ testSip() {
 
 installSip() {
 # Do not create links as an executable only
-  bilderInstall -L sip cc4py
+  case `uname`-`uname -r` in
+    CYGWIN*) SIP_INSTALL_ARGS="-m nmake";;
+  esac
+  bilderInstall $SIP_INSTALL_ARGS -L sip cc4py
   # techo "WARNING: Quitting at the end of sip.sh."; cleanup
 }
 
