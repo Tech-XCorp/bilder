@@ -1,6 +1,6 @@
 Index: visit/CMake/PluginMacros.cmake
 ===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 19559)
+--- visit/CMake/PluginMacros.cmake	(revision 19673)
 +++ visit/CMake/PluginMacros.cmake	(working copy)
 @@ -68,26 +68,15 @@
              # not configure, so the dollar sign must be escaped in the string
@@ -37,39 +37,9 @@ Index: visit/CMake/PluginMacros.cmake
              ENDFOREACH(target)
          ENDIF(NOT WIN32)
          IF(APPLE)
-Index: visit/operators/CMakeLists.txt
-===================================================================
---- visit/operators/CMakeLists.txt	(revision 19559)
-+++ visit/operators/CMakeLists.txt	(working copy)
-@@ -164,6 +164,11 @@
-   LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
- ENDIF(HAVE_LIB_R)
- 
-+# Everything here needs MESA on non-Windows
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
-+
- # Add the plugin directories
- FOREACH(operator ${BUILD_PLUGINS})
-     ADD_SUBDIRECTORY(${operator})
-Index: visit/databases/SimV2/CMakeLists.txt
-===================================================================
---- visit/databases/SimV2/CMakeLists.txt	(revision 19559)
-+++ visit/databases/SimV2/CMakeLists.txt	(working copy)
-@@ -55,6 +55,9 @@
- 
- 
- LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
- 
- ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
- TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
 Index: visit/databases/CMakeLists.txt
 ===================================================================
---- visit/databases/CMakeLists.txt	(revision 19559)
+--- visit/databases/CMakeLists.txt	(revision 19673)
 +++ visit/databases/CMakeLists.txt	(working copy)
 @@ -360,6 +360,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
@@ -83,9 +53,39 @@ Index: visit/databases/CMakeLists.txt
  # Add the plugin directories
  FOREACH(db ${BUILD_PLUGINS})
      ADD_SUBDIRECTORY(${db})
+Index: visit/databases/SimV2/CMakeLists.txt
+===================================================================
+--- visit/databases/SimV2/CMakeLists.txt	(revision 19673)
++++ visit/databases/SimV2/CMakeLists.txt	(working copy)
+@@ -55,6 +55,9 @@
+ 
+ 
+ LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
++if (NOT WIN32)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
+ 
+ ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
+ TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
+Index: visit/operators/CMakeLists.txt
+===================================================================
+--- visit/operators/CMakeLists.txt	(revision 19673)
++++ visit/operators/CMakeLists.txt	(working copy)
+@@ -164,6 +164,11 @@
+   LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
+ ENDIF(HAVE_LIB_R)
+ 
++# Everything here needs MESA on non-Windows
++if (NOT WIN32)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
++
+ # Add the plugin directories
+ FOREACH(operator ${BUILD_PLUGINS})
+     ADD_SUBDIRECTORY(${operator})
 Index: visit/plots/CMakeLists.txt
 ===================================================================
---- visit/plots/CMakeLists.txt	(revision 19559)
+--- visit/plots/CMakeLists.txt	(revision 19673)
 +++ visit/plots/CMakeLists.txt	(working copy)
 @@ -89,6 +89,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
@@ -99,3 +99,25 @@ Index: visit/plots/CMakeLists.txt
  # Add the plugin directories
  FOREACH(plot ${BUILD_PLUGINS})
      ADD_SUBDIRECTORY(${plot})
+Index: visit/viewer/main/SharedDaemon.C
+===================================================================
+--- visit/viewer/main/SharedDaemon.C	(revision 19673)
++++ visit/viewer/main/SharedDaemon.C	(working copy)
+@@ -228,11 +228,14 @@
+             node.GetJsonObject()["password"].GetString() != password)
+             return false;
+ 
+-        lpasswd = node.GetJsonObject().at("password").GetString();
++        // lpasswd = node.GetJsonObject().at("password").GetString();
++        lpasswd = node.GetJsonObject()["password"].GetString();
+ 
+         if(node.HasKey("canRender") == true &&
+-           node.GetJsonObject().at("canRender").GetType() == JSONNode::JSONBOOL)
+-            canRender = node.GetJsonObject().at("canRender").GetBool();
++           node.GetJsonObject()["canRender"].GetType() == JSONNode::JSONBOOL)
++            canRender = node.GetJsonObject()["canRender"].GetBool();
++           // node.GetJsonObject().at("canRender").GetType() == JSONNode::JSONBOOL)
++           // canRender = node.GetJsonObject().at("canRender").GetBool();
+ 
+         return true;
+     }
