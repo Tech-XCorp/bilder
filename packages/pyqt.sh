@@ -1,67 +1,70 @@
 #!/bin/bash
-
-########################################################################
 #
-# Automate the build of PyQt4
+# Build and installation of pyqt
 #
-# @version $Id$
+# $Id$
 #
 ########################################################################
 
-# ======================================================================
-# Set the version and platform, since there are different tarballs for
-# different platforms
-# ======================================================================
+########################################################################
+#
+# Version
+#
+########################################################################
 
 case $(uname) in
+  CYGWIN*) PYQT_BLDRVERSION=${PYQT_BLDRVERSION:-"win-gpl-4.9.5"};;
   Darwin) PYQT_BLDRVERSION=${PYQT_BLDRVERSION:-"mac-gpl-4.9.1"};;
-# Nothing yet for Windows...
   *) PYQT_BLDRVERSION=${PYQT_BLDRVERSION:-"x11-gpl-4.9.1"};;
 esac
 
-# ======================================================================
-# Set build and dependency parameters
-# ======================================================================
+######################################################################
+#
+# Builds, deps, mask, auxdata, paths, builds of other packages
+#
+######################################################################
 
 PYQT_BUILDS=${PYQT_BUILDS:-"cc4py"}
 PYQT_DEPS=qt,sip,Python
+PYQT_UMASK=002
 
-# ======================================================================
+######################################################################
+#
 # Launch builds
-# ======================================================================
+#
+######################################################################
 
 buildPyQt() {
 
 # Unpack
   if bilderUnpack PyQt; then
-    techo "Running bilderDuBuild for PyQt."
-
-# Remove old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/PyQt*"
-    techo "$cmd"
-    $cmd
-
+# Configure args: qmake must be found from path
+    PYQT_CONFIG_ARGS="--confirm-license"
 # Configure
-    PYQT_ARGS="-q $QT_BINDIR/qmake --confirm-license"
-    if bilderConfig -r PyQt cc4py "$PYQT_ARGS"; then
+    if bilderConfig -r PyQt cc4py "$PYQT_CONFIG_ARGS"; then
 # Build
       bilderBuild PyQt cc4py
     fi
   fi
 }
 
-# ======================================================================
-# Test PyQt
-# ======================================================================
+######################################################################
+#
+# Test
+#
+######################################################################
 
 testPyQt() {
   techo "Not testing pyqt."
 }
 
-# ======================================================================
-# Install PyQt
-# ======================================================================
+######################################################################
+#
+# Install
+#
+######################################################################
 
 installPyQt() {
-  bilderInstall -L PyQt cc4py
+  bilderInstall -r PyQt PyQt cc4py
 }
+

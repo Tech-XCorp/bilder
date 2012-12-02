@@ -3497,7 +3497,13 @@ bilderConfig() {
     elif $riverbank; then
 # riverbank configure
       configexec=python
-      configargs="configure.py --destdir $PYTHON_SITEPKGSDIR --bindir $CONTRIB_DIR/bin"
+      local pspdir=$PYTHON_SITEPKGSDIR
+      local cbindir=$CONTRIB_DIR/bin
+      if [[ `uname` =~ CYGWIN ]]; then
+        pspdir=`cygpath -aw $pspdir`
+        cbindir=`cygpath -aw $cbindir`
+      fi
+      configargs="configure.py --destdir='$pspdir' --bindir='$cbindir'"
       cmval=riverbank
     elif test -n "$configcmdin"; then
 # Custom configure executable

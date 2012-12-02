@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for pyzmq
+# Build and installationn of pyzmq
 #
 # $Id$
 #
@@ -31,7 +31,7 @@ PYZMQ_UMASK=002
 
 #####################################################################
 #
-# Launch PyZMQ builds.
+# Launch builds
 #
 ######################################################################
 
@@ -41,9 +41,11 @@ buildPyzmq() {
 # Build away
     PYZMQ_ENV="$DISTUTILS_ENV"
     techo -2 "PYZMQ_ENV = $PYZMQ_ENV"
-# 20121202: Is rpath correct?  Why not lib subdir?  Only for Linux?
-    ZEROMQ_ARG="--rpath=$CONTRIB_DIR/zeromq-cc4py --zmq=$CONTRIB_DIR/zeromq-cc4py"
-    bilderDuBuild pyzmq "build_ext $ZEROMQ_ARG --inplace" "$PYZMQ_ENV"
+    PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-cc4py"
+    if [[ `uname` =~ Linux ]]; then
+      PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-cc4py"
+    fi
+    bilderDuBuild pyzmq "$PYZMQ_ARGS" "$PYZMQ_ENV"
   fi
 
 }
@@ -65,8 +67,6 @@ testPyzmq() {
 ######################################################################
 
 installPyzmq() {
-  # mkdir -p $PYTHON_SITEPKGSDIR
-  # bilderDuInstall -r pyzmq pyzmq "--install-purelib=$PYTHON_SITEPKGSDIR" "$PYZMQ_ENV"
   bilderDuInstall -r pyzmq pyzmq "" "$PYZMQ_ENV"
 }
 

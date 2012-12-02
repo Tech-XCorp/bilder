@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Automate the build of sip, required for PyQt4
+# Build and installation of sip
 #
-# @version $Id$
+# $Id$
 #
 ########################################################################
 
@@ -12,20 +12,21 @@
 #
 ########################################################################
 
-SIP_BLDRVERSION=${SIP_BLDRVERSION:-"4.13.2"}
+SIP_BLDRVERSION=${SIP_BLDRVERSION:-"4.14.1"}
 
 ########################################################################
 #
-# Builds and deps
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ########################################################################
 
 SIP_BUILDS=${PYQT_BUILDS:-"cc4py"}
 SIP_DEPS=Python
+SIP_UMASK=002
 
 ########################################################################
 #
-# Launch sip builds
+# Launch builds
 #
 ########################################################################
 
@@ -33,24 +34,32 @@ buildSip() {
 
 # Unpack
   if bilderUnpack sip; then
-    techo "Building sip."
 
-# Remove old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/sip*"
-    techo "$cmd"
-    $cmd
+# Find native sip interface and include directories
+    local sipifcdir=$CONTRIB_DIR/share/sip
+    local incdir=$CONTRIB_DIR/include/python${PYTHON_MAJMIN}
+    if [[ `uname` = CYGWIN ]]; then
+      sipifcdir=`cygpath -aw $sipifcdir`
+      incdir=`cygpath -aw $incdir`
+    fi
 
-    SIP_CONFIG_ARGS="--sipdir=$MIXED_CONTRIB_DIR/share/sip --incdir=$MIXED_CONTRIB_DIR/include/python2.6"
+# Complete configuration args
+    local SIP_CONFIG_ARGS="--sipdir='$sipifcdir' --incdir='$incdir'"
     case `uname`-`uname -r` in
       CYGWIN*) SIP_CONFIG_ARGS="$SIP_CONFIG_ARGS -p win32-msvc";;
       Darwin-1?.*) SIP_CONFIG_ARGS="$SIP_CONFIG_ARGS -p macx-g++";;
     esac
 
-# Configure
+# Configure and build
     if bilderConfig -r sip cc4py "$SIP_CONFIG_ARGS"; then
+      local SIP_BUILD_ARGS=
       case `uname`-`uname -r` in
         CYGWIN*) SIP_BUILD_ARGS="-m nmake";;
       esac
+# Remove old installations
+      cmd="rmall ${PYTHON_SITEPKGSDIR}/sip*"
+      techo "$cmd"
+      $cmd
       bilderBuild $SIP_BUILD_ARGS sip cc4py
     fi
   fi
@@ -59,7 +68,7 @@ buildSip() {
 
 ########################################################################
 #
-# Test sip
+# Test
 #
 ########################################################################
 
@@ -69,16 +78,16 @@ testSip() {
 
 ########################################################################
 #
-# Install sip
+# Install
 #
 ########################################################################
 
 installSip() {
-# Do not create links as an executable only
+  local SIP_INSTALL_ARGS=
   case `uname`-`uname -r` in
     CYGWIN*) SIP_INSTALL_ARGS="-m nmake";;
   esac
+# Do not create links as an executable plus some libs for python
   bilderInstall $SIP_INSTALL_ARGS -L sip cc4py
-  # techo "WARNING: Quitting at the end of sip.sh."; cleanup
 }
 
