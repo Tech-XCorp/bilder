@@ -187,7 +187,8 @@ buildQt() {
     # techo "Before qt's bilderConfig, QT_SER_INSTALL_DIR=$QT_SER_INSTALL_DIR."
     if bilderConfig -i qt ser "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit $QT_SER_OTHER_ARGS" "" "$QT_ENV"; then
       # techo exit; exit
-      bilderBuild qt ser "$QT_MAKEJ_ARGS" "$QT_ENV"
+# Make clean seems to hang
+      bilderBuild -k qt ser "$QT_MAKEJ_ARGS" "$QT_ENV"
     else
 # Remove linked file if present
       if $QT_GXX_LINKED; then
