@@ -177,10 +177,16 @@ buildQt() {
       QT_PHONON_ARGS=-no-phonon
     fi
 
-# Version dependent args
+# Version dependent args.
+# make -j does not work with 5, apparently.
     case $QT_BLDRVERSION in
-      5.*) QT_VERSION_ARGS="-no-c++11";;
-      *) QT_VERSION_ARGS="-buildkey bilder -no-libtiff -no-scripttools -webkit $QT_PHONON_ARGS";;
+      5.*)
+        QT_VERSION_ARGS="-no-c++11"
+        ;;
+      *)
+        QT_VERSION_ARGS="-buildkey bilder -no-libtiff -no-scripttools -webkit $QT_PHONON_ARGS"
+        QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
+        ;;
     esac
 
 # Restore dbus and xmlpatterns or get wrong one
@@ -188,7 +194,7 @@ buildQt() {
     if bilderConfig -i qt ser "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit $QT_SER_OTHER_ARGS" "" "$QT_ENV"; then
       # techo exit; exit
 # Make clean seems to hang
-      bilderBuild -k qt ser "$QT_MAKEJ_ARGS" "$QT_ENV"
+      bilderBuild -k qt ser "$QT_MAKEJ_USEARGS" "$QT_ENV"
     else
 # Remove linked file if present
       if $QT_GXX_LINKED; then
