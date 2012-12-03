@@ -27,10 +27,6 @@ case `uname`-`uname -r` in
   Darwin-12.2.*) QT_BLDRVERSION_STD=4.8.3;;
   *) QT_BLDRVERSION_STD=4.8.1;;
 esac
-case $UQHOSTNAME in
-  octet | cleon*) QT_BLDRVERSION_EXP=5.0.0b2;;
-  *) QT_BLDRVERSION_EXP=4.8.3;;
-esac
 
 ######################################################################
 #
