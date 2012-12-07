@@ -47,17 +47,22 @@ if test -n "$CC"; then
 fi
 techo "MACHINE_FILE = \"$MACHINE_FILE\".  FQMAILHOST = \"$FQMAILHOST\"."
 if test -n "$MACHINE_FILE"; then
+  mfilefound=false
   if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
     absmachfile=$BILDER_CONFDIR/machines/$MACHINE_FILE
     techo "Sourcing $absmachfile."
     source $absmachfile
     techo "$absmachfile sourced."
-  elif test -f $BILDER_DIR/machines/$MACHINE_FILE; then
+    mfilefound=true
+  fi
+  if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
     absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
     techo "Sourcing $absmachfile."
     source $absmachfile
     techo "$absmachfile sourced."
-  else
+    mfilefound=true
+  fi
+  if ! $mfilefound; then
     if test -n "$BILDER_CONFDIR"; then
       techo "WARNING: $MACHINE_FILE not found in $BILDER_CONFDIR or $BILDER_DIR."
     else

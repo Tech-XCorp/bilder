@@ -31,6 +31,7 @@ if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
       if test -n "$FC"; then
         ATLAS_BUILDS="$ATLAS_BUILDS",ser
       fi
+      ATLAS_BUILDS=NONE # Turning off for now.
       ;;
     Darwin)
       ATLAS_BUILDS=NONE

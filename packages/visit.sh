@@ -1,12 +1,10 @@
 #!/bin/bash
 #
-# Version and build information for visit.  The following
-# packages need to be installed:
+# Version and build information for visit.
+# The following packages need to be installed:
 #  libblas-devel liblapack-devel
 #  libpng-devel libXt-devel libXext-devel libXtst-devel
 #  libGLU-devel libSM-devel
-# For matplotlib, also install libfreetype-devel
-# In general we need to make sure that the link to the .so library is made.
 #
 # $Id$
 #
@@ -22,7 +20,7 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 
 ######################################################################
 #
-# Builds and deps
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -41,12 +39,6 @@ fi
 
 VISIT_DEPS=Imaging,hdf5,visit_vtk,qt,cmake
 VISIT_UMASK=002
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
 
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
 
@@ -103,7 +95,7 @@ setVisitRepoPatch() {
 # Determine the branch to find the patch.
   local branchurl=`bilderSvn info $PROJECT_DIR/visit | grep ^URL: | sed -e 's/^URL: *//' -e 's?/src$??'`
   local branch=`echo $branchurl | sed 's?^https*://portal.nersc.gov/svn/visit/??' | tr '/' '_'`
-  local svnrev=`bilderSvnversion -c $PROJECT_DIR/visit | sed 's/^.*://'`
+  local svnrev=`bilderSvnversion -c $PROJECT_DIR/visit | sed 's/^.*-//'`
 
 # Set is-trunk variable for later use
   case $branch in
@@ -134,32 +126,23 @@ setVisitRepoPatch() {
 
 ######################################################################
 #
-# Launch visit builds.
+# Launch builds.
 #
 ######################################################################
 
 buildVisit() {
 
-# Check for svn version or package
+# Check for svn repo or package
   if test -d $PROJECT_DIR/visit; then
+# Package: so patch and preconfig
 
-# Remove our windows config file if not part of repo.
-if false; then
-    if [[ `uname` =~ CYGWIN ]]; then
-      if ! bilderSvn ls $PROJECT_DIR/visit/config-site | grep -q windows-bilder.cmake; then
-        cmd="rm -f $PROJECT_DIR/visit/config-site/windows-bilder.cmake"
-        techo "$cmd"
-        $cmd
-      fi
-    fi
-fi
-
-# Move back files that we modify below.
-# On Windows, using native svn, so cd to directory and revert
+# Revert to undo previous patch.
     bilderSvn revert --recursive $PROJECT_DIR/visit
     VISIT_DISTVERSION=`cat $PROJECT_DIR/visit/VERSION`
     getVersion visit
     techo "After reverting, VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
+# With the correct handling of svn, this can go away?
+if false; then
     case $VISIT_BLDRVERSION in
       *M)
         techo "VisIT modified: VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
@@ -189,17 +172,18 @@ fi
         # techo "VisIT is not modified: VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
         ;;
     esac
+fi
 
 # Determine the visit patch for repo
     setVisitRepoPatch
     if $IS_VISIT_TRUNK; then
-# First dash ends the base name, so use underscore
+# Trunk and branch are put into different places
       VISIT_SUBDIR_BASE=visit_trunk
     else
       VISIT_SUBDIR_BASE=visit
     fi
-
-# Figure out whether to rebuild
+# Determine whether patch in installation matches that in bilder.
+# If differs, set visit as uninstalled so it will be built.
     if ! isPatched -s $VISIT_SUBDIR_BASE visit-$VISIT_BLDRVERSION-ser; then
       techo "Rebuilding visit as patches differ."
       for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
@@ -221,8 +205,6 @@ fi
         cat $BUILD_DIR/visit-patch.fail | tee -a $LOGFILE
       fi
     fi
-
-# Preconfig or unpack
     bilderPreconfig -c visit
     res=$?
   else
@@ -342,23 +324,20 @@ fi
     techo "VISIT_PKG_ARGS = $VISIT_PKG_ARGS."
 
 # Get Python args
-# Brad Whitlock writes (April 17, 9:58)
+# Brad Whitlock writes (April 17, 9:58, 2012)
 cat >/dev/null <<EOF
 ll I've ever had to pass is VISIT_PYTHON_DIR. The intent is that you
 should only have to set VISIT_PYTHON_DIR.
 EOF
-# Appears that on snowleopard with need to add the library dir
     local VISIT_PYTHON_ARGS="-DVISIT_PYTHON_DIR:PATH='$PYTHON_DIR'"
     local VISIT_OS_ARGS=
     case `uname` in
-      CYGWIN*)
-        VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`"
-        ;;
+      CYGWIN*) VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`";;
       Darwin)
+# Appears that on snowleopard with need to add the library dir?
         VISIT_PYTHON_ARGS="$VISIT_PYTHON_ARGS -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
         ;;
-      *)
-        ;;
+      *);;
     esac
 
 # Build serial
@@ -404,19 +383,13 @@ EOF
 
 ######################################################################
 #
-# Test visit
+# Test
 #
 ######################################################################
 
 testVisit() {
   techo "Not testing visit."
 }
-
-######################################################################
-#
-# Fix up visit libs on Darwin
-#
-######################################################################
 
 ######################################################################
 #
@@ -479,7 +452,7 @@ fixCopiedHdf5() {
 
 ######################################################################
 #
-# Install visit
+# Install
 #
 ######################################################################
 

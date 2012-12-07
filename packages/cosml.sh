@@ -20,14 +20,17 @@
 #
 ######################################################################
 
-if test -z "$COSML_BUILDS"; then
-  COSML_BUILDS="cc4py"
-fi
+# cosml.sh is invoked twice and the first time through, in the initial
+# setup, PETSC33_BUILDS will always be blank.  Because we want to follow
+# PETSC33_BUILDS, we do not do the normal method and have to reset the
+# builds down below in each method.  So this is just a dummy
+COSML_BUILDS="cc4py"
+
 # Removing Python,numpy,tables as not really a build dep.
-COSML_DEPS=chrpath,openmpi,cmake,lapack,petsc33,cython,cosml_lite
-if $BUILD_OPTIONAL; then
-   COSML_DEPS=${COSML_DEPS},Sphinx,matplotlib,scipy,tables,pynetcdf4,ipython
-fi
+COSML_DEPS=chrpath,openmpi,cmake,lapack,petsc33,cosml_lite,Sphinx
+#if $BUILD_OPTIONAL; then
+#   COSML_DEPS=${COSML_DEPS},cython,matplotlib,scipy,tables,pynetcdf4,ipython
+#fi
 COSML_UMASK=007
 #if test -d $PROJECT_DIR/petscdev; then
 #   COSML_DEPS=${COSML_DEPS},petscdev
@@ -43,15 +46,16 @@ COSML_UMASK=007
 
 # Configure and build serial and parallel
 buildcosml() {
+  COSML_BUILDS=$PETSC33_BUILDS
 # Get version and see if anything needs building
   getVersion cosml
   if bilderPreconfig cosml; then
-    if bilderConfig -c cosml cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $COSML_CC4PY_FLAGS $COSML_CC4PY_ADDL_ARGS" "" "$COSML_ENV_ARGS"; then
-      bilderBuild cosml cc4py
-    fi
+    for build in `echo $COSML_BUILDS | tr , " "`; do
+      if bilderConfig -c cosml $build "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $COSML_CC4PY_FLAGS $COSML_CC4PY_ADDL_ARGS -DUSE_PETSC_INSTALL=$build" "" "$COSML_ENV_ARGS"; then
+        bilderBuild cosml $build
+      fi
+    done
   fi
-
-
 }
 
 ######################################################################
@@ -72,7 +76,9 @@ testcosml() {
 ######################################################################
 
 installcosml() {
-    bilderInstall cosml cc4py
-
+    COSML_BUILDS=$PETSC33_BUILDS
+    for build in `echo $COSML_BUILDS | tr , " "`; do
+      bilderInstall cosml $build
+    done
 }
 

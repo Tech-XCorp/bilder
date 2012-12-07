@@ -20,6 +20,9 @@
 #
 ######################################################################
 
+# temporary path fix for jenkins builds?
+export PATH=/usr/bin:$PATH
+
 # Don't reset GPULIB_BUILDS if set.
 if test -z "$GPULIB_BUILDS"; then
   GPULIB_BUILDS=${GPULIB_BUILDS:-"gpu"}
@@ -49,15 +52,15 @@ buildGPULib() {
   case `uname` in
     AIX)
       GPULIB_MAKE_ARGS=${GPULIB_MAKE_ARGS:-"RANLIB=:"}
-      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $GPULIB_MAKEJ_ARGS"
+      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $JMAKEARGS"
       ;;
     CYGWIN*)
       if which jom 1>/dev/null 2>/dev/null; then
-        GPULIB_MAKE_ARGS="$GPULIB_MAKEJ_ARGS"
+        GPULIB_MAKE_ARGS="$JMAKEARGS"
       fi
       ;;
     Darwin | Linux)
-      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $GPULIB_MAKEJ_ARGS"
+      GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $JMAKEARGS"
       export LD_LIBRARY_PATH=/usr/local/cuda-4.2/cuda/lib64:/usr/local/cuda/4.2/cuda/lib64:$LD_LIBRARY_PATH
       ;;
   esac

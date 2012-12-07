@@ -1,0 +1,15 @@
+Index: visit/engine/main/CMakeLists.txt
+===================================================================
+--- visit/engine/main/CMakeLists.txt	(revision 19605)
++++ visit/engine/main/CMakeLists.txt	(working copy)
+@@ -128,6 +128,10 @@
+ ${VTK_INCLUDE_DIRS}
+ )
+ 
++IF (NOT WIN32)
++  INCLUDE_DIRECTORIES(${X11_X11_INCLUDE_PATH})
++ENDIF ()
++
+ # Add link directories
+ LINK_DIRECTORIES(
+ ${LIBRARY_OUTPUT_DIRECTORY}

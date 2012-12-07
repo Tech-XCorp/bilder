@@ -1,5 +1,3 @@
-Sourcing icl11.sh, PATH = .:/home/research/cary/txcenv:/usr/local/contrib/autotools-lt-2.4/bin:/usr/local/contrib/hdf5-1.8.7-ser/bin:/usr/local/contrib/cmake-2.8.3-ser/bin:/usr/local/contrib/openmpi-1.4.2-nodl/bin:/usr/local/contrib/Python-2.6.5-cc4py/bin:/usr/local/contrib/qt-4.7.3-ser/bin:/usr/local/contrib/swig-1.3.40-ser/bin:/usr/local/contrib/bin:/usr/local/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/lib64/ccache:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/sbin
-Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/ia32/bin:/cygdrive/c/Program Files/Intel/Compiler/11.1/065/mkl/ia32/bin:/cygdrive/c/Program Files/Intel/Compiler/11.1/065/tbb/ia32/vc9/bin:/cygdrive/c/Program Files/Intel/Compiler/11.1/065/Bin/ia32:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/Common7/IDE:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/VC/BIN:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/Common7/Tools:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v3.5:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v2.0.50727:/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/VC/VCPackages:/cygdrive/c/Program Files/Microsoft SDKs/Windows/v6.0A/bin:.:/home/research/cary/txcenv:/usr/local/contrib/autotools-lt-2.4/bin:/usr/local/contrib/hdf5-1.8.7-ser/bin:/usr/local/contrib/cmake-2.8.3-ser/bin:/usr/local/contrib/openmpi-1.4.2-nodl/bin:/usr/local/contrib/Python-2.6.5-cc4py/bin:/usr/local/contrib/qt-4.7.3-ser/bin:/usr/local/contrib/swig-1.3.40-ser/bin:/usr/local/contrib/bin:/usr/local/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/lib64/ccache:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/sbin
 #!/bin/bash
 #
 # $Id$
@@ -162,12 +160,6 @@ Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/
 # CMAKE_BLDRVERSION=${CMAKE_BLDRVERSION:-""}
 # CMAKE_BUILDS=${CMAKE_BUILDS:-""}
 # CMAKE_SER_OTHER_ARGS=${CMAKE_SER_OTHER_ARGS:-""}
-
-# COMPOSERTOOLKIT_BLDRVERSION=${COMPOSERTOOLKIT_BLDRVERSION:-""}
-# COMPOSERTOOLKIT_BUILDS=${COMPOSERTOOLKIT_BUILDS:-""}
-# COMPOSERTOOLKIT_NOVISIT_OTHER_ARGS=${COMPOSERTOOLKIT_NOVISIT_OTHER_ARGS:-""}
-# COMPOSERTOOLKIT_VISIT_OTHER_ARGS=${COMPOSERTOOLKIT_VISIT_OTHER_ARGS:-""}
-# COMPOSERTOOLKIT_WEBDOCS_OTHER_ARGS=${COMPOSERTOOLKIT_WEBDOCS_OTHER_ARGS:-""}
 
 # CORRCALC_BLDRVERSION=${CORRCALC_BLDRVERSION:-""}
 # CORRCALC_BUILDS=${CORRCALC_BUILDS:-""}
@@ -365,16 +357,6 @@ Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/
 # MXML_BUILDS=${MXML_BUILDS:-""}
 # MXML_SER_OTHER_ARGS=${MXML_SER_OTHER_ARGS:-""}
 
-# NAUTILUSCOMPOSER_BLDRVERSION=${NAUTILUSCOMPOSER_BLDRVERSION:-""}
-# NAUTILUSCOMPOSER_BUILDS=${NAUTILUSCOMPOSER_BUILDS:-""}
-# NAUTILUSCOMPOSER_SER_OTHER_ARGS=${NAUTILUSCOMPOSER_SER_OTHER_ARGS:-""}
-
-# NAUTILUS_BLDRVERSION=${NAUTILUS_BLDRVERSION:-""}
-# NAUTILUS_BUILDS=${NAUTILUS_BUILDS:-""}
-# NAUTILUS_PAR_OTHER_ARGS=${NAUTILUS_PAR_OTHER_ARGS:-""}
-# NAUTILUS_SER_OTHER_ARGS=${NAUTILUS_SER_OTHER_ARGS:-""}
-# NAUTILUS_WEBDOCS_OTHER_ARGS=${NAUTILUS_WEBDOCS_OTHER_ARGS:-""}
-
 # NETCDF_BLDRVERSION=${NETCDF_BLDRVERSION:-""}
 # NETCDF_BUILDS=${NETCDF_BUILDS:-""}
 # NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
@@ -406,10 +388,6 @@ Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/
 # NTCC_TRANSPORT_PAR_OTHER_ARGS=${NTCC_TRANSPORT_PAR_OTHER_ARGS:-""}
 # NTCC_TRANSPORT_SER_OTHER_ARGS=${NTCC_TRANSPORT_SER_OTHER_ARGS:-""}
 
-# NTTESTS_BLDRVERSION=${NTTESTS_BLDRVERSION:-""}
-# NTTESTS_BUILDS=${NTTESTS_BUILDS:-""}
-# NTTESTS_ALL_OTHER_ARGS=${NTTESTS_ALL_OTHER_ARGS:-""}
-
 # NUBEAM_BLDRVERSION=${NUBEAM_BLDRVERSION:-""}
 # NUBEAM_BUILDS=${NUBEAM_BUILDS:-""}
 # NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-""}
@@ -439,24 +417,10 @@ Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/
 # PLASMA_STATE_BEN_OTHER_ARGS=${PLASMA_STATE_BEN_OTHER_ARGS:-""}
 # PLASMA_STATE_SER_OTHER_ARGS=${PLASMA_STATE_SER_OTHER_ARGS:-""}
 
-# POLYSWIFTCOMPOSER_BLDRVERSION=${POLYSWIFTCOMPOSER_BLDRVERSION:-""}
-# POLYSWIFTCOMPOSER_BUILDS=${POLYSWIFTCOMPOSER_BUILDS:-""}
-# POLYSWIFTCOMPOSER_SER_OTHER_ARGS=${POLYSWIFTCOMPOSER_SER_OTHER_ARGS:-""}
-
-# POLYSWIFT_BLDRVERSION=${POLYSWIFT_BLDRVERSION:-""}
-# POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-""}
-# POLYSWIFT_PAR_OTHER_ARGS=${POLYSWIFT_PAR_OTHER_ARGS:-""}
-# POLYSWIFT_SER_OTHER_ARGS=${POLYSWIFT_SER_OTHER_ARGS:-""}
-# POLYSWIFT_WEBDOCS_OTHER_ARGS=${POLYSWIFT_WEBDOCS_OTHER_ARGS:-""}
-
 # PSPLINE_BLDRVERSION=${PSPLINE_BLDRVERSION:-""}
 # PSPLINE_BUILDS=${PSPLINE_BUILDS:-""}
 # PSPLINE_BEN_OTHER_ARGS=${PSPLINE_BEN_OTHER_ARGS:-""}
 # PSPLINE_SER_OTHER_ARGS=${PSPLINE_SER_OTHER_ARGS:-""}
-
-# PSTESTS_BLDRVERSION=${PSTESTS_BLDRVERSION:-""}
-# PSTESTS_BUILDS=${PSTESTS_BUILDS:-""}
-# PSTESTS_ALL_OTHER_ARGS=${PSTESTS_ALL_OTHER_ARGS:-""}
 
 # PYGMENTS_BLDRVERSION=${PYGMENTS_BLDRVERSION:-""}
 # PYGMENTS_BUILDS=${PYGMENTS_BUILDS:-""}
@@ -620,26 +584,6 @@ Sourced  icl11.sh, PATH = /cygdrive/c/Program Files/Intel/Compiler/11.1/065/ipp/
 # VISIT_BUILDS=${VISIT_BUILDS:-""}
 # VISIT_PAR_OTHER_ARGS=${VISIT_PAR_OTHER_ARGS:-""}
 # VISIT_SER_OTHER_ARGS=${VISIT_SER_OTHER_ARGS:-""}
-
-# VORPALCOMPOSER_BLDRVERSION=${VORPALCOMPOSER_BLDRVERSION:-""}
-# VORPALCOMPOSER_BUILDS=${VORPALCOMPOSER_BUILDS:-""}
-# VORPALCOMPOSER_SER_OTHER_ARGS=${VORPALCOMPOSER_SER_OTHER_ARGS:-""}
-# VORPALCOMPOSER_WEBDOCS_OTHER_ARGS=${VORPALCOMPOSER_WEBDOCS_OTHER_ARGS:-""}
-
-# VORPAL_BLDRVERSION=${VORPAL_BLDRVERSION:-""}
-# VORPAL_BUILDS=${VORPAL_BUILDS:-""}
-# VORPAL_PAR_OTHER_ARGS=${VORPAL_PAR_OTHER_ARGS:-""}
-# VORPAL_SER_OTHER_ARGS=${VORPAL_SER_OTHER_ARGS:-""}
-# VORPAL_WEBDOCS_OTHER_ARGS=${VORPAL_WEBDOCS_OTHER_ARGS:-""}
-
-# VPEXAMPLES_BLDRVERSION=${VPEXAMPLES_BLDRVERSION:-""}
-# VPEXAMPLES_BUILDS=${VPEXAMPLES_BUILDS:-""}
-# VPEXAMPLES_CTK_OTHER_ARGS=${VPEXAMPLES_CTK_OTHER_ARGS:-""}
-# VPEXAMPLES_WEBDOCS_OTHER_ARGS=${VPEXAMPLES_WEBDOCS_OTHER_ARGS:-""}
-
-# VPTESTS_BLDRVERSION=${VPTESTS_BLDRVERSION:-""}
-# VPTESTS_BUILDS=${VPTESTS_BUILDS:-""}
-# VPTESTS_ALL_OTHER_ARGS=${VPTESTS_ALL_OTHER_ARGS:-""}
 
 # VTK_BLDRVERSION=${VTK_BLDRVERSION:-""}
 # VTK_BUILDS=${VTK_BUILDS:-""}

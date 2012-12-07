@@ -234,6 +234,7 @@ bilderSvn() {
   local usesecondauth=false
   local redirecttoerr=false
   local echocmd=true
+
   while test -n "$1"; do
     case "$1" in
       -2) usesecondauth=true;;
@@ -243,11 +244,13 @@ bilderSvn() {
     esac
     shift
   done
+
   local svncmd=$1
   shift
 
 # Get the args for svn
   local svnargs=
+
   while test -n "$1"; do
     case "$1" in
       -*) svnargs="$svnargs $1";;
@@ -255,6 +258,7 @@ bilderSvn() {
     esac
     shift
   done
+
   local origtarget=$1
 
 # Save current directory to go back to if needed
@@ -264,10 +268,15 @@ bilderSvn() {
   local svntarget=
   local execdir=
   local targetdir=
+
   if test -z "$origtarget"; then
     execdir=$origdir
   elif test -d "$origtarget"; then
     execdir=`(cd $origtarget; pwd -P)`
+  elif [[ "$origtarget" =~ :// ]]; then
+    execdir=.
+    svnargs="$origtarget"
+    svntarget=$2
   else
     targetdir=`dirname $origtarget`
     svntarget=`basename $origtarget`
@@ -296,7 +305,6 @@ bilderSvn() {
   $echocmd && techo "Back in $PWD." 1>&2
 
   return $res
-
 }
 
 #
@@ -323,7 +331,7 @@ bilderSvnCleanup() {
 
 
 #
-# svn version on a node.  This 
+# svn version on a node.  This
 #
 # Args:
 # 1: the node
@@ -1129,6 +1137,8 @@ getVersion() {
       local svntmp=`bilderSvnversion $subdir`
       rev="${rev}+${svntmp}"
     fi
+# Prepend r.
+    rev="r"${rev}
   elif test "$repotype" == "GIT"; then
     techo "Getting the current git branch of $1 at `date`."
 # NB: For git, we are using the number of repository revisions as the version
@@ -1140,6 +1150,9 @@ getVersion() {
       cd $origdir
       return 1
     fi
+    local branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
+    # rev=${rev}-${branch}
+    rev=${branch}.r${rev}
   elif test "$repotype" == "HG"; then
     techo "Getting the current hg id (hash) of $1 at `date`."
     if ! rev=`hg id -i`; then
@@ -1155,8 +1168,6 @@ getVersion() {
     rev="exported"
   fi
 
-# Prepend r.
-  rev="r"${rev}
 # Finally, store the revision in <project>_BLDRVERSION
   eval ${vervar}=$rev
   # techo "${vervar} = $rev."
@@ -3148,7 +3159,7 @@ bilderPreconfig() {
 # Get auxiliary files if defined.
   local testdatavar=`genbashvar $1`_TESTDATA
   local testdataval=`deref $testdatavar`
-  techo "$testdatavar = $testdataval."
+  techo -2 "$testdatavar = $testdataval."
   if $TESTING && test -n "$testdataval"; then
     if declare -f bilderGetTestData 1>/dev/null 2>&1; then
       bilderGetTestData $1
@@ -3371,8 +3382,7 @@ bilderConfig() {
       s) stripbuilddir=true;;
       n) noequals=true;;
       p) instsubdirval="$OPTARG";;
-      q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;
-         cmval=qmake; inplace=true;;
+      q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;
       r) riverbank=true;;
       t) recordfailure=false;;
     esac
@@ -3488,6 +3498,7 @@ bilderConfig() {
     fi
     eval $builddirvar=$builddir
 
+    # echo "Before determining the configuration, builddir = $builddir, inplace = $inplace, forceqmake = $forceqmake."; exit
 # Determine the configuration command and any required args.
 # For qmake and jam, this determines the build directory.
 #
@@ -3502,14 +3513,16 @@ bilderConfig() {
 # qmake configure
       configexec=qmake
       cmval=qmake
-      if test -d $PROJECT_DIR/$1; then
+# Qt must be built in place, but other qmake packages may build out of place
+      if $inplace; then
+        if test -d $PROJECT_DIR/$1; then
 # From repo
-        builddir=`dirname $PROJECT_DIR/$1/$QMAKE_PRO_FILENAME`
-      else
+          builddir=`dirname $PROJECT_DIR/$1/$QMAKE_PRO_FILENAME`
+        else
 # From tarball
-        builddir=`dirname $builddir/$QMAKE_PRO_FILENAME`
+          builddir=`dirname $builddir/$QMAKE_PRO_FILENAME`
+        fi
       fi
-      inplace=true
 # CMake has configure and CMakeLists but must be configured with configure,
 # so that has to go first.
 # Do not automatically add $CONFIG_SUPRA_SP_ARG, as does not always apply
@@ -3636,7 +3649,7 @@ bilderConfig() {
     if test -z "$builddir"; then
 # In place build with qmake
       if $inplace && test -d $PROJECT_DIR/$1; then
-# In place build from repo, non qmake
+# In place build from repo
         builddir=$PROJECT_DIR/$1
 # For petsc tarballs, the configure is in place but the builds are
 # out-of-place
@@ -3657,6 +3670,7 @@ bilderConfig() {
     cmd="cd $builddir"
     techo "$cmd"
     $cmd
+    # echo "After moving to builddir, builddir = $builddir."; exit
 
 #
 # Clean out any old build unless requested not to now that builddir
@@ -3703,8 +3717,16 @@ bilderConfig() {
     case $cmval in
       qmake)
         # eval $builddirvar=$builddir
-        PRO_FILENAME=`basename $QMAKE_PRO_FILENAME`
-        configargs="$configargs $PRO_FILENAME"
+        local profilename=
+        if test -d $PROJECT_DIR/$1; then
+          profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
+        else
+          profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
+        fi
+        if [[ `uname` =~ CYGWIN ]]; then
+          profilename=`cygpath -aw $profilename`
+        fi
+        configargs="$configargs '$profilename'"
         ;;
       cmake)
         case `uname` in

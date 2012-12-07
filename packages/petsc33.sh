@@ -154,7 +154,6 @@ buildPetsc33() {
     ###---------------------------------------------------------------------------
     ## Create petscrepo's compilers
     #
-    echo "------------------------> ", $res
     if test -z "$PETSC_SER_COMPILERS"; then
       # Remove mingw C: stuff.
       case `uname` in
@@ -373,6 +372,7 @@ installPetsc33() {
   #SEK: Need to check and make sure that the serial builds have the mpimodule installed
   #   For mpiuni
 
+  local barg
   for build in `echo $PETSC33_BUILDS | tr , " "`; do
     PETSC_DIRARG=`get_petsc_env $build`
 	echo " "
@@ -383,7 +383,10 @@ installPetsc33() {
     else
       lnpetscname="petsc-3.3-$build"
     fi
-    bilderInstall -r -b "$BUILD_DIR/petsc33${PETSCDIR_SUFFIX}" petsc33 $build "$lnpetscname" "" "$PETSC_DIRARG"
+    if $PETSC_OUTOFPLACE; then 
+          barg="-b $BUILD_DIR/petsc33${PETSCDIR_SUFFIX}"
+    fi
+    bilderInstall -r  petsc33 $build "$lnpetscname" "" "$PETSC_DIRARG"
     eval ${build}_installed=$?
   done
 }
