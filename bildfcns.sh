@@ -1911,10 +1911,15 @@ getPkgRepos() {
       local line=`sed -n "${i1}p" <$BUILD_DIR/pkgrepos.txt`
       # echo "line = $line."
       local repodir=`echo $line | sed 's/,.*$//'`
-      PACKAGE_REPO_DIRS[$i]=$repodir
-      local repomethod=`echo $line | sed -e "s/$repodir,//" -e 's/=.*$//'`
+# Use eval in case something in repodir needs dereferencing
+      eval "PACKAGE_REPO_DIRS[$i]=$repodir"
+      if ! test -d ${PACKAGE_REPO_DIRS[$i]}; then
+        mkdir -p ${PACKAGE_REPO_DIRS[$i]}
+      fi
+      PACKAGE_REPO_DIRS[$i]=`(cd ${PACKAGE_REPO_DIRS[$i]}; pwd -P)`
+      local repomethod=`echo $line | sed -e "s/^[^,]*,//" -e 's/=.*$//'`
       PACKAGE_REPO_METHODS[$i]=$repomethod
-      local repourl=`echo $line | sed -e "s/$repodir,$repomethod=//"`
+      local repourl=`echo $line | sed -e "s/^[^=]*=//"`
       PACKAGE_REPO_URLS[$i]=$repourl
       i=$i1
     done
@@ -1937,20 +1942,15 @@ getPkgRepos() {
 # Check out all the repos
   cd $PROJECT_DIR
   local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
-    if test -d ${PACKAGE_REPO_DIRS[$i]}; then
-      techo "${PACKAGE_REPO_DIRS[$i]} exists.  No need to get."
-    else
-      case ${PACKAGE_REPO_METHODS[$i]} in
-        svn)
-          if ! bilderSvn co "--non-interactive --depth=empty ${PACKAGE_REPO_URLS[$i]} ${PACKAGE_REPO_DIRS[$i]}"; then
-            bilderSvn -2 co "--non-interactive --depth=empty ${PACKAGE_REPO_URLS[$i]} ${PACKAGE_REPO_DIRS[$i]}"
-          fi
-          ;;
-        *)
-          mkdir ${PACKAGE_REPO_DIRS[$i]}
-          ;;
-      esac
-    fi
+    case ${PACKAGE_REPO_METHODS[$i]} in
+      svn)
+        if test -d ${PACKAGE_REPO_DIRS[$i]}/.svn; then
+          techo "${PACKAGE_REPO_DIRS[$i]} is already an svn checkout.  Not checking out again."
+        else
+          bilderSvn co "--non-interactive --depth=empty ${PACKAGE_REPO_URLS[$i]} ${PACKAGE_REPO_DIRS[$i]}"
+        fi
+        ;;
+    esac
     i=`expr $i + 1`
   done
   cd - 1>/dev/null

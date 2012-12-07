@@ -20,9 +20,6 @@
 #
 ######################################################################
 
-# temporary path fix for jenkins builds?
-export PATH=/usr/bin:$PATH
-
 # Don't reset GPULIB_BUILDS if set.
 if test -z "$GPULIB_BUILDS"; then
   GPULIB_BUILDS=${GPULIB_BUILDS:-"gpu"}
