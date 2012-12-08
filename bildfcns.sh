@@ -1914,7 +1914,10 @@ getPkgRepos() {
 # Use eval in case something in repodir needs dereferencing
       eval "PACKAGE_REPO_DIRS[$i]=$repodir"
       if ! test -d ${PACKAGE_REPO_DIRS[$i]}; then
+        techo "NOTE: Creating ${PACKAGE_REPO_DIRS[$i]}."
         mkdir -p ${PACKAGE_REPO_DIRS[$i]}
+      else
+        techo "NOTE: ${PACKAGE_REPO_DIRS[$i]} exists."
       fi
       PACKAGE_REPO_DIRS[$i]=`(cd ${PACKAGE_REPO_DIRS[$i]}; pwd -P)`
       local repomethod=`echo $line | sed -e "s/^[^,]*,//" -e 's/=.*$//'`
@@ -2771,7 +2774,8 @@ getPkg() {
 # Search for the package in all repos with all suffixes
   local tarball=
   local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
-    local pkgdir=$PROJECT_DIR/${PACKAGE_REPO_DIRS[$i]}
+    # local pkgdir=$PROJECT_DIR/${PACKAGE_REPO_DIRS[$i]}
+    local pkgdir=${PACKAGE_REPO_DIRS[$i]}
     local sfx
     local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
     for sfx in $sfxs; do
