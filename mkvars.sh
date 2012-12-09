@@ -51,19 +51,6 @@ while getopts "d:f:GKh" arg; do
     K) printkeep=false;;
   esac
 done
-mydir=`dirname $0`
-if test -n "$pdirs"; then
-  pkgdirs=
-  for i in `echo $pdirs | tr ',' ' '`; do
-    pdir=`(cd $i; pwd -P)`
-    pkgdirs="$pkgdirs $pdir"
-  done
-elif test -d ../packages; then
-  pkgdirs=`(cd ../packages; pwd -P)`
-else
-  echo "Packages directory unknown."; usage
-fi
-# echo pkgdirs = $pkgdirs.; exit
 
 # All variables are defined below
 fccomps="HAVE_SER_FORTRAN HAVE_PAR_FORTRAN"
@@ -80,13 +67,26 @@ javaopts="_JAVA_OPTIONS"
 buildsysprefs="PREFER_CMAKE"
 allvars="$fccomps $sercomps $gcccomps $bencomps $parcomps $sercompflags $gcccompflags $parcompflags $iodirs $linalglibs $javaopts $buildsysprefs"
 
-# If sourcing, then just export the above variables
+# If sourcing, then just define the above variables
 # Cannot do this or they go to all configures.
 if test "$BASH_SOURCE" != $0; then
   return
 fi
 
+# If run, then inside a machines area, do need to determine the packages area.
 mydir=`dirname $0`
+if test -n "$pdirs"; then
+  pkgdirs=
+  for i in `echo $pdirs | tr ',' ' '`; do
+    pdir=`(cd $i; pwd -P)`
+    pkgdirs="$pkgdirs $pdir"
+  done
+elif test -d ../packages; then
+  pkgdirs=`(cd ../packages; pwd -P)`
+else
+  echo "Packages directory unknown."; usage
+fi
+# echo pkgdirs = $pkgdirs.; exit
 
 # Get the functions
 source $mydir/bildfcns.sh
