@@ -251,7 +251,11 @@ runnrGetHostVars() {
 
 # Make any adjustments to MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR,
 # FQMAILHOST, BLDRHOSTID
-  if test -f $BILDER_CONFDIR/domains/${DOMAINNAME}; then
+  if test -f $DOMAINS_DIR/${DOMAINNAME}; then
+    cmd="source $DOMAINS_DIR/${DOMAINNAME}"
+    $runnrdebug && echo "$cmd"
+    $cmd
+  elif test -f $BILDER_CONFDIR/domains/${DOMAINNAME}; then
     cmd="source $BILDER_CONFDIR/domains/${DOMAINNAME}"
     $runnrdebug && echo "$cmd"
     $cmd
@@ -259,6 +263,8 @@ runnrGetHostVars() {
     cmd="source $BILDER_DIR/domains/${DOMAINNAME}"
     $runnrdebug && echo "$cmd"
     $cmd
+  else
+    $runnrdebug &&  echo "Domains file not found."
   fi
 
 # Get any private queue information
