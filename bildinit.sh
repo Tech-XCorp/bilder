@@ -84,6 +84,9 @@ else
 fi
 # techo "Quitting in bildinit.sh."; exit
 
+# Set BILDER_SVN before going further
+BILDER_SVN=${BILDER_SVN:-"`which svn`"}
+
 ######################################################################
 #
 # Update if requested
