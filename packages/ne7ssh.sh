@@ -21,6 +21,7 @@ NE7SSH_BLDRVERSION=${NE7SSH_BLDRVERSION:-"1.3.2"}
 ######################################################################
 
 if test -z "$NE7SSH_ADDBUILDS"; then
+  NE7SSH_ADDBUILDS=cc4py
   case `uname` in
     CYGWIN*) addVals NE7SSH_ADDBUILDS sersh;; # Built shared only
   esac
@@ -29,6 +30,7 @@ computeBuilds ne7ssh
 if ! [[ `uname` =~ CYGWIN ]]; then
   addCc4pyBuild ne7ssh
 fi
+
 NE7SSH_DEPS=${NE7SSH_DEPS:-"cmake,botan"}
 NE7SSH_UMASK=002
 
@@ -45,7 +47,7 @@ buildNe7ssh() {
       CYGWIN*)
         botaninstdir=`cygpath -am ${botaninstdir}-sersh`
         ;;
-      CYGWIN*)
+      *)
         botaninstdir=${botaninstdir}-cc4py
         ;;
     esac
@@ -78,6 +80,11 @@ testNe7ssh() {
 
 installNe7ssh() {
   bilderInstall -r ne7ssh sersh
-  bilderInstall -r ne7ssh cc4py
+  # Create a link so txssh and composertoolkit can find botan easily
+  if bilderInstall -r ne7ssh cc4py; then
+    cmd="mkLink $CONTRIB_DIR ne7ssh-${NE7SSH_BLDRVERSION}-cc4py ne7ssh"
+    techo "$cmd"
+    $cmd
+  fi
 }
 

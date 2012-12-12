@@ -21,6 +21,7 @@ BOTAN_BLDRVERSION=${BOTAN_BLDRVERSION:-"1.8.13"}
 ######################################################################
 
 if test -z "$BOTAN_ADDBUILDS"; then
+  BOTAN_ADDBUILDS=cc4py
   case `uname` in
     CYGWIN*) addVals BOTAN_ADDBUILDS sersh;; # Botan is built shared.
   esac
@@ -29,6 +30,7 @@ computeBuilds botan
 if ! [[ `uname` =~ CYGWIN ]]; then
   addCc4pyBuild botan
 fi
+
 BOTAN_DEPS=${BOTAN_DEPS:-"cmake"}
 BOTAN_UMASK=007
 
@@ -87,6 +89,12 @@ installBotan() {
       ;;
   esac
   bilderInstall $BOTAN_MAKE_ARGS botan sersh
-  bilderInstall $BOTAN_MAKE_ARGS botan cc4py
+
+  # Create a link so txssh and composertoolkit can find botan easily
+  if bilderInstall $BOTAN_MAKE_ARGS botan cc4py; then
+    cmd="mkLink $CONTRIB_DIR botan-${BOTAN_BLDRVERSION}-cc4py botan"
+    techo "$cmd"
+    $cmd
+  fi
 }
 

@@ -26,8 +26,23 @@ NIMROD_BUILDS=${NIMROD_BUILDS:-"ser,par"}
 # multiple versions and builds.  This means that nimrod.sh should be
 # able to build nimuw, nimpsi, nimdevel.  These latter are referred to
 # as nimversion.  Support is still ongoing.
-# It can build without anything but we may want to change it for now
-NIMROD_DEPS=fluxgrid,petsc,autotools,openmpi #,simyan
+
+# Build nimrod against SuperLU if cmake is used, otherwise we get
+# SuperLU from Petsc. Don't build with simyan by default as that
+# brings Trilinos and Dakota into the build chain and most users
+# do not require these packages.
+NIMROD_DEPS=fluxgrid,openmpi #,simyan
+if $PREFER_CMAKE; then
+  NIMROD_DEPS=${NIMROD_DEPS}",superlu_dist,superlu,cmake"
+  if $NIMROD_WITH_PETSC; then
+    NIMROD_DEPS=${NIMROD_DEPS}",petsc"
+    NIMROD_PAR_OTHER_ARGS="$NIMROD_PAR_OTHER_ARGS -DENABLE_Petsc:BOOL=TRUE"
+    NIMROD_SER_OTHER_ARGS="$NIMROD_SER_OTHER_ARGS -DENABLE_Petsc:BOOL=TRUE"
+  fi
+else
+  NIMROD_DEPS=${NIMROD_DEPS}",petsc,autotools"
+fi
+
 # If -O flag is specified, build tau instrumented version
 if $BUILD_OPTIONAL; then
   NIMROD_DEPS=${NIMROD_DEPS}",metatau"
@@ -50,6 +65,7 @@ if $BUILD_OPTIONAL; then
 fi
 if test -d $PROJECT_DIR/plasma_state; then
   NIMROD_DEPS=${NIMROD_DEPS}",plasma_state"
+  # These need to be fixed for cmake (and implemented in CMakeLists.txt)
   NIMROD_PAR_OTHER_ARGS="$NIMROD_PAR_OTHER_ARGS --enable-plasmastate"
   NIMROD_SER_OTHER_ARGS="$NIMROD_SER_OTHER_ARGS --enable-plasmastate"
 fi
@@ -58,6 +74,10 @@ if test -d $PROJECT_DIR/genray; then
 fi
 if ${BUILD_SLEPC:=true}; then
   NIMROD_DEPS=${NIMROD_DEPS}",slepc"
+fi
+if test -d $PROJECT_DIR/pastix; then
+  #NIMROD_DEPS=${NIMROD_DEPS}",pastix"
+  NIMROD_PAR_OTHER_ARGS="$NIMROD_PAR_OTHER_ARGS -DENABLE_PASTIX"
 fi
 
 
@@ -133,30 +153,59 @@ nimrodCpfiles() {
 #------------------------------------------------------------
 buildNimrod() {
   getVersion $nimversion
-  if bilderPreconfig $nimversion; then
-    if bilderConfig  $nimversion par "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-      bilderBuild $nimversion par
-    fi
-    if bilderConfig $nimversion ser "$CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS"; then
-      bilderBuild $nimversion ser
-    fi
-    if $BUILD_DEBUG; then
-      if bilderConfig  $nimversion pardbg "--with-optimization=debug --enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_LINLIB_SER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
-        bilderBuild $nimversion pardbg
+  if $PREFER_CMAKE; then
+    local NIMROD_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $NIMROD_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"
+    local NIMROD_SER_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $NIMROD_SER_OTHER_ARGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $CMAKE_LINLIB_SER_ARGS"
+    if bilderPreconfig -c $nimversion; then
+      if bilderConfig $nimversion par "-DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_PAR_ARGS"; then
+        bilderBuild $nimversion par "$NIMROD_MAKEJ_ARGS"
       fi
-      if bilderConfig $nimversion serdbg "--with-optimization=debug $CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-        bilderBuild $nimversion serdbg
+      if bilderConfig $nimversion ser "-DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_SER_ARGS"; then
+        bilderBuild $nimversion ser "$NIMROD_MAKEJ_ARGS"
+      fi
+      if $BUILD_DEBUG; then
+        if bilderConfig $nimversion pardbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_PAR_ARGS"; then
+          bilderBuild $nimversion pardbg "$NIMROD_MAKEJ_ARGS"
+        fi
+        if bilderConfig $nimversion serdbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_SER_ARGS"; then
+          bilderBuild $nimversion serdbg "$NIMROD_MAKEJ_ARGS"
+        fi
+      fi
+      if $BUILD_SURFORIG; then
+        if bilderConfig  $nimversion parsurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMROD_PAR_ARGS"; then
+          bilderBuild $nimversion parsurf "$NIMROD_MAKEJ_ARGS"
+        fi
+        if bilderConfig $nimversion sersurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMROD_SER_ARGS"; then
+          bilderBuild $nimversion sersurf "$NIMROD_MAKEJ_ARGS"
+        fi
       fi
     fi
-    if bilderConfig  $nimversion partau "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-      bilderBuild $nimversion partau "$NIMROD_PARTAU_BUILD_ARG" "$NIMROD_PARTAU_BUILD_ENV"
-    fi
-    if $BUILD_SURFORIG; then
-      if bilderConfig  $nimversion parsurf "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS --enable-surforig"; then
-        bilderBuild $nimversion parsurf
+  else # PREFER_CMAKE = false
+    if bilderPreconfig $nimversion; then
+      if bilderConfig  $nimversion par "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+        bilderBuild $nimversion par
       fi
-      if bilderConfig $nimversion sersurf "$CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS --enable-surforig"; then
-        bilderBuild $nimversion sersurf
+      if bilderConfig $nimversion ser "$CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS"; then
+        bilderBuild $nimversion ser
+      fi
+      if $BUILD_DEBUG; then
+        if bilderConfig  $nimversion pardbg "--with-optimization=debug --enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_LINLIB_SER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
+          bilderBuild $nimversion pardbg
+        fi
+        if bilderConfig $nimversion serdbg "--with-optimization=debug $CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+          bilderBuild $nimversion serdbg
+        fi
+      fi
+      if bilderConfig  $nimversion partau "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+        bilderBuild $nimversion partau "$NIMROD_PARTAU_BUILD_ARG" "$NIMROD_PARTAU_BUILD_ENV"
+      fi
+      if $BUILD_SURFORIG; then
+        if bilderConfig  $nimversion parsurf "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS --enable-surforig"; then
+          bilderBuild $nimversion parsurf
+        fi
+        if bilderConfig $nimversion sersurf "$CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS --enable-surforig"; then
+          bilderBuild $nimversion sersurf
+        fi
       fi
     fi
     cd $PROJECT_DIR
@@ -207,12 +256,12 @@ installNimrod() {
     bilderInstallTestedPkg $nimversion parsurforig $nimversion-parsurforig
     cd $PROJECT_DIR
     if test -d nimfiles; then
-        for dir in `ls -d nimfiles/*`; do
-           label=`basename $dir`
-           currentbuild="par"$label
-           bilderInstall $acceptArg $nimversion $currentbuild $nimversion-$currentbuild
-           currentbuild="ser"$label
-           bilderInstall $acceptArg $nimversion $currentbuild $nimversion-$currentbuild
-         done
+      for dir in `ls -d nimfiles/*`; do
+        label=`basename $dir`
+        currentbuild="par"$label
+        bilderInstall $acceptArg $nimversion $currentbuild $nimversion-$currentbuild
+        currentbuild="ser"$label
+        bilderInstall $acceptArg $nimversion $currentbuild $nimversion-$currentbuild
+      done
     fi
 }

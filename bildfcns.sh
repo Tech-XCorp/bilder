@@ -213,7 +213,8 @@ deref() {
 # that doing "window-svn cygwin-node" or vice-versa does not work as
 # neither os-svn understands the file system of the other.  So when
 # there is an action on a node, one cd's to that node, then executes
-# the action.
+# the action.  The svn used is $BILDER_SVN, which is the windows
+# version on windows.
 #
 # Use:
 #   bilderSvn <bilderSvn args> <svn cmd> <svn args> <svn target>
@@ -293,13 +294,13 @@ bilderSvn() {
 # Change to target's directory, cleanup and execute command
   cd $execdir
   $echocmd && techo "In $PWD:" 1>&2
-  cmd="svn cleanup"
+  cmd="'$BILDER_SVN' cleanup"
   $echocmd && techo "$cmd" 1>&2
-  $cmd 1>&2
-  cmd="svn $svncmd $svnargs $svntarget"
+  eval "$cmd" 1>&2
+  cmd="'$BILDER_SVN' $svncmd $svnargs $svntarget"
   $echocmd && techo "$cmd" 1>&2
-# Need to capture output of this command
-  $cmd
+# May need to capture output of this command
+  eval "$cmd"
   res=$?
   cd $origdir
   $echocmd && techo "Back in $PWD." 1>&2

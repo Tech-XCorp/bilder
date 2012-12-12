@@ -175,10 +175,14 @@ buildQt() {
     fi
 
 # Version dependent args
-# make -j does not work with 5, apparently.
+# qt-5 configures differently
+# make -j does not work with 4.8.4, apparently.
     case $QT_BLDRVERSION in
       5.*) QT_VERSION_ARGS="-no-c++11";;
-      *)
+      4.8.4)
+        QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
+        ;;
+      4.*)
         QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
         QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
         ;;

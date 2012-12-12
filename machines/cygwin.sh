@@ -44,7 +44,23 @@ if test -n "$MINGW_BINDIR"; then
   MINGW_BINDIR=`dirname $MINGW_BINDIR`
 fi
 
-# Add python to front of path.  This may create two copies of
+# Java puts these system directories at the beginning of the PATH,
+# so they are picked up by the Jenkins slave. These directories
+# cause problems because Windows sort is in the system directory,
+# so we need to remove these directories from the beginning of the
+# PATH, if they are there.
+
+if echo $PATH | grep -qi '/cygdrive/c/Windows/SysWOW64:'; then
+  PATH=`echo $PATH | sed 's?/cygdrive/c/Windows/SysWOW64:??g'`
+  PATH="$PATH:/cygdrive/c/Windows/SysWOW64"
+fi
+
+if echo $PATH | grep -qi '/cygdrive/c/Windows/System32:'; then
+  PATH=`echo $PATH | sed 's?/cygdrive/c/Windows/System32:??g'`
+  PATH="$PATH:/cygdrive/c/Windows/System32"
+fi
+
+# Add python to front of path.  This may create two copies of 
 # the python directory in the path, but that's ok. In a fresh
 # cygwin shell /usr/bin/python will be found, which is needed
 # for Petsc.  However, if this file is sourced we will find
