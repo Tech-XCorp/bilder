@@ -178,12 +178,13 @@ if [[ `uname` =~ CYGWIN ]]; then
   fi
   lecho "BLDR_SVNVERSION='$BLDR_SVNVERSION' found."
   BILDER_SVNDIR=`dirname "$BLDR_SVNVERSION"`
-  BILDER_SVN=$BILDER_SVNDIR/svn.exe
+  BILDER_SVN="$BILDER_SVNDIR/svn.exe"
   if ! test -e "$BILDER_SVN"; then
      lecho "svn not found in $BILDER_SVNDIR.  Fix the path."
 	 exit 1
   fi
 fi
+export BILDER_SVN
 
 lecho "<<<< Recording Final Environment >>>>"
 lecho "   USER = $USER"
