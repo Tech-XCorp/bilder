@@ -11,14 +11,16 @@
 #
 ######################################################################
 
-# Separate tarball creation.  Has to be modified to work
-# with case-insensitive systems.
+# Separate tarball creation.  Must work on case-sensitive system
+# to deal with a readme->README link.
 cat >createf2ctarball.sh <<EOF
 curl "http://netlib.sandia.gov/cgi-bin/netlib/netlibfiles.tar?filename=netlib/f2c" -o "f2c.tar"
 tar -xvf f2c.tar
-rm f2c/readme
-gunzip -rf f2c/*
 cd f2c
+rm readme
+for i in msdos/*.gz mswin/*.gz; do # Unpacks windows executables
+  gunzip $i
+done
 unzip libf2c.zip -d libf2c
 cp libf2c/makefile.u libf2c/makefile
 cp src/makefile.u src/makefile
@@ -27,6 +29,35 @@ mv libi77 libi77.sh
 # These can be unpacked or not
 # sh libf77.sh
 # sh libi77.sh
+sed -i.bak 's/ -Olimit 2000//g; s/ -lm//g; s/ -u MAIN__//g' fc
+chmod 775 fc
+cat >Makefile << EOF1
+#
+# Simple makefile for F2c
+# Based on http://hpc.sourceforge.net/buildf2c
+#
+
+PREFIX = \$(HOME)/f2cinst
+INCDIR = \$(PREFIX)/include
+LIBDIR = \$(PREFIX)/lib
+BINDIR = \$(PREFIX)/bin
+MANDIR = \$(PREFIX)/man/man1
+
+all:
+	for dir in libf2c src; do (cd \$\$dir; make); done
+
+install: all
+	/usr/bin/install -m 2775 -d \$(INCDIR)
+	/usr/bin/install -m 664 libf2c/f2c.h \$(INCDIR)
+	/usr/bin/install -m 2775 -d \$(LIBDIR)
+	/usr/bin/install -m 664 libf2c/libf2c.a \$(LIBDIR)
+	/usr/bin/install -m 2775 -d \$(BINDIR)
+	/usr/bin/install -m 775 src/f2c \$(BINDIR)
+	sed -i.bak -e "s?/usr/local?\$(PREFIX)?g" fc
+	/usr/bin/install -m 775 fc \$(BINDIR)
+	/usr/bin/install -m 2775 -d \$(MANDIR)
+	/usr/bin/install -m 664 f2c.1t \$(MANDIR)/f2c.1
+EOF1
 EOF
 
 ######################################################################
@@ -35,24 +66,22 @@ EOF
 #
 ######################################################################
 
-F2C_BLDRVERSION=${F2C_BLDRVERSION:-"0"}
+F2C_BLDRVERSION=${F2C_BLDRVERSION:-"1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-F2C_BUILDS=${F2C_BUILDS:-"NONE"}
+if test -z "$F2C_BUILDS"; then
+  case `uname` in
+    Darwin) F2C_BUILDS=ser;;
+    *) F2C_BUILDS=NONE;;
+  esac
+fi
 F2C_DEPS=
 F2C_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/f2c/bin
 
 ######################################################################
@@ -63,46 +92,11 @@ addtopathvar PATH $CONTRIB_DIR/f2c/bin
 
 buildF2c() {
 
-# This is the script to build f2c
-cat >$BUILD_DIR/f2c_install.sh <<EOF
-curl "http://netlib.sandia.gov/cgi-bin/netlib/netlibfiles.tar?filename=netlib/f2c" -o "f2c.tar"
-tar -xvf f2c.tar
-gunzip -rf f2c/*
-cd f2c
-mkdir libf2c
-mv libf2c.zip libf2c
-cd libf2c
-unzip libf2c.zip
-cp makefile.u Makefile
-export F2C_INSTALL_DIR=/contrib/f2c
-make
-cp f2c.h $F2C_INSTALL_DIR/include
-cp libf2c.a $F2C_INSTALL_DIR/lib
-cd ../src
-cp makefile.u Makefile
-make
-cp f2c $F2C_INSTALL_DIR/bin
-cd ..
-mkdir -p $F2C_INSTALL_DIR/man/man1
-cp f2c.1t $F2C_INSTALL_DIR/man/man1
-cp fc $F2C_INSTALL_DIR/bin/f77
-chmod +x $F2C_INSTALL_DIR/bin/f77
-cd ..
-rm -rf f2c
-echo "==================SUMMARY=================="
-echo $0 " has built and installed:"
-find $F2C_INSTALL_DIR -name '*f2c*' -mmin -5
-find $F2C_INSTALL_DIR -name '*f77*' -mmin -5
-EOF
-
-# If worked, prf2ced to configure and build
-  if test $res = 0; then
-
-# Configure and build
-    if bilderConfig f2c ser "$F2C_ADDL_ARGS $F2C_OTHER_ARGS"; then
-      bilderBuild f2c ser "" "$F2C_ENV"
-    fi
-
+# If worked, proceed to configure and build
+  if bilderUnpack -i f2c; then
+# No configure step, so must state here where build is.
+    F2C_SER_BUILD_DIR=$BUILD_DIR/f2c-${F2C_BLDRVERSION}/ser
+    bilderBuild f2c ser
   fi
 
 }
@@ -124,7 +118,8 @@ testF2c() {
 ######################################################################
 
 installF2c() {
-  if bilderInstall f2c ser; then
+  F2C_SER_INSTALL_DIR=$CONTRIB_DIR
+  if bilderInstall -p f2c-${F2C_BLDRVERSION}-ser f2c ser "" "PREFIX=$CONTRIB_DIR/f2c-${F2C_BLDRVERSION}-ser"; then
     : # Probably need to fix up dylibs here
   fi
   # techo "WARNING: Quitting at end of f2c.sh."; cleanup
