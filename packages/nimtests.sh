@@ -45,7 +45,9 @@ buildNimTests() {
   fi
 # Configure and run all tests
   if bilderPreconfig $forcetests nimtests; then
-    local resdirarg=`findResultsDirArg -u nimtests nimresults $RESULTS_DIRSFX`
+    # Strip numbers (hopper05->hopper) and urls (iter.txcorp.com -> iter)
+    local shorthostname=`hostname | sed 's/[0-9]*$//' | sed 's/\..*$//'`
+    local resdirarg="--with-results-dir=nimresults-$shorthostname"
     if bilderConfig -i $forcetests nimtests all "--with-source-dir=$PROJECT_DIR/$nimversion --with-serial-dir=${BUILD_DIR}/$nimversion/ser --with-parallel-dir=${BUILD_DIR}/$nimversion/par $resdirarg $CONFIG_SUPRA_SP_ARG $MPI_LAUNCHER_ARG $EMAIL_ARG $NIMTESTS_ALL_OTHER_ARGS"; then
       if test -n "$resdirarg"; then
         bilderBuild nimtests all "all runtests"
@@ -61,7 +63,7 @@ buildNimTests() {
 
 ######################################################################
 #
-# Install fgtests.  Return whether tests succeeded
+# Install nimtests.  Return whether tests succeeded
 #
 ######################################################################
 

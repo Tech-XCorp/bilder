@@ -178,7 +178,9 @@ buildQt() {
 # qt-5 configures differently
 # make -j does not work with 4.8.4, apparently.
     case $QT_BLDRVERSION in
-      5.*) QT_VERSION_ARGS="-no-c++11";;
+      5.*)
+        QT_VERSION_ARGS="-developer-build"
+        ;;
       4.8.4)
         QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
         ;;

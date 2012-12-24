@@ -7,8 +7,9 @@ s/  *$//
 # Remove spaces at end of line
 s/  */ /g
 # Put newline in front of any path ending in cmake
-s/ \([[:graph:]]*cmake\)/\
-\1/
+# Not needed?  Fails for paths with blanks in them?
+# s/ \([[:graph:]]*cmake\)/\
+# \1/
 # Put newline in front of any cmake variable
 s/ \(-[D] *[a-zA-Z0-9_:]*=\)/\
 \1/g

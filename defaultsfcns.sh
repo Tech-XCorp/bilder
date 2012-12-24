@@ -25,9 +25,6 @@ setBilderOsVars() {
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
       local winsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
-      if [[ $winsfx =~ mingw ]]; then
-        winsfx=mingw
-      fi
       INSTALL_SUBDIR_SFX=-$winsfx
       ;;
 

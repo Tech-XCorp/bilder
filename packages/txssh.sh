@@ -20,10 +20,10 @@ TXSSH_BLDRVERSION=${TXSSH_BLDRVERSION:-""}
 #
 ######################################################################
 
-if test -z "$TXSSH_ADDBUILDS"; then
-  TXSSH_ADDBUILDS=ser
+if test -z "$TXSSH_DESIRED_BUILDS"; then
+  TXSSH_DESIRED_BUILDS=ser
   case `uname` in
-    CYGWIN*) TXSSH_ADDBUILDS=${TXSSH_ADDBUILDS},sersh;;
+    CYGWIN*) TXSSH_DESIRED_BUILDS=${TXSSH_DESIRED_BUILDS},sersh;;
   esac
 fi
 computeBuilds txssh

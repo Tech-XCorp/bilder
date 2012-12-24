@@ -49,6 +49,8 @@ BILDER_CONFDIR=${BILDER_CONFDIR:-"$RUNNR_DIR"}
 #
 ######################################################################
 
+# Start with no verbosity so that techo is valid.  Changes at option time.
+VERBOSITY=0
 if source $RUNNR_DIR/runnrfcns.sh; then
   : # echo "$RUNNR_DIR/runnrfcns.sh sourced."
 # techo now available but cannot be used until log are rotated (in bildopts).

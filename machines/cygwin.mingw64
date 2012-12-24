@@ -15,7 +15,12 @@
 # SVN_BINDIR="C:/Program Files/CollabNet/Subversion Client"
 #
 # Fix path
-PATH=`echo $PATH | sed 's/contrib-vs[0-9]*/contrib-mingw/g'`
+PATH=`echo $PATH | sed 's/contrib-vs[0-9]*/contrib-mingw64/g'`
+if test -x /MinGW64/bin/x86_64-w64-mingw32-gcc.exe; then
+  MinGW64_DIR=C:/MinGW64/bin
+else
+  echo "Location of gcc unknown.  Quitting."; exit 1
+fi
 # JRC 21Oct2010: Not needed?
 # HAVE_SER_FORTRAN=false
 MINGW_MPIEXEC=${MIXED_CONTRIB_DIR}/microsoft-hpc-mingw/Bin/mpiexec.exe
@@ -48,16 +53,16 @@ $cmd
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"C:/usr/bin/x86_64-mingw32-gcc.exe"}
-CXX=${CXX:-"C:/usr/bin/x86_64-mingw32-g++.exe"}
-FC=${FC:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
-F77=${F77:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
+CC=${CC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gcc.exe"}
+CXX=${CXX:-"${MinGW64_DIR}/x86_64-w64-mingw32-g++.exe"}
+FC=${FC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
+F77=${F77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
 
 # Python builds -- much use gcc for consistency.
-PYC_CC=${PYC_CC:-"C:/usr/bin/x86_64-mingw32-gcc.exe"}
-PYC_CXX=${PYC_CXX:-"C:/usr/bin/x86_64-mingw32-g++.exe"}
-PYC_FC=${PYC_FC:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
-PYC_F77=${PYC_F77:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
+PYC_CC=${PYC_CC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gcc.exe"}
+PYC_CXX=${PYC_CXX:-"${MinGW64_DIR}/x86_64-w64-mingw32-g++.exe"}
+PYC_FC=${PYC_FC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
+PYC_F77=${PYC_F77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
 
 # Backend compilers:
 # BENCC=${BENCC:-""}
@@ -66,10 +71,10 @@ PYC_F77=${PYC_F77:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"C:/usr/bin/x86_64-mingw32-gcc.exe"}
-MPICXX=${MPICXX:-"C:/usr/bin/x86_64-mingw32-g++.exe"}
-MPIFC=${MPIFC:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
-MPIF77=${MPIF77:-"C:/usr/bin/x86_64-mingw32-gfortran.exe"}
+MPICC=${MPICC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gcc.exe"}
+MPICXX=${MPICXX:-"${MinGW64_DIR}/x86_64-w64-mingw32-g++.exe"}
+MPIFC=${MPIFC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
+MPIF77=${MPIF77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
@@ -442,10 +447,10 @@ HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-"$CMAKE_MPI_ARGS"}
 
 # LAPACK_BLDRVERSION=${LAPACK_BLDRVERSION:-""}
 LAPACK_BUILDS=${LAPACK_BUILDS:-"ser"}
-# LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-""}
-# LAPACK_CC4PY_OTHER_ARGS=${LAPACK_CC4PY_OTHER_ARGS:-""}
-# LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-""}
-# LAPACK_SERSH_OTHER_ARGS=${LAPACK_SERSH_OTHER_ARGS:-""}
+LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-"-DLAPACKE_WITH_TMG:BOOL=OFF -DBUILD_TESTING:BOOL=OFF"}
+LAPACK_CC4PY_OTHER_ARGS=${LAPACK_CC4PY_OTHER_ARGS:-"-DLAPACKE_WITH_TMG:BOOL=OFF -DBUILD_TESTING:BOOL=OFF"}
+LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-"-DLAPACKE_WITH_TMG:BOOL=OFF -DBUILD_TESTING:BOOL=OFF"}
+LAPACK_SERSH_OTHER_ARGS=${LAPACK_SERSH_OTHER_ARGS:-"-DLAPACKE_WITH_TMG:BOOL=OFF -DBUILD_TESTING:BOOL=OFF"}
 
 # LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-""}
 # LIBPNG_BUILDS=${LIBPNG_BUILDS:-""}

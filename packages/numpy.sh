@@ -96,19 +96,17 @@ buildNumpy() {
 # Not adding F90 to VS builds for now.
 # Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?
         ;;
+      CYGWIN*-*w64-mingw*)
+        NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+        local mingwgcc=`which x86_64-w64-mingw32-gcc`
+        local mingwdir=`dirname $mingwgcc`
+        NUMPY_ENV="PATH=$mingwdir:'$PATH'"
+        ;;
       CYGWIN*-*mingw*)
         NUMPY_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
         local mingwgcc=`which mingw32-gcc`
         local mingwdir=`dirname $mingwgcc`
         NUMPY_ENV="PATH=$mingwdir:'$PATH'"
-# Now included above
-if false; then
-        if $USE_ATLAS_CC4PY; then
-          NUMPY_ENV="$NUMPY_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
-        else
-          NUMPY_ENV="$NUMPY_ENV LAPACK='C:\\winsame\\contrib-mingw\\lapack-${LAPACK_BLDRVERSON}-ser\\lib' BLAS='C:\\winsame\\contrib-mingw\\lapack-${LAPACK_BLDRVERSON}-ser\\lib'"
-        fi
-fi
         ;;
 # For non-Cygwin builds, the build stage does not install.
       Darwin-*)

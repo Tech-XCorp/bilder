@@ -20,10 +20,10 @@ NE7SSH_BLDRVERSION=${NE7SSH_BLDRVERSION:-"1.3.2"}
 #
 ######################################################################
 
-if test -z "$NE7SSH_ADDBUILDS"; then
-  NE7SSH_ADDBUILDS=cc4py
+if test -z "$NE7SSH_DESIRED_BUILDS"; then
+  NE7SSH_DESIRED_BUILDS=cc4py
   case `uname` in
-    CYGWIN*) addVals NE7SSH_ADDBUILDS sersh;; # Built shared only
+    CYGWIN*) addVals NE7SSH_DESIRED_BUILDS sersh;; # Built shared only
   esac
 fi
 computeBuilds ne7ssh

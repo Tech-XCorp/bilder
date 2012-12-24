@@ -29,11 +29,11 @@ TRILINOS_BLDRVERSION_EXP=10.12.2
 ######################################################################
 
 # Can add builds in package file only if no add builds defined.
-if test -z "$TRILINOS_ADDBUILDS"; then
-  TRILINOS_ADDBUILDS="serbare,parbare,serfull,parfull,sercomm,parcomm"
+if test -z "$TRILINOS_DESIRED_BUILDS"; then
+  TRILINOS_DESIRED_BUILDS="serbare,parbare,serfull,parfull,sercomm,parcomm"
   case `uname` in
     CYGWIN* | Darwin) ;;
-    *) TRILINOS_ADDBUILDS="${TRILINOS_ADDBUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh";;
+    *) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh";;
   esac
 fi
 # Can remove builds based on OS here, as this decides what can build.

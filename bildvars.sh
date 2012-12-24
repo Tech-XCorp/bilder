@@ -119,7 +119,7 @@ case `uname` in
     case $CC in
       *cl)
         CMAKE_NODEFLIB_FLAGS_RELEASE="-DCMAKE_CXX_FLAGS_RELEASE:STRING='/O2 /Ob2 /D NDEBUG' -DCMAKE_C_FLAGS_RELEASE:STRING='/O2 /Ob2 /D NDEBUG'"
-        CMAKE_NODEFLIB_FLAGS_RELWITHDEBINFO="-DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING='/O2 /Zi /Ob1 /D NDEBUG' -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING='/O2 /Zi /Ob1 /D NDEBUG'"
+        CMAKE_NODEFLIB_FLAGS_RELWITHDEBINFO="-DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING='/O2 /Zi /Ob1 /D NDEBUG /bigobj' -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING='/O2 /Zi /Ob1 /D NDEBUG /bigobj'"
         USE_ATLAS_CC4PY=true
         ;;
       *mingw32*)
@@ -163,12 +163,17 @@ case `uname` in
         PYC_LDSHARED=${PYC_LDSHARED:-"gcc-4.0"}
         PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
-      10.*)
+      10.[0-4].*)
         READLINK=readlink
         # PYC_MODFLAGS=${PYC_MODFLAGS:-"-bundle -undefined dynamic_lookup -arch i386 -arch x86_64"}
 # 16Jan2010: arch flags appear not to be needed on Darwin 10.5.0.
 # Needed on earlier 10.X?
         PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup -arch i386 -arch x86_64"}
+        ;;
+      10.[5-9].*)
+        READLINK=readlink
+# Scipy fails to build for later versions of 10.X if the -arch arguments are present.
+        PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
       11.* | 12.*)
         READLINK=readlink

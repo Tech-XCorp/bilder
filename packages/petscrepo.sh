@@ -330,6 +330,7 @@ buildPetscrepo() {
       #if bilderConfig -i petscrepo $build "$config_args" "" "$PETSC_DIRARG"; then
       if $PETSC_OUTOFPLACE; then 
             barg="-b $build"
+            config_args="--with-cmake=1 $config_args"
       else
             barg="-B $build"
             config_args="--with-cmake=0 $config_args"

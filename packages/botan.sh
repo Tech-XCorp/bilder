@@ -20,10 +20,10 @@ BOTAN_BLDRVERSION=${BOTAN_BLDRVERSION:-"1.8.13"}
 #
 ######################################################################
 
-if test -z "$BOTAN_ADDBUILDS"; then
-  BOTAN_ADDBUILDS=cc4py
+if test -z "$BOTAN_DESIRED_BUILDS"; then
+  BOTAN_DESIRED_BUILDS=cc4py
   case `uname` in
-    CYGWIN*) addVals BOTAN_ADDBUILDS sersh;; # Botan is built shared.
+    CYGWIN*) addVals BOTAN_DESIRED_BUILDS sersh;; # Botan is built shared.
   esac
 fi
 computeBuilds botan
@@ -48,19 +48,21 @@ buildBotan() {
     local instdir="$CONTRIB_DIR/botan-$BOTAN_BLDRVERSION"
     case `uname` in
       CYGWIN*)
-        instdir=`cygpath -aw ${instdir}-sersh`
-        BOTAN_CONFIG_ARGS="--cc=msvc --prefix='$instdir'"
+        instdirsersh=`cygpath -aw ${instdir}-sersh`
+        BOTAN_CONFIG_SERSH_ARGS="--cc=msvc --prefix='$instdirsersh'"
+        instdircc4py=`cygpath -aw ${instdir}-cc4py`
+        BOTAN_CONFIG_CC4PY_ARGS="--cc=msvc --prefix='$instdircc4py'"
         BOTAN_MAKE_ARGS="-m nmake"
         ;;
       *)
         instdir=${instdir}-cc4py
-        BOTAN_CONFIG_ARGS="--prefix='$instdir'"
+        BOTAN_CONFIG_CC4PY_ARGS="--prefix='$instdir'"
         ;;
     esac
-    if bilderConfig -s -i -m "./configure.py" botan sersh "$BOTAN_CONFIG_ARGS $BOTAN_SERSH_OTHER_ARGS"; then
+    if bilderConfig -s -i -m "./configure.py" botan sersh "$BOTAN_CONFIG_SERSH_ARGS $BOTAN_SERSH_OTHER_ARGS"; then
       bilderBuild $BOTAN_MAKE_ARGS botan sersh
     fi
-    if bilderConfig -s -i -m "./configure.py" botan cc4py "$BOTAN_CONFIG_ARGS $BOTAN_CC4PY_OTHER_ARGS"; then
+    if bilderConfig -s -i -m "./configure.py" botan cc4py "$BOTAN_CONFIG_CC4PY_ARGS $BOTAN_CC4PY_OTHER_ARGS"; then
       bilderBuild $BOTAN_MAKE_ARGS botan cc4py
     fi
   fi

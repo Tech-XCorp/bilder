@@ -692,12 +692,13 @@ computeBuilds() {
   buildsvar=`genbashvar $1`_BUILDS
   buildsval=`deref $buildsvar`
   if test -z "$buildsval"; then
-    addbuildsvar=`genbashvar $1`_ADDBUILDS
+    addbuildsvar=`genbashvar $1`_DESIRED_BUILDS
     addbuildsval=`deref $addbuildsvar`
     nobuildsvar=`genbashvar $1`_NOBUILDS
     nobuildsval=`deref $nobuildsvar`
     addVals $buildsvar $addbuildsval
     rmVals $buildsvar $nobuildsval
+    trimvar $buildsvar ,
   fi
 }
 
@@ -1244,7 +1245,7 @@ isPatched() {
     instsubdir=$installation
   fi
 
-# Deduce patch from variable, then default for rev, then HEAD if snv
+# Deduce patch from variable, then default for rev, then HEAD if svn
   local projver=`echo $installation | sed 's/-[^-]*$//'`
   local proj=`echo $projver | sed 's/-.*$//'`
   local patchvar=`genbashvar $proj`_PATCH
@@ -2123,6 +2124,8 @@ getCombinedCompVars() {
       fi
     done
     trimvar CMAKE_COMPILERS_$i ' '
+    # val=`deref CMAKE_COMPILERS_$i`
+    # techo "CMAKE_COMPILERS_$i = $val."
 
   done
   techo -2 "The combined compiler variables have been set."
@@ -4692,11 +4695,13 @@ bilderInstall() {
     local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
     local insttarg=`deref $insttargvar`
     if test -z "$insttarg"; then
-      if [[ `uname` =~ CYGWIN ]] && test "$cmval" = qmake; then
-        insttarg=${insttarg:-"release-install"}
-      else
+# Only qt3d uses qmake, and it has the target, install.
+# Will resurrect this code when needed.
+      # if [[ `uname` =~ CYGWIN ]] && test "$cmval" = qmake; then
+        # insttarg=${insttarg:-"release-install"}
+      # else
         insttarg=${insttarg:-"install"}
-      fi
+      # fi
     fi
 
 # Complete the command
@@ -5617,13 +5622,32 @@ EOF
   fi
   if test -n "$testFailures"; then
     statusfound="${statusfound} - failed tests"
-    testfaildir=`echo $testFailures | sed -e 's/-all//'`
-    if test -d $testfaildir; then
-      numTestFailures=`cat $testfaildir/check.failures | wc -l`
-      addHtmlLine 4 "Failed Tests: $testFailures -- $numTestFailures tests" RED $ABSTRACT
-    else
-      addHtmlLine 4 "Failed Tests: $testFailures" RED $ABSTRACT
-    fi
+    for tfaildir in $testFailures; do
+      local builddirvar=`genbashvar $tfaildir`_BUILD_DIR
+      local builddir=`deref $builddirvar`
+      if test -d $builddir; then
+        local tdir=`echo $tfaildir | sed -e 's/-all//g'`
+        for tstlist in check.failures unit.failures ctest.failures; do
+          unset numTestFailures
+          numTestFailures=`cat $builddir/${tstlist} | wc -l`
+          if test $numTestFailures -gt 0; then
+            techo "Failed tests found in $builddir/$tstlist."
+            addHtmlLine 4 "Failed Tests: $tdir/$tstlist -- $numTestFailures tests" RED $ABSTRACT
+# Print out specific test failures; a maximum of 15 lines.
+            local linemax=15
+            if test $numTestFailures -lt $linemax; then
+              linemax=$numTestFailures
+            fi
+            for ((nline=1;nline<=${linemax};nline++)); do
+              tline=`sed -n ${nline}p $builddir/${tstlist}`
+              addHtmlLine 6 "${tline}" RED $ABSTRACT
+            done
+          fi
+        done
+      else
+        addHtmlLine 4 "Failed Tests: $tfaildir" RED $ABSTRACT
+      fi
+    done
   fi
   if test -z "$statusfound"; then
     addHtmlLine 4 "No successes or failures found. Appears up to date." BLACK $ABSTRACT
@@ -5935,6 +5959,7 @@ getDeps() {
         techo "$pkg " >>stateddeps$$.txt
         continue
       fi
+      techo "Package $pkg has builds, $builds.  Following dependencies." 1>&2
 # Otherwise collect its deps
       local depsvar=`genbashvar $pkg`_DEPS
       deps=`deref $depsvar | tr ',' ' '`

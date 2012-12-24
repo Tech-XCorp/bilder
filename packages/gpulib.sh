@@ -58,7 +58,7 @@ buildGPULib() {
       ;;
     Darwin | Linux)
       GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $JMAKEARGS"
-      export LD_LIBRARY_PATH=/usr/local/cuda-4.2/cuda/lib64:/usr/local/cuda/4.2/cuda/lib64:$LD_LIBRARY_PATH
+      #export LD_LIBRARY_PATH=/usr/local/cuda-4.2/cuda/lib64:/usr/local/cuda/4.2/cuda/lib64:$LD_LIBRARY_PATH
       ;;
   esac
   GPULIB_PAR_MAKE_ARGS="$GPULIB_MAKE_ARGS"
