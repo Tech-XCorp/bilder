@@ -4467,7 +4467,7 @@ recordInstallation() {
   fi
   local proj=${BILDER_PACKAGE:-"unknown"}
   local record="$installstrval $USER $proj `date +%F-%T` bilder-r$pkgScriptVerVal"
-  techo "Recording installation, '$record'."
+  techo "Recording installation, '$record' in $1/installations.txt."
   echo "$record" >> $1/installations.txt
   installations="$installations $2-$4"
 }
@@ -4630,12 +4630,12 @@ bilderInstall() {
     else
       instsubdirbase=$1
       if test -d $instdirval/$1-$verval-$2; then
-        instsubdirval=$1-$verval
-      elif test -d $instdirval/$1-$verval; then
         instsubdirval=$1-$verval-$2
+      elif test -d $instdirval/$1-$verval; then
+        instsubdirval=$1-$verval
       fi
     fi
-    # techo "instsubdirbase = $instsubdirbase."
+    techo "instsubdirval = $instsubdirval."
 # Disable testing $instsubdirbase for '-' as autotools packages will not
 # install with this restriction.
 # However, there will be issues with using cleaninstalls.sh.
@@ -4766,15 +4766,6 @@ EOF
 # Record installation in installation directory
       if $recordinstall; then
         recordInstallation $instdirval $1 $verval $2
-if false; then
-        local installstrval=$1-$verval-$2
- 	local pkgScriptVerVar=`genbashvar $1`_PKGSCRIPT_VERSION
-	local pkgScriptVerVal=`deref $pkgScriptVerVar`
-        local record="$installstrval $USER $BILDER_PACKAGE `date +%F-%T` bilder-r$pkgScriptVerVal"
-        techo "Recording installation, '$record'."
-        echo "$record" >> $instdirval/installations.txt
-        installations="$installations $1-$2"
-fi
       else
         techo "Not recording installation of $1-$verval-$2."
       fi
@@ -4790,7 +4781,7 @@ fi
       fi
 
 # Link to common name
-      if test -n "$linkname" -a $instsubdirval != '-'; then
+      if test -n "$linkname" -a -n "$instsubdirval" -a "$instsubdirval" != '-'; then
 # Do not try to link if install directory does not exist,
 # as when qmake installs somewhere else
         if $doLinks; then
@@ -4983,7 +4974,8 @@ fi
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -p <perms>   Type of permissions to set (open or closed)
 # -r remove the old installation before installing anew
-# -s the name of the installer subdir at the depot, passed through to bilderInstall
+# -s the name of the installer subdir at the depot, passed through to
+#    bilderInstall
 # -t do not install test pkg
 #
 # Return true if should be installed
