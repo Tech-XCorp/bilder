@@ -29,7 +29,7 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 ######################################################################
 
 FREECAD_BUILDS=${FREECAD_BUILDS:-"ser"}
-FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,ftgl,boost
+FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,ftgl,boost,f2c
 FREECAD_UMASK=002
 
 ######################################################################
@@ -70,11 +70,7 @@ buildFreecad() {
     local FREECAD_ENV
     case `uname` in
       Darwin)
-        if ! test -f /opt/local/lib/libf2c.a; then
-          techo "WARNING: libf2c.a is missing. Please install MacPorts and run 'port install f2c.'"
-          techo "Quitting in freecad.sh ."; exit 1
-        fi
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${CONTRIB_DIR}/oce/OCE.framework/Versions/0.10-dev/Resources' -DF2C_LIBRARIES:FILEPATH='/opt/local/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L/opt/local/lib'"
+        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${CONTRIB_DIR}/oce/OCE.framework/Versions/0.10-dev/Resources' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BILDER_VERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L/opt/local/lib'"
         ;;
       *)
         FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${CONTRIB_DIR}/oce/lib/oce-0.10-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"

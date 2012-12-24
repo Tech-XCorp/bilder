@@ -4798,17 +4798,16 @@ EOF
 
 # Fix perms that libtool sometimes botches
 # subdir may not exist if installed at top
+      techo "Setting permissions according to umask."
       if test -d "$instdirval/$instsubdirval"; then
         case $umaskval in
           000? | 00? | ?)  # printing format can vary.
-            # chmod -R g+wX $instdirval/$instsubdirval
 # For case where directories end up not being owned by installer
             find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;
             ;;
         esac
         case $umaskval in
           0002 | 002 | 2)
-            # chmod -R o+rX $instdirval/$instsubdirval
 # For case where directories end up not being owned by installer
             find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;
             ;;
@@ -4817,6 +4816,7 @@ EOF
 
 # If disable-shared, remove any .la files, as these can contain dependency
 # libs from the Cray compiler wrappers that are wrong for the final static link
+      techo "Removing .la files with potentially wrong dependencies."
       local configscript=`ls *-config.sh 2>/dev/null`
       if test -n "$configscript"; then
         techo "Found $configscript."

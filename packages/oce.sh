@@ -61,7 +61,42 @@ addtopathvar PATH $CONTRIB_DIR/oce/bin
 #
 ######################################################################
 
+#
+# Get oce using git.  This gives a version that does not
+# build on Windows.
+#
+getGitOce() {
+  if ! which git 1>/dev/null 2>&1; then
+    techo "WARNING: git not in path.  Cannot get oce."
+    return
+  fi
+  cd $PROJECT_DIR
+  if ! test -d oce/.git; then
+    techo "No git checkout of oce."
+    if test -d oce; then rm -rf oce.sav; mv oce oce.sav; fi
+    cmd="git clone git://github.com/tpaviot/oce.git"
+    techo "$cmd"
+    $cmd
+  else
+    cmd="cd oce"
+    techo "$cmd"
+    $cmd
+    cmd="git pull"
+    techo "$cmd"
+    $cmd
+    cd - 1>/dev/null 2>&1
+  fi
+}
+
 buildOce() {
+
+# Try to get oce from repo
+  (cd $PROJECT_DIR; getGitOce)
+
+# If no subdir, done.
+  if ! test -d $PROJECT_DIR/oce; then
+    techo "WARNING: oce dir not found. Building from package."
+  fi
 
 # Get oce
   cd $PROJECT_DIR
@@ -103,6 +138,9 @@ buildOce() {
           ;;
       esac
     fi
+    case `uname` in
+      Darwin) OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE";;
+    esac
 
 # Configure and build
     if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $OCE_ADDL_ARGS $OCE_OTHER_ARGS"; then
