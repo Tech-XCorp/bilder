@@ -4502,7 +4502,6 @@ bilderInstall() {
 
 # Default option values
   local acceptbuild=false
-  local altbuilddir=false
   local builddir=
   local forceinstall=$FORCE_INSTALL
   local doLinks=true
@@ -4520,7 +4519,7 @@ bilderInstall() {
   while getopts "ab:cfgLm:np:rs:t" arg; do
     case $arg in
       a) acceptbuild=true;;
-      b) builddir="$OPTARG"; altbuilddir=true;;
+      b) builddir="$OPTARG";;
       c) cpdir=true;;
       f) forceinstall=true;;
       g) webdocs=true;;
@@ -4537,14 +4536,13 @@ bilderInstall() {
   local envvars="$5"
 
 # If there was a build, the builddir was set
-  if ! $altbuilddir; then
-    local builddirvar=`genbashvar $1-$2`_BUILD_DIR
-    local builddir=`deref $builddirvar`
-  fi
+  local builddirvar=`genbashvar $1-$2`_BUILD_DIR
+  builddir=${builddir:-"`deref $builddirvar`"}
+  eval $builddirvar=$builddir
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
   if test -z "$builddir"; then
-    techo "Not installing $1-$verval-$2 since not built."
+    techo "Not installing $1-$verval-$2 since not built.  $builddirvar = $builddir."
     return 1
   fi
   local res
