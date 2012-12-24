@@ -17,13 +17,16 @@ cat >createf2ctarball.sh <<EOF
 curl "http://netlib.sandia.gov/cgi-bin/netlib/netlibfiles.tar?filename=netlib/f2c" -o "f2c.tar"
 tar -xvf f2c.tar
 cd f2c
-rm readme
-for i in msdos/*.gz mswin/*.gz; do # Unpacks windows executables
-  gunzip $i
+rm readme # Bad link on case insensitive systems
+# Unpacks windows executables
+for i in msdos/*.gz mswin/*.gz; do
+  gunzip \$i
 done
+# Unzip library source.  Entire tarball will be compressed anyway.
 unzip libf2c.zip -d libf2c
 cp libf2c/makefile.u libf2c/makefile
 cp src/makefile.u src/makefile
+# These are share files
 mv libf77 libf77.sh
 mv libi77 libi77.sh
 # These can be unpacked or not
