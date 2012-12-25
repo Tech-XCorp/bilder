@@ -70,10 +70,10 @@ buildFreecad() {
     local FREECAD_ENV
     case `uname` in
       Darwin)
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${INSTALL_DIR}/oce/OCE.framework/Versions/0.12-dev/Resources' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BILDER_VERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L/opt/local/lib'"
+        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${BLDR_INSTALL_DIR}/oce/OCE.framework/Versions/0.12-dev/Resources' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L/opt/local/lib'"
         ;;
       *)
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${INSTALL_DIR}/oce/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"
+        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${BLDR_INSTALL_DIR}/oce/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"
         if test -n "$PYC_LD_RUN_PATH"; then
           FREECAD_ENV="LD_RUN_PATH=$PYC_LD_RUN_PATH"
         fi
