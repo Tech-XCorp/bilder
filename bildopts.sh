@@ -78,6 +78,7 @@ BILDER OPTIONS
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
   -Z ................ Do not execute the definable bilderFinalAction.
+  -z ................ Do not post to depot regardless of other settings.
   -2 ................ Use the second installation directory of the comma
                         delimited list.  Causes -FI options.
 EOF

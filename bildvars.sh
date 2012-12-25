@@ -19,12 +19,13 @@ if $POST2DEPOT; then
   if test -z "$INSTALLER_HOST" -o -z "$INSTALLER_ROOTDIR"; then
     techo "No INSTALLER_HOST or INSTALLER_ROOTDIR specified."
     POST2DEPOT=false
-    techo "Turning off post to depot: POST2DEPOT=$POST2DEPOT"
+    techo "Turning off post to depot: POST2DEPOT=$POST2DEPOT."
   fi
 fi
 
 # If testing or posting, force building packages
 if $TESTING || $POST2DEPOT; then
+  techo "Either testing or posting to depot, so building packages."
   BUILD_INSTALLERS=true
 fi
 if $BUILD_INSTALLERS; then
