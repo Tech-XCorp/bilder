@@ -1,6 +1,6 @@
 Index: visit/CMake/PluginMacros.cmake
 ===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 19673)
+--- visit/CMake/PluginMacros.cmake	(revision 19893)
 +++ visit/CMake/PluginMacros.cmake	(working copy)
 @@ -68,26 +68,15 @@
              # not configure, so the dollar sign must be escaped in the string
@@ -37,39 +37,34 @@ Index: visit/CMake/PluginMacros.cmake
              ENDFOREACH(target)
          ENDIF(NOT WIN32)
          IF(APPLE)
-Index: visit/databases/CMakeLists.txt
+Index: visit/tools/xdmf_writer/CMakeLists.txt
 ===================================================================
---- visit/databases/CMakeLists.txt	(revision 19673)
-+++ visit/databases/CMakeLists.txt	(working copy)
-@@ -360,6 +360,11 @@
-     ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
- ENDIF(VISIT_BUILD_ALL_PLUGINS)
+--- visit/tools/xdmf_writer/CMakeLists.txt	(revision 19893)
++++ visit/tools/xdmf_writer/CMakeLists.txt	(working copy)
+@@ -51,16 +51,16 @@
  
-+# Everything here needs MESA on non-Windows
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
-+
- # Add the plugin directories
- FOREACH(db ${BUILD_PLUGINS})
-     ADD_SUBDIRECTORY(${db})
-Index: visit/databases/SimV2/CMakeLists.txt
-===================================================================
---- visit/databases/SimV2/CMakeLists.txt	(revision 19673)
-+++ visit/databases/SimV2/CMakeLists.txt	(working copy)
-@@ -55,6 +55,9 @@
+ #********************************* SERIAL ************************************
+ ADD_EXECUTABLE(xdmf_curv3d xdmf_curv3d.c)
+-TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser m) 
  
+ ADD_EXECUTABLE(xdmf_ucd3d xdmf_ucd3d.c)
+-TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser m) 
  
- LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
+ ADD_EXECUTABLE(xdmf_curv3d_wtime xdmf_curv3d_wtime.c)
+-TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser m) 
  
- ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
- TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
+ ADD_EXECUTABLE(xdmf_multi_curv3d xdmf_multi_curv3d.c)
+-TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser m) 
+ 
+ ADD_LIBRARY(xdmf_writer_ser xdmf_writer.c)
+ TARGET_LINK_LIBRARIES(xdmf_writer_ser ${HDF5_LIB} ${ZLIB_LIB})
 Index: visit/operators/CMakeLists.txt
 ===================================================================
---- visit/operators/CMakeLists.txt	(revision 19673)
+--- visit/operators/CMakeLists.txt	(revision 19893)
 +++ visit/operators/CMakeLists.txt	(working copy)
 @@ -164,6 +164,11 @@
    LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
@@ -83,9 +78,39 @@ Index: visit/operators/CMakeLists.txt
  # Add the plugin directories
  FOREACH(operator ${BUILD_PLUGINS})
      ADD_SUBDIRECTORY(${operator})
+Index: visit/databases/SimV2/CMakeLists.txt
+===================================================================
+--- visit/databases/SimV2/CMakeLists.txt	(revision 19893)
++++ visit/databases/SimV2/CMakeLists.txt	(working copy)
+@@ -55,6 +55,9 @@
+ 
+ 
+ LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
++if (NOT WIN32)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
+ 
+ ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
+ TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
+Index: visit/databases/CMakeLists.txt
+===================================================================
+--- visit/databases/CMakeLists.txt	(revision 19893)
++++ visit/databases/CMakeLists.txt	(working copy)
+@@ -360,6 +360,11 @@
+     ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
+ ENDIF(VISIT_BUILD_ALL_PLUGINS)
+ 
++# Everything here needs MESA on non-Windows
++if (NOT WIN32)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
++
+ # Add the plugin directories
+ FOREACH(db ${BUILD_PLUGINS})
+     ADD_SUBDIRECTORY(${db})
 Index: visit/plots/CMakeLists.txt
 ===================================================================
---- visit/plots/CMakeLists.txt	(revision 19673)
+--- visit/plots/CMakeLists.txt	(revision 19893)
 +++ visit/plots/CMakeLists.txt	(working copy)
 @@ -89,6 +89,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
