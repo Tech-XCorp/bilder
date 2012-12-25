@@ -33,12 +33,12 @@ fi
 computeBuilds carve
 
 # Add in superlu all the time.  May be needed elsewhere
-CARVE_DEPS=${CARVE_DEPS:-"cmake"}
+CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
 
 ######################################################################
 #
-# Launch carve builds.
+# Launch builds.
 #
 ######################################################################
 
@@ -116,7 +116,7 @@ buildCarve() {
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/carve; then
-    techo "WARNING: carve not found.  Need to accept blender credentials?"
+    techo "WARNING: Carve found."
     return 1
   fi
 
@@ -144,7 +144,7 @@ buildCarve() {
 
 ######################################################################
 #
-# Test carve
+# Test
 #
 ######################################################################
 
@@ -154,7 +154,7 @@ testCarve() {
 
 ######################################################################
 #
-# Install carve
+# Install
 #
 ######################################################################
 

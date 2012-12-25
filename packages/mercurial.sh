@@ -16,7 +16,7 @@ MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-"2.4.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -27,7 +27,7 @@ MERCURIAL_UMASK=002
 
 ######################################################################
 #
-# Launch mercurial builds.
+# Launch builds.
 #
 ######################################################################
 
@@ -47,7 +47,7 @@ buildMercurial() {
 
 ######################################################################
 #
-# Test mercurial
+# Test
 #
 ######################################################################
 
@@ -57,7 +57,7 @@ testMercurial() {
 
 ######################################################################
 #
-# Install mercurial
+# Install
 #
 ######################################################################
 
@@ -74,6 +74,6 @@ installMercurial() {
       mkdir -p $PYTHON_SITEPKGSDIR
       bilderDuInstall -p mercurial mercurial "--install-purelib=$PYTHON_SITEPKGSDIR" "$MERCURIAL_ENV"
       ;;
-  esac  
+  esac
 }
 
