@@ -1919,7 +1919,7 @@ getPkgRepos() {
         techo "NOTE: Creating ${PACKAGE_REPO_DIRS[$i]}."
         mkdir -p ${PACKAGE_REPO_DIRS[$i]}
       else
-        techo "NOTE: ${PACKAGE_REPO_DIRS[$i]} exists."
+        : # techo "NOTE: ${PACKAGE_REPO_DIRS[$i]} exists."
       fi
       PACKAGE_REPO_DIRS[$i]=`(cd ${PACKAGE_REPO_DIRS[$i]}; pwd -P)`
       local repomethod=`echo $line | sed -e "s/^[^,]*,//" -e 's/=.*$//'`
