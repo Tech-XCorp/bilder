@@ -40,7 +40,16 @@ FTGL_UMASK=002
 
 buildFtgl() {
   if bilderUnpack ftgl; then
-    if bilderConfig ftgl ser; then
+    local ftargs=
+# OSX puts freetype under the X11 location, which may be in more than
+# one place.
+    for dir in /usr/X11 /opt/X11; do
+      if test -d $dir/include/freetype2; then
+        ftargs="--with-ft-prefix=$dir"
+        break
+      fi
+    done
+    if bilderConfig ftgl ser "$ftargs $FTGL_SER_OTHER_ARGS"; then
       bilderBuild -m make ftgl ser "" "ECHO=echo"
     fi
   fi
