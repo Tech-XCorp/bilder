@@ -67,13 +67,24 @@ buildFreecad() {
     else
       techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
     fi
-    local FREECAD_ENV
+    local ocerootdir=
+    if test -e "${BLDR_INSTALL_DIR}/oce"; then
+      ocerootdir=`(cd ${BLDR_INSTALL_DIR}/oce; pwd -P)`
+    elif test -e "${CONTRIB_DIR}/oce"; then
+      ocerootdir=`(cd ${CONTRIB_DIR}/oce; pwd -P)`
+    else
+      techo "Catastrophic error in buildFreecad.  OCE root directory not found."
+      cleanup
+    fi
+    local FREECAD_ENV=
     case `uname` in
       Darwin)
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${BLDR_INSTALL_DIR}/oce/OCE.framework/Versions/0.12-dev/Resources' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L/opt/local/lib'"
+# libsmesh needs to have the oce library dir added
+        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${ocerootdir}/OCE.framework/Versions/0.12-dev/Resources' -DOCC_LIBRARY_DIR='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib'"
+        # FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR:PATH='${ocerootdir}/OCE.framework/Versions/0.12-dev/Resources' -DOCC_LIBRARY_DIR:PATH='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup'"
         ;;
       *)
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${BLDR_INSTALL_DIR}/oce/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"
+        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${ocerootdir}/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"
         if test -n "$PYC_LD_RUN_PATH"; then
           FREECAD_ENV="LD_RUN_PATH=$PYC_LD_RUN_PATH"
         fi
@@ -81,7 +92,7 @@ buildFreecad() {
     esac
 
 # Configure and build
-    if bilderConfig -c FreeCAD ser "$FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
+    if bilderConfig -c FreeCAD ser "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
       bilderBuild FreeCAD ser "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
     fi
 
