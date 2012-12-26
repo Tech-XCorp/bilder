@@ -109,44 +109,45 @@ buildOce() {
     getVersion oce
     bilderPreconfig oce
     res=$?
+    if test $res != 0; then
+      return 1
+    fi
     OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-ser"
-    techo "WARNING: Building oce from the git repo."
+    techo "NOTE: Building oce from the git repo."
   else
     bilderUnpack oce
     res=$?
+    if test $res != 0; then
+      return 1
+    fi
     OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-ser"
   fi
 
-# If worked, proceed to configure and build
-  if test $res = 0; then
-
 # Determine other configure args
-    local FTGL_DIR=
-    if test -e $CONTRIB_DIR/ftgl; then
-      FTGL_DIR=`(cd $CONTRIB_DIR/ftgl; pwd -P)`
-    fi
-    local OCE_ENV=
-    if test -n "$FTGL_DIR"; then
-      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$FTGL_DIR/include"
-      case `uname` in
-        Darwin)
-          OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.dylib"
-          ;;
-        Linux)
-          OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.so -DOCE_DRAW:BOOL=ON"
-          OCE_ENV="LD_RUN_PATH=$FTGL_DIR/lib"
-          ;;
-      esac
-    fi
+  local FTGL_DIR=
+  if test -e $CONTRIB_DIR/ftgl; then
+    FTGL_DIR=`(cd $CONTRIB_DIR/ftgl; pwd -P)`
+  fi
+  local OCE_ENV=
+  if test -n "$FTGL_DIR"; then
+    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$FTGL_DIR/include"
     case `uname` in
-      Darwin) OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE";;
+      Darwin)
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.dylib"
+        ;;
+      Linux)
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.so -DOCE_DRAW:BOOL=ON"
+        OCE_ENV="LD_RUN_PATH=$FTGL_DIR/lib"
+        ;;
     esac
+  fi
+  case `uname` in
+    Darwin) OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE";;
+  esac
 
 # Configure and build
-    if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $OCE_ADDL_ARGS $OCE_OTHER_ARGS"; then
-      bilderBuild oce ser "$OCE_MAKEJ_ARGS" "$OCE_ENV"
-    fi
-
+  if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $OCE_ADDL_ARGS $OCE_OTHER_ARGS"; then
+    bilderBuild oce ser "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
 }
