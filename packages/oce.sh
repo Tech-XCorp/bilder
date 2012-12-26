@@ -128,25 +128,45 @@ buildOce() {
   if test -e $CONTRIB_DIR/ftgl; then
     FTGL_DIR=`(cd $CONTRIB_DIR/ftgl; pwd -P)`
   fi
-  local OCE_ENV=
   if test -n "$FTGL_DIR"; then
     OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$FTGL_DIR/include"
-    case `uname` in
-      Darwin)
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.dylib"
-        ;;
-      Linux)
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.so -DOCE_DRAW:BOOL=ON"
-        OCE_ENV="LD_RUN_PATH=$FTGL_DIR/lib"
-        ;;
-    esac
   fi
+  local x11dir=
+  for dir in /opt/X11 /usr/X11R6; do
+    if test -d $dir; then
+      x11dir=$dir
+      break
+    fi
+  done
+  local OCE_ENV=
+  case `uname` in
+    Darwin)
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
+      if test -n "$FTGL_DIR"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.dylib"
+      fi
+      if test -n "$x11dir"; then
+        OCE_ENV="FREETYPE_DIR=$x11dir"
+      fi
+      ;;
+    Linux)
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
+      if test -n "$FTGL_DIR"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.so"
+        OCE_ENV="LD_RUN_PATH=$FTGL_DIR/lib"
+      fi
+      ;;
+  esac
+# Cannot disable X11 or will not get TKMeshVS built,
+# which is needed for salomesh in freecad.
+if false; then
   case `uname` in
     Darwin) OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE";;
   esac
+fi
 
 # Configure and build
-  if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $OCE_ADDL_ARGS $OCE_OTHER_ARGS"; then
+  if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
     bilderBuild oce ser "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
