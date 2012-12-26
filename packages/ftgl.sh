@@ -43,7 +43,7 @@ buildFtgl() {
     local ftargs=
 # OSX puts freetype under the X11 location, which may be in more than
 # one place.
-    for dir in /usr/X11 /opt/X11; do
+    for dir in /opt/X11 /usr/X11R6; do
       if test -d $dir/include/freetype2; then
         ftargs="--with-ft-prefix=$dir"
         break
