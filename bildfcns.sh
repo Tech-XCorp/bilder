@@ -3240,7 +3240,7 @@ bilderPreconfig() {
       techo "$cmd"
       $cmd
       cmd="find . -name Makefile.in -delete"
-      techo $cmd
+      techo "$cmd"
       $cmd
     fi
 
