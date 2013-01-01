@@ -63,8 +63,15 @@ installOpensplice() {
   local verval=`deref $vervar`
   local instsubdirvar=`genbashvar opensplice-ser`_INSTALL_SUBDIR
   local instsubdirval=`deref $instsubdirvar`
-  local instdirvar=`genbashvar opensplice`_INSTALL_DIR
+
+# Determine where it will be installed
+  local instdirvar=`genbashvar opensplice-ser`_INSTALL_DIR
+  techo -2 instdirvar = $instdirvar
   local instdirval=`deref $instdirvar`
+  if test -z "$instdirval"; then
+    TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $instdirvar is empty."
+    cleanup
+  fi
 
   if test -z "$builddir"; then
     techo "Not installing opensplice-$OPENSPLICE_BLDRVERSION-ser since not built."

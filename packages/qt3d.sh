@@ -85,7 +85,7 @@ buildQt3d() {
         Darwin) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
       esac
 # During testing, do not "make clean".
-      bilderBuild -k qt3d ser "docs $QT3D_PLATFORM_BUILD_ARGS"
+      bilderBuild -k qt3d ser "all docs $QT3D_PLATFORM_BUILD_ARGS"
     fi
   fi
 }

@@ -1,10 +1,9 @@
 #!/bin/bash
 #
 # Version and build information for visit.
-# The following packages need to be installed:
-#  libblas-devel liblapack-devel
-#  libpng-devel libXt-devel libXext-devel libXtst-devel
-#  libGLU-devel libSM-devel
+#
+# See http://portal.nersc.gov/svn/visit/branches/txc/README
+# for the branch usage for Composer.
 #
 # $Id$
 #
