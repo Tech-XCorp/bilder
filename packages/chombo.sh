@@ -12,9 +12,7 @@
 #
 ######################################################################
 
-# CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2012-09-27"}
-# CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2012-10-31"}
-CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2012-11-05"}
+CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2012-12-10"}
 
 ######################################################################
 #
