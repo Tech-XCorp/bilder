@@ -47,6 +47,9 @@ bilderFqdn() {
       ;;
     node[0-9]*.*) # Catchall for systems with nodes named node0, node1, ...
       FQHOSTNAME=${FQHOSTNAME:-"$fqdn"}
+# Appears this does not work as bash through the queue is set -e?
+# And restricted shell so cannot execute /sbin commands?
+if false; then
       if test -z "$FQMAILHOST"; then
         if test -x "/sbin/route"; then
           local gwip=`/sbin/route -n | grep 'UG[ \t]' | awk '{print $2}'`
@@ -56,6 +59,7 @@ bilderFqdn() {
         local gwhn=`rsh $gwip hostname -f | sed 's/[0-9]*\././'`
         FQMAILHOST="$gwhn"
       fi
+fi
       ;;
   esac
 }
