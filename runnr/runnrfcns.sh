@@ -199,12 +199,12 @@ runnrGetHostVars() {
   fi
 
 # Additionally look in runnr dir
-  if test -z "$RUNNR_DIR"; then
-    RUNNR_DIR=`dirname $BASH_SOURCE`
+  RUNNR_DIR=${RUNNR_DIR:-"$mydir"}
+  if test -x $RUNNR_DIR/fqdn.sh; then
+    cmd="source $RUNNR_DIR/fqdn.sh"
+    $runnrdebug && echo "$cmd"
+    $cmd
   fi
-  cmd="source $RUNNR_DIR/fqdn.sh"
-  $runnrdebug && echo "$cmd"
-  $cmd
 
 # Standard methods for setting FQHOSTNAME
   if test -z "$FQHOSTNAME"; then
