@@ -2,17 +2,12 @@
 #
 # $Id$
 #
-# Get other repos that aren't normally needed for 
+# Get other repos that aren't normally needed for
 #
 ######################################################################
 
-
-if test -e $SCRIPT_DIR/txcbilder/runnrfcns.sh; then
-   source $SCRIPT_DIR/bilder/runnr/runnrfcns.sh
-fi
-if test -e $SCRIPT_DIR/txcbilder/runnrfcns.sh; then
-   source $SCRIPT_DIR/bilder/runnr/tx_gethosts.sh
-   tx_gethosts
+if test -e $SCRIPT_DIR/bilder/runnr/runnrfcns.sh; then
+  source $SCRIPT_DIR/bilder/runnr/runnrfcns.sh
 fi
 
 host=$UQMAILHOST
