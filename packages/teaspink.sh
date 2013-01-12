@@ -51,7 +51,7 @@ buildTeaspink() {
 # Regular build
   if test $res = 0; then
 # Do quotes around compilers cause problems with cygwin.vs9?
-    if bilderConfig -c teaspink ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_SER_OTHER_ARGS"; then
+    if bilderConfig -c teaspink ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_SER_OTHER_ARGS"; then
       bilderBuild teaspink ser "$TEASPINK_MAKE_ARGS"
     fi
   fi

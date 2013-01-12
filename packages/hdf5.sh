@@ -88,7 +88,7 @@ haveHdf5Fortran() {
 # techo "Before checking: HDF5_BUILDS = $HDF5_BUILDS."
 if test -z "$HDF5_BUILDS"; then
   case $HDF5_UNAME-${BILDER_CHAIN} in
-    CYGWIN*WOW64* | CYGWIN*-MinGW)
+    CYGWIN*-WOW64* | CYGWIN*-MinGW)
       HDF5_BUILDS="ser,par,sersh,parsh"
       if test "$VISUALSTUDIO_VERSION" = "10"; then
 # Python built with VS9, so need cc4py build, which is with VS9
@@ -188,8 +188,8 @@ buildHdf5() {
 # Only cmake builds, but backwards compatible
     local HDF5_ENABLE_PARALLEL="-DHDF5_ENABLE_PARALLEL:BOOL=ON"
 # Remove /MD for static builds
-    local HDF5_SER_STATIC_ARGS="$CMAKE_NODEFLIB_FLAGS"
-    local HDF5_PAR_STATIC_ARGS="$CMAKE_NODEFLIB_FLAGS"
+    local HDF5_SER_STATIC_ARGS="$TARBALL_NODEFLIB_FLAGS"
+    local HDF5_PAR_STATIC_ARGS="$TARBALL_NODEFLIB_FLAGS"
 
 # Shared: For Linux, add origin to rpath, do not strip rpath
     local HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_OTHER_ARGS"
@@ -522,7 +522,7 @@ installHdf5() {
 # Remove (-r) old installations.  This assumee that the shared libs
 # will subsequently be reinstalled if needed.
   for bld in ser par; do
-    if bilderInstall -r hdf5 $bld; then
+    if bilderInstall -p open -r hdf5 $bld; then
       hdf5installed=true
       instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
       chmod -R g+w $instdir

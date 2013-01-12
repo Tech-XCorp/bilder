@@ -43,7 +43,7 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 #
 ######################################################################
 
-OCE_BUILDS=${OCE_BUILDS:-"NONE"}
+OCE_BUILDS=${OCE_BUILDS:-"ser"}
 OCE_DEPS=ftgl
 OCE_UMASK=002
 

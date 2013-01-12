@@ -34,7 +34,6 @@ EOF
 BILDER OPTIONS
   -A <addl_sp> ...... Add this to the supra search path.
   -b <build_dir> .... Build in <build_dir>.
-  -B <build_type> ... CMake build type.
   -c ................ Configure packages but don't build.
   -C ................ Create installers.
   -d ................ Create debug builds (limited package support).
@@ -61,6 +60,7 @@ BILDER OPTIONS
   -L ................ Directory for logs (if different from build).
   -m <hostfile> ..... File to source for machine specific defs.
   -M ................ Maximally thread.
+  -N ................ No debug info when building repo packages via CMake.
   -o ................ Install openmpi if not on cygwin.
   -O ................ Install optional packages = ATLAS, parallel visit, ...
   -p <path> ......... Specify a supra-search-path.
@@ -97,7 +97,6 @@ processBilderArgs() {
     a) echo "WARNING (Aug 19, 2012): -a no longer valid.  Will be removed Sep. 30, 2012.";;
     A) ADDL_SUPRA_SP=$OPTARG;;
     b) BUILD_DIR=$OPTARG;;
-    B) CMAKE_BUILD_TYPE=$OPTARG;;
     c) NOBUILD=true;;
     C) BUILD_INSTALLERS=true;;
     d) BUILD_DEBUG=true;;  # This is for operating at the package level
@@ -124,6 +123,7 @@ processBilderArgs() {
     L) BILDER_LOGDIR=$OPTARG;;
     m) export MACHINE_FILE=$OPTARG;;  # Give to subshells
     M) MAX_THREADS=true;;
+    N) REPO_BUILD_TYPE=Release;;
     o) case `uname` in
 	 CYGWIN*) ;;
 	       *) BUILD_OPENMPI=true;;
@@ -178,7 +178,8 @@ setBilderOptions() {
   BUILD_IF_NEWER_PKGFILE=true
   BUILD_OPTIONAL=false
   BUILD_INSTALLERS=false
-  CMAKE_BUILD_TYPE=Release
+  REPO_BUILD_TYPE=RelWithDebInfo
+  TARBALL_BUILD_TYPE=Release
   SEND_ABSTRACT=false
   CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
@@ -204,7 +205,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARG"
+  BILDER_ARGS="aA:b:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARG"
 
   set -- "$@"
   # techo "* = $*."
@@ -307,8 +308,10 @@ EOF
 
   BUILD_ATLAS=${BUILD_ATLAS:-"$BUILD_OPTIONAL"}
 # Auxiliary variables
-  CMAKE_BUILD_TYPE_LC=`echo $CMAKE_BUILD_TYPE | tr 'A-Z' 'a-z'`
-  CMAKE_BUILD_TYPE_UC=`echo $CMAKE_BUILD_TYPE | tr 'a-z' 'A-Z'`
+  TARBALL_BUILD_TYPE_LC=`echo $TARBALL_BUILD_TYPE | tr 'A-Z' 'a-z'`
+  TARBALL_BUILD_TYPE_UC=`echo $TARBALL_BUILD_TYPE | tr 'a-z' 'A-Z'`
+  REPO_BUILD_TYPE_LC=`echo $REPO_BUILD_TYPE | tr 'A-Z' 'a-z'`
+  REPO_BUILD_TYPE_UC=`echo $REPO_BUILD_TYPE | tr 'a-z' 'A-Z'`
 
 # On second installations, force installation and ignore test results
   if $IS_SECOND_INSTALL; then

@@ -49,7 +49,7 @@ buildLua() {
 # Regular build
   if test $res = 0; then
 # Do quotes around compilers cause problems with cygwin.vs9?
-    if bilderConfig -c lua ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG $LUA_SER_OTHER_ARGS"; then
+    if bilderConfig -c lua ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG $LUA_SER_OTHER_ARGS"; then
       bilderBuild lua ser "$LUA_MAKE_ARGS"
     fi
   fi

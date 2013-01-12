@@ -44,7 +44,7 @@ buildMetis() {
     if bilderConfig -c metis ser; then
       bilderBuild metis ser
     fi
-    if bilderConfig metis sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
+    if bilderConfig metis sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
       bilderBuild metis sersh
     fi
 

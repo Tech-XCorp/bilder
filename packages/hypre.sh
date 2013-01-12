@@ -44,10 +44,10 @@ HYPRE_UMASK=002
 
 buildHypre() {
   if bilderUnpack hypre; then
-    if bilderConfig -c hypre par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_NODEFLIB_FLAGS"; then
+    if bilderConfig -c hypre par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS"; then
       bilderBuild hypre par
     fi
-    if bilderConfig hypre parsh "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_NODEFLIB_FLAGS  -DHYPRE_SHARED:BOOL=ON"; then
+    if bilderConfig hypre parsh "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS  -DHYPRE_SHARED:BOOL=ON"; then
       bilderBuild hypre parsh
     fi
   fi

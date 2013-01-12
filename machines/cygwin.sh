@@ -126,7 +126,7 @@ getVsPaths() {
     $TECHO "Microsoft Visual Studio ${vsver}.0 is not installed.  Will not set associated variables."
     return 1
   fi
-  BUILD_DIR=${BUILD_DIR:-"."}
+  local workdir=${BUILD_DIR:-"."}
   local pathhasvs=false
   local path_sav="$PATH"
   if echo $PATH | grep "Visual Studio ${vsver}"; then
@@ -147,7 +147,7 @@ getVsPaths() {
     arch=amd64
   fi
 
-  cat >$BUILD_DIR/getvsvars${vsver}.bat <<EOF
+  cat >$workdir/getvs${vsver}vars.bat <<EOF
 @echo off
 echo PATHOLD="%PATH%"
 call "%VS${vsver}0COMNTOOLS%\..\..\VC\vcvarsall.bat" $arch >NUL:
@@ -156,8 +156,9 @@ echo LIBPATH_VS${vsver}="%LIBPATH%"
 echo LIB_VS${vsver}="%LIB%"
 echo INCLUDE_VS${vsver}="%INCLUDE%"
 EOF
-  (cd $BUILD_DIR; cmd /c getvsvars${vsver}.bat | tr -d '\r' >vs${vsver}vars.sh)
-  source $BUILD_DIR/vs${vsver}vars.sh
+  (cd $workdir; cmd /c getvs${vsver}vars.bat | tr -d '\r' >vs${vsver}vars.sh)
+  source $workdir/vs${vsver}vars.sh
+  rm -f $workdir/vs${vsver}vars.sh $workdir/getvs${vsver}vars.bat
 
 # Get the path difference
   local PATHOLDM=`echo "$PATHOLD" | sed -e 's?\\\\?/?g'`
@@ -165,13 +166,14 @@ EOF
   local PATH_VAL=`echo "$PATHNEWM" | sed -e "s?$PATHOLDM??g"`
 
 # Convert the paths to cygwin
-  rm -f $BUILD_DIR/path_${vsver}.txt
+  rm -f $workdir/path_${vsver}.txt
   echo "$PATH_VAL" | tr ';' '\n' | sed '/^$/d' | while read line; do
-    cygpath -au "$line": >> $BUILD_DIR/path_${vsver}.txt
+    cygpath -au "$line": >> $workdir/path_${vsver}.txt
   done
-  if test -f $BUILD_DIR/path_${vsver}.txt; then
-    PATH_CYG=`cat $BUILD_DIR/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
+  if test -f $workdir/path_${vsver}.txt; then
+    PATH_CYG=`cat $workdir/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
   fi
+  rm -f $workdir/path_${vsver}.txt
   eval PATH_VS${vsver}="\"$PATH_CYG\""
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
 }

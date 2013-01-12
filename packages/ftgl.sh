@@ -20,7 +20,7 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 #
 ######################################################################
 
-FTGL_BUILDS=${FTGL_BUILDS:-"NONE"}
+FTGL_BUILDS=${FTGL_BUILDS:-"ser"}
 FTGL_DEPS=
 FTGL_UMASK=002
 

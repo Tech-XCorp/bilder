@@ -114,6 +114,7 @@ cat <<END
 #!/bin/bash
 #
 # \$Id$
+# /* vim: set filetype=sh : */
 #
 # Define variables.
 # Do not override existing definitions.

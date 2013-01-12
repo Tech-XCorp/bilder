@@ -81,8 +81,9 @@ buildQt3d() {
   if bilderPreconfig qt3d; then
     if bilderConfig -q qt3d.pro qt3d ser; then
       local QT3D_PLATFORM_BUILD_ARGS=
-      case `uname` in
-        Darwin) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
+      case `uname`-`uname -r` in
+        Darwin-10.*) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
+        *) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
       esac
 # During testing, do not "make clean".
       bilderBuild -k qt3d ser "all docs $QT3D_PLATFORM_BUILD_ARGS"

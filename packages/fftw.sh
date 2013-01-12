@@ -33,7 +33,32 @@ FFTW_DEPS=openmpi
 #
 ######################################################################
 
+
 buildFftw() {
+    buildFftw_Cmake
+#    buildFftw_Autotools
+}
+
+
+#
+# All defaults are set for cmake build currently. If options in configure.in
+# are needed, then these need to be added to the CMakeLists.txt files and passed
+# here. BenBuilds not called here either
+#
+buildFftw_Cmake() {
+
+  if bilderUnpack fftw; then
+    if bilderConfig -c fftw ser "$TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild fftw ser "$FFTW_MAKEJ_ARGS"
+    fi
+    if bilderConfig -c fftw par "-DENABLE_PARALLEL:BOOL=TRUE $TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild fftw par "$FFTW_MAKEJ_ARGS"
+    fi
+  fi
+}
+
+
+buildFftw_Autotools() {
 
 # SWS: if F77 is specified for MPI built without fortran,
 # the configure will fail

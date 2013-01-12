@@ -64,6 +64,8 @@ techo() {
   OPTIND=1
   eol='\n'
   pverbosity=0
+  VERBOSITY=${VERBOSITY:-0}
+
   while getopts ":n12" arg; do
     case $arg in
       n) unset eol;;
@@ -279,7 +281,7 @@ runnrGetHostVars() {
   FQMAILHOST=${FQMAILHOST:-"$FQHOSTNAME"}
   FQWEBHOST=${FQWEBHOST:-"$FQMAILHOST"}
 # Sendmail host: used for return address
-  SMFROMHOST=${MAILSRVR:-"$FQMAILHOST"}  # If have a mailserver, use that
+  SMFROMHOST=${FQMAILHOST}
 # Unique id for a laptop
   BLDRHOSTID=${BLDRHOSTID:-"$FQMAILHOST"}
   if test -z "$UQMAILHOST"; then

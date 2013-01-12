@@ -29,6 +29,13 @@ fi
 if test -z "$GPULIB_DEPS"; then
   MAGMA_CONFIG=" "
   GPULIB_DEPS=cmake
+  # License manager enable by -R option
+  if $CREATE_RELEASE; then
+    GPULIB_DEPS=$GPULIB_DEPS,txlicmgr
+	TXLICMGR_BUILDS=ser
+	TXBASE_BUILDS=ser
+	HDF5_BUILDS=ser,sersh
+  fi
   case `uname` in
     Linux*)
       MAGMA_CONFIG="-DMAGMA_ROOT=$CONTRIB_DIR/magma -DAtlas_ROOT_DIR=$CONTRIB_DIR/atlas"
@@ -45,6 +52,13 @@ fi
 
 buildGPULib() {
 
+# License manager enable by -R option
+  if $CREATE_RELEASE; then
+    GPULIB_SECURITY_ARGS="-DENABLE_SECURITY:BOOL=true"
+  else
+    GPULIB_SECURITY_ARGS="-DENABLE_SECURITY:BOOL=false"
+  fi
+
 # Fix ranlib on aix
   case `uname` in
     AIX)
@@ -58,7 +72,6 @@ buildGPULib() {
       ;;
     Darwin | Linux)
       GPULIB_MAKE_ARGS="$GPULIB_MAKE_ARGS $JMAKEARGS"
-      #export LD_LIBRARY_PATH=/usr/local/cuda-4.2/cuda/lib64:/usr/local/cuda/4.2/cuda/lib64:$LD_LIBRARY_PATH
       ;;
   esac
   GPULIB_PAR_MAKE_ARGS="$GPULIB_MAKE_ARGS"
@@ -67,7 +80,7 @@ buildGPULib() {
 # Configure and build serial and parallel
   getVersion gpulib
   if bilderPreconfig gpulib; then
-    if bilderConfig $forcecmake gpulib gpu "$MAGMA_CONFIG $GEN_SUPRA_SP_ARG"; then
+    if bilderConfig $forcecmake gpulib gpu "$MAGMA_CONFIG $CMAKE_SUPRA_SP_ARG $GPULIB_SECURITY_ARGS"; then
       if test -z "$forcecmake"; then
         GPULIB_SINGLE_MAKE_ARGS=""
       fi

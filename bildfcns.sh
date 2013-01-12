@@ -3370,6 +3370,7 @@ bilderConfig() {
   local recordfailure=true
   local buildsubdir
   local build_inplace=false
+  local cmakebuildtype
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
@@ -3402,6 +3403,20 @@ bilderConfig() {
 # Get the version
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
+
+# Determine if repo or tarball build. Tarball builds are always built
+# with CMake build type = Release, whereas repo builds are RelWithDebInfo
+# by default, but this can be overriden in bildopts.sh via
+# $REPO_BUILD_TYPE.
+# JRC: will not work for git subrepos, which, e.g., composerall has.
+# Those do not belong to us, so probably okay.
+
+  local uname=`uname`
+  case $verval in
+    r[0-9][0-9]*) cmakebuildtype=$REPO_BUILD_TYPE;;
+               *) cmakebuildtype=$TARBALL_BUILD_TYPE;;
+  esac
+
 # Get dependencies if not specified with -d
   local depsvar=`genbashvar $1`_DEPS
   local depsval=`deref $depsvar`
@@ -3746,7 +3761,8 @@ bilderConfig() {
             ;;
         esac
 # Some options are always chosen
-        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$CMAKE_BUILD_TYPE -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+        # configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype $CMAKE_LIBRARY_PATH_ARG"
 	if test $VERBOSITY -ge 1; then
 	  configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
         fi

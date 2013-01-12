@@ -60,18 +60,18 @@ buildLapack() {
 
   if bilderUnpack lapack; then
 
-    if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS $LAPACK_SER_OTHER_ARGS"; then
+    if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $LAPACK_SER_OTHER_ARGS"; then
       bilderBuild lapack ser
     fi
 
-    if bilderConfig lapack sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON $LAPACK_SERSH_OTHER_ARGS"; then
+    if bilderConfig lapack sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON $LAPACK_SERSH_OTHER_ARGS"; then
       bilderBuild lapack sersh
     fi
-    if bilderConfig lapack cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_NODEFLIB_FLAGS $LAPACK_CC4PY_OTHER_ARGS"; then
+    if bilderConfig lapack cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $TARBALL_NODEFLIB_FLAGS $LAPACK_CC4PY_OTHER_ARGS"; then
       bilderBuild lapack cc4py
     fi
 
-    if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $CMAKE_NODEFLIB_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
+    if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $TARBALL_NODEFLIB_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
       bilderBuild lapack ben
     fi
 

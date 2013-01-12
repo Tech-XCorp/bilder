@@ -46,8 +46,8 @@ buildTxphysics() {
   esac
 
 # Remove /MD flag
-  local TXPHYSICS_SER_ADDL_ARGS="$CMAKE_NODEFLIB_FLAGS"
-  local TXPHYSICS_BEN_ADDL_ARGS="$CMAKE_NODEFLIB_FLAGS"
+  local TXPHYSICS_SER_ADDL_ARGS="$REPO_NODEFLIB_FLAGS"
+  local TXPHYSICS_BEN_ADDL_ARGS="$REPO_NODEFLIB_FLAGS"
 
 # Build serial.  Eliminate definition of lib flags
   if bilderPreconfig -c txphysics; then

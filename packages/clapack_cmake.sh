@@ -48,7 +48,7 @@ buildCLapack_CMake() {
 
   if bilderUnpack clapack_cmake; then
 
-    if bilderConfig clapack_cmake ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CLAPACK_CMAKE_SER_OTHER_ARGS $CMAKE_NODEFLIB_FLAGS"; then
+    if bilderConfig clapack_cmake ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CLAPACK_CMAKE_SER_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS"; then
       bilderBuild clapack_cmake ser
     fi
 

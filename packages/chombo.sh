@@ -20,7 +20,7 @@ CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2012-12-10"}
 #
 ######################################################################
 
-CHOMBO_DEPS=petscrepo,hdf5,openmpi
+CHOMBO_DEPS=petsc33,hdf5,openmpi
 if test -z "$CHOMBO_BUILDS"; then
   case `uname` in
     Darwin | Linux)
