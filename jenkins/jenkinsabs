@@ -221,11 +221,13 @@ for absdir in $absdirs; do
   rm -rf allabs-${absdir}.html
 # Create local date stamp
   datestamp=`date +%F`  
-  lecho "Creating datestamp for email subject: $datestamp"
+  lecho "Created datestamp for email subject: $datestamp"
+# Create basename directory for subject
+  topdirsubj=`basename $topdir`
 # This line seems necessary for mailmain
   echo "From: ${absdir}-abstracts@$ABSMAILHOST" >>allabs-${absdir}.html
   echo "To: ${projemail}" >>allabs-${absdir}.html
-  echo "Subject: $datestamp Abstracts for $absdir from $ABSMAILHOST" >>allabs-${absdir}.html
+  echo "Subject: $datestamp $absdir abstracts from $topdirsubj on $ABSMAILHOST" >>allabs-${absdir}.html
   echo "Content-Type: text/html; charset=UTF-8" >> allabs-${absdir}.html
   echo "<html>" >>allabs-${absdir}.html
   if test -n "$abs2get"; then

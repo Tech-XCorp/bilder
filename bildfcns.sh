@@ -1562,13 +1562,16 @@ shouldInstall() {
 # Moved to bilderPreconfig in case of forced build
   local currPkgScriptRevVar=`genbashvar ${proj}`_PKGSCRIPT_VERSION
   local currentPkgScriptRev=`deref ${currPkgScriptRevVar}`
+  local currentPkgScriptDir=
   if test -z "$currentPkgScriptRev"; then
     if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${lcproj}.sh; then
       currentPkgScriptRev=`svn info $BILDER_CONFDIR/packages/${lcproj}.sh |\
         grep 'Last Changed Rev:' | sed 's/.* //'`
+      currentPkgScriptDir=$BILDER_CONFDIR/packages
     elif test -f $BILDER_DIR/packages/${lcproj}.sh; then
       currentPkgScriptRev=`svn info $BILDER_DIR/packages/${lcproj}.sh |\
         grep 'Last Changed Rev:' | sed 's/.* //'`
+      currentPkgScriptDir=$BILDER_DIR/packages
     else
       currentPkgScriptRev=unknown
     fi
@@ -1612,19 +1615,19 @@ shouldInstall() {
 # See whether installation is older than package file.
 # For packages like Python, $proj will be Python, but the package script will
 # be python.sh, so we use $lcproj.
+  techo -n "Script ${lcproj}.sh was r$pkgScriptRevStr when built, now r$currentPkgScriptRev"
   if test $currentPkgScriptRev -gt $pkgScriptRev; then
-    techo -n "Script ${lcproj}.sh was r$pkgScriptRevStr when built, now r$currentPkgScriptRev"
     if $BUILD_IF_NEWER_PKGFILE; then
       techo "... rebuilding."
       return 0
     else
-      techo "... not rebuilding because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
+      techo "... not causing rebuild because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
     fi
   else
-    techo "Script $BILDER_DIR/packages/${proj}.sh is r$pkgScriptRevStr"
+    techo "... not causing rebuild because built revision is greater than current."
   fi
 
-  techo "Bilder using `which sort` to do sorting."
+  techo -2 "Bilder using `which sort` to do sorting."
 
 # See whether the installation is older than project config file
 # $BILDER_CONFDIR/packages/${proj}.conf file if it exists
@@ -1820,15 +1823,27 @@ removeInstallRecord() {
 }
 
 #
-# Returns whether CC contains the equivalent of gcc
+# Returns whether CC is gcc
 #
 isCcGcc() {
-  # techo -2 "CC = $CC, PYC_CC = $PYC_CC."
-  case $CC in
-    */gcc* | gcc*)
-     return 0
-     ;;
+  case "$CC" in
+# Capture mingw also
+    */gcc | *-gcc | *-gcc.exe) return 0;;
   esac
+  return 1
+}
+
+#
+# Returns whether CC contains a compiler that can compile
+# Python modules.
+#
+isCcCc4py() {
+  if [[ `uname` =~ CYGWIN ]]; then
+    return 0 # All compilers appear to work
+  fi
+  if test "$CC" = "$PYC_CC"; then
+    return 0
+  fi
   return 1
 }
 
@@ -1856,10 +1871,20 @@ addCc4pyBuild() {
         ;;
     esac
   done
+# Find builds
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
+  # echo "$buildsvar = $buildsval."
+# Force addition if no sersh build
+  # echo $buildsval | egrep -q "(^|,)sersh($|,)"
+  # local res=$?
+  # if test "$res" != 0; then
+  if ! echo $buildsval | egrep -q "(^|,)sersh($|,)"; then
+    forceadd=true
+  fi
+# Add builds
   if test "$buildsval" != NONE; then
-    if $forceadd || ! isCcGcc; then
+    if $forceadd || ! isCcCc4py; then
       if ! echo "$buildsval" | egrep -q "(^|,)cc4py($|,)"; then
         buildsval=$buildsval,cc4py
         trimvar buildsval ,
@@ -2697,16 +2722,24 @@ findCc4pyDir() {
 findQt() {
 # First try to find Qt in the contrib directory
   if [[ `uname` =~ CYGWIN ]]; then
-    findContribPackage qt QtCore4 ser
+    findContribPackage qt QtCore4 sersh
+    if test -z "$QT_SERSH_DIR"; then
+      findContribPackage qt QtCore4 ser
+      QT_SERSH_DIR="$QT_SER_DIR"
+    fi
   else
-    findContribPackage qt QtCore ser
+    findContribPackage qt QtCore sersh
+    if test -z "$QT_SERSH_DIR"; then
+      findContribPackage qt QtCore ser
+      QT_SERSH_DIR="$QT_SER_DIR"
+    fi
   fi
-  if test -n "$QT_SER_DIR"; then
-    QT_BINDIR=$QT_SER_DIR/bin
+  if test -n "$QT_SERSH_DIR"; then
+    QT_BINDIR=$QT_SERSH_DIR/bin
     QMAKE=$QT_BINDIR/qmake
     techo "Qt found in $CONTRIB_DIR.  Using QT_BINDIR = $QT_BINDIR."
-    addtopathvar PATH $QT_SER_DIR/bin
-    techo "$QT_SER_DIR/bin added to path."
+    addtopathvar PATH $QT_SERSH_DIR/bin
+    techo "$QT_SERSH_DIR/bin added to path."
     return 0
   fi
   techo "Qt not found in $CONTRIB_DIR."
@@ -5693,9 +5726,13 @@ EOF
 # Put Notes in html only
   grep "^NOTE:" $LOGFILE >$BILDER_LOGDIR/notes.txt
   if test -s $BILDER_LOGDIR/notes.txt; then
+    echo NOTES >>$SUMMARY
+    cat $BILDER_LOGDIR/notes.txt >>$SUMMARY
     cat $BILDER_LOGDIR/notes.txt | while read vline; do
       addHtmlLine 4 "$vline" DARKORANGE $ABSTRACT
     done
+  else
+    echo "NO NOTES" >>$SUMMARY
   fi
 
 # Add warnings

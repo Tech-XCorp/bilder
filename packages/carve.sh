@@ -24,12 +24,8 @@ CARVE_BLDRVERSION_EXP=1.4.0
 #
 ######################################################################
 
-# Can add builds in package file only if no add builds defined.
-CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"ser"}
-if [[ `uname` =~ CYGWIN ]]; then
-  CARVE_NOBUILDS=ser
-fi
-# Remove builds based on OS here, as this decides what can build.
+# Carve builds only shared
+CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"sersh"}
 computeBuilds carve
 
 # Add in superlu all the time.  May be needed elsewhere
@@ -125,17 +121,14 @@ buildCarve() {
 
   if bilderPreconfig -c carve; then
 
-# Need to save installation directory for post installation
-    CARVE_SER_INSTALL_DIR=$INSTALL_DIR
-
 # Check for install_dir installation
     if test "$CONTRIB_DIR" != "$INSTALL_DIR" -a -e $INSTALL_DIR/carve; then
       techo "WARNING: carve is installed in $INSTALL_DIR."
     fi
 
 # Build the shared libs
-    if bilderConfig carve ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE $CARVE_SER_OTHER_ARGS"; then
-      bilderBuild carve ser "$CARVE_MAKEJ_ARGS"
+    if bilderConfig carve sersh "$CMAKE_COMPILERS_SERSH $CMAKE_COMPFLAGS_SERSH -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE $CARVE_SERSH_OTHER_ARGS"; then
+      bilderBuild carve sersh "$CARVE_MAKEJ_ARGS"
     fi
 
   fi
@@ -159,10 +152,10 @@ testCarve() {
 ######################################################################
 
 installCarve() {
-  if bilderInstall -p -r carve ser; then
+  if bilderInstall -p -r carve sersh; then
     case `uname` in
       Darwin)
-        cd $CARVE_SER_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-ser/bin
+        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-sersh/bin
         for i in *; do
 # Needs to be more general by finding the name of the library
           cmd="install_name_tool -change libcarve.2.0.dylib @rpath/libcarve.2.0.dylib $i"

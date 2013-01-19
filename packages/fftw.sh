@@ -35,8 +35,16 @@ FFTW_DEPS=openmpi
 
 
 buildFftw() {
-    buildFftw_Cmake
-#    buildFftw_Autotools
+    case `uname` in
+	CYGWIN* | Darwin )
+	    # cmake-ed version of fftw (not working on linux)
+	    buildFftw_Cmake
+	    ;;
+	Linux)
+	    # standard autotools build (cmake not working on linux)
+	    buildFftw_Autotools
+	    ;;
+    esac
 }
 
 
@@ -46,6 +54,8 @@ buildFftw() {
 # here. BenBuilds not called here either
 #
 buildFftw_Cmake() {
+
+  rm -f $BUILD_DIR/fftw-$FFTW_BLDRVERSION/fftw/config.h
 
   if bilderUnpack fftw; then
     if bilderConfig -c fftw ser "$TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG"; then

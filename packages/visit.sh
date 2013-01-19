@@ -23,18 +23,14 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 #
 ######################################################################
 
-if test -z "$VISIT_BUILDS"; then
-  VISIT_BUILDS=ser
-  case `uname` in
-    CYGWIN*)
-      ;;
-    *)
-      if $BUILD_OPTIONAL; then
-        VISIT_BUILDS=$VISIT_BUILDS,par
-      fi
-      ;;
-  esac
+if test -z "$VISIT_DESIRED_BUILDS"; then
+  VISIT_DESIRED_BUILDS=sersh
+  if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
+    VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+  fi
 fi
+computeBuilds visit
+addCc4pyBuild visit
 
 VISIT_DEPS=Imaging,hdf5,visit_vtk,qt,cmake
 VISIT_UMASK=002
@@ -242,8 +238,8 @@ fi
     local VISIT_COMPILER_FLAGS
     case `uname` in
       CYGWIN*)
-        VISIT_COMPILERS="$CMAKE_COMPILERS_SER"
-        VISIT_COMPILER_FLAGS="$CMAKE_COMPFLAGS_SER"
+        VISIT_COMPILERS="$CMAKE_COMPILERS_SERSH"
+        VISIT_COMPILER_FLAGS="$CMAKE_COMPFLAGS_SERSH"
         ;;
       Linux)
         VISIT_COMPILERS="$CMAKE_COMPILERS_PYC"
@@ -259,22 +255,13 @@ fi
 #
 # HDF5 is needed in install, so not local
     VISIT_HDF5_DIR=
-    case `uname` in
-      CYGWIN*)
-        if test -d $CONTRIB_DIR/hdf5-sersh/lib; then
-          VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5-sersh
-        else
-          VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5
-        fi
-        ;;
-      *)
-        if test -d $CONTRIB_DIR/hdf5-cc4py/lib; then
-          VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5-cc4py
-        else
-          VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5
-        fi
-        ;;
-    esac
+    if test -d $CONTRIB_DIR/hdf5-cc4py/lib; then
+      VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5-cc4py
+    elif test -d $CONTRIB_DIR/hdf5-sersh/lib; then
+      VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5-sersh
+    else
+      VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5
+    fi
     local VISIT_MESA_DIR=
     if test -d $CONTRIB_DIR/mesa/lib; then
       VISIT_MESA_DIR=$CONTRIB_DIR/mesa
@@ -287,15 +274,16 @@ fi
     findQt
 
 # Find Vtk (5.8 for ALL VisIt builds)
-    local VISIT_VTK_DIR=$CONTRIB_DIR/visit_vtk
-    VISIT_SER_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-ser"
-    VISIT_PAR_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-par"
+    local VISIT_VTK_DIR=$CONTRIB_DIR/visit_vtk-sersh
+    VISIT_SERSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-sersh"
+    VISIT_PARSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-parsh"
     techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 
 # Get actual paths
     VISIT_QT_BIN="$QT_BINDIR"
-    QT_DIR="$QT_SER_DIR"
-    for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN QT_DIR VISIT_VTK_DIR; do
+    # QT_DIR="$QT_SERSH_DIR"
+    # for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN QT_DIR VISIT_VTK_DIR; do
+    for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
       local val=`deref $i`
       if test -n "$val"; then
         val=`(cd $val; pwd -P)`
@@ -309,7 +297,8 @@ fi
     done
 
 # Set corresponding args
-    local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN -DQT_DIR:PATH=$QT_DIR"
+    # local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN -DQT_DIR:PATH=$QT_DIR"
+    local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
     local VISIT_PKG_ARGS="$VISIT_QT_ARGS"
     for i in HDF5 MESA NETCDF VTK; do
       local var=VISIT_${i}_DIR
@@ -340,13 +329,13 @@ EOF
     esac
 
 # Build serial
-    if bilderConfig $VISIT_SER_PREFIX_ARGS -c visit ser "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $VISIT_COMPILERS $VISIT_COMPILER_FLAGS $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_SER_OTHER_ARGS" "" "$VISIT_ENV"; then
+    if bilderConfig $VISIT_SERSH_PREFIX_ARGS -c visit sersh "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $VISIT_COMPILERS $VISIT_COMPILER_FLAGS $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
 # Build
-      bilderBuild visit ser "$VISIT_MAKEARGS" "$VISIT_ENV"
+      bilderBuild visit sersh "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
 
 # Build parallel doing optional builds
-    if bilderConfig $VISIT_PAR_PREFIX_ARGS -c visit par "-DVISIT_PARALLEL:BOOL=ON -DVISIT_OPTION_DEFAULT_NOFORCE:BOOL=ON -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_PAR_OTHER_ARGS" "" "$VISIT_ENV"; then
+    if bilderConfig $VISIT_PARSH_PREFIX_ARGS -c visit parsh "-DVISIT_PARALLEL:BOOL=ON -DVISIT_OPTION_DEFAULT_NOFORCE:BOOL=ON -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_PAR_OTHER_ARGS" "" "$VISIT_ENV"; then
 
 # Find the mpi c++ library
       local MPI_LIBDIR
@@ -373,7 +362,7 @@ EOF
         fi
       fi
 # Visit uses serial hdf5 even in parallel.
-      bilderBuild visit par "$VISIT_MAKEARGS" "$VISIT_ENV"
+      bilderBuild visit parsh "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
 
   fi
@@ -462,13 +451,9 @@ installVisit() {
   umask $VISIT_UMASK
 
 # Install serial and parallel
-  for bld in ser par; do
+  for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
 
-# Compute the build suffix
-    case $bld in
-      ser) unset sfx   ;;
-        *) sfx="-$bld" ;;
-    esac
+    sfx="-$bld"
 
 # Install
     if bilderInstall -r visit $bld; then

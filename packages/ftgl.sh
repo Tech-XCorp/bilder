@@ -16,25 +16,18 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-FTGL_BUILDS=${FTGL_BUILDS:-"ser"}
+# Shared builds only needed -- for use with Qt
+FTGL_BUILDS=${FTGL_BUILDS:-"sersh"}
 FTGL_DEPS=
 FTGL_UMASK=002
 
 ######################################################################
 #
-# Add to path
-#
-######################################################################
-
-# addtopathvar PATH $CONTRIB_DIR/autotools/bin
-
-######################################################################
-#
-# Launch ftgl builds.
+# Launch builds.
 #
 ######################################################################
 
@@ -49,15 +42,15 @@ buildFtgl() {
         break
       fi
     done
-    if bilderConfig ftgl ser "$ftargs $FTGL_SER_OTHER_ARGS"; then
-      bilderBuild -m make ftgl ser "" "ECHO=echo"
+    if bilderConfig ftgl sersh "$ftargs $FTGL_SER_OTHER_ARGS"; then
+      bilderBuild -m make ftgl sersh "" "ECHO=echo"
     fi
   fi
 }
 
 ######################################################################
 #
-# Test ftgl
+# Test
 #
 ######################################################################
 
@@ -67,12 +60,12 @@ testFtgl() {
 
 ######################################################################
 #
-# Install ftgl
+# Install
 #
 ######################################################################
 
 installFtgl() {
-  bilderInstall -m make ftgl ser "" "" "ECHO=echo"
+  bilderInstall -m make ftgl sersh "" "" "ECHO=echo"
   # techo "Quitting at the end of ftgl.sh."; exit
 }
 

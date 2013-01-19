@@ -6,29 +6,6 @@
 #
 ######################################################################
 
-# For now, just recording what to get here
-cat >/dev/null <<EOF
-The OCE project is at https://github.com/tpaviot/oce
-
-To get ftgl, build composerall with "-E FTGL_BUILDS=ser"
-
-More packages:
-
-yum install tcl-devel
-yum install tk-devel
-
-git clone git://github.com/tpaviot/oce.git
-cd oce
-mkdir ser && cd ser
-cmake \
-  -DOCE_INSTALL_PREFIX:PATH=/contrib/oce \
-  -DFTGL_INCLUDE_DIR:PATH=/contrib/ftgl/include \
-  -DFTGL_LIBRARY:FILEPATH=/contrib/ftgl/lib/libftgl.so \
-  -DOCE_DRAW:BOOL=ON \
-  -DOCE_INSTALL_INCLUDE_DIR:STRING=include \
-  ..
-EOF
-
 ######################################################################
 #
 # Version
@@ -39,20 +16,15 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-OCE_BUILDS=${OCE_BUILDS:-"ser"}
+OCE_DESIRED_BUILDS=${OCE_DESIRED_BUILDS:-"sersh"}
+computeBuilds oce
+addCc4pyBuild oce
 OCE_DEPS=ftgl
 OCE_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/oce/bin
 
 ######################################################################
@@ -112,7 +84,7 @@ buildOce() {
     if test $res != 0; then
       return 1
     fi
-    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-ser"
+    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-sersh"
     techo "NOTE: Building oce from the git repo."
   else
     bilderUnpack oce
@@ -120,13 +92,13 @@ buildOce() {
     if test $res != 0; then
       return 1
     fi
-    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-ser"
+    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-sersh"
   fi
 
 # Determine other configure args
   local FTGL_DIR=
-  if test -e $CONTRIB_DIR/ftgl; then
-    FTGL_DIR=`(cd $CONTRIB_DIR/ftgl; pwd -P)`
+  if test -e $CONTRIB_DIR/ftgl-sersh; then
+    FTGL_DIR=`(cd $CONTRIB_DIR/ftgl-sersh; pwd -P)`
   fi
   if test -n "$FTGL_DIR"; then
     OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$FTGL_DIR/include"
@@ -166,8 +138,8 @@ if false; then
 fi
 
 # Configure and build
-  if bilderConfig oce ser "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
-    bilderBuild oce ser "$OCE_MAKEJ_ARGS" "$OCE_ENV"
+  if bilderConfig oce sersh "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
+    bilderBuild oce sersh "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
 }
@@ -189,7 +161,7 @@ testOce() {
 ######################################################################
 
 installOce() {
-  if bilderInstall oce ser; then
+  if bilderInstall oce sersh; then
     : # Probably need to fix up dylibs here
   fi
   # techo "WARNING: Quitting at end of oce.sh."; cleanup

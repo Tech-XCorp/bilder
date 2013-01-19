@@ -2,13 +2,6 @@
 #
 # Version and build information for visit_vtk
 #
-# $Id$
-#
-######################################################################
-
-######################################################################
-#
-# Version.
 # This was the patched version from the VisIt repo:
 # wget http://portal.nersc.gov/svn/visit/trunk/third_party/visit-vtk-5.8.tar.gz
 # Then repacked:
@@ -18,27 +11,30 @@
 #
 # tarball updated Dec 24, 2011
 #
+# $Id$
+#
+######################################################################
+
+######################################################################
+#
+# Version
+#
 ######################################################################
 
 VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-"5.8.0.a"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-VISIT_VTK_BUILDS=${VISIT_VTK_BUILDS:-"ser"}
-VISIT_VTK_DEPS=mesa,hdf5,cmake
-case `uname` in
-  Linux)
-    VISIT_VTK_DEPS=${VISIT_VTK_DEPS},Python
-    ;;
-esac
+VISIT_VTK_BUILDS=${VISIT_VTK_BUILDS:-"sersh"}
+VISIT_VTK_DEPS=mesa,hdf5,Python,cmake
 
 ######################################################################
 #
-# Launch visit_vtk builds.
+# Launch builds.
 #
 ######################################################################
 
@@ -68,7 +64,7 @@ buildVisIt_Vtk() {
         esac
 # JRC originally added this nmake argument, but as of 02/07/2012
 # jom appears to work when building visit_vtk.sh.  After establishing
-# that it works across all of our machines, we can remove this 
+# that it works across all of our machines, we can remove this
 # comment and the commented code.
 # (JRC) Protect against jom, as dependencies not right
 #        VISIT_VTK_BUILD_ARGS="-m nmake"
@@ -88,7 +84,7 @@ buildVisIt_Vtk() {
         if $VISIT_VTK_BUILD_WITH_MESA; then
           VISIT_VTK_MESA_LIB_PATH=${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib
         fi
-        VISIT_VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${VISIT_VTK_MESA_LIB_PATH}:${BUILD_DIR}/visit_vtk-$VISIT_VTK_BLDRVERSION/ser/bin:$LD_RUN_PATH
+        VISIT_VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${VISIT_VTK_MESA_LIB_PATH}:${BUILD_DIR}/visit_vtk-$VISIT_VTK_BLDRVERSION/sersh/bin:$LD_RUN_PATH
         trimvar VISIT_VTK_LD_RUN_PATH ':'
         if test -n "$VISIT_VTK_LD_RUN_PATH"; then
           local VISIT_VTK_LD_RUN_ARGS="LD_RUN_PATH=$VISIT_VTK_LD_RUN_PATH"
@@ -198,20 +194,17 @@ buildVisIt_Vtk() {
       $VISIT_VTK_COMPILERS \
       $VISIT_VTK_COMPFLAGS \
       ${VISIT_VTK_MESA_ARGS} $VISIT_VTK_PYTHON_ARGS $VISIT_VTK_SER_OTHER_ARGS"
-    # techo "VISIT_VTK_CONFIG_ARGS = $VISIT_VTK_CONFIG_ARGS"
-# Pass with commas and separate later.
-    if bilderConfig visit_vtk ser "$VISIT_VTK_CONFIG_ARGS" "" "$VISIT_VTK_ENV"; then
+    if bilderConfig visit_vtk sersh "$VISIT_VTK_CONFIG_ARGS" "" "$VISIT_VTK_ENV"; then
 # Build
-      bilderBuild $VISIT_VTK_BUILD_ARGS visit_vtk ser "$VISIT_VTK_MAKE_ARGS" "$VISIT_VTK_ENV"
+      bilderBuild $VISIT_VTK_BUILD_ARGS visit_vtk sersh "$VISIT_VTK_MAKE_ARGS" "$VISIT_VTK_ENV"
     fi
   fi
-  # techo "WARNING: Quitting in visit_vtk.sh."; cleanup
 
 }
 
 ######################################################################
 #
-# Test visit_vtk
+# Test
 #
 ######################################################################
 
@@ -221,14 +214,14 @@ testVisIt_Vtk() {
 
 ######################################################################
 #
-# Install visit_vtk
+# Install
 #
 ######################################################################
 
 installVisIt_Vtk() {
-  if bilderInstall $VISIT_VTK_BUILD_ARGS -r visit_vtk ser "" "" "$VISIT_VTK_ENV"; then
-    :
-  fi
+  for bld in sersh cc4py; do
+     bilderInstall $VISIT_VTK_BUILD_ARGS -r visit_vtk $bld "" "" "$VISIT_VTK_ENV"
+  done
   # techo "Quitting at the end of visit_vtk.sh."; exit
 }
 

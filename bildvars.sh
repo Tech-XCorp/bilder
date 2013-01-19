@@ -227,6 +227,7 @@ case `uname` in
     ;;
 
 esac
+techo "Found $MAKEJ_MAX cores to build on."
 IS_MINGW=${IS_MINGW:-"false"}
 
 ######################################################################
@@ -450,18 +451,16 @@ if ! [[ `uname` =~ CYGWIN ]] && which $PYC_FC 1>/dev/null 2>&1; then
     LIBGFORTRAN_DIR=`(cd $LIBGFORTRAN_DIR; pwd -P)`
     case $LIBGFORTRAN_DIR in
       /usr/lib/gcc/*)
-  # This should be where libgfortran is not needed to be in LD_LIBRARY_PATH
+# For this case libgfortran location not needed to be in LD_LIBRARY_PATH
         ;;
       *)
-        if isCcGcc; then
-          SER_EXTRA_LT_LDFLAGS=`echo $SER_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$LIBGFORTRAN_DIR`
-          PAR_EXTRA_LT_LDFLAGS=`echo $PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$LIBGFORTRAN_DIR`
-        fi
         case `uname` in
           Linux)
             if isCcGcc; then
               SER_EXTRA_LDFLAGS=`echo $SER_EXTRA_LDFLAGS ${RPATH_FLAG}$LIBGFORTRAN_DIR`
               PAR_EXTRA_LDFLAGS=`echo $PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$LIBGFORTRAN_DIR`
+              SER_EXTRA_LT_LDFLAGS=`echo $SER_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$LIBGFORTRAN_DIR`
+              PAR_EXTRA_LT_LDFLAGS=`echo $PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$LIBGFORTRAN_DIR`
             fi
             addtopathvar LD_LIBRARY_PATH $LIBGFORTRAN_DIR
             export LD_LIBRARY_PATH

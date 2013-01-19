@@ -26,7 +26,11 @@ if test -z "$LIBSSH_DESIRED_BUILDS"; then
   LIBSSH_DESIRED_BUILDS=ser
 fi
 computeBuilds libssh
-addCc4pyBuild libssh
+# Since libssh always builds the shared libs in ser, addCc4py logic
+# not quite right.
+if ! isCcCc4py; then
+  addCc4pyBuild libssh
+fi
 
 LIBSSH_DEPS=cmake,zlib
 LIBSSH_UMASK=002
