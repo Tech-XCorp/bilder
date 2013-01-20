@@ -72,6 +72,6 @@ testPyQt() {
 ######################################################################
 
 installPyQt() {
-  bilderInstall -r PyQt cc4py
+  bilderInstall -L -r PyQt cc4py
 }
 
