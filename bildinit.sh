@@ -134,9 +134,8 @@ esac
 # Get various URLs
 BILDER_URL=`bilderSvn info $BILDER_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_BRANCH=`echo $BILDER_URL | sed -e 's?^.*/bilder/??'`
-if test "$BILDER_BRANCH" != trunk; then
-  techo "NOTE: BILDER_BRANCH = $BILDER_BRANCH."
-fi
+techo "NOTE: BILDER_BRANCH = $BILDER_BRANCH."
+
 BILDER_CONFDIR=${BILDER_CONFDIR:-"$BILDER_DIR/runnr"}
 techo "BILDER_CONFDIR = $BILDER_CONFDIR."
 BILDERCONF_VERSION=`bilderSvnversion $BILDER_CONFDIR`

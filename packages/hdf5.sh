@@ -407,7 +407,7 @@ installHdf5() {
         findContribPackage Hdf5 hdf5dll sersh parsh cc4py
         ;;
       *)
-        findContribPackage Hdf5 hdf5 cc4py
+        findContribPackage Hdf5 hdf5 sersh parsh cc4py
         ;;
     esac
     findCc4pyDir Hdf5

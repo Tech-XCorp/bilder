@@ -2703,12 +2703,12 @@ findCc4pyDir() {
     eval ${pkgnameuc}_CC4PY_DIR=`deref ${pkgnameuc}_SER_DIR`
     val=`deref ${pkgnameuc}_CC4PY_DIR`
   fi
+  techo "${pkgnameuc}_CC4PY_DIR = `deref ${pkgnameuc}_CC4PY_DIR`."
   eval CONFIG_${pkgnameuc}_CC4PY_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
+  techo "CONFIG_${pkgnameuc}_CC4PY_DIR_ARG = `deref CONFIG_${pkgnameuc}_CC4PY_DIR_ARG`."
   if test -n "$val"; then
     case `uname` in
-      CYGWIN*)
-        val=`cygpath -am $val`
-      ;;
+      CYGWIN*) val=`cygpath -am $val`;;
     esac
   fi
   eval CMAKE_${pkgnameuc}_CC4PY_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"

@@ -801,12 +801,8 @@ findBlasLapack
 
 findContribPackage Hdf5 hdf5 ser par
 case `uname` in
-  CYGWIN*)
-    findContribPackage Hdf5 hdf5dll sersh parsh cc4py
-    ;;
-  *)
-    findContribPackage Hdf5 hdf5 cc4py
-    ;;
+  CYGWIN*) findContribPackage Hdf5 hdf5dll sersh parsh cc4py;;
+  *) findContribPackage Hdf5 hdf5 sersh parsh cc4py;;
 esac
 findCc4pyDir Hdf5
 # techo "Quitting in bildvars.sh."; cleanup
