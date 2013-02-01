@@ -228,7 +228,7 @@ fi
         ;;
       Linux)
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
-        local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$LD_RUN_PATH
+        local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$PYC_LD_RUN_PATH:$LD_RUN_PATH
         VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
         ;;
     esac
