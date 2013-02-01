@@ -76,15 +76,12 @@ source $BILDER_DIR/bildfcns.sh
 if test -n "$MACHINE_FILE"; then
   source $BILDER_DIR/machines/$MACHINE_FILE
 fi
-# Look for predefined version
-vervar=`genbashvar $package`_BLDRVERSION
-verval=`deref $vervar`
 
 # We need PKGNM later, regardless of how we're determining the version.
 PKGNM=`echo $package | tr 'A-Z./-' 'a-z___'`
 PKG_FILE=$BILDER_DIR/packages/$PKGNM.sh
-
 if test ! -e $PKG_FILE; then
+  # techo "$PKG_FILE does not exist."
   if test -n "$BILDER_CONFDIR"; then
     PKG_FILE=$BILDER_CONFDIR/packages/$PKGNM.sh
     if test ! -e $PKG_FILE; then
@@ -96,39 +93,19 @@ if test ! -e $PKG_FILE; then
     exit 1
   fi
 fi
+techo "PKG_FILE = $PKG_FILE."
 
-if test -z "$verval"; then
-# Logic should be to get svn version first if possible
-  if test -d $PROJECT_DIR/$package; then
-    getVersion $package
-    verval=`deref $vervar`
-  fi
-  if test -z "$verval"; then
-    if test ! -f $PKG_FILE; then
-# Didn't find pkg file in BILDER_DIR, so try BILDER_CONFDIR
-      if test -z $BILDER_CONFDIR; then
-        techo "No source file. Looked for $PKG_FILE. Quitting. Try setting BILDER_CONFDIR"
-        usage 1
-        exit 1
-      else
-        old_file=$PKG_FILE
-        PKG_FILE=$BILDER_CONFDIR/packages/$PKGNM.sh
-        if test ! -f $PKG_FILE; then
-          techo "No source file. Looked for $old_file and $PKG_FILE. Quitting."
-          usage 1
-          exit 1
-        fi
-      fi
-    fi
-    source $PKG_FILE
-    verval=`deref $vervar`
-  fi
+# If a repo, get that version, otherwise look in variables
+vervar=`genbashvar $package`_BLDRVERSION
+if test -d $PROJECT_DIR/$package; then
+  getVersion $package
+  verval=`deref $vervar`
+else # Look in variables
+  source $PKG_FILE
+  computeVersion $PKGNAME
+  verval=`deref $vervar`
 fi
-if test -z "$verval"; then
-  techo "Version unknown.   Quitting."
-  exit 1
-fi
-# echo $vervar = $verval
+techo "$vervar = $verval."
 
 # Determine the version variable name
 installstrval=${package}-${verval}-${build}

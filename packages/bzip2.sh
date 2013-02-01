@@ -16,7 +16,7 @@ BZIP2_BLDRVERSION=${BZIP2_BLDRVERSION:-"1.0.6"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -27,23 +27,15 @@ if test -z "$BZIP2_BUILDS"; then
 fi
 BZIP2_DEPS=
 BZIP2_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/bzip2/bin
 
 ######################################################################
 #
-# Launch bzip2 builds.
+# Launch builds.
 #
 ######################################################################
 
 buildBzip2() {
-  techo
 # Configure and build
   if [[ `uname` =~ CYGWIN ]]; then
     BZIP2_MAKE_ARGS="-f makefile.msc"
@@ -59,7 +51,7 @@ buildBzip2() {
 
 ######################################################################
 #
-# Test bzip2
+# Test
 #
 ######################################################################
 
@@ -80,6 +72,5 @@ installBzip2() {
     PREFIX=`cygpath -aw $PREFIX`
   fi
   bilderInstall bzip2 ser bzip2 "$BZIP2_MAKE_ARGS PREFIX='$PREFIX'"
-  # techo "WARNING: Quitting at the end of bzip2.sh."; cleanup
 }
 

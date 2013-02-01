@@ -15,12 +15,6 @@ trap 'cleanup; exit' 1 2 15
 # For signaling to quit after next installation.
 TERMINATE_REQUESTED=false
 
-# Allow calling routine to specify the name
-if test -z "$BILDER_NAME"; then
-  BILDER_NAME=`basename $0 .sh`
-fi
-techo "BILDER_NAME = $BILDER_NAME."
-
 # Remove old indicators, provide new
 rm -f $BILDER_LOGDIR/$BILDER_NAME.end
 hostname >$BILDER_LOGDIR/$BILDER_NAME.host
@@ -35,11 +29,15 @@ hostname >$BILDER_LOGDIR/$BILDER_NAME.host
 
 # Get machine hostname, directories, before, so machine files can
 # host-specific cases in them
-export BILDER_CONFDIR=${BILDER_CONFDIR:-"$BILDER_DIR/runnr"}
 source $BILDER_DIR/runnr/runnrfcns.sh
 runnrGetHostVars
 techo "Working on $FQHOSTNAME of $BLDRHOSTID with RUNNRSYSTEM = $RUNNRSYSTEM."
 techo "uname = `uname -a`."
+
+# Make sure we have a machine file for Windows
+if test -z "$MACHINE_FILE" && [[ `uname` =~ CYGWIN ]]; then
+  MACHINE_FILE=cygwin.vs9
+fi
 
 # Get machine specific variables
 if test -n "$CC"; then

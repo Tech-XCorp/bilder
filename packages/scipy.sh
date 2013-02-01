@@ -99,7 +99,7 @@ buildScipy() {
         ;;
       Linux-*)
         local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-sersh/lib
-        SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN LAPACK='$LAPACK_LIB_DIR'"
+        SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN BLAS='$LAPACK_LIB_DIR' LAPACK='$LAPACK_LIB_DIR'"
 	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
         ;;
       *)

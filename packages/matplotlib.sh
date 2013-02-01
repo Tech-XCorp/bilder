@@ -172,7 +172,6 @@ EOF
 # Compute args such that for
 #   Cygwin: build, install, and make packages all at once.
 #   Others, just build.
-    local linkflags="$PYC_LDSHARED"
     MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
     case `uname`-"$CC" in
       CYGWIN*-*cl*)

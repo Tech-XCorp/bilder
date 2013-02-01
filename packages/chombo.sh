@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2013-01-16"}
+CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2013-01-24"}
 
 ######################################################################
 #
@@ -22,11 +22,7 @@ CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"2013-01-16"}
 
 CHOMBO_DEPS=petsc33,hdf5,openmpi
 if test -z "$CHOMBO_BUILDS"; then
-  case `uname` in
-    Darwin | Linux)
-      CHOMBO_BUILDS=par3d,par2d,par2ddbg,par3ddbg,ser3d
-      ;;
-  esac
+  CHOMBO_BUILDS=par3d,par2d,par2ddbg,par3ddbg,ser3d
 fi
 
 ######################################################################

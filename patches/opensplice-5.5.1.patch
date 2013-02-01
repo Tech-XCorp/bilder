@@ -1,0 +1,19 @@
+*** OpenSplice-5.5.1/bin/configure_functions	2012-05-23 06:55:09.000000000 -0600
+--- OpenSplice-5.5.1/bin/configure_functions.txc	2013-01-30 15:34:27.000000000 -0700
+***************
+*** 133,139 ****
+     OLD_SPLICE_LIBRARY_PATH="${SPLICE_LIBRARY_PATH}"
+     OLD_SPLICE_TEST_LIBRARY_PATH="${SPLICE_LIBRARY_TEST_PATH}"
+  
+!    SPLICE_TARGET=
+     if [ "$1" != "KEEP_OSPL_HOME" ]
+     then
+        OSPL_HOME=
+--- 133,139 ----
+     OLD_SPLICE_LIBRARY_PATH="${SPLICE_LIBRARY_PATH}"
+     OLD_SPLICE_TEST_LIBRARY_PATH="${SPLICE_LIBRARY_TEST_PATH}"
+  
+! #   SPLICE_TARGET=
+     if [ "$1" != "KEEP_OSPL_HOME" ]
+     then
+        OSPL_HOME=

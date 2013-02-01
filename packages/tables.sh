@@ -129,63 +129,60 @@ testTables() {
 
 ######################################################################
 #
-# Function to put rpath in front of a library name in a dylib
-# and add . to the rpath.  This will likely be generalized.
-#
-######################################################################
-
-addDarwinRpathToExtensions() {
-# Get the directory
-  local dir=$1
-  local extensions=`find $dir -name '*Extension.so' -print`
-  for i in $extensions; do
-    cmd="install_name_tool -change libhdf5.${TABLES_HDF5_VERSION}.dylib @rpath/libhdf5.${TABLES_HDF5_VERSION}.dylib $i"
-    techo "$cmd"
-    $cmd
-    cmd="install_name_tool -add_rpath @loader_path/ $i"
-    techo "$cmd"
-    $cmd
-  done
-}
-
-######################################################################
-#
 # Install tables
 #
 ######################################################################
 
 installTables() {
 
-# On CYGWIN, no installation to do, just mark
-  case `uname`-`uname -r` in
-
+# Determine libraries, compatibility name/soname
+  local hdf5shlib=
+  local hdf5shlink=
+  local instopts=
+  case `uname` in
     CYGWIN*)
-      if bilderDuInstall -n tables; then
-        local tablesinstdir=${PYTHON_SITEPKGSDIR}/tables
-        local hdf5sershdll=${HDF5_SERSH_DIR}/bin/hdf5dll.dll
-        if test -f $hdf5sershdll; then
-          cp $hdf5sershdll $tablesinstdir
-        else
-          techo "WARNING tables could not find hdf5dll.dll"
-        fi
-      fi
+      hdf5shdir=$HDF5_CC4PY_DIR/bin
+      hdf5shlib=hdf5dll.dll
+      instopts=-n
       ;;
-
-    Darwin-1?.*)
-# On Darwin, add the rpaths so that hdf5 is found
-      if bilderDuInstall -r tables tables "$TABLES_ARGS" "$TABLES_ENV"; then
-        addDarwinRpathToExtensions $PYTHON_SITEPKGSDIR/tables
-        if ! test -f $PYTHON_SITEPKGSDIR/tables/libhdf5.${TABLES_HDF5_VERSION}.dylib; then
-          techo "$PYTHON_SITEPKGSDIR/tables/libhdf5.${TABLES_HDF5_VERSION}.dylib missing.  Will install."
-          /usr/bin/install -m 775 $HDF5_CC4PY_DIR/lib/libhdf5.${TABLES_HDF5_VERSION}.dylib $PYTHON_SITEPKGSDIR/tables
-        fi
-      fi
+    Darwin)
+      hdf5shdir=$HDF5_CC4PY_DIR/lib
+      hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
+      hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
+      instopts="-r tables"
       ;;
-
-    *) bilderDuInstall -r tables tables "$TABLES_ARGS" "$TABLES_ENV";;
-
+    Linux)
+      hdf5shdir=$HDF5_CC4PY_DIR/lib
+      hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
+      # hdf5shlink=`objdump -p $hdf5shdir/$hdf5shlib | grep SONAME | sed 's/^.*SONAME *//'`
+      instopts="-r tables"
+      ;;
   esac
-  # techo "Quitting at the end of tables.sh"; exit
+
+# Install library if not present, make link if needed
+  if bilderDuInstall $instopts tables "$TABLES_ARGS" "$TABLES_ENV"; then
+    local tablesinstdir=${PYTHON_SITEPKGSDIR}/tables
+    if ! test -f $tablesinstdir/$hdf5shlib; then
+      techo "$tablesinstdir/$hdf5shlib missing.  Will install."
+      /usr/bin/install -m 775 $hdf5shdir/$hdf5shlib $tablesinstdir
+    fi
+    if test -n "$hdf5shlink"; then
+      cmd="(cd $tablesinstdir; ln -sf $hdf5shlib $hdf5shlink)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
+    if test `uname` = Darwin; then
+      local extensions=`find $dir -name '*Extension.so' -print`
+      for i in $extensions; do
+        cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlink $i"
+        techo "$cmd"
+        $cmd
+        cmd="install_name_tool -add_rpath @loader_path/ $i"
+        techo "$cmd"
+        $cmd
+      done
+    fi
+  fi
 
 }
 

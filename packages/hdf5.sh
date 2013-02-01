@@ -257,13 +257,16 @@ fixHdf5StaticLibs() {
 # VisIT does not do, and so breaks the VisIt package.  This function
 # restores the state that VisIt expects.
 #
+# Args:
+# 1: the build
+
 # First we change the ID on the library, then we change the references inside
 # each library.
-#
 fixHdf5Dylibs() {
-  techo "Checking to see whether hdf5 dylibs need fixing..."
+  bld=$1
+  techo "Checking to see whether hdf5 dylibs need fixing for build, $bld."
   local ver=${HDF5_BLDRVERSION}
-  if cd $CONTRIB_DIR/hdf5-${ver}-cc4py/lib; then
+  if cd $CONTRIB_DIR/hdf5-${ver}-$bld/lib; then
     for lib in lib*${ver}.dylib; do
       local liblink=`echo $lib | sed -e "s/${ver}\\.//"`
       ln -sf $lib $liblink
@@ -342,14 +345,14 @@ fi
 }
 
 #
-# Fix the hdf5 libraries by build
+# Fix shared or dynamic hdf5 libraries by build
 #
 # Args
 # 1: the name of the build
 #
 fixHdf5Libs() {
   bld=$1
-  instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
+  # instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
   case $bld in
     ser | par) fixHdf5StaticLibs $bld;;
     sers | parsh | cc4py)

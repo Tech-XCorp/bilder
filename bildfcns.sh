@@ -1624,7 +1624,7 @@ shouldInstall() {
       techo "... not causing rebuild because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
     fi
   else
-    techo "... not causing rebuild because built revision is greater than current."
+    techo "... not a reason to rebuild."
   fi
 
   techo -2 "Bilder using `which sort` to do sorting."
@@ -2808,6 +2808,12 @@ computeMakeJ() {
 #
 getPkg() {
 
+# Ensure have some repos
+  if test $NUM_PACKAGE_REPOS = 0; then
+    TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No package repos defined.  PACKAGE_REPOS_FILE needs to be defined."
+    cleanup
+  fi
+
 # Search for the package in all repos with all suffixes
   local tarball=
   local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
@@ -2876,6 +2882,27 @@ getPkg() {
 
 }
 
+# Compute the version, depending on whether experimental
+#
+# Args:
+# 1: package name
+#
+computeVersion() {
+# Determine name of variable holding version and the value.
+  local vervar=`genbashvar $1`_BLDRVERSION
+  local verval=`deref $vervar`
+# If not defined, look for standard and experimental versions
+  if test -z "$verval"; then
+    local vervar1=
+    if $BUILD_EXPERIMENTAL; then
+      vervar1=`genbashvar $1`_BLDRVERSION_EXP
+    else
+      vervar1=`genbashvar $1`_BLDRVERSION_STD
+    fi
+    verval=`deref $vervar1`
+    eval $vervar=$verval
+  fi
+}
 
 #
 # Unpack a package and link to non versioned name.
@@ -2915,6 +2942,12 @@ bilderUnpack() {
   done
   shift $(($OPTIND - 1))
 
+# Just return if not building tarballs
+  if ! $BUILD_TARBALLS; then
+    techo "Not building $1 because BUILD_TARBALLS = $BUILD_TARBALLS."
+    return 1
+  fi
+
 # Remaining args
   local builds=$2
   techo "Determining whether to unpack $1."
@@ -2930,6 +2963,7 @@ bilderUnpack() {
   local unpackedvar=`genbashvar $1`_UNPACKED
   eval $unpackedvar=true
 
+if false; then
 # Determine name of variable holding version and the value.
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
@@ -2944,6 +2978,12 @@ bilderUnpack() {
     verval=`deref $vervar1`
     eval $vervar=$verval
   fi
+fi
+
+# Determing the version
+  computeVersion $1
+  local vervar=`genbashvar $1`_BLDRVERSION
+  local verval=`deref $vervar`
   if test -z "$verval"; then
     techo "$vervar not defined.  Cannot build."
     return 1
@@ -4198,7 +4238,7 @@ waitBuild() {
         echo FAILURE >>$builddir/$build_txt
       fi
     else
-      techo "waitBuild: Can not find $builddir/$build_txt to record result of $res."
+      techo "waitBuild: Cannot find $builddir/$build_txt to record result of $res."
     fi
 
 # Record failure if appropriate
@@ -4873,7 +4913,7 @@ EOF
           $cmd
         fi
       else
-        techo "WARNING: Configure script not found."
+        techo "WARNING: Configure script not found for package $1."
       fi
 
 # Remove old installations.
@@ -5234,7 +5274,7 @@ bilderDuBuild() {
     rm -f $bilderbuild_resfile
     rm -rf build/*
     local build_txt=$FQMAILHOST-$1-cc4py-build.txt
-    techo "Building $1 in $PWD." | tee $build_txt
+    techo "Building $1 in $PWD with output going to $build_txt." | tee $build_txt
     if test "$2" = '-'; then
       unset buildargs
     else
@@ -5262,7 +5302,7 @@ EOF
     fi
 
 # Record build
-    addBuildToLists $1 $pid
+    addBuildToLists $1-cc4py $pid
 
     return 0
   fi
@@ -5318,7 +5358,7 @@ bilderDuInstall() {
   # local installstrval=$1-$verval-cc4py
 
 # Wait on the build.  waitBuild writes SUCCESS or FAILURE.
-  if ! waitBuild $1; then
+  if ! waitBuild $1-cc4py; then
     return 1
   fi
 
@@ -5392,6 +5432,7 @@ EOF
     ./$installscript >>$install_txt 2>&1
     RESULT=$?
   else
+    techo "Not installing $1. Should have been done by build."
     RESULT=0
   fi
 
@@ -5775,7 +5816,7 @@ Total time =  $totalmmss
 EOF
 
 # Add versions of built packages (exclude quoted from bildvars.sh)
-  grep "[^ ]*_BLDRVERSION =" $LOGFILE | grep -v reverting | grep -v 'WARNING:' | sed '/_BLDRVERSION = "/d' >$BILDER_LOGDIR/versions.txt
+  grep "[^ ]*_BLDRVERSION =" $LOGFILE | grep -v reverting | grep -v 'WARNING:' | sed '/_BLDRVERSION = "/d' | uniq >$BILDER_LOGDIR/versions.txt
   if test -s $BILDER_LOGDIR/versions.txt; then
     echo VERSIONS >>$SUMMARY
     cat $BILDER_LOGDIR/versions.txt >>$SUMMARY
@@ -5900,7 +5941,7 @@ emailSummary() {
 
 # Always construct subject for email as it uses as a marker for finish of build
   subject=${subject:-"$EMAIL_SUBJECT"}
-  subject="$UQMAILHOST ($RUNNRSYSTEM-$BILDER_CHAIN) $BILDER_NAME results: $subject"
+  subject="$UQMAILHOST ($RUNNRSYSTEM-$BILDER_CHAIN) $BILDER_BRANCH $BILDER_NAME results: $subject"
   echo "$subject" >$BILDER_LOGDIR/$BILDER_NAME.subj
 
 # If no email address, no email; otherwise send email
@@ -6227,7 +6268,10 @@ buildChain() {
     if ! declare -f $cmd 1>/dev/null; then
       cmd2="source $pkgfile"
       techo "$cmd2" 1>&2
-      $cmd2 1>&2
+      if ! $cmd2 1>&2; then
+        TERMINATE_ERROR_MSG="Catastrophic error in buildChain: error in sourcing $pkgfile."
+        cleanup
+      fi
     fi
     techo "--------> Executing $cmd <--------"
     $cmd

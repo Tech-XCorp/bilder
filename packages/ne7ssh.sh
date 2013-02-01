@@ -53,10 +53,10 @@ buildNe7ssh() {
         ;;
     esac
     BOTAN_ARGS="-DBOTAN_DIR:PATH='$botaninstdir'"
-    if bilderConfig -c ne7ssh sersh "$BOTAN_ARGS $NE7SSH_SERSH_OTHER_ARGS"; then
+    if bilderConfig -c ne7ssh sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $BOTAN_ARGS $NE7SSH_SERSH_OTHER_ARGS"; then
       bilderBuild ne7ssh sersh
     fi
-    if bilderConfig -c ne7ssh cc4py "$BOTAN_ARGS $NE7SSH_CC4PY_OTHER_ARGS"; then
+    if bilderConfig -c ne7ssh cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $BOTAN_ARGS $NE7SSH_CC4PY_OTHER_ARGS"; then
       bilderBuild ne7ssh cc4py
     fi
   fi

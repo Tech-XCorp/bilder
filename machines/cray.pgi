@@ -34,58 +34,70 @@ case $UQMAILHOST in
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
+
+    # System linear algebra, note mc12 (Magny-Cours) for Hopper.
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+
+    # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.8/pgi/119
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.8/pgi/119
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/pgi/119
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/pgi/119
+
+    # Trilinos and Petsc 
     TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
+
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
     PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
+
 # NIMROD specific lines
     NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"--with-optimization=full SUPERLU_DIST_LIBS='-L/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/lib/ -lsuperlu_dist_2.4 -L/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/lib/ -lparmetis -lmetis' SUPERLU_DIST_INC='-I/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/include' SUPERLU_DIST_INCDIR='/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/include' --disable-petsc --with-superlu_dist-dir=/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par"}
-# NetCDF will not build parallel on hopper with pgi-10.3
-# benc: Commenting these out to avoid the wrong LD_LIBRARY_PATH
-    # PYC_FC=${PYC_FC:-"/opt/gcc/4.5.2/bin/gfortran"}
-    # PYC_F77=${PYC_F77:-"/opt/gcc/4.5.2/bin/gfortran"}
+
     LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
-    # GCC_LD_LIBRARY_PATH=${GCC_LD_LIBRARY_PATH:-"/opt/xt-pe/2.2.48B/lib:/opt/cray/pmi/1.0-1.0000.7628.10.2.ss/lib64:/opt/cray/mpt/4.1.0.1/xt/seastar/mpich2-gnu/lib:/opt/cray/mpt/4.1.0.1/xt/sma/lib:/opt/xt-libsci/10.4.3/gnu/lib:/opt/gcc/mpfr/2.3.1/lib:/opt/gcc/4.4.2/snos/lib64"}
-# JRC: removing below on 8jan2011.  If put back, please say why.
-    # PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-"/opt/xt-pe/2.2.48B/lib:/opt/cray/pmi/1.0-1.0000.7628.10.2.ss/lib64:/opt/cray/mpt/4.1.0.1/xt/seastar/mpich2-gnu/lib:/opt/cray/mpt/4.1.0.1/xt/sma/lib:/opt/xt-libsci/10.4.3/gnu/lib:/opt/gcc/mpfr/2.3.1/lib:/opt/gcc/4.4.2/snos/lib64"}
     ;;
-  jaguar*)
+  titan*)
 # Make sure your code is built for the compute nodes,
 # module xtpe-interlagos should be loaded.
-
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
-
-    #CRAY_MPICH_VERSION=3.5.1
     CRAY_CONNECT=gemini
 
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.8/pgi/119
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.8/pgi/119
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/pgi/119
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/pgi/119
+    # System linear algebra, note interlagos for Titan.
+    # Use threaded SER libraries.
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu.a
 
-# With these options the build WILL fail as the conftest script must
-# be executed on a compute node (with aprun -n 2), then execute
-# reconfigure.py on the login node before building.  The bilder build
-# script should succeed at this point.  Install by hand for now.
+    # System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/pgi/119
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/pgi/119
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.1.1/pgi/119
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.1.1/pgi/119
+
+    # Trilinos and Petsc 
+    # This was required on jaguar, try it on titan if there are problems.
+    #TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
+
+    # With these options the build WILL fail as the conftest script must
+    # be executed on a compute node (with aprun -n 2), then execute
+    # reconfigure.py on the login node before building.  The bilder build
+    # script should succeed at this point.  Install by hand for now.
     PETSC_MPIEXEC=${PROJECT_DIR}/bilder/mpiexec.aprun
-    PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 --with-batch --known-mpi-shared=1 $PETSC_MPIEXEC_ARG"}
 
-    local PETSC_DIR_NIM=/ccs/proj/csc091/contrib-pgi-12.2/petsc-par
-    NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"--with-optimization=full SUPERLU_DIST_LIBS='-L$PETSC_DIR_NIM/lib/ -lsuperlu_dist_2.4 -L$PETSC_DIR_NIM/lib/ -lparmetis -lmetis' SUPERLU_DIST_INC='-I$PETSC_DIR_NIM/include' SUPERLU_DIST_INCDIR='$PETSC_DIR_NIM/include' --disable-petsc --with-superlu_dist-dir=$PETSC_DIR_NIM"}
-
-    PYC_FC=${PYC_FC:-"/opt/gcc/4.6.2/bin/gfortran"}
-    PYC_F77=${PYC_F77:-"/opt/gcc/4.6.2/bin/gfortran"}
+    #PYC_FC=${PYC_FC:-"/opt/gcc/4.7.2/bin/gfortran"}
+    #PYC_F77=${PYC_F77:-"/opt/gcc/4.7.2/bin/gfortran"}
     LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
     #This gets numpy built
-    PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-"/opt/gcc/4.4.2/snos/lib64:/opt/gcc/mpc/0.8.1/lib"}
+    PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-"/opt/gcc/4.7.2/snos/lib64:/opt/gcc/mpc/0.8.1/lib"}
     ;;
 esac
+
 CRAY_MPICH_VERSION=${CRAY_MPICH_VERSION:-"default"}
 if test -n "PETSC_MPIEXEC"; then
   PETSC_MPIEXEC_ARG=${PETSC_MPIEXEC_ARG:-"--with-mpiexec=${PETSC_MPIEXEC}"}
@@ -157,11 +169,11 @@ MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi.a"}
-SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-"/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a"}
+# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
+# SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
 # SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-""}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi.a"}
-SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-"/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a"}
+# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
+# SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
 # IO directories:

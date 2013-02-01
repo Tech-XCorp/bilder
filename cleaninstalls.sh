@@ -197,6 +197,7 @@ fi
 if $REMOVE_UNFOUND; then
 # echo $bldrdir
   rm -f $CLN_INSTALL_DIR/installations.tmp $CLN_INSTALL_DIR/installations.rmv
+  touch $CLN_INSTALL_DIR/installations.tmp
 # source $bldrdir/bilderpy.sh 1>/dev/null 2>&1
 # echo PYINSTDIR = $PYINSTDIR
 # export PYTHONPATH=$PYINSTDIR
@@ -257,21 +258,22 @@ if $REMOVE_UNFOUND; then
   mv $CLN_INSTALL_DIR/installations.tmp $CLN_INSTALL_DIR/installations.txt
 
 # Now remove duplicate installations in installations.txt, keeping the latest
-  cmd="$TAC installations.txt >installationsr.txt"
+  cmd="$TAC $CLN_INSTALL_DIR/installations.txt >$CLN_INSTALL_DIR/installationsr.txt"
   echo "$cmd"
   eval "$cmd"
-  rm -f installationsrs.txt
-  while test -s installationsr.txt; do
+  rm -f $CLN_INSTALL_DIR/installationsrs.txt
+  touch $CLN_INSTALL_DIR/installationsrs.txt
+  while test -s $CLN_INSTALL_DIR/installationsr.txt; do
     # echo "Reading a line from installationsr.txt."
-    read instline <installationsr.txt
-    echo $instline >>installationsrs.txt
+    read instline <$CLN_INSTALL_DIR/installationsr.txt
+    echo $instline >>$CLN_INSTALL_DIR/installationsrs.txt
     inst=`echo $instline | sed 's/ .*$//'`
     pkg=`echo $inst | sed -e 's/-.*$//'`
     echo "Removing $pkg records older than $inst from installations.txt."
-    sed -i.bak "/^${pkg}-/d" installationsr.txt
+    sed -i.bak "/^${pkg}-/d" $CLN_INSTALL_DIR/installationsr.txt
   done
-  cp installations.txt installations.bak2
-  cmd="$TAC installationsrs.txt >installations.txt"
+  cp $CLN_INSTALL_DIR/installations.txt $CLN_INSTALL_DIR/installations.bak2
+  cmd="$TAC $CLN_INSTALL_DIR/installationsrs.txt >$CLN_INSTALL_DIR/installations.txt"
   echo "$cmd"
   eval "$cmd"
 

@@ -20,7 +20,7 @@
 #
 ######################################################################
 
-QT3D_DESIRED_BUILDS=${QT3D_DESIRED_BUILDS:-"ser"}
+QT3D_DESIRED_BUILDS=${QT3D_DESIRED_BUILDS:-"sersh"}
 computeBuilds qt3d
 QT3D_DEPS=qt
 QT3D_UMASK=002

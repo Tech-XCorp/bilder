@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-OPENSPLICE_BLDRVERSION=${OPENSPLICE_BLDRVERSION:-"5.4.1"}
+OPENSPLICE_BLDRVERSION=${OPENSPLICE_BLDRVERSION:-"5.5.1"}
 
 # Built from package only
 ######################################################################
@@ -23,7 +23,8 @@ OPENSPLICE_BLDRVERSION=${OPENSPLICE_BLDRVERSION:-"5.4.1"}
 
 OPENSPLICE_BUILDS=${OPENSPLICE_BUILDS:-"ser"}
 OPENSPLICE_UMASK=002
-
+# @TODO: add logic to decide what target to build based on platform.
+export SPLICE_TARGET="x86_64.linux2.6-release"
 
 ######################################################################
 #

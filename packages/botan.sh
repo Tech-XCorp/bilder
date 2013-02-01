@@ -20,12 +20,9 @@ BOTAN_BLDRVERSION=${BOTAN_BLDRVERSION:-"1.8.13"}
 #
 ######################################################################
 
-if test -z "$BOTAN_DESIRED_BUILDS"; then
-  BOTAN_DESIRED_BUILDS=sersh
-fi
+BOTAN_DESIRED_BUILDS=${BOTAN_DESIRED_BUILDS:-"sersh"}
 computeBuilds botan
 addCc4pyBuild botan
-
 BOTAN_DEPS=
 BOTAN_UMASK=007
 
@@ -44,6 +41,7 @@ buildBotan() {
     local instdirser="${instdir}-ser"
     local instdirsersh="${instdir}-sersh"
     local instdircc4py="${instdir}-cc4py"
+    techo -2 "instdirsersh = '$instdirsersh'."
     case `uname` in
       CYGWIN*)
         instdirser=`cygpath -aw ${instdirser}`
@@ -55,6 +53,7 @@ buildBotan() {
         BOTAN_MAKE_ARGS="-m nmake"
         ;;
     esac
+    techo -2 "instdirsersh = '$instdirsersh'."
 # This is probably not giving the /MT flags build, so will disable at the
 # builds definition.
     if bilderConfig -s -i -m "./configure.py" botan ser "--prefix='${instdirser}' $BOTAN_CONFIG_SER_ARGS $BOTAN_SER_OTHER_ARGS"; then

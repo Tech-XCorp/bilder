@@ -642,7 +642,7 @@ runnrRun() {
 # Wait for startup file
     local jobstatus=
     until test "$jobstatus" = R; do
-      sleep 1
+      sleep 10
       jobstatus=`qstat $RUNNR_QJOB | sed -n '3p' | sed 's/  */ /g' | cut -d ' ' -f 5`
       if [[ "$jobstatus" =~ "Unknown Job" ]]; then
         techo "Job, $RUNNR_QJOB, is unknown.  Quitting."
@@ -655,7 +655,7 @@ runnrRun() {
         unset RUNNR_JOB_PID
         exit 1
       fi
-      techo "jobstatus = $jobstatus."
+      techo "jobstatus = $jobstatus at `date`."
     done
     techo "Running at `date`. Job status is '$jobstatus'."
     local startsecs=`date +%s`

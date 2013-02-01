@@ -30,7 +30,8 @@ fi
 # Store executable, top directory
 me=$0
 if test -z "$PROJECT_DIR"; then
-  echo "WARNING: PROJECT_DIR not defined."
+  echo "WARNING: PROJECT_DIR not defined. Assuming current."
+  PROJECT_DIR=$PWD
 fi
 PROJECT_DIR=`(cd $PROJECT_DIR; pwd -P)`
 cd $PROJECT_DIR
@@ -39,7 +40,6 @@ cd $PROJECT_DIR
 BILDER_DIR=`dirname $BASH_SOURCE`
 BILDER_DIR=`(cd $BILDER_DIR; pwd -P)`
 RUNNR_DIR=$BILDER_DIR/runnr
-BILDER_CONFDIR=${BILDER_CONFDIR:-"$RUNNR_DIR"}
 
 ######################################################################
 #
@@ -51,6 +51,7 @@ BILDER_CONFDIR=${BILDER_CONFDIR:-"$RUNNR_DIR"}
 
 # Start with no verbosity so that techo is valid.  Changes at option time.
 VERBOSITY=0
+echo "Sourcing $RUNNR_DIR/runnrfcns.sh."
 if source $RUNNR_DIR/runnrfcns.sh; then
   : # echo "$RUNNR_DIR/runnrfcns.sh sourced."
 # techo now available but cannot be used until log are rotated (in bildopts).
@@ -58,6 +59,7 @@ else
   echo "Error sourcing $RUNNR_CONFDIR/runnrfcns.sh.  Is your directory current?"
   exit 1
 fi
+echo "Sourcing $BILDER_DIR/bildfcns.sh."
 source $BILDER_DIR/bildfcns.sh
 
 ######################################################################

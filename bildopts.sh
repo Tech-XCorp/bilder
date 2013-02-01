@@ -172,7 +172,7 @@ setBilderOptions() {
   BUILD_DEBUG=false
   BUILD_DIR=$PROJECT_DIR/builds
   DOCS_BUILDS=
-  BUILD_EXAMPLES=false
+  BUILD_TARBALLS=true
   export BUILD_EXPERIMENTAL=false  # Needed by setinstald.sh
   BUILD_OPENMPI=false
   BUILD_IF_NEWER_PKGFILE=true
@@ -219,7 +219,16 @@ setBilderOptions() {
 # Now done outside the function call
   BILDER_OPTIND=$OPTIND
   techo "BILDER_OPTIND = $BILDER_OPTIND."
-  # shift $(($OPTIND - 1))
+
+# Ensure BILDER_NAME defined
+# Allow calling routine to specify the name
+  if test -z "$BILDER_NAME"; then
+    BILDER_NAME=`basename $0 .sh`
+  fi
+  if test -z "$BILDER_NAME"; then
+    BILDER_NAME=unknown
+  fi
+  techo "BILDER_NAME = $BILDER_NAME."
 
 # Record invocation line for reuse
   if test -n "$BILDER_NAME"; then

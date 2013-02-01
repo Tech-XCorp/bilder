@@ -20,18 +20,14 @@ XZ_BLDRVERSION=${XZ_BLDRVERSION:-"5.0.3"}
 #
 ######################################################################
 
-if test -z "$XZ_BUILDS"; then
-  # if ! [[ `uname` =~ CYGWIN ]]; then
-    XZ_BUILDS=ser
-  # fi
-fi
+XZ_BUILDS=${XZ_BUILDS:-"ser"}
 XZ_DEPS=doxygen
 XZ_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/xz/bin
 
 ######################################################################
 #
-# Launch builds.
+# Launch builds
 #
 ######################################################################
 
@@ -46,7 +42,7 @@ buildXz() {
 
 ######################################################################
 #
-# Test xz
+# Test
 #
 ######################################################################
 
@@ -56,12 +52,11 @@ testXz() {
 
 ######################################################################
 #
-# Install xz
+# Install
 #
 ######################################################################
 
 installXz() {
   bilderInstall xz ser
-  # techo "WARNING: Quitting at end of installXz."; cleanup
 }
 

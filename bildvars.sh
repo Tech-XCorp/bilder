@@ -115,7 +115,6 @@ case `uname` in
     mysort=`which sort`
     if test "$mysort" != /usr/bin/sort; then
       techo "WARNING: Not using /usr/bin/sort from cygwin (found $mysort)."
-      return 1
     fi
     USE_ATLAS_CC4PY=true
     case $CC in

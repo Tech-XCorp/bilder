@@ -17,20 +17,13 @@ AUTOCONF_BLDRVERSION_EXP=2.69
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 AUTOCONF_BUILDS=${AUTOCONF_BUILDS:-"ser"}
 AUTOCONF_DEPS=m4,xz
 AUTOCONF_UMASK=002
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/autotools/bin
 
 ######################################################################
@@ -74,6 +67,5 @@ testAutoconf() {
 
 installAutoconf() {
   bilderInstall -m make autoconf ser autotools
-  # techo "Quitting at end of installAutoconf."; exit
 }
 
