@@ -16,27 +16,20 @@ CHRPATH_BLDRVERSION=${CHRPATH_BLDRVERSION:-"0.13"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 # Build only if not present
-case `uname` in
-  Linux)
-    if which chrpath 1>/dev/null; then
-      : # techo "chrpath = "`which chrpath`
-    else
-      # techo "WARNING: chrpath not found.  Will build."
-      CHRPATH_BUILDS=${CHRPATH_BUILDS:-"ser"}
-    fi
-    ;;
-esac
-# techo "CHRPATH_BUILDS = $CHRPATH_BUILDS."
+if test `uname` = Linux && ! which chrpath 1>/dev/null; then
+  CHRPATH_BUILDS=${CHRPATH_BUILDS:-"ser"}
+fi
 CHRPATH_DEPS=
+CHRPATH_UMASK=002
 
 ######################################################################
 #
-# Launch chrpath builds.
+# Launch builds.
 #
 ######################################################################
 
@@ -50,7 +43,7 @@ buildChrpath() {
 
 ######################################################################
 #
-# Test chrpath
+# Test
 #
 ######################################################################
 
@@ -60,7 +53,7 @@ testChrpath() {
 
 ######################################################################
 #
-# Install chrpath
+# Install
 #
 ######################################################################
 

@@ -2823,7 +2823,7 @@ getPkg() {
     local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
     for sfx in $sfxs; do
       local tarballbase=${1}${sfx}
-      techo -n "Seeking $tarballbase in $pkgdir using" 1>&2
+      techo -n "Seeking $tarballbase in $pkgdir using " 1>&2
       local tarballtry=$pkgdir/$tarballbase
       if test -f $tarballtry; then
         tarball=$tarballtry
@@ -3040,6 +3040,9 @@ fi
     techo "$vervar = $verval."
     local tarball=`getPkg $1-$verval`
     techo -2 "tarball = $tarball."
+    if $JUST_GET_PACKAGES; then
+      return 1
+    fi
 
 # If patch already set, do not change
     local patchvar=`genbashvar $1`_PATCH
@@ -3179,6 +3182,11 @@ fi
 bilderPreconfig() {
 
   techo -2 "bilderPreconfig called with $*"
+
+# If just getting packages, nothing to do here.
+  if $JUST_GET_PACKAGES; then
+    return 1
+  fi
 
 # Default option values
   local usecmake=false
@@ -5202,6 +5210,7 @@ bilderDuBuild() {
     buildargs=$2
   fi
 
+if false; then
 # Get desired version
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
@@ -5216,6 +5225,16 @@ bilderDuBuild() {
     verval=`deref $vervar1`
     eval $vervar=$verval
   fi
+  if test -z "$verval"; then
+    techo "$vervar not defined.  Cannot build."
+    return 1
+  fi
+fi
+
+# Determing the version
+  computeVersion $1
+  local vervar=`genbashvar $1`_BLDRVERSION
+  local verval=`deref $vervar`
   if test -z "$verval"; then
     techo "$vervar not defined.  Cannot build."
     return 1
@@ -5265,12 +5284,14 @@ bilderDuBuild() {
     cd $PROJECT_DIR
     local vervar=`genbashvar $1`_BLDRVERSION
     local verval=`deref $vervar`
+    local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+    eval $builddirvar=$BUILD_DIR/$1-${verval}
     cd $BUILD_DIR/$1-${verval}
     if test $? != 0; then
       TERMINATE_ERROR_MSG="Catastrophic failure in bilderDuBuild.  Unable to cd to $BUILD_DIR/$1-${verval}."
       cleanup
     fi
-    local bilderbuild_resfile=bilderbuild-$1.res
+    local bilderbuild_resfile=bilderbuild-$1-cc4py.res
     rm -f $bilderbuild_resfile
     rm -rf build/*
     local build_txt=$FQMAILHOST-$1-cc4py-build.txt

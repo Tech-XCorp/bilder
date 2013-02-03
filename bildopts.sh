@@ -43,6 +43,7 @@ BILDER OPTIONS
   -F ................ Force installation of packages that have local
                         modifications.
   -g ................ Allow use of gfortran with version <4.3
+  -G ................ Just get packages.  Do not configure or build anything.
   -h ................ Print this message.
   -H ................ Send the \$BILDER_PACKAGE-abstract.html file
                       to the abstract host if defined.
@@ -113,6 +114,7 @@ processBilderArgs() {
     E) BILDER_ENV=${BILDER_ENV},$OPTARG;;
     F) FORCE_INSTALL=true;;
     g) GFORTRAN_GOOD=true;;
+    G) JUST_GET_PACKAGES=true;;
     h) bilderUsage 0;;
     H) SEND_ABSTRACT=true;;
     i) BLDR_INSTALL_DIR=$OPTARG;;
@@ -186,6 +188,7 @@ setBilderOptions() {
   FORCE_INSTALL=false
   FORCE_PYINSTALL=false
   GFORTRAN_GOOD=false
+  JUST_GET_PACKAGES=false
   IGNORE_TEST_RESULTS=false
   INSTALL_VISIT=false
   IS_SECOND_INSTALL=false

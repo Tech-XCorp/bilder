@@ -46,9 +46,9 @@ copyMathjax() {
   if test "$1" == "lite"; then
     idir=$CONTRIB_DIR
     mjsub=MathJax-${MATHJAX_BLDRVERSION}-$bld
-  else 
+  else
     mkdir -p $idir/userdocs
-  fi 
+  fi
   if shouldInstall -i $CONTRIB_DIR MathJax-${MATHJAX_BLDRVERSION} $bld; then
 # Try twice for cygwin
     cmd="rmall $idir/$mjsub"
@@ -65,7 +65,7 @@ copyMathjax() {
     techo "$cmd"
 # Copy and fix any perms
     if $cmd && setOpenPerms $idir/$mjsub; then
-      if test "$1" == "lite"; then 
+      if test "$1" == "lite"; then
         mkLink $idir $mjsub MathJax-$bld
       fi
       ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR MathJax,$bld
@@ -118,7 +118,7 @@ buildMathjax() {
     fi
 
   fi
-  # techo exit; exit
+
 }
 
 ######################################################################
@@ -140,8 +140,5 @@ testMathjax() {
 installMathjax() {
   MATHJAX_LITE_INSTALL_DIR=$CONTRIB_DIR/MathJax-lite
   MATHJAX_FULL_INSTALL_DIR=$BLDR_INSTALL_DIR/userdocs/MathJax
-
-  # techo "Quitting at end of mathjax.sh."; exit
 }
-
 
