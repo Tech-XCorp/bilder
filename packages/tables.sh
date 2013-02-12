@@ -172,7 +172,7 @@ installTables() {
       eval "$cmd"
     fi
     if test `uname` = Darwin; then
-      local extensions=`find $dir -name '*Extension.so' -print`
+      local extensions=`find $tablesinstdir -name '*Extension.so' -print`
       for i in $extensions; do
         cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlink $i"
         techo "$cmd"

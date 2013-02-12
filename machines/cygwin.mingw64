@@ -17,19 +17,22 @@
 # Fix path
 PATH=`echo $PATH | sed 's/contrib-vs[0-9]*/contrib-mingw64/g'`
 if test -x /MinGW64/bin/x86_64-w64-mingw32-gcc.exe; then
-  MinGW64_DIR=C:/MinGW64/bin
+  MinGW64_BINDIR=C:/MinGW64/bin
 else
   echo "Location of gcc unknown.  Quitting."; exit 1
 fi
+# Must add mingw64 bindir to path for dlls
+PATH="$PATH:$MinGW64_BINDIR"
 # JRC 21Oct2010: Not needed?
 # HAVE_SER_FORTRAN=false
 MINGW_MPIEXEC=${MIXED_CONTRIB_DIR}/microsoft-hpc-mingw/Bin/mpiexec.exe
 MINGW_MPI_INCLUDE_DIR=${MIXED_CONTRIB_DIR}/microsoft-hpc-mingw/Include
-MINGW_MPI_LIBRARY_DIR=${MIXED_CONTRIB_DIR}/microsoft-hpc-mingw/Lib/i386
+MINGW_MPI_LIBRARY_DIR=${MIXED_CONTRIB_DIR}/microsoft-hpc-mingw/Lib/amd64
 MINGW_MPI_C_LIBRARY=msmpi.lib
 MINGW_MPI_Fortran_LIBRARY=msmpifec.lib
+MINGW_RC_COMPILER_ARG="-DCMAKE_RC_COMPILER:FILEPATH='C:/MinGW64/bin/windres.exe'"
 CMAKE_MPI_ARGS="-DMPIEXEC:PATH='${MINGW_MPIEXEC}'"
-# CMAKE_MPI_ARGS="-DMPI_INCLUDE_PATH:PATH=${MINGW_MPI_INCLUDE_DIR} -DMPI_LIBRARY:FILEPATH=${MIXED_CONTRIB_DIR}/microsoft-hpc-mingw/Lib/i386/msmpi.lib"
+# CMAKE_MPI_ARGS="-DMPIEXEC:PATH='${MINGW_MPIEXEC}' -DMPI_C_INCLUDE_PATH:PATH='$MINGW_MPI_INCLUDE_DIR' -DMPI_C_LIBRARIES:PATH='$MINGW_MPI_LIBRARY_DIR/msmpi.lib' -DMPI_CXX_INCLUDE_PATH:PATH='$MINGW_MPI_INCLUDE_DIR' -DMPI_CXX_LIBRARIES:PATH='$MINGW_MPI_LIBRARY_DIR/msmpi.lib' -DMPI_Fortran_INCLUDE_PATH:PATH='$MINGW_MPI_INCLUDE_DIR' -DMPI_Fortran_LIBRARIES:PATH='$MINGW_MPI_LIBRARY_DIR/msmpifec.lib;$MINGW_MPI_LIBRARY_DIR/msmpi.lib'"
 USE_CCXX_PIC_FLAG=${USE_CCXX_PIC_FLAG:-"false"}
 USE_FORTRAN_PIC_FLAG=${USE_FORTRAN_PIC_FLAG:-"false"}
 IS_MINGW=true
@@ -53,16 +56,16 @@ $cmd
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gcc.exe"}
-CXX=${CXX:-"${MinGW64_DIR}/x86_64-w64-mingw32-g++.exe"}
-FC=${FC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
-F77=${F77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
+CC=${CC:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gcc.exe"}
+CXX=${CXX:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-g++.exe"}
+FC=${FC:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gfortran.exe"}
+F77=${F77:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gfortran.exe"}
 
 # Python builds -- much use gcc for consistency.
-PYC_CC=${PYC_CC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gcc.exe"}
-PYC_CXX=${PYC_CXX:-"${MinGW64_DIR}/x86_64-w64-mingw32-g++.exe"}
-PYC_FC=${PYC_FC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
-PYC_F77=${PYC_F77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
+PYC_CC=${PYC_CC:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gcc.exe"}
+PYC_CXX=${PYC_CXX:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-g++.exe"}
+PYC_FC=${PYC_FC:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gfortran.exe"}
+PYC_F77=${PYC_F77:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gfortran.exe"}
 
 # Backend compilers:
 # BENCC=${BENCC:-""}
@@ -71,10 +74,10 @@ PYC_F77=${PYC_F77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gcc.exe"}
-MPICXX=${MPICXX:-"${MinGW64_DIR}/x86_64-w64-mingw32-g++.exe"}
-MPIFC=${MPIFC:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
-MPIF77=${MPIF77:-"${MinGW64_DIR}/x86_64-w64-mingw32-gfortran.exe"}
+MPICC=${MPICC:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gcc.exe"}
+MPICXX=${MPICXX:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-g++.exe"}
+MPIFC=${MPIFC:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gfortran.exe"}
+MPIF77=${MPIF77:-"${MinGW64_BINDIR}/x86_64-w64-mingw32-gfortran.exe"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
@@ -228,7 +231,7 @@ CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
 # CLAPACK_CMAKE_SER_OTHER_ARGS=${CLAPACK_CMAKE_SER_OTHER_ARGS:-""}
 
 # CMAKE_BLDRVERSION=${CMAKE_BLDRVERSION:-""}
-CMAKE_BUILDS=${CMAKE_BUILDS:-"NONE"}
+# CMAKE_BUILDS=${CMAKE_BUILDS:-"NONE"}
 # CMAKE_SER_OTHER_ARGS=${CMAKE_SER_OTHER_ARGS:-""}
 
 # COIN_BLDRVERSION=${COIN_BLDRVERSION:-""}

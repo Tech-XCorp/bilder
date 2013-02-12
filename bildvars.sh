@@ -97,7 +97,7 @@ case `uname` in
     CXX=${CXX:-"cl"}
     LIBEXT=.lib
     unset LIBPREFIX
-# Should be able to use systeminfo to get the number of cores
+    MAKEJ_MAX=`wmic cpu get NumberOfCores | sed -n 2p | tr -d '\r '`
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
@@ -885,13 +885,14 @@ flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_C
 envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS BOOST_INCDIR_ARG"
 qtvars="QMAKE_PLATFORM_ARGS QT_BINDIR"
+mkjvars="MAKEJ_MAX MAKEJ_DEFVAL"
 ldvars="SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="INSTALLER_HOST INSTALLER_ROOTDIR"
 othervars="USE_ATLAS_CC4PY DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
 
 techo ""
 techo "Environment settings:"
-completevars="RUNNRSYSTEM $hostvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $qtvars $ldvars $instvars $othervars"
+completevars="RUNNRSYSTEM $hostvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
   printvar $i
 done

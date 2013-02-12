@@ -60,3 +60,36 @@ diff -ruN libssh-0.5.2/cmake/Modules/FindOpenSSL.cmake libssh-0.5.2-new/cmake/Mo
  
      include(FindPackageHandleStandardArgs)
      find_package_handle_standard_args(OpenSSL DEFAULT_MSG OPENSSL_LIBRARIES OPENSSL_INCLUDE_DIRS)
+
+diff -ruN libssh-0.5.2/examples/sample.c libssh-0.5.2-new/examples/sample.c
+--- libssh-0.5.2/examples/sample.c      2010-09-16 13:57:36.000000000 -0600
++++ libssh-0.5.2-new/examples/sample.c  2013-02-04 10:28:18.000000000 -0700
+@@ -88,20 +88,18 @@
+ 
+ static void usage(){
+     fprintf(stderr,"Usage : ssh [options] [login@]hostname\n"
+-    "sample client - libssh-%s\n"
+-    "Options :\n"
+-    "  -l user : log in as user\n"
+-    "  -p port : connect to port\n"
+-    "  -d : use DSS to verify host public key\n"
+-    "  -r : use RSA to verify host public key\n"
++    "sample client - libssh-%s\n", ssh_version(0));
++    fprintf(stderr,"Options :\n");
++    fprintf(stderr,"  -l user : log in as user\n");
++    fprintf(stderr,"  -p port : connect to port\n");
++    fprintf(stderr,"  -d : use DSS to verify host public key\n");
++    fprintf(stderr,"  -r : use RSA to verify host public key\n");
+ #ifdef WITH_PCAP
+-    "  -P file : create a pcap debugging file\n"
++    fprintf(stderr,"  -P file : create a pcap debugging file\n");
+ #endif
+ #ifndef _WIN32
+-    "  -T proxycommand : command to execute as a socket proxy\n"
++    fprintf(stderr,"  -T proxycommand : command to execute as a socket proxy\n");
+ #endif
+-    		,
+-    ssh_version(0));
+     exit(0);
+ }
+ 

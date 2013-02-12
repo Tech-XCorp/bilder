@@ -1876,9 +1876,6 @@ addCc4pyBuild() {
   local buildsval=`deref $buildsvar`
   # echo "$buildsvar = $buildsval."
 # Force addition if no sersh build
-  # echo $buildsval | egrep -q "(^|,)sersh($|,)"
-  # local res=$?
-  # if test "$res" != 0; then
   if ! echo $buildsval | egrep -q "(^|,)sersh($|,)"; then
     forceadd=true
   fi
@@ -2792,9 +2789,10 @@ computeMakeJ() {
     fi
     local makejvar=`genbashvar $1`_MAKEJ_MAX
     eval $makejvar=$jval
-    local makejargs=`genbashvar $1`_MAKEJ_ARGS
-    eval $makejargs="-j${jval}"
-    techo -2 "computeMakeJ: $makejvar = $jval, $makejargs = -j${jval}."
+    local makejargsvar=`genbashvar $1`_MAKEJ_ARGS
+    local makejargsval="-j${jval}"
+    eval $makejargsvar="'$makejargsval'"
+    techo -2 "computeMakeJ: $makejvar = $jval, $makejargsvar = '$makejargsval'."
   fi
 }
 

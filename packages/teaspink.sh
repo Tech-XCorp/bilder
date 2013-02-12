@@ -21,7 +21,7 @@
 ######################################################################
 
 if test -z "$TEASPINK_BUILDS"; then
-  TEASPINK_BUILDS=ser
+  TEASPINK_BUILDS="ser,par"
 fi
 
 # Deps include autotools for configuring packages
@@ -44,15 +44,16 @@ buildTeaspink() {
     bilderUnpack teaspink
     res=$?
   fi
-  #TEASPINK_MAKE_ARGS="$TEASPINK_MAKEJ_ARGS"
   #DM 11/29/2012: Currently teaspink can't be built in parallel.
-  TEASPINK_MAKE_ARGS=
+  TEASPINK_MAKEJ_ARGS=
 
 # Regular build
   if test $res = 0; then
-# Do quotes around compilers cause problems with cygwin.vs9?
+    if bilderConfig -c teaspink par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_PAR_OTHER_ARGS"; then
+      bilderBuild teaspink par "$TEASPINK_MAKEJ_ARGS"
+    fi
     if bilderConfig -c teaspink ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_SER_OTHER_ARGS"; then
-      bilderBuild teaspink ser "$TEASPINK_MAKE_ARGS"
+      bilderBuild teaspink ser "$TEASPINK_MAKEJ_ARGS"
     fi
   fi
 }

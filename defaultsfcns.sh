@@ -29,36 +29,15 @@ setBilderOsVars() {
       ;;
 
     Darwin)
-      # if ! MAX_MAKEJ=`hwprefs cpu_count 2>/dev/null`; then
-        # MAX_MAKEJ=`sysctl -n hw.ncpu`
-      # fi
       ;;
 
     Linux)
       if uname -a | grep -q Ubuntu; then
         MACHINEFILE=${MACHINEFILE:-"ubuntu-x86_64"}
       fi
-      # MAX_MAKEJ=`grep ^processor /proc/cpuinfo | wc -l`
       ;;
 
   esac
-
-# Default -j value for make is half the number of processors,
-# but not less than 1, and not greater than MKJMAX.
-if false; then
-  if test -n "$MAX_MAKEJ"; then
-    MAKEJ_DEFVAL=`expr $MAX_MAKEJ / 2`
-    if test $MAKEJ_DEFVAL -le 0; then
-      MAKEJ_DEFVAL=1
-    fi
-    if test -n "$MKJMAX"; then
-      if test  "$MAKEJ_DEFVAL" -gt "$MKJMAX"; then
-        MAKEJ_DEFVAL=$MKJMAX
-      fi
-    fi
-    MKJARG="-j $MAKEJ_DEFVAL"
-  fi
-fi
 
 }
 

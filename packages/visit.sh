@@ -30,7 +30,6 @@ if test -z "$VISIT_DESIRED_BUILDS"; then
   fi
 fi
 computeBuilds visit
-addCc4pyBuild visit
 
 VISIT_DEPS=Imaging,hdf5,visit_vtk,qt,cmake
 VISIT_UMASK=002
@@ -211,6 +210,10 @@ fi
 
     local VISIT_ARCH=`getVisitArch`
 
+# Set prefix args to allow trunk and branch builds to coexist
+    VISIT_SERSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-sersh"
+    VISIT_PARSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-parsh"
+
 # Args for make and environment, and configuration file
     local VISIT_MAKEARGS       # This to be set as needed, since can fail
     local VISIT_ENV
@@ -233,35 +236,11 @@ fi
         ;;
     esac
 
-# Compiler flags
-    local VISIT_COMPILERS
-    local VISIT_COMPILER_FLAGS
-    case `uname` in
-      CYGWIN*)
-        VISIT_COMPILERS="$CMAKE_COMPILERS_SERSH"
-        VISIT_COMPILER_FLAGS="$CMAKE_COMPFLAGS_SERSH"
-        ;;
-      Linux)
-        VISIT_COMPILERS="$CMAKE_COMPILERS_PYC"
-        VISIT_COMPILER_FLAGS="$CMAKE_COMPFLAGS_PYC -DCMAKE_EXE_LINKER_FLAGS:STRING='-pthread'"
-        ;;
-      *)
-        VISIT_COMPILERS="$CMAKE_COMPILERS_PYC"
-        VISIT_COMPILER_FLAGS="$CMAKE_COMPFLAGS_PYC"
-        ;;
-    esac
-
-# Set unix style directories
 #
-# HDF5 is needed in install, so not local
-    VISIT_HDF5_DIR=
-    if test -d $CONTRIB_DIR/hdf5-cc4py/lib; then
-      VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5-cc4py
-    elif test -d $CONTRIB_DIR/hdf5-sersh/lib; then
-      VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5-sersh
-    else
-      VISIT_HDF5_DIR=$CONTRIB_DIR/hdf5
-    fi
+# VisIt needs to find hdf5 mesa netcdf Python Qt VTK
+#
+# Set unix style directories
+    VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
     local VISIT_MESA_DIR=
     if test -d $CONTRIB_DIR/mesa/lib; then
       VISIT_MESA_DIR=$CONTRIB_DIR/mesa
@@ -270,24 +249,21 @@ fi
     if test -d $CONTRIB_DIR/netcdf/lib; then
       VISIT_NETCDF_DIR=$CONTRIB_DIR/netcdf
     fi
+    local VISIT_PYTHON_DIR="$PYTHON_DIR"
 # Find location of QT in unix file system
     findQt
-
 # Find Vtk (5.8 for ALL VisIt builds)
     local VISIT_VTK_DIR=$CONTRIB_DIR/visit_vtk-sersh
-    VISIT_SERSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-sersh"
-    VISIT_PARSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-parsh"
     techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 
-# Get actual paths
+# Get mixed (CYGWIN) or native (OTHER) paths.
+# VISIT_PYTHON_DIR is already mixed.
     VISIT_QT_BIN="$QT_BINDIR"
-    # QT_DIR="$QT_SERSH_DIR"
-    # for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN QT_DIR VISIT_VTK_DIR; do
     for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
       local val=`deref $i`
       if test -n "$val"; then
         val=`(cd $val; pwd -P)`
-        eval UNIX_${i}_REAL="$val"
+        # eval UNIX_${i}_REAL="$val"
         if [[ `uname` =~ CYGWIN ]]; then
           val=`cygpath -am $val`
         fi
@@ -296,11 +272,10 @@ fi
       techo "$i = $val"
     done
 
-# Set corresponding args
-    # local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN -DQT_DIR:PATH=$QT_DIR"
+# Set cmake args for packages
     local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
     local VISIT_PKG_ARGS="$VISIT_QT_ARGS"
-    for i in HDF5 MESA NETCDF VTK; do
+    for i in HDF5 MESA NETCDF PYTHON VTK; do
       local var=VISIT_${i}_DIR
       local val=`deref ${var}`
       if test -n "$val"; then
@@ -311,31 +286,26 @@ fi
     done
     techo "VISIT_PKG_ARGS = $VISIT_PKG_ARGS."
 
-# Get Python args
-# Brad Whitlock writes (April 17, 9:58, 2012)
-cat >/dev/null <<EOF
-ll I've ever had to pass is VISIT_PYTHON_DIR. The intent is that you
-should only have to set VISIT_PYTHON_DIR.
-EOF
-    local VISIT_PYTHON_ARGS="-DVISIT_PYTHON_DIR:PATH='$PYTHON_DIR'"
     local VISIT_OS_ARGS=
     case `uname` in
+
       CYGWIN*) VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`";;
-      Darwin)
-# Appears that on snowleopard with need to add the library dir?
-        VISIT_PYTHON_ARGS="$VISIT_PYTHON_ARGS -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
-        ;;
-      *);;
+
+# Brad Whitlock writes (April 17, 9:58, 2012)
+#   All I\'ve ever had to pass is VISIT_PYTHON_DIR. The intent is that you
+#   should only have to set VISIT_PYTHON_DIR.
+# But it appears that on snowleopard with need to add the library dir?
+      Darwin) VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB";;
+
     esac
 
 # Build serial
-    if bilderConfig $VISIT_SERSH_PREFIX_ARGS -c visit sersh "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $VISIT_COMPILERS $VISIT_COMPILER_FLAGS $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
-# Build
+    if bilderConfig $VISIT_SERSH_PREFIX_ARGS -c visit sersh "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
       bilderBuild visit sersh "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
 
 # Build parallel doing optional builds
-    if bilderConfig $VISIT_PARSH_PREFIX_ARGS -c visit parsh "-DVISIT_PARALLEL:BOOL=ON -DVISIT_OPTION_DEFAULT_NOFORCE:BOOL=ON -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR $VISIT_PKG_ARGS $VISIT_PYTHON_ARGS $VISIT_OS_ARGS $VISIT_PAR_OTHER_ARGS" "" "$VISIT_ENV"; then
+    if bilderConfig $VISIT_PARSH_PREFIX_ARGS -c visit parsh "-DVISIT_PARALLEL:BOOL=ON -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_PARSH_OTHER_ARGS" "" "$VISIT_ENV"; then
 
 # Find the mpi c++ library
       local MPI_LIBDIR
@@ -419,7 +389,18 @@ fixCopiedHdf5() {
       eval "$cmd"
       ;;
 
-    Darwin) ;;
+    Darwin)
+# If link to install name of hdf5 not installed, make link
+      local hdf5compatname=`otool $instdir/libhdf5.${HDF5_BLDRVERSION}.dylib | sed -n sp | sed -e 's/^.*libhdf5/libhdf5/' -e 's/ .*$//'`
+      if test -f $instdir/$hdf5compatname; then
+        techo "VisIt correctly installed $hdf5compatname."
+        return
+      fi
+      techo "$hdf5compatname absent in $instdir.  Will make link."
+      cmd="(cd $instdir; ln -s libhdf5.${HDF5_BLDRVERSION}.dylib $hdf5compatname)"
+      techo "$cmd"
+      eval "$cmd"
+      ;;
 
     *)
 # If link to soname of hdf5 not installed, make link

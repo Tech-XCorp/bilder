@@ -54,24 +54,27 @@ case $UQMAILHOST in
     PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
 
-# NIMROD specific lines
+    # NIMROD specific lines
     NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"--with-optimization=full SUPERLU_DIST_LIBS='-L/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/lib/ -lsuperlu_dist_2.4 -L/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/lib/ -lparmetis -lmetis' SUPERLU_DIST_INC='-I/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/include' SUPERLU_DIST_INCDIR='/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/include' --disable-petsc --with-superlu_dist-dir=/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par"}
 
     LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
     ;;
   titan*)
-# Make sure your code is built for the compute nodes,
-# module xtpe-interlagos should be loaded.
+    # Make sure your code is built for the compute nodes,
+    # module xtpe-interlagos should be loaded.
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-    # System linear algebra, note interlagos for Titan.
-    # Use threaded SER libraries.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu.a
+    # System linear algebra, note interlagos for Titan backend nodes.
+    # Use threaded libraries. I've set the CC4PY to mc12, such that these 
+    # versions run on the login nodes, but I'm not sure this is right. (JRK)
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
 
     # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/pgi/119
@@ -83,6 +86,7 @@ case $UQMAILHOST in
     # This was required on jaguar, try it on titan if there are problems.
     #TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
 
+    # These options for jaguar, confirm on titan.
     # With these options the build WILL fail as the conftest script must
     # be executed on a compute node (with aprun -n 2), then execute
     # reconfigure.py on the login node before building.  The bilder build

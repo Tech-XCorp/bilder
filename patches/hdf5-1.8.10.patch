@@ -1,6 +1,6 @@
 diff -ruN hdf5-1.8.10/CMakeLists.txt hdf5-1.8.10-new/CMakeLists.txt
 --- hdf5-1.8.10/CMakeLists.txt	2012-10-11 11:31:54.000000000 -0600
-+++ hdf5-1.8.10-new/CMakeLists.txt	2012-11-24 11:51:11.000000000 -0700
++++ hdf5-1.8.10-new/CMakeLists.txt	2013-02-10 16:25:11.387955500 -0700
 @@ -501,7 +501,10 @@
  IF (H5_HAVE_PARALLEL)
    SET (LINK_LIBS ${LINK_LIBS} ${MPI_C_LIBRARIES})
@@ -15,7 +15,7 @@ diff -ruN hdf5-1.8.10/CMakeLists.txt hdf5-1.8.10-new/CMakeLists.txt
  
 diff -ruN hdf5-1.8.10/config/cmake/ConfigureChecks.cmake hdf5-1.8.10-new/config/cmake/ConfigureChecks.cmake
 --- hdf5-1.8.10/config/cmake/ConfigureChecks.cmake	2012-10-11 11:31:45.000000000 -0600
-+++ hdf5-1.8.10-new/config/cmake/ConfigureChecks.cmake	2012-11-24 11:53:47.000000000 -0700
++++ hdf5-1.8.10-new/config/cmake/ConfigureChecks.cmake	2013-02-10 16:26:02.095054100 -0700
 @@ -118,6 +118,7 @@
  
  SET (WINDOWS)
@@ -36,6 +36,31 @@ diff -ruN hdf5-1.8.10/config/cmake/ConfigureChecks.cmake hdf5-1.8.10-new/config/
    ENDIF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
  ENDIF (WIN32)
  
+@@ -164,9 +165,11 @@
+   SET (H5_HAVE_STRDUP 1)
+   SET (H5_HAVE_SYSTEM 1)
+   SET (H5_HAVE_LONGJMP 1)
+-  IF (NOT MINGW)
++  IF (MINGW)
++    SET (H5_HAVE_GETHOSTNAME 0)
++  else ()
+     SET (H5_HAVE_GETHOSTNAME 1)
+-  ENDIF (NOT MINGW)
++  ENDIF ()
+   SET (H5_HAVE_GETCONSOLESCREENBUFFERINFO 1)
+   SET (H5_HAVE_FUNCTION 1)
+   SET (H5_GETTIMEOFDAY_GIVES_TZ 1)
+@@ -617,7 +620,9 @@
+ CHECK_FUNCTION_EXISTS (frexpf            H5_HAVE_FREXPF)
+ CHECK_FUNCTION_EXISTS (frexpl            H5_HAVE_FREXPL)
+ 
+-CHECK_FUNCTION_EXISTS (gethostname       H5_HAVE_GETHOSTNAME)
++IF (NOT MINGW)
++  CHECK_FUNCTION_EXISTS (gethostname       H5_HAVE_GETHOSTNAME)
++endif ()
+ CHECK_FUNCTION_EXISTS (getpwuid          H5_HAVE_GETPWUID)
+ CHECK_FUNCTION_EXISTS (getrusage         H5_HAVE_GETRUSAGE)
+ CHECK_FUNCTION_EXISTS (lstat             H5_HAVE_LSTAT)
 diff -ruN hdf5-1.8.10/config/cmake/FindMPI.cmake hdf5-1.8.10-new/config/cmake/FindMPI.cmake
 --- hdf5-1.8.10/config/cmake/FindMPI.cmake	2012-10-11 11:31:45.000000000 -0600
 +++ hdf5-1.8.10-new/config/cmake/FindMPI.cmake	1969-12-31 17:00:00.000000000 -0700
@@ -670,7 +695,7 @@ diff -ruN hdf5-1.8.10/config/cmake/FindMPI.cmake hdf5-1.8.10-new/config/cmake/Fi
 -endforeach()
 diff -ruN hdf5-1.8.10/fortran/src/CMakeLists.txt hdf5-1.8.10-new/fortran/src/CMakeLists.txt
 --- hdf5-1.8.10/fortran/src/CMakeLists.txt	2012-10-11 11:31:53.000000000 -0600
-+++ hdf5-1.8.10-new/fortran/src/CMakeLists.txt	2012-11-24 11:51:11.000000000 -0700
++++ hdf5-1.8.10-new/fortran/src/CMakeLists.txt	2013-02-10 16:25:11.401956300 -0700
 @@ -101,6 +101,11 @@
      ${HDF5_F90_SRC_SOURCE_DIR}/H5Tf.c
      ${HDF5_F90_SRC_SOURCE_DIR}/H5Zf.c
@@ -685,7 +710,7 @@ diff -ruN hdf5-1.8.10/fortran/src/CMakeLists.txt hdf5-1.8.10-new/fortran/src/CMa
    SET (f90CStub_C_SRCS
 diff -ruN hdf5-1.8.10/hl/fortran/src/CMakeLists.txt hdf5-1.8.10-new/hl/fortran/src/CMakeLists.txt
 --- hdf5-1.8.10/hl/fortran/src/CMakeLists.txt	2012-10-11 11:31:44.000000000 -0600
-+++ hdf5-1.8.10-new/hl/fortran/src/CMakeLists.txt	2012-11-24 11:51:11.000000000 -0700
++++ hdf5-1.8.10-new/hl/fortran/src/CMakeLists.txt	2013-02-10 16:25:11.403956400 -0700
 @@ -25,7 +25,8 @@
  
  SET (HDF5_HL_F90_HEADERS ${HDF5_HL_F90_SRC_SOURCE_DIR}/H5LTf90proto.h)

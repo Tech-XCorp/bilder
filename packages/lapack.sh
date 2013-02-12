@@ -29,11 +29,11 @@ LAPACK_BLDRVERSION_EXP="3.4.2"
 if test -z "$LAPACK_BUILDS"; then
   case `uname`-$CC in
     CYGWIN*-mingw*)
-      LAPACK_BUILDS=ser
+      LAPACK_BUILDS=ser,sersh
       addCc4pyBuild lapack
       ;;
     CYGWIN*) # If this works, consolidate with above
-      LAPACK_BUILDS=ser
+      LAPACK_BUILDS=ser,sersh
       addCc4pyBuild lapack
       ;;
     Darwin*) # Darwin has -framework Accelerate
@@ -60,19 +60,24 @@ buildLapack() {
 
   if bilderUnpack lapack; then
 
-    if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $LAPACK_SER_OTHER_ARGS"; then
-      bilderBuild lapack ser
+    local buildargs=
+    if [[ `uname` =~ CYGWIN ]]; then
+      buildargs="-m nmake"
     fi
 
-    if bilderConfig lapack sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON $LAPACK_SERSH_OTHER_ARGS"; then
-      bilderBuild lapack sersh
-    fi
-    if bilderConfig lapack cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $TARBALL_NODEFLIB_FLAGS $LAPACK_CC4PY_OTHER_ARGS"; then
-      bilderBuild lapack cc4py
+    if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then
+      bilderBuild $buildargs lapack ser
     fi
 
-    if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $TARBALL_NODEFLIB_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
-      bilderBuild lapack ben
+    if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
+      bilderBuild $buildargs lapack sersh
+    fi
+    if bilderConfig lapack cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_CC4PY_OTHER_ARGS"; then
+      bilderBuild $buildargs lapack cc4py
+    fi
+
+    if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
+      bilderBuild $buildargs lapack ben
     fi
 
   fi

@@ -104,7 +104,7 @@ fi
 # but change to $PROJECT_DIR when pastix is bilderized.
 if test -d $BLDR_INSTALL_DIR/pastix; then
   #NIMROD_DEPS=${NIMROD_DEPS}",pastix"
-  NIMROD_PAR_OTHER_ARGS="$NIMROD_PAR_OTHER_ARGS -DENABLE_PASTIX"
+  NIMROD_PAR_OTHER_ARGS="$NIMROD_PAR_OTHER_ARGS -DENABLE_Pastix:BOOL=TRUE"
 fi
 
 cd $PROJECT_DIR
@@ -189,7 +189,7 @@ buildNimrod() {
 
   getVersion $nimversion
   if $PREFER_CMAKE; then
-    local NIMROD_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $NIMROD_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"
+    local NIMROD_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $NIMROD_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"
     local NIMROD_SER_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $NIMROD_SER_OTHER_ARGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $CMAKE_LINLIB_SER_ARGS"
     if bilderPreconfig -c $nimversion; then
       if bilderConfig $nimversion par "-DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_PAR_ARGS"; then
@@ -198,7 +198,7 @@ buildNimrod() {
       if bilderConfig $nimversion ser "-DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_SER_ARGS"; then
         bilderBuild $nimversion ser "$NIMROD_MAKEJ_ARGS"
       fi
-      if bilderConfig $nimversion partau "-DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_PARTAU_COMPILERS $CMAKE_COMPFLAGS_PAR $NIMROD_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"; then
+      if bilderConfig $nimversion partau "-DUSE_LE_SURFACE:BOOL=TRUE $NIMROD_PARTAU_COMPILERS $CMAKE_COMPFLAGS_PAR $NIMROD_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild $nimversion partau "$NIMROD_PARTAU_BUILD_ENV"
       fi
       if $BUILD_DEBUG; then
@@ -220,21 +220,21 @@ buildNimrod() {
     fi
   else # PREFER_CMAKE = false
     if bilderPreconfig $nimversion; then
-      if bilderConfig  $nimversion par "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+      if bilderConfig  $nimversion par "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_BEN_ARGS $CONFIG_SUPRA_SP_ARG"; then
         bilderBuild $nimversion par
       fi
       if bilderConfig $nimversion ser "$CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS"; then
         bilderBuild $nimversion ser
       fi
       if $BUILD_DEBUG; then
-        if bilderConfig  $nimversion pardbg "--with-optimization=debug --enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_LINLIB_SER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
+        if bilderConfig  $nimversion pardbg "--with-optimization=debug --enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_LINLIB_BEN_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
           bilderBuild $nimversion pardbg
         fi
         if bilderConfig $nimversion serdbg "--with-optimization=debug $CONFIG_COMPILERS_SER $NIMROD_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
           bilderBuild $nimversion serdbg
         fi
       fi
-      if bilderConfig  $nimversion partau "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+      if bilderConfig  $nimversion partau "--enable-parallel $CONFIG_COMPILERS_PAR $NIMROD_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_BEN_ARGS $CONFIG_SUPRA_SP_ARG"; then
         bilderBuild $nimversion partau "$NIMROD_PARTAU_BUILD_ARG" "$NIMROD_PARTAU_BUILD_ENV"
       fi
       if $BUILD_SURFORIG; then

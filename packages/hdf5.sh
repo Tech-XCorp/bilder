@@ -27,7 +27,7 @@ case `uname` in
 # If you upgrade to a newer version of hdf5, first check a parallel run on
 # 32-bit Windows and be sure it does not crash.
     if [[ "$CC" =~ mingw ]]; then
-      HDF5_BLDRVERSION_STD=1.8.7
+      HDF5_BLDRVERSION_STD=1.8.10
     else
       HDF5_BLDRVERSION_STD=1.8.8
     fi
@@ -63,7 +63,8 @@ esac
 
 # Set the builds.
 if test -z "$HDF5_DESIRED_BUILDS"; then
-  HDF5_DESIRED_BUILDS=ser,par,sersh,parsh
+  HDF5_DESIRED_BUILDS=ser,par,sersh
+# No need for parallel shared, as MPI executables are built static.
   case `uname`-${BILDER_CHAIN} in
     CYGWIN*)
       if test "$VISUALSTUDIO_VERSION" = "10"; then

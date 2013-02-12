@@ -79,14 +79,14 @@ buildQt3d() {
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
 # Configure and build
   if bilderPreconfig qt3d; then
-    if bilderConfig -q qt3d.pro qt3d ser; then
+    if bilderConfig -q qt3d.pro qt3d sersh; then
       local QT3D_PLATFORM_BUILD_ARGS=
       case `uname`-`uname -r` in
         Darwin-10.*) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
         *) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
       esac
 # During testing, do not "make clean".
-      bilderBuild -k qt3d ser "all docs $QT3D_PLATFORM_BUILD_ARGS"
+      bilderBuild -k qt3d sersh "all docs $QT3D_PLATFORM_BUILD_ARGS"
     fi
   fi
 }
@@ -110,10 +110,10 @@ testQt3d() {
 installQt3d() {
 # Qt3d in installed from just make, so no need to make install
 # hence replace make with :.
-  if bilderInstall -m : -L qt3d ser; then
+  if bilderInstall -m : -L qt3d sersh; then
     case `uname` in
       Darwin)
-        local qtdir=/contrib/qt-${QT_BLDRVERSION}-ser
+        local qtdir=/contrib/qt-${QT_BLDRVERSION}-sersh
         for i in Qt3D Qt3DQuick; do
           mkdir -p ${qtdir}/include/$i
           cp ${qtdir}/lib/${i}.framework/Headers/* ${qtdir}/include/$i/

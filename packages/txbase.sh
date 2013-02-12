@@ -26,7 +26,7 @@ TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
 ######################################################################
 
 if test -z "$TXBASE_DESIRED_BUILDS"; then
-  TXBASE_DESIRED_BUILDS=ser,par,sersh,parsh
+  TXBASE_DESIRED_BUILDS=ser,par,sersh
 fi
 computeBuilds txbase
 addCc4pyBuild txbase

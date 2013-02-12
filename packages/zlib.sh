@@ -61,14 +61,14 @@ buildZlib() {
     techo "$cmd"
     $cmd
 
-# MINGW_RC_COMPILER_FLAG is empty except where needed
+# MINGW_RC_COMPILER_ARG is empty except where needed
 # ser for hdf5
-    if bilderConfig -c zlib ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG -DBUILD_SHARED_LIBS:BOOL=OFF $ZLIB_SER_OTHER_ARGS"; then
+    if bilderConfig -c zlib ser "-DBUILD_SHARED_LIBS:BOOL=OFF $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SER_OTHER_ARGS"; then
       bilderBuild zlib ser
     fi
 
 # sersh never used.  Keeping for legacy
-    if bilderConfig -c zlib sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $ZLIB_SERSH_OTHER_ARGS"; then
+    if bilderConfig -c zlib sersh "-DBUILD_SHARED_LIBS:BOOL=ON $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SERSH_OTHER_ARGS"; then
       bilderBuild zlib sersh
     fi
 

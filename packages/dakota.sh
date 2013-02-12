@@ -9,7 +9,6 @@
 ######################################################################
 #
 # Version
-# Only Snow Leopard requires the version from svn
 #
 ######################################################################
 
@@ -17,82 +16,20 @@ DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.2"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
 DAKOTA_DEPS=trilinos
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
-
-######################################################################
-#
-# Common arguments to find stuff or to simplify the builds
-# See notes at the end
-#
-######################################################################
-#SEK: Not sure this is the best
-DAKOTA_TRILINOS_DIR_ARG="--with-teuchos=$CONTRIB_DIR/trilinos"
-DAKOTA_BASE_ARGS="--without-graphics $DAKOTA_TRILINOS_DIR_ARG"
-
-######################################################################
-#
-# Launch dakota builds.
-#
-######################################################################
-
-buildDakota() {
-  if bilderUnpack dakota; then
-# Regular build
-    if bilderConfig dakota ser "--disable-mpi $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_BASE_ARGS $DAKOTA_SER_OTHER_ARGS"; then
-      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
-    fi
-    if bilderConfig dakota par "$CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $BEN_CONFIG_LDFLAGS $DAKOTA_BASE_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
-      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
-    fi
-  fi
-}
-
-######################################################################
-#
-# Test dakota
-#
-######################################################################
-
-testDakota() {
-  techo "Not testing dakota."
-}
-
-######################################################################
-#
-# Install dakota
-#
-######################################################################
-
-installDakota() {
-
-  if bilderInstall dakota ser dakota; then
-    : # Put post build commands here.
-  fi
-  if bilderInstall dakota par dakota; then
-    : # Put post build commands here.
-  fi
-
-
-}
 
 ######################################################################
 #
 # Stuff from configure --help
 #
 ######################################################################
+
 #  --with-blas=<lib>       use BLAS library <lib>
 #  --with-lapack=<lib>     use LAPACK library <lib>
 #  --with-libcurl=DIR      look for the curl library in DIR
@@ -140,5 +77,61 @@ installDakota() {
 #  --without-psuade        turn PSUADE support off
 #  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)
 #  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)
+
+######################################################################
+#
+# Common arguments to find stuff or to simplify the builds
+# See notes at the end
+#
+######################################################################
+
+# SEK: Not sure this is the best
+DAKOTA_ADDL_ARGS="--without-graphics"
+
+######################################################################
+#
+# Launch dakota builds.
+#
+######################################################################
+
+buildDakota() {
+  if bilderUnpack dakota; then
+# Regular build
+    if bilderConfig dakota ser "--disable-mpi --with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
+      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
+    fi
+# JRC: parallel built with serial trilinos?
+    if bilderConfig dakota par "--with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $BEN_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
+      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
+    fi
+  fi
+}
+
+######################################################################
+#
+# Test dakota
+#
+######################################################################
+
+testDakota() {
+  techo "Not testing dakota."
+}
+
+######################################################################
+#
+# Install dakota
+#
+######################################################################
+
+installDakota() {
+
+  if bilderInstall dakota ser dakota; then
+    : # Put post build commands here.
+  fi
+  if bilderInstall dakota par dakota; then
+    : # Put post build commands here.
+  fi
+
+}
 
 

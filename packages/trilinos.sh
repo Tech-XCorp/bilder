@@ -30,10 +30,10 @@ TRILINOS_BLDRVERSION_EXP=10.12.2
 
 # Can add builds in package file only if no add builds defined.
 if test -z "$TRILINOS_DESIRED_BUILDS"; then
-  TRILINOS_DESIRED_BUILDS="serbare,parbare,serfull,parfull,sercomm,parcomm"
+  TRILINOS_DESIRED_BUILDS="serbare,parbare,sercomm,parcomm"
   case `uname` in
     CYGWIN* | Darwin) ;;
-    *) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh";;
+    Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,sercommsh,parcommsh,serfull,parfull,serfullsh,parfullsh";;
   esac
 fi
 # Can remove builds based on OS here, as this decides what can build.
@@ -43,7 +43,7 @@ esac
 computeBuilds trilinos
 
 # Add in superlu all the time.  May be needed elsewhere
-TRILINOS_DEPS=${TRILINOS_DEPS:-"numpy,swig,openmpi,boost,hdf5,superlu,superlu_dist,atlas,lapack"}
+TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,parmetis,hdf5,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
 TRILINOS_UMASK=002
 
 ######################################################################

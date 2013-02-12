@@ -232,8 +232,8 @@ if $REMOVE_UNFOUND; then
       continue
     fi
     case $pkglc in
-      m4 | autoconf | automake | libtool)
-        echo "${pkglc} is an autotools package. Will keep."
+      m4 | autoconf | automake | libtool | doxygen)
+        echo "Keeping ${pkglc} as does not have a top-level installation dir."
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue
         ;;
@@ -268,9 +268,10 @@ if $REMOVE_UNFOUND; then
     read instline <$CLN_INSTALL_DIR/installationsr.txt
     echo $instline >>$CLN_INSTALL_DIR/installationsrs.txt
     inst=`echo $instline | sed 's/ .*$//'`
-    pkg=`echo $inst | sed -e 's/-.*$//'`
-    echo "Removing $pkg records older than $inst from installations.txt."
-    sed -i.bak "/^${pkg}-/d" $CLN_INSTALL_DIR/installationsr.txt
+    pkgverbld=`echo $inst | sed -e 's/ .*$//'`
+    dt=`echo $instline | sed -e 's/ [^ ]*$//' -e 's/^.* //'`
+    echo "Removing $pkgverbld records previous to $dt from installations.txt."
+    sed -i.bak "/^${pkgverbld} /d" $CLN_INSTALL_DIR/installationsr.txt
   done
   cp $CLN_INSTALL_DIR/installations.txt $CLN_INSTALL_DIR/installations.bak2
   cmd="$TAC $CLN_INSTALL_DIR/installationsrs.txt >$CLN_INSTALL_DIR/installations.txt"

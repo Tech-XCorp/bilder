@@ -21,9 +21,10 @@ PARMETIS_BLDRVERSION=${PARMETIS_BLDRVERSION:-"3.1.0"}
 ######################################################################
 
 if test -z "$PARMETIS_BUILDS"; then
-  PARMETIS_BUILDS=par,parsh
+  case `uname` in
+    Linux) PARMETIS_BUILDS=par,parsh;;
+  esac
 fi
-
 PARMETIS_DEPS=${PARMETIS_DEPS:-"cmake,openmpi"}
 PARMETIS_UMASK=002
 
@@ -35,10 +36,10 @@ PARMETIS_UMASK=002
 
 buildParmetis() {
   if bilderUnpack parmetis; then
-    if bilderConfig parmetis par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $PARMETIS_PAR_OTHER_ARGS $PARMETIS_PAR_ADDL_ARGS"; then
+    if bilderConfig parmetis par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $PARMETIS_PAR_OTHER_ARGS"; then
       bilderBuild parmetis par
     fi
-    if bilderConfig parmetis parsh "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $PARMETIS_PAR_OTHER_ARGS $PARMETIS_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=ON"; then
+    if bilderConfig parmetis parsh "-DBUILD_SHARED_LIBS:BOOL=ON -DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $PARMETIS_PAR_OTHER_ARGS"; then
       bilderBuild parmetis parsh
     fi
   fi
