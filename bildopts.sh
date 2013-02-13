@@ -221,7 +221,7 @@ setBilderOptions() {
   done
 # Now done outside the function call
   BILDER_OPTIND=$OPTIND
-  techo "BILDER_OPTIND = $BILDER_OPTIND."
+  techo -2 "BILDER_OPTIND = $BILDER_OPTIND."
 
 # Ensure BILDER_NAME defined
 # Allow calling routine to specify the name
@@ -231,7 +231,7 @@ setBilderOptions() {
   if test -z "$BILDER_NAME"; then
     BILDER_NAME=unknown
   fi
-  techo "BILDER_NAME = $BILDER_NAME."
+  techo -2 "BILDER_NAME = $BILDER_NAME."
 
 # Record invocation line for reuse
   if test -n "$BILDER_NAME"; then

@@ -391,7 +391,13 @@ fixCopiedHdf5() {
 
     Darwin)
 # If link to install name of hdf5 not installed, make link
-      local hdf5compatname=`otool $instdir/libhdf5.${HDF5_BLDRVERSION}.dylib | sed -n sp | sed -e 's/^.*libhdf5/libhdf5/' -e 's/ .*$//'`
+      local hdf5libname=$instdir/libhdf5.${HDF5_BLDRVERSION}.dylib
+      if ! test -f $hdf5libname; then
+        techo "ERROR: $hdf5libname missing."
+        return
+      fi
+      techo "Extracting compatibility name from $hdf5libname."
+      local hdf5compatname=`otool -L $hdf5libname | sed -n 2p | sed -e 's/^.*libhdf5/libhdf5/' -e 's/ .*$//'`
       if test -f $instdir/$hdf5compatname; then
         techo "VisIt correctly installed $hdf5compatname."
         return
@@ -405,6 +411,11 @@ fixCopiedHdf5() {
     *)
 # If link to soname of hdf5 not installed, make link
 # JRC: still necessary as of visit-r19672
+      if ! test -f $instdir/libhdf5.so.${HDF5_BLDRVERSION}; then
+        techo "ERROR: $instdir/libhdf5.so.${HDF5_BLDRVERSION} missing."
+        return
+      fi
+      techo "Extracting soname from $instdir/libhdf5.so.${HDF5_BLDRVERSION}."
       local hdf5soname=`objdump -p $instdir/libhdf5.so.${HDF5_BLDRVERSION} | grep SONAME | sed -e 's/ *SONAME *//'`
       if test -f $instdir/$hdf5soname; then
         techo "VisIt correctly installed $hdf5soname."

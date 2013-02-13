@@ -112,7 +112,6 @@ rotateFile() {
     for i in $fnums; do
       if test $i -ge $FIRSTREMOVE; then
         cmd="rm -f ${fname}$i"
-        # techo "$cmd"
         $cmd
       else
         : # Should be able to break here
@@ -130,10 +129,9 @@ rotateFile() {
     j=$(($j - 1))
   done
   cmd="mv $fname ${fname}1"
-  techo "$cmd"
+  # techo -2 "$cmd"
   $cmd
-  # touch $fname
-  techo "$fname rotated."
+  techo -2 "$fname rotated."
 }
 
 #

@@ -605,7 +605,7 @@ checkDirWritable() {
 
 # Create directory if not present.
   if test -d $dir; then
-    techo "Directory, $dir, already exists."
+    : # techo "Directory, $dir, already exists."
   else
     techo "Creating directory, $dir."
     if mkdir -p $dir; then

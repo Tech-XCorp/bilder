@@ -23,7 +23,8 @@ GENERAL OPTIONS
   -s <step> ......... Sets which build step: 1 = internal, 2 = volatile.
   -2 ................ Sets build step to 2.
   -f ................ Force build step 2 to execute independent of the
-                      results of step 1.
+                      results of step 1.  Tests will execute unless -n 
+                      specified.
 EOF
 }
 
@@ -263,39 +264,37 @@ case $STEP in
 
   2)
     defopts="$defopts -2"
-    if test -f $firstrunsubjfile; then
-      thesubj=`cat $firstrunsubjfile`
-      lecho "Querying first run subject of '$thesubj'."
-# If first run successful, no need for second run
-      if grep -q SUCCESS $firstrunsubjfile; then
-        if $FORCESTEP2; then
-          lecho "First run reported SUCCESS. Executing step 2 due to -f."
-          ADD_TESTS=false
-        else
+    if $FORCESTEP2; then 
+      lecho "Forcing step 2 (-f). Ignoring results of first run. "
+    else
+      if test -f $firstrunsubjfile; then
+        thesubj=`cat $firstrunsubjfile`
+        lecho "Querying first run subject of '$thesubj'."
+# If first run successful, no need for second run 
+        if grep -q SUCCESS $firstrunsubjfile; then
           lecho "First run reported SUCCESS.  No need for second."
           lecho "jenkinsbild completing with result 0."
           exit 0
+        else
+          lecho "First run did not report SUCCESS.  Will run a second time."
+        fi
+# If first run failed, no need to run tests again
+        if grep -q FAILED $firstrunsubjfile; then
+          lecho "First run FAILED.  Will not test during second run."
+          ADD_TESTS=false
         fi
       else
-        lecho "First run did not report SUCCESS.  Will run a second time."
+        lecho "$firstrunsubjfile NOT found."
       fi
-# If first run failed, no need to run tests again
-      if grep -q FAILED $firstrunsubjfile; then
-        lecho "First run FAILED.  Will not test during second run."
-        ADD_TESTS=false
-      fi
-    else
-      lecho "$firstrunsubjfile NOT found."
     fi
     defopts="-C $defopts"
     if $ADD_TESTS; then
-      lecho "First run not present or inconclusive.  Will test during second run."
+      lecho "First run not present, inconclusive, or forcing step2 (with default testing).  Will test during second run."
       defopts="-t $defopts"
     else
-      lecho "Tests disabled by choice or because first run passed."
+      lecho "Tests disabled by choice (-n) or because first run passed."
     fi
     ;;
-
 esac
 cmd="${defscript} $defopts"
 if $PRINT_ONLY; then
