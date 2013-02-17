@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-NUMPY_BLDRVERSION_STD=1.6.1
+NUMPY_BLDRVERSION_STD=1.6.2
 NUMPY_BLDRVERSION_EXP=1.6.2
 computeVersion numpy
 

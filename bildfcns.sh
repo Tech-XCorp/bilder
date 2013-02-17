@@ -1558,6 +1558,7 @@ shouldInstall() {
 # Needed below
   local proj=`echo $1 | sed 's/-.*$//'`
   local lcproj=`echo $proj | tr A-Z a-z`
+  local ucproj=`echo $proj | tr a-z A-Z`
 
 # Moved to bilderPreconfig in case of forced build
   local currPkgScriptRevVar=`genbashvar ${proj}`_PKGSCRIPT_VERSION
@@ -1576,6 +1577,14 @@ shouldInstall() {
       currentPkgScriptRev=unknown
     fi
     eval $currPkgScriptRevVar=$currentPkgScriptRev
+  fi
+
+# Check what builds are forced from the command line
+  local forcevar=`genbashvar ${ucproj}`_FORCEBUILD
+  local forceval=`deref $forcevar`
+  if test $forceval; then
+    techo "Forcing build $ucproj from the command line. Proceeding with next step."
+    return 0
   fi
 
 # Do we want to check for installations in multiple dirs?
@@ -1608,9 +1617,6 @@ shouldInstall() {
 
 # Find earliest date of any of the builds in any of the directories.
 # NOT IMPLEMENTED YET.
-  if test -n "$builds"; then
-    techo "Package $proj has builds, $builds."
-  fi
 
 # See whether installation is older than package file.
 # For packages like Python, $proj will be Python, but the package script will
@@ -2870,7 +2876,7 @@ getPkg() {
 
 # Not found
   if test -z $tarball; then
-    TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  No tarball of any compression appeared.  Network okay?"
+    TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  No ${1} tarball of any compression appeared.  Network okay?"
     cleanup
   fi
 
@@ -4965,14 +4971,12 @@ EOF
           installerbase=`echo $installersubdir | sed -e 's?^.*/??'`
           local ending=
           local OS=`uname`
-
           case $OS in
             CYGWIN*WOW64*) endings="-win_x64.exe -win_x64.zip";;
             CYGWIN*) endings="-win_x86.exe -win_x86.zip";;
             Darwin) endings=-Darwin.dmg;;
             Linux) endings='-Linux-*.tar.gz';;
           esac
-
           local sfx=
           for ending in $endings; do
             installer=`(shopt -s nocaseglob; \ls ${installerbase}-*${ending} 2>/dev/null)`
@@ -4984,7 +4988,6 @@ EOF
               break
             fi
           done
-
           installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
           local depotdir=$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
           cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
@@ -5004,7 +5007,6 @@ EOF
           else
             techo "For depot copy, target directory '${depotdir}' exists on host '${INSTALLER_HOST}'."
           fi
-
           installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
           if test -n "$installer"; then
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
@@ -5122,7 +5124,6 @@ bilderInstallTestedPkg() {
 # Determine the full list of builds (ignored builds will be removed later)
   local bldsvar=`genbashvar $1`_BUILDS
   local bldsval=`deref $bldsvar | tr ',' ' '`
-  techo "$bldsvar = $bldsval."
 
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
@@ -6276,20 +6277,26 @@ buildChain() {
     fi
 
 # Look for commands and execute
-    techo "Looking for build command in $pkgfile."
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="Catastrophic error in buildChain: build method for $pkg not found."
 # Cannot use cleanup here, as the print gives the dependencies
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exit 1
+    else
+      techo "Using package file: $pkgfile"
     fi
     if ! declare -f $cmd 1>/dev/null; then
       cmd2="source $pkgfile"
-      techo "$cmd2" 1>&2
       if ! $cmd2 1>&2; then
+        techo "$cmd2" 1>&2
         TERMINATE_ERROR_MSG="Catastrophic error in buildChain: error in sourcing $pkgfile."
         cleanup
+      else
+# Determine the full list of builds
+         local bldsvar=`genbashvar ${pkg}`_BUILDS
+         local bldsval=`deref $bldsvar | tr ',' ' '`
+         techo "$bldsvar = $bldsval."
       fi
     fi
     techo "--------> Executing $cmd <--------"

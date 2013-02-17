@@ -27,8 +27,6 @@ CARVE_BLDRVERSION_EXP=1.4.0
 # Carve builds only shared
 CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"sersh"}
 computeBuilds carve
-
-# Add in superlu all the time.  May be needed elsewhere
 CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
 
@@ -39,7 +37,7 @@ CARVE_UMASK=002
 ######################################################################
 
 #
-# Get carve using hg.  This gives a version that does not
+# Move old carve aside.  This gives a version that does not
 # build on Windows.
 #
 # Args
@@ -103,12 +101,19 @@ getSvnCarve() {
 }
 
 #
+# Get carve.  Delegate to git or hg.
+#
+getCarve() {
+  getHgCarve
+}
+
+#
 # Build carve
 #
 buildCarve() {
 
 # Try to get carve from repo
-  (cd $PROJECT_DIR; getHgCarve)
+  (cd $PROJECT_DIR; getCarve)
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/carve; then

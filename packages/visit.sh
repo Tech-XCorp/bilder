@@ -370,9 +370,10 @@ fixCopiedHdf5() {
 
     CYGWIN*)
       if test -f $instdir/hdf5dll.dll; then
-        techo "VisIt correctly installed hdf5dll.dll."
+        techo "VisIt correctly installed $instdir/hdf5dll.dll."
+        return
       fi
-      techo "VisIt did not install hdf5dll.dll.  Copying from $hdf5rootdir."
+      techo "NOTE: VisIt did not install $instdir/hdf5dll.dll.  Copying from $hdf5rootdir."
       local cmd=
       if test -f $hdf5rootdir/bin/hdf5dll.dll; then
         cmd="cp $hdf5rootdir/bin/hdf5dll.dll $instdir/"
@@ -380,8 +381,7 @@ fixCopiedHdf5() {
         techo "$hdf5rootdir/bin/hdf5dll.dll not present."
         cmd="cp $hdf5rootdir/dll/hdf5dll.dll $instdir/"
       else
-        techo "$hdf5rootdir/dll/hdf5dll.dll not present."
-        techo "Catastrophic error.  hdf5dll.dll not found in $hdf5rootdir."
+        techo "Catastrophic error.  hdf5dll.dll not found under $hdf5rootdir."
         techo "Quitting."
         exit 1
       fi
@@ -391,7 +391,8 @@ fixCopiedHdf5() {
 
     Darwin)
 # If link to install name of hdf5 not installed, make link
-      local hdf5libname=$instdir/libhdf5.${HDF5_BLDRVERSION}.dylib
+      local hdf5libbase=libhdf5.${HDF5_BLDRVERSION}.dylib
+      local hdf5libname=$instdir/$hdf5libbase
       if ! test -f $hdf5libname; then
         techo "ERROR: $hdf5libname missing."
         return
@@ -399,35 +400,38 @@ fixCopiedHdf5() {
       techo "Extracting compatibility name from $hdf5libname."
       local hdf5compatname=`otool -L $hdf5libname | sed -n 2p | sed -e 's/^.*libhdf5/libhdf5/' -e 's/ .*$//'`
       if test -f $instdir/$hdf5compatname; then
-        techo "VisIt correctly installed $hdf5compatname."
+        techo "VisIt correctly created $instdir/$hdf5compatname link."
         return
       fi
-      techo "$hdf5compatname absent in $instdir.  Will make link."
-      cmd="(cd $instdir; ln -s libhdf5.${HDF5_BLDRVERSION}.dylib $hdf5compatname)"
+      techo "NOTE: $hdf5compatname link absent in $instdir.  Creating."
+      cmd="(cd $instdir; ln -s $hdf5libbase $hdf5compatname)"
       techo "$cmd"
       eval "$cmd"
       ;;
 
-    *)
+    Linux)
 # If link to soname of hdf5 not installed, make link
 # JRC: still necessary as of visit-r19672
-      if ! test -f $instdir/libhdf5.so.${HDF5_BLDRVERSION}; then
-        techo "ERROR: $instdir/libhdf5.so.${HDF5_BLDRVERSION} missing."
+      local hdf5libbase=libhdf5.so.${HDF5_BLDRVERSION}
+      local hdf5libname=$instdir/$hdf5libbase
+      if ! test -f $hdf5libname; then
+        techo "ERROR: $hdf5libname missing."
         return
       fi
-      techo "Extracting soname from $instdir/libhdf5.so.${HDF5_BLDRVERSION}."
-      local hdf5soname=`objdump -p $instdir/libhdf5.so.${HDF5_BLDRVERSION} | grep SONAME | sed -e 's/ *SONAME *//'`
+      techo "Extracting soname from $hdf5libname."
+      local hdf5soname=`objdump -p $hdf5libname | grep SONAME | sed -e 's/ *SONAME *//'`
       if test -f $instdir/$hdf5soname; then
-        techo "VisIt correctly installed $hdf5soname."
+        techo "VisIt correctly created $instdir/$hdf5soname link."
         return
       fi
-      techo "$hdf5soname absent in $instdir.  Will make link."
-      cmd="(cd $instdir; ln -s libhdf5.so.${HDF5_BLDRVERSION} $hdf5soname)"
+      techo "NOTE: $hdf5soname link absent in $instdir.  Creating."
+      cmd="(cd $instdir; ln -s $hdf5libbase $hdf5soname)"
       techo "$cmd"
       eval "$cmd"
       ;;
 
   esac
+
 }
 
 ######################################################################
@@ -463,22 +467,20 @@ installVisit() {
       rm -f $installfixfile
       touch $installfixfile
 
+# For reuse
+      local visittopdir=$BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld
+
 # Link to current if not done.  Darwin docs say to change -h to -L.
-      case `uname` in
-        CYGWIN*)
-          ;;
-        *)
-          if ! test -L $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld/current; then
-            techo "# NOTE: Creating 'current' link." | tee -a $installfixfile
-            cmd="cd $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld; ln -s $VISIT_DISTVERSION current"
-            techo "$cmd" >>$installfixfile
-            eval $cmd
- 	    cd -
-          else
-            techo "# NOTE: VisIt correctly creating current link again."
-          fi
-          ;;
-      esac
+      if ! [[ `uname` =~ CYGWIN ]]; then
+        if test -L $visittopdir/current; then
+          techo "VisIt correctly created $visittopdir/current link."
+        else
+          techo "NOTE: current link absent in $visittopdir.  Creating." | tee -a $installfixfile
+          cmd="(cd $visittopdir; ln -s $VISIT_DISTVERSION current)"
+          techo "$cmd" >>$installfixfile
+          eval "$cmd"
+        fi
+      fi
 
 # If parallel-Linux, link in the mpi libraries
       case $bld in
@@ -515,7 +517,7 @@ installVisit() {
           techo "VISIT_MPI_ABSLIBS = $VISIT_MPI_ABSLIBS"
 
 # Link into the libdir
-          for libdir in $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-par/$VISIT_DISTVERSION/$VISIT_ARCH/lib $BUILD_DIR/visit/par/lib; do
+          for libdir in $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib $BUILD_DIR/visit/par/lib; do
             local mpilinked=
             for i in $VISIT_MPI_ABSLIBS; do
               local libname=`basename $i`
@@ -535,7 +537,7 @@ installVisit() {
           done
 
 # Copy the parallel engine into the installation directory
-          parlib=$BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-par/$VISIT_DISTVERSION/$VISIT_ARCH/lib/libengine_par${SHOBJEXT}
+          parlib=$visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib/libengine_par${SHOBJEXT}
           if ! test -f $parlib; then
             techo "# NOTE: Installing lib, $parlib."
             cmd="install -m 775 $BUILD_DIR/visit/par/lib/libengine_par${SHOBJEXT} $parlib"
@@ -567,9 +569,17 @@ installVisit() {
         techo "WARNING: Shared hdf5 libs not found for build, $bld!"
       elif [[ `uname` =~ CYGWIN ]]; then
 # Installation directly into root dir.  Have to look for hdf5 at top.
-        fixCopiedHdf5 $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld $hdf5rootdir $installfixfile
+        fixCopiedHdf5 $visittopdir $hdf5rootdir $installfixfile
       else
-        fixCopiedHdf5 $BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld/$VISIT_DISTVERSION/$VISIT_ARCH/lib $hdf5rootdir/lib $installfixfile
+        fixCopiedHdf5 $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib $hdf5rootdir/lib $installfixfile
+      fi
+
+# Look for stdc++
+      if test `uname` = Linux; then
+        local cxxstdlib=`(cd $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib; ls libstdc++.so*) 2>/dev/null`
+        if test -z "$cxxstdlib"; then
+          techo "NOTE: libstdc++.so missing in $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib.  May need to set LD_LIBRARY_PATH."
+        fi
       fi
 
 # Packaging only if creating a release

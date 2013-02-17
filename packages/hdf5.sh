@@ -42,14 +42,14 @@ case `uname` in
 # h5diff 1.8.9 built with autotools does not seg fault on lion
 # but we have seen incorrect results from it.  So, sticking with 1.8.7
   Darwin)
-    HDF5_BLDRVERSION_STD=1.8.7
+    HDF5_BLDRVERSION_STD=1.8.10
     HDF5_BLDRVERSION_EXP=1.8.10
     ;;
 
 # Linux will utilize hdf5-1.8.9
 # With cmake.2.8.9 and new Xcode (Oct 2 2012) hdf5-1.8.9 works on Lion
   *)
-    HDF5_BLDRVERSION_STD=1.8.9
+    HDF5_BLDRVERSION_STD=1.8.10
     HDF5_BLDRVERSION_EXP=1.8.10
     ;;
 

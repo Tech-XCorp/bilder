@@ -34,8 +34,8 @@ addtopathvar PATH $CONTRIB_DIR/oce/bin
 ######################################################################
 
 #
-# Get oce using git.  This gives a version that does not
-# build on Windows.
+# Get oce using git.
+# This gives a version that does not build on Windows.
 #
 getGitOce() {
   if ! which git 1>/dev/null 2>&1; then
@@ -60,10 +60,20 @@ getGitOce() {
   fi
 }
 
+#
+# Get OCE, in this case by git
+#
+getOce() {
+  getGitOce
+}
+
+#
+# Build OCE
+#
 buildOce() {
 
 # Try to get oce from repo
-  (cd $PROJECT_DIR; getGitOce)
+  (cd $PROJECT_DIR; getOce)
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/oce; then

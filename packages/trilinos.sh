@@ -16,10 +16,7 @@
 #
 ######################################################################
 
-case `uname`-`uname -r` in
-  CYGWIN* | Darwin-11.*) TRILINOS_BLDRVERSION_STD=10.10.1;;
-  *) TRILINOS_BLDRVERSION_STD=10.10.2;;
-esac
+TRILINOS_BLDRVERSION_STD=10.12.2
 TRILINOS_BLDRVERSION_EXP=10.12.2
 
 ######################################################################

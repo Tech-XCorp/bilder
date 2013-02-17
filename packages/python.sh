@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-PYTHON_BLDRVERSION_STD=2.6.5
+PYTHON_BLDRVERSION_STD=2.7.3
 PYTHON_BLDRVERSION_EXP=2.7.3
 # Need to compute version and majmin here for additional load flags
 if $BUILD_EXPERIMENTAL -a -z "$PYTHON_BLDRVERSION"; then

@@ -34,6 +34,7 @@ EOF
 BILDER OPTIONS
   -A <addl_sp> ...... Add this to the supra search path.
   -b <build_dir> .... Build in <build_dir>.
+  -B <force builds>.. Force build of package (comma-delimited list)
   -c ................ Configure packages but don't build.
   -C ................ Create installers.
   -d ................ Create debug builds (limited package support).
@@ -98,6 +99,7 @@ processBilderArgs() {
     a) echo "WARNING (Aug 19, 2012): -a no longer valid.  Will be removed Sep. 30, 2012.";;
     A) ADDL_SUPRA_SP=$OPTARG;;
     b) BUILD_DIR=$OPTARG;;
+    B) FORCEBUILD_PKGS=${FORCEBUILD_PKGS},$OPTARG;;
     c) NOBUILD=true;;
     C) BUILD_INSTALLERS=true;;
     d) BUILD_DEBUG=true;;  # This is for operating at the package level
@@ -208,7 +210,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARG"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARG"
 
   set -- "$@"
   # techo "* = $*."
@@ -335,6 +337,7 @@ EOF
   trimvar BILDER_ENV ','
   trimvar EMAIL ','
   trimvar NOBUILD_PKGS ','
+  trimvar FORCEBUILD_PKGS ','
 
 # Check that findProjectDir is consistent
   techo "Checking for consistency of findProjectDir."
@@ -496,6 +499,15 @@ EOF
     techo "Not building $nobldpkgs."
     for i in $nobldpkgs; do
       eval ${i}_BUILDS=NONE
+    done
+  fi
+
+  if test -n "$FORCEBUILD_PKGS"; then
+    forcebldpkgs=`echo $FORCEBUILD_PKGS | tr ',a-z-' ' A-Z-'`
+    techo "Forcing builds of $forcebldpkgs from the command line."
+    for i in $forcebldpkgs; do
+     local forcevar=`genbashvar ${i}`_FORCEBUILD
+     eval $forcevar=true
     done
   fi
 
