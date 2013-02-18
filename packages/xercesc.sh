@@ -23,11 +23,13 @@ XERCESC_BLDRVERSION=${XERCESC_BLDRVERSION:-"3.1.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-XERCESC_BUILDS=${XERCESC_BUILDS:-"ser"}
+# XERCESC_DESIRED_BUILDS=${XERCESC_DESIRED_BUILDS:-"sersh"}
+computeBuilds xercesc
+addCc4pyBuild xercesc
 XERCESC_DEPS=
 
 ######################################################################
@@ -38,8 +40,8 @@ XERCESC_DEPS=
 
 buildXercesc() {
   if bilderUnpack xercesc; then
-    if bilderConfig xercesc ser; then
-      bilderBuild xercesc ser
+    if bilderConfig xercesc cc4py; then
+      bilderBuild xercesc cc4py
     fi
   fi
 }
@@ -61,7 +63,7 @@ testXercesc() {
 ######################################################################
 
 installXercesc() {
-  if bilderInstall xercesc ser; then
+  if bilderInstall xercesc cc4py; then
     : # Nothing to do?
   fi
   # techo "WARNING: Quitting at end of xercesc.sh."; cleanup

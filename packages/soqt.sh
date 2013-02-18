@@ -16,21 +16,14 @@ SOQT_BLDRVERSION=${SOQT_BLDRVERSION:-"1.5.0"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-if test -z "$SOQT_BUILDS"; then
-  SOQT_BUILDS="cc4py"
-fi
+# SOQT_DESIRED_BUILDS=${SOQT_DESIRED_BUILDS:-"sersh"}
+computeBuilds soqt
+addCc4pyBuild soqt
 SOQT_DEPS=Coin,qt
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
 # addtopathvar PATH $CONTRIB_DIR/soqt/bin
 
 ######################################################################
@@ -43,11 +36,11 @@ buildSoQt() {
 
   case `uname` in
     CYGWIN) ;;
-    *) SOQT_CC4PY_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-ser";;
+    *) SOQT_CC4PY_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-sersh";;
   esac
 
   if bilderUnpack SoQt; then
-    if bilderConfig -p Coin-$COIN_BLDRVERSION-cc4py SoQt cc4py "$SOQT_CC4PY_ADDL_ARGS $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
+    if bilderConfig -p Coin-$COIN_BLDRVERSION-cc4py SoQt cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
       bilderBuild SoQt cc4py
     fi
   fi

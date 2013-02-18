@@ -20,7 +20,7 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 #
 ######################################################################
 
-OCE_DESIRED_BUILDS=${OCE_DESIRED_BUILDS:-"sersh"}
+# OCE_DESIRED_BUILDS=${OCE_DESIRED_BUILDS:-"sersh"}
 computeBuilds oce
 addCc4pyBuild oce
 OCE_DEPS=ftgl
@@ -43,20 +43,22 @@ getGitOce() {
     return
   fi
   cd $PROJECT_DIR
-  if ! test -d oce/.git; then
+  if test -d oce/.git; then
+    if $SVN_UP || test -n "$JENKINS_FSROOT"; then
+      cmd="cd oce"
+      techo "$cmd"
+      $cmd
+      cmd="git pull"
+      techo "$cmd"
+      $cmd
+    fi
+  else
+    cd - 1>/dev/null 2>&1
     techo "No git checkout of oce."
     if test -d oce; then rm -rf oce.sav; mv oce oce.sav; fi
     cmd="git clone git://github.com/tpaviot/oce.git"
     techo "$cmd"
     $cmd
-  else
-    cmd="cd oce"
-    techo "$cmd"
-    $cmd
-    cmd="git pull"
-    techo "$cmd"
-    $cmd
-    cd - 1>/dev/null 2>&1
   fi
 }
 
@@ -72,7 +74,7 @@ getOce() {
 #
 buildOce() {
 
-# Try to get oce from repo
+# Get oce from repo
   (cd $PROJECT_DIR; getOce)
 
 # If no subdir, done.
@@ -82,24 +84,16 @@ buildOce() {
 
 # Get oce
   cd $PROJECT_DIR
-  local res=
   local OCE_ADDL_ARGS=
   if test -d oce; then
-    if $SVNUP; then
-      (cd oce; git pull)
-    fi
     getVersion oce
-    bilderPreconfig oce
-    res=$?
-    if test $res != 0; then
+    if ! bilderPreconfig oce; then
       return 1
     fi
     OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-sersh"
     techo "NOTE: Building oce from the git repo."
   else
-    bilderUnpack oce
-    res=$?
-    if test $res != 0; then
+    if ! bilderUnpack oce; then
       return 1
     fi
     OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-sersh"

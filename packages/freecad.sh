@@ -27,7 +27,9 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 #
 ######################################################################
 
-FREECAD_BUILDS=${FREECAD_BUILDS:-"ser"}
+# FREECAD_BUILDS=${FREECAD_BUILDS:-"sersh"}
+computeBuilds freecad
+addCc4pyBuild freecad
 FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,ftgl,boost,f2c
 FREECAD_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/freecad/bin
@@ -48,72 +50,85 @@ getFreecad() {
   fi
   cd $PROJECT_DIR
   if ! test -d freecad/.git; then
+    if $SVN_UP || test -n "$JENKINS_FSROOT"; then
+      cmd="(cd freecad; git pull)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
+  else
     techo "No git checkout of freecad."
     if test -d freecad; then rm -rf freecad.sav; mv freecad freecad.sav; fi
     cmd="git clone git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad freecad"
     techo "$cmd"
     $cmd
-  else
-    cmd="cd freecad"
-    techo "$cmd"
-    $cmd
-    cmd="git pull"
-    techo "$cmd"
-    $cmd
-    cd - 1>/dev/null 2>&1
   fi
 }
 
 buildFreecad() {
 
+# Get freecad from repo
+  (cd $PROJECT_DIR; getFreecad)
+
+# If no subdir, done.
+  if ! test -d $PROJECT_DIR/freecad; then
+    techo "WARNING: freecad dir not found. Building from package."
+  fi
+
 # Check for svn version or package
   if test -d $PROJECT_DIR/freecad; then
     getVersion freecad
-    bilderPreconfig freecad
-    res=$?
+    if ! bilderPreconfig freecad; then
+      return 1
+    fi
   else
-    bilderUnpack freecad
-    res=$?
+    if ! bilderUnpack freecad; then
+      return 1
+    fi
   fi
 
-  if test $res = 0; then
-
 # These will need converson for Windows
-    local FREECAD_ADDL_ARGS="-DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
-    if ! QMAKE_PATH=`which qmake 2>/dev/null`; then
-      techo "WARNING: Could not find qmake in path. Please add location of qmake to your path in the case that QT CMake Macros can not be found by the freecad configuration system"
-    else
-      techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
-    fi
-    local ocerootdir=
-    if test -e "${BLDR_INSTALL_DIR}/oce"; then
+  local FREECAD_ADDL_ARGS="-DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
+  if ! QMAKE_PATH=`which qmake 2>/dev/null`; then
+    techo "WARNING: Could not find qmake in path. Please add location of qmake to your path in the case that QT CMake Macros can not be found by the freecad configuration system"
+    return 1
+  fi
+  techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
+  local ocerootdir=
+  for bld in sersh cc4py; do
+    if test -e "${BLDR_INSTALL_DIR}/oce-$bld"; then
       ocerootdir=`(cd ${BLDR_INSTALL_DIR}/oce; pwd -P)`
-    elif test -e "${CONTRIB_DIR}/oce"; then
-      ocerootdir=`(cd ${CONTRIB_DIR}/oce; pwd -P)`
-    else
-      techo "Catastrophic error in buildFreecad.  OCE root directory not found."
-      cleanup
+      break
     fi
-    local FREECAD_ENV=
-    case `uname` in
-      Darwin)
+  done
+  if test -z "$ocerootdir"; then
+    for bld in sersh cc4py; do
+      if test -e "${CONTRIB_DIR}/oce-$bld"; then
+        ocerootdir=`(cd ${CONTRIB_DIR}/oce; pwd -P)`
+        break
+      fi
+    done
+  fi
+  if test -z "$ocerootdir"; then
+    techo "Catastrophic error in buildFreecad.  OCE root directory not found."
+    cleanup
+  fi
+  local FREECAD_ENV=
+  case `uname` in
+    Darwin)
 # libsmesh needs to have the oce library dir added
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${ocerootdir}/OCE.framework/Versions/0.12-dev/Resources' -DOCC_LIBRARY_DIR='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib'"
-        # FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR:PATH='${ocerootdir}/OCE.framework/Versions/0.12-dev/Resources' -DOCC_LIBRARY_DIR:PATH='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup'"
-        ;;
-      *)
-        FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${ocerootdir}/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"
-        if test -n "$PYC_LD_RUN_PATH"; then
-          FREECAD_ENV="LD_RUN_PATH=$PYC_LD_RUN_PATH"
-        fi
-        ;;
-    esac
+      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${ocerootdir}/OCE.framework/Versions/0.12-dev/Resources' -DOCC_LIBRARY_DIR='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib'"
+      ;;
+    Linux)
+      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${ocerootdir}/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-cc4py/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-cc4py/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-cc4py/lib/libSoQt.so'"
+      if test -n "$PYC_LD_RUN_PATH"; then
+        FREECAD_ENV="LD_RUN_PATH=$PYC_LD_RUN_PATH"
+      fi
+      ;;
+  esac
 
 # Configure and build
-    if bilderConfig -c freecad ser "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
-      bilderBuild freecad ser "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
-    fi
-
+  if bilderConfig -c freecad cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
+    bilderBuild freecad cc4py "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
   fi
 
 }
@@ -135,10 +150,10 @@ testFreecad() {
 ######################################################################
 
 installFreecad() {
-  if bilderInstall freecad ser; then
+  if bilderInstall freecad cc4py; then
     case `uname` in
       Darwin | Linux)
-        libpathval="$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-ser/lib:$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-ser/Mod/PartDesign:$CONTRIB_DIR/qt-${QT_BLDRVERSION}-ser/lib:$CONTRIB_DIR/oce-${OCE_BLDRVERSION}-ser/lib:$CONTRIB_DIR/xercesc-${XERCESC_BLDRVERSION}-ser/lib:$CONTRIB_DIR/boost-${BOOST_BLDRVERSION}-ser/lib:$CONTRIB_DIR/Coin-${COIN_BLDRVERSION}-cc4py/lib"
+        libpathval="$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-cc4py/lib:$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-cc4py/Mod/PartDesign:$CONTRIB_DIR/qt-${QT_BLDRVERSION}-cc4py/lib:$CONTRIB_DIR/oce-${OCE_BLDRVERSION}-cc4py/lib:$CONTRIB_DIR/xercesc-${XERCESC_BLDRVERSION}-cc4py/lib:$CONTRIB_DIR/boost-${BOOST_BLDRVERSION}-cc4py/lib:$CONTRIB_DIR/Coin-${COIN_BLDRVERSION}-cc4py/lib"
         case `uname` in
           Darwin) libpathvar=DYLD_LIBRARY_PATH;;
           Linux)
@@ -159,6 +174,5 @@ EOF
       ;;
     esac
   fi
-  # techo "WARNING: Quitting at end of freecad.sh."; cleanup
 }
 

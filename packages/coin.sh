@@ -16,21 +16,14 @@ COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-if test -z "$COIN_BUILDS"; then
-  COIN_BUILDS="cc4py"
-fi
+# COIN_DESIRED_BUILDS=${COIN_DESIRED_BUILDS:-"sersh"}
+computeBuilds Coin
+addCc4pyBuild Coin
 COIN_DEPS=qt
-
-######################################################################
-#
-# Add to path, as needed by soqt.
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/coin/bin
 
 ######################################################################
@@ -42,14 +35,16 @@ addtopathvar PATH $CONTRIB_DIR/coin/bin
 buildCoin() {
 
   if bilderUnpack Coin; then
-    local COIN_CC4PY_ADDL_ARGS=
+    local COIN_ADDL_ARGS=
     case `uname` in
       Darwin)
-        # COIN_CC4PY_ADDL_ARGS="$COIN_CC4PY_ADDL_ARGS --with-framework-prefix=$CONTRIB_DIR/Coin-${COIN_BLDRVERSION}-cc4py"
-        COIN_CC4PY_ADDL_ARGS="$COIN_CC4PY_ADDL_ARGS --without-framework"
+        COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework"
         ;;
     esac
-    if bilderConfig Coin cc4py "$COIN_CC4PY_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
+    if bilderConfig Coin sersh "$CONFIG_COMPFLAGS_SER $CONFIG_COMPFLAGS_SER $COIN_ADDL_ARGS $COIN_SERSH_OTHER_ARGS"; then
+      bilderBuild Coin sersh
+    fi
+    if bilderConfig Coin cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
       bilderBuild Coin cc4py
     fi
   fi
@@ -73,9 +68,8 @@ testCoin() {
 ######################################################################
 
 installCoin() {
-  if bilderInstall -r Coin cc4py; then
-    :
-  fi
-  # techo "WARNING: Quitting at end of coin.sh."; cleanup
+  for bld in sersh cc4py; do
+    bilderInstall -r Coin $bld
+  done
 }
 
