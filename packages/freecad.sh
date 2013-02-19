@@ -86,7 +86,7 @@ buildFreecad() {
     fi
   fi
 
-# These will need converson for Windows
+# These will need conversion for Windows
   local FREECAD_ADDL_ARGS="-DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
   if ! QMAKE_PATH=`which qmake 2>/dev/null`; then
     techo "WARNING: Could not find qmake in path. Please add location of qmake to your path in the case that QT CMake Macros can not be found by the freecad configuration system"
@@ -96,14 +96,14 @@ buildFreecad() {
   local ocerootdir=
   for bld in sersh cc4py; do
     if test -e "${BLDR_INSTALL_DIR}/oce-$bld"; then
-      ocerootdir=`(cd ${BLDR_INSTALL_DIR}/oce; pwd -P)`
+      ocerootdir=`(cd ${BLDR_INSTALL_DIR}/oce-$bld; pwd -P)`
       break
     fi
   done
   if test -z "$ocerootdir"; then
     for bld in sersh cc4py; do
       if test -e "${CONTRIB_DIR}/oce-$bld"; then
-        ocerootdir=`(cd ${CONTRIB_DIR}/oce; pwd -P)`
+        ocerootdir=`(cd ${CONTRIB_DIR}/oce-$bld; pwd -P)`
         break
       fi
     done
