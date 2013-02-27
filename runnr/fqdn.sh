@@ -31,9 +31,11 @@ bilderFqdn() {
       FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
       FQMAILHOST=${FQMAILHOST:-"dirac.nersc.gov"}
       ;;
-    freedom[0-9]*)
-      FQMAILHOST=${FQMAILHOST:-"freedom.nersc.gov"}
-      RUNNRSYSTEM=${RUNNRSYSTEM:-"XT4"}
+    edison[0-9]*)
+      echo "Working on edison."
+      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
+      FQMAILHOST=${FQMAILHOST:-"edison.nersc.gov"}
+      RUNNRSYSTEM=${RUNNRSYSTEM:-"XC30"}
       ;;
     hopper[01][0-9]*)
       FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
