@@ -23,18 +23,36 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 #
 ######################################################################
 
+# VisIt is built sersh if ser is what python was built with, otherwise cc4py
 if test -z "$VISIT_DESIRED_BUILDS"; then
-  VISIT_DESIRED_BUILDS=sersh
-  if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
-    VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+  if isCcCc4py; then
+    VISIT_DESIRED_BUILDS=sersh
+    VISIT_SER_BUILD=sersh
+    if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
+      VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+    fi
+  else
+    VISIT_DESIRED_BUILDS=cc4py
+    VISIT_SER_BUILD=cc4py
   fi
 fi
 computeBuilds visit
-
 VISIT_DEPS=Imaging,hdf5,visit_vtk,qt,cmake
 VISIT_UMASK=002
-
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
+case `uname`-`uname -r` in
+  CYGWIN* | Darwin-12*) ;;
+  *)
+    if $BUILD_OPTIONAL; then
+      addVals MESA_DESIRED_BUILDS mgl,os
+    fi
+    ;;
+esac
+if isCcCc4py; then
+  addVals VISIT_VTK_DESIRED_BUILDS sersh
+else
+  addVals VISIT_VTK_DESIRED_BUILDS cc4py
+fi
 
 ######################################################################
 #
@@ -178,7 +196,7 @@ fi
     fi
 # Determine whether patch in installation matches that in bilder.
 # If differs, set visit as uninstalled so it will be built.
-    if ! isPatched -s $VISIT_SUBDIR_BASE visit-$VISIT_BLDRVERSION-ser; then
+    if ! isPatched -s $VISIT_SUBDIR_BASE visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
       techo "Rebuilding visit as patches differ."
       for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
         cmd="$BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR visit,$bld"
@@ -211,7 +229,7 @@ fi
     local VISIT_ARCH=`getVisitArch`
 
 # Set prefix args to allow trunk and branch builds to coexist
-    VISIT_SERSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-sersh"
+    VISIT_SERSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-$VISIT_SER_BUILD"
     VISIT_PARSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-parsh"
 
 # Args for make and environment, and configuration file
@@ -253,7 +271,7 @@ fi
 # Find location of QT in unix file system
     findQt
 # Find Vtk (5.8 for ALL VisIt builds)
-    local VISIT_VTK_DIR=$CONTRIB_DIR/visit_vtk-sersh
+    local VISIT_VTK_DIR=$CONTRIB_DIR/visit_vtk-$VISIT_SER_BUILD
     techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 
 # Get mixed (CYGWIN) or native (OTHER) paths.
@@ -300,8 +318,8 @@ fi
     esac
 
 # Build serial
-    if bilderConfig $VISIT_SERSH_PREFIX_ARGS -c visit sersh "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
-      bilderBuild visit sersh "$VISIT_MAKEARGS" "$VISIT_ENV"
+    if bilderConfig $VISIT_SERSH_PREFIX_ARGS -c visit $VISIT_SER_BUILD "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
+      bilderBuild visit $VISIT_SER_BUILD "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
 
 # Build parallel doing optional builds

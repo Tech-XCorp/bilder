@@ -1,6 +1,20 @@
+diff -rupN petsc-3.3-p4/config/BuildSystem/config/packages/hdf5.py petsc-3.3-p4-new/config/BuildSystem/config/packages/hdf5.py
+--- petsc-3.3-p4/config/BuildSystem/config/packages/hdf5.py	2012-05-29 21:12:39.000000000 -0600
++++ petsc-3.3-p4-new/config/BuildSystem/config/packages/hdf5.py	2013-02-27 09:39:04.000000000 -0700
+@@ -60,7 +60,9 @@ class Configure(config.package.Package):
+   def configureLibrary(self):
+     self.extraLib = self.libraries.compression
+     if hasattr(self.compilers, 'FC'):
+-      self.liblist   = [['libhdf5_fortran.a', 'libhdf5.a', 'libhdf5hl_fortran.la', 'libhdf5_hl.la']]
++      #SEK: We usually only use static builds for parallel.
++      #self.liblist   = [['libhdf5_fortran.a', 'libhdf5.a', 'libhdf5hl_fortran.la', 'libhdf5_hl.la']]
++      self.liblist   = [['libhdf5_fortran.a', 'libhdf5.a']]
+     config.package.Package.configureLibrary(self)
+     if self.libraries.check(self.dlib, 'H5Pset_fapl_mpio'):
+       self.addDefine('HAVE_H5PSET_FAPL_MPIO', 1)
 diff -rupN petsc-3.3-p4/config/PETSc/packages/SuperLU_DIST.py petsc-3.3-p4-new/config/PETSc/packages/SuperLU_DIST.py
 --- petsc-3.3-p4/config/PETSc/packages/SuperLU_DIST.py	2012-08-29 10:26:23.000000000 -0600
-+++ petsc-3.3-p4-new/config/PETSc/packages/SuperLU_DIST.py	2012-11-06 09:04:40.127627600 -0700
++++ petsc-3.3-p4-new/config/PETSc/packages/SuperLU_DIST.py	2013-02-27 09:26:53.000000000 -0700
 @@ -19,8 +19,8 @@ class Configure(PETSc.package.NewPackage
    def setupDependencies(self, framework):
      PETSc.package.NewPackage.setupDependencies(self, framework)
@@ -21,16 +35,54 @@ diff -rupN petsc-3.3-p4/config/PETSc/packages/SuperLU_DIST.py petsc-3.3-p4-new/c
      g.write('LIBS         = $(DSUPERLULIB) $(BLASLIB) $(PMETISLIB) $(MPILIB)\n')
      g.write('ARCH         = '+self.setCompilers.AR+'\n')
      g.write('ARCHFLAGS    = '+self.setCompilers.AR_FLAGS+'\n')
-
+diff -rupN petsc-3.3-p4/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c petsc-3.3-p4-new/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c
+--- petsc-3.3-p4/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c	2012-05-30 22:00:37.000000000 -0600
++++ petsc-3.3-p4-new/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c	2013-02-27 09:30:09.000000000 -0700
+@@ -567,7 +567,8 @@ PetscErrorCode MatGetFactor_aij_superlu_
+       }
+     } 
+ 
+-    ierr = PetscOptionsEList("-mat_superlu_dist_colperm","Column permutation","None",colperm,5,colperm[3],&indx,&flg);CHKERRQ(ierr);
++//    ierr = PetscOptionsEList("-mat_superlu_dist_colperm","Column permutation","None",colperm,5,colperm[3],&indx,&flg);CHKERRQ(ierr);
++    ierr = PetscOptionsEList("-mat_superlu_dist_colperm","Column permutation","None",colperm,3,colperm[0],&indx,&flg);CHKERRQ(ierr);
+     if (flg) {
+       switch (indx) {
+       case 0:
+@@ -579,14 +580,16 @@ PetscErrorCode MatGetFactor_aij_superlu_
+       case 2:
+         options.ColPerm = MMD_ATA;
+         break;
+-      case 3:
+-        options.ColPerm = METIS_AT_PLUS_A;
+-        break;
+-      case 4:
+-        options.ColPerm = PARMETIS; /* only works for np>1 */
+-        break;
+       default:
+-        SETERRQ(PETSC_COMM_SELF,PETSC_ERR_ARG_WRONG,"Unknown column permutation");
++        SETERRQ(PETSC_COMM_SELF,PETSC_ERR_ARG_WRONG,"Unknown column permutation in Tech-X COSML PETSc");
++//      case 3:
++//        options.ColPerm = METIS_AT_PLUS_A;
++//        break;
++//      case 4:
++//        options.ColPerm = PARMETIS; /* only works for np>1 */
++//        break;
++//      default:
++//        SETERRQ(PETSC_COMM_SELF,PETSC_ERR_ARG_WRONG,"Unknown column permutation");
+       }
+     }
+ 
 diff -rupN petsc-3.3-p4/src/sys/ftn-custom/zstart.c petsc-3.3-p4-new/src/sys/ftn-custom/zstart.c
---- petsc-3.3-p4/src/sys/ftn-custom/zstart.c	Fri Nov 02 14:24:41 2012 -0500
-+++ petsc-3.3-p4-new/src/sys/ftn-custom/zstart.c	Thu Nov 08 16:20:52 2012 -0800
-@@ -438,7 +438,7 @@
+--- petsc-3.3-p4/src/sys/ftn-custom/zstart.c	2012-10-26 09:46:51.000000000 -0600
++++ petsc-3.3-p4-new/src/sys/ftn-custom/zstart.c	2013-02-27 09:29:20.000000000 -0700
+@@ -438,7 +438,9 @@ void PETSC_STDCALL petscinitialize_(CHAR
      *ierr = PetscHMPISpawn((PetscMPIInt) nodesize);/* worker nodes never return from here; they go directly to PetscEnd() */
      if (*ierr) {(*PetscErrorPrintf)("PetscInitialize:PetscHMPIS-pawn()\n");return;}
  #else
 -    SETERRQ(PETSC_COMM_SELF,PETSC_ERR_SUP,"PETSc built without MPI 2 (MPI_Comm_spawn) support, use -hmpi_merge_size instead");
-+    SETERRABORT(PETSC_COMM_SELF,PETSC_ERR_SUP,"PETSc built without MPI 2 (MPI_Comm_spawn) support, use -hmpi_merge_size instead");
++   *ierr = PETSC_ERR_SUP;
++    (*PetscErrorPrintf)("PetscInitialize: PETSc built without MPI 2 (MPI_Comm_spawn) support, use -hmpi_merge_size instead");
++    return;
  #endif
    } else {
      *ierr = PetscOptionsGetInt(PETSC_NULL,"-hmpi_merge_size",&nodesize,&flg);

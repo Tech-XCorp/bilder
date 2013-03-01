@@ -210,7 +210,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARG"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."

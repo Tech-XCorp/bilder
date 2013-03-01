@@ -20,14 +20,12 @@ LIBSSH_BLDRVERSION=${LIBSSH_BLDRVERSION:-"0.5.2"}
 #
 ######################################################################
 
-if test -z "$LIBSSH_DESIRED_BUILDS"; then
 # libssh always builds the shared libs.  With configuration below,
 # it will also build the static library, so we call this build ser.
-  LIBSSH_DESIRED_BUILDS=ser
-fi
+LIBSSH_DESIRED_BUILDS=${LIBSSH_DESIRED_BUILDS:-"ser"}
 computeBuilds libssh
 # Since libssh always builds the shared libs in ser, addCc4py logic
-# not quite right.
+# not right.
 if ! isCcCc4py; then
   addCc4pyBuild libssh
 fi

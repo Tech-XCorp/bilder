@@ -29,7 +29,17 @@ VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-"5.8.0.a"}
 #
 ######################################################################
 
-VISIT_VTK_BUILDS=${VISIT_VTK_BUILDS:-"sersh"}
+# Bu default, visit_vtk is built only with the compiler that built python
+if test -z "$VISIT_VTK_DESIRED_BUILDS"; then
+  if isCcCc4py; then
+    VISIT_VTK_DESIRED_BUILDS=sersh
+    VISIT_VTK_SER_BUILD=sersh
+  else
+    VISIT_VTK_DESIRED_BUILDS=cc4py
+    VISIT_VTK_SER_BUILD=cc4py
+  fi
+fi
+computeBuilds visit_vtk
 VISIT_VTK_DEPS=mesa,hdf5,Python,cmake
 
 ######################################################################
@@ -48,13 +58,12 @@ buildVisIt_Vtk() {
     local VISIT_VTK_OS_ARGS=
     local VISIT_VTK_PYTHON_ARGS=-DVTK_WRAP_PYTHON:BOOL=ON
     local VISIT_VTK_BUILD_ARGS=
-    local VISIT_VTK_BUILD_WITH_MESA=true
-    if test $MESA_BUILDS == "NONE"; then
-      VISIT_VTK_BUILD_WITH_MESA=false
-    fi
+    # local VISIT_VTK_BUILD_WITH_MESA=true
+    # if test $MESA_BUILDS == "NONE"; then
+      # VISIT_VTK_BUILD_WITH_MESA=false
+    # fi
     case `uname` in
       CYGWIN*) # Add /MT flags
-        # VISIT_VTK_OS_ARGS="$VISIT_VTK_OS_ARGS -DVISIT_VTK_USE_VIDEO_FOR_WINDOWS:BOOL=OFF"
 # Cygwin on focus apparently need this
         VISIT_VTK_PYTHON_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_LIB"
         case `uname` in
@@ -67,7 +76,8 @@ buildVisIt_Vtk() {
 # that it works across all of our machines, we can remove this
 # comment and the commented code.
 # (JRC) Protect against jom, as dependencies not right
-#        VISIT_VTK_BUILD_ARGS="-m nmake"
+# 25Feb2013: Failure observed on focus (XP)
+        VISIT_VTK_BUILD_ARGS="-m nmake"
         ;;
       Darwin)	# make -j can fail on Darwin
         VISIT_VTK_OS_ARGS="$VISIT_VTK_OS_ARGS -DVISIT_VTK_USE_CARBON:BOOL=OFF -DVISIT_VTK_USE_COCOA:BOOL=ON"
@@ -81,17 +91,19 @@ buildVisIt_Vtk() {
         ;;
       Linux)
         local VISIT_VTK_MESA_LIB_PATH=
-        if $VISIT_VTK_BUILD_WITH_MESA; then
+        local VISIT_VTK_LD_RUN_PATH=$LD_RUN_PATH
+        if test -d ${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib; then
           VISIT_VTK_MESA_LIB_PATH=${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib
+          VISIT_VTK_LD_RUN_PATH=${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib:$VISIT_VTK_LD_RUN_PATH
         fi
-        VISIT_VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${VISIT_VTK_MESA_LIB_PATH}:${BUILD_DIR}/visit_vtk-$VISIT_VTK_BLDRVERSION/sersh/bin:$LD_RUN_PATH
+        VISIT_VTK_LD_RUN_PATH=${BUILD_DIR}/visit_vtk-$VISIT_VTK_BLDRVERSION/$VISIT_VTK_SER_BUILD/bin:${PYTHON_LIBDIR}:$VISIT_VTK_LD_RUN_PATH
         trimvar VISIT_VTK_LD_RUN_PATH ':'
         if test -n "$VISIT_VTK_LD_RUN_PATH"; then
           local VISIT_VTK_LD_RUN_ARGS="LD_RUN_PATH=$VISIT_VTK_LD_RUN_PATH"
         fi
         local VISIT_VTK_LD_LIB_PATH="$LD_LIBRARY_PATH"
         if test -n "$LIBFORTRAN_DIR"; then
-         VISIT_VTK_LD_LIB_PATH="$LIBFORTRAN_DIR:$VISIT_VTK_LD_LIB_PATH"
+          VISIT_VTK_LD_LIB_PATH="$LIBFORTRAN_DIR:$VISIT_VTK_LD_LIB_PATH"
         fi
         case $PYTHON_LIB_LIBDIR in
           /usr/lib | /usr/lib64)
@@ -125,7 +137,7 @@ buildVisIt_Vtk() {
 # CYGWIN uses serial compilers, does not use Mesa
 # Others use gcc, use mesa
 # build_visit sets both of these the same for Darwin
-    local VISIT_VTK_COMPILERS=
+    local VISIT_VTK_COMPILERS="$CMAKE_COMPILERS_PYC"
     local VISIT_VTK_COMPFLAGS=
     local MANGLED_OSMESA_LIB=libOSMesa${SHOBJEXT}
     local VISIT_VTK_MESA_ARGS=
@@ -137,9 +149,9 @@ buildVisIt_Vtk() {
         # techo "VISIT_VTK_COMPILERS = $VISIT_VTK_COMPILERS."
         ;;
       *)
-        VISIT_VTK_COMPILERS="$CMAKE_COMPILERS_PYC"
         VISIT_VTK_COMPFLAGS="-DCMAKE_C_FLAGS:STRING='-fno-common -fexceptions' -DCMAKE_CXX_FLAGS:STRING='-fno-common -fexceptions'"
-        if $VISIT_VTK_BUILD_WITH_MESA; then
+        # if $VISIT_VTK_BUILD_WITH_MESA; then
+        if test -e $CONTRIB_DIR/mesa-mgl; then
           VISIT_VTK_MESA_ARGS="-DVTK_USE_MANGLED_MESA:BOOL=OFF -DVTK_OPENGL_HAS_OSMESA:BOOL=ON -DOSMESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DOSMESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_OSMESA_LIB}"
         fi
         ;;
@@ -156,12 +168,12 @@ buildVisIt_Vtk() {
       fi
 # The location of hdf5-config.cmake has been changing with each version.
 # When it settles, we will have the * case.
-    case $HDF5_BLDRVERSION in
-      1.8.7) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5-1.8.7";;
-      1.8.8 | 1.8.9) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5";;
-      1.8.10) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/cmake/hdf5";;
-      1.8.*) techo "WARNING: Location of hdf5-config.cmake not known.  Please update visit_vtk.sh."
-    esac
+      case $HDF5_BLDRVERSION in
+        1.8.7) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5-1.8.7";;
+        1.8.8 | 1.8.9) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/share/cmake/hdf5";;
+        1.8.10) VISIT_VTK_HDF5_ARGS="-DHDF5_DIR:PATH=$VISIT_VTK_HDF5_DIR/cmake/hdf5";;
+        1.8.*) techo "WARNING: Location of hdf5-config.cmake not known.  Please update visit_vtk.sh."
+      esac
     fi
 
 # Per build_visit:
@@ -194,9 +206,9 @@ buildVisIt_Vtk() {
       $VISIT_VTK_COMPILERS \
       $VISIT_VTK_COMPFLAGS \
       ${VISIT_VTK_MESA_ARGS} $VISIT_VTK_PYTHON_ARGS $VISIT_VTK_SER_OTHER_ARGS"
-    if bilderConfig visit_vtk sersh "$VISIT_VTK_CONFIG_ARGS" "" "$VISIT_VTK_ENV"; then
+    if bilderConfig visit_vtk $VISIT_VTK_SER_BUILD "$VISIT_VTK_CONFIG_ARGS" "" "$VISIT_VTK_ENV"; then
 # Build
-      bilderBuild $VISIT_VTK_BUILD_ARGS visit_vtk sersh "$VISIT_VTK_MAKE_ARGS" "$VISIT_VTK_ENV"
+      bilderBuild $VISIT_VTK_BUILD_ARGS visit_vtk $VISIT_VTK_SER_BUILD "$VISIT_VTK_MAKE_ARGS" "$VISIT_VTK_ENV"
     fi
   fi
 
@@ -219,9 +231,7 @@ testVisIt_Vtk() {
 ######################################################################
 
 installVisIt_Vtk() {
-  for bld in sersh cc4py; do
-     bilderInstall $VISIT_VTK_BUILD_ARGS -r visit_vtk $bld "" "" "$VISIT_VTK_ENV"
-  done
+  bilderInstall $VISIT_VTK_BUILD_ARGS -r visit_vtk $VISIT_VTK_SER_BUILD "" "" "$VISIT_VTK_ENV"
   # techo "Quitting at the end of visit_vtk.sh."; exit
 }
 

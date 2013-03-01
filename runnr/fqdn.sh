@@ -15,6 +15,7 @@ bilderFqdn() {
   if ! fqdn=`hostname -f 2>/dev/null`; then
     fqdn=`hostname`
   fi
+  # echo "bilderFqdn called.  fqdn = $fqdn.  FQHOSTNAME = $FQHOSTNAME."
   case $fqdn in
 # ALCF
     *.*.alcf.anl.gov)

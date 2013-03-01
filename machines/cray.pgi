@@ -42,10 +42,10 @@ case $UQMAILHOST in
     SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
 
     # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.8/pgi/119
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.8/pgi/119
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/pgi/119
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/pgi/119
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/119
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/119
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/119
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/119
 
     # Trilinos and Petsc 
     TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
@@ -53,9 +53,6 @@ case $UQMAILHOST in
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
     PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
-
-    # NIMROD specific lines
-    NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"--with-optimization=full SUPERLU_DIST_LIBS='-L/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/lib/ -lsuperlu_dist_2.4 -L/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/lib/ -lparmetis -lmetis' SUPERLU_DIST_INC='-I/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/include' SUPERLU_DIST_INCDIR='/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par/include' --disable-petsc --with-superlu_dist-dir=/project/projectdirs/facets/hopper/contrib-pgi-12.5/petsc-par"}
 
     LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
     ;;
@@ -77,10 +74,10 @@ case $UQMAILHOST in
     SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
 
     # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/pgi/119
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/pgi/119
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.1.1/pgi/119
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.1.1/pgi/119
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/119
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/119
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/119
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/119
 
     # Trilinos and Petsc 
     # This was required on jaguar, try it on titan if there are problems.
@@ -473,7 +470,7 @@ GA_TRANSPORT_PAR_OTHER_ARGS=${GA_TRANSPORT_PAR_OTHER_ARGS:-"--disable-shared --e
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"sersh,cc4py"}
+HDF5_BUILDS=${HDF5_BUILDS:-"cc4py"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
@@ -621,15 +618,15 @@ NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-"--disable-shared"}
 # NETLIB_LITE_BEN_OTHER_ARGS=${NETLIB_LITE_BEN_OTHER_ARGS:-""}
 NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
 
-# NIMROD_BLDRVERSION=${NIMROD_BLDRVERSION:-""}
-# NIMROD_BUILDS=${NIMROD_BUILDS:-""}
-# NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-""}
-# NIMROD_PARDBG_OTHER_ARGS=${NIMROD_PARDBG_OTHER_ARGS:-""}
-# NIMROD_PARSURF_OTHER_ARGS=${NIMROD_PARSURF_OTHER_ARGS:-""}
-# NIMROD_PARTAU_OTHER_ARGS=${NIMROD_PARTAU_OTHER_ARGS:-""}
-# NIMROD_SER_OTHER_ARGS=${NIMROD_SER_OTHER_ARGS:-""}
-# NIMROD_SERDBG_OTHER_ARGS=${NIMROD_SERDBG_OTHER_ARGS:-""}
-# NIMROD_SERSURF_OTHER_ARGS=${NIMROD_SERSURF_OTHER_ARGS:-""}
+# NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
+# NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
+# NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-""}
+# NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
+# NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
+# NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-""}
+# NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-""}
+# NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-""}
+# NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-""}
 
 # NIMTESTS_BLDRVERSION=${NIMTESTS_BLDRVERSION:-""}
 # NIMTESTS_BUILDS=${NIMTESTS_BUILDS:-""}
@@ -785,7 +782,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # QSCINTILLA_SER_OTHER_ARGS=${QSCINTILLA_SER_OTHER_ARGS:-""}
 
 # QT_BLDRVERSION=${QT_BLDRVERSION:-""}
-# QT_BUILDS=${QT_BUILDS:-""}
+QT_BUILDS=${QT_BUILDS:-"cc4py"}
 # QT_SER_OTHER_ARGS=${QT_SER_OTHER_ARGS:-""}
 
 # QT3D_BLDRVERSION=${QT3D_BLDRVERSION:-""}
@@ -969,7 +966,7 @@ TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS:-"parcommsh"}
 # TVMET_SER_OTHER_ARGS=${TVMET_SER_OTHER_ARGS:-""}
 
 # TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-""}
-# TXBASE_BUILDS=${TXBASE_BUILDS:-""}
+TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,par,cc4py"}
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
 # TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}

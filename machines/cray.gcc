@@ -15,13 +15,62 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-gnu 1>/dev/null 2>&1; then
   exit
 fi
 case $UQMAILHOST in
-  hopper)
+
+  edison*)
+
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
-    SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/opt/cray/hdf5-parallel/1.8.8/gnu/47"}
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.8/gnu/47
-    NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"--with-optimization=full SUPERLU_DIST_LIBS='-L/project/projectdirs/facets/hopper/contrib-gcc-4.6/petsc-par/lib/ -lsuperlu_dist_2.4 -L/project/projectdirs/facets/hopper/contrib-gcc-4.6/petsc-par/lib/ -lparmetis -lmetis' SUPERLU_DIST_INC='-I/project/projectdirs/facets/hopper/contrib-gcc-4.6/petsc-par/include' SUPERLU_DIST_INCDIR='/project/projectdirs/facets/hopper/contrib-gcc-4.6/petsc-par/include' --disable-petsc --with-superlu_dist-dir=/project/projectdirs/facets/hopper/contrib-gcc-4.6/petsc-par"}
+
+# System linear algebra, note sandybridge for Edison.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
     ;;
+
+  hopper*)
+
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+# System linear algebra, note mc12 (Magny-Cours) for Hopper.
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
+    ;;
+
+  titan*)
+
+# Make sure your code is built for the compute nodes,
+# module xtpe-interlagos should be loaded.
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+    CRAY_CONNECT=gemini
+
+# System linear algebra, note interlagos for Titan backend nodes.
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu_mp.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/47
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/47
+    ;;
+
 esac
 # END KEEP THIS
 
@@ -88,11 +137,11 @@ FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a"}
-SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-"/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a"}
+# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
+# SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
 # SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-""}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a"}
-SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-"/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a"}
+# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
+# SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
 # IO directories:
@@ -149,7 +198,7 @@ SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-"/opt/xt-libsci/default/gnu/4
 # BABEL_BLDRVERSION=${BABEL_BLDRVERSION:-""}
 BABEL_BUILDS=${BABEL_BUILDS:-"static"}
 # BABEL_SHARED_OTHER_ARGS=${BABEL_SHARED_OTHER_ARGS:-""}
-BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_compiling=yes --target=x86_64-cray-cnl CPP_BABEL='gcc -E -I/opt/mpt/3.1.0/xt/mpich2-pgi/include'"}
+BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_compiling=yes --target=x86_64-cray-cnl CPP_BABEL='gcc -E -I${CRAY_MPICH2_DIR}/include'"}
 
 # BHSSOLVER_BLDRVERSION=${BHSSOLVER_BLDRVERSION:-""}
 # BHSSOLVER_BUILDS=${BHSSOLVER_BUILDS:-""}
@@ -388,7 +437,7 @@ FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${S
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"cc4py"}
+HDF5_BUILDS=${HDF5_BUILDS:-"sersh"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
@@ -536,15 +585,15 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NETLIB_LITE_BEN_OTHER_ARGS=${NETLIB_LITE_BEN_OTHER_ARGS:-""}
 # NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-""}
 
-# NIMROD_BLDRVERSION=${NIMROD_BLDRVERSION:-""}
-# NIMROD_BUILDS=${NIMROD_BUILDS:-""}
-# NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-""}
-# NIMROD_PARDBG_OTHER_ARGS=${NIMROD_PARDBG_OTHER_ARGS:-""}
-# NIMROD_PARSURF_OTHER_ARGS=${NIMROD_PARSURF_OTHER_ARGS:-""}
-# NIMROD_PARTAU_OTHER_ARGS=${NIMROD_PARTAU_OTHER_ARGS:-""}
-# NIMROD_SER_OTHER_ARGS=${NIMROD_SER_OTHER_ARGS:-""}
-# NIMROD_SERDBG_OTHER_ARGS=${NIMROD_SERDBG_OTHER_ARGS:-""}
-# NIMROD_SERSURF_OTHER_ARGS=${NIMROD_SERSURF_OTHER_ARGS:-""}
+# NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
+# NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
+NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-"-ENABLE_OpenMP:BOOL=TRUE"}
+NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-"-ENABLE_OpenMP:BOOL=TRUE"}
+# NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
+# NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-""}
+# NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-""}
+# NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-""}
+# NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-""}
 
 # NIMTESTS_BLDRVERSION=${NIMTESTS_BLDRVERSION:-""}
 # NIMTESTS_BUILDS=${NIMTESTS_BUILDS:-""}

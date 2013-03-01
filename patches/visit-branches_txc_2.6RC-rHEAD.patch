@@ -1,35 +1,6 @@
-Index: visit/engine/main/CMakeLists.txt
-===================================================================
---- visit/engine/main/CMakeLists.txt	(revision 19930)
-+++ visit/engine/main/CMakeLists.txt	(working copy)
-@@ -130,6 +130,10 @@
- ${VTK_INCLUDE_DIRS}
- )
- 
-+IF (NOT WIN32)
-+  INCLUDE_DIRECTORIES(${X11_X11_INCLUDE_PATH})
-+ENDIF ()
-+
- # Add link directories
- LINK_DIRECTORIES(
- ${LIBRARY_OUTPUT_DIRECTORY}
-Index: visit/sim/V2/lib/CMakeLists.txt
-===================================================================
---- visit/sim/V2/lib/CMakeLists.txt	(revision 19930)
-+++ visit/sim/V2/lib/CMakeLists.txt	(working copy)
-@@ -88,6 +88,9 @@
- # but this will do for now. Also provide debug info.
- ADD_DEFINITIONS(-g -fvisibility=default)
- ADD_LIBRARY(simV2dyn SHARED ${LIBSIM_SOURCES})
-+if (WIN32)
-+  target_link_libraries(simV2dyn Ws2_32)
-+endif ()
- 
- ADD_LIBRARY(simV2 STATIC ${LIBSIM_SOURCES})
- ADD_LIBRARY(simV2f STATIC ${FORTRAN_LIBSIM_SOURCES})
 Index: visit/tools/xdmf_writer/CMakeLists.txt
 ===================================================================
---- visit/tools/xdmf_writer/CMakeLists.txt	(revision 19930)
+--- visit/tools/xdmf_writer/CMakeLists.txt	(revision 20080)
 +++ visit/tools/xdmf_writer/CMakeLists.txt	(working copy)
 @@ -51,16 +51,16 @@
  
@@ -52,3 +23,18 @@ Index: visit/tools/xdmf_writer/CMakeLists.txt
  
  ADD_LIBRARY(xdmf_writer_ser xdmf_writer.c)
  TARGET_LINK_LIBRARIES(xdmf_writer_ser ${HDF5_LIB} ${ZLIB_LIB})
+Index: visit/engine/main/CMakeLists.txt
+===================================================================
+--- visit/engine/main/CMakeLists.txt	(revision 20080)
++++ visit/engine/main/CMakeLists.txt	(working copy)
+@@ -130,6 +130,10 @@
+ ${VTK_INCLUDE_DIRS}
+ )
+ 
++IF (NOT WIN32)
++  INCLUDE_DIRECTORIES(${X11_X11_INCLUDE_PATH})
++ENDIF ()
++
+ # Add link directories
+ LINK_DIRECTORIES(
+ ${LIBRARY_OUTPUT_DIRECTORY}

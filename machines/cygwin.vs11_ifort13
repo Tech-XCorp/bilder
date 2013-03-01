@@ -11,6 +11,73 @@
 
 # KEEP THIS
 
+# When running cmake, this must be in the front of the path to
+# get the native Windows cmake.
+#SVN_BINDIR="C:/Program Files/CollabNet/Subversion Client"
+USE_CCXX_PIC_FLAG=${USE_CCXX_PIC_FLAG:-"false"}
+USE_FORTRAN_PIC_FLAG=${USE_FORTRAN_PIC_FLAG:-"false"}
+
+# Even with mingw, need to have cl in one's path.  So source cygwin.sh
+source cygwin.sh
+
+if test -z "$PROJECT_DIR"; then
+  # echo BASH_SOURCE = $BASH_SOURCE
+  mdir=`dirname $BASH_SOURCE`
+  mdir=`(cd $mdir; pwd -P)`
+  bdir=`dirname $mdir`
+  PROJECT_DIR=`dirname $bdir`
+fi
+
+HAVE_SER_FORTRAN=true
+
+export ARCH_PATH="intel64"
+export ARCH_PATH_MPI="em64t"
+export BIN_ROOT="c:\Program Files (x86)\Intel\Composer XE\bin"
+export BUNDLE_NAME="Intel Parallel Studio XE 2013"
+export CPRO_PATH="c:\Program Files (x86)\Intel\Composer XE"
+export C_TARGET_ARCH="intel64"
+export DevEnvDir="c:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE"
+export ICPP_COMPILER12="C:\Program Files (x86)\Intel\Composer XE 2013"
+export IFORT_COMPILER12="C:\Program Files (x86)\Intel\Composer XE 2013"
+export INCLUDE="c:\Program Files (x86)\Intel\Composer XE\compiler\include;c:\Program Files (x86)\Intel\Composer XE\compiler\include\intel64;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\INCLUDE;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\ATLMFC\INCLUDE;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include;c:\Program Files (x86)\Intel\Composer XE\ipp\include;c:\Program Files (x86)\Intel\Composer XE\mkl\include;c:\Program Files (x86)\Intel\Composer XE\tbb\bin\..\include;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\INCLUDE;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\ATLMFC\INCLUDE;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include;"
+export INTEL_LICENSE_FILE="C:\Program Files (x86)\Common Files\Intel\Licenses"
+export IPPROOT="c:\Program Files (x86)\Intel\Composer XE\ipp"
+export IPP_TARGET_ARCH="intel64"
+export LIB="C:\Program Files (x86)\Intel\Composer XE 2013\compiler\lib;C:\Program Files (x86)\Intel\Composer XE 2013\compiler\lib\intel64;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\ATLMFC\LIB\amd64;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib\x64;C:\Program Files (x86)\Intel\Composer XE 2013\ipp\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2013\ipp\..\compiler\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2013\mkl\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2013\compiler\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2013\tbb\bin\..\lib\intel64\vc10;c:\Program Files (x86)\Intel\Composer XE\compiler\lib;c:\Program Files (x86)\Intel\Composer XE\compiler\lib\intel64;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\ATLMFC\LIB\amd64;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib\x64;c:\Program Files (x86)\Intel\Composer XE\ipp\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\ipp\..\compiler\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\\mkl\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\compiler\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\tbb\bin\..\lib\intel64\vc_mt;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\LIB;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\ATLMFC\LIB;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib;"
+
+export LIBPATH="c:\Windows\Microsoft.NET\Framework64\v4.0.30319;c:\Windows\Microsoft.NET\Framework64\v3.5;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\ATLMFC\LIB\amd64;"
+export MKLROOT="c:\Program Files (x86)\Intel\Composer XE\mkl"
+export MKL_LP64_ILP64="lp64"
+export MKL_TARGET_ARCH="intel64"
+export MOD_NAME="mod"
+export MSVS_VAR_SCRIPT="c:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\..\..\VC\vcvarsall.bat"
+export ND_INC="C:\Program Files\Microsoft HPC Pack 2008 SDK\Include"
+export PATH="/cygdrive/c/Program Files (x86)/CMake 2.8/bin/:/usr/local/bin:/usr/bin:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/bin/intel64:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 11.0/VC/BIN/amd64:/cygdrive/c/Windows/Microsoft.NET/Framework64/v4.0.30319:/cygdrive/c/Windows/Microsoft.NET/Framework64/v3.5:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 11.0/VC/VCPackages:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/IDE:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/Tools:/cygdrive/c/Program Files (x86)/HTML Help Workshop:/cygdrive/c/Program Files (x86)/HTML Help Workshop:/cygdrive/c/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/bin/NETFX 4.0 Tools/x64:/cygdrive/c/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/bin/x64:/cygdrive/c/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/bin:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/ipp:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/mkl:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/tbb/vc10:/cygdrive/c/Klocwork/User 9.6/bin:/cygdrive/c/Klocwork/Server 9.6/bin:cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v5.0/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v5.0/libnvvp/x:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.2/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.2/libnvvp:/cygdrive/c/Program Files (x86)/Java/jre6/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.1/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.1/libnvvp:/cygdrive/c/Program Files/Microsoft HPC Pack 2008 SDK/Bin:/cygdrive/c/Program Files/Microsoft HPC Pack 2008 R2/Bin:/cygdrive/c/bin/blat262.full/blat262/full:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/ia32/tbb/vc10:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/tbb/vc10:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/ipp:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/mkl:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/mpirt:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client:/cygdrive/c/Windows/system32:/cygdrive/c/Windows:/cygdrive/c/Windows/System32/Wbem:/cygdrive/c/Windows/System32/WindowsPowerShell/v1.0:/cygdrive/c/Program Files (x86)/Microsoft SQL Server/90/Tools/binn:/cygdrive/c/Program Files (x86)/doxygen/bin:/cygdrive/c/bin:/cygdrive/c/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.1/C/common/bin:/cygdrive/c/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/C/common/bin:/cygdrive/c/Program Files (x86)/QuickTime/QTSystem:/cygdrive/c/Program Files/TortoiseHg:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2013/redist/intel64/mpirt"
+export PATHEXT=".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC"
+export PRODUCT_NAME="Intel Composer XE 2013"
+export PRODUCT_NAME_FULL="Intel Composer XE 2013 Update 2 (package 149)"
+export REDIST="c:\Program Files (x86)\Intel\Composer XE\redist"
+export ROOT="c:\Program Files (x86)\Intel\Composer XE"
+export TBBROOT="c:\Program Files (x86)\Intel\Composer XE\tbb\bin\.."
+export TBB_ARCH_PLATFORM="intel64\vc_mt"
+export TBB_BIN_DIR="c:\Program Files (x86)\Intel\Composer XE\tbb\bin"
+export TBB_CXX="icl.exe"
+export TBB_TARGET_ARCH="intel64"
+export TBB_TARGET_VS="vc_mt"
+
+
+#export PATH="$PATH_:$PATH"
+#export INCLUDE="$INCLUDE_;$INCLUDE"
+#export LIB="$LIB_;$LIB"
+#export LIBPATH="$LIBPATH_;$LIBPATH"
+
+$TECHO "Adding Intel Compiler variables to environment."
+$TECHO "PATH = $PATH"
+$TECHO "INCLUDE = $INCLUDE"
+$TECHO "LIB = $LIB"
+$TECHO "LIBPATH = $LIBPATH"
+
+
 # END KEEP THIS
 
 # Serial compilers
@@ -20,28 +87,28 @@
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-# CC=${CC:-""}
-# CXX=${CXX:-""}
-# FC=${FC:-""}
-# F77=${F77:-""}
+CC=${CC:-"icl"}
+CXX=${CXX:-"icl"}
+FC=${FC:-"ifort"}
+F77=${F77:-"ifort"}
 
 # Python builds -- much use gcc for consistency.
-# PYC_CC=${PYC_CC:-""}
-# PYC_CXX=${PYC_CXX:-""}
+PYC_CC=${PYC_CC:-"cl"}
+PYC_CXX=${PYC_CXX:-"cl"}
 # PYC_FC=${PYC_FC:-""}
 # PYC_F77=${PYC_F77:-""}
 
 # Backend compilers:
-# BENCC=${BENCC:-""}
-# BENCXX=${BENCXX:-""}
-# BENFC=${BENFC:-""}
-# BENF77=${BENF77:-""}
+BENCC=${BENCC:-"icl"}
+BENCXX=${BENCXX:-"icl"}
+BENFC=${BENFC:-"ifort"}
+BENF77=${BENF77:-"ifort"}
 
 # Parallel compilers:
-# MPICC=${MPICC:-""}
-# MPICXX=${MPICXX:-""}
-# MPIFC=${MPIFC:-""}
-# MPIF77=${MPIF77:-""}
+MPICC=${MPICC:-"icl"}
+MPICXX=${MPICXX:-"icl"}
+MPIFC=${MPIFC:-"ifort"}
+MPIF77=${MPIF77:-"ifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
@@ -56,10 +123,10 @@
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
 # PYC_MODFLAGS is for creating a module.
-# PYC_CFLAGS=${PYC_CFLAGS:-""}
-# PYC_CXXFLAGS=${PYC_CXXFLAGS:-""}
-# PYC_FCFLAGS=${PYC_FCFLAGS:-""}
-# PYC_FFLAGS=${PYC_FFLAGS:-""}
+PYC_CFLAGS=${PYC_CFLAGS:-"-mno-cygwin"}
+PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-mno-cygwin"}
+PYC_FCFLAGS=${PYC_FCFLAGS:-"-mno-cygwin"}
+PYC_FFLAGS=${PYC_FFLAGS:-"-mno-cygwin"}
 # PYC_LDFLAGS=${PYC_LDFLAGS:-""}
 # PYC_MODFLAGS=${PYC_MODFLAGS:-""}
 # PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-""}
@@ -76,15 +143,15 @@
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.0/gfortran64/lib/libacml.a"}
+# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
 # SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
 # SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-""}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.0/gfortran64/lib/libacml.a"}
+# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
 # SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
 # IO directories:
-# SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-""}
+# SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-"/cygwin/contrib/hdf5"}
 # SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-""}
 # SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-""}
 # SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-""}
@@ -117,7 +184,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # ARPREC_SER_OTHER_ARGS=${ARPREC_SER_OTHER_ARGS:-""}
 
 # ATLAS_BLDRVERSION=${ATLAS_BLDRVERSION:-""}
-# ATLAS_BUILDS=${ATLAS_BUILDS:-""}
+ATLAS_BUILDS=${ATLAS_BUILDS:-"clp"}
 # ATLAS_CC4PY_OTHER_ARGS=${ATLAS_CC4PY_OTHER_ARGS:-""}
 # ATLAS_CLP_OTHER_ARGS=${ATLAS_CLP_OTHER_ARGS:-""}
 # ATLAS_SER_OTHER_ARGS=${ATLAS_SER_OTHER_ARGS:-""}
@@ -135,7 +202,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # AUTOTOOLS_FAKE_OTHER_ARGS=${AUTOTOOLS_FAKE_OTHER_ARGS:-""}
 
 # BABEL_BLDRVERSION=${BABEL_BLDRVERSION:-""}
-# BABEL_BUILDS=${BABEL_BUILDS:-""}
+BABEL_BUILDS=${BABEL_BUILDS:-"NONE"}
 # BABEL_SHARED_OTHER_ARGS=${BABEL_SHARED_OTHER_ARGS:-""}
 # BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-""}
 
@@ -195,7 +262,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # CLAPACK_CMAKE_SER_OTHER_ARGS=${CLAPACK_CMAKE_SER_OTHER_ARGS:-""}
 
 # CMAKE_BLDRVERSION=${CMAKE_BLDRVERSION:-""}
-# CMAKE_BUILDS=${CMAKE_BUILDS:-""}
+# CMAKE_BUILDS=${CMAKE_BUILDS:-"NONE"}
 # CMAKE_SER_OTHER_ARGS=${CMAKE_SER_OTHER_ARGS:-""}
 
 # COIN_BLDRVERSION=${COIN_BLDRVERSION:-""}
@@ -378,10 +445,10 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
 # HDF5_BUILDS=${HDF5_BUILDS:-""}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
-# HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
-# HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
-# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
-# HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
+HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DMSVC:BOOL=TRUE"}
+HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-" -DMSVC:BOOL=TRUE"}
+HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DMSVC:BOOL=TRUE CMAKE_Fortran_FLAGS:STRING='/fltconsistency /Qprec'"}
+HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-" -DMSVC:BOOL=TRUE"}
 
 # HTTPLIB2_BLDRVERSION=${HTTPLIB2_BLDRVERSION:-""}
 # HTTPLIB2_BUILDS=${HTTPLIB2_BUILDS:-""}
@@ -413,7 +480,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # JSMATH_CC4PY_OTHER_ARGS=${JSMATH_CC4PY_OTHER_ARGS:-""}
 
 # LAPACK_BLDRVERSION=${LAPACK_BLDRVERSION:-""}
-# LAPACK_BUILDS=${LAPACK_BUILDS:-""}
+LAPACK_BUILDS=${LAPACK_BUILDS:-"NONE"}
 # LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-""}
 # LAPACK_CC4PY_OTHER_ARGS=${LAPACK_CC4PY_OTHER_ARGS:-""}
 # LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-""}
@@ -461,7 +528,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # MATHJAX_LITE_OTHER_ARGS=${MATHJAX_LITE_OTHER_ARGS:-""}
 
 # MATPLOTLIB_BLDRVERSION=${MATPLOTLIB_BLDRVERSION:-""}
-# MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-""}
+MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"NONE"}
 # MATPLOTLIB_CC4PY_OTHER_ARGS=${MATPLOTLIB_CC4PY_OTHER_ARGS:-""}
 
 # MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-""}
@@ -469,13 +536,13 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/pppl/gcc/4.4-pkgs/acml/4.3.
 # MERCURIAL_CC4PY_OTHER_ARGS=${MERCURIAL_CC4PY_OTHER_ARGS:-""}
 
 # MESA_BLDRVERSION=${MESA_BLDRVERSION:-""}
-# MESA_BUILDS=${MESA_BUILDS:-""}
+MESA_BUILDS=${MESA_BUILDS:-"NONE"}
 # MESA_MGL_OTHER_ARGS=${MESA_MGL_OTHER_ARGS:-""}
 # MESA_OS_OTHER_ARGS=${MESA_OS_OTHER_ARGS:-""}
 
 # METATAU_BLDRVERSION=${METATAU_BLDRVERSION:-""}
-# METATAU_BUILDS=${METATAU_BUILDS:-""}
-METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gfortran4 -pdt_c++=g++4"}
+METATAU_BUILDS=${METATAU_BUILDS:-"NONE"}
+# METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-""}
 
 # METIS_BLDRVERSION=${METIS_BLDRVERSION:-""}
 # METIS_BUILDS=${METIS_BUILDS:-""}
@@ -525,7 +592,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-""}
 
 # NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
-# NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
+NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"NONE"}
 # NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-""}
 # NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
 # NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
@@ -539,12 +606,12 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # NIMTESTS_ALL_OTHER_ARGS=${NIMTESTS_ALL_OTHER_ARGS:-""}
 
 # NTCC_TRANSPORT_BLDRVERSION=${NTCC_TRANSPORT_BLDRVERSION:-""}
-# NTCC_TRANSPORT_BUILDS=${NTCC_TRANSPORT_BUILDS:-""}
+NTCC_TRANSPORT_BUILDS=${NTCC_TRANSPORT_BUILDS:-"NONE"}
 # NTCC_TRANSPORT_PAR_OTHER_ARGS=${NTCC_TRANSPORT_PAR_OTHER_ARGS:-""}
 # NTCC_TRANSPORT_SER_OTHER_ARGS=${NTCC_TRANSPORT_SER_OTHER_ARGS:-""}
 
 # NUBEAM_BLDRVERSION=${NUBEAM_BLDRVERSION:-""}
-# NUBEAM_BUILDS=${NUBEAM_BUILDS:-""}
+NUBEAM_BUILDS=${NUBEAM_BUILDS:-"NONE"}
 # NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-""}
 # NUBEAM_SER_OTHER_ARGS=${NUBEAM_SER_OTHER_ARGS:-""}
 
@@ -553,7 +620,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # NUMEXPR_CC4PY_OTHER_ARGS=${NUMEXPR_CC4PY_OTHER_ARGS:-""}
 
 # NUMPY_BLDRVERSION=${NUMPY_BLDRVERSION:-""}
-# NUMPY_BUILDS=${NUMPY_BUILDS:-""}
+NUMPY_BUILDS=${NUMPY_BUILDS:-"NONE"}
 # NUMPY_CC4PY_OTHER_ARGS=${NUMPY_CC4PY_OTHER_ARGS:-""}
 
 # OCE_BLDRVERSION=${OCE_BLDRVERSION:-""}
@@ -587,7 +654,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # PCRE_SER_OTHER_ARGS=${PCRE_SER_OTHER_ARGS:-""}
 
 # PETSC_BLDRVERSION=${PETSC_BLDRVERSION:-""}
-# PETSC_BUILDS=${PETSC_BUILDS:-""}
+PETSC_BUILDS=${PETSC_BUILDS:-"NONE"}
 # PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-""}
 # PETSC_PARCPLX_OTHER_ARGS=${PETSC_PARCPLX_OTHER_ARGS:-""}
 # PETSC_PARCPLXDBG_OTHER_ARGS=${PETSC_PARCPLXDBG_OTHER_ARGS:-""}
@@ -614,7 +681,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # PETSCREPO_SERCPLX_OTHER_ARGS=${PETSCREPO_SERCPLX_OTHER_ARGS:-""}
 
 # PLASMA_STATE_BLDRVERSION=${PLASMA_STATE_BLDRVERSION:-""}
-# PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-""}
+PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-"NONE"}
 # PLASMA_STATE_BEN_OTHER_ARGS=${PLASMA_STATE_BEN_OTHER_ARGS:-""}
 # PLASMA_STATE_SER_OTHER_ARGS=${PLASMA_STATE_SER_OTHER_ARGS:-""}
 
@@ -716,7 +783,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # RST2PDF_CC4PY_OTHER_ARGS=${RST2PDF_CC4PY_OTHER_ARGS:-""}
 
 # SCIPY_BLDRVERSION=${SCIPY_BLDRVERSION:-""}
-# SCIPY_BUILDS=${SCIPY_BUILDS:-""}
+SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
 # SCIPY_CC4PY_OTHER_ARGS=${SCIPY_CC4PY_OTHER_ARGS:-""}
 
 # SCITOOLS_BLDRVERSION=${SCITOOLS_BLDRVERSION:-""}
@@ -769,7 +836,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # SPARSKIT_SER_OTHER_ARGS=${SPARSKIT_SER_OTHER_ARGS:-""}
 
 # SPHINX_BLDRVERSION=${SPHINX_BLDRVERSION:-""}
-# SPHINX_BUILDS=${SPHINX_BUILDS:-""}
+SPHINX_BUILDS=${SCIPY_BUILDS:-"NONE"}
 # SPHINX_CC4PY_OTHER_ARGS=${SPHINX_CC4PY_OTHER_ARGS:-""}
 
 # SPHINX_NUMFIG_BLDRVERSION=${SPHINX_NUMFIG_BLDRVERSION:-""}
@@ -807,7 +874,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # SUPERLU_DIST_PARSH_OTHER_ARGS=${SUPERLU_DIST_PARSH_OTHER_ARGS:-""}
 
 # SWIG_BLDRVERSION=${SWIG_BLDRVERSION:-""}
-# SWIG_BUILDS=${SWIG_BUILDS:-""}
+SWIG_BUILDS=${SWIG_BUILDS:-"NONE"}
 # SWIG_SER_OTHER_ARGS=${SWIG_SER_OTHER_ARGS:-""}
 
 # SWIMGUI_BLDRVERSION=${SWIMGUI_BLDRVERSION:-""}
@@ -818,8 +885,8 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-cc=gcc4 -c++=g++4 -fortran=gf
 # SYNERGIA2_BUILDS=${SYNERGIA2_BUILDS:-""}
 # SYNERGIA2_SER_OTHER_ARGS=${SYNERGIA2_SER_OTHER_ARGS:-""}
 
-TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-"2.1.2"}
-# TABLES_BUILDS=${TABLES_BUILDS:-""}
+# TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-""}
+TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
 # TABLES_CC4PY_OTHER_ARGS=${TABLES_CC4PY_OTHER_ARGS:-""}
 
 # TEASPINK_BLDRVERSION=${TEASPINK_BLDRVERSION:-""}
@@ -875,7 +942,7 @@ TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-"2.1.2"}
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
 # TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
-# TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-""}
+TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"$SUBVERSION_ARGS"}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
 
 # TXBTESTS_BLDRVERSION=${TXBTESTS_BLDRVERSION:-""}
@@ -888,9 +955,9 @@ TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-"2.1.2"}
 # TXGEOM_SER_OTHER_ARGS=${TXGEOM_SER_OTHER_ARGS:-""}
 
 # TXPHYSICS_BLDRVERSION=${TXPHYSICS_BLDRVERSION:-""}
-# TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-""}
+TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser"}
 # TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-""}
-# TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-""}
+TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"$SUBVERSION_ARGS"}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
 # TXSSH_BLDRVERSION=${TXSSH_BLDRVERSION:-""}
@@ -900,7 +967,7 @@ TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-"2.1.2"}
 # TXSSH_SERSH_OTHER_ARGS=${TXSSH_SERSH_OTHER_ARGS:-""}
 
 # UEDGE_BLDRVERSION=${UEDGE_BLDRVERSION:-""}
-# UEDGE_BUILDS=${UEDGE_BUILDS:-""}
+UEDGE_BUILDS=${UEDGE_BUILDS:-"NONE"}
 # UEDGE_NOPETSC_OTHER_ARGS=${UEDGE_NOPETSC_OTHER_ARGS:-""}
 # UEDGE_PAR_OTHER_ARGS=${UEDGE_PAR_OTHER_ARGS:-""}
 # UEDGE_PARTAU_OTHER_ARGS=${UEDGE_PARTAU_OTHER_ARGS:-""}
@@ -911,7 +978,7 @@ TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-"2.1.2"}
 # UETESTS_ALL_OTHER_ARGS=${UETESTS_ALL_OTHER_ARGS:-""}
 
 # VALGRIND_BLDRVERSION=${VALGRIND_BLDRVERSION:-""}
-# VALGRIND_BUILDS=${VALGRIND_BUILDS:-""}
+VALGRIND_BUILDS=${VALGRIND_BUILDS:-"NONE"}
 # VALGRIND_SER_OTHER_ARGS=${VALGRIND_SER_OTHER_ARGS:-""}
 
 # VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-""}

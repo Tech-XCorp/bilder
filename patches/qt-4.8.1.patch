@@ -56,3 +56,32 @@ diff -ruN qt-4.8.1/src/3rdparty/webkit/Source/WebKit.pri qt-4.8.1-new/src/3rdpar
  
      greaterThan(QT_GCC_MAJOR_VERSION, 3):greaterThan(QT_GCC_MINOR_VERSION, 5) {
          if (!contains(QMAKE_CXXFLAGS, -std=c++0x) && !contains(QMAKE_CXXFLAGS, -std=gnu++0x)) {
+diff -ruN qt-4.8.1/src/3rdparty/webkit/Source/common.pri qt-4.8.1-new/src/3rdparty/webkit/Source/common.pri
+--- qt-4.8.1/src/3rdparty/webkit/Source/common.pri	2012-03-14 08:01:29.000000000 -0600
++++ qt-4.8.1-new/src/3rdparty/webkit/Source/common.pri	2013-01-15 13:54:41.665095059 -0700
+@@ -5,8 +5,9 @@
+ 
+ linux-g++ {
+ isEmpty($$(SBOX_DPKG_INST_ARCH)):exists(/usr/bin/ld.gold) {
+-    message(Using gold linker)
+-    QMAKE_LFLAGS+=-fuse-ld=gold
++      message(Using gold linker)
++      # Pletzer: commented out as this is causing a failure on linux
++      #QMAKE_LFLAGS+=-fuse-ld=gold
+ }
+ }
+ 
+diff -ruN qt-4.8.1/src/3rdparty/webkit/Source/WebKit.pri qt-4.8.1-new/src/3rdparty/webkit/Source/WebKit.pri
+--- qt-4.8.1/src/3rdparty/webkit/Source/WebKit.pri	2012-03-14 08:01:29.000000000 -0600
++++ qt-4.8.1-new/src/3rdparty/webkit/Source/WebKit.pri	2013-01-15 12:31:31.455217697 -0700
+@@ -102,7 +102,9 @@
+ 
+ # Treat warnings as errors on x86/Linux/GCC
+ linux-g++* {
+-    !CONFIG(standalone_package):isEqual(QT_ARCH,x86_64)|isEqual(QT_ARCH,i386): QMAKE_CXXFLAGS += -Werror
++
++    # Pletzer: turning -Wall off to compile with g++ 4.7
++    !CONFIG(standalone_package):isEqual(QT_ARCH,x86_64)|isEqual(QT_ARCH,i386): QMAKE_CXXFLAGS +=
+ 
+     greaterThan(QT_GCC_MAJOR_VERSION, 3):greaterThan(QT_GCC_MINOR_VERSION, 5) {
+         if (!contains(QMAKE_CXXFLAGS, -std=c++0x) && !contains(QMAKE_CXXFLAGS, -std=gnu++0x)) {

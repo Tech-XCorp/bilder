@@ -25,9 +25,9 @@ runnrSetNamesByDomain() {
     dirac[0-9]*)
       FQMAILHOST=dirac.nersc.gov
       ;;
-    freedom[0-9]*)
-      FQMAILHOST=freedom.nersc.gov
-      RUNNRSYSTEM=XT4
+    edison[01][0-9]*)
+      FQMAILHOST=edison.nersc.gov
+      RUNNRSYSTEM=XC30
       ;;
     hopper[01][0-9]*)
       FQMAILHOST=hopper.nersc.gov
@@ -122,6 +122,7 @@ setBilderHostVars() {
 # Preliminary variables
 #   Determine the compiler and version for machinefile and namespacing
 #
+  # echo "setBilderHostVars entered."
   local compkey=`modulecmd bash list -t 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
   # echo compkey = $compkey
   if test -z "$compkey"; then
@@ -150,10 +151,10 @@ setBilderHostVars() {
     compver=`module list -t 2>&1 | grep ^$compkey | sed -e 's?^.*/??'`
   fi
   if test "$compkey" = "PrgEnv-cray"; then
-      compkey="cray"
+    compkey="cray"
   fi
   echo compkey = $compkey
-  echo compver = $compver
+  # echo compver = $compver
   # echo exit; exit
   local majorminor=`echo $compver | sed -e "s/\(^[^\.]*\.[^\.]*\).*/\1/"`
   compver=$majorminor
@@ -194,8 +195,12 @@ setBilderHostVars() {
 # Add to BILDER_ARGS
   # BILDER_ADDL_ARGS=-P
 
-# Set machine file
+# Set machine file and any other env vars
   case $machinedir in
+    edison)
+      GCC_PATH=`dirname $(which gcc)`
+      MACHINEFILE=${MACHINEFILE:-"cray.$compkey"}
+      ;;
     hopper | franklin) MACHINEFILE=${MACHINEFILE:-"cray.$compkey"};;
     *) MACHINEFILE=${MACHINEFILE:-"nersclinux.$compkey"};;
   esac

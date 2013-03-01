@@ -1,19 +1,76 @@
-*** OpenSplice-5.5.1/bin/configure_functions	2012-05-23 06:55:09.000000000 -0600
---- OpenSplice-5.5.1/bin/configure_functions.txc	2013-01-30 15:34:27.000000000 -0700
-***************
-*** 133,139 ****
-     OLD_SPLICE_LIBRARY_PATH="${SPLICE_LIBRARY_PATH}"
-     OLD_SPLICE_TEST_LIBRARY_PATH="${SPLICE_LIBRARY_TEST_PATH}"
-  
-!    SPLICE_TARGET=
-     if [ "$1" != "KEEP_OSPL_HOME" ]
-     then
-        OSPL_HOME=
---- 133,139 ----
-     OLD_SPLICE_LIBRARY_PATH="${SPLICE_LIBRARY_PATH}"
-     OLD_SPLICE_TEST_LIBRARY_PATH="${SPLICE_LIBRARY_TEST_PATH}"
-  
-! #   SPLICE_TARGET=
-     if [ "$1" != "KEEP_OSPL_HOME" ]
-     then
-        OSPL_HOME=
+diff -ruN opensplice-5.5.1/bin/checkconf opensplice-5.5.1_Patched1/bin/checkconf
+--- opensplice-5.5.1/bin/checkconf	2012-05-23 06:55:09.000000000 -0600
++++ opensplice-5.5.1_Patched1/bin/checkconf	2013-02-21 13:43:57.613061300 -0700
+@@ -166,9 +166,9 @@
+             echo "ERROR - cl.exe not found"
+             return 1
+         fi
+-  	    VS_HOME=`dirname $CL_EXE`
+-  	    VS_HOME=`dirname $VS_HOME`
+-  	    VS_HOME=`dirname $VS_HOME`
++  	VS_HOME=`dirname "$CL_EXE"`
++  	VS_HOME=`dirname "$VS_HOME"`
++  	VS_HOME=`dirname "$VS_HOME"`
+         set_var VS_HOME "$VS_HOME"
+     fi
+     convert_windows_path "$VS_HOME"
+@@ -917,13 +917,28 @@
+         echo "ERROR - No ZLIB_HOME set"
+         return 1
+     fi
+-    if [ ! -f "$ZLIB_HOME/zlib.h" ]
+-    then
+-        echo "ERROR - No ZLIB_HOME/zlib.h found"
++
++    if [ -f "${ZLIB_HOME}/zlib.h" ]; then
++        echo "OK - zlib.h found in ${ZLIB_HOME} "
++        export ZLIB_HOME_INCLUDE="${ZLIB_HOME}"
++    elif [ -f "${ZLIB_HOME}/include/zlib.h" ]; then
++        echo "OK - zlib.h found in ${ZLIB_HOME}/include "
++        export ZLIB_HOME_INCLUDE="${ZLIB_HOME}/include"
++    else
++        echo "ERROR - zlib.h not found"
+         return 1
+     fi
+-
+-    echo OK
++    if [ -f "${ZLIB_HOME}/zlib.lib" ]; then
++        echo "OK - zlib.lib found in ${ZLIB_HOME} "
++        export ZLIB_HOME_LIB="${ZLIB_HOME}"
++    elif [ -f "${ZLIB_HOME}/lib/zlib.lib" ]; then
++        echo "OK - zlib.lib found in ${ZLIB_HOME}/lib "
++        export ZLIB_HOME_LIB="${ZLIB_HOME}/lib"
++    else
++        echo "ERROR - zlib.lib not found"
++        return 1
++    fi
++    
+     return 0
+ }
+ 
+diff -ruN opensplice-5.5.1/bin/configure_functions opensplice-5.5.1_Patched1/bin/configure_functions
+--- opensplice-5.5.1/bin/configure_functions	2012-05-23 06:55:09.000000000 -0600
++++ opensplice-5.5.1_Patched1/bin/configure_functions	2013-02-21 13:40:23.683061300 -0700
+@@ -133,7 +133,7 @@
+    OLD_SPLICE_LIBRARY_PATH="${SPLICE_LIBRARY_PATH}"
+    OLD_SPLICE_TEST_LIBRARY_PATH="${SPLICE_LIBRARY_TEST_PATH}"
+ 
+-   SPLICE_TARGET=
++#   SPLICE_TARGET=
+    if [ "$1" != "KEEP_OSPL_HOME" ]
+    then
+       OSPL_HOME=
+diff -ruN opensplice-5.5.1/setup/x86.win32-default.mak opensplice-5.5.1_Patched1/setup/x86.win32-default.mak
+--- opensplice-5.5.1/setup/x86.win32-default.mak	2012-05-23 06:55:09.000000000 -0600
++++ opensplice-5.5.1_Patched1/setup/x86.win32-default.mak	2013-02-21 13:45:15.305061300 -0700
+@@ -121,8 +121,8 @@
+ LDLIBS_JAVA = -ljvm
+ LDLIBS_ODBC= -lodbc32
+ LDLIBS_ZLIB = -lzlib
+-LDFLAGS_ZLIB = "-L$(ZLIB_HOME)"
+-CINCS_ZLIB = "-I$(ZLIB_HOME)"
++LDFLAGS_ZLIB = "-L$(ZLIB_HOME_LIB)"
++CINCS_ZLIB = "-I$(ZLIB_HOME_INCLUDE)"
+ 
+ #set platform specific pre- and postfixes for the names of libraries and executables
+ OBJ_POSTFIX = .obj

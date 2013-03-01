@@ -87,7 +87,7 @@ if $REMOVE_OLD; then
   unset pkgs
   for i in $pkgcands; do
     case $i in
-      bin | lib | lib64 | share | *-cc4py | *-nopetsc | *-novisit | *-par | *-partau | *-visit | *.bak | *.csh | *.lnk| *.out | *.rmv | *.sh | *.tmp | *.txt)
+      bin | gcc | lib | lib64 | share | *-cc4py | *-nopetsc | *-novisit | *-par | *-partau | *-visit | *.bak | *.csh | *.lnk| *.out | *.rmv | *.sh | *.tmp | *.txt)
         ;;
       *)
         pkgs="$pkgs $i"
@@ -232,7 +232,7 @@ if $REMOVE_UNFOUND; then
       continue
     fi
     case $pkglc in
-      m4 | autoconf | automake | libtool | doxygen)
+      m4 | autoconf | automake | libtool | doxygen | qt3d)
         echo "Keeping ${pkglc} as does not have a top-level installation dir."
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue

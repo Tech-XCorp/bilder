@@ -25,7 +25,13 @@ MESA_BLDRVERSION=${MESA_BLDRVERSION:-"7.8.2"}
 #
 ######################################################################
 
-MESA_BUILDS=${MESA_BUILDS:-"mgl,os"}
+if test -z "$MESA_DESIRED_BUILDS"; then
+  case `uname`-`uname -r` in
+    CYGWIN* | Darwin-12*) ;;
+    *) MESA_DESIRED_BUILDS=mgl,os;;
+  esac
+fi
+computeBuilds mesa
 MESA_DEPS=
 MESA_UMASK=002
 

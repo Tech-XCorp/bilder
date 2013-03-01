@@ -40,6 +40,7 @@ esac
 trimvar TXBASE_DEPS ','
 TXBASE_MASK=002
 TXBASE_TESTDATA=txbresults
+TXBASE_TESTNAME=${TXBASE_TESTNAME:-"TxbTests"}
 
 ######################################################################
 #
@@ -100,7 +101,7 @@ buildTxbase() {
 ######################################################################
 
 testTxbase() {
-  bilderRunTests txbase TxbTests
+  bilderRunTests txbase ${TXBASE_TESTNAME}
 }
 
 ######################################################################
@@ -110,7 +111,7 @@ testTxbase() {
 ######################################################################
 
 installTxbase() {
-  bilderInstallTestedPkg -r -p open txbase TxbTests
+  bilderInstallTestedPkg -r -p open txbase ${TXBASE_TESTNAME}
   # techo "WARNING: Quitting at end of txbase.sh."; cleanup
 }
 

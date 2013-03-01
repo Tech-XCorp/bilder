@@ -38,28 +38,7 @@ F77=${F77:-"ftn"}
 #CC=${CC:-"pathcc-${PATHSCALE_VERSION}"}
 #CXX=${CXX:-"pathCC-${PATHSCALE_VERSION}"}
 case $UQMAILHOST in
-  franklin)
-# acml_mv required on franklin for some reason
-    # Specifying absolute paths to libs for NIMROD, as the -L,-l syntax
-    # was making it a shared link for reasons that are not understood.
-    ATLAS_BUILDS=NONE
-    # SYSTEM_BLAS_SER_LIB=${BLAS_LIB:-"/opt/acml/4.2.0/pathscale64/lib/libacml.a /opt/acml/4.2.0/pathscale64/lib/libacml_mv.a -lpathfortran"}
-    SYSTEM_BLAS_SER_LIB=${BLAS_LIB:-"$LIBSCI_BASE_DIR/pathscale/lib/libsci.a"}
-    # SYSTEM_BLAS_SER_LIB=${BLAS_LIB:-"-L/opt/acml/4.2.0/pathscale64/lib -lacml -lacml_mv"}
-    # BLAS_LAPACK_LIB=${BLAS_LAPACK_LIB:-"/opt/acml/4.2.0/pathscale64/lib/libacml.a -lpathfortran"}
-    BLAS_LAPACK_LIB=${BLAS_LAPACK_LIB:-"$LIBSCI_BASE_DIR/pathscale/lib/libsci.a"}
-    #SEK: I don't see a pathscale version here
-    BLAS_LAPACK_BEN_LIB=${BLAS_LAPACK_BEN_LIB:-"/opt/acml/4.4.0/open64_64/lib/libacml.a"}
-    SYSTEM_BLAS_CC4PY_LIB=${BLAS_CC4PY_LIB:-"/opt/acml/4.3.0/gfortran64/lib/libacml.a"}
-    SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-"/opt/cray/hdf5/1.8.5.0/hdf5-pathscale"}
-    SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/opt/cray/hdf5-parallel/1.8.5.0/hdf5-parallel-pathscale"}
-    SYSTEM_LAPACK_SER_LIB=${BLAS_LAPACK_LIB:-"$LIBSCI_BASE_DIR/pathscale/lib/libsci.a"}
-    SYSTEM_LAPACK_CC4PY_LIB=${BLAS_CC4PY_LIB:-"/opt/acml/4.3.0/gfortran64/lib/libacml.a"}
-    PETSC_MPIEXEC=/usr/common/acts/PETSc/3.0.0/bin/mpiexec.aprun
-    NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"SUPERLU_DIST_LIBS='-L/usr/common/acts/SuperLU/SuperLU_DIST_2.3/cray-xt4_O/lib -lsuperlu_dist_2.3_pathscale -L/usr/common/usg/parmetis/3.1_pathscale -lparmetis -lmetis' SUPERLU_DIST_INC='-I/usr/common/acts/SuperLU/SuperLU_DIST_2.3/SRC' SUPERLU_DIST_INCDIR='/usr/common/acts/SuperLU/SuperLU_DIST_2.3/SRC' --disable-petsc"}
-    NIMROD_SER_OTHER_ARGS=${NIMROD_SER_OTHER_ARGS:-"-disable-petsc"}
-    ;;
-  hopper)
+  hopper*)
     ATLAS_BUILDS=NONE
     NETCDF_BUILDS=NONE
     SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-"/opt/cray/netcdf/4.1.1.0/netcdf-pathscale/"}
@@ -73,9 +52,7 @@ case $UQMAILHOST in
     #SYSTEM_LAPACK_SER_LIB=${BLAS_LIB:-"-L/opt/acml/4.2.0/pathscale64/lib -lacml -lacml_mv"}
     SYSTEM_LAPACK_SER_LIB=${BLAS_LAPACK_LIB:-"/opt/xt-libsci/10.5.0/pathscale/lib/libsci.a"}
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
-    NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"SUPERLU_DIST_LIBS='-L/usr/common/acts/SuperLU/SuperLU_DIST/2.3/cray-xt4_O/lib -lsuperlu_dist_2.3 -L/usr/common/acts/PARMETIS/3.1.1//cray-xt_O -lparmetis -lmetis' SUPERLU_DIST_INC='-I/usr/common/acts/SuperLU/SuperLU_DIST/2.3/SRC/' SUPERLU_DIST_INCDIR='/usr/common/acts/SuperLU/SuperLU_DIST/2.3/SRC/' --disable-petsc"}
 
-    NIMROD_SER_OTHER_ARGS=${NIMROD_SER_OTHER_ARGS:-"-disable-petsc"}
     PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-shared=0 --download-f-blas-lapack=yes"}
     PYC_FC=${PYC_FC:-"/opt/gcc/4.6.1/bin/gfortran"}
     PYC_F77=${PYC_F77:-"/opt/gcc/4.6.1/bin/gfortran"}
@@ -601,15 +578,15 @@ NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-"--disable-shared --disable-utili
 # NETLIB_LITE_BEN_OTHER_ARGS=${NETLIB_LITE_BEN_OTHER_ARGS:-""}
 NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
 
-# NIMROD_BLDRVERSION=${NIMROD_BLDRVERSION:-""}
-# NIMROD_BUILDS=${NIMROD_BUILDS:-""}
-NIMROD_PAR_OTHER_ARGS=${NIMROD_PAR_OTHER_ARGS:-"SUPERLU_DIST_LIBS='-L/usr/common/acts/SuperLU/SuperLU_DIST_2.3/cray-xt4_O/lib -lsuperlu_dist_2.3_pathscale -lsuperlu_dist_2.3 -L/usr/common/usg/parmetis/3.1_pathscale -lparmetis -lmetis' SUPERLU_DIST_INC='-I/usr/common/acts/SuperLU/SuperLU_DIST_2.3/SRC' SUPERLU_DIST_INCDIR='/usr/common/acts/SuperLU/SuperLU_DIST_2.3/SRC' --disable-petsc "}
-# NIMROD_PARDBG_OTHER_ARGS=${NIMROD_PARDBG_OTHER_ARGS:-""}
-# NIMROD_PARSURF_OTHER_ARGS=${NIMROD_PARSURF_OTHER_ARGS:-""}
-# NIMROD_PARTAU_OTHER_ARGS=${NIMROD_PARTAU_OTHER_ARGS:-""}
-NIMROD_SER_OTHER_ARGS=${NIMROD_SER_OTHER_ARGS:-"-disable-petsc"}
-# NIMROD_SERDBG_OTHER_ARGS=${NIMROD_SERDBG_OTHER_ARGS:-""}
-# NIMROD_SERSURF_OTHER_ARGS=${NIMROD_SERSURF_OTHER_ARGS:-""}
+# NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
+# NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
+NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-"SUPERLU_DIST_LIBS='-L/usr/common/acts/SuperLU/SuperLU_DIST_2.3/cray-xt4_O/lib -lsuperlu_dist_2.3_pathscale -lsuperlu_dist_2.3 -L/usr/common/usg/parmetis/3.1_pathscale -lparmetis -lmetis' SUPERLU_DIST_INC='-I/usr/common/acts/SuperLU/SuperLU_DIST_2.3/SRC' SUPERLU_DIST_INCDIR='/usr/common/acts/SuperLU/SuperLU_DIST_2.3/SRC' --disable-petsc "}
+# NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
+# NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
+# NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-""}
+NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-"-disable-petsc"}
+# NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-""}
+# NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-""}
 
 # NIMTESTS_BLDRVERSION=${NIMTESTS_BLDRVERSION:-""}
 # NIMTESTS_BUILDS=${NIMTESTS_BUILDS:-""}

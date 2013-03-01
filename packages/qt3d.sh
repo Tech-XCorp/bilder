@@ -20,7 +20,16 @@
 #
 ######################################################################
 
-QT3D_DESIRED_BUILDS=${QT3D_DESIRED_BUILDS:-"sersh"}
+# Qt is built $QT3D_BUILD if this is the python build, otherwise it is cc4py
+if test -z "$QT3D_DESIRED_BUILDS"; then
+  if isCcCc4py; then
+    QT3D_DESIRED_BUILDS=sersh
+    QT3D_BUILD=sersh
+  else
+    QT3D_DESIRED_BUILDS=cc4py
+    QT3D_BUILD=cc4py
+  fi
+fi
 computeBuilds qt3d
 QT3D_DEPS=qt
 QT3D_UMASK=002
@@ -79,14 +88,14 @@ buildQt3d() {
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
 # Configure and build
   if bilderPreconfig qt3d; then
-    if bilderConfig -q qt3d.pro qt3d sersh; then
+    if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD; then
       local QT3D_PLATFORM_BUILD_ARGS=
       case `uname`-`uname -r` in
         Darwin-10.*) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
         *) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
       esac
 # During testing, do not "make clean".
-      bilderBuild -k qt3d sersh "all docs $QT3D_PLATFORM_BUILD_ARGS"
+      bilderBuild -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
     fi
   fi
 }
@@ -108,12 +117,11 @@ testQt3d() {
 ######################################################################
 
 installQt3d() {
-# Qt3d in installed from just make, so no need to make install
-# hence replace make with :.
-  if bilderInstall -m : -L qt3d sersh; then
+# Qt3d is NOT installed from just make.  Not sure what was seen before.
+  if bilderInstall -L qt3d $QT3D_BUILD; then
     case `uname` in
       Darwin)
-        local qtdir=/contrib/qt-${QT_BLDRVERSION}-sersh
+        local qtdir=/contrib/qt-${QT_BLDRVERSION}-$QT3D_BUILD
         for i in Qt3D Qt3DQuick; do
           mkdir -p ${qtdir}/include/$i
           cp ${qtdir}/lib/${i}.framework/Headers/* ${qtdir}/include/$i/

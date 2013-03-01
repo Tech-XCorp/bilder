@@ -84,8 +84,9 @@ BILDER_DIR=`(cd $BILDER_DIR; pwd -P)`
 redoargs="$*"
 
 # Get machine info
+# echo "Sourcing runnrfcns.sh."
 cmd="source $BILDER_DIR/runnr/runnrfcns.sh"
-# echo $cmd
+# echo "$cmd"
 $cmd
 
 #

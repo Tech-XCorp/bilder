@@ -32,11 +32,17 @@ QT_BLDRVERSION_EXP=4.8.4
 #
 ######################################################################
 
+# Qt is built sersh if this is the python build, otherwise it is cc4py
 if test -z "$QT_DESIRED_BUILDS"; then
-  QT_DESIRED_BUILDS=sersh
+  if isCcCc4py; then
+    QT_DESIRED_BUILDS=sersh
+    QT_BUILD=sersh
+  else
+    QT_DESIRED_BUILDS=cc4py
+    QT_BUILD=cc4py
+  fi
 fi
 computeBuilds qt
-# addCc4pyBuild qt  # need to define cc4py build
 QT_DEPS=bzip2
 
 addtopathvar PATH $CONTRIB_DIR/qt/bin
@@ -82,7 +88,7 @@ buildQt() {
         if test -e $CONTRIB_DIR/extras/lib; then
           extras_libdir=$CONTRIB_DIR/extras/lib
         fi
-        QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/sersh/lib:$LD_LIBRARY_PATH"
+        QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
         if test -n "${extras_libdir}"; then
           QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
         fi
@@ -132,7 +138,7 @@ buildQt() {
 # Adjust for possible change to typedef in glib
           if grep -q 'union *_GMutex' $incdir/glib/gthread.h; then
             techo "Adjusting Qt for change in gthread.h."
-            local qtgtypedefs=$BUILD_DIR/qt-$QT_BLDRVERSION/sersh/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
+            local qtgtypedefs=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
             cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qtgtypedefs"
             techo "$cmd"
             eval "$cmd"
@@ -189,11 +195,11 @@ buildQt() {
     esac
 
 # Restore dbus and xmlpatterns or get wrong one
-    # techo "Before qt's bilderConfig, QT_SER_INSTALL_DIR=$QT_SER_INSTALL_DIR."
-    if bilderConfig -i qt sersh "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit $QT_SER_OTHER_ARGS" "" "$QT_ENV"; then
+    local qtotherargs=`deref QT_${QT_BUILD}_OTHER_ARGS`
+    if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit $qtotherargs" "" "$QT_ENV"; then
       # techo exit; exit
 # Make clean seems to hang
-      bilderBuild -k qt sersh "$QT_MAKEJ_USEARGS" "$QT_ENV"
+      bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
     else
 # Remove linked file if present
       if $QT_GXX_LINKED; then
@@ -233,7 +239,7 @@ postInstallQt() {
     case `uname` in
       Darwin)
 # Taken from build_visit
-        QtTopDir="${CONTRIB_DIR}/qt-${QT_BLDRVERSION}-sersh"
+        QtTopDir="${CONTRIB_DIR}/qt-${QT_BLDRVERSION}-$QT_BUILD"
 # TODO - this should really do a listing of the lib directory
 # instead of depending on a hard-coded list of libraries
         QtFrameworks="QtAssistant QtCore QtGui QtHelp QtMultimedia QtNetwork QtOpenGL QtSql QtTest QtWebKit QtXml"
@@ -302,7 +308,7 @@ fixQtInstall() {
 # (Seems not to do this on an overinstallation?)
   case `uname` in
     Darwin)
-      local badnode="$CONTRIB_DIR/qt-$QT_BLDRVERSION-sersh/lib/QtTest.framework/Versions/4/4"
+      local badnode="$CONTRIB_DIR/qt-$QT_BLDRVERSION-$QT_BUILD/lib/QtTest.framework/Versions/4/4"
       if test -L $badnode; then
         techo "NOTE: Removing leftover link from qt installation, $badnode."
         cmd="chmod -h u+rwx $badnode"
@@ -318,29 +324,30 @@ fixQtInstall() {
       ;;
   esac
 # Set the perms to open for Qt.
-  setOpenPerms $CONTRIB_DIR/qt-$QT_BLDRVERSION-sersh
+  setOpenPerms $CONTRIB_DIR/qt-$QT_BLDRVERSION-$QT_BUILD
 }
 
 installQt() {
 
   local qt_tried=false
-  if test -n "$QT_SER_PID"; then
+  local qtpid=`deref QT_${QT_BUILD}_PID`
+  if test -n "$qtpid"; then
     qt_tried=true
   fi
-  if bilderInstall -r qt sersh; then
+  if bilderInstall -r qt $QT_BUILD; then
     fixQtInstall
     findQt
   elif $qt_tried; then
     cat <<EOF | tee -a $LOGFILE
 Qt failed to build.  Bilder will try the following:
-  cd $BUILD_DIR/qt-$QT_BLDRVERSION/sersh
+  cd $BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD
   make -i install
 and then follow with the usual installation.
 EOF
-    cd $BUILD_DIR/qt-$QT_BLDRVERSION/sersh
+    cd $BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD
     make -i install 2>&1 | tee qt-install2.txt
-    bilderBuild qt sersh "$QT_MAKEJ_ARGS"
-    if bilderInstall -r qt sersh; then
+    bilderBuild qt $QT_BUILD "$QT_MAKEJ_ARGS"
+    if bilderInstall -r qt $QT_BUILD; then
       fixQtInstall
       findQt
     else

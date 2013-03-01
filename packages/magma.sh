@@ -6,7 +6,7 @@
 #
 ######################################################################
 
-MAGMA_BLDRVERSION=${MAGMA_BLDRVERSION:-"1.3.0"}
+MAGMA_BLDRVERSION=${MAGMA_BLDRVERSION:-"1.3.0-tx"}
 
 ######################################################################
 #
@@ -15,7 +15,18 @@ MAGMA_BLDRVERSION=${MAGMA_BLDRVERSION:-"1.3.0"}
 ######################################################################
 
 MAGMA_BUILDS=${MAGMA_BUILDS:-"gpu"}
-MAGMA_DEPS=atlas
+case `uname` in
+ Linux)
+  if $LINK_WITH_MKL; then
+    MAGMA_DEPS=
+  else
+    MAGMA_DEPS=atlas
+  fi
+  ;;
+ Darwin)
+  MAGMA_DEPS=
+  ;;
+esac
 MAGMA_UMASK=002
 
 #####################################################################
@@ -29,7 +40,19 @@ buildMagma() {
     MAGMA_CONFIG_METHOD=none
     MAGMA_GPU_INSTALL_DIR=$CONTRIB_DIR
     MAGMA_GPU_BUILD_DIR=$BUILD_DIR/magma-$MAGMA_BLDRVERSION/gpu
-    bilderBuild magma gpu "ATLAS_DIR=$CONTRIB_DIR/atlas"
+
+    case `uname` in
+     Linux)
+      if $LINK_WITH_MKL; then
+        bilderBuild magma gpu "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-mkl"
+      else
+        bilderBuild magma gpu "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-atlas BLAS_DIR=$CONTRIB_DIR/atlas"
+      fi
+      ;;
+     Darwin)
+      bilderBuild magma gpu "GPU_TARGET=Fermi MAKEINC_SUFFIX=osx"
+      ;;
+    esac
   fi
 }
 
@@ -55,5 +78,16 @@ testMagma() {
 
 installMagma() {
   MAGMA_GPU_INSTALL_SUBDIR=magma-$MAGMA_BLDRVERSION-$MAGMA_BUILDS
-  bilderInstall magma gpu "magma" "prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+    case `uname` in
+     Linux)
+      if $LINK_WITH_MKL; then
+        bilderInstall magma gpu "magma" "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-mkl prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+      else
+        bilderInstall magma gpu "magma" "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-atlas prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+      fi
+      ;;
+     Darwin)
+      bilderInstall magma gpu "magma" "GPU_TARGET=Fermi MAKEINC_SUFFIX=osx prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+      ;;
+    esac
 }

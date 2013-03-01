@@ -32,7 +32,6 @@ case `uname` in
       HDF5_BLDRVERSION_STD=1.8.8
     fi
 # 1.8.10 fails to build on Windows.
-    HDF5_BLDRVERSION_EXP=$HDF5_BLDRVERSION_STD
     ;;
 
 # Failure of 1.8.8 on Lion and Snow Leopard confirmed.
@@ -40,20 +39,29 @@ case `uname` in
 # binaries built separately (see below for 'binaries' build)
 # With cmake.2.8.9 and Xcode 3.2.6 hdf5-1.8.9 works on Snowleopard
 # h5diff 1.8.9 built with autotools does not seg fault on lion
-# but we have seen incorrect results from it.  So, sticking with 1.8.7
+# but we have seen incorrect results from it.  So, sticking with 1.8.7.
+#
+# Further, 1.8.10 continues to segfault on Lion (using cmake build).
+
   Darwin)
-    HDF5_BLDRVERSION_STD=1.8.10
-    HDF5_BLDRVERSION_EXP=1.8.10
+    case `uname -r` in
+      10.8.*) HDF5_BLDRVERSION_STD=1.8.10;;	# Snow Leopard
+           *) HDF5_BLDRVERSION_STD=1.8.7;;	# Lion, Mountain Lion, etc.
+    esac
     ;;
 
-# Linux will utilize hdf5-1.8.9
-# With cmake.2.8.9 and new Xcode (Oct 2 2012) hdf5-1.8.9 works on Lion
-  *)
+  Linux) 
     HDF5_BLDRVERSION_STD=1.8.10
-    HDF5_BLDRVERSION_EXP=1.8.10
     ;;
 
+  *) 
+    HDF5_BLDRVERSION_STD=1.8.10
+    ;;
 esac
+
+# If no experimental version alredy set, experimental = standard
+
+HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-$HDF5_BLDRVERSION_STD}
 
 ######################################################################
 #

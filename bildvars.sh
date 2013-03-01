@@ -115,6 +115,7 @@ case `uname` in
     mysort=`which sort`
     if test "$mysort" != /usr/bin/sort; then
       techo "WARNING: Not using /usr/bin/sort from cygwin (found $mysort)."
+      return 1
     fi
     USE_ATLAS_CC4PY=true
     case $CC in
@@ -398,6 +399,7 @@ fi
 #
 ######################################################################
 
+techo -2 "Testing mpicc."
 isMpich2=`mpicc -show 2>/dev/null | grep mpich2`
 if test -n "$isMpich2"; then
   MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`
@@ -411,6 +413,7 @@ fi
 #
 ######################################################################
 
+techo -2 "Analyzing fortran."
 case `uname` in
   Linux)
 # PYC libdir for runpath

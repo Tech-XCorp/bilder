@@ -188,8 +188,9 @@ mkLink() {
       ;;
   esac
   if $shortcut; then
-    techo "(cd $1; rmall $2.lnk $3.lnk; mkshortcut $2; mv $2.lnk $3.lnk)"
-    (cd $1; rmall $3.lnk; mkshortcut $2; mv $2.lnk $3.lnk)
+    local topFolder=$(basename "$2")
+    techo "(cd $1; rmall ${topFolder}.lnk $3.lnk; mkshortcut $2; mv ${topFolder}.lnk $3.lnk)"
+    (cd $1; rmall ${topFolder}.lnk $3.lnk; mkshortcut $2; mv ${topFolder}.lnk $3.lnk)
   fi
   if $unix; then
     techo "(cd $1; rmall $3; ln -s $2 $3)"
@@ -1566,16 +1567,16 @@ shouldInstall() {
   local currentPkgScriptDir=
   if test -z "$currentPkgScriptRev"; then
     if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${lcproj}.sh; then
-      currentPkgScriptRev=`svn info $BILDER_CONFDIR/packages/${lcproj}.sh |\
-        grep 'Last Changed Rev:' | sed 's/.* //'`
       currentPkgScriptDir=$BILDER_CONFDIR/packages
     elif test -f $BILDER_DIR/packages/${lcproj}.sh; then
-      currentPkgScriptRev=`svn info $BILDER_DIR/packages/${lcproj}.sh |\
-        grep 'Last Changed Rev:' | sed 's/.* //'`
       currentPkgScriptDir=$BILDER_DIR/packages
-    else
-      currentPkgScriptRev=unknown
     fi
+    currentPkgScriptRev=`svn info $currentPkgScriptDir/${lcproj}.sh |\
+        grep 'Last Changed Rev:' | sed 's/.* //'`
+    if test -z "$currentPkgScriptRev"; then
+      currentPkgScriptRev=`sed -n '/$Id/p' < $currentPkgScriptDir/${lcproj}.sh |  cut -f 4 -d ' '`
+    fi
+    currentPkgScriptRev=${currentPkgScriptRev:-"unknown"}
     eval $currPkgScriptRevVar=$currentPkgScriptRev
   fi
 
@@ -1614,7 +1615,7 @@ shouldInstall() {
     pkgScriptRev=0
   fi
   techo "Package $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
-
+ 
 # Find earliest date of any of the builds in any of the directories.
 # NOT IMPLEMENTED YET.
 
@@ -1697,6 +1698,32 @@ shouldInstall() {
     fi
   else
     techo "Package $1 has no dependencies."
+  fi
+
+# Check to see if release build and tests were installed after the last package build; if not, rebuild.
+  local dir=$instdir
+  local tstvar=`genbashvar ${ucproj}`_TESTNAME
+  local tstval=`deref $tstvar`
+  if $CREATE_RELEASE && $TESTING && test -n "$tstval"; then
+     local tstdepdate=
+     local tstlastdate=
+     local tstdepline=
+     lctst=`echo ${tstval} | tr A-Z a-z`
+     local tstdepline=`grep ^${lctst}- $dir/installations.txt | tail -1`
+     if test -n "$tstdepline"; then
+       techo -2 "$lctst installation found in $dir/installations.txt."
+       tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
+       tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
+       if test "$tstlastdate" = "$pkgdate"; then
+         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding ${proj}. Proceed to next step."
+         return 0
+        else
+          techo "Tests ${lctst} installed more recently than the package ${lctst}. Not a reason to rebuild."
+        fi
+     else
+       techo "Tests for package ${proj} not installed.  Rebuilding package ${proj} and testing. Proceed to next step."
+       return 0
+     fi
   fi
 
 # If all builds younger than $BILDER_WAIT_DAYS, do not rebuild
@@ -2827,15 +2854,21 @@ getPkg() {
     local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
     for sfx in $sfxs; do
       local tarballbase=${1}${sfx}
-      techo -n "Seeking $tarballbase in $pkgdir using " 1>&2
+      techo "Seeking $tarballbase in $pkgdir." 1>&2
       local tarballtry=$pkgdir/$tarballbase
       if test -f $tarballtry; then
         tarball=$tarballtry
       fi
       if $SVNUP_PKGS; then
+        techo -n "Using " 1>&2
         case ${PACKAGE_REPO_METHODS[$i]} in
           svn)
             techo " svn." 1>&2
+            local pkgdiff=`svn diff $pkgdir/$tarballbase`
+            if test -n "$pkgdiff"; then
+              techo "svn diff detected for $pkgdir/$tarballbase.  Deleting file. Will check out again." 1>&2
+              rmall $pkgdir/$tarballbase
+            fi
             (cd $pkgdir; bilderSvn up $tarballbase) 1>&2
             ;;
           direct)
@@ -4643,7 +4676,8 @@ bilderInstall() {
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
   if test -z "$builddir"; then
-    techo "Not installing $1-$verval-$2 since not built.  $builddirvar = $builddir."
+    techo "Not installing $1-$verval-$2 since not built."
+    techo -2 "$builddirvar = $builddir."
     return 1
   fi
   local res
@@ -4735,6 +4769,12 @@ bilderInstall() {
       fi
     fi
     techo "instsubdirval = $instsubdirval."
+    if $recordinstall && $istest; then
+      techo "Record successful test results in $instdirval/installations.txt. Not installing package tests."
+      recordInstallation $instdirval $1 $verval $2
+      res=$?
+      return $res
+    fi
 # Disable testing $instsubdirbase for '-' as autotools packages will not
 # install with this restriction.
 # However, there will be issues with using cleaninstalls.sh.

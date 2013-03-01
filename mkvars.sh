@@ -248,10 +248,12 @@ for pkgdir in $pkgdirs; do
     fi
     # echo "pkgname = $pkgname." 1>&2
 
-# Get the builds
+# For python packages, only cc4py build
     unset builds
+    local ispypkg=false
     if grep -q bilderDuBuild $pkgdir/$pkg.sh; then
       builds=cc4py
+      ispypkg=true
     fi
     if test -z "$builds" -a -n "$pkgname"; then
       builds=`sed -e 's/ *#.*$//' <$pkgdir/$pkg.sh | grep bilderBuild | sed -e 's/"[^"]*"//' -e "s/^.*$pkgname *//" -e 's/[ ;].*$//' -e 's/[\$"].*//' | sort -u`
