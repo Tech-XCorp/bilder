@@ -187,7 +187,7 @@ setBilderHostVars() {
   if test -n "$SCRATCH2"; then
     BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH2/builds-${UQMAILHOST}-$compkey"}
   elif test -n "$SCRATCH"; then
-    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH/builds-${UQHOSTNAME}-$compkey"}
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH/builds-${UQMAILHOST}-$compkey"}
   elif test -n "$GSCRATCH"; then
     BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH/builds-${UQMAILHOST}-$compkey"}
   fi

@@ -30,6 +30,22 @@ done
 cd -
 # These vary from cray to cray
 case $UQMAILHOST in
+
+  edison*)
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+# System linear algebra: using gnu since no intel, sandybridge for Edison.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
+    ;;
+
   hopper*)
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
@@ -47,15 +63,15 @@ case $UQMAILHOST in
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/119
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/119
 
-    # Trilinos and Petsc 
-    TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
+    # Trilinos and Petsc
+    TRILINOS_PARCOMM_OTHER_ARGS="${TRILINOS_PARCOMM_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
 
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
-    PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
 
     LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
     ;;
+
   titan*)
     # Make sure your code is built for the compute nodes,
     # module xtpe-interlagos should be loaded.
@@ -64,7 +80,7 @@ case $UQMAILHOST in
     CRAY_CONNECT=gemini
 
     # System linear algebra, note interlagos for Titan backend nodes.
-    # Use threaded libraries. I've set the CC4PY to mc12, such that these 
+    # Use threaded libraries. I've set the CC4PY to mc12, such that these
     # versions run on the login nodes, but I'm not sure this is right. (JRK)
     SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi_mp.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
@@ -79,7 +95,7 @@ case $UQMAILHOST in
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/119
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/119
 
-    # Trilinos and Petsc 
+    # Trilinos and Petsc
     # This was required on jaguar, try it on titan if there are problems.
     #TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
 
@@ -103,8 +119,6 @@ CRAY_MPICH_VERSION=${CRAY_MPICH_VERSION:-"default"}
 if test -n "PETSC_MPIEXEC"; then
   PETSC_MPIEXEC_ARG=${PETSC_MPIEXEC_ARG:-"--with-mpiexec=${PETSC_MPIEXEC}"}
 fi
-# PETSC_PARDBG_OTHER_ARGS not needed since regular build has -g
-# PYC_CFLAGS must include -fPIC for use with shared libs.
 # END KEEP THIS
 
 # Serial compilers
@@ -119,11 +133,11 @@ CXX=${CXX:-"pgCC"}
 FC=${FC:-"pgf90"}
 F77=${F77:-"pgf90"}
 
-# Python builds -- much use gcc for consistency.
-# PYC_CC=${PYC_CC:-""}
-# PYC_CXX=${PYC_CXX:-""}
-# PYC_FC=${PYC_FC:-""}
-# PYC_F77=${PYC_F77:-""}
+# Python builds -- must use gcc for consistency.
+PYC_CC=${PYC_CC:-"gcc"}
+PYC_CXX=${PYC_CXX:-"g++"}
+PYC_FC=${PYC_FC:-"gfortran"}
+PYC_F77=${PYC_F77:-"gfortran"}
 
 # Backend compilers:
 # BENCC=${BENCC:-""}
@@ -470,7 +484,7 @@ GA_TRANSPORT_PAR_OTHER_ARGS=${GA_TRANSPORT_PAR_OTHER_ARGS:-"--disable-shared --e
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"cc4py"}
+HDF5_BUILDS=${HDF5_BUILDS:-"sersh,cc4py"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
@@ -672,7 +686,7 @@ NUBEAM_SER_OTHER_ARGS=${NUBEAM_SER_OTHER_ARGS:-"--disable-shared --enable-static
 # PARAMIKO_CC4PY_OTHER_ARGS=${PARAMIKO_CC4PY_OTHER_ARGS:-""}
 
 # PARMETIS_BLDRVERSION=${PARMETIS_BLDRVERSION:-""}
-# PARMETIS_BUILDS=${PARMETIS_BUILDS:-""}
+PARMETIS_BUILDS=${PARMETIS_BUILDS:-"par"}
 # PARMETIS_PAR_OTHER_ARGS=${PARMETIS_PAR_OTHER_ARGS:-""}
 # PARMETIS_PARSH_OTHER_ARGS=${PARMETIS_PARSH_OTHER_ARGS:-""}
 
@@ -782,7 +796,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # QSCINTILLA_SER_OTHER_ARGS=${QSCINTILLA_SER_OTHER_ARGS:-""}
 
 # QT_BLDRVERSION=${QT_BLDRVERSION:-""}
-QT_BUILDS=${QT_BUILDS:-"cc4py"}
+# QT_BUILDS=${QT_BUILDS:-"cc4py"}
 # QT_SER_OTHER_ARGS=${QT_SER_OTHER_ARGS:-""}
 
 # QT3D_BLDRVERSION=${QT3D_BLDRVERSION:-""}
@@ -894,7 +908,7 @@ QT_BUILDS=${QT_BUILDS:-"cc4py"}
 # SUPERLU_SERSH_OTHER_ARGS=${SUPERLU_SERSH_OTHER_ARGS:-""}
 
 # SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-""}
-# SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-""}
+SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"parbare,parcomm"}
 # SUPERLU_DIST_PAR_OTHER_ARGS=${SUPERLU_DIST_PAR_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMMSH_OTHER_ARGS=${SUPERLU_DIST_PARCOMMSH_OTHER_ARGS:-""}
@@ -938,8 +952,7 @@ TORIC_PAR_OTHER_ARGS=${TORIC_PAR_OTHER_ARGS:-"--disable-shared --enable-static c
 # TORNADO_CC4PY_OTHER_ARGS=${TORNADO_CC4PY_OTHER_ARGS:-""}
 
 TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
-TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS:-"parcommsh"}
-# TRILINOS_BUILDS=${TRILINOS_BUILDS:-""}
+TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
 # TRILINOS_PARBARE_OTHER_ARGS=${TRILINOS_PARBARE_OTHER_ARGS:-""}
 # TRILINOS_PARBARESH_OTHER_ARGS=${TRILINOS_PARBARESH_OTHER_ARGS:-""}
 # TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-""}

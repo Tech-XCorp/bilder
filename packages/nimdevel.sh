@@ -22,15 +22,7 @@
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
 
-NIMDEVEL_DEPS=fluxgrid,openmpi
-
-# Build nimrod against SuperLU if cmake is used, otherwise we get
-# SuperLU from Petsc. 
-if $PREFER_CMAKE; then
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist,superlu,cmake"
-else
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",petsc,autotools"
-fi
+NIMDEVEL_DEPS=fluxgrid,openmpi,superlu_dist,superlu,cmake
 
 ######################################################################
 #
@@ -50,27 +42,20 @@ fi
 if $NIMDEVEL_WITH_OPENMP; then
   NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_OpenMP:BOOL=TRUE"
   NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_OpenMP:BOOL=TRUE"
+else 
+  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_OpenMP:BOOL=FALSE"
+  NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_OpenMP:BOOL=FALSE"
 fi
-# JRK - change to test -d $PROJECT_DIR/simyan ?
-# remove simyan as svn:externals and add to external repos script.
-if $NIMDEVEL_WITH_SIMYAN; then
+if test -d $BLDR_INSTALL_DIR/simyan; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",simyan"
 fi
 if test -d $PROJECT_DIR/plasma_state; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",plasma_state"
-  # These need to be fixed for cmake (and implemented in CMakeLists.txt)
-  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS --enable-plasmastate"
-  NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS --enable-plasmastate"
+  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_PlasmaState:BOOL=TRUE"
+  NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_PlasmaState:BOOL=TRUE"
 fi
 if test -d $PROJECT_DIR/genray; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",genray"
-fi
-if $PREFER_CMAKE; then
-  if $NIMDEVEL_WITH_PETSC; then
-    NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",petsc"
-    NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_Petsc:BOOL=TRUE"
-    NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_Petsc:BOOL=TRUE"
-  fi
 fi
 if $NIMDEVEL_WITH_PYTHON; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",Python,scipy,tables,matplotlib,numpy"
@@ -121,59 +106,32 @@ buildNimdevel() {
   fi
 
   getVersion $nimversion
-  if $PREFER_CMAKE; then
-    local NIMDEVEL_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"
-    local NIMDEVEL_SER_ARGS="$NIMDEVEL_SER_OTHER_ARGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"
-    if bilderPreconfig -c $nimversion; then
-      if bilderConfig $nimversion par "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS"; then
-        bilderBuild $nimversion par "$NIMDEVEL_MAKEJ_ARGS"
+  local NIMDEVEL_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE -DENABLE_IOLibs:BOOL=TRUE -DENABLE_Lapack:BOOL=TRUE $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"
+  local NIMDEVEL_SER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_IOLibs:BOOL=TRUE -DENABLE_Lapack:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"
+  if bilderPreconfig -c $nimversion; then
+    if bilderConfig $nimversion par "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS"; then
+      bilderBuild $nimversion par "$NIMDEVEL_MAKEJ_ARGS"
+    fi
+    if bilderConfig $nimversion ser "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS"; then
+      bilderBuild $nimversion ser "$NIMDEVEL_MAKEJ_ARGS"
+    fi
+    if bilderConfig $nimversion partau "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PARTAU_COMPILERS $CMAKE_COMPFLAGS_PAR $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild $nimversion partau "$NIMDEVEL_PARTAU_BUILD_ENV" "$NIMDEVEL_MAKEJ_ARGS"
+    fi
+    if $BUILD_DEBUG; then
+      if bilderConfig $nimversion pardbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS"; then
+        bilderBuild $nimversion pardbg "$NIMDEVEL_MAKEJ_ARGS"
       fi
-      if bilderConfig $nimversion ser "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS"; then
-        bilderBuild $nimversion ser "$NIMDEVEL_MAKEJ_ARGS"
-      fi
-      if bilderConfig $nimversion partau "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PARTAU_COMPILERS $CMAKE_COMPFLAGS_PAR $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild $nimversion partau "$NIMDEVEL_PARTAU_BUILD_ENV" "$NIMDEVEL_MAKEJ_ARGS"
-      fi
-      if $BUILD_DEBUG; then
-        if bilderConfig $nimversion pardbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS"; then
-          bilderBuild $nimversion pardbg "$NIMDEVEL_MAKEJ_ARGS"
-        fi
-        if bilderConfig $nimversion serdbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS"; then
-          bilderBuild $nimversion serdbg "$NIMDEVEL_MAKEJ_ARGS"
-        fi
-      fi
-      if $NIMDEVEL_SURFORIG; then
-        if bilderConfig  $nimversion parsurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_PAR_ARGS"; then
-          bilderBuild $nimversion parsurf "$NIMDEVEL_MAKEJ_ARGS"
-        fi
-        if bilderConfig $nimversion sersurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_SER_ARGS"; then
-          bilderBuild $nimversion sersurf "$NIMDEVEL_MAKEJ_ARGS"
-        fi
+      if bilderConfig $nimversion serdbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS"; then
+        bilderBuild $nimversion serdbg "$NIMDEVEL_MAKEJ_ARGS"
       fi
     fi
-  else # PREFER_CMAKE = false
-    if bilderPreconfig $nimversion; then
-      if bilderConfig  $nimversion par "--enable-parallel $CONFIG_COMPILERS_PAR $NIMDEVEL_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_LINLIB_BEN_ARGS $CONFIG_SUPRA_SP_ARG"; then
-        bilderBuild $nimversion par
+    if $NIMDEVEL_SURFORIG; then
+      if bilderConfig  $nimversion parsurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_PAR_ARGS"; then
+        bilderBuild $nimversion parsurf "$NIMDEVEL_MAKEJ_ARGS"
       fi
-      if bilderConfig $nimversion ser "$CONFIG_COMPILERS_SER $NIMDEVEL_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS"; then
-        bilderBuild $nimversion ser
-      fi
-      if $BUILD_DEBUG; then
-        if bilderConfig  $nimversion pardbg "--with-optimization=debug --enable-parallel $CONFIG_COMPILERS_PAR $NIMDEVEL_PAR_OTHER_ARGS $CONFIG_LINLIB_BEN_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
-          bilderBuild $nimversion pardbg
-        fi
-        if bilderConfig $nimversion serdbg "--with-optimization=debug $CONFIG_COMPILERS_SER $NIMDEVEL_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_LINLIB_SER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-          bilderBuild $nimversion serdbg
-        fi
-      fi
-      if $NIMDEVEL_SURFORIG; then
-        if bilderConfig  $nimversion parsurf "--enable-parallel $CONFIG_COMPILERS_PAR $NIMDEVEL_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS --enable-surforig"; then
-          bilderBuild $nimversion parsurf
-        fi
-        if bilderConfig $nimversion sersurf "$CONFIG_COMPILERS_SER $NIMDEVEL_SER_OTHER_ARGS $CONFIG_HDF5_SER_DIR_ARG $CONFIG_SUPRA_SP_ARG $CONFIG_LINLIB_SER_ARGS --enable-surforig"; then
-          bilderBuild $nimversion sersurf
-        fi
+      if bilderConfig $nimversion sersurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_SER_ARGS"; then
+        bilderBuild $nimversion sersurf "$NIMDEVEL_MAKEJ_ARGS"
       fi
     fi
   fi

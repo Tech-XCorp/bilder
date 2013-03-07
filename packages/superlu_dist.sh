@@ -22,9 +22,8 @@ SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
 
 if test -z "$SUPERLU_DIST_BUILDS"; then
   SUPERLU_DIST_BUILDS="par,parcomm"
-  case `uname` in 
-    CYGWIN* | Darwin) ;;
-    *) SUPERLU_DIST_BUILDS="${SUPERLU_DIST_BUILDS},parsh,parcommsh"
+  case `uname` in
+    Linux) SUPERLU_DIST_BUILDS="${SUPERLU_DIST_BUILDS},parsh,parcommsh"
   esac
 fi
 
@@ -64,7 +63,6 @@ buildSuperlu_Dist() {
     if bilderConfig superlu_dist parcommsh "-DENABLE_PARALLEL:BOOL=TRUE -DENABLE_PARMETIS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
       bilderBuild superlu_dist parcommsh "$SUPERLU_DIST_PAR_MAKE_ARGS"
     fi
-    
 
   fi
 }

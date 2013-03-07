@@ -10,25 +10,53 @@
 ######################################################################
 
 # KEEP THIS
-if ! modulecmd bash list 2>&1 | grep PrgEnv-gnu 1>/dev/null 2>&1; then
+if ! modulecmd bash list 2>&1 | grep PrgEnv-intel 1>/dev/null 2>&1; then
   echo Wrong programming environment. Should be PrgEnv-gnu.
   exit
 fi
 case $UQMAILHOST in
-  hopper* | edison*)
+
+  edison*)
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+# System linear algebra: using gnu since no intel, sandybridge for Edison.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
+    ;;
+
+  hopper*)
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
 
     # System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
 
     # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/120
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/120
+
+    # Trilinos and Petsc
+    # TRILINOS_PARCOMM_OTHER_ARGS="${TRILINOS_PARCOMM_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
+
+    PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
+    PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
+    PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
+
+    LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
     ;;
+
   titan*)
     # Make sure your code is built for the compute nodes,
     # module xtpe-interlagos should be loaded.
@@ -37,19 +65,20 @@ case $UQMAILHOST in
     CRAY_CONNECT=gemini
 
     # System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu_mp.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu_mp.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu_mp.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu_mp.a
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
+    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/intel/120/interlagos/lib/libsci_intel_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
+    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/intel/120/interlagos/lib/libsci_intel_mp.a
 
     # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/47
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/47
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/120
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/120
     ;;
+
 esac
 # END KEEP THIS
 
@@ -88,10 +117,10 @@ MPIF77=${MPIF77:-"ftn"}
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
-CXXFLAGS=${CXXFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
-FCFLAGS=${FCFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
-FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
+# CFLAGS=${CFLAGS:-""}
+# CXXFLAGS=${CXXFLAGS:-""}
+# FCFLAGS=${FCFLAGS:-""}
+# FFLAGS=${FFLAGS:-""}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -107,7 +136,7 @@ FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 
 # Parallel
 # MPI_CFLAGS=${MPI_CFLAGS:-""}
-# MPI_CXXFLAGS=${MPI_CXXFLAGS:-""}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # MPI_FCFLAGS=${MPI_FCFLAGS:-""}
 # MPI_FFLAGS=${MPI_FFLAGS:-""}
 
@@ -343,7 +372,7 @@ FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${S
 
 # FMCFM_BLDRVERSION=${FMCFM_BLDRVERSION:-""}
 # FMCFM_BUILDS=${FMCFM_BUILDS:-""}
-# FMCFM_PAR_OTHER_ARGS=${FMCFM_PAR_OTHER_ARGS:-""}
+FMCFM_PAR_OTHER_ARGS=${FMCFM_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
 # FMCFM_SER_OTHER_ARGS=${FMCFM_SER_OTHER_ARGS:-""}
 
 # FMTESTS_BLDRVERSION=${FMTESTS_BLDRVERSION:-""}
@@ -372,7 +401,7 @@ FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${S
 
 # GA_TRANSPORT_BLDRVERSION=${GA_TRANSPORT_BLDRVERSION:-""}
 # GA_TRANSPORT_BUILDS=${GA_TRANSPORT_BUILDS:-""}
-# GA_TRANSPORT_PAR_OTHER_ARGS=${GA_TRANSPORT_PAR_OTHER_ARGS:-""}
+GA_TRANSPORT_PAR_OTHER_ARGS=${GA_TRANSPORT_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
 # GA_TRANSPORT_SER_OTHER_ARGS=${GA_TRANSPORT_SER_OTHER_ARGS:-""}
 
 # GACODE_BLDRVERSION=${GACODE_BLDRVERSION:-""}
@@ -416,7 +445,7 @@ FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${S
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"cc4py"}
+HDF5_BUILDS=${HDF5_BUILDS:-"sersh,cc4py"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
@@ -556,18 +585,18 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NETCDF_BUILDS=${NETCDF_BUILDS:-""}
 # NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
 # NETCDF_CC4PY_OTHER_ARGS=${NETCDF_CC4PY_OTHER_ARGS:-""}
-# NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-""}
-# NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-""}
+NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-"--disable-shared --disable-utilities"}
+NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-"--disable-shared"}
 
 # NETLIB_LITE_BLDRVERSION=${NETLIB_LITE_BLDRVERSION:-""}
 # NETLIB_LITE_BUILDS=${NETLIB_LITE_BUILDS:-""}
 # NETLIB_LITE_BEN_OTHER_ARGS=${NETLIB_LITE_BEN_OTHER_ARGS:-""}
-# NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-""}
+NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
 
 # NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
 # NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
-NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-"-ENABLE_OpenMP:BOOL=TRUE"}
-NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-"-ENABLE_OpenMP:BOOL=TRUE"}
+# NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-""}
+# NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
 # NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
 # NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-""}
 # NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-""}
@@ -580,8 +609,8 @@ NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-"-ENABLE_OpenMP:BOOL=TR
 
 # NTCC_TRANSPORT_BLDRVERSION=${NTCC_TRANSPORT_BLDRVERSION:-""}
 # NTCC_TRANSPORT_BUILDS=${NTCC_TRANSPORT_BUILDS:-""}
-# NTCC_TRANSPORT_PAR_OTHER_ARGS=${NTCC_TRANSPORT_PAR_OTHER_ARGS:-""}
-# NTCC_TRANSPORT_SER_OTHER_ARGS=${NTCC_TRANSPORT_SER_OTHER_ARGS:-""}
+NTCC_TRANSPORT_PAR_OTHER_ARGS=${NTCC_TRANSPORT_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
+NTCC_TRANSPORT_SER_OTHER_ARGS=${NTCC_TRANSPORT_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
 
 # NUBEAM_BLDRVERSION=${NUBEAM_BLDRVERSION:-""}
 # NUBEAM_BUILDS=${NUBEAM_BUILDS:-""}
@@ -618,7 +647,7 @@ NUBEAM_SER_OTHER_ARGS=${NUBEAM_SER_OTHER_ARGS:-"--disable-shared --enable-static
 # PARAMIKO_CC4PY_OTHER_ARGS=${PARAMIKO_CC4PY_OTHER_ARGS:-""}
 
 # PARMETIS_BLDRVERSION=${PARMETIS_BLDRVERSION:-""}
-# PARMETIS_BUILDS=${PARMETIS_BUILDS:-""}
+PARMETIS_BUILDS=${PARMETIS_BUILDS:-"par"}
 # PARMETIS_PAR_OTHER_ARGS=${PARMETIS_PAR_OTHER_ARGS:-""}
 # PARMETIS_PARSH_OTHER_ARGS=${PARMETIS_PARSH_OTHER_ARGS:-""}
 
@@ -656,12 +685,12 @@ PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-blas-lapack-lib=${SYSTEM_BL
 # PLASMA_STATE_BLDRVERSION=${PLASMA_STATE_BLDRVERSION:-""}
 # PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-""}
 # PLASMA_STATE_BEN_OTHER_ARGS=${PLASMA_STATE_BEN_OTHER_ARGS:-""}
-# PLASMA_STATE_SER_OTHER_ARGS=${PLASMA_STATE_SER_OTHER_ARGS:-""}
+PLASMA_STATE_SER_OTHER_ARGS=${PLASMA_STATE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
 
 # PSPLINE_BLDRVERSION=${PSPLINE_BLDRVERSION:-""}
 # PSPLINE_BUILDS=${PSPLINE_BUILDS:-""}
 # PSPLINE_PAR_OTHER_ARGS=${PSPLINE_PAR_OTHER_ARGS:-""}
-# PSPLINE_SER_OTHER_ARGS=${PSPLINE_SER_OTHER_ARGS:-""}
+PSPLINE_SER_OTHER_ARGS=${PSPLINE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
 
 # PTK_BLDRVERSION=${PTK_BLDRVERSION:-""}
 # PTK_BUILDS=${PTK_BUILDS:-""}
@@ -728,7 +757,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # QSCINTILLA_SER_OTHER_ARGS=${QSCINTILLA_SER_OTHER_ARGS:-""}
 
 # QT_BLDRVERSION=${QT_BLDRVERSION:-""}
-# QT_BUILDS=${QT_BUILDS:-""}
+# QT_BUILDS=${QT_BUILDS:-"cc4py"}
 # QT_SER_OTHER_ARGS=${QT_SER_OTHER_ARGS:-""}
 
 # QT3D_BLDRVERSION=${QT3D_BLDRVERSION:-""}
@@ -840,7 +869,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # SUPERLU_SERSH_OTHER_ARGS=${SUPERLU_SERSH_OTHER_ARGS:-""}
 
 # SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-""}
-# SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-""}
+SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"parbare,parcomm"}
 # SUPERLU_DIST_PAR_OTHER_ARGS=${SUPERLU_DIST_PAR_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMMSH_OTHER_ARGS=${SUPERLU_DIST_PARCOMMSH_OTHER_ARGS:-""}
@@ -876,7 +905,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 
 # TORIC_BLDRVERSION=${TORIC_BLDRVERSION:-""}
 # TORIC_BUILDS=${TORIC_BUILDS:-""}
-# TORIC_PAR_OTHER_ARGS=${TORIC_PAR_OTHER_ARGS:-""}
+TORIC_PAR_OTHER_ARGS=${TORIC_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
 # TORIC_SER_OTHER_ARGS=${TORIC_SER_OTHER_ARGS:-""}
 
 # TORNADO_BLDRVERSION=${TORNADO_BLDRVERSION:-""}
@@ -884,7 +913,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # TORNADO_CC4PY_OTHER_ARGS=${TORNADO_CC4PY_OTHER_ARGS:-""}
 
 TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
-TRILINOS_BUILDS=${TRILINOS_BUILDS:-"ser,sersh,par"}
+TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
 # TRILINOS_PARBARE_OTHER_ARGS=${TRILINOS_PARBARE_OTHER_ARGS:-""}
 # TRILINOS_PARBARESH_OTHER_ARGS=${TRILINOS_PARBARESH_OTHER_ARGS:-""}
 # TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-""}
@@ -911,11 +940,11 @@ TRILINOS_BUILDS=${TRILINOS_BUILDS:-"ser,sersh,par"}
 # TVMET_SER_OTHER_ARGS=${TVMET_SER_OTHER_ARGS:-""}
 
 # TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-""}
-# TXBASE_BUILDS=${TXBASE_BUILDS:-""}
+TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,par,cc4py"}
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
 # TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
-TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"--disable-shared --enable-static cross_compling=yes"}
+# TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-""}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
 
 # TXBTESTS_BLDRVERSION=${TXBTESTS_BLDRVERSION:-""}
@@ -930,7 +959,7 @@ TXBTESTS_BUILDS=${TXBTESTS_BUILDS:-"NONE"}
 # TXPHYSICS_BLDRVERSION=${TXPHYSICS_BLDRVERSION:-""}
 # TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-""}
 # TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-""}
-TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
+# TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-""}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
 # TXSSH_BLDRVERSION=${TXSSH_BLDRVERSION:-""}
@@ -940,11 +969,11 @@ TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"--disable-shared --enable-
 # TXSSH_SERSH_OTHER_ARGS=${TXSSH_SERSH_OTHER_ARGS:-""}
 
 # UEDGE_BLDRVERSION=${UEDGE_BLDRVERSION:-""}
-UEDGE_BUILDS=${UEDGE_BUILDS:-"ser,par"}
+UEDGE_BUILDS=${UEDGE_BUILDS:-"par"}
 # UEDGE_NOPETSC_OTHER_ARGS=${UEDGE_NOPETSC_OTHER_ARGS:-""}
-UEDGE_PAR_OTHER_ARGS=${UEDGE_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
+UEDGE_PAR_OTHER_ARGS=${UEDGE_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
 # UEDGE_PARTAU_OTHER_ARGS=${UEDGE_PARTAU_OTHER_ARGS:-""}
-UEDGE_SER_OTHER_ARGS=${UEDGE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
+# UEDGE_SER_OTHER_ARGS=${UEDGE_SER_OTHER_ARGS:-""}
 
 # UETESTS_BLDRVERSION=${UETESTS_BLDRVERSION:-""}
 # UETESTS_BUILDS=${UETESTS_BUILDS:-""}

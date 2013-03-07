@@ -44,13 +44,13 @@ buildMagma() {
     case `uname` in
      Linux)
       if $LINK_WITH_MKL; then
-        bilderBuild magma gpu "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-mkl"
+        bilderBuild magma gpu "GPU_TARGET=Tesla MAKEINC_SUFFIX=linux-mkl"
       else
-        bilderBuild magma gpu "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-atlas BLAS_DIR=$CONTRIB_DIR/atlas"
+        bilderBuild magma gpu "GPU_TARGET=Tesla MAKEINC_SUFFIX=linux-atlas BLAS_DIR=$CONTRIB_DIR/atlas"
       fi
       ;;
      Darwin)
-      bilderBuild magma gpu "GPU_TARGET=Fermi MAKEINC_SUFFIX=osx"
+      bilderBuild magma gpu "GPU_TARGET=Tesla MAKEINC_SUFFIX=osx"
       ;;
     esac
   fi
@@ -81,13 +81,13 @@ installMagma() {
     case `uname` in
      Linux)
       if $LINK_WITH_MKL; then
-        bilderInstall magma gpu "magma" "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-mkl prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+        bilderInstall magma gpu "magma" "GPU_TARGET=Tesla MAKEINC_SUFFIX=linux-mkl prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
       else
-        bilderInstall magma gpu "magma" "GPU_TARGET=Fermi MAKEINC_SUFFIX=linux-atlas prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+        bilderInstall magma gpu "magma" "GPU_TARGET=Tesla MAKEINC_SUFFIX=linux-atlas prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
       fi
       ;;
      Darwin)
-      bilderInstall magma gpu "magma" "GPU_TARGET=Fermi MAKEINC_SUFFIX=osx prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
+      bilderInstall magma gpu "magma" "GPU_TARGET=Tesla MAKEINC_SUFFIX=osx prefix=$CONTRIB_DIR/$MAGMA_GPU_INSTALL_SUBDIR"
       ;;
     esac
 }

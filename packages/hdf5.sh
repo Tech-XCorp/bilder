@@ -29,7 +29,7 @@ case `uname` in
     if [[ "$CC" =~ mingw ]]; then
       HDF5_BLDRVERSION_STD=1.8.10
     else
-      HDF5_BLDRVERSION_STD=1.8.8
+      HDF5_BLDRVERSION_STD=1.8.9
     fi
 # 1.8.10 fails to build on Windows.
     ;;

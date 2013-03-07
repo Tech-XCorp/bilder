@@ -1,0 +1,14 @@
+diff -ruN cmake-2.8.10.1/Modules/Platform/Linux-Intel.cmake cmake-2.8.10.1-new/Modules/Platform/Linux-Intel.cmake
+--- cmake-2.8.10.1/Modules/Platform/Linux-Intel.cmake	2012-11-06 12:41:36.000000000 -0700
++++ cmake-2.8.10.1-new/Modules/Platform/Linux-Intel.cmake	2013-03-05 07:52:50.253351318 -0700
+@@ -38,7 +38,9 @@
+ 
+   # We pass this for historical reasons.  Projects may have
+   # executables that use dlopen but do not set ENABLE_EXPORTS.
+-  set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
++# JRC: This fails for static builds on Crays
++  # set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
++  set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS " ")
+ 
+   if(XIAR)
+     # INTERPROCEDURAL_OPTIMIZATION

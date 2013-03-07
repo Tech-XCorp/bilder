@@ -79,78 +79,7 @@ buildQt() {
     local QT_ENV=
     local QT_PHONON_ARGS=-phonon
     case `uname` in
-      Linux)
-# Adding to the LD_RUN_PATH gets rpath set for the qt libs.
-# Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
-# To get around bash space separation of string, we separate env settings
-# with a comma.
-        local extras_libdir=
-        if test -e $CONTRIB_DIR/extras/lib; then
-          extras_libdir=$CONTRIB_DIR/extras/lib
-        fi
-        QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
-        if test -n "${extras_libdir}"; then
-          QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
-        fi
-        case `uname -m` in
-          x86_64)
-            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++-64"
-            ;;
-          *)
-            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++"
-            ;;
-        esac
 
-# Need the following for phonon (and for webkit):
-#   glib
-#   gstreamer-devel
-#   gstreamer-plugins-base-devel
-#   libxml2
-# Then add.  Needed for configuration, but not for build.
-#  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
-#  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
-        local incdir=
-        local libdir=
-        for i in gstreamer libxml2; do
-# Get the latest
-          incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
-          if test -z "$incdir"; then
-            incdir=`ls -1d $CONTRIB_DIR/extras/include/$i{,-*} 2>/dev/null | tail -1`
-          fi
-          if test -n "$incdir"; then
-            QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
-          else
-            techo "WARNING: [qt.sh] May need to install ${i}-devel."
-          fi
-          if test -n "$libdir"; then
-            QT_PHONON_ARGS="$QT_PHONON_ARGS -L$libdir"
-          fi
-        done
-# glib a little special to deal with versions
-        incdir=`ls -1d /usr/include/glib-* 2>/dev/null | tail -1`
-        if test -n "$incdir"; then
-          local glibbn=`basename $incdir`
-          if test "i686" == `uname -m`; then
-             QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir -I/usr/lib/$glibbn/include"
-          else
-             QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir -I/usr/lib64/$glibbn/include"
-          fi
-# Adjust for possible change to typedef in glib
-          if grep -q 'union *_GMutex' $incdir/glib/gthread.h; then
-            techo "Adjusting Qt for change in gthread.h."
-            local qtgtypedefs=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
-            cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qtgtypedefs"
-            techo "$cmd"
-            eval "$cmd"
-          fi
-        else
-          techo "WARNING: [qt.sh] May need to install glib-devel."
-        fi
-        local gstprobe=`find /usr/include -name gstappsrc.h`
-        if test -z "$gstprobe"; then
-          techo "WARNING: [qt.sh] May need to install gstreamer-plugins-base-devel."
-        fi
-        ;;
       Darwin)
         local PLATFORM=macx-g++
 # jpeg present, but qt cannot find headers
@@ -167,6 +96,105 @@ buildQt() {
           *) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -cocoa";;
         esac
         ;;
+
+      Linux)
+
+# Adding to the LD_RUN_PATH gets rpath set for the qt libs.
+# Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
+# To get around bash space separation of string, we separate env settings
+# with a comma.
+        QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
+        case `uname -m` in
+          x86_64)
+            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++-64"
+            ;;
+          *)
+            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++"
+            ;;
+        esac
+
+# Need the following for phonon (and for webkit):
+#   glib
+#   gstreamer-devel
+#   gstreamer-plugins-base-devel
+#   libxml2
+# For some systems, like the Crays, we have to build our own version of
+# glib, gstreamer, and xml2, which we do using extras/gstreamer.sh.
+# Look for that, and if present add the appropriate flags.
+# These should perhaps be Bilderized, but the resulting separate-dir
+# installation would make the qt flags a bit more complications
+        local extras_libdir=
+        if test -e $CONTRIB_DIR/extras/lib; then
+          extras_libdir=$CONTRIB_DIR/extras/lib
+        fi
+        if test -n "${extras_libdir}"; then
+          QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
+        fi
+
+# Add system include directories if present.  This should not be duplication,
+# as the above should be built only when these are not found.
+# The paths on redhat are:
+#  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
+#  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
+        local incdir=
+        local libdir=
+        for i in gstreamer libxml2; do
+# Get the latest
+          incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
+          if test -z "$incdir"; then
+            incdir=`ls -1d $CONTRIB_DIR/extras/include/$i{,-*} 2>/dev/null | tail -1`
+          fi
+          if test -n "$incdir"; then
+            QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
+          else
+            techo "WARNING: [qt.sh] May need to install ${i}-devel."
+          fi
+# Looks like this is not used?
+          # if test -n "$libdir"; then
+            # QT_PHONON_ARGS="$QT_PHONON_ARGS -L$libdir"
+          # fi
+        done
+# glib a little special to deal with versions
+        incdir=`ls -1d /usr/include/glib-* 2>/dev/null | tail -1`
+        if test -n "$incdir"; then
+          QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
+        else
+          techo "WARNING: [qt.sh] May need to install glib-devel."
+        fi
+# On different distros, this include directory can be in different places
+        local glibbn=`basename $incdir`
+        if test "i686" == `uname -m`; then
+          srchdirs="lib lib64 lib/x86_64-linux-gnu"
+        else
+          srchdirs="lib64 lib/x86_64-linux-gnu lib"
+        fi
+        local glibincdir=
+        for l in $srchdirs; do
+          if test -d /usr/$l/$glibbn/include; then
+            glibincdir=/usr/$l/$glibbn/include
+            break
+          fi
+        done
+        if test -n "$glibincdir"; then
+          QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir"
+        else
+          techo "WARNING: [qt.sh] glib word-size include dir not found."
+          techo "WARNING: [qt.sh] May need to install glib-devel."
+        fi
+        local gstprobe=`find /usr/include -name gstappsrc.h`
+        if test -z "$gstprobe"; then
+          techo "WARNING: [qt.sh] May need to install gstreamer-plugins-base-devel."
+        fi
+# Adjust for possible change to typedef in glib
+        if grep -q 'union *_GMutex' $incdir/glib/gthread.h; then
+          techo "Adjusting Qt for change in gthread.h."
+          local qtgtypedefs=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
+          cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qtgtypedefs"
+          techo "$cmd"
+          eval "$cmd"
+        fi
+        ;;
+
     esac
 
 # PyQt will not build on Linux when Qt is built without phonon, so restoring.
@@ -197,7 +225,6 @@ buildQt() {
 # Restore dbus and xmlpatterns or get wrong one
     local qtotherargs=`deref QT_${QT_BUILD}_OTHER_ARGS`
     if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit $qtotherargs" "" "$QT_ENV"; then
-      # techo exit; exit
 # Make clean seems to hang
       bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
     else

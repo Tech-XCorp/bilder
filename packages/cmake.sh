@@ -12,7 +12,16 @@
 #
 ######################################################################
 
-CMAKE_BLDRVERSION_STD=2.8.10.1
+case `uname` in 
+  CYGWIN*)
+    # fortran binding issues with 2.8.10.1 on windows
+    CMAKE_BLDRVERSION_STD=2.8.9
+    ;;
+  *)
+    CMAKE_BLDRVERSION_STD=2.8.10.1
+    ;;
+  esac
+
 CMAKE_BLDRVERSION_EXP=2.8.10.1
 
 ######################################################################
@@ -46,23 +55,28 @@ buildCmake() {
 
 # Build cmake with cmake if present
     local CMAKE_CONFIG_ARGS=
+    local CONFIGURE_ARGS=
+    CMAKE_BILDER_ENV=
     if cmakepath=`which cmake 2>/dev/null`; then
       local cmakever=`"$cmakepath" --version | sed 's/^cmake version //'`
       techo "$cmakepath is version $cmakever."
       case "$cmakever" in
         2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.10.1) # Minimum version to build 2.8.9
           CMAKE_CONFIG_ARGS=-c
+          CONFIGURE_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
           ;;
         *)
           techo "$cmakepath version, $cmakever, not recent enough to configure cmake.  Using the cmake's configure."
+          CMAKE_BILDER_ENV="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
           ;;
       esac
+    else
+      CMAKE_BILDER_ENV="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     fi
     techo "cmake = $cmakepath."
 
 # Determine cmake args
 # This variable needs to be namespaced
-    CMAKE_BILDER_ENV=
     local CMAKE_CONFIG_ADDL_ARGS=
     case `uname` in
       CYGWIN*)
@@ -99,7 +113,7 @@ buildCmake() {
           CMAKE_LD_LIBRARY_PATH="$PYC_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
           trimvar CMAKE_LD_LIBRARY_PATH ':'
           if test -n "$CMAKE_LD_LIBRARY_PATH"; then
-            CMAKE_BILDER_ENV="LD_LIBRARY_PATH=$CMAKE_LD_LIBRARY_PATH"
+            CMAKE_BILDER_ENV="$CMAKE_BILDER_ENV LD_LIBRARY_PATH=$CMAKE_LD_LIBRARY_PATH"
           fi
         fi
         if test -n "$PYC_LD_RUN_PATH" && ! echo $LD_RUN_PATH | egrep -q "(^|:)$PYC_LD_RUN_PATH($|:)"; then
@@ -116,7 +130,7 @@ buildCmake() {
     trimvar CMAKE_MAKE_ARGS ' '
 
 # Configure and build
-    if bilderConfig $CMAKE_CONFIG_ARGS cmake ser "$CMAKE_CONFIG_ADDL_ARGS $CMAKE_CONFIG_OTHER_ARGS" "" "$CMAKE_BILDER_ENV"; then
+    if bilderConfig $CMAKE_CONFIG_ARGS cmake ser "$CONFIGURE_ARGS $CMAKE_CONFIG_ADDL_ARGS $CMAKE_CONFIG_OTHER_ARGS" "" "$CMAKE_BILDER_ENV"; then
       bilderBuild cmake ser "$CMAKE_MAKE_ARGS $CMAKE_BILDER_ENV"
     else
       res=$?

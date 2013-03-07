@@ -3085,15 +3085,20 @@ fi
     local patchvar=`genbashvar $1`_PATCH
     local patchval=`deref $patchvar`
     if test -z "$patchval"; then
-      patchval=$BILDER_DIR/patches/$1-$verval.patch
-      eval $patchvar=$patchval
-    fi
+      local spatchval=patches/$1-$verval.patch
+      if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/$spatchval; then
+        patchval=$BILDER_CONFDIR/$spatchval
+        eval $patchvar=$patchval
+      else 
+        patchval=$BILDER_DIR/$spatchval
+        eval $patchvar=$patchval
+      fi
+    fi    
     pkgsandpatches="$pkgsandpatches `basename $patchval`"
-# No longer need to get patches now that they are part of bilder
     if test -f $patchval; then
-      techo "Found $BILDER_DIR/patches/$1-$verval.patch."
+      techo "Found $patchval."
     else
-      techo "Did not find $BILDER_DIR/patches/$1-$verval.patch."
+      techo "Did not find $patchval."
       patchval=
       eval $patchvar=
     fi

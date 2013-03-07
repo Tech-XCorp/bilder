@@ -466,8 +466,9 @@ if ! [[ `uname` =~ CYGWIN ]] && which $PYC_FC 1>/dev/null 2>&1; then
             fi
             addtopathvar LD_LIBRARY_PATH $LIBGFORTRAN_DIR
             export LD_LIBRARY_PATH
-            PYC_EXTRA_LDFLAGS=`echo $PYC_EXTRA_LDFLAGS ${RPATH_FLAG}$LIBGFORTRAN_DIR`
-            PYC_EXTRA_LT_LDFLAGS=`echo $PYC_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$LIBGFORTRAN_DIR`
+            PYC_MODFLAGS="$PYC_MODFLAGS -lgomp"
+            PYC_EXTRA_LDFLAGS=`echo -- $PYC_EXTRA_LDFLAGS -lgomp ${RPATH_FLAG}$LIBGFORTRAN_DIR`
+            PYC_EXTRA_LT_LDFLAGS=`echo -- $PYC_EXTRA_LDFLAGS -lgomp ${LT_RPATH_FLAG}$LIBGFORTRAN_DIR`
             ;;
           esac
         ;;

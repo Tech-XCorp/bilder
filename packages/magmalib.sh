@@ -31,6 +31,7 @@ buildMagmalib() {
     esac
 	local gpu="tesla"
     local magmalibtarball="$PROJECT_DIR/../bilderpkgs/magmalib-${MAGMALIB_BLDRVERSION}-${os}-${gpu}.tar.gz"
+    getPkg "magmalib-${MAGMALIB_BLDRVERSION}-${os}-${gpu}"
 #    local cmd="svn up ${magmalibtarball}"
 #    $cmd
     cmd="${TAR} -C $CONTRIB_DIR -xzf ${magmalibtarball}"
