@@ -29,17 +29,17 @@ VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-"5.8.0.a"}
 #
 ######################################################################
 
-# Bu default, visit_vtk is built only with the compiler that built python
+# By default, visit_vtk is built only with the compiler that built python
 if test -z "$VISIT_VTK_DESIRED_BUILDS"; then
   if isCcCc4py; then
     VISIT_VTK_DESIRED_BUILDS=sersh
-    VISIT_VTK_SER_BUILD=sersh
   else
     VISIT_VTK_DESIRED_BUILDS=cc4py
-    VISIT_VTK_SER_BUILD=cc4py
   fi
 fi
 computeBuilds visit_vtk
+VISIT_VTK_SER_BUILD=`echo $VISIT_VTK_BUILDS | sed 's/,.*$//'`
+VISIT_VTK_SER_BUILD=${VISIT_VTK_SER_BUILD:-"unknown"} # Fallback
 VISIT_VTK_DEPS=mesa,hdf5,Python,cmake
 
 ######################################################################
@@ -58,12 +58,9 @@ buildVisIt_Vtk() {
     local VISIT_VTK_OS_ARGS=
     local VISIT_VTK_PYTHON_ARGS=-DVTK_WRAP_PYTHON:BOOL=ON
     local VISIT_VTK_BUILD_ARGS=
-    # local VISIT_VTK_BUILD_WITH_MESA=true
-    # if test $MESA_BUILDS == "NONE"; then
-      # VISIT_VTK_BUILD_WITH_MESA=false
-    # fi
     case `uname` in
-      CYGWIN*) # Add /MT flags
+
+      CYGWIN*)
 # Cygwin on focus apparently need this
         VISIT_VTK_PYTHON_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_LIB"
         case `uname` in
@@ -79,6 +76,7 @@ buildVisIt_Vtk() {
 # 25Feb2013: Failure observed on focus (XP)
         VISIT_VTK_BUILD_ARGS="-m nmake"
         ;;
+
       Darwin)	# make -j can fail on Darwin
         VISIT_VTK_OS_ARGS="$VISIT_VTK_OS_ARGS -DVISIT_VTK_USE_CARBON:BOOL=OFF -DVISIT_VTK_USE_COCOA:BOOL=ON"
         case `uname -r` in
@@ -89,6 +87,7 @@ buildVisIt_Vtk() {
         VISIT_VTK_OS_ARGS="-DVTK_USE_CARBON:BOOL=OFF -DVTK_USE_ANSI_STD_LIB:BOOL=ON -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-headerpad_max_install_names,-compatibility_version,5.7,-current_version,5.7.0 -DVTK_USE_COCOA:BOOL=ON"
         VISIT_VTK_PYTHON_ARGS="$VISIT_VTK_PYTHON_ARGS -DPYTHON_EXECUTABLE:FILEPATH='$PYTHON' -DPYTHON_INCLUDE_DIR:PATH=$PYTHON_INCDIR -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB -DPYTHON_EXTRA_LIBS:STRING=-lpthread"
         ;;
+
       Linux)
         local VISIT_VTK_MESA_LIB_PATH=
         local VISIT_VTK_LD_RUN_PATH=$LD_RUN_PATH
@@ -129,6 +128,7 @@ buildVisIt_Vtk() {
         VISIT_VTK_PYTHON_ARGS="$VISIT_VTK_PYTHON_ARGS -DPYTHON_EXECUTABLE:FILEPATH='$PYTHON' -DPYTHON_INCLUDE_DIR:PATH=$PYTHON_INCDIR -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
         VISIT_VTK_OS_ARGS="$VISIT_VTK_OS_ARGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
         ;;
+
     esac
 
 #
