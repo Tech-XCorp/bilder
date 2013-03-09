@@ -116,7 +116,7 @@ buildNumpy() {
         NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
         ;;
       Linux-*)
-	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_CC4PY_DIR}"
+	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_CC4PY_DIR}/lib"
         NUMPY_ARGS="--fcompiler=gnu95"
         NUMPY_ENV="$DISTUTILS_ENV2"
         ;;
