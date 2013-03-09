@@ -33,7 +33,7 @@ QT_BLDRVERSION_EXP=4.8.4
 ######################################################################
 
 # Only the python build is needed
-QT_BUILDS=`getPythonBuild`
+QT_BUILDS=${QT_BUILDS:-"`getPythonBuild`"}
 QT_BUILD=`getPythonBuild`
 QT_DEPS=bzip2
 QT_UMASK=002

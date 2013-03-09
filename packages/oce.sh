@@ -21,7 +21,7 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 ######################################################################
 
 # Only the python build needed.
-OCE_BUILDS=`getPythonBuild`
+OCE_BUILDS=${OCE_BUILDS:-"`getPythonBuild`"}
 OCE_BUILD=`getPythonBuild`
 OCE_DEPS=ftgl
 OCE_UMASK=002

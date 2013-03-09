@@ -20,17 +20,12 @@ SQLITE_BLDRVERSION=${SQLITE_BLDRVERSION:-"3070800"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-if test -z "$SQLITE_BUILDS"; then
-  case `uname` in
-    Linux)
-      SQLITE_BUILDS=ser
-      ;;
-  esac
-fi
+SQLITE_BUILDS=${SQLITE_BUILDS:-"`getPythonBuild`"}
+SQLITE_BUILD=`getPythonBuild`
 SQLITE_DEPS=
 SQLITE_UMASK=002
 
@@ -42,8 +37,8 @@ SQLITE_UMASK=002
 
 buildSqlite() {
   if bilderUnpack sqlite; then
-    if bilderConfig sqlite ser; then
-      bilderBuild sqlite ser
+    if bilderConfig sqlite $SQLITE_BUILD; then
+      bilderBuild sqlite $SQLITE_BUILD
     fi
   fi
 }
@@ -65,6 +60,6 @@ testSqlite() {
 ######################################################################
 
 installSqlite() {
-  bilderInstall sqlite ser
+  bilderInstall sqlite $SQLITE_BUILD
 }
 

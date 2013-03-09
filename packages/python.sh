@@ -25,7 +25,7 @@ export PYTHON_BLDRVERSION
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -38,12 +38,7 @@ if test -z "$PYTHON_BUILDS"; then
   esac
 fi
 PYTHON_DEPS=chrpath,sqlite,bzip2
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
+PYTHON_UMASK=002
 
 addtopathvar PATH $CONTRIB_DIR/python/bin
 if test `uname` = Linux; then

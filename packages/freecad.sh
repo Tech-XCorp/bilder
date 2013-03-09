@@ -28,7 +28,7 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 ######################################################################
 
 # Only the python build needed.
-FREECAD_BUILDS=`getPythonBuild`
+FREECAD_BUILDS=${FREECAD_BUILDS:-"`getPythonBuild`"}
 FREECAD_BUILD=`getPythonBuild`
 FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,ftgl,boost,f2c
 FREECAD_UMASK=002
