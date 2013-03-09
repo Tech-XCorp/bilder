@@ -22,10 +22,12 @@ ZEROMQ_BLDRVERSION=${ZEROMQ_BLDRVERSION:-"2.1.11"}
 
 if test -z "$ZEROMQ_BUILDS"; then
   if ! [[ `uname` =~ CYGWIN ]]; then
-    ZEROMQ_BUILDS="cc4py"
+    ZEROMQ_BUILDS=`getPythonBuild`
   fi
 fi
+ZEROMQ_BUILD=`getPythonBuild`
 ZEROMQ_DEPS=
+ZEROMQ_UMASK=002
 
 ######################################################################
 #
@@ -35,8 +37,8 @@ ZEROMQ_DEPS=
 
 buildZeromq() {
   if bilderUnpack zeromq; then
-    if bilderConfig zeromq cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ZEROMQ_CONFIG_LDFLAGS"; then
-      bilderBuild zeromq cc4py
+    if bilderConfig zeromq $ZEROMQ_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ZEROMQ_CONFIG_LDFLAGS"; then
+      bilderBuild zeromq $ZEROMQ_BUILD
     fi
   fi
 }
@@ -60,6 +62,6 @@ testZeromq() {
 installZeromq() {
 # Ignore installation errors.  R tries to set perms of /contrib/bin.
 # 20121202: Is this true?  Copy-paste error?
-  bilderInstall zeromq cc4py
+  bilderInstall zeromq $ZEROMQ_BUILD
 }
 
