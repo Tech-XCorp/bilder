@@ -37,9 +37,8 @@ if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
       ATLAS_BUILDS=NONE
       ;;
     Linux)
-      ATLAS_BUILDS=ser
       if isCcCc4py; then
-        ATLAS_BUILDS=ser,sersh
+        ATLAS_BUILDS=ser  # This builds sersh as well as the installation step.
       else
         ATLAS_BUILDS=ser,cc4py
       fi
@@ -286,6 +285,7 @@ installAtlas() {
     if bilderInstall -r atlas $bld; then
       anyinstalled=true
       case `uname` in
+
         CYGWIN*)
           local instlibdir=$CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-$bld/lib
           for i in lapack cblas f77blas atlas; do
@@ -302,6 +302,7 @@ installAtlas() {
               ;;
           esac
           ;;
+
         Linux)
 # If built static, then it seems numpy cannot find atlas?
 # If build shared, then cannot import numpy, unless it gets an rpath flag
@@ -329,12 +330,12 @@ installAtlas() {
               ;;
           esac
           ;;
+
       esac
     fi
   done
   if $anyinstalled; then
     findBlasLapack
   fi
-  # techo "WARNING: Quitting at end of atlas.sh."; cleanup
 }
 
