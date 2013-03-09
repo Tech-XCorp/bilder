@@ -32,19 +32,11 @@ QT_BLDRVERSION_EXP=4.8.4
 #
 ######################################################################
 
-# Qt is built sersh if this is the python build, otherwise it is cc4py
-if test -z "$QT_DESIRED_BUILDS"; then
-  if isCcCc4py; then
-    QT_DESIRED_BUILDS=sersh
-    QT_BUILD=sersh
-  else
-    QT_DESIRED_BUILDS=cc4py
-    QT_BUILD=cc4py
-  fi
-fi
-computeBuilds qt
+# Only the python build is needed
+QT_BUILDS=`getPythonBuild`
+QT_BUILD=`getPythonBuild`
 QT_DEPS=bzip2
-
+QT_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/qt/bin
 
 ######################################################################
