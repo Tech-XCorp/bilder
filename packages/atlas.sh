@@ -36,9 +36,13 @@ if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
     Darwin)
       ATLAS_BUILDS=NONE
       ;;
-    *)
+    Linux)
       ATLAS_BUILDS=ser
-      addCc4pyBuild atlas
+      if isCcCc4py; then
+        ATLAS_BUILDS=ser,sersh
+      else
+        ATLAS_BUILDS=ser,cc4py
+      fi
       ;;
   esac
 fi
