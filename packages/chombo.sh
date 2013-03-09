@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"20954"}
+CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"20970"}
 
 ######################################################################
 #
@@ -64,57 +64,37 @@ buildChombo() {
   
   case `uname` in
     CYGWIN*)
-	  # for some reason FC was getting set to the full path of the compiler with spaces
-	  # which was troublesome in cygwin so defaulting to just 'ifort' on windows - Jon R
-      FC="ifort"
+      # on windows, we don't want the full path, which may contain spaces
+      FC=`basename "$FC"`
+      CC=`basename "$CC"`
+      CXX=`basename "$CXX"`
+      MPIFC=`basename "$MPIFC"`
+      MPICC=`basename "$MPICC"`
+      MPICXX=`basename "$MPICXX"`
       ;;
   esac
   
   if bilderUnpack chombo; then
 
      # ser2d
-     if bilderConfig -c chombo ser2d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser $CMAKE_SUPRA_SP_ARG"; then
+     if bilderConfig -c chombo ser2d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DCMAKE_C_COMPILER:FILEPATH=$CC -DCMAKE_CXX_COMPILER:FILEPATH=$CXX -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo ser2d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # ser3d
-     if bilderConfig -c chombo ser3d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser $CMAKE_SUPRA_SP_ARG"; then
+     if bilderConfig -c chombo ser3d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DCMAKE_C_COMPILER:FILEPATH=$CC -DCMAKE_CXX_COMPILER:FILEPATH=$CXX -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo ser3d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # par2d
-     if bilderConfig -c chombo par2d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_DIST_BLDRVERSION-par $CMAKE_SUPRA_SP_ARG"; then
+     if bilderConfig -c chombo par2d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$MPIFC -DCMAKE_C_COMPILER:FILEPATH=$MPICC -DCMAKE_CXX_COMPILER:FILEPATH=$MPICXX -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_DIST_BLDRVERSION-par $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo par2d "$CHOMBO_MAKEJ_ARGS"
      fi 
 
      # par3d
-     if bilderConfig -c chombo par3d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_DIST_BLDRVERSION-par $CMAKE_SUPRA_SP_ARG"; then
+     if bilderConfig -c chombo par3d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$MPIFC -DCMAKE_C_COMPILER:FILEPATH=$MPICC -DCMAKE_CXX_COMPILER:FILEPATH=$MPICXX -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_DIST_BLDRVERSION-par $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo par3d "$CHOMBO_MAKEJ_ARGS"
      fi 
-
-     if [ $USER != 'swsides' ]; then
-
-     # ser2ddbg
-     if bilderConfig -c chombo ser2ddbg "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo ser2ddbg "$CHOMBO_MAKEJ_ARGS"
-     fi 
-
-     # ser3ddbg
-     if bilderConfig -c chombo ser3ddbg "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo ser3ddbg "$CHOMBO_MAKEJ_ARGS"
-     fi 
-
-     # par2ddbg
-     if bilderConfig -c chombo par2ddbg "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_DIST_BLDRVERSION-par $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo par2ddbg "$CHOMBO_MAKEJ_ARGS"
-     fi 
-
-     # par3ddbg
-     if bilderConfig -c chombo par3ddbg "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Debug -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DPETSC:BOOL=ON -DPETSC_FIND_VERSION:STRING=3.3 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_DIST_BLDRVERSION-par $CMAKE_SUPRA_SP_ARG"; then
-        bilderBuild chombo par3ddbg "$CHOMBO_MAKEJ_ARGS"
-     fi 
-
-   fi
 
   fi
 
@@ -132,10 +112,6 @@ installChombo() {
   bilderInstall chombo ser3d chombo-ser3d
   bilderInstall chombo par2d chombo-par2d
   bilderInstall chombo par3d chombo-par3d
-  bilderInstall chombo ser2ddbg chombo-ser2ddbg
-  bilderInstall chombo ser3ddbg chombo-ser3ddbg
-  bilderInstall chombo par2ddbg chombo-par2ddbg
-  bilderInstall chombo par3ddbg chombo-par3ddbg
 
 }
 

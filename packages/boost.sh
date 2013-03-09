@@ -16,8 +16,11 @@
 #
 ######################################################################
 
-BOOST_BLDRVERSION_STD=1_50_0
-BOOST_BLDRVERSION_EXP=1_50_0
+# version 1_50_0 does not build with Intel compiler on windows (Pletzer)
+BOOST_BLDRVERSION_STD=1_53_0
+BOOST_BLDRVERSION_EXP=1_53_0
+
+
 
 ######################################################################
 #

@@ -1255,7 +1255,13 @@ isPatched() {
   if test -n "$patchval"; then
     techo "Predefined $patchvar = $patchval."
   else
-    patchval=$BILDER_DIR/patches/${projver}.patch
+    if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/patches/${projver}.patch; then
+      local patchdir=$BILDER_CONFDIR/patches
+      patchval=$patchdir/${projver}.patch
+    else
+      local patchdir=$BILDER_DIR/patches
+      patchval=$patchdir/${projver}.patch
+    fi
   fi
   techo "Looking for $patchval."
   pkgsandpatches="$pkgsandpatches `basename $patchval`"
@@ -1264,7 +1270,11 @@ isPatched() {
     patchval=
 # If version is svn, try head
     if [[ $projver =~ ${proj}-r ]]; then
-      patchval=$BILDER_DIR/patches/${proj}-rHEAD.patch
+      if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/patches/${proj}-rHEAD.patch; then
+        patchval=$BILDER_CONFDIR/patches/${proj}-rHEAD.patch        
+      else
+        patchval=$BILDER_DIR/patches/${proj}-rHEAD.patch
+      fi
       techo "Looking for $patchval."
       pkgsandpatches="$pkgsandpatches `basename $patchval`"
       if ! test -f $patchval; then
