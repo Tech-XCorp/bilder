@@ -20,9 +20,9 @@ COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
 #
 ######################################################################
 
-# COIN_DESIRED_BUILDS=${COIN_DESIRED_BUILDS:-"sersh"}
-computeBuilds Coin
-addCc4pyBuild Coin
+# Only the python build needed.
+COIN_BUILDS=${COIN_BUILDS:-"`getPythonBuild`"}
+COIN_BUILD=`getPythonBuild`
 COIN_DEPS=qt
 addtopathvar PATH $CONTRIB_DIR/coin/bin
 
@@ -68,7 +68,7 @@ testCoin() {
 ######################################################################
 
 installCoin() {
-  for bld in sersh cc4py; do
+  for bld in `echo $COIN_BUILDS | tr ',' ' '`; do
     bilderInstall -r Coin $bld
   done
 }

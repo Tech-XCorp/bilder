@@ -2258,10 +2258,12 @@ findLibraries() {
     fi
   done
   pkgdir=`echo $libdirs | sed 's/ .*$//'`
-  pkgdir=`dirname $pkgdir`
-  eval ${argprfx}_DIR="$pkgdir"
-  trimvar libdirs ' '
-  eval ${argprfx}_LIBRARY_DIRS="'$libdirs'"
+  if test -n "$pkgdir"; then
+    pkgdir=`dirname $pkgdir`
+    eval ${argprfx}_DIR="$pkgdir"
+    trimvar libdirs ' '
+    eval ${argprfx}_LIBRARY_DIRS="'$libdirs'"
+  fi
   trimvar libnames ' '
   eval ${argprfx}_LIBRARY_NAMES="'$libnames'"
 
@@ -2539,7 +2541,7 @@ findBlasLapack() {
 #
 
 # Use system libraries if defined
-  for BLD in SER CC4PY BEN; do
+  for BLD in SER SERSH CC4PY BEN; do
     lapack_libs=`deref SYSTEM_LAPACK_${BLD}_LIB`
     blas_libs=`deref SYSTEM_BLAS_${BLD}_LIB`
     if test -n "$lapack_libs" -a -n "$blas_libs"; then
@@ -2547,13 +2549,16 @@ findBlasLapack() {
       eval LAPACK_${BLD}_LIBS="\"$lapack_libs\""
       eval BLAS_${BLD}_LIBS="\"$blas_libs\""
     fi
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
   done
 
 # Find atlas build, but use it only if requested.
-  findContribPackage ATLAS atlas ser cc4py ben clp
+  findContribPackage ATLAS atlas cc4py ben clp sersh ser
 # Set defaults
-  setDefaultPkgVars ATLAS "SER CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  for BLD in SER CC4PY BEN; do
+  setDefaultPkgVars ATLAS "SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars ATLAS "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  for BLD in CC4PY BEN SERSH SER; do
     techo -2 "ATLAS_${BLD}_DIR = `deref ATLAS_${BLD}_DIR`."
     techo -2 "ATLAS_${BLD}_LIB = `deref ATLAS_${BLD}_LIB`."
     techo -2 "ATLAS_${BLD}_LIBDIR = `deref ATLAS_${BLD}_LIBDIR`."
@@ -2562,7 +2567,7 @@ findBlasLapack() {
   done
 # Compute vars
   USE_ATLAS_CC4PY=${USE_ATLAS_CC4PY:-"true"}
-  for BLD in SER CC4PY BEN CLP; do
+  for BLD in SER SERSH CC4PY BEN CLP; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveatlas=`deref HAVE_ATLAS_$BLD`
@@ -2583,79 +2588,104 @@ findBlasLapack() {
   done
 
 # Find the lapack in the contrib dir, but use it only if requested.
-  findContribPackage -p CONTRIB_ LAPACK lapack ser cc4py ben
-  setDefaultPkgVars CONTRIB_LAPACK "SER CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  findContribPackage -p CONTRIB_ LAPACK lapack cc4py ben sersh ser
+  setDefaultPkgVars CONTRIB_LAPACK "SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"false"}
   if $USE_CONTRIB_LAPACK; then
-    for BLD in SER CC4PY BEN; do
+    for BLD in SER SERSH CC4PY BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       local havecontlp=`deref HAVE_CONTRIB_LAPACK_$BLD`
       if $havecontlp && test -z "$lapack_libs" -o -z "$blas_libs"; then
         local contlplibdir=`deref CONTRIB_LAPACK_${BLD}_LIBDIR`
-        eval LAPACK_${BLD}_LIBS="\"-L$contlplibdir -llapack\""
-        eval BLAS_${BLD}_LIBS="\"-L$contlplibdir -lblas\""
+        eval LAPACK_${BLD}_LIBS="\"-llapack\""
+        if test -n "$contlplibdir"; then
+          eval LAPACK_${BLD}_LIBS="\"-L$contlplibdir -llapack\""
+          eval BLAS_${BLD}_LIBS="\"-L$contlplibdir -lblas\""
+        else
+          eval LAPACK_${BLD}_LIBS="\"-llapack\""
+          eval LAPACK_${BLD}_LIBS="\"-lblas\""
+        fi
       fi
     done
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
   fi
 
 # Find clapack.  Use it if found and not defined.
   findContribPackage clapack_cmake lapack ser cc4py ben
-  for BLD in SER CC4PY BEN; do
+  for BLD in SER SERSH CC4PY BEN; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveclp=`deref HAVE_CLAPACK_CMAKE_$BLD`
+    haveclp=${haveclp:-"false"}
     if $haveclp && test -z "$lapack_libs" -o -z "$blas_libs"; then
       local clplibdir=`deref CLAPACK_CMAKE_${BLD}_LIBDIR`
       eval LAPACK_${BLD}_LIBS="\"-L$clplibdir -llapack\""
       eval BLAS_${BLD}_LIBS="\"-L$clplibdir -lblas -lf2c\""
     fi
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
   done
 
 # If still not found, try some system locations under /usr
   if test `uname` = Linux; then
-    techo "Looking for blas and lapack in $SYS_LIBSUBDIRS under /usr."
-    for lib in blas lapack; do
-      varname=USR_`genbashvar $lib`_SER_LIBS
-      unset varval
-      for dir in $SYS_LIBSUBDIRS; do
-        if test -f /usr/$dir/lib${lib}.so -o -L /usr/$dir/lib${lib}.so; then
-          varval=/usr/$dir/lib${lib}.so
-          break
-        elif test -f /usr/$dir/lib${lib}.a; then
-          varval=/usr/$dir/lib${lib}.a
-          break
+    techo "Seeking blas and lapack in $SYS_LIBSUBDIRS under /usr."
+    for BLD in SER SERSH; do
+      for lib in blas lapack; do
+        local sfx=
+        local pkgtype=
+        if test $BLD = SER; then
+          sfx=a
+          pkgtype=static
+        else
+          sfx=so
+          pkgtype=devel
+        fi
+        varname=USR_`genbashvar $lib`_${BLD}_LIBS
+        unset varval
+        for dir in $SYS_LIBSUBDIRS; do
+          if test -f /usr/$dir/lib${lib}.$sfx -o -L /usr/$dir/lib${lib}.$sfx; then
+            varval=/usr/$dir/lib${lib}.$sfx
+            break
+          elif test -f /usr/$dir/lib${lib}.$sfx; then
+            varval=/usr/$dir/lib${lib}.$sfx
+            break
+          fi
+        done
+        if test -n "$varval"; then
+          eval $varname=$varval
+          techo "$varname = $varval found."
+        else
+          techo "WARNING: $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
         fi
       done
-      if test -n "$varval"; then
-        eval $varname=$varval
-        techo "$varname = $varval found."
-      else
-        techo "WARNING: $varname empty and lib${lib} not found.  May need to install $lib-devel."
+# Nubeam needs these specified.
+      local lapack_libs=`deref LAPACK_${BLD}_LIBS`
+      local blas_libs=`deref BLAS_${BLD}_LIBS`
+      if test -z "$lapack_libs" -o -z "$blas_libs"; then
+        local usr_lapack_libs=`deref USR_LAPACK_${BLD}_LIBS`
+        local usr_blas_libs=`deref USR_BLAS_${BLD}_LIBS`
+        eval LAPACK_${BLD}_LIBS="$usr_lapack_libs"
+        eval BLAS_${BLD}_LIBS="$usr_blas_libs"
       fi
     done
-# No need to set as always found by build systems.
-# Not true: nubeam needs these specified.
-# if false; then
-    lapack_libs=`deref LAPACK_SER_LIBS`
-    blas_libs=`deref BLAS_SER_LIBS`
-    if test -z "$lapack_libs" -o -z "$blas_libs"; then
-      LAPACK_SER_LIBS="$USR_LAPACK_SER_LIBS"
-      BLAS_SER_LIBS="$USR_BLAS_SER_LIBS"
-    fi
-# fi
   fi
 
-# Ben, cc4py default to ser
+# Ben defaults to ser
   LAPACK_BEN_LIBS=${LAPACK_BEN_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_BEN_LIBS=${BLAS_BEN_LIBS:-"$BLAS_SER_LIBS"}
+# Cc4py defaults to sersh, then ser
+  LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SERSH_LIBS"}
+  BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SERSH_LIBS"}
   LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SER_LIBS"}
 
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
   if ! test `uname` = Darwin; then
-    for BLD in SER CC4PY BEN; do
+    for BLD in SER SERSH CC4PY BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       eval LINLIB_${BLD}_LIBS="\"$lapack_libs $blas_libs\""
@@ -2668,13 +2698,22 @@ findBlasLapack() {
         local lapack_libnames=`deref LAPACK_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
         local blas_libdirs=`deref BLAS_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
         local blas_libnames=`deref BLAS_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
-        eval CMAKE_LINLIB_${BLD}_ARGS="\"-DLAPACK_LIBRARY_DIRS:PATH='$lapack_libdirs' -DLAPACK_LIBRARY_NAMES:STRING='$lapack_libnames' -DBLAS_LIBRARY_DIRS:PATH='$blas_libdirs' -DBLAS_LIBRARY_NAMES:STRING='$blas_libnames'\""
+        eval CMAKE_LINLIB_${BLD}_ARGS="\"-DLAPACK_LIBRARY_NAMES:STRING='$lapack_libnames' -DBLAS_LIBRARY_NAMES:STRING='$blas_libnames'\""
+        local cmakeargs=
+        if test -n "$blas_libdirs"; then
+          cmakeargs=`deref CMAKE_LINLIB_${BLD}_ARGS`
+          eval CMAKE_LINLIB_${BLD}_ARGS="\"-DBLAS_LIBRARY_DIRS:PATH='$blas_libdirs' $cmakeargs\""
+        fi
+        if test -n "$lapack_libdirs"; then
+          cmakeargs=`deref CMAKE_LINLIB_${BLD}_ARGS`
+          eval CMAKE_LINLIB_${BLD}_ARGS="\"-DLAPACK_LIBRARY_DIRS:PATH='$lapack_libdirs' $cmakeargs\""
+        fi
       fi
     done
   fi
 
 # Print out results
-  for BLD in SER CC4PY BEN; do
+  for BLD in SER SERSH CC4PY BEN; do
     techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
     techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
     techo "CONFIG_LINLIB_${BLD}_ARGS = `deref CONFIG_LINLIB_${BLD}_ARGS`."

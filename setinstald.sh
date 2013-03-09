@@ -101,8 +101,12 @@ if test -d $PROJECT_DIR/$package; then
   getVersion $package
   verval=`deref $vervar`
 else # Look in variables
-  source $PKG_FILE
-  computeVersion $PKGNAME
+  cmd="source $PKG_FILE"
+  techo -2 "$cmd"
+  $cmd
+  cmd="computeVersion $package"
+  techo -2 "$cmd"
+  $cmd
   verval=`deref $vervar`
 fi
 techo "$vervar = $verval."

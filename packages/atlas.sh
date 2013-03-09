@@ -327,6 +327,7 @@ installAtlas() {
               $cmd
               cd -
               $BILDER_DIR/setinstald.sh -i $CONTRIB_DIR atlas,sersh
+              (cd $CONTRIB_DIR; ln -sf atlas-$ATLAS_BLDRVERSION-sersh atlas-sersh)
               ;;
           esac
           ;;
