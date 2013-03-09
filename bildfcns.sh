@@ -683,6 +683,18 @@ rmVals() {
 }
 
 #
+# Determine the python build: sersh if compiler is the one used to
+# compiler python, cc4py otherwise.
+#
+getPythonBuild() {
+  if isCcCc4py; then
+    echo sersh
+  else
+    echo cc4py
+  fi
+}
+
+#
 # Compute the builds from a package by taking the add builds
 # minus the no-builds
 #
@@ -735,7 +747,6 @@ addVals() {
 # 3: If "after" add after, otherwise before
 #
 addtopathvar() {
-  # techo "addtopathvar entered."
 # Determine the separator
   local sep=":"
   local addpathcand=$2
@@ -768,12 +779,9 @@ addtopathvar() {
   if ! echo $bpval | egrep -q "(^|$sep)$addpath($|$sep)" ; then
     eval $bpvar="'${bpval}${sep}${addpath}'"
   fi
-  if test $VERBOSITY -ge 2; then
-    pathval=`deref $1`
-    bpval=`deref $bpvar`
-    techo "Variable $bpvar = $bpval, $1 = $pathval (addtopathvar)"
-  fi
-  # techo "addtopathvar returning."
+  pathval=`deref $1`
+  bpval=`deref $bpvar`
+  techo -2 "Variable $bpvar = $bpval, $1 = $pathval (addtopathvar)"
 }
 
 #
@@ -4621,7 +4629,6 @@ recordInstallation() {
   installations="$installations $2-$4"
 }
 
-
 #
 # Wait for a package to complete building in a subdir, then install it.
 #
@@ -5110,6 +5117,19 @@ EOF
   fi
 
   return $RESULT
+}
+
+# Vanilla install of all the builds of a package
+#
+# Args:
+# 1: package name
+#
+bilderInstallAll() {
+  local buildsvar=`genbashvar $1`_BUILDS
+  local buildsval=`deref $buildsvar`
+  for bld in `echo $buildsval | tr ',' ' '`; do
+    bilderInstall $1 $bld
+  done
 }
 
 #
