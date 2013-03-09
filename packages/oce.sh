@@ -20,9 +20,9 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 #
 ######################################################################
 
-# OCE_DESIRED_BUILDS=${OCE_DESIRED_BUILDS:-"sersh"}
-computeBuilds oce
-addCc4pyBuild oce
+# Only the python build needed.
+OCE_BUILDS=`getPythonBuild`
+OCE_BUILD=`getPythonBuild`
 OCE_DEPS=ftgl
 OCE_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/oce/bin
@@ -42,7 +42,7 @@ getGitOce() {
     techo "WARNING: git not in path.  Cannot get oce."
     return
   fi
-  cd $PROJECT_DIR
+  PROJECT_DIR=${PROJECT_DIR:-"`pwd -P`"}
   if test -d oce/.git; then
     if $SVN_UP || test -n "$JENKINS_FSROOT"; then
       cmd="cd oce"
@@ -54,7 +54,7 @@ getGitOce() {
     fi
   else
     cd - 1>/dev/null 2>&1
-    techo "No git checkout of oce."
+    techo "$PWD/oce/.git does not exist.  No git checkout of oce."; return
     if test -d oce; then rm -rf oce.sav; mv oce oce.sav; fi
     cmd="git clone git://github.com/tpaviot/oce.git"
     techo "$cmd"
@@ -133,8 +133,8 @@ buildOce() {
       fi
       ;;
   esac
-# Cannot disable X11 or will not get TKMeshVS built,
-# which is needed for salomesh in freecad.
+# Cannot disable X11 or will not build TKMeshVS, which is needed
+# for salomesh in freecad.
 if false; then
   case `uname` in
     Darwin) OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE";;
@@ -165,9 +165,6 @@ testOce() {
 ######################################################################
 
 installOce() {
-  if bilderInstall oce sersh; then
-    : # Probably need to fix up dylibs here
-  fi
-  # techo "WARNING: Quitting at end of oce.sh."; cleanup
+  bilderInstallAll oce
 }
 
