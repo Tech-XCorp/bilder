@@ -20,7 +20,8 @@ SIP_BLDRVERSION=${SIP_BLDRVERSION:-"4.14.1"}
 #
 ########################################################################
 
-SIP_BUILDS=${PYQT_BUILDS:-"cc4py"}
+SIP_BUILDS=${SIP_BUILDS:-"`getPythonBuild`"}
+SIP_BUILD=`getPythonBuild`
 SIP_DEPS=Python
 SIP_UMASK=002
 
@@ -51,7 +52,7 @@ buildSip() {
     esac
 
 # Configure and build
-    if bilderConfig -r sip cc4py "$SIP_CONFIG_ARGS"; then
+    if bilderConfig -r sip $SIP_BUILD "$SIP_CONFIG_ARGS"; then
       local SIP_BUILD_ARGS=
       case `uname`-`uname -r` in
         CYGWIN*) SIP_BUILD_ARGS="-m nmake";;
@@ -60,7 +61,7 @@ buildSip() {
       cmd="rmall ${PYTHON_SITEPKGSDIR}/sip*"
       techo "$cmd"
       $cmd
-      bilderBuild $SIP_BUILD_ARGS sip cc4py
+      bilderBuild $SIP_BUILD_ARGS sip $SIP_BUILD
     fi
   fi
 
@@ -88,6 +89,6 @@ installSip() {
     CYGWIN*) SIP_INSTALL_ARGS="-m nmake";;
   esac
 # Do not create links as an executable plus some libs for python
-  bilderInstall $SIP_INSTALL_ARGS -L sip cc4py
+  bilderInstall $SIP_INSTALL_ARGS -L sip $SIP_BUILD
 }
 
