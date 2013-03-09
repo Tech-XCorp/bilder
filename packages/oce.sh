@@ -90,19 +90,19 @@ buildOce() {
     if ! bilderPreconfig oce; then
       return 1
     fi
-    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-sersh"
+    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
     techo "NOTE: Building oce from the git repo."
   else
     if ! bilderUnpack oce; then
       return 1
     fi
-    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-sersh"
+    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
   fi
 
 # Determine other configure args
   local FTGL_DIR=
-  if test -e $CONTRIB_DIR/ftgl-sersh; then
-    FTGL_DIR=`(cd $CONTRIB_DIR/ftgl-sersh; pwd -P)`
+  if test -e $CONTRIB_DIR/ftgl-$OCE_BUILD; then
+    FTGL_DIR=`(cd $CONTRIB_DIR/ftgl-$OCE_BUILD; pwd -P)`
   fi
   if test -n "$FTGL_DIR"; then
     OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$FTGL_DIR/include"
@@ -142,8 +142,8 @@ if false; then
 fi
 
 # Configure and build
-  if bilderConfig oce sersh "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
-    bilderBuild oce sersh "$OCE_MAKEJ_ARGS" "$OCE_ENV"
+  if bilderConfig oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
+    bilderBuild oce $OCE_BUILD "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
 }
