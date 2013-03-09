@@ -92,7 +92,7 @@ BILDER_SVN=${BILDER_SVN:-"`which svn`"}
 ######################################################################
 
 SVN_UP=${SVN_UP:-"false"}
-if $SVN_UP || test -n "$JENKINS_FSROOT"; then
+if $SVN_UP; then
   cmd="bilderSvn up --accept postpone $PROJECT_DIR"
   techo "$cmd" | tee $BILDER_LOGDIR/svnup.out
   $cmd 1>>$BILDER_LOGDIR/svnup.out 2>&1
