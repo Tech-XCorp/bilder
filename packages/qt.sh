@@ -373,7 +373,6 @@ EOF
       techo "Extra build steps failed."
     fi
   fi
-  # techo "Quitting at end of qt.sh."; exit
 
 }
 
