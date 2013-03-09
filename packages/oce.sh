@@ -42,19 +42,20 @@ getGitOce() {
     techo "WARNING: git not in path.  Cannot get oce."
     return
   fi
-  PROJECT_DIR=${PROJECT_DIR:-"`pwd -P`"}
+  if test -z "$PROJECT_DIR"; then
+    local bldrdir=`dirname $BASH_SOURCE`
+    bldrdir=`dirname $bldrdir`
+    PROJECT_DIR=`dirname $bldrdir`
+  fi
+  cd $PROJECT_DIR
   if test -d oce/.git; then
     if $SVN_UP || test -n "$JENKINS_FSROOT"; then
-      cmd="cd oce"
+      cmd="(cd oce; git pull)"
       techo "$cmd"
-      $cmd
-      cmd="git pull"
-      techo "$cmd"
-      $cmd
+      eval "$cmd"
     fi
   else
-    cd - 1>/dev/null 2>&1
-    techo "$PWD/oce/.git does not exist.  No git checkout of oce."; return
+    techo "$PWD/oce/.git does not exist.  No git checkout of oce."
     if test -d oce; then rm -rf oce.sav; mv oce oce.sav; fi
     cmd="git clone git://github.com/tpaviot/oce.git"
     techo "$cmd"
