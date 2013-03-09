@@ -21,7 +21,7 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 ######################################################################
 
 # Only the python build needed.
-FTGL_BUILDS=`getPythonBuild`
+FTGL_BUILDS=${FTGL_BUILDS:-"`getPythonBuild`"}
 FTGL_BUILD=`getPythonBuild`
 FTGL_DEPS=
 FTGL_UMASK=002
