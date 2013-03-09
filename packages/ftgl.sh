@@ -20,8 +20,9 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 #
 ######################################################################
 
-# Shared builds only needed -- for use with Qt
-FTGL_BUILDS=${FTGL_BUILDS:-"sersh"}
+# Only the python build needed.
+FTGL_BUILDS=`getPythonBuild`
+FTGL_BUILD=`getPythonBuild`
 FTGL_DEPS=
 FTGL_UMASK=002
 
@@ -42,8 +43,8 @@ buildFtgl() {
         break
       fi
     done
-    if bilderConfig ftgl sersh "$ftargs $FTGL_SER_OTHER_ARGS"; then
-      bilderBuild -m make ftgl sersh "" "ECHO=echo"
+    if bilderConfig ftgl $FTGL_BUILD "$ftargs $FTGL_SER_OTHER_ARGS"; then
+      bilderBuild -m make ftgl $FTGL_BUILD "" "ECHO=echo"
     fi
   fi
 }
@@ -65,7 +66,7 @@ testFtgl() {
 ######################################################################
 
 installFtgl() {
-  bilderInstall -m make ftgl sersh "" "" "ECHO=echo"
+  bilderInstall -m make ftgl $FTGL_BUILD "" "" "ECHO=echo"
   # techo "Quitting at the end of ftgl.sh."; exit
 }
 
