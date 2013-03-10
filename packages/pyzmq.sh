@@ -41,9 +41,9 @@ buildPyzmq() {
 # Build away
     PYZMQ_ENV="$DISTUTILS_ENV"
     techo -2 "PYZMQ_ENV = $PYZMQ_ENV"
-    PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-cc4py"
+    PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
     if [[ `uname` =~ Linux ]]; then
-      PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-cc4py"
+      PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
     fi
     bilderDuBuild pyzmq "$PYZMQ_ARGS" "$PYZMQ_ENV"
   fi
