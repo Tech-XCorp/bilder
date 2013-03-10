@@ -32,8 +32,8 @@ export PYTHON_BLDRVERSION
 if test -z "$PYTHON_BUILDS"; then
   case `uname` in
     Linux)
-      PYTHON_BUILDS=`getPythonBuild`
-      PYTHON_BUILD=`getPythonBuild`
+      PYTHON_BUILDS=$FORPYTHON_BUILD
+      PYTHON_BUILD=$FORPYTHON_BUILD
       ;;
   esac
 fi

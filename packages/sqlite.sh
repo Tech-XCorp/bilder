@@ -24,8 +24,8 @@ SQLITE_BLDRVERSION=${SQLITE_BLDRVERSION:-"3070800"}
 #
 ######################################################################
 
-SQLITE_BUILDS=${SQLITE_BUILDS:-"`getPythonBuild`"}
-SQLITE_BUILD=`getPythonBuild`
+SQLITE_BUILDS=${SQLITE_BUILDS:-"$FORPYTHON_BUILD"}
+SQLITE_BUILD=$FORPYTHON_BUILD
 SQLITE_DEPS=
 SQLITE_UMASK=002
 

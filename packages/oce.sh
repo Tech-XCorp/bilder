@@ -21,8 +21,8 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 ######################################################################
 
 # Only the python build needed.
-OCE_BUILDS=${OCE_BUILDS:-"`getPythonBuild`"}
-OCE_BUILD=`getPythonBuild`
+OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
+OCE_BUILD=$FORPYTHON_BUILD
 OCE_DEPS=ftgl
 OCE_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/oce/bin

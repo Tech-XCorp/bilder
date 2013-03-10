@@ -20,8 +20,8 @@ SIP_BLDRVERSION=${SIP_BLDRVERSION:-"4.14.1"}
 #
 ########################################################################
 
-SIP_BUILDS=${SIP_BUILDS:-"`getPythonBuild`"}
-SIP_BUILD=`getPythonBuild`
+SIP_BUILDS=${SIP_BUILDS:-"$FORPYTHON_BUILD"}
+SIP_BUILD=$FORPYTHON_BUILD
 SIP_DEPS=Python
 SIP_UMASK=002
 
