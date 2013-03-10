@@ -57,19 +57,6 @@ testTornado() {
 ######################################################################
 
 installTornado() {
-if false; then
-  case `uname` in
-    CYGWIN*)
-# Windows does not have a lib versus lib64 issue
-      bilderDuInstall -r tornado tornado "" "$TORNADO_ENV"
-      ;;
-    *)
-# For Unix, must install in correct lib dir
-      mkdir -p $PYTHON_SITEPKGSDIR
-      bilderDuInstall -r tornado tornado "--install-purelib=$PYTHON_SITEPKGSDIR" "$TORNADO_ENV"
-      ;;
-  esac
-fi
 # 20121202: There is only one lib dir.  No lib64 now.
   bilderDuInstall -r tornado tornado "" "$TORNADO_ENV"
 }
