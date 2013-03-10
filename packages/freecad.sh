@@ -56,7 +56,7 @@ getFreecad() {
   cd $PROJECT_DIR
   if test -d freecad/.git; then
     if $SVN_UP || test -n "$JENKINS_FSROOT"; then
-      cmd="(cd freecad; git pull)"
+      cmd="(cd freecad; git reset --hard; git pull)"
       techo "$cmd"
       eval "$cmd"
     fi
@@ -67,11 +67,22 @@ getFreecad() {
     techo "$cmd"
     $cmd
   fi
+# Add patch if directory is clean
+  if (cd freecad; git status) | grep -q "working directory clean"; then
+    if test -f $BILDER_DIR/patches/freecad.patch; then
+      cmd="(cd freecad; patch -p0 <$BILDER_DIR/patches/freecad.patch)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
+  else
+    techo "Working directory modified, will not patch."
+  fi
 }
 
 buildFreecad() {
 
 # Get freecad from repo
+  techo -2 "Getting freecad."
   (cd $PROJECT_DIR; getFreecad)
 
 # If no subdir, done.
