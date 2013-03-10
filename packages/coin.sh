@@ -21,9 +21,10 @@ COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
 ######################################################################
 
 # Only the python build needed.
-COIN_BUILDS=${COIN_BUILDS:-"`getPythonBuild`"}
-COIN_BUILD=`getPythonBuild`
+COIN_BUILDS=${COIN_BUILDS:-"$FORPYTHON_BUILD"}
+COIN_BUILD=$FORPYTHON_BUILD
 COIN_DEPS=qt
+COIN_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/coin/bin
 
 ######################################################################

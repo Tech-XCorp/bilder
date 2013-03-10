@@ -20,10 +20,10 @@ SOQT_BLDRVERSION=${SOQT_BLDRVERSION:-"1.5.0"}
 #
 ######################################################################
 
-# SOQT_DESIRED_BUILDS=${SOQT_DESIRED_BUILDS:-"sersh"}
-computeBuilds soqt
-addCc4pyBuild soqt
+# SoQt is installed with Coin, so it is built the way Coin is built
+SOQT_BUILDS=${SOQT_BUILDS:-"$FORPYTHON_BUILD"}
 SOQT_DEPS=Coin,qt
+SOQT_UMASK=002
 # addtopathvar PATH $CONTRIB_DIR/soqt/bin
 
 ######################################################################
@@ -40,8 +40,8 @@ buildSoQt() {
   esac
 
   if bilderUnpack SoQt; then
-    if bilderConfig -p Coin-$COIN_BLDRVERSION-$FORPYTHON_BUILD SoQt cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
-      bilderBuild SoQt cc4py
+    if bilderConfig -p Coin-$COIN_BLDRVERSION-$FORPYTHON_BUILD SoQt $FORPYTHON_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
+      bilderBuild SoQt $FORPYTHON_BUILD
     fi
   fi
 
@@ -64,7 +64,7 @@ testSoQt() {
 ######################################################################
 
 installSoQt() {
-  if bilderInstall -L SoQt cc4py; then
+  if bilderInstall -L SoQt $FORPYTHON_BUILD; then
     :
   fi
   # techo "WARNING: Quitting at end of soqt.sh."; cleanup
