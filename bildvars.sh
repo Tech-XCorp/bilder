@@ -440,6 +440,7 @@ case `uname` in
     fi
     ;;
 esac
+FORPYTHON_BUILD=`getPythonBuild`
 
 # Get gfortran library.  Need to add for building python packages
 if ! [[ `uname` =~ CYGWIN ]] && which $PYC_FC 1>/dev/null 2>&1; then
