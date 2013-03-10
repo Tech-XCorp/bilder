@@ -42,10 +42,10 @@ buildCoin() {
         COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework"
         ;;
     esac
-    if bilderConfig Coin sersh "$CONFIG_COMPFLAGS_SER $CONFIG_COMPFLAGS_SER $COIN_ADDL_ARGS $COIN_SERSH_OTHER_ARGS"; then
+    if bilderConfig Coin sersh "$CONFIG_COMPILERS_SER CFLAGS='$CFLAGS -fpermissive' CXXFLAGS='$CXXFLAGS -fpermissive' $COIN_ADDL_ARGS $COIN_SERSH_OTHER_ARGS"; then
       bilderBuild Coin sersh
     fi
-    if bilderConfig Coin cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
+    if bilderConfig Coin cc4py "$CONFIG_COMPILERS_PYC CFLAGS='$PYC_CFLAGS -fpermissive' CXXFLAGS='$PYC_CXXFLAGS -fpermissive' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
       bilderBuild Coin cc4py
     fi
   fi
