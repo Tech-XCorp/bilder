@@ -40,7 +40,7 @@ buildSoQt() {
   esac
 
   if bilderUnpack SoQt; then
-    if bilderConfig -p Coin-$COIN_BLDRVERSION-cc4py SoQt cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
+    if bilderConfig -p Coin-$COIN_BLDRVERSION-$FORPYTHON_BUILD SoQt cc4py "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
       bilderBuild SoQt cc4py
     fi
   fi
