@@ -4,8 +4,12 @@
 #
 # $Id$
 #
+# Preconfig:
 # ./bootstrap.sh -show-libraries
+# Configure: not present
+# Build step
 # ./b2 --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi stage
+# Install step
 # ./b2 --prefix=/contrib/boost-1_50_0-ser --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi install
 #
 ######################################################################
@@ -58,39 +62,41 @@ buildBoost() {
   esac
 
 # Process
-  if bilderUnpack -i boost; then
-    local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
+  if bilderUnpack boost; then
+    local BOOST_ALL_ADDL_ARGS="variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
     case `uname` in
       CYGWIN*-WOW64*) BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS";;
     esac
+# Determine the compilers.  This set needs expansion!
+    case "$CXX" in
+      *pgiCC)
+        BOOST_ALL_ADDL_ARGS="toolset=pgi threading=single $BOOST_ALL_ADDL_ARGS --without-thread"
+        ;;
+      *)
+        BOOST_ALL_ADDL_ARGS="threading=single $BOOST_ALL_ADDL_ARGS"
+        ;;
+    esac
 # Only the shared and cc4py build boost python, as shared libs required.
-    BOOST_SER_ADDL_ARGS="link=static --without-python $BOOST_ALL_ADDL_ARGS"
-    BOOST_SERSH_ADDL_ARGS="link=shared $BOOST_ALL_ADDL_ARGS"
-    BOOST_CC4PY_ADDL_ARGS="link=shared $BOOST_ALL_ADDL_ARGS"
+    BOOST_SER_ADDL_ARGS="link=static $BOOST_ALL_ADDL_ARGS --without-python --build-dir=ser --stagedir=ser/stage"
+    BOOST_SERSH_ADDL_ARGS="link=shared $BOOST_ALL_ADDL_ARGS --build-dir=sersh --stagedir=sersh/stage"
+    BOOST_CC4PY_ADDL_ARGS="link=shared $BOOST_ALL_ADDL_ARGS --build-dir=cc4py --stagedir=cc4py/stage"
 
-    if bilderConfig -i boost ser; then
-# In-place build, so done now
-      cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-      techo "$cmd"
-      eval "$cmd"
-      bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
-    fi
+# Remove library interdependencies
+    cd $BUILD_DIR/boost-$BOOST_BLDRVERSION
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
 
-    if bilderConfig -i boost sersh; then
-# In-place build, so done now
-      cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-      techo "$cmd"
-      eval "$cmd"
-      bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
-    fi
-
-    if bilderConfig -i boost cc4py; then
-# In-place build, so done now
-      cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-      techo "$cmd"
-      eval "$cmd"
-      bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
-    fi
+# Set variables for each build and build
+    for bld in `echo $BOOST_BUILDS | tr ',' ' '`; do
+      local addlargsvar=`genbashvar boost-$bld`_ADDL_ARGS
+      local addlargsval=`deref $addlargsvar`
+      local otherargsvar=`genbashvar boost-$bld`_OTHER_ARGS
+      local otherargsval=`deref $otherargsvar`
+      bilderBuild -s -m ./b2 boost ser "$addlargsval $otherargsval stage"
+      local instdirvar=`genbashvar boost-$bld`_INSTALL_DIR
+      eval $instdirvar=$CONTRIB_DIR
+    done
 
   fi
 
@@ -129,7 +135,7 @@ installBoost() {
       sersh) sfx=-sersh; instargs="$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS";;
       cc4py) sfx=-cc4py; instargs="$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS";;
     esac
-    if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
+    if bilderInstall -S -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
       findBoost
     fi

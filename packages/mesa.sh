@@ -118,7 +118,7 @@ testMesa() {
 
 installMesa() {
 # Install MGL build
-  bilderInstall mesa mgl
+  bilderInstall -r mesa mgl
 # Install os build and make links
   if bilderInstall mesa os; then
 # Add link to mesa, as visit is otherwise not happy.

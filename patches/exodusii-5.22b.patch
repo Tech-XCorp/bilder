@@ -1,0 +1,519 @@
+diff -ruN exodus-5.22b_Original/cbind/CMakeLists.txt exodus-5.22b_Modified/cbind/CMakeLists.txt
+--- exodus-5.22b_Original/cbind/CMakeLists.txt	2013-03-11 11:11:32.616244900 -0600
++++ exodus-5.22b_Modified/cbind/CMakeLists.txt	2013-03-11 11:16:19.191244900 -0600
+@@ -13,6 +13,10 @@
+   "${NETCDF_INCLUDE_DIR}"
+ )
+ 
++IF(WIN32)
++  INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/WinNotC99Include")
++ENDIF(WIN32)
++
+ SET(cbind_SRCS
+    	src/ex_close.c
+    	src/ex_conv.c
+@@ -245,23 +249,39 @@
+     COMPILE_FLAGS -fno-common)
+ ENDIF(APPLE)
+ 
+-ADD_LIBRARY(exoIIv2c ${cbind_SRCS})
+-
+-TARGET_LINK_LIBRARIES(exoIIv2c ${NETCDF_LIBRARY} ${HDF5_LIBRARY} ${HDF5HL_LIBRARY})
++ADD_LIBRARY(exoIIv2c STATIC ${cbind_SRCS})
++TARGET_LINK_LIBRARIES(exoIIv2c ${NETCDF_LIBRARY} ${HDF5HL_LIBRARY} ${HDF5_LIBRARY})
++SET_TARGET_PROPERTIES(exoIIv2c PROPERTIES OUTPUT_NAME "exodusII")
+ 
+ IF(MSVC)
+   set_target_properties(exoIIv2c PROPERTIES COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
+ ENDIF(MSVC)
+ 
++SET(INSTALL_TARGET_NAMES exoIIv2c)
++IF (EXODUSII_BUILD_SHARED_LIBS)
++  ADD_LIBRARY(exoIIv2cSH SHARED ${cbind_SRCS})
++  TARGET_LINK_LIBRARIES(exoIIv2cSH ${NETCDF_LIBRARY} ${HDF5HL_LIBRARY} ${HDF5_LIBRARY})
++  SET_TARGET_PROPERTIES(exoIIv2cSH PROPERTIES OUTPUT_NAME "exodusII")
++  IF(MSVC)
++    set_target_properties(exoIIv2cSH PROPERTIES COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
++  ENDIF(MSVC) 
++  SET(INSTALL_TARGET_NAMES ${INSTALL_TARGET_NAMES} exoIIv2cSH) 
++ENDIF (EXODUSII_BUILD_SHARED_LIBS)
++
+ IF(EXODUS_LIBRARY_PROPERTIES)
+   SET_TARGET_PROPERTIES(exoIIv2c PROPERTIES ${EXODUS_LIBRARY_PROPERTIES})
+ ENDIF(EXODUS_LIBRARY_PROPERTIES)
+ 
+ IF(NOT EXODUS_INSTALL_NO_LIBRARIES)
+-  INSTALL(TARGETS exoIIv2c
++  INSTALL(TARGETS ${INSTALL_TARGET_NAMES}
+     RUNTIME DESTINATION lib COMPONENT Runtime
+     LIBRARY DESTINATION lib COMPONENT Runtime
+     ARCHIVE DESTINATION lib COMPONENT Development)
++  IF(WIN32)
++    SET(cbind_HEADERS "${cbind_HEADERS}"
++      "${CMAKE_CURRENT_SOURCE_DIR}/WinNotC99Include/inttypes.h"
++      "${CMAKE_CURRENT_SOURCE_DIR}/WinNotC99Include/unistd.h" )
++  ENDIF(WIN32)
+   INSTALL(FILES ${cbind_HEADERS} DESTINATION include COMPONENT Development)
+ ENDIF(NOT EXODUS_INSTALL_NO_LIBRARIES)
+ 
+diff -ruN exodus-5.22b_Original/cbind/WinNotC99Include/inttypes.h exodus-5.22b_Modified/cbind/WinNotC99Include/inttypes.h
+--- exodus-5.22b_Original/cbind/WinNotC99Include/inttypes.h	1969-12-31 17:00:00.000000000 -0700
++++ exodus-5.22b_Modified/cbind/WinNotC99Include/inttypes.h	2013-03-11 11:18:49.948244900 -0600
+@@ -0,0 +1,305 @@
++// ISO C9x  compliant inttypes.h for Microsoft Visual Studio
++// Based on ISO/IEC 9899:TC2 Committee draft (May 6, 2005) WG14/N1124 
++// 
++//  Copyright (c) 2006 Alexander Chemeris
++// 
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are met:
++// 
++//   1. Redistributions of source code must retain the above copyright notice,
++//      this list of conditions and the following disclaimer.
++// 
++//   2. Redistributions in binary form must reproduce the above copyright
++//      notice, this list of conditions and the following disclaimer in the
++//      documentation and/or other materials provided with the distribution.
++// 
++//   3. The name of the author may be used to endorse or promote products
++//      derived from this software without specific prior written permission.
++// 
++// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
++// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++// EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
++// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
++// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
++// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
++// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++// 
++///////////////////////////////////////////////////////////////////////////////
++
++#ifndef _MSC_VER // [
++#error "Use this header only with Microsoft Visual C++ compilers!"
++#endif // _MSC_VER ]
++
++#ifndef _MSC_INTTYPES_H_ // [
++#define _MSC_INTTYPES_H_
++
++#if _MSC_VER > 1000
++#pragma once
++#endif
++
++#include "stdint.h"
++
++// 7.8 Format conversion of integer types
++
++typedef struct {
++   intmax_t quot;
++   intmax_t rem;
++} imaxdiv_t;
++
++// 7.8.1 Macros for format specifiers
++
++#if !defined(__cplusplus) || defined(__STDC_FORMAT_MACROS) // [   See footnote 185 at page 198
++
++// The fprintf macros for signed integers are:
++#define PRId8       "d"
++#define PRIi8       "i"
++#define PRIdLEAST8  "d"
++#define PRIiLEAST8  "i"
++#define PRIdFAST8   "d"
++#define PRIiFAST8   "i"
++
++#define PRId16       "hd"
++#define PRIi16       "hi"
++#define PRIdLEAST16  "hd"
++#define PRIiLEAST16  "hi"
++#define PRIdFAST16   "hd"
++#define PRIiFAST16   "hi"
++
++#define PRId32       "I32d"
++#define PRIi32       "I32i"
++#define PRIdLEAST32  "I32d"
++#define PRIiLEAST32  "I32i"
++#define PRIdFAST32   "I32d"
++#define PRIiFAST32   "I32i"
++
++#define PRId64       "I64d"
++#define PRIi64       "I64i"
++#define PRIdLEAST64  "I64d"
++#define PRIiLEAST64  "I64i"
++#define PRIdFAST64   "I64d"
++#define PRIiFAST64   "I64i"
++
++#define PRIdMAX     "I64d"
++#define PRIiMAX     "I64i"
++
++#define PRIdPTR     "Id"
++#define PRIiPTR     "Ii"
++
++// The fprintf macros for unsigned integers are:
++#define PRIo8       "o"
++#define PRIu8       "u"
++#define PRIx8       "x"
++#define PRIX8       "X"
++#define PRIoLEAST8  "o"
++#define PRIuLEAST8  "u"
++#define PRIxLEAST8  "x"
++#define PRIXLEAST8  "X"
++#define PRIoFAST8   "o"
++#define PRIuFAST8   "u"
++#define PRIxFAST8   "x"
++#define PRIXFAST8   "X"
++
++#define PRIo16       "ho"
++#define PRIu16       "hu"
++#define PRIx16       "hx"
++#define PRIX16       "hX"
++#define PRIoLEAST16  "ho"
++#define PRIuLEAST16  "hu"
++#define PRIxLEAST16  "hx"
++#define PRIXLEAST16  "hX"
++#define PRIoFAST16   "ho"
++#define PRIuFAST16   "hu"
++#define PRIxFAST16   "hx"
++#define PRIXFAST16   "hX"
++
++#define PRIo32       "I32o"
++#define PRIu32       "I32u"
++#define PRIx32       "I32x"
++#define PRIX32       "I32X"
++#define PRIoLEAST32  "I32o"
++#define PRIuLEAST32  "I32u"
++#define PRIxLEAST32  "I32x"
++#define PRIXLEAST32  "I32X"
++#define PRIoFAST32   "I32o"
++#define PRIuFAST32   "I32u"
++#define PRIxFAST32   "I32x"
++#define PRIXFAST32   "I32X"
++
++#define PRIo64       "I64o"
++#define PRIu64       "I64u"
++#define PRIx64       "I64x"
++#define PRIX64       "I64X"
++#define PRIoLEAST64  "I64o"
++#define PRIuLEAST64  "I64u"
++#define PRIxLEAST64  "I64x"
++#define PRIXLEAST64  "I64X"
++#define PRIoFAST64   "I64o"
++#define PRIuFAST64   "I64u"
++#define PRIxFAST64   "I64x"
++#define PRIXFAST64   "I64X"
++
++#define PRIoMAX     "I64o"
++#define PRIuMAX     "I64u"
++#define PRIxMAX     "I64x"
++#define PRIXMAX     "I64X"
++
++#define PRIoPTR     "Io"
++#define PRIuPTR     "Iu"
++#define PRIxPTR     "Ix"
++#define PRIXPTR     "IX"
++
++// The fscanf macros for signed integers are:
++#define SCNd8       "d"
++#define SCNi8       "i"
++#define SCNdLEAST8  "d"
++#define SCNiLEAST8  "i"
++#define SCNdFAST8   "d"
++#define SCNiFAST8   "i"
++
++#define SCNd16       "hd"
++#define SCNi16       "hi"
++#define SCNdLEAST16  "hd"
++#define SCNiLEAST16  "hi"
++#define SCNdFAST16   "hd"
++#define SCNiFAST16   "hi"
++
++#define SCNd32       "ld"
++#define SCNi32       "li"
++#define SCNdLEAST32  "ld"
++#define SCNiLEAST32  "li"
++#define SCNdFAST32   "ld"
++#define SCNiFAST32   "li"
++
++#define SCNd64       "I64d"
++#define SCNi64       "I64i"
++#define SCNdLEAST64  "I64d"
++#define SCNiLEAST64  "I64i"
++#define SCNdFAST64   "I64d"
++#define SCNiFAST64   "I64i"
++
++#define SCNdMAX     "I64d"
++#define SCNiMAX     "I64i"
++
++#ifdef _WIN64 // [
++#  define SCNdPTR     "I64d"
++#  define SCNiPTR     "I64i"
++#else  // _WIN64 ][
++#  define SCNdPTR     "ld"
++#  define SCNiPTR     "li"
++#endif  // _WIN64 ]
++
++// The fscanf macros for unsigned integers are:
++#define SCNo8       "o"
++#define SCNu8       "u"
++#define SCNx8       "x"
++#define SCNX8       "X"
++#define SCNoLEAST8  "o"
++#define SCNuLEAST8  "u"
++#define SCNxLEAST8  "x"
++#define SCNXLEAST8  "X"
++#define SCNoFAST8   "o"
++#define SCNuFAST8   "u"
++#define SCNxFAST8   "x"
++#define SCNXFAST8   "X"
++
++#define SCNo16       "ho"
++#define SCNu16       "hu"
++#define SCNx16       "hx"
++#define SCNX16       "hX"
++#define SCNoLEAST16  "ho"
++#define SCNuLEAST16  "hu"
++#define SCNxLEAST16  "hx"
++#define SCNXLEAST16  "hX"
++#define SCNoFAST16   "ho"
++#define SCNuFAST16   "hu"
++#define SCNxFAST16   "hx"
++#define SCNXFAST16   "hX"
++
++#define SCNo32       "lo"
++#define SCNu32       "lu"
++#define SCNx32       "lx"
++#define SCNX32       "lX"
++#define SCNoLEAST32  "lo"
++#define SCNuLEAST32  "lu"
++#define SCNxLEAST32  "lx"
++#define SCNXLEAST32  "lX"
++#define SCNoFAST32   "lo"
++#define SCNuFAST32   "lu"
++#define SCNxFAST32   "lx"
++#define SCNXFAST32   "lX"
++
++#define SCNo64       "I64o"
++#define SCNu64       "I64u"
++#define SCNx64       "I64x"
++#define SCNX64       "I64X"
++#define SCNoLEAST64  "I64o"
++#define SCNuLEAST64  "I64u"
++#define SCNxLEAST64  "I64x"
++#define SCNXLEAST64  "I64X"
++#define SCNoFAST64   "I64o"
++#define SCNuFAST64   "I64u"
++#define SCNxFAST64   "I64x"
++#define SCNXFAST64   "I64X"
++
++#define SCNoMAX     "I64o"
++#define SCNuMAX     "I64u"
++#define SCNxMAX     "I64x"
++#define SCNXMAX     "I64X"
++
++#ifdef _WIN64 // [
++#  define SCNoPTR     "I64o"
++#  define SCNuPTR     "I64u"
++#  define SCNxPTR     "I64x"
++#  define SCNXPTR     "I64X"
++#else  // _WIN64 ][
++#  define SCNoPTR     "lo"
++#  define SCNuPTR     "lu"
++#  define SCNxPTR     "lx"
++#  define SCNXPTR     "lX"
++#endif  // _WIN64 ]
++
++#endif // __STDC_FORMAT_MACROS ]
++
++// 7.8.2 Functions for greatest-width integer types
++
++// 7.8.2.1 The imaxabs function
++#define imaxabs _abs64
++
++// 7.8.2.2 The imaxdiv function
++
++// This is modified version of div() function from Microsoft's div.c found
++// in %MSVC.NET%\crt\src\div.c
++#ifdef STATIC_IMAXDIV // [
++static
++#else // STATIC_IMAXDIV ][
++_inline
++#endif // STATIC_IMAXDIV ]
++imaxdiv_t __cdecl imaxdiv(intmax_t numer, intmax_t denom)
++{
++   imaxdiv_t result;
++
++   result.quot = numer / denom;
++   result.rem = numer % denom;
++
++   if (numer < 0 && result.rem > 0) {
++      // did division wrong; must fix up
++      ++result.quot;
++      result.rem -= denom;
++   }
++
++   return result;
++}
++
++// 7.8.2.3 The strtoimax and strtoumax functions
++#define strtoimax _strtoi64
++#define strtoumax _strtoui64
++
++// 7.8.2.4 The wcstoimax and wcstoumax functions
++#define wcstoimax _wcstoi64
++#define wcstoumax _wcstoui64
++
++
++#endif // _MSC_INTTYPES_H_ ]
+diff -ruN exodus-5.22b_Original/cbind/WinNotC99Include/unistd.h exodus-5.22b_Modified/cbind/WinNotC99Include/unistd.h
+--- exodus-5.22b_Original/cbind/WinNotC99Include/unistd.h	1969-12-31 17:00:00.000000000 -0700
++++ exodus-5.22b_Modified/cbind/WinNotC99Include/unistd.h	2013-03-11 11:18:49.949244900 -0600
+@@ -0,0 +1,41 @@
++#ifndef _UNISTD_H
++#define _UNISTD_H    1
++
++/* This file intended to serve as a drop-in replacement for 
++ *  unistd.h on Windows
++ *  Please add functionality as neeeded 
++ */
++
++#include <stdlib.h>
++#include <io.h>
++#include <process.h> /* for getpid() and the exec..() family */
++
++#define srandom srand
++#define random rand
++
++/* Values for the second argument to access.
++   These may be OR'd together.  */
++#define R_OK    4       /* Test for read permission.  */
++#define W_OK    2       /* Test for write permission.  */
++//#define   X_OK    1       /* execute permission - unsupported in windows*/
++#define F_OK    0       /* Test for existence.  */
++
++#define access _access
++#define ftruncate _chsize
++
++#define ssize_t int
++
++#define STDIN_FILENO 0
++#define STDOUT_FILENO 1
++#define STDERR_FILENO 2
++/* should be in some equivalent to <sys/types.h> */
++typedef __int8            int8_t;
++typedef __int16           int16_t; 
++typedef __int32           int32_t;
++typedef __int64           int64_t;
++typedef unsigned __int8   uint8_t;
++typedef unsigned __int16  uint16_t;
++typedef unsigned __int32  uint32_t;
++typedef unsigned __int64  uint64_t;
++
++#endif /* unistd.h  */
+diff -ruN exodus-5.22b_Original/CMakeLists.txt exodus-5.22b_Modified/CMakeLists.txt
+--- exodus-5.22b_Original/CMakeLists.txt	2013-03-11 11:11:32.905244900 -0600
++++ exodus-5.22b_Modified/CMakeLists.txt	2013-03-11 11:14:27.110244900 -0600
+@@ -1,5 +1,5 @@
+ cmake_minimum_required(VERSION 2.6)
+-PROJECT(ExodusII C CXX Fortran)
++PROJECT(ExodusII C CXX)
+ 
+ SET(EXODUSII_VERSION_MAJOR "5")
+ SET(EXODUSII_VERSION_MINOR "14")
+@@ -9,9 +9,30 @@
+ 
+ SET(EXODUSII_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
+ 
+-SUBDIRS(cbind forbind)
++SUBDIRS(cbind)
+-
+-find_path( NETCDF_INCLUDE_DIR netcdf.h
++IF(WIN32)
++  # Get Rid of /MD compiler flags
++  FOREACH(flag_var
++          CMAKE_C_FLAGS              CMAKE_C_FLAGS_DEBUG            CMAKE_C_FLAGS_RELEASE
++          CMAKE_C_FLAGS_MINSIZEREL   CMAKE_C_FLAGS_RELWITHDEBINFO   CMAKE_C_FLAGS_FULL
++          CMAKE_CXX_FLAGS            CMAKE_CXX_FLAGS_DEBUG          CMAKE_CXX_FLAGS_RELEASE
++          CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_FULL)
++    IF (${flag_var} MATCHES "/MD")
++      string(REGEX REPLACE "/MD" " " ${flag_var} "${${flag_var}}")
++    ENDIF ()
++  ENDFOREACH(flag_var)
++ENDIF(WIN32)
++
++
++
++SET(NETCDF_HEADERS "netcdf.h")
++IF(WIN32)
++  SET(NETCDF_HEADERS "${NETCDF_HEADERS}" "stdint.h")
++ENDIF(WIN32)
++find_path( NETCDF_INCLUDE_DIR 
++  NAMES ${NETCDF_HEADERS}
++  HINTS ${NETCDF_CMAKE_ROOT_DIR}/include
++  PATHS
+    $ENV{ACCESS}/inc
+    $ENV{NETCDF_DIR}/inc
+    $ENV{NETCDF_DIR}/include
+@@ -20,31 +41,41 @@
+ 
+ find_library( NETCDF_LIBRARY
+    NAMES netcdf
+-   PATHS "$ENV{ACCESS}/lib"
+-         "$ENV{NETCDF_DIR}/lib"
+-	 "$ENV{NETCDF_DIR}/libsrc/.libs"
++   HINTS ${NETCDF_CMAKE_ROOT_DIR}/lib
++   PATHS 
++     $ENV{ACCESS}/lib
++     $ENV{NETCDF_DIR}/lib
++     $ENV{NETCDF_DIR}/libsrc/.libs
+ )
+ 
+ find_program (NETCDF_NCDUMP ncdump
+-   $ENV{ACCESS}/bin
+-   $ENV{NETCDF_DIR}/bin
+-   $ENV{NETCDF_DIR}/ncdump
++  NAMES ncdump
++  HINTS ${NETCDF_CMAKE_ROOT_DIR}/bin
++  PATHS
++    $ENV{ACCESS}/bin
++    $ENV{NETCDF_DIR}/bin
++    $ENV{NETCDF_DIR}/ncdump
+ )
+ 
+ # Hack for HDF5
+-find_library( HDF5_LIBRARY hdf5
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
+-  $ENV{NETCDF_DIR}/lib
+-  $ENV{NETCDF_DIR}/libsrc/.libs
+-  /usr/local/hdf5/lib
+-  )
+-find_library( HDF5HL_LIBRARY hdf5_hl
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
+-  $ENV{NETCDF_DIR}/lib
+-  $ENV{NETCDF_DIR}/libsrc/.libs
+-  /usr/local/hdf5/lib
+-  )
+-
++find_library( HDF5_LIBRARY 
++  NAMES hdf5 hdf5dll
++  HINTS ${HDF5_ROOT_DIR}/lib
++  PATHS
++    $ENV{ACCESS}/lib/shared
++    $ENV{ACCESS}/lib
++    $ENV{NETCDF_DIR}/lib
++    $ENV{NETCDF_DIR}/libsrc/.libs
++    /usr/local/hdf5/lib
++)
++find_library( HDF5HL_LIBRARY 
++  NAMES hdf5_hl hdf5_hldll
++  HINTS ${HDF5_ROOT_DIR}/lib
++  PATHS
++    $ENV{ACCESS}/lib/shared
++    $ENV{ACCESS}/lib
++    $ENV{NETCDF_DIR}/lib
++    $ENV{NETCDF_DIR}/libsrc/.libs
++    /usr/local/hdf5/lib
++)
+ 

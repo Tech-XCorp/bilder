@@ -10,77 +10,147 @@
 ######################################################################
 
 # KEEP THIS
-if ! modulecmd bash list 2>&1 | grep PrgEnv-gnu 1>/dev/null 2>&1; then
-  echo Wrong programming environment. Should be PrgEnv-gnu.
-  exit
+
+# When running cmake, this must be in the front of the path to
+# get the native Windows cmake.
+#SVN_BINDIR="C:/Program Files/CollabNet/Subversion Client"
+USE_CCXX_PIC_FLAG=${USE_CCXX_PIC_FLAG:-"false"}
+USE_FORTRAN_PIC_FLAG=${USE_FORTRAN_PIC_FLAG:-"false"}
+
+# Even with mingw, need to have cl in one's path.  So source cygwin.sh
+source cygwin.sh
+
+if test -z "$PROJECT_DIR"; then
+  # echo BASH_SOURCE = $BASH_SOURCE
+  mdir=`dirname $BASH_SOURCE`
+  mdir=`(cd $mdir; pwd -P)`
+  bdir=`dirname $mdir`
+  PROJECT_DIR=`dirname $bdir`
 fi
-case $UQMAILHOST in
 
-  edison*)
+HAVE_SER_FORTRAN=true
 
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
+# this is for petsc33 to link with Intel lapack library (MKL)
+export LINK_WITH_MKL="true"
+#############################################################################
+export MKLROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\mkl"
+export WIN_TITLE="Intel Composer XE 2011  Intel(R) 64 Visual Studio 2010"
+export PRODUCT_NAME="Intel Composer XE 2011 "
+export BUNDLE_NAME="Intel Parallel Studio XE 2011 SP1"
+export HOSTNAME="qawin64"
+export VSINSTALLDIR="c:\Program Files (x86)\Microsoft Visual Studio 10.0"
+export CCP_LIB64="C:\Program Files\Microsoft HPC Pack 2008 SDK\Lib\amd64"
+export IPPROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\ipp"
+export INTEL_LICENSE_FILE="C:\Program Files (x86)\Common Files\Intel\Licenses"
+export PROCESSOR_IDENTIFIER="Intel64 Family 6 Model 44 Stepping 2, GenuineIntel"
+export WINDIR="C:\Windows"
+export Platform="X64"
+export NVCUDASAMPLES_ROOT="C:\ProgramData\NVIDIA Corporation\CUDA Samples\v5.0"
+export CUDA_PATH_V4_2="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2"
+export CUDA_PATH_V4_1="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.1"
+export PUBLIC="C:\Users\Public"
+export CUDA_PATH_V4_0="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0"
+export CCP_SDK="C:\Program Files\Microsoft HPC Pack 2008 SDK"
+export OS="Windows_NT"
+export ALLUSERSPROFILE="C:\ProgramData"
+export TARGET_VS="vs2010"
+export windows_tracing_flags="3"
+export Framework35Version="v3.5"
+export windows_tracing_logfile="C:\BVTBin\Tests\installpackage\csilogfile.log"
+export TEMP="/tmp"
+export VS90COMNTOOLS="C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\Tools"
+export FrameworkVersion64="v4.0.30319"
+export COMMONPROGRAMFILES="C:\Program Files (x86)\Common Files"
+export VCINSTALLDIR="c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC"
+export MKL_TARGET_ARCH="intel64"
+export SCRIPT_NAME="compilervars_arch.bat"
+export LIB="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\lib;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\lib\intel64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\LIB\amd64;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib\x64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\ipp\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\ipp\..\compiler\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\mkl\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\tbb\bin\..\lib\intel64\vc10;c:\Program Files (x86)\Intel\Composer XE\compiler\lib;c:\Program Files (x86)\Intel\Composer XE\compiler\lib\intel64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\LIB\amd64;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib\x64;c:\Program Files (x86)\Intel\Composer XE\ipp\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\ipp\..\compiler\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\\mkl\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\compiler\lib\intel64;c:\Program Files (x86)\Intel\Composer XE\tbb\bin\..\lib\intel64\vc_mt;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\LIB;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\LIB;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib;"
+export CommandPromptType="Native"
+export TBB_BIN_DIR="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\tbb\bin"
+export QTJAVA="C:\Program Files (x86)\Java\jre6\lib\ext\QTJava.zip"
+export IFORT_COMPILER12="C:\Program Files (x86)\Intel\Composer XE 2011 SP1"
+export NVTOOLSEXT_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\nvToolsExt"
+export LIBPATH="c:\Windows\Microsoft.NET\Framework64\v4.0.30319;c:\Windows\Microsoft.NET\Framework64\v3.5;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\LIB\amd64;"
+export PROCESSOR_LEVEL="6"
+export PATH="./:/cygdrive/c/Program Files/CMake 2.8/bin/:/usr/local/bin:/usr/bin:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/bin/intel64:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/BIN/amd64:/cygdrive/c/Windows/Microsoft.NET/Framework64/v4.0.30319:/cygdrive/c/Windows/Microsoft.NET/Framework64/v3.5:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/VCPackages:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE:/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/Tools:/cygdrive/c/Program Files (x86)/HTML Help Workshop:/cygdrive/c/Program Files (x86)/HTML Help Workshop:/cygdrive/c/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/bin/NETFX 4.0 Tools/x64:/cygdrive/c/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/bin/x64:/cygdrive/c/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/bin:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/ipp:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/mkl:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/tbb/vc10:/cygdrive/c/Klocwork/User 9.6/bin:/cygdrive/c/Klocwork/Server 9.6/bin:/cygdrive/c/Python27:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v5.0/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v5.0/libnvvp/x:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.2/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.2/libnvvp:/cygdrive/c/Program Files (x86)/Java/jre6/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.1/bin:/cygdrive/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v4.1/libnvvp:/cygdrive/c/Program Files/Microsoft HPC Pack 2008 SDK/Bin:/cygdrive/c/Program Files/Microsoft HPC Pack 2008 R2/Bin:/cygdrive/c/bin/blat262.full/blat262/full:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/ia32/tbb/vc10:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/tbb/vc10:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/ipp:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/mkl:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/mpirt:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client:/cygdrive/c/Windows/system32:/cygdrive/c/Windows:/cygdrive/c/Windows/System32/Wbem:/cygdrive/c/Windows/System32/WindowsPowerShell/v1.0:/cygdrive/c/Program Files (x86)/Microsoft SQL Server/90/Tools/binn:/cygdrive/c/Program Files/CMake 2.8/bin:/cygdrive/c/Program Files (x86)/doxygen/bin:/cygdrive/c/bin:/cygdrive/c/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.1/C/common/bin:/cygdrive/c/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/C/common/bin:/cygdrive/c/Program Files (x86)/MiKTeX 2.9/miktex/bin:/cygdrive/c/Program Files (x86)/QuickTime/QTSystem:/cygdrive/c/Program Files/TortoiseHg:/winsame/contrib-vs9/qt-4.8.4-ser/bin:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/mpirt"
+export TARGET_ARCH="intel64"
+export PSModulePath="C:\Windows\system32\WindowsPowerShell\v1.0\Modules"
+export MOD_NAME="mod"
+export REDIST="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\redist"
+export FrameworkDIR64="c:\Windows\Microsoft.NET\Framework64"
+export CUDA_BIN_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin"
+export TBBROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\tbb\bin\.."
+export FP_NO_HOST_CHECK="NO"
+export SYSTEMDRIVE="C:"
+export PROCESSOR_ARCHITEW6432="AMD64"
+export NVCUDASAMPLES5_0_ROOT="C:\ProgramData\NVIDIA Corporation\CUDA Samples\v5.0"
+export ARCH_PATH="intel64"
+export LANG="en_US.UTF-8"
+export WIN_TITLE_VS="Visual Studio 2010"
+export FrameworkDir="c:\Windows\Microsoft.NET\Framework64"
+export QMAKESPEC="cygwin-g++"
+export WindowsSdkDir="c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A"
+export CCP_INC="C:\Program Files\Microsoft HPC Pack 2008 SDK\Include"
+export ROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1"
+export LOGONSERVER="\\MAXWELL"
+export CommonProgramW6432="C:\Program Files\Common Files"
+export TARGET_VS_ARCH="amd64"
+export PROCESSOR_ARCHITECTURE="x86"
+export IPP_TARGET_ARCH="intel64"
+export MKL_LP64_ILP64="lp64"
+export ProgramData="C:\ProgramData"
+export SHLVL="1"
+export PATHEXT=".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC"
+export OPENSSL_CONF="C:\OpenSSL-Win64\bin\openssl.cfg"
+export HOMEDRIVE="C:"
+export FSHARPINSTALLDIR="c:\Program Files (x86)\Microsoft F#\v4.0"
+export COMSPEC="C:\Windows\system32\cmd.exe"
+export BIN_ROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\bin"
+export TMP="/tmp"
+export TBB_TARGET_ARCH="intel64"
+export TBB_ARCH_PLATFORM="intel64\vc10"
+export SYSTEMROOT="C:\Windows"
+export PRODUCT_NAME_FULL="Intel Composer XE 2011 Update 6 (package 233)"
+export MSVS_VAR_SCRIPT="c:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\Tools\..\..\VC\vcvarsall.bat"
+export C_EM64T_REDIST12="C:\Program Files (x86)\Common Files\Intel\Shared Libraries"
+export WIN_TITLE_ARCH="Intel(R) 64"
+export PROCESSOR_REVISION="2c02"
+export F_EM64T_REDIST12="C:\Program Files (x86)\Common Files\Intel\Shared Libraries"
+export C_TARGET_ARCH="intel64"
+export CLASSPATH=".;C:\Program Files (x86)\Java\jre6\lib\ext\QTJava.zip"
+export VS100COMNTOOLS="c:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\Tools"
+export TBB_CXX="icl.exe"
+export CPRO_PATH="C:\Program Files (x86)\Intel\Composer XE 2011 SP1"
+export ND_INC="C:\Program Files\Microsoft HPC Pack 2008 SDK\Include"
+export INFOPATH="/usr/local/info:/usr/share/info:/usr/info:"
+export PROGRAMFILES="C:\Program Files (x86)"
+export TBB_TARGET_VS="vc10"
+export NVSDKCOMPUTE_ROOT="C:\ProgramData\NVIDIA Corporation\NVIDIA GPU Computing SDK 4.2"
+export NUMBER_OF_PROCESSORS="12"
+export INCLUDE="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\include;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\include\intel64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\INCLUDE;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\ipp\include;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\mkl\include;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\tbb\bin\..\include;"
+export FrameworkVersion="v4.0.30319"
+export ICPP_COMPILER12="C:\Program Files (x86)\Intel\Composer XE 2011 SP1"
+export CCP_LIB32="C:\Program Files\Microsoft HPC Pack 2008 SDK\Lib\i386"
+export ARCH_PATH_MPI="em64t"
 
-# System linear algebra, note sandybridge for Edison.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    
-# System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
+export CUDA_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0"
+export CUDA_INC_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"
+export CUDA_LIB_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64"
+export CUDA_PATH_V5_0="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0"
 
-# trilinos builds
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
-    ;;
+##############################################################################
 
-  hopper*)
+#export PATH="$PATH_:$PATH"
+#export INCLUDE="$INCLUDE_;$INCLUDE"
+#export LIB="$LIB_;$LIB"
+#export LIBPATH="$LIBPATH_;$LIBPATH"
 
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
+$TECHO "Adding Intel Compiler variables to environment."
+$TECHO "PATH = $PATH"
+$TECHO "INCLUDE = $INCLUDE"
+$TECHO "LIB = $LIB"
+$TECHO "LIBPATH = $LIBPATH"
 
-# System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-
-# System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
-
-# trilinos builds
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"ser,sersh,par"}
-    ;;
-
-  titan*)
-
-# Make sure your code is built for the compute nodes,
-# module xtpe-interlagos should be loaded.
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
-    CRAY_CONNECT=gemini
-
-# System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu_mp.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu_mp.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu_mp.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/gnu/47/interlagos/lib/libsci_gnu_mp.a
-
-# System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/47
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/47
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/47
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/47
-
-# trilinos builds
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"ser,sersh,par"}
-    ;;
-
-esac
 # END KEEP THIS
 
 # Serial compilers
@@ -90,46 +160,46 @@ esac
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"gcc"}
-CXX=${CXX:-"g++"}
-FC=${FC:-"gfortran"}
-F77=${F77:-"gfortran"}
+CC=${CC:-"icl"}
+CXX=${CXX:-"icl"}
+FC=${FC:-"ifort"}
+F77=${F77:-"ifort"}
 
 # Python builds -- much use gcc for consistency.
-PYC_CC=${PYC_CC:-"gcc"}
-PYC_CXX=${PYC_CXX:-"g++"}
-PYC_FC=${PYC_FC:-"gfortran"}
-PYC_F77=${PYC_F77:-"gfortran"}
+PYC_CC=${PYC_CC:-"cl"}
+PYC_CXX=${PYC_CXX:-"cl"}
+# PYC_FC=${PYC_FC:-""}
+# PYC_F77=${PYC_F77:-""}
 
 # Backend compilers:
-# BENCC=${BENCC:-""}
-# BENCXX=${BENCXX:-""}
-# BENFC=${BENFC:-""}
-# BENF77=${BENF77:-""}
+BENCC=${BENCC:-"icl"}
+BENCXX=${BENCXX:-"icl"}
+BENFC=${BENFC:-"ifort"}
+BENF77=${BENF77:-"ifort"}
 
 # Parallel compilers:
-MPICC=${MPICC:-"cc"}
-MPICXX=${MPICXX:-"CC"}
-MPIFC=${MPIFC:-"ftn"}
-MPIF77=${MPIF77:-"ftn"}
+MPICC=${MPICC:-"icl"}
+MPICXX=${MPICXX:-"icl"}
+MPIFC=${MPIFC:-"ifort"}
+MPIF77=${MPIF77:-"ifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
-CXXFLAGS=${CXXFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
-FCFLAGS=${FCFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
-FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
+# CFLAGS=${CFLAGS:-""}
+# CXXFLAGS=${CXXFLAGS:-""}
+# FCFLAGS=${FCFLAGS:-""}
+# FFLAGS=${FFLAGS:-""}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
 # PYC_MODFLAGS is for creating a module.
-# PYC_CFLAGS=${PYC_CFLAGS:-""}
-# PYC_CXXFLAGS=${PYC_CXXFLAGS:-""}
-# PYC_FCFLAGS=${PYC_FCFLAGS:-""}
-# PYC_FFLAGS=${PYC_FFLAGS:-""}
+PYC_CFLAGS=${PYC_CFLAGS:-"-mno-cygwin"}
+PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-mno-cygwin"}
+PYC_FCFLAGS=${PYC_FCFLAGS:-"-mno-cygwin"}
+PYC_FFLAGS=${PYC_FFLAGS:-"-mno-cygwin"}
 # PYC_LDFLAGS=${PYC_LDFLAGS:-""}
 # PYC_MODFLAGS=${PYC_MODFLAGS:-""}
 # PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-""}
@@ -154,7 +224,7 @@ FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
 # IO directories:
-# SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-""}
+# SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-"/cygwin/contrib/hdf5"}
 # SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-""}
 # SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-""}
 # SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-""}
@@ -187,7 +257,7 @@ FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # ARPREC_SER_OTHER_ARGS=${ARPREC_SER_OTHER_ARGS:-""}
 
 # ATLAS_BLDRVERSION=${ATLAS_BLDRVERSION:-""}
-# ATLAS_BUILDS=${ATLAS_BUILDS:-""}
+ATLAS_BUILDS=${ATLAS_BUILDS:-"clp"}
 # ATLAS_CC4PY_OTHER_ARGS=${ATLAS_CC4PY_OTHER_ARGS:-""}
 # ATLAS_CLP_OTHER_ARGS=${ATLAS_CLP_OTHER_ARGS:-""}
 # ATLAS_SER_OTHER_ARGS=${ATLAS_SER_OTHER_ARGS:-""}
@@ -205,9 +275,9 @@ FFLAGS=${FFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # AUTOTOOLS_FAKE_OTHER_ARGS=${AUTOTOOLS_FAKE_OTHER_ARGS:-""}
 
 # BABEL_BLDRVERSION=${BABEL_BLDRVERSION:-""}
-BABEL_BUILDS=${BABEL_BUILDS:-"static"}
+BABEL_BUILDS=${BABEL_BUILDS:-"NONE"}
 # BABEL_SHARED_OTHER_ARGS=${BABEL_SHARED_OTHER_ARGS:-""}
-BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_compiling=yes --target=x86_64-cray-cnl CPP_BABEL='gcc -E -I${CRAY_MPICH2_DIR}/include'"}
+# BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-""}
 
 # BHSSOLVER_BLDRVERSION=${BHSSOLVER_BLDRVERSION:-""}
 # BHSSOLVER_BUILDS=${BHSSOLVER_BUILDS:-""}
@@ -265,7 +335,7 @@ BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_
 # CLAPACK_CMAKE_SER_OTHER_ARGS=${CLAPACK_CMAKE_SER_OTHER_ARGS:-""}
 
 # CMAKE_BLDRVERSION=${CMAKE_BLDRVERSION:-""}
-# CMAKE_BUILDS=${CMAKE_BUILDS:-""}
+# CMAKE_BUILDS=${CMAKE_BUILDS:-"NONE"}
 # CMAKE_SER_OTHER_ARGS=${CMAKE_SER_OTHER_ARGS:-""}
 
 # COIN_BLDRVERSION=${COIN_BLDRVERSION:-""}
@@ -344,8 +414,8 @@ BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_
 
 # FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-""}
 # FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-""}
-FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes -DHDF5_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}'"}
-FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_SER_DIR}'"}
+# FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-""}
+# FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-""}
 
 # FCTESTS_BLDRVERSION=${FCTESTS_BLDRVERSION:-""}
 # FCTESTS_BUILDS=${FCTESTS_BUILDS:-""}
@@ -446,12 +516,12 @@ FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${S
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"sersh"}
+# HDF5_BUILDS=${HDF5_BUILDS:-""}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
-# HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
-# HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
-# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
-# HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
+HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DMSVC:BOOL=TRUE"}
+HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-" -DMSVC:BOOL=TRUE"}
+HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DMSVC:BOOL=TRUE CMAKE_Fortran_FLAGS:STRING='/fltconsistency /Qprec'"}
+HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-" -DMSVC:BOOL=TRUE"}
 
 # HTTPLIB2_BLDRVERSION=${HTTPLIB2_BLDRVERSION:-""}
 # HTTPLIB2_BUILDS=${HTTPLIB2_BUILDS:-""}
@@ -483,7 +553,7 @@ HDF5_BUILDS=${HDF5_BUILDS:-"sersh"}
 # JSMATH_CC4PY_OTHER_ARGS=${JSMATH_CC4PY_OTHER_ARGS:-""}
 
 # LAPACK_BLDRVERSION=${LAPACK_BLDRVERSION:-""}
-LAPACK_BUILDS=${LAPACK_BUILDS:-"cc4py"}
+LAPACK_BUILDS=${LAPACK_BUILDS:-"NONE"}
 # LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-""}
 # LAPACK_CC4PY_OTHER_ARGS=${LAPACK_CC4PY_OTHER_ARGS:-""}
 # LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-""}
@@ -531,7 +601,7 @@ LAPACK_BUILDS=${LAPACK_BUILDS:-"cc4py"}
 # MATHJAX_LITE_OTHER_ARGS=${MATHJAX_LITE_OTHER_ARGS:-""}
 
 # MATPLOTLIB_BLDRVERSION=${MATPLOTLIB_BLDRVERSION:-""}
-# MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-""}
+MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"NONE"}
 # MATPLOTLIB_CC4PY_OTHER_ARGS=${MATPLOTLIB_CC4PY_OTHER_ARGS:-""}
 
 # MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-""}
@@ -539,13 +609,13 @@ LAPACK_BUILDS=${LAPACK_BUILDS:-"cc4py"}
 # MERCURIAL_CC4PY_OTHER_ARGS=${MERCURIAL_CC4PY_OTHER_ARGS:-""}
 
 # MESA_BLDRVERSION=${MESA_BLDRVERSION:-""}
-# MESA_BUILDS=${MESA_BUILDS:-""}
+MESA_BUILDS=${MESA_BUILDS:-"NONE"}
 # MESA_MGL_OTHER_ARGS=${MESA_MGL_OTHER_ARGS:-""}
 # MESA_OS_OTHER_ARGS=${MESA_OS_OTHER_ARGS:-""}
 
 # METATAU_BLDRVERSION=${METATAU_BLDRVERSION:-""}
-# METATAU_BUILDS=${METATAU_BUILDS:-""}
-METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
+METATAU_BUILDS=${METATAU_BUILDS:-"NONE"}
+# METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-""}
 
 # METIS_BLDRVERSION=${METIS_BLDRVERSION:-""}
 # METIS_BUILDS=${METIS_BUILDS:-""}
@@ -595,7 +665,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-""}
 
 # NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
-# NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
+NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"NONE"}
 # NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-""}
 # NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
 # NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
@@ -609,21 +679,21 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NIMTESTS_ALL_OTHER_ARGS=${NIMTESTS_ALL_OTHER_ARGS:-""}
 
 # NTCC_TRANSPORT_BLDRVERSION=${NTCC_TRANSPORT_BLDRVERSION:-""}
-# NTCC_TRANSPORT_BUILDS=${NTCC_TRANSPORT_BUILDS:-""}
+NTCC_TRANSPORT_BUILDS=${NTCC_TRANSPORT_BUILDS:-"NONE"}
 # NTCC_TRANSPORT_PAR_OTHER_ARGS=${NTCC_TRANSPORT_PAR_OTHER_ARGS:-""}
 # NTCC_TRANSPORT_SER_OTHER_ARGS=${NTCC_TRANSPORT_SER_OTHER_ARGS:-""}
 
 # NUBEAM_BLDRVERSION=${NUBEAM_BLDRVERSION:-""}
-# NUBEAM_BUILDS=${NUBEAM_BUILDS:-""}
-NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
-NUBEAM_SER_OTHER_ARGS=${NUBEAM_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
+NUBEAM_BUILDS=${NUBEAM_BUILDS:-"NONE"}
+# NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-""}
+# NUBEAM_SER_OTHER_ARGS=${NUBEAM_SER_OTHER_ARGS:-""}
 
 # NUMEXPR_BLDRVERSION=${NUMEXPR_BLDRVERSION:-""}
 # NUMEXPR_BUILDS=${NUMEXPR_BUILDS:-""}
 # NUMEXPR_CC4PY_OTHER_ARGS=${NUMEXPR_CC4PY_OTHER_ARGS:-""}
 
 # NUMPY_BLDRVERSION=${NUMPY_BLDRVERSION:-""}
-# NUMPY_BUILDS=${NUMPY_BUILDS:-""}
+NUMPY_BUILDS=${NUMPY_BUILDS:-"NONE"}
 # NUMPY_CC4PY_OTHER_ARGS=${NUMPY_CC4PY_OTHER_ARGS:-""}
 
 # OCE_BLDRVERSION=${OCE_BLDRVERSION:-""}
@@ -657,12 +727,12 @@ NUBEAM_SER_OTHER_ARGS=${NUBEAM_SER_OTHER_ARGS:-"--disable-shared --enable-static
 # PCRE_SER_OTHER_ARGS=${PCRE_SER_OTHER_ARGS:-""}
 
 # PETSC_BLDRVERSION=${PETSC_BLDRVERSION:-""}
-PETSC_BUILDS=${PETSC_BUILDS:-"ser,par"}
-PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpiexec=/usr/common/acts/PETSc/3.2/bin/mpiexec.aprun"}
+PETSC_BUILDS=${PETSC_BUILDS:-"NONE"}
+# PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-""}
 # PETSC_PARCPLX_OTHER_ARGS=${PETSC_PARCPLX_OTHER_ARGS:-""}
 # PETSC_PARCPLXDBG_OTHER_ARGS=${PETSC_PARCPLXDBG_OTHER_ARGS:-""}
 # PETSC_PARDBG_OTHER_ARGS=${PETSC_PARDBG_OTHER_ARGS:-""}
-PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-blas-lapack-lib=${SYSTEM_BLAS_SER_LIB}"}
+# PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-""}
 # PETSC_SERCPLX_OTHER_ARGS=${PETSC_SERCPLX_OTHER_ARGS:-""}
 
 # PETSC33_BLDRVERSION=${PETSC33_BLDRVERSION:-""}
@@ -684,7 +754,7 @@ PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-blas-lapack-lib=${SYSTEM_BL
 # PETSCREPO_SERCPLX_OTHER_ARGS=${PETSCREPO_SERCPLX_OTHER_ARGS:-""}
 
 # PLASMA_STATE_BLDRVERSION=${PLASMA_STATE_BLDRVERSION:-""}
-# PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-""}
+PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-"NONE"}
 # PLASMA_STATE_BEN_OTHER_ARGS=${PLASMA_STATE_BEN_OTHER_ARGS:-""}
 # PLASMA_STATE_SER_OTHER_ARGS=${PLASMA_STATE_SER_OTHER_ARGS:-""}
 
@@ -731,7 +801,7 @@ PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-blas-lapack-lib=${SYSTEM_BL
 
 # PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
 # PYTHON_BUILDS=${PYTHON_BUILDS:-""}
-PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
+# PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-""}
 
 # PYTHONOCC_BLDRVERSION=${PYTHONOCC_BLDRVERSION:-""}
 # PYTHONOCC_BUILDS=${PYTHONOCC_BUILDS:-""}
@@ -786,7 +856,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # RST2PDF_CC4PY_OTHER_ARGS=${RST2PDF_CC4PY_OTHER_ARGS:-""}
 
 # SCIPY_BLDRVERSION=${SCIPY_BLDRVERSION:-""}
-# SCIPY_BUILDS=${SCIPY_BUILDS:-""}
+SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
 # SCIPY_CC4PY_OTHER_ARGS=${SCIPY_CC4PY_OTHER_ARGS:-""}
 
 # SCITOOLS_BLDRVERSION=${SCITOOLS_BLDRVERSION:-""}
@@ -839,7 +909,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # SPARSKIT_SER_OTHER_ARGS=${SPARSKIT_SER_OTHER_ARGS:-""}
 
 # SPHINX_BLDRVERSION=${SPHINX_BLDRVERSION:-""}
-# SPHINX_BUILDS=${SPHINX_BUILDS:-""}
+SPHINX_BUILDS=${SCIPY_BUILDS:-"NONE"}
 # SPHINX_CC4PY_OTHER_ARGS=${SPHINX_CC4PY_OTHER_ARGS:-""}
 
 # SPHINX_NUMFIG_BLDRVERSION=${SPHINX_NUMFIG_BLDRVERSION:-""}
@@ -877,7 +947,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # SUPERLU_DIST_PARSH_OTHER_ARGS=${SUPERLU_DIST_PARSH_OTHER_ARGS:-""}
 
 # SWIG_BLDRVERSION=${SWIG_BLDRVERSION:-""}
-# SWIG_BUILDS=${SWIG_BUILDS:-""}
+SWIG_BUILDS=${SWIG_BUILDS:-"NONE"}
 # SWIG_SER_OTHER_ARGS=${SWIG_SER_OTHER_ARGS:-""}
 
 # SWIMGUI_BLDRVERSION=${SWIMGUI_BLDRVERSION:-""}
@@ -889,7 +959,7 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # SYNERGIA2_SER_OTHER_ARGS=${SYNERGIA2_SER_OTHER_ARGS:-""}
 
 # TABLES_BLDRVERSION=${TABLES_BLDRVERSION:-""}
-# TABLES_BUILDS=${TABLES_BUILDS:-""}
+TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
 # TABLES_CC4PY_OTHER_ARGS=${TABLES_CC4PY_OTHER_ARGS:-""}
 
 # TEASPINK_BLDRVERSION=${TEASPINK_BLDRVERSION:-""}
@@ -913,8 +983,8 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # TORNADO_BUILDS=${TORNADO_BUILDS:-""}
 # TORNADO_CC4PY_OTHER_ARGS=${TORNADO_CC4PY_OTHER_ARGS:-""}
 
-TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
-#TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
+# TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-""}
+# TRILINOS_BUILDS=${TRILINOS_BUILDS:-""}
 # TRILINOS_PARBARE_OTHER_ARGS=${TRILINOS_PARBARE_OTHER_ARGS:-""}
 # TRILINOS_PARBARESH_OTHER_ARGS=${TRILINOS_PARBARESH_OTHER_ARGS:-""}
 # TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-""}
@@ -945,11 +1015,11 @@ TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
 # TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
-TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"--disable-shared --enable-static cross_compling=yes"}
+TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"$SUBVERSION_ARGS"}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
 
 # TXBTESTS_BLDRVERSION=${TXBTESTS_BLDRVERSION:-""}
-TXBTESTS_BUILDS=${TXBTESTS_BUILDS:-"NONE"}
+# TXBTESTS_BUILDS=${TXBTESTS_BUILDS:-""}
 # TXBTESTS_ALL_OTHER_ARGS=${TXBTESTS_ALL_OTHER_ARGS:-""}
 
 # TXGEOM_BLDRVERSION=${TXGEOM_BLDRVERSION:-""}
@@ -958,9 +1028,9 @@ TXBTESTS_BUILDS=${TXBTESTS_BUILDS:-"NONE"}
 # TXGEOM_SER_OTHER_ARGS=${TXGEOM_SER_OTHER_ARGS:-""}
 
 # TXPHYSICS_BLDRVERSION=${TXPHYSICS_BLDRVERSION:-""}
-# TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-""}
+TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser"}
 # TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-""}
-TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
+TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"$SUBVERSION_ARGS"}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
 # TXSSH_BLDRVERSION=${TXSSH_BLDRVERSION:-""}
@@ -970,18 +1040,18 @@ TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"--disable-shared --enable-
 # TXSSH_SERSH_OTHER_ARGS=${TXSSH_SERSH_OTHER_ARGS:-""}
 
 # UEDGE_BLDRVERSION=${UEDGE_BLDRVERSION:-""}
-UEDGE_BUILDS=${UEDGE_BUILDS:-"ser,par"}
+UEDGE_BUILDS=${UEDGE_BUILDS:-"NONE"}
 # UEDGE_NOPETSC_OTHER_ARGS=${UEDGE_NOPETSC_OTHER_ARGS:-""}
-UEDGE_PAR_OTHER_ARGS=${UEDGE_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
+# UEDGE_PAR_OTHER_ARGS=${UEDGE_PAR_OTHER_ARGS:-""}
 # UEDGE_PARTAU_OTHER_ARGS=${UEDGE_PARTAU_OTHER_ARGS:-""}
-UEDGE_SER_OTHER_ARGS=${UEDGE_SER_OTHER_ARGS:-"--disable-shared --enable-static"}
+# UEDGE_SER_OTHER_ARGS=${UEDGE_SER_OTHER_ARGS:-""}
 
 # UETESTS_BLDRVERSION=${UETESTS_BLDRVERSION:-""}
 # UETESTS_BUILDS=${UETESTS_BUILDS:-""}
 # UETESTS_ALL_OTHER_ARGS=${UETESTS_ALL_OTHER_ARGS:-""}
 
 # VALGRIND_BLDRVERSION=${VALGRIND_BLDRVERSION:-""}
-# VALGRIND_BUILDS=${VALGRIND_BUILDS:-""}
+VALGRIND_BUILDS=${VALGRIND_BUILDS:-"NONE"}
 # VALGRIND_SER_OTHER_ARGS=${VALGRIND_SER_OTHER_ARGS:-""}
 
 # VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-""}

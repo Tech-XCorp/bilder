@@ -11,8 +11,8 @@
 # Version
 #
 ######################################################################
-SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
 
+SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
 
 ######################################################################
 #
@@ -35,7 +35,6 @@ SUPERLU_DIST_UMASK=002
 if !(grep -q comm <<<$SUPERLU_DIST_BUILDS); then
   $SUPERLU_DIST_DEPS=$SUPERLU_DIST_DEPS,parmetis
 fi
-
 
 ######################################################################
 #

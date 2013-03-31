@@ -25,17 +25,14 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 
 # VisIt is built sersh if ser is what python was built with, otherwise cc4py
 if test -z "$VISIT_DESIRED_BUILDS"; then
+  VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
   if isCcCc4py; then
-    VISIT_DESIRED_BUILDS=sersh
-    VISIT_SER_BUILD=sersh
     if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
       VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
     fi
-  else
-    VISIT_DESIRED_BUILDS=cc4py
-    VISIT_SER_BUILD=cc4py
   fi
 fi
+VISIT_SER_BUILD=$FORPYTHON_BUILD
 computeBuilds visit
 VISIT_DEPS=Imaging,hdf5,visit_vtk,qt,cmake
 VISIT_UMASK=002
@@ -48,11 +45,7 @@ case `uname`-`uname -r` in
     fi
     ;;
 esac
-if isCcCc4py; then
-  addVals VISIT_VTK_DESIRED_BUILDS sersh
-else
-  addVals VISIT_VTK_DESIRED_BUILDS cc4py
-fi
+addVals VISIT_VTK_DESIRED_BUILDS $FORPYTHON_BUILD
 
 ######################################################################
 #

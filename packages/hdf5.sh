@@ -50,17 +50,11 @@ case `uname` in
     esac
     ;;
 
-  Linux) 
-    HDF5_BLDRVERSION_STD=1.8.10
-    ;;
+  Linux) HDF5_BLDRVERSION_STD=1.8.10;;
 
-  *) 
-    HDF5_BLDRVERSION_STD=1.8.10
-    ;;
 esac
 
 # If no experimental version alredy set, experimental = standard
-
 HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-$HDF5_BLDRVERSION_STD}
 
 ######################################################################
@@ -364,7 +358,7 @@ fixHdf5Libs() {
   # instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
   case $bld in
     ser | par) fixHdf5StaticLibs $bld;;
-    sers | parsh | cc4py)
+    sersh | parsh | cc4py)
       case `uname` in
         Darwin) fixHdf5Dylibs $bld;;
       esac

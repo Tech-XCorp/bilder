@@ -359,6 +359,15 @@ fi
 
 ######################################################################
 #
+# Need to know the python build before sourcing any package file
+#
+######################################################################
+
+FORPYTHON_BUILD=`getPythonBuild`
+techo -2 "FORPYTHON_BUILD = $FORPYTHON_BUILD."
+
+######################################################################
+#
 # Now that chain is known, check to see whether wait days have passed
 # Chain is needed for subject
 #
@@ -440,7 +449,6 @@ case `uname` in
     fi
     ;;
 esac
-FORPYTHON_BUILD=`getPythonBuild`
 
 # Get gfortran library.  Need to add for building python packages
 if ! [[ `uname` =~ CYGWIN ]] && which $PYC_FC 1>/dev/null 2>&1; then

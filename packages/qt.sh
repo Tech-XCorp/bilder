@@ -5,13 +5,16 @@
 # 20121125: Moved to http://qt-project.org/downloads.
 #
 # These have to be unpacked and repacked for Bilder standards.  E.g.:
-#   tar xzf qt-everywhere-opensource-src-4.8.3.tar.gz
-#   mv qt-everywhere-opensource-src-4.8.3 qt-4.8.3
-#   tar cjf qt-4.8.3.tar.bz2 qt-4.8.3
+#   tar xzf qt-everywhere-opensource-src-4.8.4.tar.gz
+#   mv qt-everywhere-opensource-src-4.8.4 qt-4.8.4
+#   tar cjf qt-4.8.4.tar.bz2 qt-4.8.4
 # OR
 #   tar xzf qt-everywhere-opensource-src-5.0.0-beta2.tar.gz
 #   mv qt-everywhere-opensource-src-5.0.0-beta2 qt-5.0.0b2
 #   tar cjf qt-5.0.0b2.tar.bz2 qt-5.0.0b2
+#
+# Tar up on an older dist, or one may get errors like
+# gtar: Ignoring unknown extended header keyword `SCHILY.dev'
 #
 # $Id$
 #
@@ -37,7 +40,7 @@ QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
 QT_BUILD=$FORPYTHON_BUILD
 QT_DEPS=bzip2
 QT_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/qt/bin
+addtopathvar PATH $CONTRIB_DIR/qt-$FORPYTHON_BUILD/bin
 
 ######################################################################
 #

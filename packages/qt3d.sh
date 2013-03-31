@@ -91,8 +91,8 @@ buildQt3d() {
     if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD; then
       local QT3D_PLATFORM_BUILD_ARGS=
       case `uname`-`uname -r` in
-        Darwin-10.*) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
-        *) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
+        Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
+        *) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
       esac
 # During testing, do not "make clean".
       bilderBuild -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
@@ -117,11 +117,12 @@ testQt3d() {
 ######################################################################
 
 installQt3d() {
-# Qt3d is NOT installed from just make.  Not sure what was seen before.
-  if bilderInstall -L qt3d $QT3D_BUILD; then
+# JRC 20130320: Qt3d is installed from just make on Linux.
+  # if bilderInstall -L qt3d $QT3D_BUILD; then
+  if bilderInstall -L -T all qt3d $QT3D_BUILD; then
     case `uname` in
       Darwin)
-        local qtdir=/contrib/qt-${QT_BLDRVERSION}-$QT3D_BUILD
+        local qtdir=$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$QT3D_BUILD
         for i in Qt3D Qt3DQuick; do
           mkdir -p ${qtdir}/include/$i
           cp ${qtdir}/lib/${i}.framework/Headers/* ${qtdir}/include/$i/

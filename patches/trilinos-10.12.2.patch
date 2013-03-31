@@ -1,7 +1,7 @@
-diff -ruN trilinos-10.12.2/packages/amesos/CMakeLists.txt trilinos-10.12.2-new/packages/amesos/CMakeLists.txt
---- trilinos-10.12.2/packages/amesos/CMakeLists.txt	2012-08-02 11:44:28.000000000 -0600
-+++ trilinos-10.12.2-new/packages/amesos/CMakeLists.txt	2012-10-05 10:19:10.000000000 -0600
-@@ -12,10 +12,15 @@
+diff -rupN trilinos-10.12.2/packages/amesos/CMakeLists.txt trilinos-10.12.2-new/packages/amesos/CMakeLists.txt
+--- trilinos-10.12.2/packages/amesos/CMakeLists.txt	2012-08-02 10:44:28.000000000 -0700
++++ trilinos-10.12.2-new/packages/amesos/CMakeLists.txt	2013-03-15 10:25:12.000000000 -0700
+@@ -12,10 +12,15 @@ TRIBITS_PACKAGE(Amesos)
  # B) Set up package-specific options
  #
  
@@ -20,9 +20,23 @@ diff -ruN trilinos-10.12.2/packages/amesos/CMakeLists.txt trilinos-10.12.2-new/p
  
  # if using parallel MUMPS, must also link in scalapack and BLACS
  
-diff -ruN trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
---- trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2012-08-02 11:44:06.000000000 -0600
-+++ trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2012-10-05 10:12:24.000000000 -0600
+diff -rupN trilinos-10.12.2/packages/amesos/src/Amesos_Superludist.h trilinos-10.12.2-new/packages/amesos/src/Amesos_Superludist.h
+--- trilinos-10.12.2/packages/amesos/src/Amesos_Superludist.h	2012-08-02 10:44:26.000000000 -0700
++++ trilinos-10.12.2-new/packages/amesos/src/Amesos_Superludist.h	2013-03-15 10:25:50.000000000 -0700
+@@ -115,8 +115,8 @@ public: 
+   */
+   bool MatrixShapeOK() const;
+ 
+-  //! Always returns true.
+-  bool UseTranspose() const {return(true);};
++  //! Always returns false.
++  bool UseTranspose() const {return(false);};
+   //@}
+ 
+   int SetParameters( Teuchos::ParameterList &ParameterList ) ;
+diff -rupN trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+--- trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2012-08-02 10:44:06.000000000 -0700
++++ trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2013-03-15 10:25:12.000000000 -0700
 @@ -13,8 +13,10 @@
  #endif
  #include "MLAPI_Error.h"
@@ -36,7 +50,7 @@ diff -ruN trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10
  #endif
  
  namespace MLAPI {
-@@ -119,8 +121,10 @@
+@@ -119,8 +121,10 @@ void Init() 
  #endif
          printf("%s\n",buf);
          fflush(stdout);
@@ -48,9 +62,9 @@ diff -ruN trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-10
  #else
          sleep(1);
  #endif
-diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10.12.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp
---- trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp	2012-08-02 11:44:05.000000000 -0600
-+++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2012-10-05 10:12:24.000000000 -0600
+diff -rupN trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10.12.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp
+--- trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp	2012-08-02 10:44:05.000000000 -0700
++++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2013-03-15 10:25:12.000000000 -0700
 @@ -39,8 +39,10 @@
  #ifdef HAVE_ML_TEUCHOS
  #include "Teuchos_ParameterList.hpp"
@@ -63,7 +77,7 @@ diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10
  #endif
  
  #ifdef HAVE_ML_TEUCHOS
-@@ -3515,6 +3517,11 @@
+@@ -3515,6 +3517,11 @@ void ML_BreakForDebugger(const Epetra_Co
        if (i == Comm.MyPID() ) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
      sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
@@ -75,7 +89,7 @@ diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10
  #else
      gethostname(hostname, sizeof(hostname));
      int pid = getpid();
-@@ -3523,8 +3530,10 @@
+@@ -3523,8 +3530,10 @@ void ML_BreakForDebugger(const Epetra_Co
  #endif
      printf("%s\n",buf);
      fflush(stdout);
@@ -87,10 +101,10 @@ diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-10
  #else
      sleep(1);
  #endif
-diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.c
---- trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c	2012-08-02 11:44:05.000000000 -0600
-+++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.c	2012-10-05 10:12:24.000000000 -0600
-@@ -1935,13 +1935,15 @@
+diff -rupN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.c
+--- trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c	2012-08-02 10:44:05.000000000 -0700
++++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.c	2013-03-15 10:25:12.000000000 -0700
+@@ -1935,13 +1935,15 @@ void ML_BreakForDebugger(ML_Comm *comm)
        if (i == mypid) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
          sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
@@ -107,9 +121,9 @@ diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.c trilinos-10.12.2-new
          Sleep(1);
  #else
          sleep(1);
-diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.h
---- trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h	2012-08-02 11:44:05.000000000 -0600
-+++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.h	2012-10-05 10:12:24.000000000 -0600
+diff -rupN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.h
+--- trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h	2012-08-02 10:44:05.000000000 -0700
++++ trilinos-10.12.2-new/packages/ml/src/Utils/ml_utils.h	2013-03-15 10:25:12.000000000 -0700
 @@ -21,7 +21,8 @@
  #endif
  #endif
@@ -120,10 +134,10 @@ diff -ruN trilinos-10.12.2/packages/ml/src/Utils/ml_utils.h trilinos-10.12.2-new
  #include <unistd.h>
  #endif
  
-diff -ruN trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_BLAS.cpp
---- trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp	2012-08-02 11:42:41.000000000 -0600
-+++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_BLAS.cpp	2012-10-05 10:12:24.000000000 -0600
-@@ -93,7 +93,8 @@
+diff -rupN trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_BLAS.cpp
+--- trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp	2012-08-02 10:42:41.000000000 -0700
++++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_BLAS.cpp	2013-03-15 10:25:12.000000000 -0700
+@@ -93,7 +93,8 @@ namespace Teuchos {
  
  //Explicitly instantiating these templates for windows due to an issue with
  //resolving them when linking dlls.
@@ -133,10 +147,10 @@ diff -ruN trilinos-10.12.2/packages/teuchos/src/Teuchos_BLAS.cpp trilinos-10.12.
  #  ifdef HAVE_TEUCHOS_COMPLEX
       template BLAS<long int, std::complex<float> >;
       template BLAS<long int, std::complex<double> >;
-diff -ruN trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp
---- trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-08-02 11:42:41.000000000 -0600
-+++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-10-05 10:20:33.000000000 -0600
-@@ -424,6 +424,12 @@
+diff -rupN trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp
+--- trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2012-08-02 10:42:41.000000000 -0700
++++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_SerializationTraits.hpp	2013-03-15 10:25:12.000000000 -0700
+@@ -424,6 +424,12 @@ class SerializationTraits<Ordinal, long 
    : public DirectSerializationTraits<Ordinal, long long int>
  {};
  
@@ -149,10 +163,10 @@ diff -ruN trilinos-10.12.2/packages/teuchos/src/Teuchos_SerializationTraits.hpp 
  #endif // HAVE_TEUCHOS_LONG_LONG_INT
  
  } // namespace Teuchos
-diff -ruN trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c trilinos-10.12.2-new/packages/zoltan/src/zz/murmur3.c
---- trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c	2012-08-02 11:41:42.000000000 -0600
-+++ trilinos-10.12.2-new/packages/zoltan/src/zz/murmur3.c	2012-10-05 10:12:24.000000000 -0600
-@@ -42,7 +42,7 @@
+diff -rupN trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c trilinos-10.12.2-new/packages/zoltan/src/zz/murmur3.c
+--- trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c	2012-08-02 10:41:42.000000000 -0700
++++ trilinos-10.12.2-new/packages/zoltan/src/zz/murmur3.c	2013-03-15 10:25:12.000000000 -0700
+@@ -42,7 +42,7 @@ inline uint64_t rotl64 ( uint64_t x, int
  /*--------------------------------------------------------------------------- */
  /* Finalization mix - force all bits of a hash block to avalanche */
  
@@ -161,7 +175,7 @@ diff -ruN trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c trilinos-10.12.2-new
  {
    h ^= h >> 16;
    h *= 0x85ebca6b;
-@@ -55,7 +55,7 @@
+@@ -55,7 +55,7 @@ FORCE_INLINE uint32_t fmix32 ( uint32_t 
  
  /*---------- */
  

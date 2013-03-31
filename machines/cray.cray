@@ -16,50 +16,64 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-cray 1>/dev/null 2>&1; then
   techo "Use 'module switch $oldprgenv PrgEnv-cray' to correct environment."
   exit
 fi
-# Create directories for extra installations
-mkdir -p $BLDR_INSTALL_DIR/lib
-mkdir -p $BLDR_INSTALL_DIR/include
-# Link in extra libraries
-cd $BLDR_INSTALL_DIR/lib
-for i in /usr/lib64/libfreetype.so.6 /usr/lib64/libpng.so.0 /usr/lib64/libpng.so.3; do
-  libnm=`basename $i | sed 's/\.so.*$/.so/'`
-  if test ! -f $libnm; then
-    ln -s $i $libnm 2>/dev/null
-  fi
-done
-cd -
 # These vary from cray to cray
 case $UQMAILHOST in
-  franklin)
-    echo Pathscale does not work on hopper.
-    exit
+  edison*)
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+    # System linear algebra, note sandybridge for edison.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+
+    # System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/81
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/81
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/81
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/cray/81
     ;;
-  hopper)
-    ATLAS_BUILDS=none
-    # SYSTEM_BLAS_SER_LIB= # Using default
-    # BLAS_LAPACK_LIB= # Using default
-    CRAY_MPICH_BLDRVERSION=3.5.0
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.7/cray/73/
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray
-# To get around linker problems (system libacml.so gets chosen, and it does
-# not have rpath built in) we link only the static lib in here
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/cray/lib/libsci.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/cray/lib/libsci.a
+  hopper*)
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+    CRAY_CONNECT=gemini
+
+    # System linear algebra, note mc12 (Magny-Cours) for Hopper.
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+
+    # System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/74
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/74
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/74
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/cray/74
+
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
-    PYC_CC=${PYC_CC:-"gcc -fPIC -I/project/projectdirs/facets/hopper/contrib-cray-4.0/include"}
-    PYC_F77=${PYC_F77:-"gfortran -fPIC -L/project/projectdirs/facets/hopper/contrib-cray-4.0/lib"}
-# Uncommenting the following fails due to elimination of python libs
-# But it is needed by matplotlib, so put in there.
-    # PYC_LDFLAGS=${PYC_LDFLAGS:-"-L/project/projectdirs/facets/hopper/contrib-pgi-9.0/lib"}
-    NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-"SUPERLU_DIST_LIBS='=/opt/xt-libsci/10.4.3/cray/lib/libsci.a' SUPERLU_DIST_INC='-I/usr/common/acts/SuperLU/SuperLU_DIST/2.3/SRC/' SUPERLU_DIST_INCDIR='/usr/common/acts/SuperLU/SuperLU_DIST/2.3/SRC/'"}
     ;;
-  jaguar)
-    SYSTEM_BLAS_SER_LIB=/opt/acml/4.3.0/pgi64/lib/libacml.a
-    BLAS_LAPACK_LIB="/opt/acml/4.3.0/pgi64/lib/libacml.a"
-    CRAY_MPICH_BLDRVERSION=3.5.1
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.4.0/hdf5-pgi
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.4.0/hdf5-parallel-pgi
-    SYSTEM_LAPACK_SER_LIB=/opt/acml/4.3.0/pgi64/lib/libacml.a
+  titan*)
+    # Make sure your code is built for the compute nodes,
+    # module xtpe-interlagos should be loaded.
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+    CRAY_CONNECT=gemini
+
+    # System linear algebra, note interlagos for Titan backend nodes.
+    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
+
+    # System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/74/
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/74
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/74
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/cray/74
+
     PETSC_MPIEXEC=${PROJECT_DIR}/bilder/mpiexec.aprun
     ;;
 esac
@@ -77,10 +91,10 @@ fi
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"pgcc"}
-CXX=${CXX:-"pgCC"}
-FC=${FC:-"pgf90"}
-F77=${F77:-"pgf90"}
+CC=${CC:-"craycc"}
+CXX=${CXX:-"cray++"}
+FC=${FC:-"crayftn"}
+F77=${F77:-"crayftn"}
 
 # Python builds -- much use gcc for consistency.
 PYC_CC=${PYC_CC:-"gcc"}
@@ -113,10 +127,10 @@ MPIF77=${MPIF77:-"ftn"}
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
 # PYC_MODFLAGS is for creating a module.
-PYC_CFLAGS=${PYC_CFLAGS:-"-I/project/projectdirs/facets/hopper/contrib-pgi-9.0/include"}
+# PYC_CFLAGS=${PYC_CFLAGS:-""}
 # PYC_CXXFLAGS=${PYC_CXXFLAGS:-""}
 # PYC_FCFLAGS=${PYC_FCFLAGS:-""}
-PYC_FFLAGS=${PYC_FFLAGS:-"-L/project/projectdirs/facets/hopper/contrib-pgi-9.0/lib"}
+# PYC_FFLAGS=${PYC_FFLAGS:-""}
 # PYC_LDFLAGS=${PYC_LDFLAGS:-""}
 # PYC_MODFLAGS=${PYC_MODFLAGS:-""}
 # PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-""}
@@ -133,11 +147,11 @@ MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-DMPICH_IGNORE_CXX_SEEK"}
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/acml/default/pgi64/lib/libacml.a"}
-SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-"/opt/acml/default/gfortran64/lib/libacml.a"}
+# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
+# SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
 # SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-""}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/opt/acml/default/pgi64/lib/libacml.a"}
-SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-"/opt/acml/default/gfortran64/lib/libacml.a"}
+# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
+# SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
 # IO directories:
@@ -331,8 +345,8 @@ FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-"cross_compiling=yes"}
 
 # FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-""}
 # FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-""}
-FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
-# FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-""}
+FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes -DHDF5_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}'"}
+FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_SER_DIR}'"}
 
 # FCTESTS_BLDRVERSION=${FCTESTS_BLDRVERSION:-""}
 # FCTESTS_BUILDS=${FCTESTS_BUILDS:-""}
@@ -433,9 +447,9 @@ GA_TRANSPORT_PAR_OTHER_ARGS=${GA_TRANSPORT_PAR_OTHER_ARGS:-"--disable-shared --e
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-# HDF5_BUILDS=${HDF5_BUILDS:-""}
+HDF5_BUILDS=${HDF5_BUILDS:-"cc4py"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
-HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
+# HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
 # HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
 # HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
@@ -573,8 +587,8 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NETCDF_BUILDS=${NETCDF_BUILDS:-""}
 # NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
 # NETCDF_CC4PY_OTHER_ARGS=${NETCDF_CC4PY_OTHER_ARGS:-""}
-# NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-""}
-# NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-""}
+NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-"--disable-shared --disable-utilities"}
+NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-"--disable-shared"}
 
 # NETLIB_LITE_BLDRVERSION=${NETLIB_LITE_BLDRVERSION:-""}
 # NETLIB_LITE_BUILDS=${NETLIB_LITE_BUILDS:-""}
@@ -718,11 +732,11 @@ PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-shared=0"}
 
 # PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
 # PYTHON_BUILDS=${PYTHON_BUILDS:-""}
-# PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-""}
+PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 
 # PYTHONOCC_BLDRVERSION=${PYTHONOCC_BLDRVERSION:-""}
 # PYTHONOCC_BUILDS=${PYTHONOCC_BUILDS:-""}
-# PYTHONOCC_CC4PY_OTHER_ARGS=${PYTHONOCC_CC4PY_OTHER_ARGS:-""}
+# PYTHONOCC_CC4PY_OTHER_ARGS=${PYTHONOCC_CC4PY_OTHER_ARGS:-"--enable-static"}
 
 # PYZMQ_BLDRVERSION=${PYZMQ_BLDRVERSION:-""}
 # PYZMQ_BUILDS=${PYZMQ_BUILDS:-""}

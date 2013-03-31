@@ -198,7 +198,7 @@ setBilderHostVars() {
 # Set machine file and any other env vars
   case $machinedir in
     edison)
-      GCC_PATH=`dirname $(which gcc)`
+      #GCC_PATH=`dirname $(which gcc)`
       MACHINEFILE=${MACHINEFILE:-"cray.$compkey"}
       ;;
     hopper | franklin) MACHINEFILE=${MACHINEFILE:-"cray.$compkey"};;

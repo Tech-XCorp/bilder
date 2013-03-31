@@ -24,7 +24,7 @@ LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
 
 # libpng generally needed on windows only
 if [[ `uname` =~ CYGWIN ]]; then
-  LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILD:-"sersh"}
+  LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh"}
   computeBuilds libpng
   addCc4pyBuild libpng
 fi

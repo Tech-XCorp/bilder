@@ -1,0 +1,41 @@
+diff -ruN boost-1_53_0/boost/math/special_functions/sinc.hpp boost-1_53_0-new/boost/math/special_functions/sinc.hpp
+--- boost-1_53_0/boost/math/special_functions/sinc.hpp      2009-01-07 09:37:59.000000000 -0700
++++ boost-1_53_0/boost/math/special_functions/sinc_new.hpp  2013-03-18 16:13:57.281599100 -0600
+@@ -67,7 +67,7 @@
+             static T const    taylor_2_bound = sqrt(taylor_0_bound);
+             static T const    taylor_n_bound = sqrt(taylor_2_bound);
+ 
+-            if    (abs(x) >= taylor_n_bound)
++            if    (std::abs(x) >= taylor_n_bound)
+             {
+                 return(sin(x)/x);
+             }
+@@ -76,14 +76,14 @@
+                 // approximation by taylor series in x at 0 up to order 0
+                 T    result = static_cast<T>(1);
+ 
+-                if    (abs(x) >= taylor_0_bound)
++                if    (std::abs(x) >= taylor_0_bound)
+                 {
+                     T    x2 = x*x;
+ 
+                     // approximation by taylor series in x at 0 up to order 2
+                     result -= x2/static_cast<T>(6);
+ 
+-                    if    (abs(x) >= taylor_2_bound)
++                    if    (std::abs(x) >= taylor_2_bound)
+                     {
+                         // approximation by taylor series in x at 0 up to order 4
+                         result += (x2*x2)/static_cast<T>(120);
+diff -ruN boost-1_53_0/tools/build/v2/tools/darwin.jam boost-1_53_0-new/tools/build/v2/tools/darwin.jam
+--- boost-1_53_0/tools/build/v2/tools/darwin.jam	 2012-04-25 21:35:55.000000000 -0600	
++++ boost-1_53_0-new/tools/build/v2/tools/darwin.jam	 2013-03-14 09:36:37.000000000 -0600	
+@@ -183,7 +183,7 @@
+     #   archives in darwin is complicated.
+     local archiver =
+         [ common.get-invocation-command darwin
+-            : libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
++            : /usr/bin/libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
+     flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
+     if $(.debug-configuration)
+     {

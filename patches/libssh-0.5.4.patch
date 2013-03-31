@@ -1,0 +1,107 @@
+diff -ruN libssh-0.5.4/cmake/Modules/DefineCompilerFlags.cmake libssh-0.5.4-new/cmake/Modules/DefineCompilerFlags.cmake
+--- libssh-0.5.4/cmake/Modules/DefineCompilerFlags.cmake	2013-01-22 03:38:30.000000000 -0700
++++ libssh-0.5.4-new/cmake/Modules/DefineCompilerFlags.cmake	2013-03-12 12:05:29.000000000 -0600
+@@ -9,7 +9,8 @@
+     #
+     if (${CMAKE_C_COMPILER_ID} MATCHES GNU)
+         # add -Wconversion ?
+-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -pedantic -pedantic-errors")
++        # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -pedantic -pedantic-errors")
++        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wshadow -Wmissing-prototypes -Wdeclaration-after-statement")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused -Wfloat-equal -Wpointer-arith -Wwrite-strings -Wformat-security")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-format-attribute")
+diff -ruN libssh-0.5.4/cmake/Modules/FindOpenSSL.cmake libssh-0.5.4-new/cmake/Modules/FindOpenSSL.cmake
+--- libssh-0.5.4/cmake/Modules/FindOpenSSL.cmake	2012-10-30 08:38:09.000000000 -0600
++++ libssh-0.5.4-new/cmake/Modules/FindOpenSSL.cmake	2013-03-12 12:05:20.000000000 -0600
+@@ -75,7 +75,7 @@
+     set(OPENSSL_INCLUDE_DIRS ${OPENSSL_INCLUDE_DIR})
+     mark_as_advanced(OPENSSL_INCLUDE_DIRS)
+ 
+-    if (WIN32 AND NOT CYGWIN)
++    if (WIN32)
+         # MINGW should go here too
+         if (MSVC)
+             # /MD and /MDd are the standard values - if someone wants to use
+@@ -98,6 +98,7 @@
+                     libeay32
+                 PATHS
+                     ${OPENSSL_ROOT_DIR}/lib/VC
++                    ${OPENSSL_ROOT_DIR}/lib
+             )
+ 
+             find_library(LIB_EAY_RELEASE
+@@ -106,6 +107,7 @@
+                     libeay32
+                 PATHS
+                     ${OPENSSL_ROOT_DIR}/lib/VC
++                    ${OPENSSL_ROOT_DIR}/lib
+             )
+ 
+             find_library(SSL_EAY_DEBUG
+@@ -114,6 +116,7 @@
+                     ssleay32
+                     ssl
+                 PATHS ${OPENSSL_ROOT_DIR}/lib/VC
++                    ${OPENSSL_ROOT_DIR}/lib
+             )
+ 
+             find_library(SSL_EAY_RELEASE
+@@ -123,6 +126,7 @@
+                     ssl
+                 PATHS
+                     ${OPENSSL_ROOT_DIR}/lib/VC
++                    ${OPENSSL_ROOT_DIR}/lib
+             )
+ 
+             if (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+@@ -173,7 +177,7 @@
+             mark_as_advanced(SSL_EAY LIB_EAY)
+             set(OPENSSL_LIBRARIES ${SSL_EAY} ${LIB_EAY})
+         endif(MSVC)
+-    else (WIN32 AND NOT CYGWIN)
++    else ()
+         find_library(OPENSSL_SSL_LIBRARIES
+             NAMES
+                 ssl
+@@ -200,7 +204,7 @@
+ 
+         mark_as_advanced(OPENSSL_CRYPTO_LIBRARIES OPENSSL_SSL_LIBRARIES)
+         set(OPENSSL_LIBRARIES ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES})
+-    endif (WIN32 AND NOT CYGWIN)
++    endif ()
+ 
+     include(FindPackageHandleStandardArgs)
+     find_package_handle_standard_args(OpenSSL DEFAULT_MSG OPENSSL_LIBRARIES OPENSSL_INCLUDE_DIRS)
+diff -ruN libssh-0.5.4/examples/sample.c libssh-0.5.4-new/examples/sample.c
+--- libssh-0.5.4/examples/sample.c	2013-01-22 03:38:30.000000000 -0700
++++ libssh-0.5.4-new/examples/sample.c	2013-03-12 12:05:20.000000000 -0600
+@@ -88,20 +88,18 @@
+ 
+ static void usage(){
+     fprintf(stderr,"Usage : ssh [options] [login@]hostname\n"
+-    "sample client - libssh-%s\n"
+-    "Options :\n"
+-    "  -l user : log in as user\n"
+-    "  -p port : connect to port\n"
+-    "  -d : use DSS to verify host public key\n"
+-    "  -r : use RSA to verify host public key\n"
++    "sample client - libssh-%s\n", ssh_version(0));
++    fprintf(stderr,"Options :\n");
++    fprintf(stderr,"  -l user : log in as user\n");
++    fprintf(stderr,"  -p port : connect to port\n");
++    fprintf(stderr,"  -d : use DSS to verify host public key\n");
++    fprintf(stderr,"  -r : use RSA to verify host public key\n");
+ #ifdef WITH_PCAP
+-    "  -P file : create a pcap debugging file\n"
++    fprintf(stderr,"  -P file : create a pcap debugging file\n");
+ #endif
+ #ifndef _WIN32
+-    "  -T proxycommand : command to execute as a socket proxy\n"
++    fprintf(stderr,"  -T proxycommand : command to execute as a socket proxy\n");
+ #endif
+-    		,
+-    ssh_version(0));
+     exit(0);
+ }
+ 

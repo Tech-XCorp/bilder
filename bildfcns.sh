@@ -294,17 +294,17 @@ bilderSvn() {
 
 # Change to target's directory, cleanup and execute command
   cd $execdir
-  $echocmd && techo "In $PWD:" 1>&2
+  $echocmd && techo -2 "In $PWD:" 1>&2
   cmd="'$BILDER_SVN' cleanup"
-  $echocmd && techo "$cmd" 1>&2
+  $echocmd && techo -2 "$cmd" 1>&2
   eval "$cmd" 1>&2
   cmd="'$BILDER_SVN' $svncmd $svnargs $svntarget"
-  $echocmd && techo "$cmd" 1>&2
+  $echocmd && techo -2 "$cmd" 1>&2
 # May need to capture output of this command
   eval "$cmd"
   res=$?
   cd $origdir
-  $echocmd && techo "Back in $PWD." 1>&2
+  $echocmd && techo -2 "Back in $PWD." 1>&2
 
   return $res
 }
@@ -652,7 +652,7 @@ checkDirWritable() {
 }
 
 #
-# Take and name and return a valid bash variable
+# Take a name and return a valid bash variable
 #
 # Args:
 # 1: The name used to generate the variable name
@@ -888,7 +888,7 @@ EOF
     fi
   done
 
-  if $domodules; then
+  if $havepymodule; then
     cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.csh
 # Load python modules
 module unload python 2>/dev/null
@@ -1127,7 +1127,7 @@ getVersion() {
 
 # Get the revision
   if test "$repotype" == "SVN"; then
-    techo "Getting version of $repodir  at `date`."
+    techo -2 "Getting version of $repodir  at `date`."
     rev=`bilderSvnversion $lastChangedArg`
 
 # svnversion -c is likely to return a complex version such as 1535:2091 and
@@ -1271,22 +1271,23 @@ isPatched() {
       patchval=$patchdir/${projver}.patch
     fi
   fi
-  techo "Looking for $patchval."
+  techo -2 "Looking for $patchval."
+  local patchapplied=
   pkgsandpatches="$pkgsandpatches `basename $patchval`"
   if ! test -f $patchval; then
-    techo "Patch $patchval not found."
+    techo -2 "Patch $patchval not found."
     patchval=
 # If version is svn, try head
     if [[ $projver =~ ${proj}-r ]]; then
       if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/patches/${proj}-rHEAD.patch; then
-        patchval=$BILDER_CONFDIR/patches/${proj}-rHEAD.patch        
+        patchval=$BILDER_CONFDIR/patches/${proj}-rHEAD.patch
       else
         patchval=$BILDER_DIR/patches/${proj}-rHEAD.patch
       fi
-      techo "Looking for $patchval."
+      techo -2 "Looking for $patchval."
       pkgsandpatches="$pkgsandpatches `basename $patchval`"
       if ! test -f $patchval; then
-        techo "Patch $patchval not found."
+        techo -2 "Patch $patchval not found."
         patchval=
       fi
     fi
@@ -1295,23 +1296,23 @@ isPatched() {
 
 # If a patch found, look for it in the repo
   if test -n "$patchval"; then
-    techo "Patch value found, $patchvar = $patchval."
+    techo -2 "Patch value found, $patchvar = $patchval."
     local patchname=`basename $patchval`
     local dopatch=false
-    techo "Looking for $instdir/$instsubdir/$patchname."
+    techo -2 "Looking for $instdir/$instsubdir/$patchname."
     if test -d $instdir/$instsubdir; then
 # This implies default installation subdir
       if ! test -f $instdir/$instsubdir/$patchname; then
-        techo "Patch $instdir/$instsubdir/$patchname is missing.  Rebuilding."
+        techo -2 "Patch $instdir/$instsubdir/$patchname is missing.  Rebuilding."
         dopatch=true
       elif ! $BILDER_DIFF -q $instdir/$instsubdir/$patchname $patchval; then
-        techo "Patch $instdir/$instsubdir/$patchname and $patchval differ.  Rebuilding."
+        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ.  Rebuilding."
         dopatch=true
       else
-        techo "Patch up to date."
+        techo -2 "Patch up to date."
       fi
     else
-      techo "Patch $instdir/$instsubdir not present.  Patch cannot be checked."
+      techo -2 "Patch $instdir/$instsubdir not present.  Patch cannot be checked."
     fi
     if $dopatch; then
       cd $origdir
@@ -1330,37 +1331,11 @@ isPatched() {
 # 1: Full name of installation = <project>-<version>-<build>
 #
 # Named args (must come first):
-# -e checks for empty directory and reinstalls if that is the case
-# -i the installation directory
-#  #  -s the installation subdirectory
+# -i comma-separated list of the installation directories
 #
 isInstalled() {
 
 # Determine installation directory
-  local checkempty=false
-  # local instsubdir=
-if false; then
-  local instdir="$BLDR_INSTALL_DIR"
-  while test -n "$1"; do
-    case "$1" in
-      -e)
-        checkempty=true
-        ;;
-      -i)
-        instdir="$2"
-        shift
-        ;;
-      # -s)
-        # instsubdir="$2"
-        # shift
-        # ;;
-      *)
-        break
-        ;;
-    esac
-    shift
-  done
-else
   local instdirs=
 # Parse options
   set -- "$@"
@@ -1372,45 +1347,24 @@ else
     esac
   done
   shift $(($OPTIND - 1))
-# Eventually look in several installation dirs, but for now just one.
-  instdir=`echo $instdirs | sed 's/,.*$//'`
-fi
-  # instsubdir=${instsubdir:-"$1"} # may not be, so must check for existence
   installation=$1
 
 # Look for installations
-  techo "Looking for $installation in $instdir/installations.txt."
-  if test -f $instdir/installations.txt; then
-    local hasit=`grep -- ^${installation}" " $instdir/installations.txt | tail -1`
-    techo -2 "Found '$hasit'. checkempty = $checkempty."
-    if test -n "$hasit"; then
-
+  for idir in `echo $instdirs | tr ',' ' '`; do
+    if test -f $idir/installations.txt; then
+      local hasit=`grep -- ^${installation}" " $idir/installations.txt | tail -1`
+      techo -2 "Found '$hasit'."
+      if test -n "$hasit"; then
 # Look for patch up to date
-      local args="-i $instdir"
-      if ! isPatched $args $installation; then
-        return 1
-      fi
-
-# look for empty dir
-      if $checkempty; then
-# This screws up python installations as they go in the lib subdir.
-# Doing on demand only now.
-        if [ "$(ls -A $instdir/$1)" ]; then
-# installation directory exists and is not empty
-          return 0
-        else
-# Someone has removed the install since installations.txt was written
-          techo "Project directory $instdir/$1 is empty. Will need to reinstall as $instdir modified since $hasit build."
+        local args="-i $idir"
+        if ! isPatched $args $installation; then
           return 1
         fi
+        return 0
       fi
-    else
-      return 1
     fi
-  else
-    return 1
-  fi
-
+  done
+  return 1
 }
 
 #
@@ -1614,6 +1568,24 @@ shouldInstall() {
     return 0
   fi
 
+# The below logic will test for all builds in installation 
+#  local foundallbuilds=true
+#  local pkgdate="2000-01-01-00:00:00"
+#  for build in $builds; do 
+#    local pkgline=`grep "^$1-$build " $dir/installations.txt | tail -1`
+#    techo -2 "pkgline = $pkgline."
+#    if test -z "$pkgline"; then
+#      techo -2 "$1-$build not found in $dir/installations.txt."
+#      foundallbuilds=false
+#    else
+#      pkgdate=`(echo $pkgdate; echo $pkgline) | awk '{ print $4 }'| sort -r | head -1`
+#    fi
+#  done
+#  if ! $foundallbuilds; then
+#    techo "Some builds of $proj not found in $dir/installations.txt.  Proceeding with next step."
+#    return 0
+#  fi
+
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
   techo -2 "pkgline = $pkgline."
@@ -1632,15 +1604,15 @@ shouldInstall() {
   if test -z "$pkgScriptRev" -o "$pkgScriptRev" = unknown; then
     pkgScriptRev=0
   fi
-  techo "Package $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
- 
+  techo "A build of $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
+
 # Find earliest date of any of the builds in any of the directories.
 # NOT IMPLEMENTED YET.
 
 # See whether installation is older than package file.
 # For packages like Python, $proj will be Python, but the package script will
 # be python.sh, so we use $lcproj.
-  techo -n "Script ${lcproj}.sh was r$pkgScriptRevStr when built, now r$currentPkgScriptRev"
+  techo -n "Script ${lcproj}.sh in $dir/installations.txt was r$pkgScriptRevStr, now r$currentPkgScriptRev"
   if test $currentPkgScriptRev -gt $pkgScriptRev; then
     if $BUILD_IF_NEWER_PKGFILE; then
       techo "... rebuilding."
@@ -1735,9 +1707,9 @@ shouldInstall() {
        if test "$tstlastdate" = "$pkgdate"; then
          techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding ${proj}. Proceed to next step."
          return 0
-        else
-          techo "Tests ${lctst} installed more recently than the package ${lctst}. Not a reason to rebuild."
-        fi
+       else
+         techo "Tests ${lctst} installed more recently than the package ${lctst}. Not a reason to rebuild."
+       fi
      else
        techo "Tests for package ${proj} not installed.  Rebuilding package ${proj} and testing. Proceed to next step."
        return 0
@@ -1823,24 +1795,6 @@ warnMissingPkgs() {
     techo "WARNING: May need to install $missingpkgs."
   fi
 
-}
-
-#
-# (Possibly build Python in contrib) and point to it.
-#
-# Args:
-#  1 (boolean) true = build Python, false = don't build
-#
-setupContribPython() {
-  local doit=${1:-"false"}
-# Use buildChain to get all dependencies
-  if $doit; then
-    buildChain python
-    cd $PROJECT_DIR        # Do not pick up python in python build dir
-    source $BILDER_DIR/bilderpy.sh
-# Need to clear out PID and RES variables for this chain so
-# bilderInstall will not think these have been built and then reinstall.
-  fi
 }
 
 #
@@ -2808,25 +2762,28 @@ findCc4pyDir() {
 #
 findQt() {
 # First try to find Qt in the contrib directory
+  local libname=
   if [[ `uname` =~ CYGWIN ]]; then
-    findContribPackage qt QtCore4 sersh
-    if test -z "$QT_SERSH_DIR"; then
-      findContribPackage qt QtCore4 ser
-      QT_SERSH_DIR="$QT_SER_DIR"
-    fi
+    libname=QtCore4
   else
-    findContribPackage qt QtCore sersh
+    libname=QtCore
+  fi
+  findContribPackage qt $libname cc4py
+  if test -z "$QT_CC4PY_DIR"; then
+    findContribPackage qt $libname sersh
     if test -z "$QT_SERSH_DIR"; then
-      findContribPackage qt QtCore ser
-      QT_SERSH_DIR="$QT_SER_DIR"
+      findContribPackage qt $libname ser
     fi
   fi
-  if test -n "$QT_SERSH_DIR"; then
-    QT_BINDIR=$QT_SERSH_DIR/bin
-    QMAKE=$QT_BINDIR/qmake
+  local qtdir=$QT_CC4PY_DIR
+  qtdir=${qtdir:-"$QT_SERSH_DIR"}
+  qtdir=${qtdir:-"$QT_SER_DIR"}
+  if test -n "$qtdir"; then
+    QT_BINDIR=$qtdir/bin
+    QMAKE=$qtdir/qmake
     techo "Qt found in $CONTRIB_DIR.  Using QT_BINDIR = $QT_BINDIR."
-    addtopathvar PATH $QT_SERSH_DIR/bin
-    techo "$QT_SERSH_DIR/bin added to path."
+    addtopathvar PATH $QT_BINDIR
+    techo "$QT_BINDIR added to path."
     return 0
   fi
   techo "Qt not found in $CONTRIB_DIR."
@@ -2871,8 +2828,14 @@ computeMakeJ() {
     local numblds=`echo $2 | tr ',' ' ' | wc -w | sed 's/^ *//'`
     local jval=`expr $MAKEJ_MAX / $numblds`
     if test -n "$jval"; then
+# Make sure jval is at least one.  (Is this needed with the below?)
       if test $jval -le 0; then
         jval=1
+      fi
+# Better to oversubscribe than undersubscribe
+      local totjval=`expr $jval \* $numblds`
+      if test $totjval -lt $MAKEJ_MAX; then
+        jval=`expr $jval + 1`
       fi
     else
       jval=1
@@ -2966,7 +2929,7 @@ getPkg() {
 
 # Not found
   if test -z $tarball; then
-    TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  No ${1} tarball of any compression appeared.  Network okay?"
+    TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No ${1} tarball of any compression appeared.  Network okay?"
     cleanup
   fi
 
@@ -3057,23 +3020,6 @@ bilderUnpack() {
   local unpackedvar=`genbashvar $1`_UNPACKED
   eval $unpackedvar=true
 
-if false; then
-# Determine name of variable holding version and the value.
-  local vervar=`genbashvar $1`_BLDRVERSION
-  local verval=`deref $vervar`
-# If not defined, look for standard and experimental versions
-  if test -z "$verval"; then
-    local vervar1=
-    if $BUILD_EXPERIMENTAL; then
-      vervar1=`genbashvar $1`_BLDRVERSION_EXP
-    else
-      vervar1=`genbashvar $1`_BLDRVERSION_STD
-    fi
-    verval=`deref $vervar1`
-    eval $vervar=$verval
-  fi
-fi
-
 # Determing the version
   computeVersion $1
   local vervar=`genbashvar $1`_BLDRVERSION
@@ -3146,11 +3092,11 @@ fi
       if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/$spatchval; then
         patchval=$BILDER_CONFDIR/$spatchval
         eval $patchvar=$patchval
-      else 
+      else
         patchval=$BILDER_DIR/$spatchval
         eval $patchvar=$patchval
       fi
-    fi    
+    fi
     pkgsandpatches="$pkgsandpatches `basename $patchval`"
     if test -f $patchval; then
       techo "Found $patchval."
@@ -3186,7 +3132,7 @@ fi
         cmd="$pretar $tarball | $TAR -xf -"
         techo "$cmd"
         $pretar $tarball | $TAR -xf -
-        if test $? != 0; then
+        if test $? != 0 -o ${PIPESTATUS[0]} != 0; then
           TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  Unpacking failed."
           cleanup
         fi
@@ -3202,7 +3148,7 @@ fi
           fi
         fi
         if test -n "$patchval"; then
-          techo "Patching $1-$i."
+          techo "Patching $1-$i with $patchval."
 # OS X does not accept '-i'
 # Check for whether new style patch
           local patchlev=-p1
@@ -3270,7 +3216,7 @@ fi
 #
 # Named args (must come first):
 # -c force use of cmake even when a configure is present
-# -f force preconfig, even if a dependency was not rebuilt
+# -f force preconfig, even if a dependency was not rebuilt (for tests)
 # -I use this for the comma separate list of installation directories
 # -p execute this as the preconfigure action
 # -t do not record failure if $IGNORE_TEST_RESULTS is true
@@ -3313,17 +3259,12 @@ bilderPreconfig() {
   local starttimevar=`genbashvar $1`_START_TIME
   local starttimeval=`date +%s`
   eval $starttimevar=$starttimeval
-  # techo -2 "$starttimevar = $starttimeval"
 
-# If preconfigaction not defined, set it, to local if it exists, then general
+# Sanity check
   if ! cd $PROJECT_DIR/$1 2>/dev/null; then
     techo "$PROJECT_DIR/$1 does not exist, cannot preconfigure."
     return 1
   fi
-  if test -z "$preconfigaction" -a -x config/cleanconf.sh; then
-    preconfigaction=config/cleanconf.sh
-  fi
-  preconfigaction=${preconfigaction:-"autoreconf"}
 
 # Not unpacked
   local unpackedvar=`genbashvar $1`_UNPACKED
@@ -3361,21 +3302,22 @@ bilderPreconfig() {
     fi
   fi
 
-# Create file stamp
+# Set the version
   cd $PROJECT_DIR/$1
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
   # techo "$vervar = $verval."
 
-# Get dependencies
-  local depsvar=`genbashvar $1`_DEPS
-  local DEPS=`deref $depsvar`
-
 # Set installation directory if not already set.
+  local buildsvar=`genbashvar $1`_BUILDS
+  local buildsval=`deref $buildsvar`
   local instdirsvar=`genbashvar $1`_INSTALL_DIRS
   local instdirs=${instdirs:-"`deref $instdirsvar`"}
   if test -z "$instdirs"; then
     instdirs=$BLDR_INSTALL_DIR
+    if echo "$buildsval" | egrep -q "(^|,)develdocs($|,)"; then
+      instdirs=$instdirs,$DEVELDOCS_DIR
+    fi
     eval $instdirsvar=$instdirs
   fi
 
@@ -3394,74 +3336,76 @@ bilderPreconfig() {
   local temp=`genbashvar ${1}`
   eval ${temp}_PKGSCRIPT_VERSION=$currentPkgScriptRev
 
+# Get dependencies
+  local depsvar=`genbashvar $1`_DEPS
+  local DEPS=`deref $depsvar`
+
 # See whether should install
-  doInstall=$forcepreconfig
-  if $doInstall; then
-    techo "Preconfiguring $1 because of -f option."
+  if $forcepreconfig; then
+    techo "Preconfiguring $1-$verval forced."
   else
 # Determine builds to check for installation
     local chkbuilds="$builds"
     techo "Checking whether to install the "$chkbuilds" builds of $1."
     if shouldInstall -I $instdirs $1-$verval $chkbuilds $DEPS; then
-      doInstall=true
       techo "Preconfiguring $1-$verval because a dependency rebuilt, or $1 not installed."
+    else
+      techo "No reason to preconfiguring $1-$verval."
+      return 1
     fi
   fi
 
-# If autotooled and that succeeds, then return true (0)
-  RESULT=0
-  if $doInstall; then
-    techo "Preconfiguring $1 in $PWD."
-    techo "$vervar = $verval."
+# Set the preconfigure action
+  if test -n "$preconfigaction" || $usecmake; then
+    :
+  elif test -x config/cleanconf.sh; then
+    preconfigaction=config/cleanconf.sh
+  elif test -e configure.ac -o -e configure.in; then
+    preconfigaction=${preconfigaction:-"autoreconf"}
+  fi
+
+# If no preconfigure action, compute make -j value and return
+  if test -z "$preconfigaction"; then
+    computeMakeJ $1 $builds
+    techo "Package $1 does not need preconfiguring, but should be rebuilt."
+    return 0
+  fi
+
+# Preconfigure action exists, so proceed
+  techo "Preconfiguring $1-$verval in $PWD."
 
 # Remove any old configure files
-    if test -x ${preconfigaction} || $usecmake; then
-      cmd="rm -rf configure config.cache aclocal.m4 config.h.in autom4te*.cache"
-      techo "$cmd"
-      $cmd
-      cmd="find . -name Makefile.in -delete"
-      techo "$cmd"
-      $cmd
-    fi
+  cmd="rm -rf configure config.cache aclocal.m4 config.h.in autom4te*.cache CMakeCache.txt"
+  techo "$cmd"
+  $cmd
+  cmd="find . -name Makefile.in -delete"
+  techo "$cmd"
+  $cmd
 
 # Preconfigure as needed
-    if test -x ${preconfigaction} && ! $usecmake; then
-      techo -2 "${preconfigaction} found"
-      local preconfig_txt=$FQMAILHOST-$1-preconfig.txt
-      case `uname` in
-        # CYGWIN* | MINGW*)
-          # RESULT=0
-          # ;;
-        *)
-          local cmd="${preconfigaction}"
-          techo "$cmd" | tee $preconfig_txt
-          $cmd 1>>$preconfig_txt 2>&1
-          RESULT=$?
-          ;;
-      esac
-      if test $RESULT = 0; then
-        techo "Package $1 preconfigured."
-        echo SUCCESS >>$preconfig_txt
-      else
-        techo "Package $1 failed to preconfigure."
-        echo FAILURE >>$preconfig_txt
-        if $recordfailure || ! $IGNORE_TEST_RESULTS; then
-          configFailures="$configFailures $1-preconfig"
-          anyFailures="$anyFailures $1-preconfig"
-        else
-          techo "Not recording preconfig failure.  recordfailure = $recordfailure, IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS."
-        fi
-      fi
-      if test -n "$BLDR_PROJECT_URL"; then
-        local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
-        techo "See $BLDR_PROJECT_URL/$subdir/$preconfig_txt."
-      fi
-    else
-      techo "Package $1 does not need preconfiguring."
-      rm -f CMakeCache.txt
-    fi
+  local preconfig_txt=$FQMAILHOST-$1-preconfig.txt
+  local cmd="${preconfigaction}"
+  techo "$cmd" | tee $preconfig_txt
+  $cmd 1>>$preconfig_txt 2>&1
+  RESULT=$?
+
+# Check for error
+  if test $RESULT = 0; then
+    techo "Package $1 preconfigured."
+    echo SUCCESS >>$preconfig_txt
   else
-    RESULT=1
+    techo "Package $1 failed to preconfigure."
+    echo FAILURE >>$preconfig_txt
+    if $recordfailure || ! $IGNORE_TEST_RESULTS; then
+      configFailures="$configFailures $1-preconfig"
+      anyFailures="$anyFailures $1-preconfig"
+    else
+      techo "Not recording preconfig failure.  recordfailure = $recordfailure, IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS."
+    fi
+  fi
+  if test -n "$BLDR_PROJECT_URL"; then
+    local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
+    techo "See $BLDR_PROJECT_URL/$subdir/$preconfig_txt."
   fi
 
 # Print result and return
@@ -3470,7 +3414,7 @@ bilderPreconfig() {
     computeMakeJ $1 $builds
     techo "Package $1 preconfigured (if needed)."
   else
-    techo "Package $1 not needed or preconfigure failed."
+    techo "Package $1 failed to preconfigure."
   fi
   return $RESULT
 
@@ -3677,7 +3621,7 @@ bilderConfig() {
     else
       fullinstalldir=$instdirval
     fi
-    techo -2 Full installation directory is $fullinstalldir.
+    techo -2 "Full installation directory is $fullinstalldir."
 
 #
 # If unpacked, we know the build directory, up to a subdirectory
@@ -4114,6 +4058,7 @@ addBuildToLists() {
 # Named args (must come first):
 # -k Keep old build, do not make clean
 # -m Use instead of make
+# -S Execute build in source directory, but assume out-of-source build
 #
 # Return 0 if a build launched
 #
@@ -4245,8 +4190,7 @@ bilderBuild() {
 # Wait for a package to complete building in a subdir
 #
 # Args:
-# 1: Either <pkg>-<build> or <pkg>
-#    The former is used by bilderBuild, the latter by bilderDuBuild
+# 1: <pkg>-<build>
 #
 # Named args:
 # n: Do not record failure
@@ -4281,9 +4225,11 @@ waitBuild() {
   local firstwait=false
 
 # Wait on test and process according to result
-  if test -n "$pid"; then
 # To collect build, pid must be nonempty so that we know build was launched,
-
+  if test -z "$pid"; then
+    techo -2 "Build for $1 not started."
+    res=99
+  else 
     techo "Waiting on process $pidvarname = $pid."
     firstwait=true
     wait $pid
@@ -4299,7 +4245,8 @@ waitBuild() {
     local builddirvar=`genbashvar $1`_BUILD_DIR
     local builddir=`deref $builddirvar`
     if test -z "$builddir"; then
-      local vervar=`genbashvar $1`_BLDRVERSION
+      local pkgname=`sed 's/-.*//' <<< $1` 
+      local vervar=`genbashvar $pkgname`_BLDRVERSION
       local verval=`deref $vervar`
       if test -d $BUILD_DIR/$1-$verval; then
         builddir=$BUILD_DIR/$1-$verval
@@ -4345,7 +4292,7 @@ waitBuild() {
         echo FAILURE >>$builddir/$build_txt
       fi
     else
-      techo "waitBuild: Cannot find $builddir/$build_txt to record result of $res."
+      techo "WARNING: waitBuild cannot find $builddir/$build_txt to record result of $res."
     fi
 
 # Record failure if appropriate
@@ -4377,14 +4324,13 @@ waitBuild() {
       local subdir=`echo $builddir | sed "s?^$PROJECT_DIR/??"`
       techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
     fi
-
+    
+    if test -z "$res"; then
+      techo "WARNING: waitBuild found no result for $1 PID=$pid."
+      res=99
+    fi
   fi
 
-# Check for not built
-  if test -z "$res"; then
-    techo "No pid or result for $1, so assume not built."
-    res=99
-  fi
   eval $resvarname=$res
   return $res
 
@@ -4445,9 +4391,9 @@ bilderRunTests() {
 # Initial handling
   local pkgname=$1
   if test -n "$ignoreBuilds"; then
-    techo "bilderRunTests is ignoring '$ignoreBuilds' builds of $pkgname."
+    techo -2 "bilderRunTests is ignoring '$ignoreBuilds' builds of $pkgname."
   else
-    techo "bilderRunTests is not ignoring any builds of $pkgname."
+    techo -2 "bilderRunTests is not ignoring any builds of $pkgname."
   fi
   local tstsname=`echo $2 | tr 'A-Z.-' 'a-z__'`
 
@@ -4478,13 +4424,13 @@ bilderRunTests() {
     fi
   done
   trimvar testedBuilds ','
-  techo "bilderRunTests is waiting on $testedBuilds builds of $pkgname."
+  techo "Checking on tested builds '$testedBuilds' of $pkgname."
 
 # Wait on all builds, see if any tested build failed
   local tbFailures=
   for i in `echo $testedBuilds | tr ',' ' '`; do
     cmd="waitBuild $pkgname-$i"
-    techo "$cmd"
+    techo -2 "$cmd"
     $cmd
     res=$?
     if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
@@ -4502,13 +4448,8 @@ bilderRunTests() {
     techo "Test package file $tstsname.sh not found."
   fi
 
-
-# The var $FOOTESTS_RUN is used to indicate whether or not we are running
-# footests or whether they were skipped.
-  # local runvar=`genbashvar $2`_RUN
-  # eval $runvar=false
   if test -n "$tbFailures"; then
-    techo "Not running $pkgname tests. Failure of or to build: $tbFailures."
+    techo "Not running $pkgname tests. One or more tested builds '$tbFailures' not built."
 # If not building, then still need version
     return
   fi
@@ -4543,7 +4484,7 @@ waitTests() {
 
 # Wait on tests
   cmd="waitBuild -t $tstsnm-all"
-  techo "$cmd"
+  techo -2 "$cmd"
   $cmd
   local res=$?
   techo "$cmd completed with result = $res."
@@ -4569,7 +4510,7 @@ waitTests() {
 # Return true if should be installed
 #
 shouldInstallTestedPkg() {
-  techo -2 "shouldInstallTestedPkg called."
+  techo -2 "shouldInstallTestedPkg called with args: '$*'."
 
 # Get options
   local tstsnm=
@@ -4591,7 +4532,7 @@ shouldInstallTestedPkg() {
   local tstsnm=${tstsnm:-"`echo $2 | tr 'A-Z' 'a-z'`"}
 
 # Determine whether to install
-  techo "shouldInstallTestedPkg is determining whether to install tested package $pkgname."
+  techo "Checking whether to install tested package $pkgname."
   local installPkg=false
   if $TESTING; then
 
@@ -4690,6 +4631,7 @@ recordInstallation() {
 # -r remove the old installation
 # -s the name of the installer subdir at the depot
 # -t is a test, so call waitTest
+# -T the name of the installation target (default is 'install')
 #
 # Return whether installed
 #
@@ -4697,21 +4639,22 @@ bilderInstall() {
 
 # Default option values
   local acceptbuild=false
-  local builddir=
-  local forceinstall=$FORCE_INSTALL
-  local doLinks=true
   local bildermake=
+  local builddir=
   local cpdir=false
-  local recordinstall=true
+  local doLinks=true
+  local forceinstall=$FORCE_INSTALL
+  local installersubdir=
+  local insttarg=
+  local istest=false
   local perms=
+  local recordinstall=true
   local removesame=false
   local webdocs=false
-  local installersubdir=
-  local istest=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ab:cfgLm:np:rs:t" arg; do
+  while getopts "ab:cfgLm:np:rs:tT:" arg; do
     case $arg in
       a) acceptbuild=true;;
       b) builddir="$OPTARG";;
@@ -4725,6 +4668,7 @@ bilderInstall() {
       r) removesame=true;;
       s) installersubdir="$OPTARG";;
       t) istest=true;;
+      T) insttarg="$OPTARG";;
     esac
   done
   shift $(($OPTIND - 1))
@@ -4832,6 +4776,8 @@ bilderInstall() {
     techo "instsubdirval = $instsubdirval."
     if $recordinstall && $istest; then
       techo "Record successful test results in $instdirval/installations.txt. Not installing package tests."
+# Pause to provide 1 second time difference between recording installation of package and tests.
+      sleep 1
       recordInstallation $instdirval $1 $verval $2
       res=$?
       return $res
@@ -4893,16 +4839,12 @@ bilderInstall() {
 # Determine the installation target.  Defined, then to defaults per system.
 # This could get rid of the -g arg?
     local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
-    local insttarg=`deref $insttargvar`
-    if test -z "$insttarg"; then
-# Only qt3d uses qmake, and it has the target, install.
-# Will resurrect this code when needed.
-      # if [[ `uname` =~ CYGWIN ]] && test "$cmval" = qmake; then
-        # insttarg=${insttarg:-"release-install"}
-      # else
-        insttarg=${insttarg:-"install"}
-      # fi
-    fi
+    techo -2 "Before parsing $insttargvar, insttarg = $insttarg."
+    local insttargval=`deref $insttargvar`
+    insttarg=${insttarg:-"$insttargval"}
+    techo -2 "After parsing $insttargvar, insttarg = $insttarg."
+    insttarg=${insttarg:-"install"}
+    techo -2 "Finally, insttarg = $insttarg."
 
 # Complete the command
     if $webdocs; then
@@ -5129,6 +5071,16 @@ EOF
               techo "WARNING: '$cmd' failed: `cat ./error`"
               rm ./error
             fi
+            if test -n "$WINDOWS_DEPOT"; then
+              techo "NOTE: $installer also being copied to WINDOWS_DEPOT=${WINDOWS_DEPOT}."
+              local installerdirwindows=`cygpath -w $PWD`
+              cmd <<<EOF
+cd $installerdirwindows 
+copy /Y $installer ${WINDOWS_DEPOT}
+EOF
+              techo "$cmd"
+              $cmd
+            fi 
           else
             techo "WARNING: $1 installer not found."
           fi
@@ -5252,20 +5204,20 @@ bilderInstallTestedPkg() {
     local verval=`deref $vervar`
     for bld in $bldsval; do
       cmd="bilderInstall $removearg $permsarg $subdirarg $1 $bld"
-      techo "$cmd"
+      techo -2 "$cmd"
       $cmd
     done
     if $notestinstall; then
       bilderInstall $removearg -t $tstsnm all
-      techo "Calling bilderInstall for $bldsval and $tstsnm. (bilderInstallTestedPkg)"
+      techo -2 "bilderInstallTestedPkg calling bilderInstall -t $tstsnm all."
     else
-      techo "Calling bilderInstall for $bldsval. (bilderInstallTestedPkg)"
+      techo -2 "bilderInstallTestedPkg not installing $tstsnam due to -t option."
     fi
     return 0
   fi
 
-# If not already returned at this point then pkg should not be (and was not) isntalled
-  techo "Not calling bilderInstall for builds and tests of $1. (bilderInstallTestedPkg)"
+# If not already returned at this point then pkg should not be (and was not) installed
+  techo -2 "bilderInstallTestedPkg not calling bilderInstall for builds and tests of $1."
   return 1
 }
 

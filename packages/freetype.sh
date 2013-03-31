@@ -22,7 +22,7 @@ FREETYPE_BLDRVERSION=${FREETYPE_BLDRVERSION:-"2.4.8-r11"}
 
 # freetype generally needed on windows
 if [[ `uname` =~ CYGWIN ]]; then
-  FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILD:-"sersh"}
+  FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
   computeBuilds freetype
   addCc4pyBuild freetype
 fi

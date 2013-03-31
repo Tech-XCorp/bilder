@@ -25,6 +25,7 @@ fi
 if test -z "$MATPLOTLIB_BUILDS"; then
   MATPLOTLIB_BUILDS=cc4py
 fi
+
 MATPLOTLIB_DEPS=numpy,Python,libpng,freetype
 
 ######################################################################
@@ -72,7 +73,7 @@ findMatplotlibDepDir() {
     pkgdir=`(cd $pkgdir; pwd -P)`
     # techo "${1}dir = $pkgdir." 1>&2
     if [[ `uname` =~ CYGWIN ]]; then
-      pkgdir=`cygpath -aw $pkgdir`
+      pkgdir=`cygpath -am $pkgdir`
       # techo "After cygpath conversion, ${1}dir = $pkgdir." 1>&2
       pkgdir=`echo $pkgdir | sed 's/\\\\/\\\\\\\\/g'`
     fi
@@ -80,7 +81,8 @@ findMatplotlibDepDir() {
   else
     techo "WARNING: Unable to find $1." 1>&2
   fi
-  techo "${1}dir = $pkgdir." 1>&2
+  trimvar pkgdir ','
+  # techo "${1}dir = $pkgdir." 1>&2
   echo $pkgdir
 }
 
@@ -99,15 +101,6 @@ buildMatplotlib() {
 
 # Do it
   if bilderUnpack matplotlib; then
-
-# There is a better way, put the following in setupext.py
-# zlib is in sersh, not cc4py, on Win64
-cat >/dev/null <<EOF
-basedir = {
-    'win32'  : ['\\winsame\\contrib-vs9\\libpng-1.5.7-cc4py',
-       '\\winsame\\contrib-vs9\\freetype-2.4.8-r9-cc4py',
-       '\\winsame\\contrib-vs9\\zlib-1.2.6-sersh'],
-EOF
 
 # Find dependencies and construct the basedirs variable needed for setupext.py
     # techo "Looking for png."

@@ -18,26 +18,22 @@ ZLIB_BLDRVERSION=${ZLIB_BLDRVERSION:-"1.2.6"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 if test -z "$ZLIB_BUILDS"; then
-# zlib needed only on windows, and then only if build experimental
+# zlib needed only on windows
   if [[ `uname` =~ CYGWIN ]]; then
-    ZLIB_BUILDS=ser,sersh
+    ZLIB_DESIRED_BUILDS=${ZLIB_DESIRED_BUILDS:-"ser,sersh"}
+    computeBuilds zlib
+    addCc4pyBuild zlib
   fi
 fi
 ZLIB_DEPS=cmake
 ZLIB_UMASK=002
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-# addtopathvar PATH $CONTRIB_DIR/zlib/bin
+# This is needed for Windows to get the right dll
+addtopathvar PATH $CONTRIB_DIR/zlib-${FORPYTHON_BUILD}/bin
 
 ######################################################################
 #

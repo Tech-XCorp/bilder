@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-LIBSSH_BLDRVERSION=${LIBSSH_BLDRVERSION:-"0.5.2"}
+LIBSSH_BLDRVERSION=${LIBSSH_BLDRVERSION:-"0.5.4"}
 
 ######################################################################
 #
@@ -41,16 +41,15 @@ LIBSSH_UMASK=002
 
 buildLibssh() {
   if bilderUnpack libssh; then
-    if [[ `uname` =~ CYGWIN ]]; then
-      local zlibdir=`cygpath -am $CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh`
-      LIBSSH_SER_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$zlibdir/include -DZLIB_LIBRARY:PATH=$zlibdir/lib/zlib.lib"
-      if test -e $CONTRIB_DIR/openssl-sersh; then
-        local openssldir=`cygpath -am $CONTRIB_DIR/openssl-sersh`
-        LIBSSH_SER_ADDL_ARGS="$LIBSSH_SER_ADDL_ARGS -DOPENSSL_ROOT_DIR='$openssldir'"
-      else
-        techo "WARNING: $CONTRIB_DIR/openssl-sersh is not installed."
-      fi
-    fi
+    case `uname` in
+      CYGWIN*)
+        local zlibdir=`cygpath -am $CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh`
+        LIBSSH_SER_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$zlibdir/include -DZLIB_LIBRARY:PATH=$zlibdir/lib/zlib.lib"
+        ;;
+      Linux)
+        LIBSSH_SER_ADDL_ARGS="  -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,--allow-multiple-definition -DCMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--allow-multiple-definition"
+        ;;
+    esac
     if bilderConfig -c libssh ser "-DWITH_STATIC_LIB:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $LIBSSH_SER_ADDL_ARGS $LIBSSH_SER_OTHER_ARGS"; then
       bilderBuild libssh ser
     fi
