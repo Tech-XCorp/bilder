@@ -146,7 +146,12 @@ if ! $NO_PYTHON; then
       NATIVE_PYTHON_SITEPKGSDIR=${PYTHON_SITEPKGSDIR}
       ;;
   esac
-# Must at least have this path
+# Add site-packages to front of path.
+# If path already added, remove so as not to mix versions.
+  if test -n "$BILDER_PYTHONPATH"; then
+    PYTHONPATH=`echo $PYTHONPATH | sed -e "s/^$BILDER_PYTHONPATH//"`
+  fi
+  unset BILDER_PYTHONPATH
   addtopathvar PYTHONPATH "$NATIVE_PYTHON_SITEPKGSDIR"
   case `uname` in
     CYGWIN*)
@@ -156,7 +161,7 @@ if ! $NO_PYTHON; then
       trimvar PYTHONPATH ':'
       ;;
   esac
-  techo "Starting with PYTHONPATH = $PYTHONPATH"
+  techo "PYTHONPATH = $PYTHONPATH"
   export PYTHONPATH
 fi
 FORPYTHON_BUILD=`getPythonBuild`

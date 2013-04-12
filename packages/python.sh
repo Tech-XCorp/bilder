@@ -128,9 +128,8 @@ installPython() {
 	fi
         ;;
     esac
+# If python reinstalled, then must recompute the python variables.
+    source $BILDER_DIR/bilderpy.sh
   fi
-# Need python variables at this time regardless of whether installed
-  source $BILDER_DIR/bilderpy.sh
-  # techo "WARNING: Quitting at end of python.sh."; exit
 }
 

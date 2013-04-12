@@ -773,12 +773,21 @@ addtopathvar() {
       eval $1="'${addpath}${sep}${pathval}'"
       eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
     fi
+    eval trimvar $1 "'${sep}'"
+    eval trimvar $BILDER_ADDED_${1} "'${sep}'"
   fi
   local bpvar=BILDER_$1
   local bpval=`deref $bpvar`
   if ! echo $bpval | egrep -q "(^|$sep)$addpath($|$sep)" ; then
-    eval $bpvar="'${bpval}${sep}${addpath}'"
+    if test "$3" = "after"; then
+      bpval="'${bpval}${sep}${addpath}'"
+    else
+      bpval="'${addpath}${sep}${bpval}'"
+    fi
+    eval $bpvar="${bpval}"
+    eval trimvar $bpvar "'${sep}'"
   fi
+# Print results
   pathval=`deref $1`
   bpval=`deref $bpvar`
   techo -2 "Variable $bpvar = $bpval, $1 = $pathval (addtopathvar)"
