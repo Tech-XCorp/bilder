@@ -762,31 +762,23 @@ addtopathvar() {
   esac
 # Fallback to given
   addpath=${addpathcand:-"$addpath"}
-# Add to path variable if not already present
-  local pathval=`deref $1`
-  if ! echo $pathval | egrep -q "(^|$sep)$addpath($|$sep)" ; then
-    bildersaveval=`deref BILDER_ADDED_${1}`
-    if test "$3" = "after"; then
-      eval $1="'${pathval}${sep}${addpath}'"
-      eval BILDER_ADDED_${1}="'${bildersaveval}${sep}${addpath}'"
-    else
-      eval $1="'${addpath}${sep}${pathval}'"
-      eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
-    fi
-    eval trimvar $1 "'${sep}'"
-    eval trimvar $BILDER_ADDED_${1} "'${sep}'"
-  fi
+# Remove from path if already present, so added to front
+  local pathval=`deref $1 | sed "s?$addpath??g"`
+  local bildersaveval=`deref BILDER_ADDED_${1} | sed "s?$addpath??g"`
   local bpvar=BILDER_$1
-  local bpval=`deref $bpvar`
-  if ! echo $bpval | egrep -q "(^|$sep)$addpath($|$sep)" ; then
-    if test "$3" = "after"; then
-      bpval="'${bpval}${sep}${addpath}'"
-    else
-      bpval="'${addpath}${sep}${bpval}'"
-    fi
-    eval $bpvar="${bpval}"
-    eval trimvar $bpvar "'${sep}'"
+  local bpval=`deref $bpvar | sed "s?$addpath??g"`
+  if test "$3" = "after"; then
+    eval $1="'${pathval}${sep}${addpath}'"
+    eval BILDER_ADDED_${1}="'${bildersaveval}${sep}${addpath}'"
+    eval $bpvar="'${bpval}${sep}${addpath}'"
+  else
+    eval $1="'${addpath}${sep}${pathval}'"
+    eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
+    eval $bpvar="'${addpath}${sep}${bpval}'"
   fi
+  eval trimvar $1 "'${sep}'"
+  eval trimvar BILDER_ADDED_${1} "'${sep}'"
+  eval trimvar $bpvar "'${sep}'"
 # Print results
   pathval=`deref $1`
   bpval=`deref $bpvar`
