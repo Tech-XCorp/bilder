@@ -93,7 +93,7 @@ buildFreecad() {
 # Check for svn version or package
   if test -d $PROJECT_DIR/freecad; then
     getVersion freecad
-    if ! bilderPreconfig freecad; then
+    if ! bilderPreconfig -c freecad; then
       return 1
     fi
   else
