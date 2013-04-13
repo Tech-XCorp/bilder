@@ -39,7 +39,7 @@ if test -z "$LAPACK_BUILDS"; then
     Darwin*) # Darwin has -framework Accelerate
       LAPACK_BUILDS=NONE
       ;;
-    *)
+    Linux*)
       LAPACK_BUILDS=ser,sersh
       addCc4pyBuild lapack
       addBenBuild lapack
@@ -63,6 +63,17 @@ buildLapack() {
     local buildargs=
     if [[ `uname` =~ CYGWIN ]]; then
       buildargs="-m nmake"
+    fi
+
+    # A. Pletzer: building the testing code fails with a seg fault on 
+    # Linux systems running gfortran 4.4.6. Turn off BUILD_TESTING 
+    # for these cases
+    if [ `uname` = "Linux" -a "gfortran" = `basename $FC` ]; then
+      version=`$FC --version | tr '\n' ' ' | awk '{print $4}'`
+      if [ "4.4.6" = $version ]; then
+        LAPACK_SER_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
+	LAPACK_SERSH_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
+      fi
     fi
 
     if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then

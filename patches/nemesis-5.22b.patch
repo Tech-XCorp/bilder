@@ -1,0 +1,129 @@
+diff -ruN nemesis-5.22b/CMakeLists.txt nemesis-5.22b_Modified/CMakeLists.txt
+--- nemesis-5.22b/CMakeLists.txt	2013-04-08 14:58:18.227550638 -0600
++++ nemesis-5.22b_Modified/CMakeLists.txt	2013-04-08 14:58:34.643550613 -0600
+@@ -8,48 +8,86 @@
+ SET(NEMESIS_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
+ SET(HEADERS "ne_nemesisI.h")
+ 
++IF(WIN32)
++  # Get Rid of /MD compiler flags
++  FOREACH(flag_var
++          CMAKE_C_FLAGS              CMAKE_C_FLAGS_DEBUG            CMAKE_C_FLAGS_RELEASE
++          CMAKE_C_FLAGS_MINSIZEREL   CMAKE_C_FLAGS_RELWITHDEBINFO   CMAKE_C_FLAGS_FULL
++          CMAKE_CXX_FLAGS            CMAKE_CXX_FLAGS_DEBUG          CMAKE_CXX_FLAGS_RELEASE
++          CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_FULL)
++    IF (${flag_var} MATCHES "/MD")
++      string(REGEX REPLACE "/MD" " " ${flag_var} "${${flag_var}}")
++    ENDIF ()
++  ENDFOREACH(flag_var)
++ENDIF(WIN32)
+ 
+-find_path( NETCDF_INCLUDE_DIR netcdf.h
++
++
++SET(NETCDF_HEADERS "netcdf.h")
++IF(WIN32)
++  SET(NETCDF_HEADERS "${NETCDF_HEADERS}" "stdint.h")
++ENDIF(WIN32)
++find_path( NETCDF_INCLUDE_DIR 
++  NAMES ${NETCDF_HEADERS}
++  HINTS ${NETCDF_CMAKE_ROOT_DIR}/include
++  PATHS
+    $ENV{ACCESS}/inc
+    $ENV{NETCDF_DIR}/inc
+    $ENV{NETCDF_DIR}/include
+    $ENV{NETCDF_DIR}/libsrc
+-   )   
++)
+ 
+-find_library( NETCDF_LIBRARY netcdf
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
+-  $ENV{NETCDF_DIR}/lib
+-  $ENV{NETCDF_DIR}/libsrc/.libs
+-  )
++find_library( NETCDF_LIBRARY
++   NAMES netcdf
++   HINTS ${NETCDF_CMAKE_ROOT_DIR}/lib
++   PATHS 
++     $ENV{ACCESS}/lib
++     $ENV{NETCDF_DIR}/lib
++     $ENV{NETCDF_DIR}/libsrc/.libs
++)
+ 
+ find_program (NETCDF_NCDUMP ncdump
+-   $ENV{ACCESS}/bin
+-   $ENV{NETCDF_DIR}/bin
+-   $ENV{NETCDF_DIR}/ncdump
+-   )
++  NAMES ncdump
++  HINTS ${NETCDF_CMAKE_ROOT_DIR}/bin
++  PATHS
++    $ENV{ACCESS}/bin
++    $ENV{NETCDF_DIR}/bin
++    $ENV{NETCDF_DIR}/ncdump
++)
+ 
+ find_library( EXODUS_LIBRARY exodus
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
++  NAMES exodus exodusII exoIIv2c
++  HINTS ${EXODUSII_ROOT_DIR}/lib
++  PATHS 
++    $ENV{ACCESS}/lib/shared
++    $ENV{ACCESS}/lib
+   )
++get_filename_component(EXODUSII_LIBRARY_PATH ${EXODUS_LIBRARY} PATH)
++get_filename_component(EXODUSII_INSTALL_PATH ${EXODUSII_LIBRARY_PATH} PATH)
+ 
+ # Hack for HDF5
+-find_library( HDF5_LIBRARY hdf5
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
+-  $ENV{NETCDF_DIR}/lib
+-  $ENV{NETCDF_DIR}/libsrc/.libs
+-  /usr/local/hdf5/lib
+-  )
++find_library( HDF5_LIBRARY 
++  NAMES hdf5 hdf5dll
++  HINTS ${HDF5_ROOT_DIR}/lib
++  PATHS
++    $ENV{ACCESS}/lib/shared
++    $ENV{ACCESS}/lib
++    $ENV{NETCDF_DIR}/lib
++    $ENV{NETCDF_DIR}/libsrc/.libs
++    /usr/local/hdf5/lib
++)  
++  
++find_library( HDF5HL_LIBRARY 
++  NAMES hdf5_hl hdf5_hldll
++  HINTS ${HDF5_ROOT_DIR}/lib
++  PATHS
++    $ENV{ACCESS}/lib/shared
++    $ENV{ACCESS}/lib
++    $ENV{NETCDF_DIR}/lib
++    $ENV{NETCDF_DIR}/libsrc/.libs
++    /usr/local/hdf5/lib
++)
+ 
+-find_library( HDF5HL_LIBRARY hdf5_hl
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
+-  $ENV{NETCDF_DIR}/lib
+-  $ENV{NETCDF_DIR}/libsrc/.libs
+-  /usr/local/hdf5/lib
+-  )
+ 
+ find_library(Z_LIBRARY z
+   /usr/local/zlib/lib
+@@ -64,8 +102,8 @@
+ INCLUDE_DIRECTORIES(
+   "${CMAKE_CURRENT_SOURCE_DIR}"
+   "${CMAKE_CURRENT_BINARY_DIR}"
+-  "${CMAKE_CURRENT_SOURCE_DIR}/../exodusii/cbind/include/"
+-  "${CMAKE_CURRENT_BINARY_DIR}/../exodusii/cbind/include/"
++  "${CMAKE_CURRENT_SOURCE_DIR}/../exodusii-5.22b/cbind/include"
++  "${EXODUSII_INSTALL_PATH}/include"
+   "${NETCDF_INCLUDE_DIR}")
+ 
+ SET(SOURCES

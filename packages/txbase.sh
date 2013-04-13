@@ -30,8 +30,11 @@ if test -z "$TXBASE_DESIRED_BUILDS"; then
 fi
 computeBuilds txbase
 addCc4pyBuild txbase
-# Deps include autotools for configuring tests
-TXBASE_DEPS=hdf5,Python,openmpi,cmake,autotools
+TXBASE_DEPS=hdf5,Python,openmpi,cmake
+# Deps should include autotools if testing (needed to configure tests)
+if $TESTING; then
+  TXBASE_DEPS=$TXBASE_DEPS,autotools
+fi
 case `uname` in
   CYGWIN*)
     TXBASE_DEPS=$TXBASE_DEPS,boost

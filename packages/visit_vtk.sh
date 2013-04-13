@@ -31,11 +31,7 @@ VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-"5.8.0.a"}
 
 # By default, visit_vtk is built only with the compiler that built python
 if test -z "$VISIT_VTK_DESIRED_BUILDS"; then
-  if isCcCc4py; then
-    VISIT_VTK_DESIRED_BUILDS=sersh
-  else
-    VISIT_VTK_DESIRED_BUILDS=cc4py
-  fi
+  VISIT_VTK_DESIRED_BUILDS=$FORPYTHON_BUILD
 fi
 computeBuilds visit_vtk
 VISIT_VTK_SER_BUILD=`echo $VISIT_VTK_BUILDS | sed 's/,.*$//'`

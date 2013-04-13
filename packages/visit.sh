@@ -23,7 +23,7 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 #
 ######################################################################
 
-# VisIt is built sersh if ser is what python was built with, otherwise cc4py
+# VisIt is built the way python is built.
 if test -z "$VISIT_DESIRED_BUILDS"; then
   VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
   if isCcCc4py; then
@@ -32,8 +32,8 @@ if test -z "$VISIT_DESIRED_BUILDS"; then
     fi
   fi
 fi
-VISIT_SER_BUILD=$FORPYTHON_BUILD
 computeBuilds visit
+VISIT_SER_BUILD=$FORPYTHON_BUILD
 VISIT_DEPS=Imaging,hdf5,visit_vtk,qt,cmake
 VISIT_UMASK=002
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
@@ -189,7 +189,7 @@ fi
     fi
 # Determine whether patch in installation matches that in bilder.
 # If differs, set visit as uninstalled so it will be built.
-    if ! isPatched -s $VISIT_SUBDIR_BASE visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
+    if ! isPatched -s $VISIT_SUBDIR_BASE-$VISIT_SER_BUILD visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
       techo "Rebuilding visit as patches differ."
       for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
         cmd="$BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR visit,$bld"

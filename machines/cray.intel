@@ -17,14 +17,15 @@ fi
 case $UQMAILHOST in
 
   edison*)
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
 
-# System linear algebra: using gnu since no intel, sandybridge for Edison.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+# JRC 20130407: Bzip2 is not installed on edison.
+    BZIP2_BUILDS=$FORPYTHON_BUILD
+
+# JRC 20130407: No system linear algebra libraries on edison as of this date.
+# See http://www.nersc.gov/users/computational-systems/edison/known-issues
+    BUILD_ATLAS=true
+# Default builds work.
+    # ATLAS_BUILDS=ser,cc4py
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120

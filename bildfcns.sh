@@ -1190,29 +1190,6 @@ getVersion() {
 
 }
 
-# Replace compilers with optimization-reducing compilers.
-#
-# Args
-# 1: the build directory
-# 2: The compiler to replace
-# 3: The optimization reducing, replacing compiler
-#
-replaceCMakeComps() {
-  builddir=$1
-  oldcomp=$2
-  newcomp=$3
-  cat <<EOF >$builddir/replacecomps.sh
-#!/bin/bash
-echo "Replacing compilers and linkers with reducing optimization compiler."
-find $builddir -name link.txt -exec sed -i.bak -e "s?^[[:graph:]]*$oldcomp ?$builddir/txutils/$newcomp ?" '{}' \;
-find $builddir -name build.make -exec sed -i.bak -e "s? [[:graph:]]*$oldcomp ? $builddir/txutils/$newcomp ?" '{}' \;
-EOF
-  chmod a+x $builddir/replacecomps.sh
-  cmd="$builddir/replacecomps.sh"
-  techo "$cmd"
-  $cmd | tee -a $LOGFILE
-}
-
 #
 # Determine whether patch is out of date
 # This depends on knowing the installation subdir,
@@ -1709,7 +1686,7 @@ shouldInstall() {
          techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding ${proj}. Proceed to next step."
          return 0
        else
-         techo "Tests ${lctst} installed more recently than the package ${lctst}. Not a reason to rebuild."
+         techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
        fi
      else
        techo "Tests for package ${proj} not installed.  Rebuilding package ${proj} and testing. Proceed to next step."
@@ -2964,7 +2941,8 @@ computeVersion() {
 
 #
 # Unpack a package and link to non versioned name.
-# Sets start time, $1_START_TIME.
+# Sets start time, $1_START_TIME and installation directory,
+# $1_INSTALL_DIR.
 #
 # Args:
 # 1: package name
@@ -3020,6 +2998,13 @@ bilderUnpack() {
 # generated files go.
   local unpackedvar=`genbashvar $1`_UNPACKED
   eval $unpackedvar=true
+
+# Set default installation directory for package
+  local instdirvar=`genbashvar $1`_INSTALL_DIR
+  local instdirval=`deref $instdirvar`
+  if test -z "$instdirval"; then
+    eval $instdirvar=$CONTRIB_DIR
+  fi
 
 # Determing the version
   computeVersion $1
@@ -5074,12 +5059,10 @@ EOF
             if test -n "$WINDOWS_DEPOT"; then
               techo "NOTE: $installer also being copied to WINDOWS_DEPOT=${WINDOWS_DEPOT}."
               local installerdirwindows=`cygpath -w $PWD`
-              cmd <<<EOF
-cd $installerdirwindows
-copy /Y $installer ${WINDOWS_DEPOT}
-EOF
-              techo "$cmd"
-              $cmd
+# cmd here is the windows command shell program!!
+              copycmd='cmd /C "cd $installerdirwindows && copy /Y $installer ${WINDOWS_DEPOT}"'
+              techo "$copycmd"
+              eval $copycmd
             fi
           else
             techo "WARNING: $1 installer not found."
@@ -5526,6 +5509,8 @@ EOF
   if test $RESULT = 0; then
     echo SUCCESS >>$install_txt
     recordInstallation $instdirval $1 $verval cc4py
+    chmod a+rX $PYTHON_SITEPKGSDIR/..
+    chmod a+rX $PYTHON_SITEPKGSDIR
     if test -e $PYTHON_SITEPKGSDIR/$dupkg; then
       setOpenPerms $PYTHON_SITEPKGSDIR/$dupkg
     fi

@@ -27,21 +27,25 @@ ATLAS_BLDRVERSION_EXP=3.10.1
 if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
   case `uname` in
     CYGWIN*)
-      ATLAS_BUILDS=clp
-      if test -n "$FC"; then
-        ATLAS_BUILDS="$ATLAS_BUILDS",ser
-      fi
-      ATLAS_BUILDS=NONE # Turning off for now.
+      case `uname` in
+        focus.txcorp.com)
+          ATLAS_BUILDS=clp
+          if test -n "$FC"; then
+            ATLAS_BUILDS="$ATLAS_BUILDS",ser
+          fi
+          ;;
+        *)
+          ATLAS_BUILDS=NONE
+          ;;
+      esac
       ;;
     Darwin)
       ATLAS_BUILDS=NONE
       ;;
     Linux)
-      if isCcCc4py; then
-        ATLAS_BUILDS=ser  # This builds sersh as well as the installation step.
-      else
-        ATLAS_BUILDS=ser,cc4py
-      fi
+      ATLAS_BUILDS=ser,sersh
+      addCc4pyBuild atlas
+      addBenBuild atlas
       ;;
   esac
 fi
@@ -95,12 +99,16 @@ buildAtlas() {
   if bilderUnpack atlas; then
 
 # No attempt to build atlas if not possible due to throttling
-    perfvals=`$BILDER_DIR/chgfreq.sh`
-    if echo $perfvals | grep -q powersave || echo $perfvals | grep ondemand; then
-      techo "WARNING: Throttling turned on.  Atlas will not build."
-      techo "WARNING: Use 'bilder/chgfreq.sh performance' to fix."
-      return 1
-    fi
+    case `uname` in
+      Linux)
+        perfvals=`$BILDER_DIR/chgfreq.sh`
+        if echo $perfvals | grep -q powersave || echo $perfvals | grep ondemand; then
+        techo "WARNING: Throttling turned on.  Atlas will not build."
+        techo "WARNING: Use 'bilder/chgfreq.sh performance' to fix."
+        return 1
+        fi
+        ;;
+    esac
 
 # Need to convert to cygwin paths, and then fix patch to include
 # :1,$s/ln -s/ln -sf/g
@@ -176,19 +184,6 @@ buildAtlas() {
         fi
       fi
     done
-
-# PIC flag for general algorithm arg.  Now up above.
-if false; then
-    if test -n "$PIC_FLAG"; then
-      case $CC in
-        *mingw*)
-          ;;
-        *gcc*)
-          local ATLAS_ALG_ARGS="-Fa alg '$PIC_FLAG'"
-          ;;
-      esac
-    fi
-fi
 
 # Get load library path for ser build
     case `uname` in

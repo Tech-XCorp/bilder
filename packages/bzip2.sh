@@ -40,10 +40,11 @@ buildBzip2() {
   if [[ `uname` =~ CYGWIN ]]; then
     BZIP2_MAKE_ARGS="-f makefile.msc"
   fi
+# bzip2 has no build/configure system
+  BZIP2_CONFIG_METHOD=none
+# Next line may not be needed.  Will test at work.
+  BZIP2_SER_INSTALL_DIR=$CONTRIB_DIR
   if bilderUnpack -i bzip2; then
-# No configure system
-    BZIP2_CONFIG_METHOD=none
-    BZIP2_SER_INSTALL_DIR=$CONTRIB_DIR
     BZIP2_SER_BUILD_DIR=$BUILD_DIR/bzip2-$BZIP2_BLDRVERSION/ser
     bilderBuild bzip2 ser "$BZIP2_MAKE_ARGS"
   fi
