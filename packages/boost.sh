@@ -59,14 +59,51 @@ buildBoost() {
 
 # Process
   if bilderUnpack -i boost; then
+
+# Determine the toolset
+    local toolsetarg_ser=
+    local toolsetarg_cc4py=
+    case `uname`-`uname -r` in
+      CYGWIN-*) ;;
+      Darwin-12.*)
+# Clang works for g++ as well on Darwin-12
+        toolsetarg_ser="toolset=clang"
+        ;;
+      Darwin-*)
+        case $CXX in
+          *clang++) toolsetarg_ser="toolset=clang";;
+          *g++) ;;
+        esac
+        ;;
+      Linux)
+        toolsetarg_cc4py="toolset=gcc"
+        case $CXX in
+          *g++) ;;
+          *icpc) toolsetarg_ser="toolset=intel";;
+          *pgi) toolsetarg_ser="toolset=pgi";;
+        esac
+        ;;
+    esac
+    toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
+
+# These args are actually to bilderBuild
     local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
     case `uname` in
       CYGWIN*-WOW64*) BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS";;
     esac
 # Only the shared and cc4py build boost python, as shared libs required.
-    BOOST_SER_ADDL_ARGS="link=static --without-python $BOOST_ALL_ADDL_ARGS"
-    BOOST_SERSH_ADDL_ARGS="link=shared $BOOST_ALL_ADDL_ARGS"
-    BOOST_CC4PY_ADDL_ARGS="link=shared $BOOST_ALL_ADDL_ARGS"
+    BOOST_SER_ADDL_ARGS="$toolsetarg_ser link=static --without-python $BOOST_ALL_ADDL_ARGS"
+    BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser link=shared $BOOST_ALL_ADDL_ARGS"
+    BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py link=shared $BOOST_ALL_ADDL_ARGS"
+# Boost is meant to be built at the top, with different build and stage dirs.
+# When that is done, the below will be needed.
+if false; then
+    for bld in `echo BOOST_BUILDS | sed 's/,/ /'`; do
+      local addlargsvar=`genbashvar BOOST_$bld`_ADDL_ARGS
+      local addlargsval=`deref $addlargsvar`
+      eval $addlargsvar="--build-dir=$bld --stagedir=$bld/stage $addlargsval"
+    done
+fi
 
     if bilderConfig -i boost ser; then
 # In-place build, so done now

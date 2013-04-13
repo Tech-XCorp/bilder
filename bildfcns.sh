@@ -1569,10 +1569,10 @@ shouldInstall() {
     return 0
   fi
 
-# The below logic will test for all builds in installation 
+# The below logic will test for all builds in installation
 #  local foundallbuilds=true
 #  local pkgdate="2000-01-01-00:00:00"
-#  for build in $builds; do 
+#  for build in $builds; do
 #    local pkgline=`grep "^$1-$build " $dir/installations.txt | tail -1`
 #    techo -2 "pkgline = $pkgline."
 #    if test -z "$pkgline"; then
@@ -3712,6 +3712,8 @@ bilderConfig() {
         esac
         cmval=b2
         inplace=true
+# Need only b2 to be created
+        configargs="-show-libraries"
       elif test -f $builddir/../configure; then
 # Usual autotools out-of-place build
         configexec="$builddir/../configure"
@@ -3788,7 +3790,7 @@ bilderConfig() {
     fi
     if test "$cmval" = petsc; then
       configexec="$CYGWIN_PYTHON '$configexec'"
-    fi	
+    fi
     techo "Will configure with '$configexec'."
 
 #
@@ -3886,8 +3888,7 @@ bilderConfig() {
             ;;
         esac
 # Some options are always chosen
-        # configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
-        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype $CMAKE_LIBRARY_PATH_ARG"
+        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
 	if test $VERBOSITY -ge 1; then
 	  configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
         fi
@@ -3969,8 +3970,6 @@ bilderConfig() {
         finalcmd="$configexec $configargs $3 $srcarg"
         ;;
     esac
-
-    # finalcmd="$configexec $3 $srcarg"
 
 # Now add the environment variables
     if test -n "$5"; then
@@ -4230,7 +4229,7 @@ waitBuild() {
   if test -z "$pid"; then
     techo -2 "Build for $1 not started."
     res=99
-  else 
+  else
     techo "Waiting on process $pidvarname = $pid."
     firstwait=true
     wait $pid
@@ -4246,7 +4245,7 @@ waitBuild() {
     local builddirvar=`genbashvar $1`_BUILD_DIR
     local builddir=`deref $builddirvar`
     if test -z "$builddir"; then
-      local pkgname=`sed 's/-.*//' <<< $1` 
+      local pkgname=`sed 's/-.*//' <<< $1`
       local vervar=`genbashvar $pkgname`_BLDRVERSION
       local verval=`deref $vervar`
       if test -d $BUILD_DIR/$1-$verval; then
@@ -4325,7 +4324,7 @@ waitBuild() {
       local subdir=`echo $builddir | sed "s?^$PROJECT_DIR/??"`
       techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
     fi
-    
+
     if test -z "$res"; then
       techo "WARNING: waitBuild found no result for $1 PID=$pid."
       res=99
@@ -5076,12 +5075,12 @@ EOF
               techo "NOTE: $installer also being copied to WINDOWS_DEPOT=${WINDOWS_DEPOT}."
               local installerdirwindows=`cygpath -w $PWD`
               cmd <<<EOF
-cd $installerdirwindows 
+cd $installerdirwindows
 copy /Y $installer ${WINDOWS_DEPOT}
 EOF
               techo "$cmd"
               $cmd
-            fi 
+            fi
           else
             techo "WARNING: $1 installer not found."
           fi
