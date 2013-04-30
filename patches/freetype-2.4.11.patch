@@ -1,0 +1,248 @@
+diff -ruN freetype-2.4.11/CMakeLists.txt freetype-2.4.11-new/CMakeLists.txt
+--- freetype-2.4.11/CMakeLists.txt	1969-12-31 17:00:00.000000000 -0700
++++ freetype-2.4.11-new/CMakeLists.txt	2013-04-27 08:44:52.607039600 -0600
+@@ -0,0 +1,149 @@
++######################################################################
++#
++# CMakeLists.txt for FreeType2
++#
++# $Id: CMakeLists.txt 11 2012-03-27 21:32:36Z cary $
++#
++######################################################################
++
++cmake_minimum_required(VERSION 2.6)
++
++project(freetype)
++set(VERSION_MAJOR "2")
++set(VERSION_MINOR "4")
++set(VERSION_PATCH "8")
++set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
++
++# Get subversion info
++macro(TxPrintvar var)
++  message(STATUS "${var} = ${${var}}")
++endmacro()
++include(${PROJECT_SOURCE_DIR}/TxSvnInfo.cmake)
++
++# Compiler definitions for building the library
++add_definitions(-DFT2_BUILD_LIBRARY)
++
++# Specify library include directories
++include_directories("${PROJECT_SOURCE_DIR}/include")
++include_directories("${PROJECT_SOURCE_DIR}/include/freetype")
++
++# Create the configuration file
++message(STATUS "Creating directory, ${PROJECT_BINARY_DIR}/include.")
++file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
++# For the auto-generated ftconfig.h file
++include_directories("${PROJECT_BINARY_DIR}/include")
++message(STATUS "Creating ${PROJECT_BINARY_DIR}/include/ftconfig.h..")
++execute_process(
++  COMMAND sed -e "s/FT_CONFIG_OPTIONS_H/<ftoption.h>/" -e "s/FT_CONFIG_STANDARD_LIBRARY_H/<ftstdlib.h>/" -e "s?/undef ?#undef ?"
++  INPUT_FILE ${PROJECT_SOURCE_DIR}/builds/unix/ftconfig.in
++  OUTPUT_FILE ${PROJECT_BINARY_DIR}/include/ftconfig.h
++)
++
++set(BASE_SRCS
++  src/autofit/autofit.c
++  src/base/ftadvanc.c
++  src/base/ftbbox.c
++  src/base/ftbitmap.c
++  src/base/ftcalc.c
++  src/base/ftcid.c
++  src/base/ftdbgmem.c
++  src/base/ftdebug.c
++  src/base/ftfstype.c
++  src/base/ftgasp.c
++  src/base/ftgloadr.c
++  src/base/ftglyph.c
++  src/base/ftgxval.c
++  src/base/ftinit.c
++  src/base/ftlcdfil.c
++  src/base/ftmm.c
++  src/base/ftobjs.c
++  src/base/ftotval.c
++  src/base/ftoutln.c
++  src/base/ftpatent.c
++  src/base/ftpfr.c
++  src/base/ftrfork.c
++  src/base/ftsnames.c
++  src/base/ftstream.c
++  src/base/ftstroke.c
++  src/base/ftsynth.c
++  src/base/ftsystem.c
++  src/base/fttrigon.c
++  src/base/fttype1.c
++  src/base/ftutil.c
++  src/base/ftwinfnt.c
++  src/base/ftxf86.c
++  src/bdf/bdf.c
++  src/bzip2/ftbzip2.c
++  src/cache/ftcache.c
++  src/cff/cff.c
++  src/cid/type1cid.c
++  src/gzip/ftgzip.c
++  src/lzw/ftlzw.c
++  src/pcf/pcf.c
++  src/pfr/pfr.c
++  src/psaux/psaux.c
++  src/pshinter/pshinter.c
++  src/psnames/psmodule.c
++  src/raster/raster.c
++  src/sfnt/sfnt.c
++  src/smooth/smooth.c
++  src/truetype/truetype.c
++  src/type1/type1.c
++  src/type42/type42.c
++  src/winfonts/winfnt.c
++)
++
++include_directories("src/truetype")
++include_directories("src/sfnt")
++include_directories("src/autofit")
++include_directories("src/smooth")
++include_directories("src/raster")
++include_directories("src/psaux")
++include_directories("src/psnames")
++
++# add_library(freetype SHARED ${BASE_SRCS})
++# add_library(freetype ${BASE_SRCS})
++# Without static, interface library does not get built.
++add_library(freetype STATIC ${BASE_SRCS})
++
++# Installations
++install(FILES ${PROJECT_SOURCE_DIR}/include/ft2build.h
++  DESTINATION include
++)
++# Is this next needed?
++install(FILES ${PROJECT_BINARY_DIR}/include/ftconfig.h
++  DESTINATION include
++)
++install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/freetype
++  DESTINATION include/freetype2
++  PATTERN "internal" EXCLUDE
++)
++install(TARGETS freetype
++  RUNTIME DESTINATION bin
++  LIBRARY DESTINATION lib
++  ARCHIVE DESTINATION lib
++)
++
++# Packaging
++# CPack version numbers for release tarball name.
++set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
++set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
++set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH}})
++if (NOT DEFINED CPACK_PACKAGE_DESCRIPTION_SUMMARY)
++  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CMAKE_PROJECT_NAME}")
++endif ()
++if (NOT DEFINED CPACK_SOURCE_PACKAGE_FILE_NAME)
++  set(CPACK_SOURCE_PACKAGE_FILE_NAME
++    "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-r${PROJECT_REV}"
++    CACHE INTERNAL "tarball basename"
++  )
++endif ()
++set(CPACK_SOURCE_GENERATOR TGZ)
++set(CPACK_SOURCE_IGNORE_FILES
++  "/CVS/;/.svn/;.swp$;.#;/#;/build/;/serial/;/ser/;/parallel/;/par/;~;/preconfig.out;/autom4te.cache/;/.config")
++set(CPACK_GENERATOR TGZ)
++include(CPack)
++
++# add make dist target
++add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
++
+diff -ruN freetype-2.4.11/TxSvnInfo.cmake freetype-2.4.11-new/TxSvnInfo.cmake
+--- freetype-2.4.11/TxSvnInfo.cmake	1969-12-31 17:00:00.000000000 -0700
++++ freetype-2.4.11-new/TxSvnInfo.cmake	2013-04-27 08:45:44.162756000 -0600
+@@ -0,0 +1,91 @@
++# $Id: TxSvnInfo.cmake 8 2011-12-23 16:45:49Z cary $
++#
++# For getting the svn revision of a directory
++
++# The new version
++macro(TxGetSvnInfo dir revvar urlvar usechanged)
++  # message(STATUS "usechanged = ${usechanged}.")
++  if (NOT DEFINED usechanged)
++    set(usechanged 1)
++  endif ()
++  if (EXISTS ${dir}/.svn)
++    if (usechanged)
++      # message(STATUS "In ${dir}, executing ${SVNVERSION_BIN} -c")
++      execute_process(COMMAND ${SVNVERSION_BIN} -c
++        OUTPUT_VARIABLE ${revvar}
++        OUTPUT_STRIP_TRAILING_WHITESPACE
++        WORKING_DIRECTORY ${dir}
++      )
++      string(REGEX REPLACE ".*:" "" ${revvar} "${${revvar}}")
++    else ()
++      # message(STATUS "In ${dir}, executing ${SVNVERSION_BIN}")
++      execute_process(COMMAND ${SVNVERSION_BIN}
++        OUTPUT_VARIABLE ${revvar}
++        OUTPUT_STRIP_TRAILING_WHITESPACE
++        WORKING_DIRECTORY ${dir}
++      )
++    endif ()
++    # message(STATUS "In ${dir}, executing ${SVN_BIN} info")
++    execute_process(COMMAND ${SVN_BIN} info
++      OUTPUT_FILE ${dir}/svninfo.txt
++      OUTPUT_STRIP_TRAILING_WHITESPACE
++      WORKING_DIRECTORY ${dir}
++    )
++  else ()
++    if (EXISTS ${dir}/svninfo.txt)
++      file(READ ${dir}/svninfo.txt ${revvar})
++      if (${usechanged})
++        string(REGEX REPLACE "^(.*\n)?Last Changed Rev:([^\n]+).*"
++          "\\2" ${revvar} "${${revvar}}")
++      else ()
++        string(REGEX REPLACE "^(.*\n)?Revision:([^\n]+).*"
++          "\\2" ${revvar} "${${revvar}}")
++      endif ()
++    else ()
++      set(${revvar} "unknown")
++    endif ()
++  endif ()
++  if (EXISTS ${dir}/svninfo.txt)
++      file(READ ${dir}/svninfo.txt SVNINFO)
++      string(REGEX REPLACE "^(.*\n)?URL:([^\n]+).*"
++        "\\2" ${urlvar} "${SVNINFO}")
++  else ()
++      set(${urlvar} "unknown")
++  endif ()
++endmacro()
++
++if (SVN_BINDIR)
++  set(SVN_PATH ${SVN_BINDIR} ${PATH})
++  message("Looking for svn in ${SVN_PATH}")
++  find_program(SVN_BIN NAME svn PATHS ${SVN_PATH}
++    DOC "subversion command line client" NO_DEFAULT_PATH)
++  find_program(SVNVERSION_BIN NAME svnversion PATHS ${SVN_PATH}
++    DOC "subversion version command line client" NO_DEFAULT_PATH)
++endif ()
++# If not found, search in system paths
++if (NOT SVN_BIN)
++  find_program(SVN_BIN NAME svn PATHS ${SVN_PATH}
++    DOC "subversion command line client")
++  find_program(SVNVERSION_BIN NAME svnversion PATHS ${SVN_PATH}
++    DOC "subversion version command line client")
++endif ()
++if (DEBUG_CMAKE)
++  message(STATUS "SVN_BIN is ${SVN_BIN}")
++  message(STATUS "SVNVERSION_BIN is ${SVNVERSION_BIN}")
++endif ()
++if (SVN_BIN AND SVNVERSION_BIN)
++  TxGetSvnInfo(${PROJECT_SOURCE_DIR} PROJECT_REV PROJECT_URL TRUE)
++  TxPrintVar(PROJECT_REV)
++  TxPrintVar(PROJECT_URL)
++  if (EXISTS ${PROJECT_SOURCE_DIR}/CMake)
++    TxGetSvnInfo(${PROJECT_SOURCE_DIR}/CMake CMAKEDIR_REV CMAKEDIR_URL TRUE)
++    TxPrintVar(CMAKEDIR_REV)
++    TxPrintVar(CMAKEDIR_URL)
++  endif ()
++  if (EXISTS ${PROJECT_SOURCE_DIR}/config)
++    TxGetSvnInfo(${PROJECT_SOURCE_DIR}/config CONFIG_REV CONFIG_URL TRUE)
++    TxPrintVar(CONFIG_REV)
++    TxPrintVar(CONFIG_URL)
++  endif ()
++endif ()
++

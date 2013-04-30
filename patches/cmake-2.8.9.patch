@@ -1,0 +1,46 @@
+diff -ruN cmake-2.8.9/Modules/FindFreetype.cmake cmake-2.8.9-new/Modules/FindFreetype.cmake
+--- cmake-2.8.9/Modules/FindFreetype.cmake	2012-08-09 12:15:19.000000000 -0600
++++ cmake-2.8.9-new/Modules/FindFreetype.cmake	2013-04-27 08:12:52.302491300 -0600
+@@ -44,7 +44,7 @@
+ # everything still works.
+ FIND_PATH(FREETYPE_INCLUDE_DIR_ft2build ft2build.h
+   HINTS
+-  $ENV{FREETYPE_DIR}
++  $ENV{FREETYPE_DIR}/include
+   PATHS
+   /usr/local/X11R6/include
+   /usr/local/X11/include
+diff -ruN cmake-2.8.9/Modules/FindSubversion.cmake cmake-2.8.9-new/Modules/FindSubversion.cmake
+--- cmake-2.8.9/Modules/FindSubversion.cmake	2012-08-09 12:15:19.000000000 -0600
++++ cmake-2.8.9-new/Modules/FindSubversion.cmake	2013-04-27 08:12:24.488551700 -0600
+@@ -73,11 +73,14 @@
+     SET(_Subversion_SAVED_LC_ALL "$ENV{LC_ALL}")
+     SET(ENV{LC_ALL} C)
+ 
+-    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info ${dir}
++# This change allows execution in a cygwin shell
++    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info
+       OUTPUT_VARIABLE ${prefix}_WC_INFO
+       ERROR_VARIABLE Subversion_svn_info_error
+       RESULT_VARIABLE Subversion_svn_info_result
+-      OUTPUT_STRIP_TRAILING_WHITESPACE)
++      WORKING_DIRECTORY ${dir}
++      OUTPUT_STRIP_TRAILING_WHITESPACE
++    )
+ 
+     IF(NOT ${Subversion_svn_info_result} EQUAL 0)
+       MESSAGE(SEND_ERROR "Command \"${Subversion_SVN_EXECUTABLE} info ${dir}\" failed with output:\n${Subversion_svn_info_error}")
+diff -ruN cmake-2.8.9/Modules/Platform/Linux-Intel.cmake cmake-2.8.9-new/Modules/Platform/Linux-Intel.cmake
+--- cmake-2.8.9/Modules/Platform/Linux-Intel.cmake	2012-08-09 12:15:19.000000000 -0600
++++ cmake-2.8.9-new/Modules/Platform/Linux-Intel.cmake	2013-04-27 08:10:33.357910100 -0600
+@@ -38,7 +38,9 @@
+ 
+   # We pass this for historical reasons.  Projects may have
+   # executables that use dlopen but do not set ENABLE_EXPORTS.
+-  set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
++# JRC: This fails for static builds on Crays
++  # set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
++  set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS " ")
+ 
+   if(XIAR)
+     # INTERPROCEDURAL_OPTIMIZATION
