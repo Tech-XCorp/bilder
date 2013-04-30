@@ -21,9 +21,13 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 ######################################################################
 
 # Only the python build needed.
-FTGL_BUILDS=${FTGL_BUILDS:-"$FORPYTHON_BUILD"}
-FTGL_BUILD=$FORPYTHON_BUILD
-FTGL_DEPS=
+if [[ `uname` =~ CYGWIN ]]; then
+  FTGL_BUILD=sermd
+else
+  FTGL_BUILD=$FORPYTHON_BUILD
+fi
+FTGL_BUILDS=${FTGL_BUILDS:-"$FTGL_BUILD"}
+FTGL_DEPS=freetype
 FTGL_UMASK=002
 
 ######################################################################
@@ -34,17 +38,27 @@ FTGL_UMASK=002
 
 buildFtgl() {
   if bilderUnpack ftgl; then
-    local ftargs=
-# OSX puts freetype under the X11 location, which may be in more than
-# one place.
-    for dir in /opt/X11 /usr/X11R6; do
-      if test -d $dir/include/freetype2; then
-        ftargs="--with-ft-prefix=$dir"
-        break
+    local ftconfigtype=
+    case `uname` in
+      CYGWIN*) ftconfigtype=-c
+    esac
+    local freetype_rootdir=`findFreetypeRootdir`
+    if test -z "$freetype_rootdir"; then
+      techo "WARNING: [ftgl.sh] Could not find freetype."
+    fi
+    techo "freetype_rootdir $freetype_rootdir"
+    local ftconfigargs=
+    local ftconfigenv=
+    if test -z "$ftconfigtype"; then
+      ftconfigargs=--without-x
+      if test -n "$freetype_rootdir"; then
+        ftconfigargs="$ftconfigargs --with-ft-prefix=$freetype_rootdir"
       fi
-    done
-    if bilderConfig ftgl $FTGL_BUILD "$ftargs $FTGL_SER_OTHER_ARGS"; then
-      bilderBuild -m make ftgl $FTGL_BUILD "" "ECHO=echo"
+    else
+      ftconfigenv="FREETYPE_DIR=$freetype_rootdir"
+    fi
+    if bilderConfig $ftconfigtype ftgl $FTGL_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
+      bilderBuild ftgl $FTGL_BUILD "" "ECHO=echo"
     fi
   fi
 }
@@ -66,7 +80,34 @@ testFtgl() {
 ######################################################################
 
 installFtgl() {
-  bilderInstall -m make ftgl $FTGL_BUILD "" "" "ECHO=echo"
+  bilderInstall ftgl $FTGL_BUILD "" "" "ECHO=echo"
   # techo "Quitting at the end of ftgl.sh."; exit
+}
+
+######################################################################
+#
+# Find ftgl
+#
+######################################################################
+
+findFtglRootdir() {
+  local ftgldir=
+  for bld in sersh sermd; do
+    if test -e $CONTRIB_DIR/ftgl-$bld; then
+      ftgldir=`(cd $CONTRIB_DIR/ftgl-$bld; pwd -P)`
+      break
+    fi
+  done
+# OSX puts ftgl under the X11 location, which may be in more than one place.
+  for dir in /opt/X11 /usr/X11R6 /opt/homebrew; do
+    if test -d $dir/include/FTGL; then
+      ftgldir=$dir
+      break
+    fi
+  done
+  if test -n "$ftgldir" && [[ `uname` =~ CYGWIN ]]; then
+    ftgldir=`cygpath -am $ftgldir`
+  fi
+  echo $ftgldir
 }
 

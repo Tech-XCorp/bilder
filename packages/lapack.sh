@@ -36,10 +36,10 @@ if test -z "$LAPACK_BUILDS"; then
       LAPACK_BUILDS=ser,sersh
       addCc4pyBuild lapack
       ;;
-    Darwin*) # Darwin has -framework Accelerate
+    Darwin-*) # Darwin has -framework Accelerate
       LAPACK_BUILDS=NONE
       ;;
-    Linux*)
+    Linux-*)
       LAPACK_BUILDS=ser,sersh
       addCc4pyBuild lapack
       addBenBuild lapack

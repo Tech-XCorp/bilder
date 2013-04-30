@@ -21,8 +21,8 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 ######################################################################
 
 # Only the python build needed.
-OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
 OCE_BUILD=$FORPYTHON_BUILD
+OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
 OCE_DEPS=ftgl
 OCE_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/oce/bin
@@ -101,36 +101,32 @@ buildOce() {
   fi
 
 # Determine other configure args
-  local FTGL_DIR=
-  if test -e $CONTRIB_DIR/ftgl-$OCE_BUILD; then
-    FTGL_DIR=`(cd $CONTRIB_DIR/ftgl-$OCE_BUILD; pwd -P)`
+  local ftgl_rootdir=`findFtglRootdir`
+  if test -n "$ftgl_rootdir"; then
+    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$ftgl_rootdir/include"
   fi
-  if test -n "$FTGL_DIR"; then
-    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$FTGL_DIR/include"
-  fi
-  local x11dir=
-  for dir in /opt/X11 /usr/X11R6; do
-    if test -d $dir; then
-      x11dir=$dir
-      break
-    fi
-  done
+  local freetype_rootdir=`findFreetypeRootdir`
   local OCE_ENV=
+  if test -n "$freetype_rootdir"; then
+    OCE_ENV="FREETYPE_DIR=$freetype_rootdir"
+  fi
   case `uname` in
+    CYGWIN*)
+      if test -n "$ftgl_rootdir"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$ftgl_rootdir/lib/libftgl.lib"
+      fi
+      ;;
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
-      if test -n "$FTGL_DIR"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.dylib"
-      fi
-      if test -n "$x11dir"; then
-        OCE_ENV="FREETYPE_DIR=$x11dir"
+      if test -n "$ftgl_rootdir"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$ftgl_rootdir/lib/libftgl.dylib"
       fi
       ;;
     Linux)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
-      if test -n "$FTGL_DIR"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$FTGL_DIR/lib/libftgl.so"
-        OCE_ENV="LD_RUN_PATH=$FTGL_DIR/lib"
+      if test -n "$ftgl_rootdir"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$ftgl_rootdir/lib/libftgl.so"
+        OCE_ENV="$OCE_ENV LD_RUN_PATH=$ftgl_rootdir/lib"
       fi
       ;;
   esac
@@ -142,9 +138,15 @@ if false; then
   esac
 fi
 
+# OCE does not have all dependencies right, so needs nmake
+  local buildargs=
+  if [[ `uname` =~ CYGWIN ]]; then
+     buildargs="-m nmake"
+  fi
+
 # Configure and build
   if bilderConfig oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
-    bilderBuild oce $OCE_BUILD "$OCE_MAKEJ_ARGS" "$OCE_ENV"
+    bilderBuild $buildargs oce $OCE_BUILD "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
 }

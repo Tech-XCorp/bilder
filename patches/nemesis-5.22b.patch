@@ -1,7 +1,7 @@
 diff -ruN nemesis-5.22b/CMakeLists.txt nemesis-5.22b_Modified/CMakeLists.txt
 --- nemesis-5.22b/CMakeLists.txt	2013-04-08 14:58:18.227550638 -0600
-+++ nemesis-5.22b_Modified/CMakeLists.txt	2013-04-08 14:58:34.643550613 -0600
-@@ -8,48 +8,86 @@
++++ nemesis-5.22b_Modified/CMakeLists.txt	2013-04-29 17:14:45.488033577 -0600
+@@ -8,76 +8,122 @@
  SET(NEMESIS_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
  SET(HEADERS "ne_nemesisI.h")
  
@@ -84,6 +84,14 @@ diff -ruN nemesis-5.22b/CMakeLists.txt nemesis-5.22b_Modified/CMakeLists.txt
 -  $ENV{NETCDF_DIR}/libsrc/.libs
 -  /usr/local/hdf5/lib
 -  )
+-
+-find_library( HDF5HL_LIBRARY hdf5_hl
+-  $ENV{ACCESS}/lib/shared
+-  $ENV{ACCESS}/lib
+-  $ENV{NETCDF_DIR}/lib
+-  $ENV{NETCDF_DIR}/libsrc/.libs
+-  /usr/local/hdf5/lib
+-  )
 +find_library( HDF5_LIBRARY 
 +  NAMES hdf5 hdf5dll
 +  HINTS ${HDF5_ROOT_DIR}/lib
@@ -106,17 +114,20 @@ diff -ruN nemesis-5.22b/CMakeLists.txt nemesis-5.22b_Modified/CMakeLists.txt
 +    /usr/local/hdf5/lib
 +)
  
--find_library( HDF5HL_LIBRARY hdf5_hl
--  $ENV{ACCESS}/lib/shared
--  $ENV{ACCESS}/lib
--  $ENV{NETCDF_DIR}/lib
--  $ENV{NETCDF_DIR}/libsrc/.libs
--  /usr/local/hdf5/lib
--  )
- 
  find_library(Z_LIBRARY z
-   /usr/local/zlib/lib
-@@ -64,8 +102,8 @@
+-  /usr/local/zlib/lib
+-  )
+-
+-find_library(MATH_LIBRARY
+-             NAMES m
+-             PATHS /usr/lib64
+-                   /usr/lib
++  NAMES z zlib
++  HINTS ${ZLIB_ROOT_DIR}/lib
++  PATHS
++    /usr/local/zlib/lib
+ )
+ 
  INCLUDE_DIRECTORIES(
    "${CMAKE_CURRENT_SOURCE_DIR}"
    "${CMAKE_CURRENT_BINARY_DIR}"
@@ -127,3 +138,30 @@ diff -ruN nemesis-5.22b/CMakeLists.txt nemesis-5.22b_Modified/CMakeLists.txt
    "${NETCDF_INCLUDE_DIR}")
  
  SET(SOURCES
+ nemesis_wrapper.c
+ )
+ 
++
++SET(NEM_TLLS ${EXODUS_LIBRARY} ${NETCDF_LIBRARY} ${HDF5HL_LIBRARY} ${HDF5_LIBRARY} ${Z_LIBRARY})
++IF(NOT WIN32)
++  find_library(MATH_LIBRARY
++             NAMES m
++             PATHS /usr/lib64
++                   /usr/lib
++                   )
++  SET(NEM_TLLS ${NEM_TLLS} ${MATH_LIBRARY})
++ENDIF(NOT WIN32)
++
++
+ ADD_LIBRARY(nemesis ${SOURCES})
+-TARGET_LINK_LIBRARIES(nemesis ${EXODUS_LIBRARY} ${NETCDF_LIBRARY} ${HDF5HL_LIBRARY} ${HDF5_LIBRARY} ${Z_LIBRARY} ${MATH_LIBRARY})
++TARGET_LINK_LIBRARIES(nemesis ${NEM_TLLS})
+ 
+ ADD_EXECUTABLE(ne_test ne_ctest_wrap.c)
+-TARGET_LINK_LIBRARIES( ne_test nemesis ${EXODUS_LIBRARY} ${NETCDF_LIBRARY} ${HDF5HL_LIBRARY} ${HDF5_LIBRARY} ${Z_LIBRARY} ${MATH_LIBRARY})
+- 
++TARGET_LINK_LIBRARIES( ne_test nemesis ${NEM_TLLS})
++
+ INSTALL(TARGETS nemesis
+   RUNTIME DESTINATION lib COMPONENT Runtime
+   LIBRARY DESTINATION lib COMPONENT Runtime

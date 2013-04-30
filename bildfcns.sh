@@ -3693,12 +3693,12 @@ bilderConfig() {
             ;;
           *)
             configexec="$builddir/bootstrap.sh"
+            configargs="-show-libraries"
             ;;
         esac
         cmval=b2
         inplace=true
 # Need only b2 to be created
-        configargs="-show-libraries"
       elif test -f $builddir/../configure; then
 # Usual autotools out-of-place build
         configexec="$builddir/../configure"
@@ -4172,6 +4172,127 @@ bilderBuild() {
 }
 
 #
+# Test a package in the same subdir as the build.  
+# This is meant to allow the workflow:
+#   config.sh; build.sh; test.sh; if pass_test: install.sh
+# when it is all in the same directory and generally `make tests` is
+# used.  # Simpler than the txtest-based methods elsewhere
+# Sets the $1_$2_PID variable to allow later waiting for completion.
+#
+# Args:
+# 1: package name
+# 2: test name = test subdir
+# 3: (optional) args to make for testing. Default is tests
+# 4: (optional) environment variables for the testing
+#
+# -m Use instead of make
+# Return 0 if a test launched
+#
+bilderTest() {
+
+# Check to test
+  # techo "TESTING = $TESTING."
+  if ! $TESTING; then
+    techo "Not testing $1-$2, as TESTING = $TESTING."
+    return 0
+  fi
+
+# Default option values
+  local testdir
+  local bildermake
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "m:" arg; do
+    case "$arg" in
+      m) bildermake="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+# Additional targets.
+  local testargs=${3:-"tests"}
+
+# Get the version
+  local vervar=`genbashvar $1`_BLDRVERSION
+  local verval=`deref $vervar`
+
+# Get the test directory which is the same as the BUILD_DIR
+  local testdirvar=`genbashvar $1-$2`_BUILD_DIR
+  local testdir=`deref $testdirvar`
+
+# Check that we are testing.  Must not be turned off, and last
+# result must have been good and configuration file must exist
+  local dotestvar=`genbashvar $1-$2`_DOTEST
+  local dotestval=`deref $dotestvar`
+# Presence of file enough to know it built.
+  if ! $TESTING || ! $dotestval; then
+    techo "Not testing $1-$verval-$2."
+    techo -2 "TESTING = $TESTING.  $dotestvar = $dotestval."
+    return 1
+  fi
+
+# test if so
+  if ! $dotestval; then
+    return 1
+  fi
+
+  local pidvarname=`genbashvar $1_$2`_PID
+# The file that determines whether this has been done
+  techo "Testing $1 in $testdir."
+  cd $testdir
+  res=$?
+  if test $res != 0; then
+    TERMINATE_ERROR_MSG="Catastrophic error in testing $1-$2.  Cannot change directory to $testdir."
+    cleanup
+  fi
+  # This needs to match what waitLocalTests uses
+  local bildertest_resfile=bildertest-$1-$2.res
+  rm -f $bildertest_resfile
+
+# Determine how to make
+  local cmvar=`genbashvar $1`_CONFIG_METHOD
+  local cmval=`deref $cmvar`
+  bildermake=${bildermake:-"`getMaker $cmval`"}
+
+# make all
+  local envprefix=
+  if test -n "$4"; then
+    envprefix="env $4"
+  fi
+  local testscript=$FQMAILHOST-$1-$2-test.sh
+  echo '#!/bin/bash' >$testscript
+  if test -n "$envprefix"; then
+    echo -n "$envprefix " | tee -a $testscript
+  fi
+  echo "$bildermake $testargs" | tee -a $testscript
+  echo 'res=$?' >>$testscript
+  echo "echo test of $1-$2 completed with result = "'$res.' >>$testscript
+  echo 'echo $res >'$bildertest_resfile >>$testscript
+  echo 'exit $res' >>$testscript
+  chmod ug+x $testscript
+  local test_txt=$FQMAILHOST-$1-$2-test.txt
+  techo "testing $1-$2 in $PWD using $testscript at `date`." | tee $test_txt
+  techo "$testscript" | tee -a $test_txt
+  # cat $testscript | tee -a $test_txt | tee -a $LOGFILE
+  techo "$envprefix $bildermake $testargs" | tee -a $test_txt
+  ./$testscript >>$test_txt 2>&1 &
+  pid=$!
+  if test -z "$pid"; then
+    techo "WARNING: pid not known.  Something bad happened."
+    return 1
+  fi
+# Record test
+  addBuildToLists $1-$2 $pid
+  if test -n "$BLDR_PROJECT_URL"; then
+    local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
+    techo "See $BLDR_PROJECT_URL/$subdir/$test_txt."
+  fi
+  return 0
+}
+
+#
 # Wait for a package to complete building in a subdir
 #
 # Args:
@@ -4243,7 +4364,7 @@ waitBuild() {
     if test -n "$builddir"; then
       newres=`cat $builddir/$bilderbuild_resfile`
       if test -z "$newres"; then
-        TERMINATE_ERROR_MSG="Catastropic failure in waitBuild.  No result in $builddir/$bilderbuild_resfile."
+        TERMINATE_ERROR_MSG="Catastrophic failure in waitBuild.  No result in $builddir/$bilderbuild_resfile."
         cleanup
       fi
 # Check for inconsistency of wait return value and build result and correct
@@ -5000,10 +5121,10 @@ EOF
           local ending=
           local OS=`uname`
           case $OS in
-            CYGWIN*WOW64*) endings="-win_x64.exe -win_x64.zip";;
-            CYGWIN*) endings="-win_x86.exe -win_x86.zip";;
-            Darwin) endings=-Darwin.dmg;;
-            Linux) endings='-Linux-*.tar.gz';;
+            CYGWIN*WOW64*) endings="-Win64.exe -Win64-gpu.exe -win_x64.exe -win_x64.zip";;
+            CYGWIN*) endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip";;
+            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg";;
+            Linux) endings="-Linux64.tar.gz -Linux64-gpu.tar.gz -Linux32.tar.gz";;
           esac
           local sfx=
           for ending in $endings; do
@@ -5036,6 +5157,7 @@ EOF
             techo "For depot copy, target directory '${depotdir}' exists on host '${INSTALLER_HOST}'."
           fi
           installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
+          installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
           if test -n "$installer"; then
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
             techo "$cmd"
@@ -5052,20 +5174,34 @@ EOF
               cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotdir}/${installername}"
               techo "$cmd"
               $cmd
+              if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then 
+                cmd="ssh ${INSTALLER_HOST} ln -sf ${depotdir}/$installername ${depotdir}/${installerlink}"
+                techo "Creating link at depot: $cmd"
+                eval $cmd
+              fi
             else
-              techo "WARNING: '$cmd' failed: `cat ./error`"
-              rm ./error
+              techo "WARNING: '$cmd' failed: `cat error`"
+              rm error
             fi
+
             if test -n "$WINDOWS_DEPOT"; then
-              techo "NOTE: $installer also being copied to WINDOWS_DEPOT=${WINDOWS_DEPOT}."
-              local installerdirwindows=`cygpath -w $PWD`
-# cmd here is the windows command shell program!!
-              copycmd='cmd /C "cd $installerdirwindows && copy /Y $installer ${WINDOWS_DEPOT}"'
+              local windepotdir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
+              if test ! -d ${windepotdir}; then
+                techo "NOTE: Creating Windows depot dir ${windepotdir}."
+                mkdir -p ${windepotdir}
+              fi
+              techo "NOTE: $installername also being copied to WINDOWS_DEPOT=${windepotdir}."
+              copycmd="cp $installername ${windepotdir}"
               techo "$copycmd"
               eval $copycmd
+              if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
+                cmd="ln -sf ${windepotdir}/$installername ${windepotdir}/${installerlink}"
+                techo "Creating link at Windows depot: $cmd"
+                eval $cmd
+              fi
             fi
           else
-            techo "WARNING: $1 installer not found."
+            techo "WARNING: $1 installer ($installer) not found."
           fi
         else
           for i in INSTALLER_HOST INSTALLER_ROOTDIR; do

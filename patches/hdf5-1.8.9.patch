@@ -1,7 +1,19 @@
 diff -ruN hdf5-1.8.9/CMakeLists.txt hdf5-1.8.9-new/CMakeLists.txt
 --- hdf5-1.8.9/CMakeLists.txt	2012-05-09 09:06:29.000000000 -0600
-+++ hdf5-1.8.9-new/CMakeLists.txt	2012-07-01 08:38:25.000000000 -0600
-@@ -478,7 +478,10 @@
++++ hdf5-1.8.9-new/CMakeLists.txt	2013-04-22 15:47:18.853445300 -0600
+@@ -449,6 +449,11 @@
+   SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+ ENDIF (CMAKE_COMPILER_IS_GNUCXX)
+ 
++if (WIN32 AND NOT MINGW AND BUILD_WITH_SHARED_RUNTIME)
++  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MD")
++  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
++endif()
++
+ #-----------------------------------------------------------------------------
+ # All libs/tests/examples need the main include directories
+ #-----------------------------------------------------------------------------
+@@ -478,7 +483,10 @@
  IF (H5_HAVE_PARALLEL)
    SET (LINK_LIBS ${LINK_LIBS} ${MPI_C_LIBRARIES})
    IF (MPI_C_LINK_FLAGS)
@@ -13,7 +25,7 @@ diff -ruN hdf5-1.8.9/CMakeLists.txt hdf5-1.8.9-new/CMakeLists.txt
    ENDIF (MPI_C_LINK_FLAGS)
  ENDIF (H5_HAVE_PARALLEL)
  
-@@ -884,7 +887,7 @@
+@@ -884,7 +892,7 @@
    IF (EXISTS "${HDF5_SOURCE_DIR}/release_docs" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/release_docs")
      SET (release_files
          ${HDF5_SOURCE_DIR}/release_docs/CMake.txt
@@ -24,7 +36,7 @@ diff -ruN hdf5-1.8.9/CMakeLists.txt hdf5-1.8.9-new/CMakeLists.txt
          ${HDF5_SOURCE_DIR}/release_docs/INSTALL
 diff -ruN hdf5-1.8.9/config/cmake/ConfigureChecks.cmake hdf5-1.8.9-new/config/cmake/ConfigureChecks.cmake
 --- hdf5-1.8.9/config/cmake/ConfigureChecks.cmake	2012-05-09 09:06:20.000000000 -0600
-+++ hdf5-1.8.9-new/config/cmake/ConfigureChecks.cmake	2012-07-01 08:38:25.000000000 -0600
++++ hdf5-1.8.9-new/config/cmake/ConfigureChecks.cmake	2013-04-22 15:46:39.177478100 -0600
 @@ -129,6 +129,7 @@
  
  SET (WINDOWS)
@@ -686,7 +698,7 @@ diff -ruN hdf5-1.8.9/config/cmake/FindMPI.cmake hdf5-1.8.9-new/config/cmake/Find
 -endforeach()
 diff -ruN hdf5-1.8.9/fortran/src/CMakeLists.txt hdf5-1.8.9-new/fortran/src/CMakeLists.txt
 --- hdf5-1.8.9/fortran/src/CMakeLists.txt	2012-05-09 09:06:28.000000000 -0600
-+++ hdf5-1.8.9-new/fortran/src/CMakeLists.txt	2012-07-01 08:38:45.000000000 -0600
++++ hdf5-1.8.9-new/fortran/src/CMakeLists.txt	2013-04-22 15:46:39.192479600 -0600
 @@ -85,7 +85,7 @@
  #-----------------------------------------------------------------------------
  SET (f90CStub_C_SRCS
@@ -710,7 +722,7 @@ diff -ruN hdf5-1.8.9/fortran/src/CMakeLists.txt hdf5-1.8.9-new/fortran/src/CMake
    SET (f90CStub_C_SRCS
 diff -ruN hdf5-1.8.9/hl/fortran/src/CMakeLists.txt hdf5-1.8.9-new/hl/fortran/src/CMakeLists.txt
 --- hdf5-1.8.9/hl/fortran/src/CMakeLists.txt	2012-05-09 09:06:19.000000000 -0600
-+++ hdf5-1.8.9-new/hl/fortran/src/CMakeLists.txt	2012-07-01 08:38:25.000000000 -0600
++++ hdf5-1.8.9-new/hl/fortran/src/CMakeLists.txt	2013-04-22 15:46:39.194479800 -0600
 @@ -26,7 +26,8 @@
  SET (HDF5_HL_F90_HEADERS ${HDF5_HL_F90_SRC_SOURCE_DIR}/H5LTf90proto.h)
  SET_SOURCE_FILES_PROPERTIES (${HDF5_HL_F90_HEADERS} PROPERTIES LANGUAGE C)

@@ -75,12 +75,12 @@ buildBoost() {
           *g++) ;;
         esac
         ;;
-      Linux)
+      Linux-*)
         toolsetarg_cc4py="toolset=gcc"
         case $CXX in
           *g++) ;;
           *icpc) toolsetarg_ser="toolset=intel";;
-          *pgi) toolsetarg_ser="toolset=pgi";;
+          *pgCC) toolsetarg_ser="toolset=pgi";;
         esac
         ;;
     esac
@@ -92,7 +92,12 @@ buildBoost() {
       CYGWIN*-WOW64*) BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS";;
     esac
 # Only the shared and cc4py build boost python, as shared libs required.
-    BOOST_SER_ADDL_ARGS="$toolsetarg_ser link=static --without-python $BOOST_ALL_ADDL_ARGS"
+# runtime-link=static gives the /MT flags.  For simplicity, use for all.
+    BOOST_SER_ADDL_ARGS="$toolsetarg_ser runtime-link=static link=static --without-python $BOOST_ALL_ADDL_ARGS"
+    case `uname` in
+# On windows, we ensure we are using the right MSVC toolset
+      CYGWIN*-WOW64*) BOOST_SER_ADDL_ARGS="toolset=msvc-${VISUALSTUDIO_VERSION}.0 $BOOST_SER_ADDL_ARGS";;
+    esac
     BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser link=shared $BOOST_ALL_ADDL_ARGS"
     BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py link=shared $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.

@@ -25,7 +25,7 @@ ZLIB_BLDRVERSION=${ZLIB_BLDRVERSION:-"1.2.6"}
 if test -z "$ZLIB_BUILDS"; then
 # zlib needed only on windows
   if [[ `uname` =~ CYGWIN ]]; then
-    ZLIB_DESIRED_BUILDS=${ZLIB_DESIRED_BUILDS:-"ser,sersh"}
+    ZLIB_DESIRED_BUILDS=${ZLIB_DESIRED_BUILDS:-"ser,sersh,sermd"}
     computeBuilds zlib
     addCc4pyBuild zlib
   fi
@@ -68,6 +68,9 @@ buildZlib() {
       bilderBuild zlib sersh
     fi
 
+    if bilderConfig -c zlib sermd "-DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SER_OTHER_ARGS"; then
+      bilderBuild zlib sermd
+    fi
   fi
 
 }
@@ -92,27 +95,29 @@ installZlib() {
 
   local instdir
 # Correct ser lib to static name on CYGWIN
-  if bilderInstall zlib ser; then
-    instdir=$CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-ser
-    techo "instdir = $instdir."
-    case `uname` in
-      CYGWIN*) # Correct library names on Windows
-        unset oldlib
-        if test -f $instdir/lib/libzlib.a; then
-          oldlib=libzlib.a
-        elif test -f $instdir/lib/zlib.lib; then
-          oldlib=zlib.lib
-        fi
+  for build in ser sermd; do
+    if bilderInstall zlib $build; then
+      instdir=$CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-$build
+      techo "instdir = $instdir."
+      case `uname` in
+        CYGWIN*) # Correct library names on Windows
+          unset oldlib
+          if test -f $instdir/lib/libzlib.a; then
+            oldlib=libzlib.a
+          elif test -f $instdir/lib/zlib.lib; then
+            oldlib=zlib.lib
+          fi
 # libpng needs zlib.lib
 # matplotlib needs z.lib
-        if test -n "$oldlib"; then
-          cmd="cp $instdir/lib/$oldlib $instdir/lib/z.lib"
-          techo "$cmd"
-          $cmd
-        fi
-        ;;
-    esac
-  fi
+          if test -n "$oldlib"; then
+            cmd="cp $instdir/lib/$oldlib $instdir/lib/z.lib"
+            techo "$cmd"
+            $cmd
+          fi
+          ;;
+      esac
+    fi
+  done
   if bilderInstall zlib sersh; then
     instdir=$CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh
     techo "instdir = $instdir."

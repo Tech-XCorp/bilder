@@ -8,6 +8,8 @@
 
 techo
 techo "Determining Python version."
+# Make sure we get the built version
+addtopathvar PATH $CONTRIB_DIR/python/bin
 # Remove trailing carriage return on windows
 pymajver=`python -c "import sys;print sys.version[0]" | tr -d '\r'`
 techo "Python major version is '$pymajver'."
@@ -141,8 +143,8 @@ if ! $NO_PYTHON; then
       PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/Lib/site-packages
       NATIVE_PYTHON_SITEPKGSDIR=`cygpath -aw ${PYTHON_SITEPKGSDIR}`
       ;;
-    *)
-      PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/${PYTHON_LIBSUBDIR}/${PYTHON_VERDIR}/site-packages
+    Darwin | Linux)
+      PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/lib/${PYTHON_VERDIR}/site-packages
       NATIVE_PYTHON_SITEPKGSDIR=${PYTHON_SITEPKGSDIR}
       ;;
   esac

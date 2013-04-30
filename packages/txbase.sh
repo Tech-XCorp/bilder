@@ -27,6 +27,10 @@ TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
 
 if test -z "$TXBASE_DESIRED_BUILDS"; then
   TXBASE_DESIRED_BUILDS=ser,par,sersh
+  case `uname` in 
+    CYGWIN*) TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
+             ;;
+  esac
 fi
 computeBuilds txbase
 addCc4pyBuild txbase
@@ -90,6 +94,9 @@ buildTxbase() {
     fi
     if bilderConfig -c txbase cc4py "-DBUILD_WITH_CC4PY_RUNTIME:BOOL=TRUE -DUSE_CC4PY_HDF5:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $BOOST_INCDIR_ARG $CMAKE_HDF5_CC4PY_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_CC4PY_OTHER_ARGS"; then
       bilderBuild txbase cc4py "$TXBASE_MAKE_ARGS"
+    fi
+    if bilderConfig -c txbase sermd "$CMAKE_COMPILERS_SER -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPFLAGS_SER $BOOST_INCDIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS"; then
+      bilderBuild txbase sermd "$TXBASE_MAKE_ARGS"
     fi
 
   fi

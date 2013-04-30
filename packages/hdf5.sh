@@ -69,6 +69,7 @@ if test -z "$HDF5_DESIRED_BUILDS"; then
 # No need for parallel shared, as MPI executables are built static.
   case `uname`-${BILDER_CHAIN} in
     CYGWIN*)
+      HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
       if test "$VISUALSTUDIO_VERSION" = "10"; then
 # Python built with VS9, so need hdf5 build for that
         HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,cc4py"
@@ -168,6 +169,9 @@ buildHdf5() {
     fi
     if bilderConfig -c hdf5 par "-DHDF5_ENABLE_PARALLEL:BOOL=ON $TARBALL_NODEFLIB_FLAGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HDF5_STATIC_ENABLE_FORTRAN $HDF5_PAR_ADDL_ARGS $HDF5_PAR_OTHER_ARGS"; then
       bilderBuild hdf5 par "$HDF5_MAKEJ_ARGS"
+    fi
+    if bilderConfig -c hdf5 sermd "$TARBALL_NODEFLIB_FLAGS -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
+      bilderBuild hdf5 sermd "$HDF5_MAKEJ_ARGS"
     fi
     if bilderConfig -c hdf5 cc4py "-DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_CC4PY_ADDL_ARGS $HDF5_SHARED_ENABLE_FORTRAN $HDF5_CC4PY_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
       bilderBuild hdf5 cc4py "$HDF5_MAKEJ_ARGS" "$DISTUTILS_NOLV_ENV"
@@ -357,7 +361,7 @@ fixHdf5Libs() {
   bld=$1
   # instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
   case $bld in
-    ser | par) fixHdf5StaticLibs $bld;;
+    ser | par | sermd ) fixHdf5StaticLibs $bld;;
     sersh | parsh | cc4py)
       case `uname` in
         Darwin) fixHdf5Dylibs $bld;;
@@ -387,7 +391,7 @@ installHdf5() {
 # just under bin.
 # Remove (-r) old installations.  This assumee that the shared libs
 # will subsequently be reinstalled if needed.
-  for bld in ser par sersh parsh cc4py; do
+  for bld in ser par sersh parsh sermd cc4py; do
     if bilderInstall -p open -r hdf5 $bld; then
       hdf5installed=true
       instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
@@ -410,7 +414,7 @@ installHdf5() {
     findContribPackage Hdf5 hdf5 ser par
     case `uname` in
       CYGWIN*)
-        findContribPackage Hdf5 hdf5dll sersh parsh cc4py
+        findContribPackage Hdf5 hdf5dll sersh parsh sermd cc4py
         ;;
       *)
         findContribPackage Hdf5 hdf5 sersh parsh cc4py
