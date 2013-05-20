@@ -49,8 +49,19 @@ fi
 ######################################################################
 
 buildSuperlu_Dist() {
-  if bilderUnpack superlu_dist; then
-    if bilderConfig -c superlu_dist par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS"; then
+
+  if test -d $PROJECT_DIR/superlu_dist; then
+    getVersion superlu_dist
+    bilderPreconfig -c superlu_dist
+    res=$?
+  else
+    bilderUnpack superlu_dist
+    res=$?
+  fi
+
+  if test $res = 0; then 
+
+     if bilderConfig -c superlu_dist par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS"; then
       bilderBuild superlu_dist par "$SUPERLU_DIST_PAR_MAKE_ARGS"
     fi
     if bilderConfig superlu_dist parsh "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
@@ -64,6 +75,7 @@ buildSuperlu_Dist() {
     fi
 
   fi
+
 }
 
 ######################################################################

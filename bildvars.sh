@@ -97,7 +97,7 @@ case `uname` in
     CXX=${CXX:-"cl"}
     LIBEXT=.lib
     unset LIBPREFIX
-    MAKEJ_MAX=`wmic cpu get NumberOfCores | sed -n 2p | tr -d '\r '`
+    MAKEJ_TOTAL=`wmic cpu get NumberOfCores | sed -n 2p | tr -d '\r '`
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
@@ -151,8 +151,8 @@ case `uname` in
     SYSTEM_LAPACK_SER_LIB="-framework Accelerate"
     LIBEXT=.a
     LIBPREFIX=lib
-    if ! MAKEJ_MAX=`hwprefs cpu_count 2>/dev/null`; then
-      MAKEJ_MAX=`sysctl -n hw.ncpu`
+    if ! MAKEJ_TOTAL=`hwprefs cpu_count 2>/dev/null`; then
+      MAKEJ_TOTAL=`sysctl -n hw.ncpu`
     fi
     OSVER=`uname -r`
 # On Darwin, jenkins is not getting /usr/local/bin
@@ -197,7 +197,7 @@ case `uname` in
     ARCHIVER=ar
     LIBEXT=.a
     LIBPREFIX=lib
-    MAKEJ_MAX=`grep ^processor /proc/cpuinfo | wc -l`
+    MAKEJ_TOTAL=`grep ^processor /proc/cpuinfo | wc -l`
     case `uname -m` in
       x86_64)
 # CMAKE_LIBRARY_PATH_ARG is needed by cmake on ubuntu, where libraries
@@ -227,29 +227,8 @@ case `uname` in
     ;;
 
 esac
-techo "Found $MAKEJ_MAX cores to build on."
+techo "Found $MAKEJ_TOTAL cores to build on."
 IS_MINGW=${IS_MINGW:-"false"}
-
-######################################################################
-#
-# Set the maximum value for the j arg to make
-#
-######################################################################
-
-# Default -j value for make is half the number of processors,
-# but not less than 1, and not greater than MKJMAX.
-if test -n "$MAKEJ_MAX"; then
-  MAKEJ_DEFVAL=`expr $MAKEJ_MAX / 2`
-  if test $MAKEJ_DEFVAL -le 0; then
-    MAKEJ_DEFVAL=1
-  fi
-  if test -n "$JMAKE"; then
-    if test  "$MAKEJ_DEFVAL" -gt "$JMAKE"; then
-      MAKEJ_DEFVAL=$JMAKE
-    fi
-  fi
-  MKJ_DEFARG="-j $MAKEJ_DEFVAL"
-fi
 
 ######################################################################
 #
@@ -898,7 +877,7 @@ flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_C
 envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS BOOST_INCDIR_ARG"
 qtvars="QMAKE_PLATFORM_ARGS QT_BINDIR"
-mkjvars="MAKEJ_MAX MAKEJ_DEFVAL"
+mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="INSTALLER_HOST INSTALLER_ROOTDIR"
 othervars="USE_ATLAS_CC4PY DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"

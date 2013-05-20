@@ -21,11 +21,11 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 ######################################################################
 
 # Only the python build needed.
-if [[ `uname` =~ CYGWIN ]]; then
-  FTGL_BUILD=sermd
-else
+# if [[ `uname` =~ CYGWIN ]]; then
+  # FTGL_BUILD=sermd
+# else
   FTGL_BUILD=$FORPYTHON_BUILD
-fi
+# fi
 FTGL_BUILDS=${FTGL_BUILDS:-"$FTGL_BUILD"}
 FTGL_DEPS=freetype
 FTGL_UMASK=002
@@ -50,11 +50,12 @@ buildFtgl() {
     local ftconfigargs=
     local ftconfigenv=
     if test -z "$ftconfigtype"; then
-      ftconfigargs=--without-x
+      ftconfigargs="--enable-shared --without-x"
       if test -n "$freetype_rootdir"; then
         ftconfigargs="$ftconfigargs --with-ft-prefix=$freetype_rootdir"
       fi
     else
+      ftconfigargs="-DBUILD_SHARED_LIBS:BOOL=TRUE"
       ftconfigenv="FREETYPE_DIR=$freetype_rootdir"
     fi
     if bilderConfig $ftconfigtype ftgl $FTGL_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then

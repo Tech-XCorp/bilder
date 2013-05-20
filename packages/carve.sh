@@ -37,8 +37,7 @@ CARVE_UMASK=002
 ######################################################################
 
 #
-# Move old carve aside.  This gives a version that does not
-# build on Windows.
+# Move old carve aside.
 #
 # Args
 # 1: the repo to look for
@@ -68,21 +67,28 @@ getHgCarve() {
   if ! which hg 1>/dev/null 2>&1; then
     techo "WARNING: hg not in path.  Cannot get carve."
   fi
+  local origdir=`pwd -P`
   if ! test -d carve/.hg; then
     techo "No mercurial checkout of carve."
     mvOldCarveDir svn
     cmd="hg clone https://code.google.com/p/carve"
     techo "$cmd"
     $cmd
+    cmd="cd carve"
+    techo "$cmd"
+    $cmd
   else
     cmd="cd carve"
+    techo "$cmd"
+    $cmd
+    cmd="hg revert -a"
     techo "$cmd"
     $cmd
     cmd="hg pull"
     techo "$cmd"
     $cmd
-    cd - 1>/dev/null 2>&1
   fi
+  cd $origdir
 }
 
 #
@@ -121,8 +127,18 @@ buildCarve() {
     return 1
   fi
 
-# Get version and proceed
+# Before getting version, revert carve
+  cmd="(cd $PROJECT_DIR/carve; hg revert -a)"
+  techo "$cmd"
+  eval "$cmd"
+
+# Get version
   getVersion carve
+
+# Apply patch
+  cd $PROJECT_DIR/carve
+  patch -p1 <$BILDER_DIR/patches/carve.patch
+  cd -
 
   if bilderPreconfig -c carve; then
 

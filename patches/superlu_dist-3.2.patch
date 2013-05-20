@@ -1,0 +1,88 @@
+diff -ruN superlu_dist-3.2/SRC/pdgstrf.c superlu_dist-3.2-new/SRC/pdgstrf.c
+--- superlu_dist-3.2/SRC/pdgstrf.c	2012-06-27 18:43:15.000000000 -0600
++++ superlu_dist-3.2-new/SRC/pdgstrf.c	2012-11-01 17:06:46.000000000 -0600
+@@ -263,6 +263,8 @@
+     int_t iword = sizeof(int_t), dword = sizeof(double);
+ #endif
+ 
++    int nlsupers;
++    int *look_ahead_l;
+     /* Test the input parameters. */
+     *info = 0;
+     if ( m < 0 ) *info = -2;
+@@ -983,7 +985,7 @@
+       }
+       SUPERLU_FREE(recvbuf);
+ #else
+-      int nlsupers = nsupers/Pc;
++      nlsupers = nsupers/Pc;
+       if( mycol < nsupers%Pc ) nlsupers ++;
+ 
+       /* insert local nodes in DAG */
+@@ -1153,7 +1155,6 @@
+     for( lb=0; lb<nsupers; lb++ ) iperm_c_supno[perm_c_supno[lb]] = lb;
+ 
+     /* constructing look-ahead table to indicate the last dependency */
+-    int *look_ahead_l; 
+     stat->num_look_aheads = num_look_aheads;
+ 
+     look_ahead_l = SUPERLU_MALLOC( nsupers * sizeof(int) );
+diff -ruN superlu_dist-3.1/SRC/pzgstrf.c superlu_dist-3.1-new/SRC/pzgstrf.c
+--- superlu_dist-3.1/SRC/pzgstrf.c	2012-06-27 18:43:15.000000000 -0600
++++ superlu_dist-3.1-new/SRC/pzgstrf.c	2012-11-01 17:12:13.000000000 -0600
+@@ -255,7 +255,11 @@
+     float msg_vol = 0, msg_cnt = 0;
+     int_t iword = sizeof(int_t), zword = sizeof(doublecomplex);
+ #endif
++    
++    int nlsupers, nrbp1;
++    int *etree, *look_ahead_l; 
+ 
++    double tt1;
+     /* Test the input parameters. */
+     *info = 0;
+     if ( m < 0 ) *info = -2;
+@@ -383,7 +387,7 @@
+     for( i=0; i<nsupers; i++ ) factored[i] = factoredU[i] = -1;
+ 
+ #if ( PRNTlevel>=1 )
+-    double tt1 = SuperLU_timer_();
++    tt1 = SuperLU_timer_();
+ #endif
+     nblocks = 0;
+     ncb = nsupers / Pc;
+@@ -402,7 +406,7 @@
+       if( options->ParSymbFact == NO ) {
+           /* Use the etree computed from serial symb. fact., and turn it
+              into supernodal tree.  */
+-          int_t *etree = LUstruct->etree;
++          etree = LUstruct->etree;
+ #if ( PRNTlevel>=1 )
+           if( grid->iam == 0 ) printf( " === using column e-tree ===\n" );
+ #endif
+@@ -541,7 +545,7 @@
+     } else { /* Unsymmetric pattern */
+         /* Need to process both L- and U-factors, use the symmetrically
+            pruned graph of L & U instead of tree (very naive implementation) */
+-      int nrbp1 = nrb + 1;
++      nrbp1 = nrb + 1;
+ 
+       /* allocate some workspace */
+       if ( !(sendcnts = SUPERLU_MALLOC( (4+2*nrbp1)*Pr*Pc * sizeof(int))) )
+@@ -976,7 +980,7 @@
+       }
+       SUPERLU_FREE(recvbuf);
+ #else
+-      int nlsupers = nsupers/Pc;
++      nlsupers = nsupers/Pc;
+       if( mycol < nsupers%Pc ) nlsupers ++;
+ 
+       /* insert local nodes in DAG */
+@@ -1146,7 +1150,6 @@
+     for( lb=0; lb<nsupers; lb++ ) iperm_c_supno[perm_c_supno[lb]] = lb;
+ 
+     /* constructing look-ahead table to indicate the last dependency */
+-    int *look_ahead_l; 
+     stat->num_look_aheads = num_look_aheads;
+ 
+     look_ahead_l = SUPERLU_MALLOC( nsupers * sizeof(int) );

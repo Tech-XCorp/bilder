@@ -79,21 +79,28 @@ fi
 
 # We need PKGNM later, regardless of how we're determining the version.
 PKGNM=`echo $package | tr 'A-Z./-' 'a-z___'`
-PKG_FILE=$BILDER_DIR/packages/$PKGNM.sh
-if test ! -e $PKG_FILE; then
-  # techo "$PKG_FILE does not exist."
-  if test -n "$BILDER_CONFDIR"; then
-    PKG_FILE=$BILDER_CONFDIR/packages/$PKGNM.sh
+#SEK: BILDER_CONFDIR/packages take precedence over BILDER_DIR/packages
+# techo "$PKG_FILE does not exist."
+if test -n "$BILDER_CONFDIR"; then
+  PKG_FILE=$BILDER_CONFDIR/packages/$PKGNM.sh
+  if test ! -e $PKG_FILE; then
+    PKG_FILE=$BILDER_DIR/packages/$PKGNM.sh
     if test ! -e $PKG_FILE; then
       techo "Can't find $PKGNM.sh in $BILDER_DIR or $BILDER_CONFDIR.  Quitting."
       exit 1
     fi
-  else
-    techo "Can't find $PKGNM.sh in $BILDER_DIR and BILDER_CONFDIR is undefined.  Quitting."
+  fi
+else
+  PKG_FILE=$BILDER_DIR/packages/$PKGNM.sh
+  if test ! -e $PKG_FILE; then
+    techo "Can't find $PKGNM.sh in $BILDER_DIR or $BILDER_CONFDIR.  Quitting."
     exit 1
   fi
 fi
 techo "PKG_FILE = $PKG_FILE."
+#TMP
+echo "PKG_FILE = $PKG_FILE."
+exit 1
 
 # If a repo, get that version, otherwise look in variables
 vervar=`genbashvar $package`_BLDRVERSION

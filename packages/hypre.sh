@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Version and build information for hypre (only build parallel for PETSc)
+# PETSc does not allow serial build w/hypre
 #
 # $Id$
 #
@@ -20,10 +21,11 @@ HYPRE_BLDRVERSION=${HYPRE_BLDRVERSION:-"2.8.3a"}
 #
 ######################################################################
 if test -z "$HYPRE_BUILDS"; then
-  HYPRE_BUILDS=par
+  # Leaving serial build in case non-PETSc package needs it
+  HYPRE_BUILDS=ser,par
   case `uname` in
     CYGWIN* | Darwin) ;;
-    *) HYPRE_BUILDS="${HYPRE_BUILDS},parsh";;
+    *) HYPRE_BUILDS="${HYPRE_BUILDS},sersh,parsh";;
   esac
 fi
 
@@ -43,14 +45,27 @@ HYPRE_UMASK=002
 ######################################################################
 
 buildHypre() {
+
   if bilderUnpack hypre; then
+
     if bilderConfig -c hypre par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS"; then
       bilderBuild hypre par
     fi
+
     if bilderConfig hypre parsh "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS  -DHYPRE_SHARED:BOOL=ON"; then
       bilderBuild hypre parsh
     fi
+
+    if bilderConfig -c hypre ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS"; then
+      bilderBuild hypre ser
+    fi
+
+    if bilderConfig hypre sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS  -DHYPRE_SHARED:BOOL=ON"; then
+      bilderBuild hypre sersh
+    fi
+
   fi
+
 }
 
 ######################################################################

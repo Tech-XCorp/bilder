@@ -1127,6 +1127,8 @@ getVersion() {
   local repotype=`getRepoType`
 
 # Get the revision
+  local branch=
+  local hash=
   if test "$repotype" == "SVN"; then
     techo -2 "Getting version of $repodir  at `date`."
     rev=`bilderSvnversion $lastChangedArg`
@@ -1162,16 +1164,19 @@ getVersion() {
       cd $origdir
       return 1
     fi
-    local branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
+    branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
     # rev=${rev}-${branch}
     rev=${branch}.r${rev}
   elif test "$repotype" == "HG"; then
-    techo "Getting the current hg id (hash) of $1 at `date`."
-    if ! rev=`hg id -i`; then
+    techo "Getting the current version of $1 at `date`."
+    if ! rev=`hg id -n`; then
       techo "Hg failed.  In path?  Returning."
       cd $origdir
       return 1
     fi
+    branch=`hg branch`
+    hash=`hg id -i`
+    rev=${branch}.r${rev}.${hash}
   elif test -z "$repotype"; then
     techo "Directory $repodir is not a repository, assuming exported"
     rev="exported"
@@ -2802,9 +2807,9 @@ findQt() {
 # 2: comma delimited list of builds
 #
 computeMakeJ() {
-  if test -n "$MAKEJ_MAX" -a -n "$2"; then
+  if test -n "$MAKEJ_TOTAL" -a -n "$2"; then
     local numblds=`echo $2 | tr ',' ' ' | wc -w | sed 's/^ *//'`
-    local jval=`expr $MAKEJ_MAX / $numblds`
+    local jval=`expr $MAKEJ_TOTAL / $numblds`
     if test -n "$jval"; then
 # Make sure jval is at least one.  (Is this needed with the below?)
       if test $jval -le 0; then
@@ -2812,8 +2817,12 @@ computeMakeJ() {
       fi
 # Better to oversubscribe than undersubscribe
       local totjval=`expr $jval \* $numblds`
-      if test $totjval -lt $MAKEJ_MAX; then
+      if test $totjval -lt $MAKEJ_TOTAL; then
         jval=`expr $jval + 1`
+      fi
+# Make sure not to exceed JMAKE
+      if test -n "$JMAKE" -a $jval -gt $JMAKE; then
+        jval=$JMAKE
       fi
     else
       jval=1
@@ -4189,6 +4198,7 @@ bilderBuild() {
 # Return 0 if a test launched
 #
 bilderTest() {
+  local pkgname=$1
 
 # Check to test
   # techo "TESTING = $TESTING."
@@ -4211,8 +4221,34 @@ bilderTest() {
   done
   shift $(($OPTIND - 1))
 
+# Get the builds to wait on
+  local buildsvar=`genbashvar $1`_BUILDS
+  local buildsval=`deref $buildsvar`
+  local testedBuilds=
+# Remove ignored builds
+  for bld in `echo $buildsval | tr ',' ' '`; do
+    if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
+      testedBuilds=$testedBuilds,$bld
+    fi
+  done
+  trimvar testedBuilds ','
+  techo "Checking on tested builds '$testedBuilds' of $pkgname."
+
+# Wait on all builds, see if any tested build failed
+  local tbFailures=
+  for i in `echo $testedBuilds | tr ',' ' '`; do
+    cmd="waitBuild $pkgname-$i"
+    techo -2 "$cmd"
+    $cmd
+    res=$?
+    if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
+      tbFailures="$tbFailures $i"
+    fi
+  done
+  trimvar tbFailures ' '
+
 # Additional targets.
-  local testargs=${3:-"tests"}
+  local testargs=${3:-"test"}
 
 # Get the version
   local vervar=`genbashvar $1`_BLDRVERSION
@@ -4309,14 +4345,16 @@ waitBuild() {
 
 # Default option values
   local istest=false
+  local isctest=false
   local recordfailure=true
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "nt" arg; do
+  while getopts "ntz" arg; do
     case $arg in
       n) recordfailure=false;;
       t) istest=true;;
+      z) isctest=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -4361,6 +4399,9 @@ waitBuild() {
 
 # Ensure that the build produced a result
     local bilderbuild_resfile=bilderbuild-$1.res
+    if $isctest; then
+       bilderbuild_resfile=bildertest-$1.res
+    fi
     if test -n "$builddir"; then
       newres=`cat $builddir/$bilderbuild_resfile`
       if test -z "$newres"; then
@@ -4738,6 +4779,7 @@ recordInstallation() {
 # -s the name of the installer subdir at the depot
 # -t is a test, so call waitTest
 # -T the name of the installation target (default is 'install')
+# -z is a ctest, so call waitBuild -t
 #
 # Return whether installed
 #
@@ -4757,10 +4799,11 @@ bilderInstall() {
   local recordinstall=true
   local removesame=false
   local webdocs=false
+  local isctest=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ab:cfgLm:np:rs:tT:" arg; do
+  while getopts "ab:cfgLm:np:rs:tT:z" arg; do
     case $arg in
       a) acceptbuild=true;;
       b) builddir="$OPTARG";;
@@ -4775,6 +4818,7 @@ bilderInstall() {
       s) installersubdir="$OPTARG";;
       t) istest=true;;
       T) insttarg="$OPTARG";;
+      z) isctest=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -4796,12 +4840,16 @@ bilderInstall() {
     res=0
     techo "Package $1-$verval-$2 build was accepted before."
   else
-    if $istest; then
+    if $isctest; then
+      waitBuild -z -t $1-$2
+      resvarname=`genbashvar $1-$2`_RES
+    elif $istest; then
       waitTests $1
+      resvarname=`genbashvar $1`_RES
     else
       waitBuild $1-$2
+      resvarname=`genbashvar $1_$2`_RES
     fi
-    resvarname=`genbashvar $1_$2`_RES
     res=`deref $resvarname`
     if test "$res" != 0; then
       techo "Not installing $1-$verval-$2 since did not build."
@@ -5123,7 +5171,7 @@ EOF
           case $OS in
             CYGWIN*WOW64*) endings="-Win64.exe -Win64-gpu.exe -win_x64.exe -win_x64.zip";;
             CYGWIN*) endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip";;
-            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg";;
+            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
             Linux) endings="-Linux64.tar.gz -Linux64-gpu.tar.gz -Linux32.tar.gz";;
           esac
           local sfx=
@@ -5190,14 +5238,21 @@ EOF
                 techo "NOTE: Creating Windows depot dir ${windepotdir}."
                 mkdir -p ${windepotdir}
               fi
-              techo "NOTE: $installername also being copied to WINDOWS_DEPOT=${windepotdir}."
-              copycmd="cp $installername ${windepotdir}"
+              copycmd="cp -v ${installer} ${windepotdir}/${installername}"
               techo "$copycmd"
-              eval $copycmd
+              if $copycmd 2>&1; then
+                techo "NOTE: $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
+              else
+                techo "WARNING: $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
+              fi
               if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
-                cmd="ln -sf ${windepotdir}/$installername ${windepotdir}/${installerlink}"
-                techo "Creating link at Windows depot: $cmd"
-                eval $cmd
+                curdir=`pwd -P`
+                if test -s ${windepotdir}/${installerlink}.lnk; then
+                  rmall ${windepotdir}/${installerlink}.lnk
+                fi
+                cmd="cd ${windepotdir}; mkshortcut.exe ${installername}; mv ${installername}.lnk ${installerlink}.lnk; cd ${curdir}"
+                techo "Creating link ${installerlink}.lnk on Windows depot"
+                eval $cmd         
               fi
             fi
           else

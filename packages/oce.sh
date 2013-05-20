@@ -23,7 +23,7 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 # Only the python build needed.
 OCE_BUILD=$FORPYTHON_BUILD
 OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
-OCE_DEPS=ftgl
+OCE_DEPS=freetype
 OCE_UMASK=002
 addtopathvar PATH $CONTRIB_DIR/oce/bin
 
@@ -101,9 +101,8 @@ buildOce() {
   fi
 
 # Determine other configure args
-  local ftgl_rootdir=`findFtglRootdir`
-  if test -n "$ftgl_rootdir"; then
-    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_INCLUDE_DIR:PATH=$ftgl_rootdir/include"
+  if ! declare -f findFreetypeRootdir 1>/dev/null 2>&1; then
+    source $BILDER_DIR/packages/freetype.sh
   fi
   local freetype_rootdir=`findFreetypeRootdir`
   local OCE_ENV=
@@ -112,22 +111,12 @@ buildOce() {
   fi
   case `uname` in
     CYGWIN*)
-      if test -n "$ftgl_rootdir"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$ftgl_rootdir/lib/libftgl.lib"
-      fi
       ;;
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
-      if test -n "$ftgl_rootdir"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$ftgl_rootdir/lib/libftgl.dylib"
-      fi
       ;;
     Linux)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
-      if test -n "$ftgl_rootdir"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_LIBRARY:FILEPATH=$ftgl_rootdir/lib/libftgl.so"
-        OCE_ENV="$OCE_ENV LD_RUN_PATH=$ftgl_rootdir/lib"
-      fi
       ;;
   esac
 # Cannot disable X11 or will not build TKMeshVS, which is needed
@@ -140,13 +129,16 @@ fi
 
 # OCE does not have all dependencies right, so needs nmake
   local buildargs=
+  local makejargs=
   if [[ `uname` =~ CYGWIN ]]; then
      buildargs="-m nmake"
+  else
+     makejargs="$OCE_MAKEJ_ARGS"
   fi
 
 # Configure and build
   if bilderConfig oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
-    bilderBuild $buildargs oce $OCE_BUILD "$OCE_MAKEJ_ARGS" "$OCE_ENV"
+    bilderBuild $buildargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
   fi
 
 }

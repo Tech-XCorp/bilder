@@ -41,8 +41,11 @@ LIBSSH_UMASK=002
 
 buildLibssh() {
   if bilderUnpack libssh; then
+    local buildargs=
     case `uname` in
       CYGWIN*)
+# Some failures with jom on focus
+        buildargs="-m nmake"
         local zlibdir=`cygpath -am $CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh`
         LIBSSH_SER_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$zlibdir/include -DZLIB_LIBRARY:PATH=$zlibdir/lib/zlib.lib"
         ;;
@@ -51,10 +54,10 @@ buildLibssh() {
         ;;
     esac
     if bilderConfig -c libssh ser "-DWITH_STATIC_LIB:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $LIBSSH_SER_ADDL_ARGS $LIBSSH_SER_OTHER_ARGS"; then
-      bilderBuild libssh ser
+      bilderBuild $buildargs libssh ser
     fi
     if bilderConfig -c libssh cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $TARBALL_NODEFLIB_FLAGS $LIBSSH_SER_ADDL_ARGS $LIBSSH_CC4PY_OTHER_ARGS"; then
-      bilderBuild libssh cc4py
+      bilderBuild $buildargs libssh cc4py
     fi
   fi
 }

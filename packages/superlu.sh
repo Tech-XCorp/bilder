@@ -43,14 +43,27 @@ SUPERLU_UMASK=002
 ######################################################################
 
 buildSuperlu() {
-  if bilderUnpack superlu; then
+
+  if test -d $PROJECT_DIR/superlu; then
+    getVersion superlu
+    bilderPreconfig -c superlu
+    res=$?
+  else
+    bilderUnpack superlu
+    res=$?
+  fi
+
+  if test $res = 0; then
+
     if bilderConfig superlu ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS"; then
-      bilderBuild superlu ser 
+      bilderBuild superlu ser
     fi
     if bilderConfig superlu sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
       bilderBuild superlu sersh
     fi
+
   fi
+
 }
 
 ######################################################################

@@ -54,7 +54,7 @@ BILDER OPTIONS
                         in which case install in the last directory.
                         <install_dir> defaults to \$HOME/software if not set.
   -I ................ Install even if tests fail (ignore test results).
-  -j <n> ............ Pass arg to make with -j.
+  -j <n> ............ Maximum value of arg to make with -j.
   -k <tarball_dir> .. Set installation directory for code in tarballs,
                         expected to be found in one of the pkg repo subdirs;
                         <tarball_dir> defaults to <install_dir> if not set.
@@ -484,11 +484,6 @@ EOF
   esac
   CONFIG_SUPRA_SP_ARG=--with-supra-search-path=$SUPRA_SP
   CMAKE_SUPRA_SP_ARG="-DSUPRA_SEARCH_PATH:PATH='$SUPRA_SP_CMAKE'"
-
-# Set jmake args if not empty
-  if test -n "$JMAKE"; then
-    JMAKEARGS="-j $JMAKE"
-  fi
 
   if $FORCE_INSTALL; then
     techo -2 "Modified packages will be installed."
