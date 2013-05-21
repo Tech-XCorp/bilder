@@ -64,7 +64,7 @@ testShiboken() {
 
 installShiboken() {
   if bilderInstall shiboken ser; then
-    :
+    ln -sf $CONTRIB_DIR/shiboken-ser/bin/shiboken $CONTRIB_DIR/bin/shiboken
   fi
 }
 
