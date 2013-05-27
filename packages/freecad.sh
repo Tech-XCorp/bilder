@@ -103,7 +103,7 @@ buildFreecad() {
   fi
 
 # These will need conversion for Windows
-  local FREECAD_ADDL_ARGS="-DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost-sersh' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
+  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost-sersh' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
   if ! QMAKE_PATH=`which qmake 2>/dev/null`; then
     techo "WARNING: Could not find qmake in path. Please add location of qmake to your path in the case that QT CMake Macros can not be found by the freecad configuration system"
     return 1
@@ -120,7 +120,6 @@ buildFreecad() {
     techo "Catastrophic error in buildFreecad.  OCE root directory not found."
     cleanup
   fi
-  local FREECAD_ENV=
   case `uname` in
     Darwin)
       local ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev`

@@ -1,0 +1,13 @@
+diff -ruN pyside-qt4.8+1.1.2/CMakeLists.txt pyside-qt4.8+1.1.2-new/CMakeLists.txt
+--- pyside-qt4.8+1.1.2/CMakeLists.txt	2012-08-28 22:35:50.000000000 +0200
++++ pyside-qt4.8+1.1.2-new/CMakeLists.txt	2013-05-26 14:23:16.000000000 +0200
+@@ -51,8 +51,8 @@
+         if(ALTERNATIVE_QT_INCLUDE_DIR)
+             set(QT_INCLUDE_DIR ${ALTERNATIVE_QT_INCLUDE_DIR})
+         endif()
+-        string(REPLACE " " ":" QT_INCLUDE_DIR ${QT_INCLUDE_DIR})
+     endif()
++    string(REPLACE ";" ":" QT_INCLUDE_DIR "${QT_INCLUDE_DIR}")
+ endif()
+ 
+ if(NOT CMAKE_BUILD_TYPE)
