@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# $Id$
+#
+# Define variables.
+# Do not override existing definitions.
+# Put any comments between the first block starting with '# KEEP THIS'
+# and ending with '# END KEEP THIS'
+#
+######################################################################
+
+# KEEP THIS
+
+# When running cmake, this must be in the front of the path to
+# get the native Windows cmake.
+
+HAVE_SER_FORTRAN=true
+
+VISUALSTUDIO_VERSION=10
+QMAKESPECARG="-spec win32-msvc2010"
+if test -z "$BILDER_DIR"; then
+  mdir=`dirname $BASH_SOURCE`
+  mdir=`(cd $mdir; pwd -P)`
+  bdir=`dirname $mdir`
+  BILDER_DIR=`(cd $bdir; pwd -P)`
+fi
+cmd="source $BILDER_DIR/machines/cygwin.vs"
+echo $cmd
+$cmd
+
+HAVE_SER_FORTRAN=true
+
+export MKLROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\mkl"
+export WIN_TITLE="Intel Composer XE 2011 SP1  Intel(R) 64 Visual Studio 2010"
+export PRODUCT_NAME="Intel Composer XE 2011 SP1"
+export BUNDLE_NAME="Intel(R) Parallel Studio XE 2011 SP1"
+export INTEL_LICENSE_FILE="C:\Program Files (x86)\Common Files\Intel\Licenses"
+export IFORT_COMPILER11="C:\Program Files (x86)\Intel\Composer XE 2011 SP1"
+export INTEL_DEV_REDIST="C:\Program Files (x86)\Common Files\Intel\Shared Libraries"
+export ROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1"
+export BIN_ROOT="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\bin"
+export PRODUCT_NAME_FULL="Intel(R) Composer XE 2011 SP1 (package 089)"
+export C_TARGET_ARCH="intel64"
+export INCLUDE="$INCLUDE:c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\INCLUDE;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include"
+#export INCLUDE="C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\include;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\include\intel64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\mkl\include;"
+export LIB="$LIB:C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\lib;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\lib\intel64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\LIB\amd64;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\ATLMFC\LIB\amd64;c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\lib\x64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\mkl\lib\intel64;C:\Program Files (x86)\Intel\Composer XE 2011 SP1\compiler\lib\intel64;"
+export PATH="$PATH:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/bin/intel64:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/mkl:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/mpirt:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/ia32/mpirt:/cygdrive/c/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/ia32/compiler:/cygdrive/c/Program Files (x86)/Intel/Composer XE 2011 SP1/redist/intel64/mpirt"
+
+# END KEEP THIS
+
+# Serial compilers
+# FC should be a compiler that compiles F77 or F90 but takes free format.
+# F77 should be a compiler that compiles F77 or F90 but takes fixed format.
+# Typically this means that both are the F90 compiler, and they figure out the
+# format from the file suffix.  The exception is the XL suite, where xlf
+# compiles F77 or F90, and expects fixed format, while xlf9x ignores
+# the suffix and looks for the -qfixed flag or else fails on fixed format.
+#CC=${CC:-"icl"}
+#CXX=${CXX:-"icl"}
+FC=${FC:-"ifort"}
+F77=${F77:-"ifort"}
+
+# Python builds -- much use gcc for consistency.
+PYC_CC=${PYC_CC:-"cl"}
+PYC_CXX=${PYC_CXX:-"cl"}
+
+# Backend compilers:
+#BENCC=${BENCC:-"icl"}
+#BENCXX=${BENCXX:-"icl"}
+BENFC=${BENFC:-"ifort"}
+BENF77=${BENF77:-"ifort"}
+
+# Parallel compilers:
+#MPICC=${MPICC:-"icl"}
+#MPICXX=${MPICXX:-"icl"}
+MPIFC=${MPIFC:-"ifort"}
+MPIF77=${MPIF77:-"ifort"}

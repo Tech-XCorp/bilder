@@ -2821,8 +2821,10 @@ computeMakeJ() {
         jval=`expr $jval + 1`
       fi
 # Make sure not to exceed JMAKE
-      if test -n "$JMAKE" -a $jval -gt $JMAKE; then
-        jval=$JMAKE
+      if test -n "$JMAKE"; then
+        if test $jval -gt $JMAKE; then
+          jval=$JMAKE
+        fi
       fi
     else
       jval=1
@@ -6098,6 +6100,11 @@ EOF
 # Copy abstract to central host
   if $SEND_ABSTRACT && test -n "$ABSTRACT_HOST" -a -n "$ABSTRACT_ROOTDIR"; then
 
+# Append BILDER_BRANCHSHORT to ABSTRACT_ROOTDIR directory on abstract host machine; this will help identify
+# whether the build is non-trunk.  Do not append if BILDER_BRANCHSHORT is trunk.
+    if test "${BILDER_BRANCHSHORT}" != "trunk"; then
+      ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${BILDER_BRANCHSHORT}
+    fi
     techo
     techo "  Bilder sending abstract to host $ABSTRACT_HOST."
     techo "======================================"
