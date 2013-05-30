@@ -149,7 +149,7 @@ installFreecad() {
             libpathval="$libpathval:$PYC_LD_RUN_PATH"
             ;;
         esac
-        cat >$BLDR_INSTALL_DIR/freecad/bin/freecad.sh <<EOF
+        cat >$BLDR_INSTALL_DIR/freecad-$FREECAD_BUILD/bin/freecad.sh <<EOF
 #!/bin/bash
 myenv="$libpathvar=$libpathval"
 mydir=\`dirname \$0\`
@@ -158,7 +158,7 @@ cmd="env \$myenv \$mydir/freecad -P $PYTHON_SITEPKGSDIR"
 echo \$cmd
 \$cmd
 EOF
-      chmod a+x $BLDR_INSTALL_DIR/freecad/bin/freecad.sh
+      chmod a+x $BLDR_INSTALL_DIR/freecad-$FREECAD_BUILD/bin/freecad.sh
       ;;
     esac
   fi
