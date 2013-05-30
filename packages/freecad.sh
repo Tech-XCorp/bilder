@@ -104,10 +104,10 @@ buildFreecad() {
     Darwin)
       local ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev`
 # libsmesh needs to have the oce library dir added
-      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${ocedevdir}/Resources' -DOCC_LIBRARY_DIR='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib'"
+      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${ocedevdir}/Resources' -DOCC_LIBRARY_DIR='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib $SER_EXTRA_LDFLAGS'"
       ;;
     Linux)
-      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${ocerootdir}/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libSoQt.so'"
+      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${ocerootdir}/lib/oce-0.12-dev' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libSoQt.so -DCMAKE_SHARED_LINKER_FLAGS:STRING='$SER_EXTRA_LDFLAGS'"
       if test -n "$PYC_LD_RUN_PATH"; then
         FREECAD_ENV="LD_RUN_PATH=$PYC_LD_RUN_PATH"
       fi
