@@ -4914,7 +4914,7 @@ bilderInstall() {
       resvarname=`genbashvar $1-$2`_RES
     elif $istest; then
       waitTests $1
-      resvarname=`genbashvar $1`_RES
+      resvarname=`genbashvar $1_$2`_RES
     else
       waitBuild $1-$2
       resvarname=`genbashvar $1_$2`_RES
