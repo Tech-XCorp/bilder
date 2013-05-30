@@ -2940,8 +2940,6 @@ updateGitRepo() {
   local pkg=$1
   local pkgurl=$2
 
-  # techo "updateGitRepo called."
-
 # Make sure they have git
   if ! which git 1>/dev/null 2>&1; then
     techo "WARNING: git not in path.  Cannot get $pkg."
@@ -2959,7 +2957,6 @@ updateGitRepo() {
 
 # Get clean version of repo
   if test -d $pkg/.git; then
-    # techo "updateGitRepo: Found local git directory."
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       cmd="(cd $pkg; git reset --hard; git pull)"
       techo "$cmd"
@@ -2983,13 +2980,15 @@ updateGitRepo() {
 updateRepo() {
 
 # Find the repo
-  local vervar=`genbashvar $1`_URL
-  local verval=`deref $vervar`
+  local urlvar=`genbashvar $1`_URL
+  local urlval=`deref $urlvar`
 
 # Branch on type
-  case $verval in
+  case $urlval in
     git*)
-      updateGitRepo $1
+      cmd="updateGitRepo $1 $urlval"
+      techo -2 "$cmd"
+      $cmd
       return $?
       ;;
   esac
