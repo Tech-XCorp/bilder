@@ -91,8 +91,8 @@ BILDER_SVN=${BILDER_SVN:-"`which svn`"}
 #
 ######################################################################
 
-SVN_UP=${SVN_UP:-"false"}
-if $SVN_UP; then
+SVNUP=${SVNUP:-"false"}
+if $SVNUP; then
   cmd="bilderSvn up --accept postpone $PROJECT_DIR"
   techo "$cmd" | tee $BILDER_LOGDIR/svnup.out
   $cmd 1>>$BILDER_LOGDIR/svnup.out 2>&1

@@ -1154,7 +1154,7 @@ getVersion() {
 # Prepend r.
     rev="r"${rev}
   elif test "$repotype" == "GIT"; then
-    techo "Getting the current git branch of $1 at `date`."
+    techo "Getting the current git branch name of $1 at `date`."
 # NB: For git, we are using the number of repository revisions as the version
 #     number. Depending on where you get your repository and how you have
 #     applied patches, I believe that your repo could get a different number
@@ -2925,6 +2925,74 @@ getPkg() {
 # Found
   techo "Found $tarball." 1>&2
   echo "$tarball"
+
+}
+
+# Update a git repo
+#
+# Args:
+# 1: package name
+# 2: package repo url
+#
+updateGitRepo() {
+
+# Store args
+  local pkg=$1
+  local pkgurl=$2
+
+  # techo "updateGitRepo called."
+
+# Make sure they have git
+  if ! which git 1>/dev/null 2>&1; then
+    techo "WARNING: git not in path.  Cannot get $pkg."
+    return 1
+  fi
+
+# In case run outside bilder, get project directory
+  if test -z "$PROJECT_DIR"; then
+    local bldrdir=`dirname $BASH_SOURCE`
+    bldrdir=`dirname $bldrdir`
+    PROJECT_DIR=`dirname $bldrdir`
+  fi
+  cd $PROJECT_DIR
+  # techo "updateGitRepo: PWD = $PWD."
+
+# Get clean version of repo
+  if test -d $pkg/.git; then
+    # techo "updateGitRepo: Found local git directory."
+    if $SVNUP || test -n "$JENKINS_FSROOT"; then
+      cmd="(cd $pkg; git reset --hard; git pull)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
+  else
+    techo "$PWD/$pkg/.git does not exist.  No git checkout of $pkg."
+    if test -d $pkg; then rm -rf $pkg.sav; mv $pkg $pkg.sav; fi
+    cmd="git clone $pkgurl $pkg"
+    techo "$cmd"
+    $cmd
+  fi
+
+}
+
+# Update a repo
+#
+# Args:
+# 1: package name
+#
+updateRepo() {
+
+# Find the repo
+  local vervar=`genbashvar $1`_URL
+  local verval=`deref $vervar`
+
+# Branch on type
+  case $verval in
+    git*)
+      updateGitRepo $1
+      return $?
+      ;;
+  esac
 
 }
 

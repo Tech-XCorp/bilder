@@ -32,6 +32,7 @@ FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
 FREECAD_BUILD=$FORPYTHON_BUILD
 FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,ftgl,boost,f2c
 FREECAD_UMASK=002
+FREECAD_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
 addtopathvar PATH $CONTRIB_DIR/freecad/bin
 
 ######################################################################
@@ -44,39 +45,7 @@ addtopathvar PATH $CONTRIB_DIR/freecad/bin
 # Get freecad using git.
 #
 getFreecad() {
-  if ! which git 1>/dev/null 2>&1; then
-    techo "WARNING: git not in path.  Cannot get freecad."
-    return
-  fi
-  if test -z "$PROJECT_DIR"; then
-    local bldrdir=`dirname $BASH_SOURCE`
-    bldrdir=`dirname $bldrdir`
-    PROJECT_DIR=`dirname $bldrdir`
-  fi
-  cd $PROJECT_DIR
-  if test -d freecad/.git; then
-    if $SVN_UP || test -n "$JENKINS_FSROOT"; then
-      cmd="(cd freecad; git reset --hard; git pull)"
-      techo "$cmd"
-      eval "$cmd"
-    fi
-  else
-    techo "No git checkout of freecad."
-    if test -d freecad; then rm -rf freecad.sav; mv freecad freecad.sav; fi
-    cmd="git clone git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad freecad"
-    techo "$cmd"
-    $cmd
-  fi
-# Add patch if directory is clean
-  if (cd freecad; git status) | grep -q "working directory clean"; then
-    if test -f $BILDER_DIR/patches/freecad.patch; then
-      cmd="(cd freecad; patch -p0 <$BILDER_DIR/patches/freecad.patch)"
-      techo "$cmd"
-      eval "$cmd"
-    fi
-  else
-    techo "Working directory modified, will not patch."
-  fi
+  updateRepo freecad
 }
 
 buildFreecad() {
@@ -100,6 +69,17 @@ buildFreecad() {
     if ! bilderUnpack freecad; then
       return 1
     fi
+  fi
+
+# Add patch if directory is clean
+  if (cd freecad; git status) | grep -q "working directory clean"; then
+    if test -f $BILDER_DIR/patches/freecad.patch; then
+      cmd="(cd freecad; patch -p1 <$BILDER_DIR/patches/freecad.patch)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
+  else
+    techo "Working directory modified, will not patch."
   fi
 
 # These will need conversion for Windows

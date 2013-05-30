@@ -25,6 +25,7 @@ OCE_BUILD=$FORPYTHON_BUILD
 OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
 OCE_DEPS=freetype
 OCE_UMASK=002
+OCE_URL=git://github.com/tpaviot/oce.git
 addtopathvar PATH $CONTRIB_DIR/oce/bin
 
 ######################################################################
@@ -37,37 +38,9 @@ addtopathvar PATH $CONTRIB_DIR/oce/bin
 # Get oce using git.
 # This gives a version that does not build on Windows.
 #
-getGitOce() {
-  if ! which git 1>/dev/null 2>&1; then
-    techo "WARNING: git not in path.  Cannot get oce."
-    return
-  fi
-  if test -z "$PROJECT_DIR"; then
-    local bldrdir=`dirname $BASH_SOURCE`
-    bldrdir=`dirname $bldrdir`
-    PROJECT_DIR=`dirname $bldrdir`
-  fi
-  cd $PROJECT_DIR
-  if test -d oce/.git; then
-    if $SVN_UP || test -n "$JENKINS_FSROOT"; then
-      cmd="(cd oce; git pull)"
-      techo "$cmd"
-      eval "$cmd"
-    fi
-  else
-    techo "$PWD/oce/.git does not exist.  No git checkout of oce."
-    if test -d oce; then rm -rf oce.sav; mv oce oce.sav; fi
-    cmd="git clone git://github.com/tpaviot/oce.git"
-    techo "$cmd"
-    $cmd
-  fi
-}
-
-#
-# Get OCE, in this case by git
-#
 getOce() {
-  getGitOce
+  techo "Updating oce from the repo."
+  updateRepo oce
 }
 
 #
