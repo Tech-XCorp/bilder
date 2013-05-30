@@ -30,7 +30,7 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 # Only the python build needed.
 FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
 FREECAD_BUILD=$FORPYTHON_BUILD
-FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,ftgl,boost,f2c
+FREECAD_DEPS=SoQt,Coin,pyqt,xercesc,eigen3,oce,boost,f2c
 FREECAD_UMASK=002
 FREECAD_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
 addtopathvar PATH $CONTRIB_DIR/freecad/bin
