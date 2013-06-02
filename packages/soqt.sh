@@ -22,6 +22,7 @@ SOQT_BLDRVERSION=${SOQT_BLDRVERSION:-"1.5.0"}
 
 # SoQt is installed with Coin, so it is built the way Coin is built
 SOQT_BUILDS=${SOQT_BUILDS:-"$FORPYTHON_BUILD"}
+SOQT_BUILD=${SOQT_BUILD:-"$FORPYTHON_BUILD"}
 SOQT_DEPS=Coin,qt
 SOQT_UMASK=002
 # addtopathvar PATH $CONTRIB_DIR/soqt/bin
@@ -37,17 +38,15 @@ buildSoQt() {
   case `uname` in
     CYGWIN) ;;
     *)
-      SOQT_SERSH_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-sersh"
-      SOQT_CC4PY_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-cc4py"
+      SOQT_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-$SOQT_BUILD"
       ;;
   esac
 
   if bilderUnpack SoQt; then
-    if bilderConfig -p Coin-$COIN_BLDRVERSION-sersh SoQt $FORPYTHON_BUILD "$CONFIG_COMPILERS_SERSH CFLAGS='$CFLAGS -fpermissive' CXXFLAGS='$CXXFLAGS -fpermissive' $SOQT_SERSH_OTHER_ARGS" "" "$SOQT_SERSH_ENV"; then
-      bilderBuild SoQt sersh
-    fi
-    if bilderConfig -p Coin-$COIN_BLDRVERSION-cc4py SoQt $FORPYTHON_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$PYC_CFLAGS -fpermissive' CXXFLAGS='$PYC_CXXFLAGS -fpermissive' $SOQT_CC4PY_OTHER_ARGS" "" "$SOQT_CC4PY_ENV"; then
-      bilderBuild SoQt cc4py
+    local otherargsvar=`genbashvar SOQT_${SOQT_BUILD}`_OTHER_ARGS
+    local otherargsval=`deref ${otherargsvar}`
+    if bilderConfig -p Coin-$COIN_BLDRVERSION-$SOQT_BUILD SoQt $SOQT_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$CFLAGS -fpermissive' CXXFLAGS='$CXXFLAGS -fpermissive' $otherargsval" "" "$SOQT_ENV"; then
+      bilderBuild SoQt $SOQT_BUILD
     fi
   fi
 
