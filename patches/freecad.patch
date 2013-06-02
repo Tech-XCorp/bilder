@@ -1,3 +1,16 @@
+diff --git a/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx b/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx
+index d0c7835..49d0c5d 100644
+--- a/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx
++++ b/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx
+@@ -49,7 +49,7 @@ public:
+                                const TopoDS_Shape&                  aShape,
+                                SMESH_Hypothesis::Hypothesis_Status& aStatus);
+ 
+-  virtual bool Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape);
++  // virtual bool Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape);
+ 
+ protected:
+ 
 diff --git a/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp b/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp
 index 133b681..e58dee4 100644
 --- a/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp
@@ -18,55 +31,6 @@ index 133b681..e58dee4 100644
  
  //================================================================================
  /*!
-diff --git a/src/Mod/Part/App/PrimitiveFeature.cpp b/src/Mod/Part/App/PrimitiveFeature.cpp
-index c2e818a..d5d30bf 100644
---- a/src/Mod/Part/App/PrimitiveFeature.cpp
-+++ b/src/Mod/Part/App/PrimitiveFeature.cpp
-@@ -280,9 +280,9 @@ App::DocumentObjectExecReturn *Plane::execute(void)
-         error = "parameters out of range";
-         break;
- #if OCC_HEX_VERSION < 0x060500
--    case BRepBuilderAPI_SurfaceNotC2:
--        error = "surface not C2";
--        break;
-+    // case BRepBuilderAPI_SurfaceNotC2:
-+        // error = "surface not C2";
-+        // break;
- #endif
-     default:
-         error = "unknown error";
-diff --git a/src/Mod/Part/App/TopoShape.cpp b/src/Mod/Part/App/TopoShape.cpp
-index bd3746a..af59de1 100644
---- a/src/Mod/Part/App/TopoShape.cpp
-+++ b/src/Mod/Part/App/TopoShape.cpp
-@@ -179,8 +179,8 @@ const char* BRepBuilderAPI_FaceErrorText(BRepBuilderAPI_FaceError et)
-     case BRepBuilderAPI_ParametersOutOfRange:
-         return "Parameters out of range";
- #if OCC_HEX_VERSION < 0x060500
--    case BRepBuilderAPI_SurfaceNotC2:
--        return "Surface not C2-continous";
-+    // case BRepBuilderAPI_SurfaceNotC2:
-+        // return "Surface not C2-continous";
- #endif
-     default:
-         return "Unknown creation error";
-diff --git a/src/Mod/Part/App/TopoShapeFacePyImp.cpp b/src/Mod/Part/App/TopoShapeFacePyImp.cpp
-index b0460a5..5b292bc 100644
---- a/src/Mod/Part/App/TopoShapeFacePyImp.cpp
-+++ b/src/Mod/Part/App/TopoShapeFacePyImp.cpp
-@@ -210,9 +210,9 @@ int TopoShapeFacePy::PyInit(PyObject* args, PyObject* /*kwd*/)
-                         Standard_Failure::Raise("Parameters out of range");
-                         break;
- #if OCC_HEX_VERSION < 0x060500
--                    case BRepBuilderAPI_SurfaceNotC2:
--                        Standard_Failure::Raise("Surface not C2");
--                        break;
-+                    // case BRepBuilderAPI_SurfaceNotC2:
-+                        // Standard_Failure::Raise("Surface not C2");
-+                        // break;
- #endif
-                     default:
-                         Standard_Failure::Raise("Unknown failure");
 diff --git a/src/Mod/Part/App/TopoShapeSolidPyImp.cpp b/src/Mod/Part/App/TopoShapeSolidPyImp.cpp
 index 8af8b13..41a747c 100644
 --- a/src/Mod/Part/App/TopoShapeSolidPyImp.cpp
