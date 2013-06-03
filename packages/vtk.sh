@@ -41,6 +41,7 @@ buildVtk() {
   fi
 
 # Set up variables
+  VTK_NAME=${VTK_NAME:-"VTK"}
   local VTK_PREFIX="VTK"
   local VTK_LD_RUN_PATH=
   local VTK_OS_ARGS=
@@ -164,12 +165,14 @@ buildVtk() {
 # we always want to use the 'system's GL library.
 # The only time this is not done is Linux-static
 # For Windows, try not replacing the RELEASE flags
-  local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} -DVTK_USE_TK:BOOL=OFF $VTK_PYTHON_ARGS $VTK_SER_OTHER_ARGS"
+  local otherargsvar=`genbashvar VTK_${VTK_BUILD}`_OTHER_ARGS
+  local otherargsval=`deref $otherargsvar`
+  local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $otherargsval"
   echo VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS
 # Pass with commas and separate later.
-  if bilderConfig $VTK_ENV_ARGS VTK $VTK_BUILD "$VTK_CONFIG_ARGS"; then
+  if bilderConfig $VTK_ENV_ARGS $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS"; then
 # Build
-    bilderBuild $VTK_ENV_ARGS $VTK_BUILD_ARGS VTK $VTK_BUILD "$VTK_MAKE_ARGS"
+    bilderBuild $VTK_ENV_ARGS $VTK_BUILD_ARGS $VTK_NAME $VTK_BUILD "$VTK_MAKE_ARGS"
   fi
 
 }
@@ -191,11 +194,11 @@ testVtk() {
 ######################################################################
 
 installVtk() {
-  if bilderInstall $VTK_ENV_ARGS $VTK_BUILD_ARGS -r VTK $VTK_BUILD; then
+  if bilderInstall $VTK_ENV_ARGS $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD; then
     case `uname` in
       Linux)
-        runnrExec "rm -f $CONTRIB_DIR/vtk-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
-        runnrExec "ln -s $CONTRIB_DIR/mesa-$MESA_BLDRVERSION-mgl/include/GL $CONTRIB_DIR/vtk-$VTK_BLDRVERSION-ser/include/MangleMesaInclude"
+        runnrExec "rm -f $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
+        runnrExec "ln -s $CONTRIB_DIR/mesa-$MESA_BLDRVERSION-mgl/include/GL $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
         ;;
     esac
   fi
