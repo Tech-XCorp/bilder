@@ -21,7 +21,7 @@ SHIBOKEN_BLDRVERSION=${SHIBOKEN_BLDRVERSION:-"1.1.2"}
 ######################################################################
 
 SHIBOKEN_BUILDS=ser
-SHIBOKEN_DEPS=bzip2
+SHIBOKEN_DEPS=cmake,bzip2
 SHIBOKEN_UMASK=002
 
 ######################################################################

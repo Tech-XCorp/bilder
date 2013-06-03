@@ -23,7 +23,7 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 # Only the python build needed.
 OCE_BUILD=$FORPYTHON_BUILD
 OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
-OCE_DEPS=freetype
+OCE_DEPS=freetype,cmake
 OCE_UMASK=002
 OCE_URL=git://github.com/tpaviot/oce.git
 addtopathvar PATH $CONTRIB_DIR/oce/bin
