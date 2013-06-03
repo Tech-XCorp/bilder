@@ -97,12 +97,9 @@ buildVtk() {
        fi
       techo "VTK_LD_LIB_ARGS = $VTK_LD_LIB_ARGS."
       if test -n "$VTK_LD_RUN_ARGS" -o -n "$VTK_LD_LIB_ARGS"; then
-        local VTK_ENV=$VTK_LD_RUN_ARGS,$VTK_LD_LIB_ARGS
+        local VTK_ENV="$VTK_LD_RUN_ARGS $VTK_LD_LIB_ARGS"
       fi
-      trimvar VTK_ENV ','
-      if test -n "$VTK_ENV"; then
-        VTK_ENV_ARGS="-e $VTK_ENV"
-      fi
+      trimvar VTK_ENV ' '
       VTK_MAKE_ARGS="$VTK_MAKEJ_ARGS"
 # build_visit uses MANGLED_OSMESA_LIB=libMesaGL on Linux.
       MANGLED_OSMESA_LIB=libMesaGL${SHOBJEXT}	# per build_visit
@@ -174,9 +171,9 @@ buildVtk() {
   local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $otherargsval"
   echo VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS
 # Pass with commas and separate later.
-  if bilderConfig $VTK_ENV_ARGS $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS"; then
+  if bilderConfig $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS" "" "$VTK_ENV"; then
 # Build
-    bilderBuild $VTK_ENV_ARGS $VTK_BUILD_ARGS $VTK_NAME $VTK_BUILD "$VTK_MAKE_ARGS"
+    bilderBuild $VTK_BUILD_ARGS $VTK_NAME $VTK_BUILD "$VTK_MAKE_ARGS" "$VTK_ENV"
   fi
 
 }
@@ -198,7 +195,7 @@ testVtk() {
 ######################################################################
 
 installVtk() {
-  if bilderInstall $VTK_ENV_ARGS $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD; then
+  if bilderInstall $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"; then
     case `uname` in
       Linux)
         runnrExec "rm -f $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
