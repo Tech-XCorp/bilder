@@ -160,6 +160,10 @@ buildVtk() {
   VTK_PKG_ARGS="${VTK_PKG_ARGS} -DModule_vtkRenderingOpenGL:BOOL=ON"
   VTK_PKG_ARGS="${VTK_PKG_ARGS} -DModule_vtklibxml2:BOOL=ON"
 
+# Turn on Qt
+  VTK_PKG_ARGS="${VTK_PKG_ARGS} -DModule_vtkGUISupportQtOpenGL:BOOL=ON"
+  # VTK_PKG_ARGS="${VTK_PKG_ARGS} -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_BIN_DIR}/qmake"
+
 # Per build_visit:
 # Linking OSMesa for MANGLED_MESA_LIBRARY is correct here; we'll never use
 # MesaGL, as that is a xlib-based software path.  If we have an X context,
