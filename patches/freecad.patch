@@ -1,53 +1,42 @@
-diff --git a/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx b/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx
-index d0c7835..49d0c5d 100644
---- a/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx
-+++ b/src/3rdParty/salomesmesh/inc/StdMeshers_RadialPrism_3D.hxx
-@@ -49,7 +49,7 @@ public:
-                                const TopoDS_Shape&                  aShape,
-                                SMESH_Hypothesis::Hypothesis_Status& aStatus);
- 
--  virtual bool Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape);
-+  // virtual bool Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape);
- 
- protected:
- 
 diff --git a/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp b/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp
-index 133b681..e58dee4 100644
+index 133b681..317c94d 100644
 --- a/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp
 +++ b/src/3rdParty/salomesmesh/src/StdMeshers/StdMeshers_RadialPrism_3D.cpp
-@@ -147,6 +147,7 @@ bool StdMeshers_RadialPrism_3D::CheckHypothesis(SMESH_Mesh&
- //purpose  : 
- //=======================================================================
+@@ -45,6 +45,7 @@
+ #include <BRepAdaptor_Curve.hxx>
+ #include <BRepBuilderAPI_MakeEdge.hxx>
+ #include <BRepTools.hxx>
++#include <BRepClass3d.hxx>
+ #include <TopExp_Explorer.hxx>
+ #include <TopoDS.hxx>
+ #include <TopoDS_Shell.hxx>
+@@ -159,7 +160,7 @@ bool StdMeshers_RadialPrism_3D::Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& a
  
-+/*
- bool StdMeshers_RadialPrism_3D::Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape)
- {
-   TopExp_Explorer exp;
-@@ -241,6 +242,7 @@ bool StdMeshers_RadialPrism_3D::Compute(SMESH_Mesh& aMesh, const TopoDS_Shape& a
- 
-   return true;
- }
-+*/
- 
- //================================================================================
- /*!
+   // get 2 shells
+   TopoDS_Solid solid = TopoDS::Solid( aShape );
+-  TopoDS_Shell outerShell = BRepTools::OuterShell( solid );
++  TopoDS_Shell outerShell = BRepClass3d::OuterShell( solid );
+   TopoDS_Shape innerShell;
+   int nbShells = 0;
+   for ( TopoDS_Iterator It (solid); It.More(); It.Next(), ++nbShells )
 diff --git a/src/Mod/Part/App/TopoShapeSolidPyImp.cpp b/src/Mod/Part/App/TopoShapeSolidPyImp.cpp
-index 8af8b13..41a747c 100644
+index 8af8b13..641d9f0 100644
 --- a/src/Mod/Part/App/TopoShapeSolidPyImp.cpp
 +++ b/src/Mod/Part/App/TopoShapeSolidPyImp.cpp
-@@ -173,6 +173,7 @@ Py::Dict TopoShapeSolidPy::getPrincipalProperties(void) const
-     return dict;
- }
+@@ -25,6 +25,7 @@
  
-+/*
- Py::Object TopoShapeSolidPy::getOuterShell(void) const
- {
+ #include <BRepGProp.hxx>
+ #include <BRepTools.hxx>
++#include <BRepClass3d.hxx>
+ #include <GProp_GProps.hxx>
+ #include <GProp_PrincipalProps.hxx>
+ #include <BRepBuilderAPI_MakeSolid.hxx>
+@@ -178,7 +179,7 @@ Py::Object TopoShapeSolidPy::getOuterShell(void) const
      TopoDS_Shell shell;
-@@ -181,6 +182,7 @@ Py::Object TopoShapeSolidPy::getOuterShell(void) const
-         shell = BRepTools::OuterShell(TopoDS::Solid(shape));
+     const TopoDS_Shape& shape = getTopoShapePtr()->_Shape;
+     if (!shape.IsNull() && shape.ShapeType() == TopAbs_SOLID)
+-        shell = BRepTools::OuterShell(TopoDS::Solid(shape));
++        shell = BRepClass3d::OuterShell(TopoDS::Solid(shape));
      return Py::Object(new TopoShapeShellPy(new TopoShape(shell)),true);
  }
-+*/
  
- PyObject* TopoShapeSolidPy::getMomentOfInertia(PyObject *args)
- {
