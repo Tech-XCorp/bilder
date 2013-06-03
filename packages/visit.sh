@@ -34,6 +34,7 @@ if test -z "$VISIT_DESIRED_BUILDS"; then
 fi
 computeBuilds visit
 VISIT_SER_BUILD=$FORPYTHON_BUILD
+VTK_NAME=${VTK_NAME:-"VTK"}
 VISIT_DEPS=Imaging,hdf5,${VTK_NAME},qt,cmake
 VISIT_UMASK=002
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
@@ -263,7 +264,7 @@ fi
     local VISIT_PYTHON_DIR="$PYTHON_DIR"
 # Find location of QT in unix file system
     findQt
-# Find Vtk (5.8 for ALL VisIt builds)
+# Find Vtk
     local VISIT_VTK_DIR=$CONTRIB_DIR/${VTK_NAME}-$FORPYTHON_BUILD
     techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 
