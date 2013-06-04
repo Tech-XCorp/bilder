@@ -82,42 +82,66 @@ buildFreecad() {
     techo "Working directory modified, will not patch."
   fi
 
-# These will need conversion for Windows
-  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost-sersh' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3-sersh/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
+# Find qt
   if ! QMAKE_PATH=`which qmake 2>/dev/null`; then
     techo "WARNING: Could not find qmake in path. Please add location of qmake to your path in the case that QT CMake Macros can not be found by the freecad configuration system"
     return 1
   fi
   techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
-  local ocerootdir=
-  if test -e "${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"; then
-    ocerootdir=`(cd ${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD; pwd -P)`
-  fi
-  if test -z "$ocerootdir" -a -e "${CONTRIB_DIR}/oce-$FREECAD_BUILD"; then
-    ocerootdir=`(cd ${CONTRIB_DIR}/oce-$FREECAD_BUILD; pwd -P)`
-  fi
-  if test -z "$ocerootdir"; then
-    techo "Catastrophic error in buildFreecad.  OCE root directory not found."
-    cleanup
-  fi
+
+# These will need conversion for Windows
+  # local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost-sersh' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3-sersh/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
+  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE"
+  local boostdir="${CONTRIB_DIR}/boost-sersh"
+  local eigendir="${CONTRIB_DIR}/eigen3-sersh"
+  local xercescdir="${CONTRIB_DIR}/xercesc-sersh"
+  local coin3ddir="${CONTRIB_DIR}/Coin-$FREECAD_BUILD"
+  local ocerootdir="${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"
+  for i in boostdir eigendir xercescdir coin3ddir ocerootdir; do
+    val=`deref $i`
+    val=`(cd $val; pwd -P)`
+    if [[ `uname` =~ CYGWIN ]]; then
+       val=`cygpath -am $val`
+    fi
+    eval $i="$val"
+  done
+  FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DBOOST_ROOT:STRING='$boostdir' -DEIGEN3_INCLUDE_DIR:PATH='$eigendir/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='$xercescdir/include'"
+
+  local libpre=
+  local libpost=
+  local ocedevdir=
   case `uname` in
+    CYGWIN*)
+      libpre=
+      libpost=lib
+      ;;
     Darwin)
-      local ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev`
-# libsmesh needs to have the oce library dir added
-      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.dylib' -DOCE_DIR='${ocedevdir}/Resources' -DOCC_LIBRARY_DIR='${ocerootdir}/lib' -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a' -DCOIN3D_INCLUDE_DIR:PATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/include' -DCOIN3D_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libCoin.dylib' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libSoQt.dylib' -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib $SER_EXTRA_LDFLAGS'"
+      libpre=lib
+      libpost=dylib
+      ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev | tail -1`/Resources
+      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING='-undefined dynamic_lookup -L${ocerootdir}/lib $SER_EXTRA_LDFLAGS'"
       ;;
     Linux)
-      local ocedevdir=`ls -d ${ocerootdir}/lib/oce-*-dev`
-      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${CONTRIB_DIR}/xercesc/lib/libxerces-c-3.1.so' -DOCE_DIR='${ocedevdir}' -DCOIN3D_INCLUDE_DIR='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/include' -DCOIN3D_LIBRARY='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libCoin.so' -DSOQT_LIBRARY:FILEPATH='${CONTRIB_DIR}/Coin-$FREECAD_BUILD/lib/libSoQt.so' -DCMAKE_SHARED_LINKER_FLAGS:STRING='$SER_EXTRA_LDFLAGS'"
+      libpre=lib
+      libpost=so
+      ocedevdir=`ls -d ${ocerootdir}/lib/oce-*-dev | tail -1`
+      FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING='$SER_EXTRA_LDFLAGS'"
       if test -n "$PYC_LD_RUN_PATH"; then
         FREECAD_ENV="LD_RUN_PATH=$PYC_LD_RUN_PATH"
       fi
       ;;
   esac
+  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' -DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost' -DOCE_DIR='${ocedevdir}'"
+
+# Previously used
+#  -DOCC_LIBRARY_DIR='${ocerootdir}/lib'
+# -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a'  ???
 
 # Configure and build
   if bilderConfig -c freecad $FREECAD_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
-    bilderBuild freecad $FREECAD_BUILD "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
+# Parallel builds failing
+    # bilderBuild freecad $FREECAD_BUILD "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
+    bilderBuild freecad $FREECAD_BUILD "$FREECAD_ENV"
   fi
 
 }
