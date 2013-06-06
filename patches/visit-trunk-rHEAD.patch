@@ -1,6 +1,37 @@
+Index: visit/CMake/FindZlib.cmake
+===================================================================
+--- visit/CMake/FindZlib.cmake	(revision 21081)
++++ visit/CMake/FindZlib.cmake	(working copy)
+@@ -48,12 +48,16 @@
+ INCLUDE(${VISIT_SOURCE_DIR}/CMake/SetUpThirdParty.cmake)
+ 
+ IF (WIN32)
+-    SET_UP_THIRD_PARTY(ZLIB lib/${VISIT_MSVC_VERSION} include zlib1)
+-    IF (ZLIB_FOUND)
+-        # use full path here, instead of just lib file.
+-        SET(ZLIB_LIB "${ZLIB_LIBRARY_DIR}/${ZLIB_LIB}" CACHE STRING "zlib library" FORCE)
++    IF(VISIT_ZLIB_DIR)
++        SET_UP_THIRD_PARTY(ZLIB lib/${VISIT_MSVC_VERSION} include zlib1)
++        IF (ZLIB_FOUND)
++            # use full path here, instead of just lib file.
++            SET(ZLIB_LIB "${ZLIB_LIBRARY_DIR}/${ZLIB_LIB}" CACHE STRING
++"zlib library" FORCE)
++        ENDIF (ZLIB_FOUND)
++    ELSE(VISIT_ZLIB_DIR)
+         SET(VTKZLIB_LIB vtkzlib)
+-    ENDIF (ZLIB_FOUND)
++    ENDIF(VISIT_ZLIB_DIR)
+ ELSE(WIN32)
+     IF(VISIT_ZLIB_DIR)
+         # We've told VisIt where to look for zlib. Let's also assume that by doing 
+@@ -70,4 +74,3 @@
+         SET(VTKZLIB_LIB vtkzlib)
+     ENDIF(VISIT_ZLIB_DIR)
+ ENDIF (WIN32)
+-
 Index: visit/CMake/PluginMacros.cmake
 ===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 19893)
+--- visit/CMake/PluginMacros.cmake	(revision 21081)
 +++ visit/CMake/PluginMacros.cmake	(working copy)
 @@ -68,26 +68,15 @@
              # not configure, so the dollar sign must be escaped in the string
@@ -37,66 +68,26 @@ Index: visit/CMake/PluginMacros.cmake
              ENDFOREACH(target)
          ENDIF(NOT WIN32)
          IF(APPLE)
-Index: visit/tools/xdmf_writer/CMakeLists.txt
-===================================================================
---- visit/tools/xdmf_writer/CMakeLists.txt	(revision 19893)
-+++ visit/tools/xdmf_writer/CMakeLists.txt	(working copy)
-@@ -51,16 +51,16 @@
- 
- #********************************* SERIAL ************************************
- ADD_EXECUTABLE(xdmf_curv3d xdmf_curv3d.c)
--TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser m) 
- 
- ADD_EXECUTABLE(xdmf_ucd3d xdmf_ucd3d.c)
--TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser m) 
- 
- ADD_EXECUTABLE(xdmf_curv3d_wtime xdmf_curv3d_wtime.c)
--TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser m) 
- 
- ADD_EXECUTABLE(xdmf_multi_curv3d xdmf_multi_curv3d.c)
--TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser m) 
- 
- ADD_LIBRARY(xdmf_writer_ser xdmf_writer.c)
- TARGET_LINK_LIBRARIES(xdmf_writer_ser ${HDF5_LIB} ${ZLIB_LIB})
-Index: visit/operators/CMakeLists.txt
-===================================================================
---- visit/operators/CMakeLists.txt	(revision 19893)
-+++ visit/operators/CMakeLists.txt	(working copy)
-@@ -164,6 +164,11 @@
-   LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
- ENDIF(HAVE_LIB_R)
- 
-+# Everything here needs MESA on non-Windows
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
-+
- # Add the plugin directories
- FOREACH(operator ${BUILD_PLUGINS})
-     ADD_SUBDIRECTORY(${operator})
-Index: visit/databases/SimV2/CMakeLists.txt
-===================================================================
---- visit/databases/SimV2/CMakeLists.txt	(revision 19893)
-+++ visit/databases/SimV2/CMakeLists.txt	(working copy)
-@@ -55,6 +55,9 @@
- 
- 
- LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
- 
- ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
- TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
 Index: visit/databases/CMakeLists.txt
 ===================================================================
---- visit/databases/CMakeLists.txt	(revision 19893)
+--- visit/databases/CMakeLists.txt	(revision 21081)
 +++ visit/databases/CMakeLists.txt	(working copy)
-@@ -360,6 +360,11 @@
+@@ -346,12 +346,14 @@
+     MESSAGE(STATUS "EnSight plugin requires vtkIOEnSight")
+ ENDIF(TARGET vtkIOEnSight)
+ 
++IF (FALSE)
+ IF (Boost_USABLE_PARADIS)
+     LIST(APPEND REQUIRED_DATABASE_PLUGINS
+         paraDIS
+         paraDIS_tecplot
+     )
+ ENDIF (Boost_USABLE_PARADIS)
++ENDIF ()
+ 
+ IF (NOT WIN32)
+     LIST(APPEND REQUIRED_DATABASE_PLUGINS 
+@@ -389,6 +391,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
  ENDIF(VISIT_BUILD_ALL_PLUGINS)
  
@@ -108,9 +99,39 @@ Index: visit/databases/CMakeLists.txt
  # Add the plugin directories
  FOREACH(db ${BUILD_PLUGINS})
      ADD_SUBDIRECTORY(${db})
+Index: visit/databases/SimV2/CMakeLists.txt
+===================================================================
+--- visit/databases/SimV2/CMakeLists.txt	(revision 21081)
++++ visit/databases/SimV2/CMakeLists.txt	(working copy)
+@@ -55,6 +55,9 @@
+ 
+ 
+ LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
++if (NOT WIN32)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
+ 
+ ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
+ TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
+Index: visit/operators/CMakeLists.txt
+===================================================================
+--- visit/operators/CMakeLists.txt	(revision 21081)
++++ visit/operators/CMakeLists.txt	(working copy)
+@@ -171,6 +171,11 @@
+   LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
+ ENDIF(HAVE_LIB_R)
+ 
++# Everything here needs MESA on non-Windows
++if (NOT WIN32)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
++
+ # Add the plugin directories
+ FOREACH(operator ${BUILD_PLUGINS})
+     ADD_SUBDIRECTORY(${operator})
 Index: visit/plots/CMakeLists.txt
 ===================================================================
---- visit/plots/CMakeLists.txt	(revision 19893)
+--- visit/plots/CMakeLists.txt	(revision 21081)
 +++ visit/plots/CMakeLists.txt	(working copy)
 @@ -89,6 +89,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
