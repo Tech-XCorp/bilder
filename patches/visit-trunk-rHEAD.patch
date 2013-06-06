@@ -1,37 +1,6 @@
-Index: visit/CMake/FindZlib.cmake
-===================================================================
---- visit/CMake/FindZlib.cmake	(revision 21081)
-+++ visit/CMake/FindZlib.cmake	(working copy)
-@@ -48,12 +48,16 @@
- INCLUDE(${VISIT_SOURCE_DIR}/CMake/SetUpThirdParty.cmake)
- 
- IF (WIN32)
--    SET_UP_THIRD_PARTY(ZLIB lib/${VISIT_MSVC_VERSION} include zlib1)
--    IF (ZLIB_FOUND)
--        # use full path here, instead of just lib file.
--        SET(ZLIB_LIB "${ZLIB_LIBRARY_DIR}/${ZLIB_LIB}" CACHE STRING "zlib library" FORCE)
-+    IF(VISIT_ZLIB_DIR)
-+        SET_UP_THIRD_PARTY(ZLIB lib/${VISIT_MSVC_VERSION} include zlib1)
-+        IF (ZLIB_FOUND)
-+            # use full path here, instead of just lib file.
-+            SET(ZLIB_LIB "${ZLIB_LIBRARY_DIR}/${ZLIB_LIB}" CACHE STRING
-+"zlib library" FORCE)
-+        ENDIF (ZLIB_FOUND)
-+    ELSE(VISIT_ZLIB_DIR)
-         SET(VTKZLIB_LIB vtkzlib)
--    ENDIF (ZLIB_FOUND)
-+    ENDIF(VISIT_ZLIB_DIR)
- ELSE(WIN32)
-     IF(VISIT_ZLIB_DIR)
-         # We've told VisIt where to look for zlib. Let's also assume that by doing 
-@@ -70,4 +74,3 @@
-         SET(VTKZLIB_LIB vtkzlib)
-     ENDIF(VISIT_ZLIB_DIR)
- ENDIF (WIN32)
--
 Index: visit/CMake/PluginMacros.cmake
 ===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 21081)
+--- visit/CMake/PluginMacros.cmake	(revision 21087)
 +++ visit/CMake/PluginMacros.cmake	(working copy)
 @@ -68,26 +68,15 @@
              # not configure, so the dollar sign must be escaped in the string
@@ -70,7 +39,7 @@ Index: visit/CMake/PluginMacros.cmake
          IF(APPLE)
 Index: visit/databases/CMakeLists.txt
 ===================================================================
---- visit/databases/CMakeLists.txt	(revision 21081)
+--- visit/databases/CMakeLists.txt	(revision 21087)
 +++ visit/databases/CMakeLists.txt	(working copy)
 @@ -346,12 +346,14 @@
      MESSAGE(STATUS "EnSight plugin requires vtkIOEnSight")
@@ -101,7 +70,7 @@ Index: visit/databases/CMakeLists.txt
      ADD_SUBDIRECTORY(${db})
 Index: visit/databases/SimV2/CMakeLists.txt
 ===================================================================
---- visit/databases/SimV2/CMakeLists.txt	(revision 21081)
+--- visit/databases/SimV2/CMakeLists.txt	(revision 21087)
 +++ visit/databases/SimV2/CMakeLists.txt	(working copy)
 @@ -55,6 +55,9 @@
  
@@ -115,7 +84,7 @@ Index: visit/databases/SimV2/CMakeLists.txt
  TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
 Index: visit/operators/CMakeLists.txt
 ===================================================================
---- visit/operators/CMakeLists.txt	(revision 21081)
+--- visit/operators/CMakeLists.txt	(revision 21087)
 +++ visit/operators/CMakeLists.txt	(working copy)
 @@ -171,6 +171,11 @@
    LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
@@ -131,7 +100,7 @@ Index: visit/operators/CMakeLists.txt
      ADD_SUBDIRECTORY(${operator})
 Index: visit/plots/CMakeLists.txt
 ===================================================================
---- visit/plots/CMakeLists.txt	(revision 21081)
+--- visit/plots/CMakeLists.txt	(revision 21087)
 +++ visit/plots/CMakeLists.txt	(working copy)
 @@ -89,6 +89,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
