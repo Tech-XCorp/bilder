@@ -227,8 +227,9 @@ fi
     VISIT_PARSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-parsh"
 
 # Args for make and environment, and configuration file
-    local VISIT_MAKEARGS       # This to be set as needed, since can fail
-    local VISIT_ENV
+    local VISIT_MAKEARGS=       # This to be set as needed, since can fail
+    local VISIT_ENV=
+    local VISIT_MESA_DIR=
     case `uname` in
       CYGWIN*)
         if which jom 1>/dev/null 2>/dev/null; then
@@ -240,11 +241,17 @@ fi
         ;;
       Darwin)
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+        if ! $IS_VISIT_TRUNK && test -d $CONTRIB_DIR/mesa/lib; then
+          VISIT_MESA_DIR=$CONTRIB_DIR/mesa
+        fi
         ;;
       Linux)
         VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
         local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$PYC_LD_RUN_PATH:$LD_RUN_PATH
         VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
+        if test -d $CONTRIB_DIR/mesa/lib; then
+          VISIT_MESA_DIR=$CONTRIB_DIR/mesa
+        fi
         ;;
     esac
 
@@ -253,10 +260,6 @@ fi
 #
 # Set unix style directories
     VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
-    local VISIT_MESA_DIR=
-    if test -d $CONTRIB_DIR/mesa/lib; then
-      VISIT_MESA_DIR=$CONTRIB_DIR/mesa
-    fi
     local VISIT_NETCDF_DIR=
     if test -d $CONTRIB_DIR/netcdf/lib; then
       VISIT_NETCDF_DIR=$CONTRIB_DIR/netcdf
