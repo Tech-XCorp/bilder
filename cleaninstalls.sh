@@ -280,6 +280,9 @@ if $REMOVE_UNFOUND; then
 
 fi
 
+# Fix perms
+chmod g+rw,o+r $CLN_INSTALL_DIR/installations.txt
+
 # Clean old files
 if ! $DEBUG; then
   rm -f $CLN_INSTALL_DIR/installations.{bak,rmv,txt~}

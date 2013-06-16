@@ -66,6 +66,7 @@ mvOldCarveDir() {
 getHgCarve() {
   if ! which hg 1>/dev/null 2>&1; then
     techo "WARNING: hg not in path.  Cannot get carve."
+    return 1
   fi
   local origdir=`pwd -P`
   if ! test -d carve/.hg; then
@@ -89,6 +90,7 @@ getHgCarve() {
     $cmd
   fi
   cd $origdir
+  return 0
 }
 
 #
@@ -111,6 +113,7 @@ getSvnCarve() {
 #
 getCarve() {
   getHgCarve
+  return $?
 }
 
 #

@@ -599,7 +599,6 @@ installVisit() {
 
 # Packaging only if creating a release
       if $IS_VISIT_TRUNK && $BUILD_INSTALLERS; then
-# Create the package
         runnrExec "cd $BUILD_DIR/visit/$bld"
         case `uname` in
           CYGWIN*) cmd="nmake package";;
@@ -607,6 +606,8 @@ installVisit() {
         esac
         techo "$cmd" | tee package.out
         $cmd 1>>package.out 2>&1
+
+
 # Install the package.
 # JRC 20121119: need to do something that works with Windows.
 # At least post as in bilderInstall, look for POST2DEPOT
@@ -618,6 +619,8 @@ if false; then
         techo "$cmd" | tee -a installpkg.out
         $cmd 1>>installpkg.out 2>&1
 fi
+
+
       fi
 
       techo "Post installation of ${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld concluded at `date`."

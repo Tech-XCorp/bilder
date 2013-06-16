@@ -189,8 +189,9 @@ mkLink() {
   esac
   if $shortcut; then
     local topFolder=$(basename "$2")
-    techo "(cd $1; rmall ${topFolder}.lnk $3.lnk; mkshortcut $2; mv ${topFolder}.lnk $3.lnk)"
-    (cd $1; rmall ${topFolder}.lnk $3.lnk; mkshortcut $2; mv ${topFolder}.lnk $3.lnk)
+    cmd="(cd $1; rmall ${topFolder}.lnk ${3}.lnk; mkshortcut -n ${3}.lnk $2)"
+    techo "$cmd"
+    eval "$cmd"
   fi
   if $unix; then
     techo "(cd $1; rmall $3; ln -s $2 $3)"
@@ -2127,7 +2128,7 @@ getCombinedCompVars() {
             ;;
           *) compbin="$comp";;
         esac
-        # techo "$var = $compbin."
+        techo -2 "$var = $compbin."
 # Compilers need not be in path
         val=`deref CMAKE_COMPILERS_$i`
         eval CMAKE_COMPILERS_$i=\"$val -DCMAKE_${cmakecompname}_COMPILER:FILEPATH=\'$compbin\'\"
@@ -2135,8 +2136,12 @@ getCombinedCompVars() {
     done
     trimvar CMAKE_COMPILERS_$i ' '
     # val=`deref CMAKE_COMPILERS_$i`
-    # techo "CMAKE_COMPILERS_$i = $val."
+    # techo -2 "CMAKE_COMPILERS_$i = $val."
 
+  done
+  for i in SER BEN PYC PAR; do
+    val=`deref CMAKE_COMPILERS_$i`
+    techo -2 "CMAKE_COMPILERS_$i = $val."
   done
   techo -2 "The combined compiler variables have been set."
 
@@ -5319,7 +5324,7 @@ EOF
                 if test -s ${windepotdir}/${installerlink}.lnk; then
                   rmall ${windepotdir}/${installerlink}.lnk
                 fi
-                cmd="cd ${windepotdir}; mkshortcut.exe ${installername}; mv ${installername}.lnk ${installerlink}.lnk; cd ${curdir}"
+                cmd="cd ${windepotdir}; mkshortcut.exe -n "${installerlink}.lnk" ${installername}; cd ${curdir}"
                 techo "Creating link ${installerlink}.lnk on Windows depot"
                 eval $cmd         
               fi

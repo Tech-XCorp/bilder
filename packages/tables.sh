@@ -148,6 +148,7 @@ installTables() {
     Darwin)
       hdf5shdir=$HDF5_CC4PY_DIR/lib
       hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
+echo "hdf5shlib=$hdf5shlib"
       hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
       instopts="-r tables"
       ;;
@@ -166,7 +167,7 @@ installTables() {
       techo "$tablesinstdir/$hdf5shlib missing.  Will install."
       /usr/bin/install -m 775 $hdf5shdir/$hdf5shlib $tablesinstdir
     fi
-    if test -n "$hdf5shlink"; then
+    if test -n "$hdf5shlink" -a "$hdf5shlink" != "$hdf5shlib"; then
       cmd="(cd $tablesinstdir; ln -sf $hdf5shlib $hdf5shlink)"
       techo "$cmd"
       eval "$cmd"
