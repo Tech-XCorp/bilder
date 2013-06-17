@@ -1154,6 +1154,7 @@ getVersion() {
     fi
 # Prepend r.
     rev="r"${rev}
+
   elif test "$repotype" == "GIT"; then
     techo "Getting the current git branch name of $1 at `date`."
 # NB: For git, we are using the number of repository revisions as the version
