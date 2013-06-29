@@ -1,6 +1,6 @@
 Index: visit/CMake/PluginMacros.cmake
 ===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 21087)
+--- visit/CMake/PluginMacros.cmake	(revision 21257)
 +++ visit/CMake/PluginMacros.cmake	(working copy)
 @@ -68,26 +68,15 @@
              # not configure, so the dollar sign must be escaped in the string
@@ -37,77 +37,62 @@ Index: visit/CMake/PluginMacros.cmake
              ENDFOREACH(target)
          ENDIF(NOT WIN32)
          IF(APPLE)
-Index: visit/databases/CMakeLists.txt
-===================================================================
---- visit/databases/CMakeLists.txt	(revision 21087)
-+++ visit/databases/CMakeLists.txt	(working copy)
-@@ -346,12 +346,14 @@
-     MESSAGE(STATUS "EnSight plugin requires vtkIOEnSight")
- ENDIF(TARGET vtkIOEnSight)
- 
-+IF (FALSE)
- IF (Boost_USABLE_PARADIS)
-     LIST(APPEND REQUIRED_DATABASE_PLUGINS
-         paraDIS
-         paraDIS_tecplot
-     )
- ENDIF (Boost_USABLE_PARADIS)
-+ENDIF ()
- 
- IF (NOT WIN32)
-     LIST(APPEND REQUIRED_DATABASE_PLUGINS 
-@@ -389,6 +391,11 @@
-     ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
- ENDIF(VISIT_BUILD_ALL_PLUGINS)
- 
-+# Everything here needs MESA on non-Windows
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
-+
- # Add the plugin directories
- FOREACH(db ${BUILD_PLUGINS})
-     ADD_SUBDIRECTORY(${db})
-Index: visit/databases/SimV2/CMakeLists.txt
-===================================================================
---- visit/databases/SimV2/CMakeLists.txt	(revision 21087)
-+++ visit/databases/SimV2/CMakeLists.txt	(working copy)
-@@ -55,6 +55,9 @@
- 
- 
- LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
-+if (NOT WIN32)
-+  link_directories(${MESA_LIBRARY_DIR})
-+endif ()
- 
- ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
- TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
 Index: visit/operators/CMakeLists.txt
 ===================================================================
---- visit/operators/CMakeLists.txt	(revision 21087)
+--- visit/operators/CMakeLists.txt	(revision 21257)
 +++ visit/operators/CMakeLists.txt	(working copy)
 @@ -171,6 +171,11 @@
    LIST(APPEND BUILD_PLUGINS ModelBasedClustering)
  ENDIF(HAVE_LIB_R)
  
 +# Everything here needs MESA on non-Windows
-+if (NOT WIN32)
++if (LINUX)
 +  link_directories(${MESA_LIBRARY_DIR})
 +endif ()
 +
  # Add the plugin directories
  FOREACH(operator ${BUILD_PLUGINS})
      ADD_SUBDIRECTORY(${operator})
+Index: visit/databases/SimV2/CMakeLists.txt
+===================================================================
+--- visit/databases/SimV2/CMakeLists.txt	(revision 21257)
++++ visit/databases/SimV2/CMakeLists.txt	(working copy)
+@@ -55,6 +55,9 @@
+ 
+ 
+ LINK_DIRECTORIES(${VISIT_LIBRARY_DIR} ${VTK_LIBRARY_DIRS} ${ICET_LIBRARY_DIR} )
++if (LINUX)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
+ 
+ ADD_LIBRARY(ISimV2Database ${LIBI_SOURCES})
+ TARGET_LINK_LIBRARIES(ISimV2Database visitcommon)
+Index: visit/databases/CMakeLists.txt
+===================================================================
+--- visit/databases/CMakeLists.txt	(revision 21257)
++++ visit/databases/CMakeLists.txt	(working copy)
+@@ -393,6 +393,11 @@
+     ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
+ ENDIF(VISIT_BUILD_ALL_PLUGINS)
+ 
++# Everything here needs MESA on non-Windows
++if (LINUX)
++  link_directories(${MESA_LIBRARY_DIR})
++endif ()
++
+ # Add the plugin directories
+ FOREACH(db ${BUILD_PLUGINS})
+     ADD_SUBDIRECTORY(${db})
 Index: visit/plots/CMakeLists.txt
 ===================================================================
---- visit/plots/CMakeLists.txt	(revision 21087)
+--- visit/plots/CMakeLists.txt	(revision 21257)
 +++ visit/plots/CMakeLists.txt	(working copy)
 @@ -89,6 +89,11 @@
      ENDIF(VISIT_BUILD_MINIMAL_PLUGINS)
  ENDIF(VISIT_BUILD_ALL_PLUGINS)
  
 +# Everything here needs MESA on non-Windows
-+if (NOT WIN32)
++if (LINUX)
 +  link_directories(${MESA_LIBRARY_DIR})
 +endif ()
 +
