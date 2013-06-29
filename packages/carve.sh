@@ -85,9 +85,11 @@ getHgCarve() {
     cmd="hg revert -a"
     techo "$cmd"
     $cmd
-    cmd="hg pull"
-    techo "$cmd"
-    $cmd
+    if $SVNUP || test -n "$JENKINS_FSROOT"; then
+      cmd="hg pull"
+      techo "$cmd"
+      $cmd
+    fi
   fi
   cd $origdir
   return 0
@@ -129,11 +131,6 @@ buildCarve() {
     techo "WARNING: Carve not found."
     return 1
   fi
-
-# Before getting version, revert carve
-  cmd="(cd $PROJECT_DIR/carve; hg revert -a)"
-  techo "$cmd"
-  eval "$cmd"
 
 # Get version
   getVersion carve

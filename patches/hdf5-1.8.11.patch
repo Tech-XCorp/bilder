@@ -1,0 +1,12 @@
+diff -ruN hdf5-1.8.11/CMakeLists.txt hdf5-1.8.11-new/CMakeLists.txt
+--- hdf5-1.8.11/CMakeLists.txt	2013-04-29 12:35:07.000000000 -0600
++++ hdf5-1.8.11-new/CMakeLists.txt	2013-06-17 07:58:14.000000000 -0600
+@@ -969,7 +969,7 @@
+       SET (release_files
+           ${release_files}
+           ${HDF5_SOURCE_DIR}/release_docs/INSTALL_Cygwin.txt
+-          ${HDF5_SOURCE_DIR}/release_docs/INSTALL_VMS.txt
++          # ${HDF5_SOURCE_DIR}/release_docs/INSTALL_VMS.txt
+       )
+     ENDIF (WIN32 AND NOT CYGWIN)
+     IF (HDF5_ENABLE_PARALLEL)

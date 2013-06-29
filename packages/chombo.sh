@@ -22,12 +22,7 @@ CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"21101"}
 
 CHOMBO_DEPS=petsc34,hdf5,openmpi
 if test -z "$CHOMBO_BUILDS"; then
-  CHOMBO_BUILDS=par3d,par2d,par2ddbg,par3ddbg,ser3d
-fi
-
-# For testing
-if [ $USER == 'swsides' ]; then
-    CHOMBO_BUILDS=${CHOMBO_BUILDS},ser2d
+  CHOMBO_BUILDS=par3d,par2d,par2ddbg,par3ddbg,ser3d,ser2d
 fi
 
 ######################################################################

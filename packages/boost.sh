@@ -92,8 +92,12 @@ buildBoost() {
 # These args are actually to bilderBuild
     local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
     local staticlinkargs="link=static"
+    local sharedlinkargs="link=shared"
+    local sermdlinkargs="link=static"  # Not yet used, but this should be right
     if [[ `uname` =~ CYGWIN ]]; then
       staticlinkargs="runtime-link=static $staticlinkargs"
+      sharedlinkargs="runtime-link=shared $sharedlinkargs"
+      sermdlinkargs="runtime-link=shared $sermdlinkargs"
     fi
     case `uname` in
       CYGWIN*-WOW64*)
@@ -103,8 +107,8 @@ buildBoost() {
 # Only the shared and cc4py build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags.  For simplicity, use for all.
     BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
-    BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser link=shared $BOOST_ALL_ADDL_ARGS"
-    BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py link=shared $BOOST_ALL_ADDL_ARGS"
+    BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
+    BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
 # When that is done, the below will be needed.
 if false; then

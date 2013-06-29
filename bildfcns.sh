@@ -4262,6 +4262,8 @@ bilderBuild() {
 # when it is all in the same directory and generally `make tests` is
 # used.  # Simpler than the txtest-based methods elsewhere
 # Sets the $1_$2_PID variable to allow later waiting for completion.
+# As the second argument demonstrates, this needs to be called per
+# build.
 #
 # Args:
 # 1: package name
@@ -4300,28 +4302,42 @@ bilderTest() {
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
   local testedBuilds=
-# Remove ignored builds
-  for bld in `echo $buildsval | tr ',' ' '`; do
-    if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
-      testedBuilds=$testedBuilds,$bld
-    fi
-  done
-  trimvar testedBuilds ','
-  techo "Checking on tested builds '$testedBuilds' of $pkgname."
 
-# Wait on all builds, see if any tested build failed
-  local tbFailures=
-  for i in `echo $testedBuilds | tr ',' ' '`; do
-    cmd="waitBuild $pkgname-$i"
-    techo -2 "$cmd"
-    $cmd
-    res=$?
-    if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
-      tbFailures="$tbFailures $i"
-    fi
-  done
-  trimvar tbFailures ' '
+#SEK: Not sure what Travis was doing here.  He copied form runTests but
+#SEK   not relevant for this case?
+#SEK Remove ignored builds
+#SEK  for bld in `echo $buildsval | tr ',' ' '`; do
+#SEK    if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
+#SEK      testedBuilds=$testedBuilds,$bld
+#SEK    fi
+#SEK  done
+#SEK  trimvar testedBuilds ','
+#SEK  techo "Checking on tested builds '$testedBuilds' of $pkgname."
+#SEK
+#SEK# Wait on all builds, see if any tested build failed
+#SEK  local tbFailures=
+#SEK  for i in `echo $testedBuilds | tr ',' ' '`; do
+#SEK    cmd="waitBuild $pkgname-$i"
+#SEK    techo -2 "$cmd"
+#SEK    $cmd
+#SEK    res=$?
+#SEK    if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
+#SEK      tbFailures="$tbFailures $i"
+#SEK    fi
+#SEK  done
+#SEK  trimvar tbFailures ' '
 
+  cmd="waitBuild $1-$2"
+  techo -2 "$cmd"
+  $cmd
+  res=$?
+  if test $res = 99; then
+    techo "$1-$2 not built so no need to test"
+    return 0
+  fi
+  if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
+    tbFailures="$tbFailures $i"
+  fi
 # Additional targets.
   local testargs=${3:-"test"}
 
@@ -5241,6 +5257,7 @@ EOF
 # Assuming installersubdir is the first part of the name of the package
 # depotdir does not need subdirs as packages are namespaced
           installerbase=`echo $installersubdir | sed -e 's?^.*/??'`
+          techo -2 "installerbase = $installerbase."
           local ending=
           local OS=`uname`
           case $OS in
@@ -5261,6 +5278,20 @@ EOF
             fi
           done
           installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+#SEK: This is my error so commenting out:
+#
+#/scr_sandybridge/kruger/ptsolveall/bilder/bildfcns.sh: line 5283: syntax error near unexpected token `then'
+#/scr_sandybridge/kruger/ptsolveall/bilder/bildfcns.sh: line 5283: `             ssh ${INSTALLER_HOST} mkdir -p ${subdir}; then'
+#SEK
+# Ensure subdir exists
+	    if test -n "$INSTALLER_HOST"; then
+		local subdir=$INSTALLER_ROOTDIR/$installersubdir
+		if ! ssh ${INSTALLER_HOST} ls ${subdir}; then
+		   ssh ${INSTALLER_HOST} mkdir -p ${subdir}
+		   ssh ${INSTALLER_HOST} chmod 775 ${subdir}
+		fi
+	    fi
+# Make sure depotdir exists
           local depotdir=$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
           cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
           if ! $cmd 1>/dev/null 2>&1; then
@@ -5363,12 +5394,13 @@ EOF
 #
 # Args:
 # 1: package name
+# 2: Arguments for the installation
 #
 bilderInstallAll() {
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
   for bld in `echo $buildsval | tr ',' ' '`; do
-    bilderInstall $1 $bld
+    bilderInstall $2 $1 $bld
   done
 }
 

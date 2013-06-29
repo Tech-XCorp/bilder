@@ -130,7 +130,6 @@ buildNumpy() {
     if test -n "$linkflags"; then
 # numpy does not recognize --lflags
       NUMPY_ENV="$NUMPY_ENV LDFLAGS='$linkflags'"
-      # NUMPY_ARGS="$NUMPY_ARGS --lflags='$linkflags'"
     fi
     techo "NUMPY_ENV = $NUMPY_ENV."
 

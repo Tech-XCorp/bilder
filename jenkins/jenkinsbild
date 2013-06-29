@@ -23,7 +23,7 @@ GENERAL OPTIONS
   -s <step> ......... Sets which build step: 1 = internal, 2 = volatile.
   -2 ................ Sets build step to 2.
   -f ................ Force build step 2 to execute independent of the
-                      results of step 1.  Tests will execute unless -n 
+                      results of step 1.  Tests will execute unless -n
                       specified.
 EOF
 }
@@ -219,19 +219,21 @@ if $USE_MINGW; then
 fi
 
 #
-# Put in separator if not present
+# Separate into options before and options after --
 #
-defopts="$addlopts $*"
-if ! echo $defopts | grep -- -- 1>/dev/null 2>&1; then
-  defopts="$defopts --"
+begopts="$addlopts $*"
+if echo $begopts | grep -- -- 1>/dev/null 2>&1; then
+  preopts=`echo $begopts | sed -e 's/-- .*$//' -e 's/  *$//'`
+  postopts=`echo $begopts | sed -e 's/^.* --//' -e 's/^  *//'`
+else
+  preopts="$begopts"
+  postopts=
 fi
 
-# Use internal/volatile build directory naming 
+# Use internal/volatile build directory naming
 case $STEP in
-  1) defopts="-b builds-i $defopts"
-     ;;
-  2) defopts="-b builds-v $defopts"
-     ;;
+  1) preopts="$preopts -b builds-i";;
+  2) preopts="$preopts -b builds-v";;
 esac
 
 
@@ -252,25 +254,27 @@ case $STEP in
 
   1)
 # Always test on first run.
-    defopts="-Ci $defopts"
+    preopts="$preopts -Ci"
     if $ADD_TESTS; then
-      defopts="-t $defopts"
+      preopts="$preopts -t"
     fi
 # If wait period not specified, make it 7 days.
-    if ! echo " $defopts" | sed 's/^.*--//' | grep ' -w'; then
-      defopts="$defopts -w 7"
+    if ! echo " $postopts" | grep ' -w'; then
+# Prepend postopts as may end with target
+      postopts="-w7 $postopts"
     fi
     ;;
 
   2)
-    defopts="$defopts -2"
-    if $FORCESTEP2; then 
+# Prepend postopts as may end with target
+    postopts="-2 $postopts"
+    if $FORCESTEP2; then
       lecho "Forcing step 2 (-f). Ignoring results of first run. "
     else
       if test -f $firstrunsubjfile; then
         thesubj=`cat $firstrunsubjfile`
         lecho "Querying first run subject of '$thesubj'."
-# If first run successful, no need for second run 
+# If first run successful, no need for second run
         if grep -q SUCCESS $firstrunsubjfile; then
           lecho "First run reported SUCCESS.  No need for second."
           lecho "jenkinsbild completing with result 0."
@@ -287,16 +291,16 @@ case $STEP in
         lecho "$firstrunsubjfile NOT found."
       fi
     fi
-    defopts="-C $defopts"
+    preopts="$preopts -C"
     if $ADD_TESTS; then
       lecho "First run not present, inconclusive, or forcing step2 (with default testing).  Will test during second run."
-      defopts="-t $defopts"
+      preopts="$preopts -t"
     else
       lecho "Tests disabled by choice (-n) or because first run passed."
     fi
     ;;
 esac
-cmd="${defscript} $defopts"
+cmd="${defscript} $preopts -- $postopts"
 if $PRINT_ONLY; then
   lecho "Command is:"
   lecho "$cmd"

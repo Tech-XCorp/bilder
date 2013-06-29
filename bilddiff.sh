@@ -13,7 +13,7 @@ if test $# -lt 2; then
   exit
 fi
 
-cmd="diff -ruN -I\\\$Id -I\\\$Rev -x.svn freecadall/bilder composerall/bilder"
+cmd="diff -ruN -I\\\$Id -I\\\$Rev -x.svn $1 $2"
 echo "$cmd"
 eval "$cmd"
 

@@ -795,7 +795,13 @@ findBlasLapack
 
 findContribPackage Hdf5 hdf5 ser par
 case `uname` in
-  CYGWIN*) findContribPackage Hdf5 hdf5dll sersh parsh cc4py;;
+  CYGWIN*)
+    findContribPackage Hdf5 hdf5dll sersh parsh cc4py
+# HDF5 folks keeping us on our toes by changing the name of the library on win32
+    if test -z "$CMAKE_HDF5_SERSH_DIR_ARG"; then
+      findContribPackage Hdf5 hdf5 sersh parsh cc4py
+    fi
+    ;;
   *) findContribPackage Hdf5 hdf5 sersh parsh cc4py;;
 esac
 findCc4pyDir Hdf5

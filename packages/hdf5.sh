@@ -53,6 +53,7 @@ case `uname` in
   Linux) HDF5_BLDRVERSION_STD=1.8.10;;
 
 esac
+HDF5_BLDRVERSION_EXP=1.8.11
 
 # If no experimental version alredy set, experimental = standard
 HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-$HDF5_BLDRVERSION_STD}
@@ -170,7 +171,7 @@ buildHdf5() {
     if bilderConfig -c hdf5 par "-DHDF5_ENABLE_PARALLEL:BOOL=ON $TARBALL_NODEFLIB_FLAGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HDF5_STATIC_ENABLE_FORTRAN $HDF5_PAR_ADDL_ARGS $HDF5_PAR_OTHER_ARGS"; then
       bilderBuild hdf5 par "$HDF5_MAKEJ_ARGS"
     fi
-    if bilderConfig -c hdf5 sermd "$TARBALL_NODEFLIB_FLAGS -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
+    if bilderConfig -c hdf5 sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
       bilderBuild hdf5 sermd "$HDF5_MAKEJ_ARGS"
     fi
     if bilderConfig -c hdf5 cc4py "-DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_CC4PY_ADDL_ARGS $HDF5_SHARED_ENABLE_FORTRAN $HDF5_CC4PY_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
@@ -219,42 +220,24 @@ fixHdf5StaticLibs() {
   local instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
   local libdir=$instdir/lib
 
-# Fix erroneous liblib library names
-  local libs=`\ls $libdir/liblib* 2>/dev/null`
-  if test -n "$libs"; then
-    techo "Fixing liblib problem for hdf5-$HDF5_BLDRVERSION-$bld."
-    for i in $libs; do
-      case `uname` in
-        CYGWIN*)
-          local newname=`echo $i | sed -e 's?/liblib?/?' -e 's/\.a$/.lib/'`
-          ;;
-        *)
-          local newname=`echo $i | sed -e 's?/liblib?/lib?'`
-          ;;
-      esac
+# Fix erroneous library names
+  local libs=`\ls $libdir/* 2>/dev/null`
+  techo "Examining library names for hdf5-$HDF5_BLDRVERSION-$bld."
+  for i in $libs; do
+# The liblib error occurs in some versions between 1.8.7 and 1.8.9
+    local newname=`echo $i | sed -e 's?/liblibhdf5?/libhdf5?'`
+    case `uname` in
+      CYGWIN*)
+# As of 1.8.11, static libs have prepended lib on Windows.
+        local newname=`echo $newname | sed -e 's?/libhdf5?/hdf5?' -e 's/\.a$/.lib/'`
+        ;;
+    esac
+    if test "$i" != "$newname"; then
       cmd="mv $i $newname"
       techo "$cmd"
       $cmd
-    done
-  else
-    techo "liblib problem not present for hdf5-$HDF5_BLDRVERSION-$bld."
-  fi
-
-# Fix incorrect names on Windows
-  if [[ `uname` =~ CYGWIN ]]; then
-    local libs=`(cd $libdir; \ls lib*.a) 2>/dev/null`
-    if test -n "$libs"; then
-      techo "Fixing Windows library names for hdf5-$HDF5_BLDRVERSION-$bld."
-      for i in $libs; do
-        local newname=`echo $i | sed -e 's?^lib??' -e 's/\.a$/.lib/'`
-        cmd="mv $libdir/$i $libdir/$newname"
-        techo "$cmd"
-        $cmd
-      done
-    else
-      techo "Library names okay for hdf5-$HDF5_BLDRVERSION-$bld."
     fi
-  fi
+  done
 
 }
 

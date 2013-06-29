@@ -39,3 +39,14 @@ diff -ruN boost-1_53_0/tools/build/v2/tools/darwin.jam boost-1_53_0-new/tools/bu
      flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
      if $(.debug-configuration)
      {
+--- boost-1_53_0/boost/config/compiler/nvcc.hpp	2011-03-07 06:07:30.000000000 -0700
++++ boost-1_53_0/boost/config/compiler/nvcc_new.hpp	2013-06-28 10:10:27.939797267 -0600
+@@ -26,3 +26,8 @@
+ #include <boost/config/compiler/visualc.hpp>
+ 
+ #endif
++
++#if defined(BOOST_HAS_INT128) && defined(__CUDACC__)
++#undef BOOST_HAS_INT128
++#endif
++

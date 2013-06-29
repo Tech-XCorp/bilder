@@ -20,7 +20,10 @@ MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-"2.4.1"}
 #
 ######################################################################
 
-MERCURIAL_BUILDS=${MERCURIAL_BUILDS:-"cc4py"}
+HG=`which hg 2>/dev/null`
+if test -z "$HG" -o "$HG" = /contrib/bin/hg; then
+  MERCURIAL_BUILDS=${MERCURIAL_BUILDS:-"cc4py"}
+fi
 # setuptools gets site-packages correct
 MERCURIAL_DEPS=Python
 MERCURIAL_UMASK=002

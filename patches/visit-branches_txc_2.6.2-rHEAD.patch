@@ -1,6 +1,24 @@
+Index: visit/CMake/FindHDF5.cmake
+===================================================================
+--- visit/CMake/FindHDF5.cmake	(revision 21200)
++++ visit/CMake/FindHDF5.cmake	(working copy)
+@@ -47,9 +47,10 @@
+ 
+ INCLUDE(${VISIT_SOURCE_DIR}/CMake/SetUpThirdParty.cmake)
+ 
+-IF (WIN32)
++OPTION(HDF5_LIBNAMES_AFFIX_DLL "Whether HDF5 library base names end with dll" ON)
++IF (WIN32 AND HDF5_LIBNAMES_AFFIX_DLL)
+  SET_UP_THIRD_PARTY(HDF5 lib include hdf5dll hdf5_hldll)
+-ELSE (WIN32)
++ELSE ()
+   SET_UP_THIRD_PARTY(HDF5 lib include hdf5)
+-ENDIF (WIN32)
++ENDIF ()
+ 
 Index: visit/CMake/TestPTY.cmake
 ===================================================================
---- visit/CMake/TestPTY.cmake	(revision 20855)
+--- visit/CMake/TestPTY.cmake	(revision 21200)
 +++ visit/CMake/TestPTY.cmake	(working copy)
 @@ -48,6 +48,7 @@
                  ${CMAKE_CURRENT_BINARY_DIR}
@@ -12,7 +30,7 @@ Index: visit/CMake/TestPTY.cmake
              SET(PTY_SYSV 1 CACHE BOOL "Defined if we have System V style pty functions")
 Index: visit/CMake/TestPTY.cpp
 ===================================================================
---- visit/CMake/TestPTY.cpp	(revision 20855)
+--- visit/CMake/TestPTY.cpp	(revision 21200)
 +++ visit/CMake/TestPTY.cpp	(working copy)
 @@ -1,5 +1,4 @@
  #include <stdlib.h>
@@ -20,34 +38,9 @@ Index: visit/CMake/TestPTY.cpp
  
  int
  main(int argc, char *arg[])
-Index: visit/tools/xdmf_writer/CMakeLists.txt
-===================================================================
---- visit/tools/xdmf_writer/CMakeLists.txt	(revision 20855)
-+++ visit/tools/xdmf_writer/CMakeLists.txt	(working copy)
-@@ -51,16 +51,16 @@
- 
- #********************************* SERIAL ************************************
- ADD_EXECUTABLE(xdmf_curv3d xdmf_curv3d.c)
--TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser m) 
- 
- ADD_EXECUTABLE(xdmf_ucd3d xdmf_ucd3d.c)
--TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser m) 
- 
- ADD_EXECUTABLE(xdmf_curv3d_wtime xdmf_curv3d_wtime.c)
--TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser m) 
- 
- ADD_EXECUTABLE(xdmf_multi_curv3d xdmf_multi_curv3d.c)
--TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser) 
-+TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser m) 
- 
- ADD_LIBRARY(xdmf_writer_ser xdmf_writer.c)
- TARGET_LINK_LIBRARIES(xdmf_writer_ser ${HDF5_LIB} ${ZLIB_LIB})
 Index: visit/common/misc/PTY.C
 ===================================================================
---- visit/common/misc/PTY.C	(revision 20855)
+--- visit/common/misc/PTY.C	(revision 21200)
 +++ visit/common/misc/PTY.C	(working copy)
 @@ -79,7 +79,7 @@
      char        pts_name[20];
@@ -82,7 +75,7 @@ Index: visit/common/misc/PTY.C
  }
 Index: visit/engine/main/CMakeLists.txt
 ===================================================================
---- visit/engine/main/CMakeLists.txt	(revision 20855)
+--- visit/engine/main/CMakeLists.txt	(revision 21200)
 +++ visit/engine/main/CMakeLists.txt	(working copy)
 @@ -130,6 +130,10 @@
  ${VTK_INCLUDE_DIRS}
@@ -95,3 +88,28 @@ Index: visit/engine/main/CMakeLists.txt
  # Add link directories
  LINK_DIRECTORIES(
  ${LIBRARY_OUTPUT_DIRECTORY}
+Index: visit/tools/xdmf_writer/CMakeLists.txt
+===================================================================
+--- visit/tools/xdmf_writer/CMakeLists.txt	(revision 21200)
++++ visit/tools/xdmf_writer/CMakeLists.txt	(working copy)
+@@ -51,16 +51,16 @@
+ 
+ #********************************* SERIAL ************************************
+ ADD_EXECUTABLE(xdmf_curv3d xdmf_curv3d.c)
+-TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_curv3d xdmf_writer_ser m) 
+ 
+ ADD_EXECUTABLE(xdmf_ucd3d xdmf_ucd3d.c)
+-TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_ucd3d xdmf_writer_ser m) 
+ 
+ ADD_EXECUTABLE(xdmf_curv3d_wtime xdmf_curv3d_wtime.c)
+-TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_curv3d_wtime xdmf_writer_ser m) 
+ 
+ ADD_EXECUTABLE(xdmf_multi_curv3d xdmf_multi_curv3d.c)
+-TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser) 
++TARGET_LINK_LIBRARIES(xdmf_multi_curv3d xdmf_writer_ser m) 
+ 
+ ADD_LIBRARY(xdmf_writer_ser xdmf_writer.c)
+ TARGET_LINK_LIBRARIES(xdmf_writer_ser ${HDF5_LIB} ${ZLIB_LIB})

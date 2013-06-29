@@ -98,9 +98,6 @@ else
   fi
 fi
 techo "PKG_FILE = $PKG_FILE."
-#TMP
-echo "PKG_FILE = $PKG_FILE."
-exit 1
 
 # If a repo, get that version, otherwise look in variables
 vervar=`genbashvar $package`_BLDRVERSION

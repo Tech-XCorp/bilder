@@ -299,6 +299,14 @@ fi
         VISIT_PKG_ARGS="$VISIT_PKG_ARGS $argval"
       fi
     done
+# hdf5 remove dll from library names as of 1.8.11
+    if [[ `uname` =~ CYGWIN ]]; then
+      case $HDF5_BLDRVERSION in
+        1.8.11)
+          VISIT_PKG_ARGS="$VISIT_PKG_ARGS -DHDF5_LIBNAMES_AFFIX_DLL:BOOL=OFF"
+          ;;
+      esac
+    fi
     techo "VISIT_PKG_ARGS = $VISIT_PKG_ARGS."
 
     local VISIT_OS_ARGS=
@@ -387,10 +395,16 @@ fixCopiedHdf5() {
       if test -f $instdir/hdf5dll.dll; then
         techo "VisIt correctly installed $instdir/hdf5dll.dll."
         return
+      elif test -f $instdir/hdf5.dll; then
+        techo "VisIt correctly installed $instdir/hdf5.dll."
+        return
       fi
       techo "NOTE: VisIt did not install $instdir/hdf5dll.dll.  Copying from $hdf5rootdir."
       local cmd=
-      if test -f $hdf5rootdir/bin/hdf5dll.dll; then
+# This is what hdf5-1.8.11 needs
+      if test -f $hdf5rootdir/bin/hdf5.dll; then
+        cmd="cp $hdf5rootdir/bin/hdf5.dll $instdir/"
+      elif test -f $hdf5rootdir/bin/hdf5dll.dll; then
         cmd="cp $hdf5rootdir/bin/hdf5dll.dll $instdir/"
       elif test -f $hdf5rootdir/dll/hdf5dll.dll; then
         techo "$hdf5rootdir/bin/hdf5dll.dll not present."

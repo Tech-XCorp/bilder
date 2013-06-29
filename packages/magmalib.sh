@@ -6,7 +6,7 @@
 #
 ######################################################################
 
-MAGMALIB_BLDRVERSION=${MAGMALIB_BLDRVERSION:-"1.3.0.1-win64-tesla"}
+MAGMALIB_BLDRVERSION=${MAGMALIB_BLDRVERSION:-"1.3.0.2-win64-tesla"}
 MAGMALIB_BUILDS=${MAGMALIB_BUILDS:-"gpu"}
 MAGMALIB_DEPS=
 MAGMALIB_UMASK=002

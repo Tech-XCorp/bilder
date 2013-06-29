@@ -162,8 +162,19 @@ SCRIPT_ADDL_ARGS="$*"
 REDO_SCRIPT=`basename $SCRIPT_NAME -default.sh`-defredo.sh
 cat >$REDO_SCRIPT <<END
 #!/usr/bin/env bash
-echo To redo this run, execute
-echo "$0 $redoargs"
+if test -z "\$1"; then
+  echo "# To redo this run, execute"
+  echo "$0 $redoargs"
+  echo "# Or simply"
+  echo $REDO_SCRIPT run
+  exit
+fi
+if test "\$1" = run; then
+  cmd="$0 $redoargs"
+  echo "\$cmd"
+  exec \$cmd
+fi
+echo Not understood: \"\$0 \$*\"
 END
 chmod a+x $REDO_SCRIPT
 

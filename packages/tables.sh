@@ -97,8 +97,11 @@ buildTables() {
         return
         ;;
     esac
+# Add env if no dll at end of hdf5 files
+    case $HDF5_BLDRVERSION in
+      1.8.1[1-9]) TABLES_ENV="$TABLES_ENV HDF5_LIBNAMES_LACK_DLL=1";;
+    esac
     trimvar linkflags ' '
-    # techo "linkflags = $linkflags."
     if test -n "$linkflags"; then
       TABLES_ARGS="$TABLES_ARGS --lflags='$linkflags'"
     fi
