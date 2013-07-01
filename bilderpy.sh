@@ -36,8 +36,12 @@ if ! $NO_PYTHON; then
   PYTHON=`which python`
 # Make sure we are using the correct paths.  Cmake python needed on CYGWIN.
   case `uname` in
-    CYGWIN*) MIXED_PYTHON="$(cygpath -am $PYTHON)";;
-          *) MIXED_PYTHON=$PYTHON;;
+    CYGWIN*)
+# VTK needs PYTHON to be the native path
+      PYTHON=`cygpath -aw $PYTHON`
+      MIXED_PYTHON="$(cygpath -am $PYTHON)"
+      ;;
+    *) MIXED_PYTHON=$PYTHON;;
   esac
   PYTHON_INCDIR=`python -c "import distutils.sysconfig; idir = distutils.sysconfig.get_python_inc(1); print idir," 2>/dev/null | tr -d '\r'`
   PYTHON_TOPLIBDIR=`python -c "import distutils.sysconfig; tldir = distutils.sysconfig.get_python_lib(1,1); print tldir," 2>/dev/null | tr -d '\r'`
