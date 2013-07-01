@@ -129,15 +129,19 @@ if test -n "$EXTRA_ENV"; then
 fi
 
 # Determine the Jenkins file system root
-up3=`(cd ../../..; pwd -P)`
-if test `basename $up3` = workspace; then
-  JENKINS_FSROOT=`(cd ../../../..; pwd -P)`
+if test -n "$JENKINS_FSROOT"; then
+  JENKINS_FSROOT=`cypath -au $JENKINS_FSROOT`
 else
-  up1=`(cd ..; pwd -P)`
-  if test `basename $up1` = workspace; then
-    JENKINS_FSROOT=`(cd ../..; pwd -P)`
+  up3=`(cd ../../..; pwd -P)`
+  if test `basename $up3` = workspace; then
+    JENKINS_FSROOT=`(cd ../../../..; pwd -P)`
   else
-    JENKINS_FSROOT="$JENKINS_HOME"
+    up1=`(cd ..; pwd -P)`
+    if test `basename $up1` = workspace; then
+      JENKINS_FSROOT=`(cd ../..; pwd -P)`
+    else
+      JENKINS_FSROOT="$JENKINS_HOME"
+    fi
   fi
 fi
 export JENKINS_FSROOT

@@ -7,18 +7,25 @@ rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 
+ECHO jenkinsbild.bat: JENKINS_HOME=%JENKINS_HOME% 
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
+
+
+set origdir=%CD%
+cd ..\..\..\..
+set JENKINS_FSROOT=%CD%
+cd %origdir%
+ECHO jenkinsbild.bat: JENKINS_FSROOT=%JENKINS_FSROOT% 
 
 rem save old dir
 @ECHO on
 set origdrive=%CD:~0,2%
-set origdir=%CD%
 subst j: %origdir%
 j:
 @ECHO off
-ECHO jenkinsbil.bat: Working in %CD%.
-ECHO jenkinsbil.bat: Working in %CD%. >>jenkinsbild.log
+ECHO jenkinsbild.bat: Working in %CD%.
+ECHO jenkinsbild.bat: Working in %CD%. >>jenkinsbild.log
 
 
 C:\CYGWIN\bin\cygpath %CD% >temp.txt
