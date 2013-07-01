@@ -1,21 +1,25 @@
-diff -ruN tables-2.3.1/blosc/blosc.c tables-2.3.1-new/blosc/blosc.c
---- tables-2.3.1/blosc/blosc.c	2011-10-09 04:25:11.000000000 -0600
-+++ tables-2.3.1-new/blosc/blosc.c	2012-07-21 10:29:22.091965400 -0600
-@@ -69,7 +69,9 @@
- pthread_attr_t ct_attr;          /* creation time attributes for threads */
- #endif
- 
--#if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 20012L) >= 0
-+/* #if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 20012L) >= 0 */
-+/* below works on benten.gat.com */
-+#if defined(_POSIX_BARRIERS) && (_POSIX_BARRIERS - 200112L) > 0
- #define _POSIX_BARRIERS_MINE
- #endif
- 
 diff -ruN tables-2.3.1/setup.py tables-2.3.1-new/setup.py
 --- tables-2.3.1/setup.py	2011-10-28 14:06:48.000000000 -0600
-+++ tables-2.3.1-new/setup.py	2012-07-21 10:29:22.094965600 -0600
-@@ -313,9 +313,7 @@
++++ tables-2.3.1-new/setup.py	2013-06-29 13:38:54.767920300 -0600
+@@ -305,7 +305,16 @@
+         }
+ elif os.name == 'nt':
+     _Package = WindowsPackage
+-    _platdep = {  # package tag -> platform-dependent components
++    HDF5_LIBNAMES_LACK_DLL = os.environ.get('HDF5_LIBNAMES_LACK_DLL', '')
++    if HDF5_LIBNAMES_LACK_DLL:
++      _platdep = {  # package tag -> platform-dependent components
++        'HDF5': ['hdf5', 'hdf5'],
++        'LZO2': ['lzo2', 'lzo2'],
++        'LZO': ['liblzo', 'lzo1'],
++        'BZ2': ['bzip2', 'bzip2'],
++        }
++    else:
++      _platdep = {  # package tag -> platform-dependent components
+         'HDF5': ['hdf5dll', 'hdf5dll'],
+         'LZO2': ['lzo2', 'lzo2'],
+         'LZO': ['liblzo', 'lzo1'],
+@@ -313,10 +322,11 @@
          }
      # Copy the next DLL's to binaries by default.
      # Update these paths for your own system!
@@ -24,5 +28,9 @@ diff -ruN tables-2.3.1/setup.py tables-2.3.1-new/setup.py
 -                 ]
 +    dll_files = []
      if '--debug' in sys.argv:
++      if HDF5_LIBNAMES_LACK_DLL:
++        _platdep['HDF5'] = ['hdf5d', 'hdf5d']
++      else:
          _platdep['HDF5'] = ['hdf5ddll', 'hdf5ddll']
  
+ hdf5_package = _Package("HDF5", 'HDF5', 'H5public', *_platdep['HDF5'])

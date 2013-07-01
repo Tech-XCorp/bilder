@@ -90,8 +90,8 @@ EOF
 
 # Set jmake args.  Observed to fail on magnus.colorado.edu for openmpi-1.6.1,
 # but then observed to work with --disable-vt
-    local ompimakeflags="$SER_CONFIG_LDFLAGS"
 if false; then
+    local ompimakeflags="$SER_CONFIG_LDFLAGS"
     case $OPENMPI_BLDRVERSION in
       1.6.1)
         case `uname`-`uname -r` in
