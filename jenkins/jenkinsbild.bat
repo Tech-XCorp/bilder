@@ -16,9 +16,15 @@ ECHO jenkinsbild.bat: WORKSPACE=%WORKSPACE%
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
 
+REM JOB_NAME contains <JOB>\<NODES>=<NODE>
+for /f "tokens=1 delims=\" %%A in ("%JOB_NAME%") do set JOB=%%A
 
 @ECHO on
-cd %JOB_NAME%
+if not exist %JOB% goto createlink else linkexistscontinue  
+:createlink
+mklink /D %JOB% %WORKSPACE%
+:linkexistscontinue
+cd %JOB%
 @ECHO off
 ECHO jenkinsbild.bat: Working in %CD%.
 ECHO jenkinsbild.bat: Working in %CD%. >>jenkinsbild.log
