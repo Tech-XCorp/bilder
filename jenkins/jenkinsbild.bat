@@ -7,18 +7,19 @@ rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 
-ECHO jenkinsbild.bat: JENKINS_HOME=%JENKINS_HOME% 
+ECHO jenkinsbild.bat: JENKINS_HOME=%JENKINS_HOME%
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
 
 
+rem save old directory
 set origdir=%CD%
-cd ..\..\..\..
-set JENKINS_FSROOT=%CD%
-cd %origdir%
-ECHO jenkinsbild.bat: JENKINS_FSROOT=%JENKINS_FSROOT% 
+rem cd ..\..\..\..
+rem set JENKINS_FSROOT=%CD%
+rem cd %origdir%
+rem ECHO jenkinsbild.bat: JENKINS_FSROOT=%JENKINS_FSROOT%
 
-rem save old dir
+rem save old drive
 @ECHO on
 set origdrive=%CD:~0,2%
 subst j: %origdir%

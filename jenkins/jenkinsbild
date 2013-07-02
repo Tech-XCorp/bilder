@@ -119,32 +119,41 @@ if test -d /contrib/bin; then
 fi
 
 # Add possible environment variables
-lecho "Adding extra environment variables."
 if test -n "$EXTRA_ENV"; then
+  lecho "Adding extra environment variables."
   for i in `echo $EXTRA_ENV | tr ',' ' '`; do
     cmd="export $i"
-    techo "$cmd"
+    lecho "$cmd"
     $cmd
   done
 fi
 
 # Determine the Jenkins file system root
-if test -n "$JENKINS_FSROOT"; then
-  JENKINS_FSROOT=`cypath -au $JENKINS_FSROOT`
-else
-  up3=`(cd ../../..; pwd -P)`
-  if test `basename $up3` = workspace; then
-    JENKINS_FSROOT=`(cd ../../../..; pwd -P)`
-  else
-    up1=`(cd ..; pwd -P)`
+lecho "WORKSPACE = $WORKSPACE, origdir = $origdir."
+if test -n "$WORKSPACE" && [[ `uname` =~ CYGWIN ]]; then
+  WORKSPACE=`cygpath -au $WORKSPACE`
+fi
+if test -n "$WORKSPACE"; then
+# See if workspace is up 3
+  if test -d "$WORKSPACE"/../../..; then
+    up3=`(cd "$WORKSPACE"/../../..; pwd -P)`
+    if test `basename $up3` = workspace; then
+      JENKINS_FSROOT=`(cd "$up3"/..; pwd -P)`
+    fi
+  fi
+# If not, then try up 1
+  if test -z "$JENKINS_FSROOT" -a -d "$WORKSPACE"/..; then
+    up1=`(cd "$WORKSPACE"/..; pwd -P)`
     if test `basename $up1` = workspace; then
-      JENKINS_FSROOT=`(cd ../..; pwd -P)`
-    else
-      JENKINS_FSROOT="$JENKINS_HOME"
+      JENKINS_FSROOT=`(cd "$up1"/..; pwd -P)`
     fi
   fi
 fi
-export JENKINS_FSROOT
+if test -n "$JENKINS_FSROOT"; then
+  export JENKINS_FSROOT
+else
+  lecho "WARNING: jenkinsbild cannot find JENKINS_FSROOT."
+fi
 
 #
 # Make sure Windows svnversion is used, if found.
@@ -152,11 +161,8 @@ export JENKINS_FSROOT
 export BLDR_SVNVERSION
 if [[ `uname` =~ CYGWIN ]]; then
 # Convert some env vars
-  if ! test -z "$JENKINS_HOME";then
+  if test -n "$JENKINS_HOME"; then
     JENKINS_HOME=`cygpath -au $JENKINS_HOME`
-  fi
-  if ! test -z "$WORKSPACE";then
-    WORKSPACE=`cygpath -au $WORKSPACE`
   fi
 # Subversion must be compatible with the svnkit used by jenkins, which is
 # version 1.4-7, as selected in jenkins.  Try a custom installation:
