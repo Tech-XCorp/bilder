@@ -58,7 +58,7 @@ buildVtk() {
       VTK_PYTHON_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_LIB"
       case `uname` in
         CYGWIN*64) # 64-bit Windows needs help finding correct python paths
-          VTK_PYTHON_ARGS="$VTK_PYTHON_ARGS -DPYTHON_EXECUTABLE:FILEPATH='$PYTHON' -DPYTHON_INCLUDE_DIR:PATH=$PYTHON_INCDIR"
+          VTK_PYTHON_ARGS="$VTK_PYTHON_ARGS -DPYTHON_EXECUTABLE:FILEPATH='$MIXED_PYTHON' -DPYTHON_INCLUDE_DIR:PATH=$PYTHON_INCDIR"
          ;;
       esac
 # Protect against jom, as dependencies not right
