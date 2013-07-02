@@ -8,22 +8,17 @@ rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 
 ECHO jenkinsbild.bat: JENKINS_HOME=%JENKINS_HOME%
+ECHO jenkinsbild.bat: JOB_NAME=%JOB_NAME%
+ECHO jenkinsbild.bat: BUILD_ID=%BUILD_ID%
+ECHO jenkinsbild.bat: BUILD_TAG=%BUILD_TAG%
+ECHO jenkinsbild.bat: JAVA_HOME=%JAVA_HOME%
+ECHO jenkinsbild.bat: WORKSPACE=%WORKSPACE%
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
 
 
-rem save old directory
-set origdir=%CD%
-rem cd ..\..\..\..
-rem set JENKINS_FSROOT=%CD%
-rem cd %origdir%
-rem ECHO jenkinsbild.bat: JENKINS_FSROOT=%JENKINS_FSROOT%
-
-rem save old drive
 @ECHO on
-set origdrive=%CD:~0,2%
-subst j: %origdir%
-j:
+cd %JOB_NAME%
 @ECHO off
 ECHO jenkinsbild.bat: Working in %CD%.
 ECHO jenkinsbild.bat: Working in %CD%. >>jenkinsbild.log
@@ -42,12 +37,6 @@ if ERRORLEVEL 1 set JBILDERR=1
 
 ECHO jenkinsbild.bat: completed with error = %JBILDERR%.
 ECHO jenkinsbild.bat: completed with error = %JBILDERR%. >> jenkinsbild.log
-
-@ECHO on
-%origdrive%
-subst j: /D
-cd %origdir%
-@ECHO off
 
 EXIT /B %JBILDERR%
 
