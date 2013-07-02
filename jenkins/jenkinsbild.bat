@@ -20,11 +20,14 @@ REM JOB_NAME contains <JOB>\<NODES>=<NODE>
 for /f "tokens=1 delims=\" %%A in ("%JOB_NAME%") do set JOB=%%A
 
 @ECHO on
-if not exist %JOB% goto createlink else linkexistscontinue  
+for %%A in ("%CD%") do set drive=%%~dA
+set JOB_LINK=%drive%\%JOB_LINK%
+echo JOB_LINK=%JOB_LINK%
+if exist %JOB_LINK% goto createlink else linkexistscontinue
 :createlink
-mklink /D %JOB% %WORKSPACE%
+mklink /D %JOB_LINK% %WORKSPACE%
 :linkexistscontinue
-cd %JOB%
+cd %JOB_LINK%
 @ECHO off
 ECHO jenkinsbild.bat: Working in %CD%.
 ECHO jenkinsbild.bat: Working in %CD%. >>jenkinsbild.log
