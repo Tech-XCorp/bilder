@@ -33,7 +33,7 @@ if test -z "$OPENMPI_BUILDS"; then
     esac
   fi
 fi
-OPENMPI_DEPS=valgrind,doxygen,cmake
+OPENMPI_DEPS=valgrind,doxygen,cmake,libtool,automake
 OPENMPI_UMASK=002
 
 ######################################################################
