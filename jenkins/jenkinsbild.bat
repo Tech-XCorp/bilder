@@ -7,14 +7,19 @@ rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 
+ECHO jenkinsbild.bat: ========= EXECUTING jenkinsbild.bat ========
+ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
+ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
+ECHO
+ECHO jenkinsbild.bat: <<<<<<<JENKINS VARIABLES>>>>>>>
 ECHO jenkinsbild.bat: JENKINS_HOME=%JENKINS_HOME%
 ECHO jenkinsbild.bat: JOB_NAME=%JOB_NAME%
 ECHO jenkinsbild.bat: BUILD_ID=%BUILD_ID%
 ECHO jenkinsbild.bat: BUILD_TAG=%BUILD_TAG%
 ECHO jenkinsbild.bat: JAVA_HOME=%JAVA_HOME%
 ECHO jenkinsbild.bat: WORKSPACE=%WORKSPACE%
-ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
-ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
+ECHO jenkinsbild.bat: <<<<<<<<<<<<<<<END>>>>>>>>>>>>>
+ECHO
 
 REM JOB_NAME contains <JOB>\<NODES>=<NODE>
 for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK=%%A
