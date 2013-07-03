@@ -34,7 +34,7 @@ set JENKINS_WSPATH=%JENKINS_WSPATH:/=\%
 set JENKINS_WSPATH=%drive%%JENKINS_WSPATH%
 echo JENKINS_WSPATH=%JENKINS_WSPATH%
 
-of exist %JOB_LINK% goto createlink else linkexistscontinue
+if exist %JOB_LINK% goto createlink else linkexistscontinue
 :createlink
 echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %WORKSPACE% 
 mklink /D %JOB_LINK% %JENKINS_WSPATH%
