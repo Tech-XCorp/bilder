@@ -134,24 +134,22 @@ buildCarve() {
 
 # Get version
   getVersion carve
+# Patch
+  cd $PROJECT_DIR
+  if test -f $BILDER_DIR/patches/carve.patch; then
+    cmd="(cd carve; patch -p1 <$BILDER_DIR/patches/carve.patch)"
+    techo "$cmd"
+    eval "$cmd"
+  fi
 
-# Apply patch
-  cd $PROJECT_DIR/carve
-  patch -p1 <$BILDER_DIR/patches/carve.patch
-  cd -
-
-  if bilderPreconfig -c carve; then
-
-# Check for install_dir installation
-    if test "$CONTRIB_DIR" != "$INSTALL_DIR" -a -e $INSTALL_DIR/carve; then
-      techo "WARNING: carve is installed in $INSTALL_DIR."
-    fi
+# Preconfig
+  if ! bilderPreconfig -c carve; then
+    return 1
+  fi
 
 # Build the shared libs
-    if bilderConfig carve sersh "-DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_SERSH $CMAKE_COMPFLAGS_SERSH -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE $CARVE_SERSH_OTHER_ARGS"; then
-      bilderBuild carve sersh "$CARVE_MAKEJ_ARGS"
-    fi
-
+  if bilderConfig carve sersh "-DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_SERSH $CMAKE_COMPFLAGS_SERSH -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE $CARVE_SERSH_OTHER_ARGS"; then
+    bilderBuild carve sersh "$CARVE_MAKEJ_ARGS"
   fi
 
 }

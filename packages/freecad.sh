@@ -54,32 +54,26 @@ buildFreecad() {
   techo -2 "Getting freecad."
   (cd $PROJECT_DIR; getFreecad)
 
-# If no subdir, done.
-  if ! test -d $PROJECT_DIR/freecad; then
-    techo "WARNING: freecad dir not found. Building from package."
+# Check for svn version or package
+  getVersion freecad
+# Patch
+  cd $PROJECT_DIR
+  if test -f $BILDER_DIR/patches/freecad.patch; then
+    cmd="(cd freecad; patch -p1 <$BILDER_DIR/patches/freecad.patch)"
+    techo "$cmd"
+    eval "$cmd"
   fi
 
-# Check for svn version or package
-  if test -d $PROJECT_DIR/freecad; then
-    getVersion freecad
-    if ! bilderPreconfig -c freecad; then
-      return 1
-    fi
-  else
-    if ! bilderUnpack freecad; then
-      return 1
-    fi
+  if ! bilderPreconfig -c freecad; then
+    return 1
   fi
 
 # Add patch if directory is clean
-  if (cd freecad; git status) | grep -q "working directory clean"; then
-    if test -f $BILDER_DIR/patches/freecad.patch; then
-      cmd="(cd freecad; patch -p1 <$BILDER_DIR/patches/freecad.patch)"
-      techo "$cmd"
-      eval "$cmd"
+  if test -d freecad; then
+    if (cd freecad; git status) | grep -q "working directory clean"; then
+    else
+      techo "Working directory modified, will not patch."
     fi
-  else
-    techo "Working directory modified, will not patch."
   fi
 
 # Find qt
@@ -90,7 +84,6 @@ buildFreecad() {
   techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
 
 # These will need conversion for Windows
-  # local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBOOST_ROOT:STRING='${CONTRIB_DIR}/boost-sersh' -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DEIGEN3_INCLUDE_DIR:PATH='${CONTRIB_DIR}/eigen3-sersh/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='${CONTRIB_DIR}/xercesc/include'"
   local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DBoost_NO_BOOST_CMAKE:BOOL=TRUE"
   local boostdir="${CONTRIB_DIR}/boost-sersh"
   local eigendir="${CONTRIB_DIR}/eigen3-sersh"
