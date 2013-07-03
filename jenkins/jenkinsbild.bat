@@ -36,7 +36,7 @@ echo JENKINS_WSPATH=%JENKINS_WSPATH%
 
 if exist %JOB_LINK% goto createlink else linkexistscontinue
 :createlink
-echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %WORKSPACE% 
+echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %JENKINS_WSPATH% 
 mklink /D %JOB_LINK% %JENKINS_WSPATH%
 :linkexistscontinue
 cd %JOB_LINK%
