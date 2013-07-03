@@ -989,14 +989,16 @@ finish() {
   techo -2 "finish called with '$*'."
   local doQuit=true
   local subject=
-  while test -n "$1"; do
-    case "$1" in
-      -c) doQuit=false;;
-      -s) subject="$2"; shift;;
-       *) break;;
+# Parse options
+  set -- "$@"
+  OPTIND=1
+  while getopts "cs:" arg; do
+    case $arg in
+      c) doQuit=false;;
+      s) subject="$2";;
     esac
-    shift
   done
+  shift $(($OPTIND - 1))
 
 # Summarize (which constructs the email subject)
   techo -2 "Calling summarize."
@@ -1046,6 +1048,8 @@ finish() {
     fi
     techo "$msg"
     techo "finish is exiting."
+# Remove traps
+    trap - 1 2 15
     cmd="exit $exitcode"
     techo "$cmd"
     echo $exitcode >$BUILD_DIR/bilder.res

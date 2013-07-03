@@ -11,7 +11,9 @@ START_DATE=`date '+%Y-%m-%d'`
 
 # Set trapping for killing of running builds
 unset PIDLIST
-trap 'cleanup; exit' 1 2 15
+# trap 'cleanup; exit' 1 2 15
+# cleanup does the exit
+trap 'cleanup' 1 2 15
 # For signaling to quit after next installation.
 TERMINATE_REQUESTED=false
 
