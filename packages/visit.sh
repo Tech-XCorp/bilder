@@ -34,8 +34,7 @@ if test -z "$VISIT_DESIRED_BUILDS"; then
 fi
 computeBuilds visit
 VISIT_SER_BUILD=$FORPYTHON_BUILD
-VTK_NAME=${VTK_NAME:-"VTK"}
-VISIT_DEPS=Imaging,hdf5,${VTK_NAME},qt,cmake
+VISIT_DEPS=Imaging,hdf5,VTK,qt,cmake
 VISIT_UMASK=002
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
 case `uname`-`uname -r` in
@@ -46,7 +45,6 @@ case `uname`-`uname -r` in
     fi
     ;;
 esac
-addVals VISIT_VTK_DESIRED_BUILDS $FORPYTHON_BUILD
 
 ######################################################################
 #
@@ -202,6 +200,7 @@ fi
 
 # Patch visit
 # Generate the patch via svn diff visit >numpkgs/visit-${branch}-${lbl}.patch
+    visit-trunk-rHEAD.patch=$BILDER_DIR/patches/visit-trunk-rHEAD.patch
     if test -n "$VISIT_PATCH" -a -f "$VISIT_PATCH"; then
       techo "patch -p0 <$VISIT_PATCH"
       (cd $PROJECT_DIR; patch -p0 <$VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)
@@ -268,7 +267,7 @@ fi
 # Find location of QT in unix file system
     findQt
 # Find Vtk
-    local VISIT_VTK_DIR=$CONTRIB_DIR/${VTK_NAME}-$FORPYTHON_BUILD
+    local VISIT_VTK_DIR=$CONTRIB_DIR/VTK-$FORPYTHON_BUILD
     techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 
 # Get mixed (CYGWIN) or native (OTHER) paths.

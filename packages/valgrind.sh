@@ -21,7 +21,9 @@ VALGRIND_BLDRVERSION_EXP=3.8.1
 #
 ######################################################################
 
-VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
+if [[ `uname` =~ Linux ]]; then
+  VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
+fi
 VALGRIND_DEPS=
 VALGRIND_MASK=002
 

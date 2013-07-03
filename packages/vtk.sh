@@ -38,7 +38,7 @@ VTK_DEPS=mesa,cmake
 buildVtk() {
 
   if ! bilderUnpack VTK; then
-    return
+    return 1
   fi
 
 # Set up variables
