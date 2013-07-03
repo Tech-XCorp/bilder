@@ -17,14 +17,15 @@ ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*.
 ECHO jenkinsbild.bat: starting up in %CD% with arguments, %*. >> jenkinsbild.log
 
 REM JOB_NAME contains <JOB>\<NODES>=<NODE>
-for /f "tokens=1 delims=\" %%A in ("%JOB_NAME%") do set JOB=%%A
+for /f "tokens=1 delims=\" %%A in ("%JOB_NAME%") do set JOB_LINK=%%A
 
 @ECHO on
 for %%A in ("%CD%") do set drive=%%~dA
 set JOB_LINK=%drive%\%JOB_LINK%
-echo JOB_LINK=%JOB_LINK%
+echo jenkinsbild.bat: JOB_LINK=%JOB_LINK%
 if exist %JOB_LINK% goto createlink else linkexistscontinue
 :createlink
+echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %WORKSPACE% 
 mklink /D %JOB_LINK% %WORKSPACE%
 :linkexistscontinue
 cd %JOB_LINK%
