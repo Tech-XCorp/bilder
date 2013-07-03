@@ -68,14 +68,6 @@ buildFreecad() {
     return 1
   fi
 
-# Add patch if directory is clean
-  if test -d freecad; then
-    if (cd freecad; git status) | grep -q "working directory clean"; then
-    else
-      techo "Working directory modified, will not patch."
-    fi
-  fi
-
 # Find qt
   if ! QMAKE_PATH=`which qmake 2>/dev/null`; then
     techo "WARNING: Could not find qmake in path. Please add location of qmake to your path in the case that QT CMake Macros can not be found by the freecad configuration system"
