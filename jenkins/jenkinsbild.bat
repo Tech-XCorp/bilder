@@ -23,13 +23,21 @@ REM JOB_NAME contains <JOB>\<NODES>=<NODE>
 for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK=%%A
 echo jenkinsbild.bat: JOB Part of JOB_NAME=%JOB_LINK%
 
+
 for %%A in ("%CD%") do set drive=%%~dA
 set JOB_LINK=%drive%\%JOB_LINK%
 echo jenkinsbild.bat: Adding drive letter... JOB_LINK=%JOB_LINK%
-if exist %JOB_LINK% goto createlink else linkexistscontinue
+REM Jenkins workspace variable has forward slashes, but
+REM we need a windows path, so we convert
+set JENKINS_WSPATH=%WORKSPACE%
+set JENKINS_WSPATH=%JENKINS_WSPATH:/=\%
+set JENKINS_WSPATH=%drive%%JENKINS_WSPATH%
+echo JENKINS_WSPATH=%JENKINS_WSPATH%
+
+of exist %JOB_LINK% goto createlink else linkexistscontinue
 :createlink
 echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %WORKSPACE% 
-mklink /D %JOB_LINK% %WORKSPACE%
+mklink /D %JOB_LINK% %JENKINS_WSPATH%
 :linkexistscontinue
 cd %JOB_LINK%
 
