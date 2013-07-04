@@ -17,12 +17,11 @@ ECHO jenkinsbild.bat: BUILD_ID=%BUILD_ID%
 ECHO jenkinsbild.bat: BUILD_TAG=%BUILD_TAG%
 ECHO jenkinsbild.bat: JAVA_HOME=%JAVA_HOME%
 ECHO jenkinsbild.bat: WORKSPACE=%WORKSPACE%
-ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++ 
+ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++
 
 REM JOB_NAME contains <JOB>\<NODES>=<NODE>
 for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK=%%A
 echo jenkinsbild.bat: JOB Part of JOB_NAME=%JOB_LINK%
-
 
 for %%A in ("%CD%") do set drive=%%~dA
 set JOB_LINK=%drive%\%JOB_LINK%
@@ -36,7 +35,7 @@ echo JENKINS_WSPATH=%JENKINS_WSPATH%
 
 if not exist %JOB_LINK% goto createlink else linkexistscontinue
 :createlink
-echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %JENKINS_WSPATH% 
+echo jenkinsbild.bat: Creating soft link with: mklink /D %JOB_LINK% %JENKINS_WSPATH%
 mklink /D %JOB_LINK% %JENKINS_WSPATH%
 :linkexistscontinue
 cd %JOB_LINK%
