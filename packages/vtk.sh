@@ -38,7 +38,7 @@ VTK_DEPS=mesa,cmake
 buildVtk() {
 
   if ! bilderUnpack VTK; then
-    return
+    return 1
   fi
 
 # Set up variables
@@ -48,6 +48,7 @@ buildVtk() {
   local VTK_OS_ARGS=
   local VTK_PKG_ARGS=
   local VTK_PYTHON_ARGS=
+  local VTK_MAKE_ARGS=
 # build_visit sets both of these the same for Darwin
   local MANGLED_MESA_LIB=libOSMesa${SHOBJEXT}
   local MANGLED_OSMESA_LIB=libOSMesa${SHOBJEXT}
@@ -67,8 +68,7 @@ buildVtk() {
     Darwin)	# make -j can fail on Darwin
       VTK_OS_ARGS="$VTK_OS_ARGS -DVTK_USE_CARBON:BOOL=OFF -DVTK_USE_COCOA:BOOL=ON"
       case `uname -r` in
-        9.*)
-          ;;
+        9.*) ;;
         10.*)
           VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
           ;;
@@ -85,11 +85,8 @@ buildVtk() {
        VTK_LD_LIB_PATH="$LIBFORTRAN_DIR:$VTK_LD_LIB_PATH"
       fi
       case $PYTHON_LIB_LIBDIR in
-        /usr/lib | /usr/lib64)
-          ;;
-        *)
-          VTK_LD_LIB_PATH="$PYTHON_LIB_LIBDIR:$VTK_LD_LIB_PATH"
-          ;;
+        /usr/lib | /usr/lib64) ;;
+        *) VTK_LD_LIB_PATH="$PYTHON_LIB_LIBDIR:$VTK_LD_LIB_PATH";;
       esac
       trimvar VTK_LD_LIB_PATH ':'
       if test -n "$VTK_LD_LIB_PATH"; then
@@ -100,7 +97,7 @@ buildVtk() {
         local VTK_ENV="$VTK_LD_RUN_ARGS $VTK_LD_LIB_ARGS"
       fi
       trimvar VTK_ENV ' '
-      VTK_MAKE_ARGS="$VTK_MAKEJ_ARGS"
+      VTK_MAKE_ARGS="$VTK_MAKE_ARGS $VTK_MAKEJ_ARGS"
 # build_visit uses MANGLED_OSMESA_LIB=libMesaGL on Linux.
       MANGLED_OSMESA_LIB=libMesaGL${SHOBJEXT}	# per build_visit
       if test -z "$PYTHON"; then
@@ -116,8 +113,8 @@ buildVtk() {
 
 # For all, build shared.
   VTK_OS_ARGS="$VTK_OS_ARGS -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_WRAP_PYTHON:BOOL=ON"
-# CYGWIN uses serial compilers, does not use Mesa
-# Others use gcc, use mesa
+# Use PYC compilers
+# Upon going to VTK6, only Linux uses mesa
   VTK_COMPILERS="$CMAKE_COMPILERS_PYC"
   VTK_FLAGS="$CMAKE_COMPFLAGS_PYC"
   case `uname` in
@@ -156,9 +153,8 @@ buildVtk() {
   VTK_PKG_ARGS="${VTK_PKG_ARGS} -DModule_vtkRenderingOpenGL:BOOL=ON"
   VTK_PKG_ARGS="${VTK_PKG_ARGS} -DModule_vtklibxml2:BOOL=ON"
 
-# Turn on Qt
+# Turn on QtOpenGL
   VTK_PKG_ARGS="${VTK_PKG_ARGS} -DModule_vtkGUISupportQtOpenGL:BOOL=ON"
-  # VTK_PKG_ARGS="${VTK_PKG_ARGS} -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_BIN_DIR}/qmake"
 
 # Per build_visit:
 # Linking OSMesa for MANGLED_MESA_LIBRARY is correct here; we'll never use
@@ -169,7 +165,7 @@ buildVtk() {
   local otherargsvar=`genbashvar VTK_${VTK_BUILD}`_OTHER_ARGS
   local otherargsval=`deref $otherargsvar`
   local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $otherargsval"
-  echo VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS
+  techo -2 "VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS"
 # Pass with commas and separate later.
   if bilderConfig $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS" "" "$VTK_ENV"; then
 # Build
@@ -203,6 +199,5 @@ installVtk() {
         ;;
     esac
   fi
-  # techo exit; exit
 }
 
