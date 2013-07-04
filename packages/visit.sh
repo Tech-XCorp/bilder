@@ -34,19 +34,12 @@ if test -z "$VISIT_DESIRED_BUILDS"; then
 fi
 computeBuilds visit
 VISIT_SER_BUILD=$FORPYTHON_BUILD
-VTK_NAME=${VTK_NAME:-"VTK"}
-VISIT_DEPS=Imaging,hdf5,${VTK_NAME},qt,cmake
+VISIT_DEPS=Imaging,hdf5,VTK,qt,cmake
 VISIT_UMASK=002
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
 case `uname`-`uname -r` in
-  CYGWIN* | Darwin-12*) ;;
-  *)
-    if $BUILD_OPTIONAL; then
-      addVals MESA_DESIRED_BUILDS mgl,os
-    fi
-    ;;
+  Linux) addVals MESA_DESIRED_BUILDS mgl,os;;
 esac
-addVals VISIT_VTK_DESIRED_BUILDS $FORPYTHON_BUILD
 
 ######################################################################
 #
@@ -90,46 +83,6 @@ getVisitArch() {
 
 }
 
-setVisitRepoPatch() {
-
-# Look for predefined patch
-  if test -n "$VISIT_PATCH" -a ! -f "$VISIT_PATCH"; then
-    techo "$VISIT_PATCH not found. Catastrophic error.  Quitting."
-    VISIT_PATCH=
-  fi
-
-# Determine the branch to find the patch.
-  local branchurl=`bilderSvn info $PROJECT_DIR/visit | grep ^URL: | sed -e 's/^URL: *//' -e 's?/src$??'`
-  local branch=`echo $branchurl | sed 's?^https*://portal.nersc.gov/svn/visit/??' | tr '/' '_'`
-  local svnrev=`bilderSvnversion -c $PROJECT_DIR/visit | sed 's/^.*-//'`
-
-# Set is-trunk variable for later use
-  case $branch in
-    trunk) IS_VISIT_TRUNK=true;;
-    *) IS_VISIT_TRUNK=false;;
-  esac
-
-# Determine the visit patch.
-# svn up if allowed, as the patch may have changed.
-  local lbl
-  for lbl in r${svnrev}-${BILDER_CHAIN} r${svnrev} rHEAD-${BILDER_CHAIN} rHEAD; do
-    VISIT_PATCH=$BILDER_DIR/patches/visit-${branch}-${lbl}.patch
-    techo "Looking for $VISIT_PATCH."
-    if test -f "$VISIT_PATCH"; then
-      techo "$VISIT_PATCH found."
-      break
-    else
-      techo "$VISIT_PATCH not found."
-      VISIT_PATCH=
-    fi
-  done
-# Final check
-  if test -z "$VISIT_PATCH"; then
-    techo "No patch for VisIt found."
-  fi
-
-}
-
 ######################################################################
 #
 # Launch builds.
@@ -147,50 +100,11 @@ buildVisit() {
     VISIT_DISTVERSION=`cat $PROJECT_DIR/visit/VERSION`
     getVersion visit
     techo "After reverting, VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
-# With the correct handling of svn, this can go away?
-if false; then
-    case $VISIT_BLDRVERSION in
-      *M)
-        techo "VisIT modified: VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
-        if test -n "$JENKINS_FSROOT"; then
-if false; then
-          techo "WARNING: Trying to get visit again."
-          cmd="rmall $PROJECT_DIR/visit/*"
-          techo "$cmd"
-          if ! $cmd; then
-            techo "$cmd"
-            if ! $cmd; then
-              techo "WARNING: Removal of visit failed."
-            fi
-          fi
-fi
-          cmd="bilderSvn up"
-          techo "Executing '$cmd' in $PROJECT_DIR/visit."
-          (cd $PROJECT_DIR/visit; $cmd 1>/dev/null)
-          cmd="bilderSvn revert --recursive ."
-          techo "Executing '$cmd' in $PROJECT_DIR/visit."
-          (cd $PROJECT_DIR/visit; $cmd 1>/dev/null)
-          getVersion visit
-          techo "After update: VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
-        fi
-        ;;
-      *)
-        # techo "VisIT is not modified: VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
-        ;;
-    esac
-fi
 
-# Determine the visit patch for repo
-    setVisitRepoPatch
-    if $IS_VISIT_TRUNK; then
-# Trunk and branch are put into different places
-      VISIT_SUBDIR_BASE=visit_trunk
-    else
-      VISIT_SUBDIR_BASE=visit
-    fi
 # Determine whether patch in installation matches that in bilder.
 # If differs, set visit as uninstalled so it will be built.
-    if ! isPatched -s $VISIT_SUBDIR_BASE-$VISIT_SER_BUILD visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
+    VISIT_PATCH=$BILDER_DIR/patches/visit.patch
+    if ! isPatched -s visit-$VISIT_SER_BUILD visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
       techo "Rebuilding visit as patches differ."
       for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
         cmd="$BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR visit,$bld"
@@ -203,161 +117,157 @@ fi
 # Patch visit
 # Generate the patch via svn diff visit >numpkgs/visit-${branch}-${lbl}.patch
     if test -n "$VISIT_PATCH" -a -f "$VISIT_PATCH"; then
-      techo "patch -p0 <$VISIT_PATCH"
-      (cd $PROJECT_DIR; patch -p0 <$VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)
+      cmd="(cd $PROJECT_DIR; patch -p0 <$VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
+      techo "$cmd"
+      eval "$cmd"
       techo "VisIt patched. Results in $BUILD_DIR/visit-patch.txt."
       if grep -qi fail $BUILD_DIR/visit-patch.txt; then
         grep -i fail $BUILD_DIR/visit-patch.txt | sed 's/^/WARNING: /' >$BUILD_DIR/visit-patch.fail
         cat $BUILD_DIR/visit-patch.fail | tee -a $LOGFILE
       fi
     fi
-    bilderPreconfig -c visit
-    res=$?
+    if ! bilderPreconfig -c visit; then
+      return 1
+    fi
   else
-    bilderUnpack visit
-    res=$?
+    if ! bilderUnpack visit; then
+      return 1
+    fi
   fi
 
-  if test $res = 0; then
-
-    local VISIT_ARCH=`getVisitArch`
-
-# Set prefix args to allow trunk and branch builds to coexist
-    VISIT_SERSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-$VISIT_SER_BUILD"
-    VISIT_PARSH_PREFIX_ARGS="-p $VISIT_SUBDIR_BASE-$VISIT_BLDRVERSION-parsh"
+# Configure and build
+  local VISIT_ARCH=`getVisitArch`
 
 # Args for make and environment, and configuration file
-    local VISIT_MAKEARGS=       # This to be set as needed, since can fail
-    local VISIT_ENV=
-    local VISIT_MESA_DIR=
-    case `uname` in
-      CYGWIN*)
-        if which jom 1>/dev/null 2>/dev/null; then
-          VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
-        fi
+  local VISIT_MAKEARGS=       # This to be set as needed, since can fail
+  local VISIT_ENV=
+  local VISIT_MESA_DIR=
+  case `uname` in
+    CYGWIN*)
+      if which jom 1>/dev/null 2>/dev/null; then
+        VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+      fi
 # Remove cygwin paths when configuring
-        PATH_CYGWIN_LAST=`echo :$PATH: | sed -e 's?:/usr/bin:?:?' -e 's?:/bin:?:?'`:/usr/bin
-        VISIT_ENV="PATH='$PATH_CYGWIN_LAST'"
-        ;;
-      Darwin)
-        VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
-        if ! $IS_VISIT_TRUNK && test -d $CONTRIB_DIR/mesa/lib; then
-          VISIT_MESA_DIR=$CONTRIB_DIR/mesa
-        fi
-        ;;
-      Linux)
-        VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
-        local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$PYC_LD_RUN_PATH:$LD_RUN_PATH
-        VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
-        if test -d $CONTRIB_DIR/mesa/lib; then
-          VISIT_MESA_DIR=$CONTRIB_DIR/mesa
-        fi
-        ;;
-    esac
+      PATH_CYGWIN_LAST=`echo :$PATH: | sed -e 's?:/usr/bin:?:?' -e 's?:/bin:?:?'`:/usr/bin
+      VISIT_ENV="PATH='$PATH_CYGWIN_LAST'"
+      ;;
+    Darwin)
+      VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+      if ! $IS_VISIT_TRUNK && test -d $CONTRIB_DIR/mesa/lib; then
+        VISIT_MESA_DIR=$CONTRIB_DIR/mesa
+      fi
+      ;;
+    Linux)
+      VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+      local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$PYC_LD_RUN_PATH:$LD_RUN_PATH
+      VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
+      if test -d $CONTRIB_DIR/mesa/lib; then
+        VISIT_MESA_DIR=$CONTRIB_DIR/mesa
+      fi
+      ;;
+  esac
 
 #
 # VisIt needs to find hdf5 mesa netcdf Python Qt VTK
 #
 # Set unix style directories
-    VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
-    local VISIT_NETCDF_DIR=
-    if test -d $CONTRIB_DIR/netcdf/lib; then
-      VISIT_NETCDF_DIR=$CONTRIB_DIR/netcdf
-    fi
-    local VISIT_PYTHON_DIR="$PYTHON_DIR"
+  VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
+  local VISIT_NETCDF_DIR=
+  if test -d $CONTRIB_DIR/netcdf/lib; then
+    VISIT_NETCDF_DIR=$CONTRIB_DIR/netcdf
+  fi
+  local VISIT_PYTHON_DIR="$PYTHON_DIR"
 # Find location of QT in unix file system
-    findQt
+  findQt
 # Find Vtk
-    local VISIT_VTK_DIR=$CONTRIB_DIR/${VTK_NAME}-$FORPYTHON_BUILD
-    techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
+  local VISIT_VTK_DIR=$CONTRIB_DIR/VTK-$FORPYTHON_BUILD
+  techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 
 # Get mixed (CYGWIN) or native (OTHER) paths.
 # VISIT_PYTHON_DIR is already mixed.
-    VISIT_QT_BIN="$QT_BINDIR"
-    for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
-      local val=`deref $i`
-      if test -n "$val"; then
-        val=`(cd $val; pwd -P)`
-        # eval UNIX_${i}_REAL="$val"
-        if [[ `uname` =~ CYGWIN ]]; then
-          val=`cygpath -am $val`
-        fi
-        eval $i="$val"
+  VISIT_QT_BIN="$QT_BINDIR"
+  for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
+    local val=`deref $i`
+    if test -n "$val"; then
+      val=`(cd $val; pwd -P)`
+      # eval UNIX_${i}_REAL="$val"
+      if [[ `uname` =~ CYGWIN ]]; then
+        val=`cygpath -am $val`
       fi
-      techo "$i = $val"
-    done
+      eval $i="$val"
+    fi
+    techo "$i = $val"
+  done
 
 # Set cmake args for packages
-    local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
-    local VISIT_PKG_ARGS="$VISIT_QT_ARGS"
-    for i in HDF5 MESA NETCDF PYTHON VTK; do
-      local var=VISIT_${i}_DIR
-      local val=`deref ${var}`
-      if test -n "$val"; then
-        local argval="-DVISIT_${i}_DIR:PATH=$val"
-        eval VISIT_${i}_ARGS="$argval"
-        VISIT_PKG_ARGS="$VISIT_PKG_ARGS $argval"
-      fi
-    done
-# hdf5 remove dll from library names as of 1.8.11
-    if [[ `uname` =~ CYGWIN ]]; then
-      case $HDF5_BLDRVERSION in
-        1.8.11)
-          VISIT_PKG_ARGS="$VISIT_PKG_ARGS -DHDF5_LIBNAMES_AFFIX_DLL:BOOL=OFF"
-          ;;
-      esac
+  local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
+  local VISIT_PKG_ARGS="$VISIT_QT_ARGS"
+  for i in HDF5 MESA NETCDF PYTHON VTK; do
+    local var=VISIT_${i}_DIR
+    local val=`deref ${var}`
+    if test -n "$val"; then
+      local argval="-DVISIT_${i}_DIR:PATH=$val"
+      eval VISIT_${i}_ARGS="$argval"
+      VISIT_PKG_ARGS="$VISIT_PKG_ARGS $argval"
     fi
-    techo "VISIT_PKG_ARGS = $VISIT_PKG_ARGS."
+  done
+# hdf5 remove dll from library names as of 1.8.11
+  if [[ `uname` =~ CYGWIN ]]; then
+    case $HDF5_BLDRVERSION in
+      1.8.11)
+        VISIT_PKG_ARGS="$VISIT_PKG_ARGS -DHDF5_LIBNAMES_AFFIX_DLL:BOOL=OFF"
+        ;;
+    esac
+  fi
+  techo "VISIT_PKG_ARGS = $VISIT_PKG_ARGS."
 
-    local VISIT_OS_ARGS=
-    case `uname` in
+  local VISIT_OS_ARGS=
+  case `uname` in
 
-      CYGWIN*) VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`";;
+    CYGWIN*) VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`";;
 
 # Brad Whitlock writes (April 17, 9:58, 2012)
 #   All I\'ve ever had to pass is VISIT_PYTHON_DIR. The intent is that you
 #   should only have to set VISIT_PYTHON_DIR.
 # But it appears that on snowleopard with need to add the library dir?
-      Darwin) VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB";;
+    Darwin) VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB";;
 
-    esac
+  esac
 
 # Build serial
-    if bilderConfig $VISIT_SERSH_PREFIX_ARGS -c visit $VISIT_SER_BUILD "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
-      bilderBuild visit $VISIT_SER_BUILD "$VISIT_MAKEARGS" "$VISIT_ENV"
-    fi
+  if bilderConfig -c visit $VISIT_SER_BUILD "$VISIT_OS_ARGS -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
+    bilderBuild visit $VISIT_SER_BUILD "$VISIT_MAKEARGS" "$VISIT_ENV"
+  fi
 
 # Build parallel doing optional builds
-    if bilderConfig $VISIT_PARSH_PREFIX_ARGS -c visit parsh "-DVISIT_PARALLEL:BOOL=ON -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_PARSH_OTHER_ARGS" "" "$VISIT_ENV"; then
+  if bilderConfig -c visit parsh "-DVISIT_PARALLEL:BOOL=ON -DVISIT_MPI_COMPILER='$MPICXX' -DVISIT_MPI_LIBS:PATH=$MPI_LIBDIR -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_PARSH_OTHER_ARGS" "" "$VISIT_ENV"; then
 
 # Find the mpi c++ library
-      local MPI_LIBDIR
-      if ! [[ `uname` =~ CYGWIN ]]; then
-        for i in `$MPICXX -show`; do
-          case $i in
-            -L*)
-              local libdir=`echo $i | sed 's/^-L//'`
-              for sfx in a so dylib; do
-                if test -f $libdir/libmpi_cxx.$sfx -o -f $libdir/libmpichcxx.$sfx; then
-                  MPI_LIBDIR=$libdir
-                  break
-                fi
-              done
-              ;;
-          esac
-          if test -n "$MPI_LIBDIR"; then
-            break
-          fi
-        done
-        techo -2 "MPI_LIBDIR = $MPI_LIBDIR."
-        if test -z "$MPI_LIBDIR"; then
-          techo "WARNING: Cannot find the mpi library directory, so linking may fail."
+    local MPI_LIBDIR
+    if ! [[ `uname` =~ CYGWIN ]]; then
+      for i in `$MPICXX -show`; do
+        case $i in
+          -L*)
+            local libdir=`echo $i | sed 's/^-L//'`
+            for sfx in a so dylib; do
+              if test -f $libdir/libmpi_cxx.$sfx -o -f $libdir/libmpichcxx.$sfx; then
+                MPI_LIBDIR=$libdir
+                break
+              fi
+            done
+            ;;
+        esac
+        if test -n "$MPI_LIBDIR"; then
+          break
         fi
+      done
+      techo -2 "MPI_LIBDIR = $MPI_LIBDIR."
+      if test -z "$MPI_LIBDIR"; then
+        techo "WARNING: Cannot find the mpi library directory, so linking may fail."
       fi
-# Visit uses serial hdf5 even in parallel.
-      bilderBuild visit parsh "$VISIT_MAKEARGS" "$VISIT_ENV"
     fi
-
+# Visit uses serial hdf5 even in parallel.
+    bilderBuild visit parsh "$VISIT_MAKEARGS" "$VISIT_ENV"
   fi
 
 }
@@ -427,13 +337,13 @@ fixCopiedHdf5() {
         return
       fi
       techo "Extracting compatibility name from $hdf5libname."
-      local hdf5compatname=`otool -L $hdf5libname | sed -n 2p | sed -e 's/^.*libhdf5/libhdf5/' -e 's/ .*$//'`
-      if test -f $instdir/$hdf5compatname; then
-        techo "VisIt correctly created $instdir/$hdf5compatname link."
+      local hdf5shlink=`otool -D $hdf5libname | tail -1`
+      if test -f $instdir/$hdf5shlink; then
+        techo "VisIt correctly created $instdir/$hdf5shlink link."
         return
       fi
-      techo "NOTE: $hdf5compatname link absent in $instdir.  Creating."
-      cmd="(cd $instdir; ln -s $hdf5libbase $hdf5compatname)"
+      techo "NOTE: $hdf5shlink link absent in $instdir.  Creating."
+      cmd="(cd $instdir; ln -s $hdf5libbase $hdf5shlink)"
       techo "$cmd"
       eval "$cmd"
       ;;
@@ -497,7 +407,7 @@ installVisit() {
       touch $installfixfile
 
 # For reuse
-      local visittopdir=$BLDR_INSTALL_DIR/${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld
+      local visittopdir=$BLDR_INSTALL_DIR/visit-${VISIT_BLDRVERSION}-$bld
 
 # Link to current if not done.  Darwin docs say to change -h to -L.
       if ! [[ `uname` =~ CYGWIN ]]; then
@@ -573,7 +483,7 @@ installVisit() {
             techo "$cmd" | tee -a $installfixfile
             $cmd
           else
-             techo "# NOTE: VisIt correctly installed lib, $parlib."
+            techo "# NOTE: VisIt correctly installed lib, $parlib."
           fi
           ;;
 
@@ -620,24 +530,9 @@ installVisit() {
         esac
         techo "$cmd" | tee package.out
         $cmd 1>>package.out 2>&1
-
-
-# Install the package.
-# JRC 20121119: need to do something that works with Windows.
-# At least post as in bilderInstall, look for POST2DEPOT
-if false; then
-        cmd="rmall $BLDR_INSTALL_DIR/visitpkg$sfx"
-        techo "$cmd" | tee installpkg.out
-        $cmd
-        cmd="$PROJECT_DIR/visit/svn_bin/visit-install -c none -b bvidp $VISIT_DISTVERSION $VISIT_ARCH $BLDR_INSTALL_DIR/visitpkg$sfx"
-        techo "$cmd" | tee -a installpkg.out
-        $cmd 1>>installpkg.out 2>&1
-fi
-
-
       fi
 
-      techo "Post installation of ${VISIT_SUBDIR_BASE}-${VISIT_BLDRVERSION}-$bld concluded at `date`."
+      techo "Post installation of visit-${VISIT_BLDRVERSION}-$bld concluded at `date`."
       local starttimeval=$VISIT_START_TIME
       local endtimeval=`date +%s`
       local buildtime=`expr $endtimeval - $starttimeval`
