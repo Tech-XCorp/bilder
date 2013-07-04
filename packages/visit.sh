@@ -309,7 +309,7 @@ fixCopiedHdf5() {
         techo "VisIt correctly installed $instdir/hdf5.dll."
         return
       fi
-      techo "NOTE: VisIt did not install $instdir/hdf5dll.dll.  Copying from $hdf5rootdir."
+      techo "NOTE: VisIt did not install $instdir/hdf5dll.dll or $instdir/hdf5.dll.  Copying from $hdf5rootdir."
       local cmd=
 # This is what hdf5-1.8.11 needs
       if test -f $hdf5rootdir/bin/hdf5.dll; then
@@ -320,7 +320,7 @@ fixCopiedHdf5() {
         techo "$hdf5rootdir/bin/hdf5dll.dll not present."
         cmd="cp $hdf5rootdir/dll/hdf5dll.dll $instdir/"
       else
-        techo "Catastrophic error.  hdf5dll.dll not found under $hdf5rootdir."
+        techo "Catastrophic error.  Neither hdf5dll.dll nor hdf5.dll found under $hdf5rootdir."
         techo "Quitting."
         exit 1
       fi
