@@ -58,6 +58,8 @@ BILDER OPTIONS
   -k <tarball_dir> .. Set installation directory for code in tarballs,
                         expected to be found in one of the pkg repo subdirs;
                         <tarball_dir> defaults to <install_dir> if not set.
+  -K                  Run cleaninstalls.sh -lR to clean broken links and update
+                      installations.txt.
   -l <mpi launcher> . The executable that launches an MPI job.
   -L ................ Directory for logs (if different from build).
   -m <hostfile> ..... File to source for machine specific defs.
@@ -123,6 +125,7 @@ processBilderArgs() {
     I) IGNORE_TEST_RESULTS=true;;
     j) JMAKE=$OPTARG;;
     k) CONTRIB_DIR=$OPTARG;;
+    k) CLEAN_INSTALLS=true;;
     l) MPI_LAUNCHER=$OPTARG;;
     L) BILDER_LOGDIR=$OPTARG;;
     m) export MACHINE_FILE=$OPTARG;;  # Give to subshells
@@ -186,6 +189,7 @@ setBilderOptions() {
   TARBALL_BUILD_TYPE=Release
   SEND_ABSTRACT=false
   CREATE_RELEASE=false
+  CLEAN_INSTALLS=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
   FORCE_INSTALL=false
   FORCE_PYINSTALL=false
@@ -210,7 +214,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:L:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."

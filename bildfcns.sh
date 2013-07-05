@@ -1027,6 +1027,12 @@ finish() {
     bilderFinalAction $FINAL_ACTION_ARGS
   fi
 
+# Clean installation directories if requested
+  if $CLEAN_INSTALLS; then
+    $BILDER_DIR/cleaninstalls.sh -lR $CONTRIB_DIR
+    $BILDER_DIR/cleaninstalls.sh -lR $BLDR_INSTALL_DIR
+  fi
+
 # Quit
   if $doQuit; then
     techo "${BILDER_NAME} quitting."
