@@ -1029,8 +1029,12 @@ finish() {
 
 # Clean installation directories if requested
   if $CLEAN_INSTALLS; then
-    $BILDER_DIR/cleaninstalls.sh -lR $CONTRIB_DIR
-    $BILDER_DIR/cleaninstalls.sh -lR $BLDR_INSTALL_DIR
+    cmd="$BILDER_DIR/cleaninstalls.sh -lR $CONTRIB_DIR"
+    techo "$cmd"
+    $cmd
+    cmd="$BILDER_DIR/cleaninstalls.sh -lR $BLDR_INSTALL_DIR"
+    techo "$cmd"
+    $cmd
   fi
 
 # Quit
