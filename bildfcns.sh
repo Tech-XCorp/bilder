@@ -6361,6 +6361,8 @@ cleanup() {
       kill $PID 2>/dev/null
     done
   fi
+# Remove trap
+  trap - 1 2 15
   finish "-" 1
 }
 
