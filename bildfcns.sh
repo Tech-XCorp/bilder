@@ -3441,7 +3441,7 @@ bilderPreconfig() {
     if shouldInstall -I $instdirs $1-$verval $chkbuilds $DEPS; then
       techo "Preconfiguring $1-$verval because a dependency rebuilt, or $1 not installed."
     else
-      techo "No reason to preconfiguring $1-$verval."
+      techo "No reason to preconfigure $1-$verval."
       return 1
     fi
   fi
