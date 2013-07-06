@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-SPHINX_BLDRVERSION=${SPHINX_BLDRVERSION:-"1.1.3"}
+SPHINX_BLDRVERSION_STD=1.1.3
+SPHINX_BLDRVERSION_EXP=2.0.8
 
 ######################################################################
 #
@@ -43,7 +44,7 @@ esac
 
 buildSphinx() {
 
-  if bilderUnpack Sphinx; then
+  if bilderUnpack sphinx; then
 # Remove all old installations
     cmd="rmall ${PYTHON_SITEPKGSDIR}/Sphinx*"
     techo "$cmd"
@@ -55,7 +56,7 @@ buildSphinx() {
 # Build away
     SPHINX_ENV="$DISTUTILS_ENV $SPHINX_GFORTRAN"
     techo -2 SPHINX_ENV = $SPHINX_ENV
-    bilderDuBuild -p sphinx Sphinx '-' "$SPHINX_ENV"
+    bilderDuBuild sphinx '-' "$SPHINX_ENV"
   fi
 
 }
@@ -67,7 +68,7 @@ buildSphinx() {
 ######################################################################
 
 testSphinx() {
-  techo "Not testing Sphinx."
+  techo "Not testing sphinx."
 }
 
 ######################################################################
@@ -80,11 +81,11 @@ installSphinx() {
   case `uname` in
     # Windows does not have a lib versus lib64 issue
     CYGWIN*)
-      bilderDuInstall -p sphinx Sphinx " " "$SPHINX_ENV"
+      bilderDuInstall sphinx " " "$SPHINX_ENV"
       res=$?
       ;;
     *)
-      bilderDuInstall -p sphinx Sphinx "--install-purelib=$PYTHON_SITEPKGSDIR" "$SPHINX_ENV"
+      bilderDuInstall sphinx "--install-purelib=$PYTHON_SITEPKGSDIR" "$SPHINX_ENV"
       res=$?
       ;;
   esac
