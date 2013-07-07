@@ -13,7 +13,7 @@
 ######################################################################
 
 SPHINX_BLDRVERSION_STD=1.1.3
-SPHINX_BLDRVERSION_EXP=2.0.8
+SPHINX_BLDRVERSION_EXP=1.1.3
 
 ######################################################################
 #
@@ -79,7 +79,6 @@ testSphinx() {
 
 installSphinx() {
   case `uname` in
-    # Windows does not have a lib versus lib64 issue
     CYGWIN*)
       bilderDuInstall sphinx " " "$SPHINX_ENV"
       res=$?
