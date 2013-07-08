@@ -49,18 +49,19 @@ F77=${F77:-"ifort"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"icc"}
-MPICXX=${MPICXX:-"icpc"}
-MPIFC=${MPIFC:-"ifort"}
-MPIF77=${MPIF77:-"ifort"}
+MPICC=${MPICC:-"mpiicc"}
+MPICXX=${MPICXX:-"mpiicpc"}
+MPIFC=${MPIFC:-"mpiifort"}
+MPIF77=${MPIF77:-"mpiifort"}
+MPIF90=${MPIF90:-"mpiifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-fPIC -O2 -mkl"}
-CXXFLAGS=${CXXFLAGS:-"-fPIC -O2 -mkl"}
+# CFLAGS=${CFLAGS:-"-fPIC -O2 -mkl"}
+# CXXFLAGS=${CXXFLAGS:-"-fPIC -O2 -mkl"}
 # FCFLAGS=${FCFLAGS:-""}
 # FFLAGS=${FFLAGS:-""}
 
@@ -77,10 +78,10 @@ CXXFLAGS=${CXXFLAGS:-"-fPIC -O2 -mkl"}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
 
 # Parallel
-MPI_CFLAGS=${MPI_CFLAGS:-"-lmpi -mkl"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-lmpi -mkl"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-lmpi -mkl"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-lmpi -mkl"}
+# MPI_CFLAGS=${MPI_CFLAGS:-"-lmpi -mkl"}
+# MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-lmpi -mkl"}
+# MPI_FCFLAGS=${MPI_FCFLAGS:-"-lmpi -mkl"}
+# MPI_FFLAGS=${MPI_FFLAGS:-"-lmpi -mkl"}
 
 # Linear algebra libraries:
 # All should be a full path to the library.
@@ -292,11 +293,21 @@ MPI_FFLAGS=${MPI_FFLAGS:-"-lmpi -mkl"}
 # FCTESTS_BUILDS=${FCTESTS_BUILDS:-""}
 # FCTESTS_ALL_OTHER_ARGS=${FCTESTS_ALL_OTHER_ARGS:-""}
 
+
+
+#
+# FFTW
+#
 # FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-""}
-FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}         # need this?
+# FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}         # need this?
 # FFTW_BEN_OTHER_ARGS=${FFTW_BEN_OTHER_ARGS:-""}
-FFTW_PAR_OTHER_ARGS=${FFTW_PAR_OTHER_ARGS:-"--disable-fortran --enable-mpi"}
-FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-fortran --disable-mpi"}
+# FFTW_PAR_OTHER_ARGS=${FFTW_PAR_OTHER_ARGS:-"--disable-fortran --enable-mpi"}
+# FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-fortran --disable-mpi"}
+
+
+
+
+
 
 # FFTW3_BLDRVERSION=${FFTW3_BLDRVERSION:-""}
 # FFTW3_BUILDS=${FFTW3_BUILDS:-""}
@@ -386,10 +397,13 @@ FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-fortran --disable-mpi"}
 # GTEST_BUILDS=${GTEST_BUILDS:-""}
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
+#
+# HDF5
+#
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"ser,par"}
+# HDF5_BUILDS=${HDF5_BUILDS:-"ser,par"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
-HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_TOOLS:BOOL=OFF  -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
+# HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_TOOLS:BOOL=OFF  -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
 # HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
 # HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
@@ -670,6 +684,9 @@ HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_TOOLS:BOOL=OFF  -DHDF5_
 # PYSYNTHDIAG_BUILDS=${PYSYNTHDIAG_BUILDS:-""}
 # PYSYNTHDIAG_CC4PY_OTHER_ARGS=${PYSYNTHDIAG_CC4PY_OTHER_ARGS:-""}
 
+#
+# Python
+#
 # PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
 PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
 # PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-""}
