@@ -26,7 +26,7 @@ SPHINX_NUMFIG_BLDRVERSION=${SPHINX_NUMFIG_BLDRVERSION:-"r13"}
 ######################################################################
 
 SPHINX_NUMFIG_BUILDS=${SPHINX_NUMFIG_BUILDS:-"cc4py"}
-SPHINX_NUMFIG_DEPS=Sphinx
+SPHINX_NUMFIG_DEPS=sphinx
 SPHINX_NUMFIG_UMASK=002
 
 ######################################################################

@@ -21,7 +21,7 @@ BREATHE_BLDRVERSION=${BREATHE_BLDRVERSION:-"1.0.0"}
 ######################################################################
 
 BREATHE_BUILDS=ser
-BREATHE_DEPS=docutils,Sphinx,doxygen,Python
+BREATHE_DEPS=docutils,sphinx,doxygen,Python
 
 #####################################################################
 #
