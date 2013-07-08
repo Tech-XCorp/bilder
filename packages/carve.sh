@@ -64,9 +64,12 @@ mvOldCarveDir() {
 # build on Windows.
 #
 getHgCarve() {
-  if ! which hg 1>/dev/null 2>&1; then
+  local HG=`which hg`
+  if test -z "$HG"; then
     techo "WARNING: hg not in path.  Cannot get carve."
     return 1
+  else
+    techo "HG = $HG."
   fi
   local origdir=`pwd -P`
   if ! test -d carve/.hg; then
@@ -74,10 +77,7 @@ getHgCarve() {
     mvOldCarveDir svn
     cmd="hg clone https://code.google.com/p/carve"
     techo "$cmd"
-    $cmd
-    cmd="cd carve"
-    techo "$cmd"
-    $cmd
+    $cmd 2>&1 | tee -a $LOGFILE
   else
     cmd="cd carve"
     techo "$cmd"
@@ -124,7 +124,9 @@ getCarve() {
 buildCarve() {
 
 # Try to get carve from repo
-  (cd $PROJECT_DIR; getCarve)
+  if ! (cd $PROJECT_DIR; getCarve); then
+    echo "WARNING: Problem in getting carve."
+  fi
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/carve; then
