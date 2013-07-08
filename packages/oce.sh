@@ -65,7 +65,7 @@ buildOce() {
       return 1
     fi
     OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
-    techo "NOTE: Building oce from the git repo."
+    techo "NOTE: oce git repo found."
   else
     if ! bilderUnpack oce; then
       return 1
