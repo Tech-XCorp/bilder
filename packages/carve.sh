@@ -25,7 +25,8 @@ CARVE_BLDRVERSION_EXP=1.4.0
 ######################################################################
 
 # Carve builds only shared
-CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"sersh"}
+CARVE_BUILD=$FORPYTHON_BUILD
+CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
 computeBuilds carve
 CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
@@ -150,8 +151,8 @@ buildCarve() {
   fi
 
 # Build the shared libs
-  if bilderConfig carve sersh "-DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_SERSH $CMAKE_COMPFLAGS_SERSH -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE $CARVE_SERSH_OTHER_ARGS"; then
-    bilderBuild carve sersh "$CARVE_MAKEJ_ARGS"
+  if bilderConfig carve $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE $CARVE_SERSH_OTHER_ARGS"; then
+    bilderBuild carve $FORPYTHON_BUILD "$CARVE_MAKEJ_ARGS"
   fi
 
 }
@@ -173,10 +174,10 @@ testCarve() {
 ######################################################################
 
 installCarve() {
-  if bilderInstall -p -r carve sersh; then
+  if bilderInstall -p -r carve $FORPYTHON_BUILD; then
     case `uname` in
       Darwin)
-        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-sersh/bin
+        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-$FORPYTHON_BUILD/bin
         for i in *; do
 # Needs to be more general by finding the name of the library
           cmd="install_name_tool -change libcarve.2.0.dylib @rpath/libcarve.2.0.dylib $i"
