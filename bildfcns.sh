@@ -2397,7 +2397,7 @@ findContribPackage() {
     eval CMAKE_${pkgnameprefix}_${BLD}_LIBDIR=$alibdirvalcmake
     if test -n "$adirvalcmake"; then
 # cmake moving too root_dir
-      eval CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG=-D${pkgnameprefix}_ROOT_DIR:PATH=$adirvalcmake
+      eval CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG=-D${pkgname}_ROOT_DIR:PATH=$adirvalcmake
     fi
     val=`deref CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG`
     techo "CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
