@@ -26,10 +26,13 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 # Module dependency
 #
 module purge
-module load gcc
 module load impi-gcc
+module load subversion
 module list
 
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64 
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-"/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64"}
+echo "LD_LIBRARY_PATH =$LD_LIBRARY_PATH"
 
 # END KEEP THIS
 
@@ -408,11 +411,14 @@ CXXFLAGS=${CXXFLAGS:-"-fPIC -O2"}
 
 #
 # HDF5
+#   not sure why fortran having a problem on peregrine
+#   may have problem with other compiler chains
 #
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-# HDF5_BUILDS=${HDF5_BUILDS:-"ser,par"}
+HDF5_BUILDS=${HDF5_BUILDS:-"ser,par"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
-HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_TOOLS:BOOL=OFF  -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
+HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
+HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
 # HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
 # HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
