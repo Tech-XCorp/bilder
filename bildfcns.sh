@@ -3809,8 +3809,8 @@ bilderConfig() {
         configexec="$builddir/../configure"
         configargs="--prefix=$fullinstalldir"
         cmval=autotools
-        # If configure is a python script like PETSc, then use the
-        # cygwin python.
+# If configure is a python script like PETSc, then use the
+# cygwin python.
         if head -1 $configexec | egrep -q python; then
           if test -n "$CYGWIN_PYTHON"; then
             configexec="$CYGWIN_PYTHON $configexec"
