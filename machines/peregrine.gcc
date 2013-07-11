@@ -28,10 +28,15 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 module purge
 module load gcc
 module load subversion
-module list
+module load python
 
-#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64 
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-"/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64"}
+echo " "
+module list
+echo " "
+
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64 
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64"
+export LD_LIBRARY_PATH="/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64":$LD_LIBRARY_PATH
 echo "LD_LIBRARY_PATH =$LD_LIBRARY_PATH"
 
 # END KEEP THIS
