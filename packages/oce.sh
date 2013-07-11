@@ -89,7 +89,8 @@ buildOce() {
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
       ;;
     Linux)
-      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
+      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
+      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_VISUALISATION:BOOL=ON"
       ;;
   esac
 # Cannot disable X11 or will not build TKMeshVS, which is needed
