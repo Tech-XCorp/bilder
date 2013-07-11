@@ -17,16 +17,17 @@
 USE_CCXX_PIC_FLAG=${USE_CCXX_PIC_FLAG:-"false"}
 USE_FORTRAN_PIC_FLAG=${USE_FORTRAN_PIC_FLAG:-"false"}
 
-# Even with mingw, need to have cl in one's path.  So source cygwin.sh
-source cygwin.sh
-
-if test -z "$PROJECT_DIR"; then
-  # echo BASH_SOURCE = $BASH_SOURCE
+VISUALSTUDIO_VERSION=11
+QMAKESPECARG="-spec win32-msvc2012"
+if test -z "$BILDER_DIR"; then
   mdir=`dirname $BASH_SOURCE`
   mdir=`(cd $mdir; pwd -P)`
   bdir=`dirname $mdir`
-  PROJECT_DIR=`dirname $bdir`
+  BILDER_DIR=`(cd $bdir; pwd -P)`
 fi
+cmd="source $BILDER_DIR/machines/cygwin.vs"
+echo $cmd
+$cmd
 
 HAVE_SER_FORTRAN=true
 
