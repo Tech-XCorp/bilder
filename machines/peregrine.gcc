@@ -22,6 +22,15 @@
 USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
 USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 
+#
+# Module dependency
+#
+module purge
+module load gcc
+module load impi-gcc
+module list
+
+
 # END KEEP THIS
 
 # Serial compilers
@@ -31,10 +40,10 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"icc"}
-CXX=${CXX:-"icpc"}
-FC=${FC:-"ifort"}
-F77=${F77:-"ifort"}
+# CC=${CC:-"icc"}
+# CXX=${CXX:-"icpc"}
+# FC=${FC:-"ifort"}
+# F77=${F77:-"ifort"}
 
 # Python builds -- much use gcc for consistency.
 # PYC_CC=${PYC_CC:-""}
@@ -49,11 +58,11 @@ F77=${F77:-"ifort"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"mpiicc"}
-MPICXX=${MPICXX:-"mpiicpc"}
-MPIFC=${MPIFC:-"mpiifort"}
-MPIF77=${MPIF77:-"mpiifort"}
-MPIF90=${MPIF90:-"mpiifort"}
+# MPICC=${MPICC:-"mpiicc"}
+# MPICXX=${MPICXX:-"mpiicpc"}
+# MPIFC=${MPIFC:-"mpiifort"}
+# MPIF77=${MPIF77:-"mpiifort"}
+# MPIF90=${MPIF90:-"mpiifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
