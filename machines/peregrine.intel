@@ -22,19 +22,16 @@
 USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
 USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 
+# END KEEP THIS
+
 #
 # Module dependency
 #
 module purge
-module load gcc
+module load comp-intel
+module load impi-intel
 module load subversion
 module list
-
-#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64 
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-"/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64"}
-echo "LD_LIBRARY_PATH =$LD_LIBRARY_PATH"
-
-# END KEEP THIS
 
 # Serial compilers
 # FC should be a compiler that compiles F77 or F90 but takes free format.
@@ -43,10 +40,10 @@ echo "LD_LIBRARY_PATH =$LD_LIBRARY_PATH"
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-# CC=${CC:-"icc"}
-# CXX=${CXX:-"icpc"}
-# FC=${FC:-"ifort"}
-# F77=${F77:-"ifort"}
+CC=${CC:-"icc"}
+CXX=${CXX:-"icpc"}
+FC=${FC:-"ifort"}
+F77=${F77:-"ifort"}
 
 # Python builds -- much use gcc for consistency.
 # PYC_CC=${PYC_CC:-""}
@@ -61,11 +58,11 @@ echo "LD_LIBRARY_PATH =$LD_LIBRARY_PATH"
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-# MPICC=${MPICC:-"mpiicc"}
-# MPICXX=${MPICXX:-"mpiicpc"}
-# MPIFC=${MPIFC:-"mpiifort"}
-# MPIF77=${MPIF77:-"mpiifort"}
-# MPIF90=${MPIF90:-"mpiifort"}
+MPICC=${MPICC:-"mpiicc"}
+MPICXX=${MPICXX:-"mpiicpc"}
+MPIFC=${MPIFC:-"mpiifort"}
+MPIF77=${MPIF77:-"mpiifort"}
+MPIF90=${MPIF90:-"mpiifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
@@ -411,8 +408,6 @@ CXXFLAGS=${CXXFLAGS:-"-fPIC -O2"}
 
 #
 # HDF5
-#   not sure why fortran having a problem on peregrine
-#   may have problem with other compiler chains
 #
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
 HDF5_BUILDS=${HDF5_BUILDS:-"ser,par"}
