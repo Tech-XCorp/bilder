@@ -47,7 +47,7 @@ REM then we add the current drive letter to the path.
 set foundcolon=false
 set teststr=%JENKINS_WSPATH%
 if not x%teststr::=%==x%teststr% set foundcolon=true
-if "%foundcolon%"=="false" ( 
+if "%foundcolon%"=="false" (
   echo jenkinsbild.bat: Adding drive, %drive%, to WS path.
   echo jenkinsbild.bat: Adding drive, %drive%, to WS path. >> jenkinsbild.log
   set JENKINS_WSPATH=%drive%%JENKINS_WSPATH%
@@ -55,11 +55,21 @@ if "%foundcolon%"=="false" (
 echo jenkinsbild.bat: JENKINS_WSPATH=%JENKINS_WSPATH%
 echo jenkinsbild.bat: JENKINS_WSPATH=%JENKINS_WSPATH% >> jenkinsbild.log
 
-if exist %JOB_LINK% goto linkexistscontinue 
+if exist %JOB_LINK% goto linkexistscontinue
+  echo jenkinsbild.bat: %JOB_LINK% does not exist.  Executing mklink /D %JOB_LINK% %JENKINS_WSPATH%
+  echo jenkinsbild.bat: %JOB_LINK% does not exist.  Executing mklink /D %JOB_LINK% %JENKINS_WSPATH% >> jenkinsbild.log
   echo on
   mklink /D %JOB_LINK% %JENKINS_WSPATH%
   echo off
 :linkexistscontinue
+if exist %JOB_LINK% goto havelinkcontinue
+  echo jenkinsbild.bat: %JOB_LINK% still does not exist.
+  echo jenkinsbild.bat: %JOB_LINK% still does not exist. >> jenkinsbild.log
+:havelinkcontinue
+if exist %JOB_LINK% goto nothavelinkcontinue
+  echo jenkinsbild.bat: %JOB_LINK% exists.
+  echo jenkinsbild.bat: %JOB_LINK% exists. >> jenkinsbild.log
+:nothavelinkcontinue
 cd %JOB_LINK%
 
 ECHO jenkinsbild.bat: Working in %CD%.
