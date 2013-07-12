@@ -989,16 +989,14 @@ finish() {
   techo -2 "finish called with '$*'."
   local doQuit=true
   local subject=
-# Parse options
-  set -- "$@"
-  OPTIND=1
-  while getopts "cs:" arg; do
-    case $arg in
-      c) doQuit=false;;
-      s) subject="$2";;
+  while test -n "$1"; do
+    case "$1" in
+      -c) doQuit=false;;
+      -s) subject="$2"; shift;;
+       *) break;;
     esac
+    shift
   done
-  shift $(($OPTIND - 1))
 
 # Summarize (which constructs the email subject)
   techo -2 "Calling summarize."
@@ -1027,16 +1025,6 @@ finish() {
     bilderFinalAction $FINAL_ACTION_ARGS
   fi
 
-# Clean installation directories if requested
-  if $CLEAN_INSTALLS; then
-    cmd="$BILDER_DIR/cleaninstalls.sh -lR $CONTRIB_DIR"
-    techo "$cmd"
-    $cmd
-    cmd="$BILDER_DIR/cleaninstalls.sh -lR $BLDR_INSTALL_DIR"
-    techo "$cmd"
-    $cmd
-  fi
-
 # Quit
   if $doQuit; then
     techo "${BILDER_NAME} quitting."
@@ -1058,8 +1046,6 @@ finish() {
     fi
     techo "$msg"
     techo "finish is exiting."
-# Remove traps
-    trap - 1 2 15
     cmd="exit $exitcode"
     techo "$cmd"
     echo $exitcode >$BUILD_DIR/bilder.res
@@ -3004,21 +2990,14 @@ updateRepo() {
   local urlval=`deref $urlvar`
 
 # Branch on type
-  if [[ $urlval =~ ^git ]]; then
-    cmd="updateGitRepo $1 $urlval"
-    techo -2 "$cmd"
-    $cmd
-    return $?
-  fi
-if false; then
-  if test -d $PROJECT_DIR/$1/.svn; then
-    cmd="updateSvnRepo $1"
-    techo -2 "$cmd"
-    $cmd
-    return $?
-  fi
-fi
-  techo "WARNING: Not known how to update repo for $1."
+  case $urlval in
+    git*)
+      cmd="updateGitRepo $1 $urlval"
+      techo -2 "$cmd"
+      $cmd
+      return $?
+      ;;
+  esac
 
 }
 
@@ -3441,7 +3420,7 @@ bilderPreconfig() {
     if shouldInstall -I $instdirs $1-$verval $chkbuilds $DEPS; then
       techo "Preconfiguring $1-$verval because a dependency rebuilt, or $1 not installed."
     else
-      techo "No reason to preconfigure $1-$verval."
+      techo "No reason to preconfiguring $1-$verval."
       return 1
     fi
   fi
@@ -3556,6 +3535,7 @@ rminterlibdeps() {
 #    name of .pro file to run qmake on
 # -r uses riverbank procedure (for sip and PyQt): python configure.py
 # -t do not record failure if $IGNORE_TEST_RESULTS is true
+# -y do not use --prefix in configure command at all
 #
 # Returns
 #  0: configured and ready to build.
@@ -3577,6 +3557,7 @@ bilderConfig() {
   local usecmake=false
   local forceqmake=false
   local inplace=false
+  local noprefix=false
   local instdirs=
   local noequals=false  # Do not use equals in prefix command
   local webdocs=false  # By default, we do not build documentation for the web
@@ -3589,7 +3570,7 @@ bilderConfig() {
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cd:fgiI:lm:snp:q:rt" arg; do
+  while getopts "b:B:cd:fgiI:ylm:snp:q:rt" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"
@@ -3600,6 +3581,7 @@ bilderConfig() {
       f) forceconfig=true;;
       g) webdocs=true;;
       i) inplace=true;;
+      y) noprefix=true; inplace=true;;
       I) instdirs="$OPTARG";;
       l) rminstall=true;;
       m) configcmdin="$OPTARG";;
@@ -3768,6 +3750,8 @@ bilderConfig() {
 # cmake configure
       configexec="$CMAKE"
       cmval=cmake
+    elif $noprefix; then
+      configexec="$PROJECT_DIR/$1/configure" 
     elif $riverbank; then
 # riverbank configure
       configexec=python
@@ -3809,8 +3793,8 @@ bilderConfig() {
         configexec="$builddir/../configure"
         configargs="--prefix=$fullinstalldir"
         cmval=autotools
-# If configure is a python script like PETSc, then use the
-# cygwin python.
+        # If configure is a python script like PETSc, then use the
+        # cygwin python.
         if head -1 $configexec | egrep -q python; then
           if test -n "$CYGWIN_PYTHON"; then
             configexec="$CYGWIN_PYTHON $configexec"
@@ -3819,7 +3803,7 @@ bilderConfig() {
       elif test -f $builddir/configure; then
 # Possible in-place build, e.g., PETSc, doxygen
         configexec="$builddir/configure"
-		cmval=autotools
+	cmval=autotools
         #This signals PETSc, and on Windows we have issues
         if test -n "$buildsubdir"; then
           if test -n "$CYGWIN_PYTHON"; then
@@ -3948,6 +3932,7 @@ bilderConfig() {
 # Remove previous install if requested and installdir exists
 #
     if test -d $fullinstalldir -a "$rminstall" = true; then
+      techo "removing fullinstalldir"
       rmall $fullinstalldir
     fi
 
@@ -4060,6 +4045,7 @@ bilderConfig() {
         finalcmd="$configexec $configargs $3 $srcarg"
         ;;
     esac
+    techo "finac configure command is $finalcmd"
 
 # Now add the environment variables
     if test -n "$5"; then
@@ -4272,6 +4258,7 @@ bilderBuild() {
     local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
     techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
   fi
+  
   return 0
 
 }
@@ -6361,8 +6348,6 @@ cleanup() {
       kill $PID 2>/dev/null
     done
   fi
-# Remove trap
-  trap - 1 2 15
   finish "-" 1
 }
 
