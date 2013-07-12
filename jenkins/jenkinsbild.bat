@@ -66,7 +66,7 @@ if exist %JOB_LINK% goto havelinkcontinue
   echo jenkinsbild.bat: %JOB_LINK% still does not exist.
   echo jenkinsbild.bat: %JOB_LINK% still does not exist. >> jenkinsbild.log
 :havelinkcontinue
-if exist %JOB_LINK% goto nothavelinkcontinue
+if not exist %JOB_LINK% goto nothavelinkcontinue
   echo jenkinsbild.bat: %JOB_LINK% exists.
   echo jenkinsbild.bat: %JOB_LINK% exists. >> jenkinsbild.log
 :nothavelinkcontinue
@@ -77,7 +77,10 @@ ECHO jenkinsbild.bat: Working in %CD%. >> jenkinsbild.log
 
 
 C:\CYGWIN\bin\cygpath %CD% >temp.txt
+REM C:\CYGWIN\bin\cygpath %JOB_LINK% >temp.txt
 set /p CYGWINDIR= < temp.txt
+echo jenkinsbild.bat: CYGWINDIR = %CYGWINDIR%.
+echo jenkinsbild.bat: CYGWINDIR = %CYGWINDIR%.  >> jenkinsbild.log
 del temp.txt
 set JBILDERR=0
 @ECHO on
