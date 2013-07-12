@@ -69,7 +69,9 @@ if [[ $defscript =~ "^/" ]]; then
 else
   projdir=`dirname $0`
   echo "First, projdir = $projdir."
-  projdir=`(cd $projdir/../..; pwd -P)`
+# This puts us back in the jenkins subdir
+  # projdir=`(cd $projdir/../..; pwd -P)`
+  projdir=`(cd $projdir/../..; pwd)`
   echo "Second, projdir = $projdir."
   cd $projdir
   defscript=./$defscript
