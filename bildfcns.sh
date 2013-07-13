@@ -3970,7 +3970,10 @@ bilderConfig() {
         if test -n "$SVN_BINDIR"; then
           configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
         fi
-        if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+techo "PROJECT DIRS = '$PROJECT_DIR','$PROJECT_LINK'"
+        if test -f $PROJECT_LINK/$1/CMakeLists.txt; then
+          srcarg=$PROJECT_LINK/$1
+        elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
           srcarg=$PROJECT_DIR/$1
         elif test -f $builddir/../CMakeLists.txt; then
           srcarg=`(cd $builddir/..; pwd -P)`
@@ -3996,7 +3999,11 @@ bilderConfig() {
             techo -2 "Directory, $srcarg, does not exist."
             srcarg=${srcarg}-${verval}
           fi
-          srcarg=`cygpath -am ${srcarg}`
+          if test -n $PROJECT_LINK; then 
+            srcarg=`cygpath -m / | sed -e 's@/cygwin@@'`${srcarg}
+          else  
+            srcarg=`cygpath -m ${srcarg}`
+          fi
         fi
         ;;
     esac
