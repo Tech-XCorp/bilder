@@ -70,6 +70,7 @@ if not exist %JOB_LINK% goto nothavelinkcontinue
   echo jenkinsbild.bat: %JOB_LINK% exists.
   echo jenkinsbild.bat: %JOB_LINK% exists. >> jenkinsbild.log
 :nothavelinkcontinue
+set JENKINS_JOB_DIR=%JOB_LINK%
 cd %JOB_LINK%
 
 ECHO jenkinsbild.bat: Working in %CD%.

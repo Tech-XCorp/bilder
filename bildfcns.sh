@@ -3970,10 +3970,7 @@ bilderConfig() {
         if test -n "$SVN_BINDIR"; then
           configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
         fi
-techo "PROJECT DIRS = '$PROJECT_DIR','$PROJECT_LINK'"
-        if test -f $PROJECT_LINK/$1/CMakeLists.txt; then
-          srcarg=$PROJECT_LINK/$1
-        elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+        if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
           srcarg=$PROJECT_DIR/$1
         elif test -f $builddir/../CMakeLists.txt; then
           srcarg=`(cd $builddir/..; pwd -P)`
@@ -3999,8 +3996,10 @@ techo "PROJECT DIRS = '$PROJECT_DIR','$PROJECT_LINK'"
             techo -2 "Directory, $srcarg, does not exist."
             srcarg=${srcarg}-${verval}
           fi
-          if test -n $PROJECT_LINK; then 
-            srcarg=`cygpath -m / | sed -e 's@/cygwin@@'`${srcarg}
+          if test -n $JENKINS_JOB_DIR; then 
+            techo "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
+            srcarg=`cygpath -m "${JENKINS_JOB_DIR}/$1"`
+            techo "Since JENKINS_JOB_DIR=${JENKINS_JOB_DIR} defined, using it in cmake configure. srcarg=${srcarg}"
           else  
             srcarg=`cygpath -m ${srcarg}`
           fi
