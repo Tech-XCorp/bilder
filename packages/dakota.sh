@@ -14,6 +14,12 @@
 
 DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.2"}
 
+if [ $USER == 'ssides' ]; then
+    DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
+fi
+
+
+
 ######################################################################
 #
 # Builds, deps, mask, auxdata, paths, builds of other packages
@@ -94,18 +100,46 @@ DAKOTA_ADDL_ARGS="--without-graphics"
 #
 ######################################################################
 
-buildDakota() {
+BOOST_ROOT="/Users/ssides/software/boost/include/boost"
+BOOST_LIB="/Users/ssides/software/boost/lib"
+
+buildDakota_old() {
+
   if bilderUnpack dakota; then
-# Regular build
-    if bilderConfig dakota ser "--disable-mpi --with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
+
+    # Regular build
+    if bilderConfig dakota ser "--disable-mpi BOOST_ROOT=$CONTRIB_DIR/boost/include/boost BOOST_LIB=$CONTRIB_DIR/boost/lib --with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
       bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
     fi
-# JRC: parallel built with serial trilinos?
-    if bilderConfig dakota par "--with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $BEN_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
+
+    # JRC: parallel built with serial trilinos?
+    # SWS: parallel built with serial boost?
+    if bilderConfig dakota par "--with-boost=$CONTRIB_DIR/boost/include/boost --with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $BEN_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
       bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
     fi
+
   fi
 }
+
+
+buildDakota() {
+
+  if bilderUnpack dakota; then
+
+    # Serial build
+    if bilderConfig -c dakota ser "-DDAKOTA_HAVE_MPI:BOOL=FALSE $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
+      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
+    fi
+
+    # Parallel build
+    if bilderConfig -c dakota par "-DDAKOTA_HAVE_MPI:BOOL=TRUE $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $PAR_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
+      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
+    fi
+
+  fi
+}
+
+
 
 ######################################################################
 #
