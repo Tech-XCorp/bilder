@@ -37,7 +37,8 @@ module list
 echo " "
 
 echo " "
-echo "LD_LIBRARY_PATH =$LD_LIBRARY_PATH"
+echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
+echo "     PYTHONPATH = $PYTHONPATH"
 echo " "
 
 # Serial compilers
@@ -51,6 +52,12 @@ CC=${CC:-"icc"}
 CXX=${CXX:-"icpc"}
 FC=${FC:-"ifort"}
 F77=${F77:-"ifort"}
+
+# Python builds -- much use gcc for consistency.
+PYC_CC=${PYC_CC:-"icc"}
+PYC_CXX=${PYC_CXX:-"icpc"}
+PYC_FC=${PYC_FC:-"ifort"}
+PYC_F77=${PYC_F77:-"ifort"}
 
 # Parallel compilers:
 MPICC=${MPICC:-"mpiicc"}
@@ -75,9 +82,6 @@ CXXFLAGS=${CXXFLAGS:-"-fPIC -O2"}
 # MPI_FCFLAGS=${MPI_FCFLAGS:-"-lmpi -mkl"}
 # MPI_FFLAGS=${MPI_FFLAGS:-"-lmpi -mkl"}
 
-# Java options
-# export _JAVA_OPTIONS=
-
 # Choose preferred buildsystem
 # PREFER_CMAKE=${PREFER_CMAKE:-""}
 
@@ -94,10 +98,24 @@ CXXFLAGS=${CXXFLAGS:-"-fPIC -O2"}
 # HDF5
 #
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"ser,sersh,par"}
-# HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
+HDF5_BUILDS=${HDF5_BUILDS:-"ser,sersh,par,cc4py"}
 HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
 HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
+HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
+HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
 # HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
 # HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
+
+
+#
+# Python
+#
+#PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+
+#
+# PolySwift ++
+#
+# POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
+# POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
+# POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}

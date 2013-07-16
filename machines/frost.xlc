@@ -37,10 +37,10 @@ FC=${FC:-"ifort"}
 F77=${F77:-"ifort"}
 
 # Python builds -- much use gcc for consistency.
-# PYC_CC=${PYC_CC:-""}
-# PYC_CXX=${PYC_CXX:-""}
-# PYC_FC=${PYC_FC:-""}
-# PYC_F77=${PYC_F77:-""}
+# PYC_CC=${PYC_CC:-"icc"}
+# PYC_CXX=${PYC_CXX:-"icpc"}
+# PYC_FC=${PYC_FC:-"ifort"}
+# PYC_F77=${PYC_F77:-"ifort"}
 
 # Backend compilers:
 # BENCC=${BENCC:-""}
