@@ -5379,7 +5379,11 @@ EOF
               fi
             fi
           else
-            techo "WARNING: $1 installer ($installer) not found."
+# Warn user only if installer is not set and build is sersh were installer
+# is expected to be found.
+            if test "$2" == "sersh; then
+              techo "WARNING: $1 installer ($installer) not found."
+            fi
           fi
         else
           for i in INSTALLER_HOST INSTALLER_ROOTDIR; do
