@@ -14,7 +14,7 @@
 ######################################################################
 
 # OPENSTUDIO_DEPS=chombo,hdf5,metatau,petscrepo,muparser,txbase,pspline,netlib_lite,netcdf
-OPENSTUDIO_DEPS=swig,dakota,doxygen,ruby
+OPENSTUDIO_DEPS=swig,dakota,doxygen,ruby,qt
 
 if test -z "$OPENSTUDIO_BUILDS"; then
   OPENSTUDIO_BUILDS=ser
@@ -28,15 +28,17 @@ fi
 
 buildOpenstudio() {
 
-  # Strip the compiler names to match the Chombo installed library names
-  # OPENSTUDIO_SER_ARGS="-DENABLE_PARALLEL:BOOL=OFF -DUSE_EB:BOOL=ON -DCH_CXX:STRING='$CH_CXX' -DCH_FC:STRING='$CH_FC' -DCMAKE_Fortran_COMPILER='$FC' -DPETSC_FIND_VERSION:STRING=3.4 $CMAKE_COMPILERS_SER"
-  # OPENSTUDIO_PAR_ARGS="-DENABLE_PARALLEL:BOOL=ON -DUSE_EB:BOOL=ON -DCH_CXX:STRING='$CH_MPICXX' -DCH_FC:STRING='$CH_FC' -DCMAKE_Fortran_COMPILER='$FC' -DPETSC_FIND_VERSION:STRING=3.4 $CMAKE_COMPILERS_PAR"
+#  -DBOOST_ROOT:STRING=/Users/ssides/software/boost \
+#  -DSWIG_EXECUTABLE:FILEPATH=/Users/ssides/software/swig/bin/swig \
+#  -DSWIG_DIR:PATH=/Users/ssides/software/swig \
+#  -DRUBY_EXECUTABLE:STRING=/Users/ssides/software/ruby-ser/bin \
 
-  OPENSTUDIO_SER_ARGS=" "
-  OPENSTUDIO_PAR_ARGS=" "
+# SWS: These could be replaced by editing the openstudio cmake script and corresponding Find____.cmake scripts
+  OPENSTUDIO_SER_ARGS="-DBOOST_ROOT:STRING=$CONTRIB_DIR/boost -DSWIG_EXECUTABLE:FILEPATH=$CONTRIB_DIR/swig/bin/swig -DRUBY_EXECUTABLE:STRING=$CONTRIB_DIR/ruby-ser/bin"
+#  OPENSTUDIO_PAR_ARGS=" "
 
   OPENSTUDIO_SER_ARGS="$OPENSTUDIO_SER_ARGS $CMAKE_COMPILERS_SER"
-  OPENSTUDIO_PAR_ARGS="$OPENSTUDIO_PAR_ARGS $CMAKE_COMPILERS_PAR"
+#  OPENSTUDIO_PAR_ARGS="$OPENSTUDIO_PAR_ARGS $CMAKE_COMPILERS_PAR"
 
   #case `uname` in
   # CYGWIN*)
@@ -70,5 +72,5 @@ buildOpenstudio() {
 ######################################################################
 
 installOpenstudio() {
-  bilderInstall openstudio ser openstudio-ser
+  bilderInstall openstudio ser openstudio
 }
