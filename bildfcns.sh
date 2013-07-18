@@ -4213,8 +4213,8 @@ bilderBuild() {
     cleanup
   fi
 # This needs to match what waitAction uses
-  local bilderbuild_resfile=bilderbuild-$1-$2.res
-  rm -f $bilderbuild_resfile
+  local bilderaction_resfile=bilderaction-$1-$2.res
+  rm -f $bilderaction_resfile
 
 # Determine how to make
   local cmvar=`genbashvar $1`_CONFIG_METHOD
@@ -4251,7 +4251,7 @@ bilderBuild() {
   echo "$bildermake $mktarg $buildargs" | tee -a $buildscript
   echo 'res=$?' >>$buildscript
   echo "echo Build of $1-$2 completed with result = "'$res.' >>$buildscript
-  echo 'echo $res >'$bilderbuild_resfile >>$buildscript
+  echo 'echo $res >'$bilderaction_resfile >>$buildscript
   echo 'exit $res' >>$buildscript
   chmod ug+x $buildscript
   local build_txt=$FQMAILHOST-$1-$2-build.txt
@@ -4510,14 +4510,14 @@ waitAction() {
     fi
 
 # Ensure that the build produced a result
-    local bilderbuild_resfile=bilderbuild-$1.res
+    local bilderaction_resfile=bilderaction-$1.res
     if $isctest; then
-       bilderbuild_resfile=bildertest-$1.res
+       bilderaction_resfile=bildertest-$1.res
     fi
     if test -n "$builddir"; then
-      newres=`cat $builddir/$bilderbuild_resfile`
+      newres=`cat $builddir/$bilderaction_resfile`
       if test -z "$newres"; then
-        TERMINATE_ERROR_MSG="Catastrophic failure in waitAction.  No result in $builddir/$bilderbuild_resfile."
+        TERMINATE_ERROR_MSG="Catastrophic failure in waitAction.  No result in $builddir/$bilderaction_resfile."
         cleanup
       fi
 # Check for inconsistency of wait return value and build result and correct
@@ -4529,7 +4529,7 @@ waitAction() {
         eval $resvarname=$res
       fi
     else
-      techo "Directory $builddirvar is empty, so cannot check $bilderbuild_resfile."
+      techo "Directory $builddirvar is empty, so cannot check $bilderaction_resfile."
     fi
 
 # Record SUCCESS only first time we have waited.
@@ -4721,9 +4721,11 @@ bilderRunTests() {
 cmd="$MAKER check"
 echo \$cmd
 \$cmd
-res=$?
-return $res
+res=\$?
+echo \$res > bilderaction-txgml-sersh-test.res
+return \$res
 EOF
+      chmod ug+x $testScript
       local testpidvar=`genbashvar $1-$i`_TEST_PID
       techo "Testing $1-$i"
       techo $testScript
@@ -4731,7 +4733,7 @@ EOF
       pid=$!
       eval $testpidvar=$pid
       builddirtests="$builddirtests $i"
-      addActionToLists $1-$2-test $pid
+      addActionToLists $1-$i-test $pid
     fi
   done
   trimvar tbFailures ' '
@@ -4850,8 +4852,16 @@ shouldInstallTestedPkg() {
 
 # Determine whether to install
   techo "Checking whether to install tested package $pkgname."
-  local installPkg=false
+  local installPkg=true
   if $TESTING; then
+
+# Check the per-build tests, if any
+
+# Check for named tests
+    if test -z "$tstsnm"; then
+      techo "No named tests.  Installing $pkgname."
+      return 0
+    fi
 
 # If tests not run, do not install
     tstspidvar=`genbashvar $2`_ALL_PID
@@ -4896,7 +4906,10 @@ shouldInstallTestedPkg() {
         return 1
         ;;
     esac
+
   fi
+
+
 # Not testing
   techo "Not testing $pkgname so installing."
   return 0
@@ -5543,7 +5556,7 @@ bilderInstallTestedPkg() {
   if test -n "$tstsnm"; then
     tstnmarg="-n $tstsnm"
   else
-    techo "WARNING: in bilderInstallTestedPkg, No separate test name known."
+    techo "WARNING: in bilderInstallTestedPkg, no separate test name known."
   fi
   local permsarg=
   if test -n "$perms"; then
@@ -5723,8 +5736,8 @@ fi
       TERMINATE_ERROR_MSG="Catastrophic failure in bilderDuBuild.  Unable to cd to $BUILD_DIR/$1-${verval}."
       cleanup
     fi
-    local bilderbuild_resfile=bilderbuild-$1-cc4py.res
-    rm -f $bilderbuild_resfile
+    local bilderaction_resfile=bilderaction-$1-cc4py.res
+    rm -f $bilderaction_resfile
     rm -rf build/*
     local build_txt=$FQMAILHOST-$1-cc4py-build.txt
     techo "Building $1 in $PWD with output going to $build_txt." | tee $build_txt
@@ -5740,7 +5753,7 @@ fi
 $cmd
 res=\$?
 echo Build of $1-cc4py completed with result = \$res.
-echo \$res > $bilderbuild_resfile
+echo \$res > $bilderaction_resfile
 exit \$res
 EOF
     chmod ug+x $buildscript
