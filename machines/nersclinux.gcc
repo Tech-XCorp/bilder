@@ -10,14 +10,29 @@
 ######################################################################
 
 # KEEP THIS
-if ! module list 2>&1 | grep -q openmpi-gcc; then
-  echo Wrong programming environment. Should be openmpi-gcc.  Quitting.
+if ! module list 2>&1 | grep -q openmpi-gcc || ! module list 2>&1 | grep -q 'gcc/4'; then
+  echo Wrong programming environment. Should be gcc and openmpi-gcc.  Quitting.
+  echo Ensure you execute:
+  echo module swap pgi gcc
+  echo module swap openmpi openmpi-gcc
   exit
 fi
 USE_ATLAS=false
 case $FQMAILHOST in
   carver.nersc.gov)
-    PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"CPPFLAGS='-I/usr/common/usg/openssl/0.9.81/include' LDFLAGS='-L/usr/common/usg/openssl/0.9.81/lib -Wl,-rpath,/usr/common/usg/openssl/0.9.81/lib'"}
+# JRK- building with mkl still needs some work as there are cyclic static library 
+# dependencies. these can be resolved on the link line by adding 
+# -Wl,--start-group before and  -Wl,--end-group after the mkl libraries but 
+# I'm not sure how to do this within bilder/cmake.   
+    SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/usr/common/usg/intel/13.0.028/composer_xe_2013.1.117/mkl/lib/intel64/libmkl_sequential.a /usr/common/usg/intel/13.0.028/composer_xe_2013.1.117/mkl/lib/intel64/libmkl_core.a"}
+    SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/common/usg/intel/13.0.028/composer_xe_2013.1.117/mkl/lib/intel64/libmkl_intel_lp64.a"}
+    LAPACK_BUILDS=${LAPACK_BUILDS:-"none"}
+
+    SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-"/usr/common/usg/hdf5/1.8.9/gcc/serial"}
+    SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/usr/common/usg/hdf5/1.8.9/gcc/parallel"}
+    HDF5_BUILDS=${HDF5_BUILDS:-"none"}
+
+    #PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"CPPFLAGS='-I/usr/common/usg/openssl/0.9.81/include' LDFLAGS='-L/usr/common/usg/openssl/0.9.81/lib -Wl,-rpath,/usr/common/usg/openssl/0.9.81/lib'"}
     ;;
 esac
 # Cannot use /usr/common/usg/lapack/3.2.1/liblapack.a as not built with -fPIC
@@ -86,10 +101,10 @@ FFLAGS=${FFLAGS:-"-O2 -DMPICH_IGNORE_CXX_SEEK"}
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"-L/project/projectdirs/facets/carver/contrib-gcc-4.4/atlas-3.8.4-ser/lib -lcblas -lf77blas -latlas"}
+# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
 # SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
 # SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-""}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"-L/project/projectdirs/facets/carver/contrib-gcc-4.4/atlas-3.8.4-ser/lib -llapack"}
+# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
 # SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
