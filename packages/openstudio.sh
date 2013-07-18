@@ -40,7 +40,7 @@ buildOpenstudio() {
   if bilderPreconfig openstudio; then
 
     # Serial build
-    if bilderConfig $USE_CMAKE_ARG openstudio ser "$OPENSTUDIO_SER_ARGS $CMAKE_SUPRA_SP_ARG"; then
+    if bilderConfig $USE_CMAKE_ARG openstudio ser "$OPENSTUDIO_SER_ARGS $CMAKE_SUPRA_SP_ARG" openstudio; then
        bilderBuild openstudio ser "$OPENSTUDIO_MAKEJ_ARGS"
     fi
 
