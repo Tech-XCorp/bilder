@@ -13,9 +13,7 @@
 #
 ######################################################################
 
-# OPENSTUDIO_DEPS=chombo,hdf5,metatau,petscrepo,muparser,txbase,pspline,netlib_lite,netcdf
-OPENSTUDIO_DEPS=swig,dakota,doxygen,ruby,qt
-
+OPENSTUDIO_DEPS=swig,ruby,rake,dakota,doxygen,vtk,qt
 if test -z "$OPENSTUDIO_BUILDS"; then
   OPENSTUDIO_BUILDS=ser
 fi
@@ -28,26 +26,12 @@ fi
 
 buildOpenstudio() {
 
-#  -DBOOST_ROOT:STRING=/Users/ssides/software/boost \
-#  -DSWIG_EXECUTABLE:FILEPATH=/Users/ssides/software/swig/bin/swig \
-#  -DSWIG_DIR:PATH=/Users/ssides/software/swig \
-#  -DRUBY_EXECUTABLE:STRING=/Users/ssides/software/ruby-ser/bin \
-
-# SWS: These could be replaced by editing the openstudio cmake script and corresponding Find____.cmake scripts
-  OPENSTUDIO_SER_ARGS="-DBOOST_ROOT:STRING=$CONTRIB_DIR/boost -DSWIG_EXECUTABLE:FILEPATH=$CONTRIB_DIR/swig/bin/swig -DRUBY_EXECUTABLE:STRING=$CONTRIB_DIR/ruby-ser/bin"
-#  OPENSTUDIO_PAR_ARGS=" "
+  # SWS: These could be replaced by editing the openstudio cmake script and corresponding Find____.cmake scripts
+  # OPENSTUDIO_PAR_ARGS=" "
+  OPENSTUDIO_SER_ARGS="-DBOOST_ROOT:STRING=$CONTRIB_DIR/boost -DSWIG_EXECUTABLE:FILEPATH=$CONTRIB_DIR/swig/bin/swig -DRUBY_EXECUTABLE:STRING=$CONTRIB_DIR/ruby-ser/bin -DQT_QMAKE_EXECUTABLE:FILE=$CONTRIB_DIR/qt-4.8.4-sersh/bin/qmake"
 
   OPENSTUDIO_SER_ARGS="$OPENSTUDIO_SER_ARGS $CMAKE_COMPILERS_SER"
-#  OPENSTUDIO_PAR_ARGS="$OPENSTUDIO_PAR_ARGS $CMAKE_COMPILERS_PAR"
-
-  #case `uname` in
-  # CYGWIN*)
-  #  if test -n $LINK_WITH_MKL; then
-  #    OPENSTUDIO_SER_ARGS="$OPENSTUDIO_SER_ARGS -DLINK_WITH_MKL:BOOL=ON"
-  #    OPENSTUDIO_PAR_ARGS="$OPENSTUDIO_PAR_ARGS -DLINK_WITH_MKL:BOOL=ON"
-  #  fi
-  #  ;;
-  #esac
+  # OPENSTUDIO_PAR_ARGS="$OPENSTUDIO_PAR_ARGS $CMAKE_COMPILERS_PAR"
 
   # Get openstudio checkout
   getVersion openstudio

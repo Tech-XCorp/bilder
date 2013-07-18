@@ -31,7 +31,10 @@ RAKE_DEPS=ruby
 ######################################################################
 
 buildRake() {
-  techo "No separate build steps"
+
+  if bilderUnpack rake; then
+      techo "Only unpacking rake in build step"
+  fi
 }
 
 ######################################################################
@@ -51,8 +54,9 @@ testRake() {
 ######################################################################
 
 installRake() {
-
   techo "rake installs into appropriate ruby install directories"
+  techo "Explicitly changing to rake build directory rake-$RAKE_BLDRVERSION_STD"
+  cd $BUILD_DIR/rake-$RAKE_BLDRVERSION_STD
   $CONTRIB_DIR/ruby-ser/bin/ruby install.rb
 }
 

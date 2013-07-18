@@ -12,10 +12,11 @@
 #
 ######################################################################
 
-DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.2"}
 
 if [ $USER == 'ssides' ]; then
     DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
+else
+    DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.2"}
 fi
 
 
@@ -27,7 +28,7 @@ fi
 ######################################################################
 
 DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
-DAKOTA_DEPS=trilinos
+DAKOTA_DEPS=trilinos,boost
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 ######################################################################
@@ -92,47 +93,31 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 ######################################################################
 
 # SEK: Not sure this is the best
-DAKOTA_ADDL_ARGS="--without-graphics"
+# --without-graphics
+# SWS: adding boost include explicitly
+DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boost/include"
+
+case `uname` in
+    CYGWIN* | Darwin) DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib";;
+    Linux)            DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpicxx.a";;
+esac
 
 ######################################################################
 #
 # Launch dakota builds.
 #
 ######################################################################
-
-BOOST_ROOT="/Users/ssides/software/boost/include/boost"
-BOOST_LIB="/Users/ssides/software/boost/lib"
-
-buildDakota_old() {
-
-  if bilderUnpack dakota; then
-
-    # Regular build
-    if bilderConfig dakota ser "--disable-mpi BOOST_ROOT=$CONTRIB_DIR/boost/include/boost BOOST_LIB=$CONTRIB_DIR/boost/lib --with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
-      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
-    fi
-
-    # JRC: parallel built with serial trilinos?
-    # SWS: parallel built with serial boost?
-    if bilderConfig dakota par "--with-boost=$CONTRIB_DIR/boost/include/boost --with-teuchos=$CONTRIB_DIR/trilinos-sercomm $CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $BEN_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
-      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
-    fi
-
-  fi
-}
-
-
 buildDakota() {
 
   if bilderUnpack dakota; then
 
     # Serial build
-    if bilderConfig -c dakota ser "-DDAKOTA_HAVE_MPI:BOOL=FALSE $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
+    if bilderConfig -c dakota ser "-DDAKOTA_HAVE_MPI:BOOL=FALSE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
       bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
     fi
 
     # Parallel build
-    if bilderConfig -c dakota par "-DDAKOTA_HAVE_MPI:BOOL=TRUE $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $PAR_CONFIG_LDFLAGS $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
+    if bilderConfig -c dakota par "-DDAKOTA_HAVE_MPI:BOOL=TRUE  $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
       bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
     fi
 
@@ -158,14 +143,8 @@ testDakota() {
 ######################################################################
 
 installDakota() {
-
-  if bilderInstall dakota ser dakota; then
-    : # Put post build commands here.
-  fi
-  if bilderInstall dakota par dakota; then
-    : # Put post build commands here.
-  fi
-
+  bilderInstall dakota ser dakota-ser
+  bilderInstall dakota par dakota-par
 }
 
 
