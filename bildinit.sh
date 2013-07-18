@@ -196,7 +196,7 @@ getPkgRepos
 
 # Variables in which we record any failures
 unset pidsKilled
-unset pkgsBuilding
+unset actionsRunning
 unset anyFailures
 unset configFailures
 unset configSuccesses

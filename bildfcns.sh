@@ -4124,13 +4124,13 @@ bilderConfig() {
 # 1: <pkg>-<build>
 # 2: pid
 #
-addBuildToLists() {
+addActionToLists() {
   pidvarname=`genbashvar $1`_PID
   eval $pidvarname=$pid
   PIDLIST="$PIDLIST $2"
   trimvar PIDLIST ' '
-  pkgsBuilding="$pkgsBuilding $1"
-  trimvar pkgsBuilding ' '
+  actionsRunning="$actionsRunning $1"
+  trimvar actionsRunning ' '
   techo "Build $1 with $pidvarname = $pid launched at `date`."
 }
 
@@ -4212,7 +4212,7 @@ bilderBuild() {
     TERMINATE_ERROR_MSG="Catastrophic error in building $1-$2.  Cannot change directory to $builddir."
     cleanup
   fi
-  # This needs to match what waitAction uses
+# This needs to match what waitAction uses
   local bilderbuild_resfile=bilderbuild-$1-$2.res
   rm -f $bilderbuild_resfile
 
@@ -4266,7 +4266,7 @@ bilderBuild() {
     return 1
   fi
 # Record build
-  addBuildToLists $1-$2 $pid
+  addActionToLists $1-$2 $pid
   if test -n "$BLDR_PROJECT_URL"; then
     local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
     techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
@@ -4432,7 +4432,7 @@ bilderTest() {
     return 1
   fi
 # Record test
-  addBuildToLists $1-$2 $pid
+  addActionToLists $1-$2 $pid
   if test -n "$BLDR_PROJECT_URL"; then
     local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
     techo "See $BLDR_PROJECT_URL/$subdir/$test_txt."
@@ -4493,9 +4493,9 @@ waitAction() {
     eval $resvarname=$res
     techo "Build $1 with $pidvarname = $pid concluded at `date` with result = $res."
 
-# Remove from PIDLIST and pkgsBuilding
+# Remove from PIDLIST and actionsRunning
     PIDLIST=`echo $PIDLIST | sed -e "s/^$pid //" -e "s/ $pid$//" -e "s/ $pid / /" -e "s/^$pid$//"`
-    pkgsBuilding=`echo $pkgsBuilding | sed -e "s/^$1 //" -e "s/ $1$//" -e "s/ $1 / /" -e "s/^$1$//"`
+    actionsRunning=`echo $actionsRunning | sed -e "s/^$1 //" -e "s/ $1$//" -e "s/ $1 / /" -e "s/^$1$//"`
 
 # Determine build directory
     local builddirvar=`genbashvar $1`_BUILD_DIR
@@ -4558,9 +4558,9 @@ waitAction() {
     if test $res = 0; then
       techo "Package $1 built."
     else
-      techo "Package $1 failed to build."
       if $recordfailure; then
         if $istest; then
+          techo "$1 failed."
           if ! echo "$testFailures " | egrep -q "(^| )$1($| )"; then
             techo "Package $1 failure recorded as a test failure."
             testFailures="$testFailures $1"
@@ -4569,6 +4569,7 @@ waitAction() {
             fi
           fi
         else
+          techo "$1 failed to build."
           if ! echo "$buildFailures " | egrep -q "(^| )$1($| )"; then
             techo "Package $1 failure recorded as a build failure."
             buildFailures="$buildFailures $1"
@@ -4693,7 +4694,7 @@ bilderRunTests() {
 # Wait on all builds, see if any tested build failed.
 # For those not failed, launch tests in build dir if asked.
   local tbFailures=
-  local tstFailures=
+  local builddirtests=
   for i in `echo $testedBuilds | tr ',' ' '`; do
     cmd="waitAction $pkgname-$i"
     techo -2 "$cmd"
@@ -4706,6 +4707,8 @@ bilderRunTests() {
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
       local builddir=`deref $builddirvar`
       local builddir=${builddir:-"$BUILD_DIR/$pkgname/$i"}
+      local testdirvar=`genbashvar $1-$i-test`_BUILD_DIR
+      eval $testdirvar=$builddir
       cd $builddir
 # The tests in this build can be checked
       local testScript=$FQMAILHOST-$1-$i-test.sh
@@ -4715,17 +4718,43 @@ bilderRunTests() {
       fi
       cat <<EOF >$testScript
 #!/bin/bash
-$MAKER check
+cmd="$MAKER check"
+echo \$cmd
+\$cmd
 res=$?
 return $res
 EOF
-    local testpidvar=`genbashvar $1-$i`_TEST_PID
-    $testScript 1>$BUILD_DIR/$i/$FQMAILHOST-$1-$i-test.txt 2>&1 &
-    pid=$!
-    eval $testpidvar=$pid
+      local testpidvar=`genbashvar $1-$i`_TEST_PID
+      techo "Testing $1-$i"
+      techo $testScript
+      $testScript 1>$FQMAILHOST-$1-$i-test.txt 2>&1 &
+      pid=$!
+      eval $testpidvar=$pid
+      builddirtests="$builddirtests $i"
+      addActionToLists $1-$2-test $pid
     fi
   done
   trimvar tbFailures ' '
+
+# Collect results of tests in build dirs
+  local tstFailures=
+  if $hasunittests && test -n "$builddirtests"; then
+    for i in `echo $testedBuilds | tr ',' ' '`; do
+      cmd="waitAction -t $pkgname-$i-test"
+      techo -2 "$cmd"
+      $cmd
+      res=$?
+      techo "Test $1-$i concluded with res = $res."
+      if test $res != 0; then
+        tstFailures="$tstFailures $pkgname-$i"
+      fi
+    done
+  fi
+  trimvar tstFailures ' '
+  if test -z "$tstsname"; then
+    techo "Name not defined for separate tests. bilderRunTests returning."
+    return
+  fi
 
 # Source test file here even if not needed, as later will call install
   if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$tstsname.sh; then
@@ -5726,8 +5755,7 @@ EOF
     fi
 
 # Record build
-    addBuildToLists $1-cc4py $pid
-
+    addActionToLists $1-cc4py $pid
     return 0
   fi
 
@@ -6058,7 +6086,7 @@ EOF
   if $TERMINATE_REQUESTED; then
     EMAIL_SUBJECT="FAILED (killed)."
     if test -n "$pidsKilled"; then
-      EMAIL_SUBJECT="$EMAIL_SUBJECT  Builds killed = $pkgsBuilding."
+      EMAIL_SUBJECT="$EMAIL_SUBJECT  Builds killed = $actionsRunning."
     else
       EMAIL_SUBJECT="$EMAIL_SUBJECT  No builds killed."
     fi
