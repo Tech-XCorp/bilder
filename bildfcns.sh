@@ -3931,6 +3931,7 @@ bilderConfig() {
 #
 # Remove previous install if requested and installdir exists
 #
+    techo -2 "fullinstalldir = $fullinstalldir."
     if test -d $fullinstalldir -a "$rminstall" = true; then
       techo "removing fullinstalldir"
       rmall $fullinstalldir
@@ -3939,6 +3940,7 @@ bilderConfig() {
 # Location of source for cmake builds.
     local srcarg=
 # Add other, default args
+    techo -2 "cmval = $cmval."
     case $cmval in
       qmake)
         # eval $builddirvar=$builddir
@@ -3996,7 +3998,7 @@ bilderConfig() {
             techo -2 "Directory, $srcarg, does not exist."
             srcarg=${srcarg}-${verval}
           fi
-          if test -n $JENKINS_JOB_DIR; then
+          if test -n "$JENKINS_JOB_DIR"; then
             techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
             techo -2 " +++ Initial srcarg='${srcarg}'"
             srcarg=`cygpath -m "$srcarg"`
