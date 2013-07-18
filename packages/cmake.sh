@@ -186,7 +186,7 @@ installCmake() {
   rm -rf $cmakesharedir.bak  # Possibly there from previous attempt.
   local res=
   if test -d $cmakesharedir; then
-    waitBuild cmake-ser
+    waitAction cmake-ser
     res=$?
     if test "$res" = 0; then
       local cmd="mv $cmakesharedir $cmakesharedir.bak"

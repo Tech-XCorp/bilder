@@ -67,7 +67,7 @@ fixRestartAtlasBuild() {
   case `uname` in
 # Build fails on cygwin due to a return in a generated file.
     CYGWIN*)
-      waitBuild atlas-$1
+      waitAction atlas-$1
       local resvar=`genbashvar atlas-$1`_RES
       local resval=`deref $resvar`
       if test "$resval" != 0; then

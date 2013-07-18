@@ -80,7 +80,7 @@ buildFciowrappers() {
 testFciowrappers() {
   #techo "Not testing fciowrappers."
   startdir=$PWD
-# This is currently an error.  Need to use waitBuild to see if there
+# This is currently an error.  Need to use waitAction to see if there
 # was a build.  Iffing out for now.
   if false; then
   for dir in $BUILD_DIR/fciowrappers-*; do

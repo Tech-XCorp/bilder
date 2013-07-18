@@ -3751,7 +3751,7 @@ bilderConfig() {
       configexec="$CMAKE"
       cmval=cmake
     elif $noprefix; then
-      configexec="$PROJECT_DIR/$1/configure" 
+      configexec="$PROJECT_DIR/$1/configure"
     elif $riverbank; then
 # riverbank configure
       configexec=python
@@ -3996,7 +3996,7 @@ bilderConfig() {
             techo -2 "Directory, $srcarg, does not exist."
             srcarg=${srcarg}-${verval}
           fi
-          if test -n $JENKINS_JOB_DIR; then 
+          if test -n $JENKINS_JOB_DIR; then
             techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
             techo -2 " +++ Initial srcarg='${srcarg}'"
             srcarg=`cygpath -m "$srcarg"`
@@ -4007,7 +4007,7 @@ bilderConfig() {
             techo -2 " +++  JENKINS_JOB_DIR after convert to cygpath ='${cygjenkinsdir}'"
             srcarg=`echo $srcarg | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
             techo -2 " +++ Final srcarg='${srcarg}'"
-          else  
+          else
             srcarg=`cygpath -am ${srcarg}`
           fi
         fi
@@ -4212,7 +4212,7 @@ bilderBuild() {
     TERMINATE_ERROR_MSG="Catastrophic error in building $1-$2.  Cannot change directory to $builddir."
     cleanup
   fi
-  # This needs to match what waitBuild uses
+  # This needs to match what waitAction uses
   local bilderbuild_resfile=bilderbuild-$1-$2.res
   rm -f $bilderbuild_resfile
 
@@ -4271,13 +4271,13 @@ bilderBuild() {
     local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
     techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
   fi
-  
+
   return 0
 
 }
 
 #
-# Test a package in the same subdir as the build.  
+# Test a package in the same subdir as the build.
 # This is meant to allow the workflow:
 #   config.sh; build.sh; test.sh; if pass_test: install.sh
 # when it is all in the same directory and generally `make tests` is
@@ -4338,7 +4338,7 @@ bilderTest() {
 #SEK# Wait on all builds, see if any tested build failed
 #SEK  local tbFailures=
 #SEK  for i in `echo $testedBuilds | tr ',' ' '`; do
-#SEK    cmd="waitBuild $pkgname-$i"
+#SEK    cmd="waitAction $pkgname-$i"
 #SEK    techo -2 "$cmd"
 #SEK    $cmd
 #SEK    res=$?
@@ -4348,7 +4348,7 @@ bilderTest() {
 #SEK  done
 #SEK  trimvar tbFailures ' '
 
-  cmd="waitBuild $1-$2"
+  cmd="waitAction $1-$2"
   techo -2 "$cmd"
   $cmd
   res=$?
@@ -4453,7 +4453,7 @@ bilderTest() {
 #
 # Returns result if built, otherwise 99
 #
-waitBuild() {
+waitAction() {
 
 # Default option values
   local istest=false
@@ -4517,7 +4517,7 @@ waitBuild() {
     if test -n "$builddir"; then
       newres=`cat $builddir/$bilderbuild_resfile`
       if test -z "$newres"; then
-        TERMINATE_ERROR_MSG="Catastrophic failure in waitBuild.  No result in $builddir/$bilderbuild_resfile."
+        TERMINATE_ERROR_MSG="Catastrophic failure in waitAction.  No result in $builddir/$bilderbuild_resfile."
         cleanup
       fi
 # Check for inconsistency of wait return value and build result and correct
@@ -4551,7 +4551,7 @@ waitBuild() {
         echo FAILURE >>$builddir/$build_txt
       fi
     else
-      techo "WARNING: waitBuild cannot find $builddir/$build_txt to record result of $res."
+      techo "WARNING: waitAction cannot find $builddir/$build_txt to record result of $res."
     fi
 
 # Record failure if appropriate
@@ -4585,7 +4585,7 @@ waitBuild() {
     fi
 
     if test -z "$res"; then
-      techo "WARNING: waitBuild found no result for $1 PID=$pid."
+      techo "WARNING: waitAction found no result for $1 PID=$pid."
       res=99
     fi
   fi
@@ -4622,12 +4622,15 @@ getForceTests() {
 # Args:
 # 1: package name (e.g., vorpal)
 # 2: name of tests methods (e.g., VpTest)
+#
 # Named args (must come first)
 #
+# -c has a target "make check" that can be run in each build directory
 # -i comma-separated list of build(s) to ignore when deciding to run tests
 #    (documentation generating builds always ignored.)
 # -v getversion will get version of package, not tests method.  This is useful
-# for cases when the tests are stored within the package repo.
+#    for cases when the tests are stored within the package repo.
+#
 # Returns result if built, otherwise 99
 #
 bilderRunTests() {
@@ -4636,11 +4639,13 @@ bilderRunTests() {
 # Always ignore the document generating builds.  See README-docs.txt.
   local ignoreBuilds=develdocs
   local usepkgver=false
+  local hasunittests=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "i:v" arg; do
+  while getopts "ci:v" arg; do
     case $arg in
+      c) hasunittests=true;;
       i) ignoreBuilds="$OPTARG";;
       v) usepkgver=true;;
     esac
@@ -4685,15 +4690,39 @@ bilderRunTests() {
   trimvar testedBuilds ','
   techo "Checking on tested builds '$testedBuilds' of $pkgname."
 
-# Wait on all builds, see if any tested build failed
+# Wait on all builds, see if any tested build failed.
+# For those not failed, launch tests in build dir if asked.
   local tbFailures=
+  local tstFailures=
   for i in `echo $testedBuilds | tr ',' ' '`; do
-    cmd="waitBuild $pkgname-$i"
+    cmd="waitAction $pkgname-$i"
     techo -2 "$cmd"
     $cmd
     res=$?
     if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
       tbFailures="$tbFailures $i"
+    elif $hasunittests; then
+# Work in the build directory
+      local builddirvar=`genbashvar $1-$2`_BUILD_DIR
+      local builddir=`deref $builddirvar`
+      local builddir=${builddir:-"$BUILD_DIR/$pkgname/$i"}
+      cd $builddir
+# The tests in this build can be checked
+      local testScript=$FQMAILHOST-$1-$i-test.sh
+      local MAKER=make
+      if [[ `uname` =~ CYGWIN ]]; then
+        MAKER=nmake
+      fi
+      cat <<EOF >$testScript
+#!/bin/bash
+$MAKER check
+res=$?
+return $res
+EOF
+    local testpidvar=`genbashvar $1-$i`_TEST_PID
+    $testScript 1>$BUILD_DIR/$i/$FQMAILHOST-$1-$i-test.txt 2>&1 &
+    pid=$!
+    eval $testpidvar=$pid
     fi
   done
   trimvar tbFailures ' '
@@ -4742,7 +4771,7 @@ waitTests() {
   subjfn=$2
 
 # Wait on tests
-  cmd="waitBuild -t $tstsnm-all"
+  cmd="waitAction -t $tstsnm-all"
   techo -2 "$cmd"
   $cmd
   local res=$?
@@ -4891,7 +4920,7 @@ recordInstallation() {
 # -s the name of the installer subdir at the depot
 # -t is a test, so call waitTest
 # -T the name of the installation target (default is 'install')
-# -z is a ctest, so call waitBuild -t
+# -z is a ctest, so call waitAction -t
 #
 # Return whether installed
 #
@@ -4953,13 +4982,13 @@ bilderInstall() {
     techo "Package $1-$verval-$2 build was accepted before."
   else
     if $isctest; then
-      waitBuild -z -t $1-$2
+      waitAction -z -t $1-$2
       resvarname=`genbashvar $1-$2`_RES
     elif $istest; then
       waitTests $1
       resvarname=`genbashvar $1_$2`_RES
     else
-      waitBuild $1-$2
+      waitAction $1-$2
       resvarname=`genbashvar $1_$2`_RES
     fi
     res=`deref $resvarname`
@@ -5352,7 +5381,7 @@ EOF
               cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotdir}/${installername}"
               techo "$cmd"
               $cmd
-              if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then 
+              if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
                 cmd="ssh ${INSTALLER_HOST} ln -sf ${depotdir}/$installername ${depotdir}/${installerlink}"
                 techo "Creating link at depot: $cmd"
                 eval $cmd
@@ -5382,7 +5411,7 @@ EOF
                 fi
                 cmd="cd ${windepotdir}; mkshortcut.exe -n "${installerlink}.lnk" ${installername}; cd ${curdir}"
                 techo "Creating link ${installerlink}.lnk on Windows depot"
-                eval $cmd         
+                eval $cmd
               fi
             fi
           else
@@ -5752,8 +5781,8 @@ bilderDuInstall() {
   techo -2 "$vervar = $verval."
   # local installstrval=$1-$verval-cc4py
 
-# Wait on the build.  waitBuild writes SUCCESS or FAILURE.
-  if ! waitBuild $1-cc4py; then
+# Wait on the build.  waitAction writes SUCCESS or FAILURE.
+  if ! waitAction $1-cc4py; then
     return 1
   fi
 

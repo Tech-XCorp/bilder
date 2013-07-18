@@ -120,7 +120,7 @@ installOpensplice() {
       return 1
     fi
     local res
-    waitBuild opensplice-ser
+    waitAction opensplice-ser
     resvarname=`genbashvar opensplice_ser`_RES
     res=`deref ${resvarname}`
     if test "${res}" != 0; then
