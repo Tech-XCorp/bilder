@@ -101,11 +101,12 @@ if $REMOVE_OLD; then
 # Following depends on non versions (builds) being alpha only, so
 # others, like cc4py, have to be listed explicitly
 # Really want sort -V, but that is not present on all platforms
-    # \ls -1d $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-cc4py//' -e "s/^-//" -e '/^$/d' | sort -u | sort -n >numversions_$i.txt
 # Try listing by modification time
-    # \ls -1trd $i-* 2>/dev/null | sed -e "s/^${i}//" -e "s/^-//" -e 's/-[^-]*$//' -e 's/\.lnk//' -e '/^$/d' | uniq >numversions_$i.txt
     \ls -1trd $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-cc4py//' -e "s/^-//" -e '/^$/d' | uniq >numversions_$i.txt
     numversions=`wc -l numversions_$i.txt | sed -e "s/numversions_$i.txt//" -e 's/  *//g'`
+    case $i in
+      bin | include | lib | man | share) continue;
+    esac
     echo "There are $numversions versions of $i."
     cat numversions_$i.txt
     if test $numversions -gt $KEEP; then
