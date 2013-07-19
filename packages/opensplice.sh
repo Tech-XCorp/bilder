@@ -102,6 +102,8 @@ installOpensplice() {
 
 #   Determine where it will be installed
     local instdirvar=`genbashvar opensplice-ser`_INSTALL_DIR
+    echo !!!!!!!
+    echo $TXOSPL_SER_INSTALL_DIR
     techo -2 instdirvar = ${instdirvar}
     local instdirval=`deref ${instdirvar}`
     if test -z "${instdirval}"; then

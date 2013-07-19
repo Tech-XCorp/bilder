@@ -4060,7 +4060,7 @@ bilderConfig() {
         finalcmd="$configexec $configargs $3 $srcarg"
         ;;
     esac
-    techo "finac configure command is $finalcmd"
+    techo "final configure command is $finalcmd"
 
 # Now add the environment variables
     if test -n "$5"; then
@@ -4873,6 +4873,7 @@ waitNamedTest() {
 # Args:
 # 1: Name of tested package, e.g., vorpal
 # 2: Name of tests in methods, e.g., VpTests
+# 3: Optional argument for env var
 #
 # Named args (must come first):
 # -b <builds>  Builds that could have been tested
@@ -5259,6 +5260,7 @@ bilderInstall() {
 
 # Add environment
     if test -n "$envvars"; then
+      echo "envvars in bildInstall=${envvars}"
       cmd="env $envvars $cmd"
     fi
 
