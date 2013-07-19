@@ -105,7 +105,7 @@ if $REMOVE_OLD; then
     \ls -1trd $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-cc4py//' -e "s/^-//" -e '/^$/d' | uniq >numversions_$i.txt
     numversions=`wc -l numversions_$i.txt | sed -e "s/numversions_$i.txt//" -e 's/  *//g'`
     case $i in
-      bin | include | lib | man | share) continue;
+      bin | develdocs | include | lib | man | share | userdocs) continue;
     esac
     echo "There are $numversions versions of $i."
     cat numversions_$i.txt
