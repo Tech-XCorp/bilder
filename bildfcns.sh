@@ -4215,7 +4215,7 @@ bilderBuild() {
     cleanup
   fi
 # This needs to match what waitAction uses
-  local bilderaction_resfile=bilderaction-$1-$2.res
+  local bilderaction_resfile=bilderbuild-$1-$2.res
   rm -f $bilderaction_resfile
 
 # Determine how to make
@@ -4443,43 +4443,78 @@ bilderTest() {
 }
 
 #
-# Wait for a package to complete building in a subdir
+# Wait for a package to complete an action, which might be a build or a
+# run of tests either named or of a build.
+#
+# A named test has its own repo and generally runs the applications
+# produced by all builds in a separate directory.  Example: fctests.
+#
+# A build test is the test of one of the builds, e.g., using ctest,
+# and is run in the build directory via "make check"
+#
+# The actions create a file that contains the result (error code) of the action
+#   build:      bilderbuild-$pkg-$build.res
+#   named test: builderbuild-$test-$build.res, where build=all
+#   build test: buildertest-$pkg-$build.res
+#
+# waitAction is also responsible for recording the build and test failures
+# in the appropriate variables.  However, it will not record tests also in
+# anyFailures if $IGNORE_TEST_RESULTS = true.
 #
 # Args:
-# 1: <pkg>-<build>
+# 1: <pkg | test>-<build>
 #
 # Named args:
-# n: Do not record failure
-# t: Actually a test, so a build failure is actually a test failure.
-#    do not record in anyFailures if $IGNORE_TEST_RESULTS = true
+# n         Do not record failure
+# t <type>  If missing, this is a build, if present this is a test, of type
+#           either n for named or b for build.
+# JRC: there is an option 'z' below, but it is not documented. Help?
 #
-# Returns result if built, otherwise 99
+# Returns result of action if it occurred, otherwise 99
 #
 waitAction() {
 
 # Default option values
   local istest=false
+  local isbuildtest=false
+  local isnamedtest=false
   local isctest=false
   local recordfailure=true
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ntz" arg; do
+  while getopts "nt:z" arg; do
     case $arg in
       n) recordfailure=false;;
-      t) istest=true;;
+      t)
+        istest=true
+        case $OPTARG in
+          b) isbuildtest=true;;
+          n) isnamedtest=true;;
+        esac
+        ;;
       z) isctest=true;;
     esac
   done
   shift $(($OPTIND - 1))
 
 # Check to see whether was built
-  local pidvarname=`genbashvar $1`_PID
+  # if $isbuildtest; then
+    # local pidvarname=`genbashvar $1`_TEST_PID
+    # local resvarname=`genbashvar $1`_TEST_RES
+  # else
+    local pidvarname=`genbashvar $1`_PID
+    local resvarname=`genbashvar $1`_RES
+  # fi
   local pid=`deref $pidvarname`
-  local resvarname=`genbashvar $1`_RES
   local res=`deref $resvarname`
 # If res not empty this already done.
-  local build_txt=$FQMAILHOST-$1-build.txt
+  local build_txt=
+  if $isbuildtest; then
+    build_txt=$FQMAILHOST-$1.txt
+  else
+    build_txt=$FQMAILHOST-$1-build.txt
+  fi
   local firstwait=false
 
 # Wait on test and process according to result
@@ -4497,7 +4532,7 @@ waitAction() {
 
 # Remove from PIDLIST and actionsRunning
     PIDLIST=`echo $PIDLIST | sed -e "s/^$pid //" -e "s/ $pid$//" -e "s/ $pid / /" -e "s/^$pid$//"`
-    actionsRunning=`echo $actionsRunning | sed -e "s/^$1 //" -e "s/ $1$//" -e "s/ $1 / /" -e "s/^$1$//"`
+    actionsRunning=`echo " $actionsRunning " | sed -e "s/ $1 / /"`
 
 # Determine build directory
     local builddirvar=`genbashvar $1`_BUILD_DIR
@@ -4512,9 +4547,17 @@ waitAction() {
     fi
 
 # Ensure that the build produced a result
-    local bilderaction_resfile=bilderaction-$1.res
+    local sfx=
+    local bilderaction_resfile=
+    if $isbuildtest; then
+      sfx=`echo $1 | sed 's/-test//'` # Remove trailing -test
+      bilderaction_resfile=bildertest-$sfx.res
+    else
+      sfx=$1
+      bilderaction_resfile=bilderbuild-$sfx.res
+    fi
     if $isctest; then
-       bilderaction_resfile=bildertest-$1.res
+       bilderaction_resfile=bildertest-$sfx.res
     fi
     if test -n "$builddir"; then
       newres=`cat $builddir/$bilderaction_resfile`
@@ -4724,8 +4767,8 @@ cmd="$MAKER check"
 echo \$cmd
 \$cmd
 res=\$?
-echo \$res > bilderaction-txgml-sersh-test.res
-return \$res
+echo \$res > bildertest-$1-$i.res
+exit \$res
 EOF
       chmod ug+x $testScript
       local testpidvar=`genbashvar $1-$i`_TEST_PID
@@ -4739,12 +4782,15 @@ EOF
     fi
   done
   trimvar tbFailures ' '
+  if $hasunittests; then
+    techo "All build directory tests launched."
+  fi
 
 # Collect results of tests in build dirs
   local tstFailures=
   if $hasunittests && test -n "$builddirtests"; then
     for i in `echo $testedBuilds | tr ',' ' '`; do
-      cmd="waitAction -t $pkgname-$i-test"
+      cmd="waitAction -t b $pkgname-$i-test"
       techo -2 "$cmd"
       $cmd
       res=$?
@@ -4752,11 +4798,14 @@ EOF
       if test $res != 0; then
         tstFailures="$tstFailures $pkgname-$i"
       fi
+      local tstsresvar=`genbashvar $pkgname-$i`_TEST_RES
+      eval $tstsresvar=$res
+      techo "$tstsresvar = $res."
     done
   fi
   trimvar tstFailures ' '
   if test -z "$tstsname"; then
-    techo "Name not defined for separate tests. bilderRunTests returning."
+    techo "Named tests not defined for $pkgname."
     return
   fi
 
@@ -4797,14 +4846,14 @@ EOF
 #
 # Return true if installed
 #
-waitTests() {
+waitNamedTest() {
 
 # Inputs
   tstsnm=$1
   subjfn=$2
 
 # Wait on tests
-  cmd="waitAction -t $tstsnm-all"
+  cmd="waitAction -t n $tstsnm-all"
   techo -2 "$cmd"
   $cmd
   local res=$?
@@ -4826,27 +4875,25 @@ waitTests() {
 # 2: Name of tests in methods, e.g., VpTests
 #
 # Named args (must come first):
-# -n <tests>   Name of tests if not found from lower-casing $1
+# -b <builds>  Builds that could have been tested
+# -n <tests>   Name of tests if not found from lower-casing $2
 #
 # Return true if should be installed
 #
 shouldInstallTestedPkg() {
   techo -2 "shouldInstallTestedPkg called with args: '$*'."
 
-# Get options
+# Parse options
   local tstsnm=
-  while test -n "$1"; do
-    case "$1" in
-      -n)
-        tstsnm=$2
-        shift
-        ;;
-      *)
-        break
-        ;;
+  set -- "$@"
+  OPTIND=1
+  while getopts "b:n:" arg; do
+    case $arg in
+      b) builds="$OPTARG";;
+      n) tstsnm="$OPTARG";;
     esac
-    shift
   done
+  shift $(($OPTIND - 1))
 
 # Get package and name of test file
   local pkgname=$1
@@ -4858,10 +4905,24 @@ shouldInstallTestedPkg() {
   if $TESTING; then
 
 # Check the per-build tests, if any
+    if test -n "$builds"; then
+      for bld in $builds; do
+        local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
+        local tstsresval=`deref $tstsresvar`
+        if test -n "$tstsresval" -a "$tstsresval" != 0; then
+          techo "Not installing as $pkgname-$bld-test failed."
+          installPkg=false
+          return 1
+        fi
+      done
+      techo "All $pkgname build tests passed."
+    else
+      techo "$pkgname has no build tests."
+    fi
 
 # Check for named tests
     if test -z "$tstsnm"; then
-      techo "No named tests.  Installing $pkgname."
+      techo "$pkgname has no named tests.  Installing $pkgname."
       return 0
     fi
 
@@ -4875,7 +4936,7 @@ shouldInstallTestedPkg() {
       return $tstsresval
     fi
 
-# Determine results of installation/waitTests
+# Determine results of installation/waitNamedTest
     local instcmd="install${2}"
     techo "$instcmd"
     ${instcmd}
@@ -4885,14 +4946,14 @@ shouldInstallTestedPkg() {
     case $tstsresval in
       0)
 # If we got here, the tests were run successfully
-        techo "Test $tstsnm succeeded.  Installing $pkgname."
+        techo "Test $tstsnm succeeded."
         return 0
         ;;
       99)
 # If we got here, the tests were not run, but package was built.
         techo "Test $tstsnm not run."
         if $IGNORE_TEST_RESULTS; then
-          techo "Ignoring and installing $pkgname."
+          techo "Ignoring test results of $pkgname."
           return 0
         fi
         techo "Not installing $pkgname."
@@ -4901,7 +4962,7 @@ shouldInstallTestedPkg() {
       *)
         techo "$tstsnm failed."
         if $IGNORE_TEST_RESULTS; then
-          techo "Ignoring results and installing ${pkgname}."
+          techo "Ignoring test results of ${pkgname}."
           return 0
         fi
         techo "Not installing ${pkgname} or its tests."
@@ -4913,7 +4974,7 @@ shouldInstallTestedPkg() {
 
 
 # Not testing
-  techo "Not testing $pkgname so installing."
+  techo "Not testing $pkgname."
   return 0
 
 }
@@ -5025,15 +5086,13 @@ bilderInstall() {
     res=0
     techo "Package $1-$verval-$2 build was accepted before."
   else
+    resvarname=`genbashvar $1-$2`_RES
     if $isctest; then
-      waitAction -z -t $1-$2
-      resvarname=`genbashvar $1-$2`_RES
+      waitAction -z -t b $1-$2
     elif $istest; then
-      waitTests $1
-      resvarname=`genbashvar $1_$2`_RES
+      waitNamedTest $1
     else
       waitAction $1-$2
-      resvarname=`genbashvar $1_$2`_RES
     fi
     res=`deref $resvarname`
     if test "$res" != 0; then
@@ -5532,7 +5591,7 @@ bilderInstallTestedPkg() {
   local tstsnm=
   local perms=
   local installsubdir=
-  local notestinstall=true
+  local testinstall=false
   local removePkg=false
   local removearg=
 # Parse options
@@ -5545,7 +5604,7 @@ bilderInstallTestedPkg() {
       p) perms="$OPTARG";;
       r) removePkg=true; removearg=-r;;
       s) installsubdir="$OPTARG";;
-      t) notestinstall=false;;
+      t) testinstall=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -5569,33 +5628,34 @@ bilderInstallTestedPkg() {
     subdirarg="-s $installsubdir"
   fi
 
-# Determine the full list of builds (ignored builds will be removed later)
+# Determine the full list of builds and the list after ignoring
   local bldsvar=`genbashvar $1`_BUILDS
   local bldsval=`deref $bldsvar | tr ',' ' '`
+  if test -n "$ignorebuilds"; then
+    for i in `echo $ignorebuilds | tr ',' ' '`; do
+      bldsval=`echo " $bldsval " | sed -e "s/ $i / /"`
+    done
+  fi
 
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
-  if test -n "$bldsval" && shouldInstallTestedPkg $tstnmarg $1 $2; then
-    if test -n "$ignorebuilds"; then
-      for i in `echo $ignorebuilds | tr ',' ' '`; do
-        bldsval=`echo $bldsval | sed -e "s/$i//"`
+  if test -n "$bldsval"; then
+    if shouldInstallTestedPkg -b "$bldsval" $tstnmarg $1 $2; then
+      local vervar=`genbashvar $1`_BLDRVERSION
+      local verval=`deref $vervar`
+      for bld in $bldsval; do
+        cmd="bilderInstall $removearg $permsarg $subdirarg $1 $bld"
+        techo -2 "$cmd"
+        $cmd
       done
+      if $testinstall; then
+        techo -2 "bilderInstallTestedPkg not installing $tstsnam at request."
+      else
+        techo -2 "bilderInstallTestedPkg calling bilderInstall -t $tstsnm all."
+        bilderInstall $removearg -t $tstsnm all
+      fi
+      return 0
     fi
-
-    local vervar=`genbashvar $1`_BLDRVERSION
-    local verval=`deref $vervar`
-    for bld in $bldsval; do
-      cmd="bilderInstall $removearg $permsarg $subdirarg $1 $bld"
-      techo -2 "$cmd"
-      $cmd
-    done
-    if $notestinstall; then
-      bilderInstall $removearg -t $tstsnm all
-      techo -2 "bilderInstallTestedPkg calling bilderInstall -t $tstsnm all."
-    else
-      techo -2 "bilderInstallTestedPkg not installing $tstsnam due to -t option."
-    fi
-    return 0
   fi
 
 # If not already returned at this point then pkg should not be (and was not) installed
@@ -5738,7 +5798,7 @@ fi
       TERMINATE_ERROR_MSG="Catastrophic failure in bilderDuBuild.  Unable to cd to $BUILD_DIR/$1-${verval}."
       cleanup
     fi
-    local bilderaction_resfile=bilderaction-$1-cc4py.res
+    local bilderaction_resfile=bilderbuild-$1-cc4py.res
     rm -f $bilderaction_resfile
     rm -rf build/*
     local build_txt=$FQMAILHOST-$1-cc4py-build.txt
