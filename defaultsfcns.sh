@@ -211,7 +211,10 @@ source $PWD/bilder/runnr/runnrfcns.sh
 runnrRun -t $script $QUEUE_TIME '$scriptargs'
 EOF
       chmod a+x $runnrscript
-      cmd="./$runnrscript"
+      if ! [[ $runnrscript =~ ^/ ]]; then
+        runnrscript=./$runnrscript
+      fi
+      cmd="$runnrscript"
     else
       cmd="runnrRun -t $script $QUEUE_TIME '$scriptargs'"
     fi
