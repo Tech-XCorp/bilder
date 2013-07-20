@@ -4774,7 +4774,7 @@ EOF
       local testpidvar=`genbashvar $1-$i`_TEST_PID
       techo "Testing $1-$i"
       techo $testScript
-      $testScript 1>$FQMAILHOST-$1-$i-test.txt 2>&1 &
+      ./$testScript 1>$FQMAILHOST-$1-$i-test.txt 2>&1 &
       pid=$!
       eval $testpidvar=$pid
       builddirtests="$builddirtests $i"
