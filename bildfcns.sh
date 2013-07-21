@@ -4237,20 +4237,12 @@ bilderBuild() {
   if test -n "$4"; then
     envprefix="env $4"
   fi
-  local mktarg
-  case `uname` in
-    CYGWIN*)
-      if test "$cmval" = qmake; then
-        mktarg=release
-      fi
-      ;;
-  esac
   local buildscript=$FQMAILHOST-$1-$2-build.sh
   echo '#!/bin/bash' >$buildscript
   if test -n "$envprefix"; then
     echo -n "$envprefix " | tee -a $buildscript
   fi
-  echo "$bildermake $mktarg $buildargs" | tee -a $buildscript
+  echo "$bildermake $buildargs" | tee -a $buildscript
   echo 'res=$?' >>$buildscript
   echo "echo Build of $1-$2 completed with result = "'$res.' >>$buildscript
   echo 'echo $res >'$bilderaction_resfile >>$buildscript
@@ -4260,7 +4252,7 @@ bilderBuild() {
   techo "Building $1-$2 in $PWD using $buildscript at `date`." | tee $build_txt
   techo "$buildscript" | tee -a $build_txt
   # cat $buildscript | tee -a $build_txt | tee -a $LOGFILE
-  techo "$envprefix $bildermake $mktarg $buildargs" | tee -a $build_txt
+  techo "$envprefix $bildermake $buildargs" | tee -a $build_txt
   ./$buildscript >>$build_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then

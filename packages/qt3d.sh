@@ -88,10 +88,11 @@ buildQt3d() {
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
 # Configure and build
   if bilderPreconfig qt3d; then
-    if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD; then
+    if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
       local QT3D_PLATFORM_BUILD_ARGS=
       case `uname`-`uname -r` in
         Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
+        CYGWIN*) QT3D_PLATFORM_BUILD_ARGS="CXX=cl";;
         *) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
       esac
 # During testing, do not "make clean".
