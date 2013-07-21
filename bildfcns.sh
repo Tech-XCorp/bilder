@@ -4000,15 +4000,10 @@ bilderConfig() {
           fi
           if test -n "$JENKINS_JOB_DIR"; then
             techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
-            techo -2 " +++ Initial srcarg='${srcarg}'"
             srcarg=`cygpath -m "$srcarg"`
-            techo -2 " +++ After convert to cygpath, srcarg='${srcarg}'"
             cygprojdir=`cygpath -am $PROJECT_DIR`
-            techo -2 " +++  PROJECT_DIR after convert to cygpath ='${cygprojdir}'"
             cygjenkinsdir=`cygpath -m $JENKINS_JOB_DIR`
-            techo -2 " +++  JENKINS_JOB_DIR after convert to cygpath ='${cygjenkinsdir}'"
             srcarg=`echo $srcarg | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
-            techo -2 " +++ Final srcarg='${srcarg}'"
           else
             srcarg=`cygpath -am ${srcarg}`
           fi
