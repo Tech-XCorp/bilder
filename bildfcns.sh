@@ -5162,7 +5162,8 @@ bilderInstall() {
     techo "instsubdirval = $instsubdirval."
     if $recordinstall && $istest; then
       techo "Record successful test results in $instdirval/installations.txt. Not installing package tests."
-# Pause to provide 1 second time difference between recording installation of package and tests.
+# Pause to provide time difference between recording installation of package
+# and tests.
       sleep 1
       recordInstallation $instdirval $1 $verval $2
       res=$?
@@ -5247,7 +5248,7 @@ bilderInstall() {
 
 # Add environment
     if test -n "$envvars"; then
-      echo "envvars in bildInstall=${envvars}"
+      techo -2 "envvars in bildInstall are '${envvars}'."
       cmd="env $envvars $cmd"
     fi
 
