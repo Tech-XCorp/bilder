@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: frost.xlc 109 2013-03-01 09:10:58Z jrobcary $
+# $Id: peregrine.intel 109 2013-03-01 09:10:58Z swsides $
 #
 # Define variables.
 # Do not override existing definitions.
@@ -12,12 +12,6 @@
 # KEEP THIS
 # These contents are not sourced or changed on a file update, but
 # they are sourced for an actual build.
-# cmd="mkdir -p /scratch/$USER/tmp"
-# techo "$cmd"
-# $cmd
-# cmd="export TMP=/scratch/$USER/tmp"
-# techo "$cmd"
-# $cmd
 
 USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
 USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
@@ -111,11 +105,17 @@ HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -D
 #
 # Python
 #
-#PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+#PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-system-ffi --with-libc=-lirc --with-libm=-limf"}
+
 
 #
 # PolySwift ++
 #
-# POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
-# POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
-# POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
+POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
+#POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
+#POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
+
+
+POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/include/python2.6 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/lib64 -DPython_LIBRARY_NAME:STRING=python2.6 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/lib64/libpython2.6.so -DPYTHON:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/bin/python -DPython_VERSION:STRING=2.6"}
+POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/include/python2.6 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/lib64 -DPython_LIBRARY_NAME:STRING=python2.6 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/lib64/libpython2.6.so -DPYTHON:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/bin/python -DPython_VERSION:STRING=2.6"}
