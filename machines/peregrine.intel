@@ -22,6 +22,7 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 # Module dependency
 #
 module purge
+module load epel
 module load comp-intel
 module load impi-intel
 module load subversion
@@ -97,17 +98,17 @@ HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5
 HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
 HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
 HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
-# HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
-# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
-# HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
+
 
 
 #
-# Python
+# Python (etc. no builds) epel will supply python
 #
 PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
-#PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-system-ffi --with-libc=-lirc --with-libm=-limf"}
-
+TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
+SETUPTOOLS=${SETUPTOOLS:-"NONE"}
+SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
+NUMEXPER_BUILDS=${NUMEXPER_BUILDS:-"NONE"}
 
 #
 # PolySwift ++
@@ -115,7 +116,5 @@ PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
 POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
 #POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
 #POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
-
-
-POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/include/python2.6 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/lib64 -DPython_LIBRARY_NAME:STRING=python2.6 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/lib64/libpython2.6.so -DPYTHON:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/bin/python -DPython_VERSION:STRING=2.6"}
-POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/include/python2.6 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/lib64 -DPython_LIBRARY_NAME:STRING=python2.6 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/lib64/libpython2.6.so -DPYTHON:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/bin/python -DPython_VERSION:STRING=2.6"}
+#POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/include/python2.6 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/lib64 -DPython_LIBRARY_NAME:STRING=python2.6 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/lib64/libpython2.6.so -DPYTHON:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/bin/python -DPython_VERSION:STRING=2.6"}
+#POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/include/python2.6 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/epel/6.3/usr/lib64 -DPython_LIBRARY_NAME:STRING=python2.6 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/lib64/libpython2.6.so -DPYTHON:FILEPATH=/nopt/nrel/apps/epel/6.3/usr/bin/python -DPython_VERSION:STRING=2.6"}
