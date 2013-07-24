@@ -193,7 +193,7 @@ setBilderHostVars() {
   fi
 
 # Add to BILDER_ARGS
-  # BILDER_ADDL_ARGS=-P
+  BILDER_ADDL_ARGS="-j6"
 
 # Set machine file and any other env vars
   case $machinedir in
