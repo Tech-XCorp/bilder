@@ -5011,7 +5011,7 @@ recordInstallation() {
 # -p perms Set the permissions (open or closed)
 # -r remove the old installation
 # -s the name of the installer subdir at the depot
-# -t is a test, so call waitTest
+# -t is a test, so call waitNamedTest
 # -T the name of the installation target (default is 'install')
 # -z is a ctest, so call waitAction -t
 #
