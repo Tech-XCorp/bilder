@@ -63,7 +63,7 @@ buildFgTests() {
 ######################################################################
 
 installFgTests() {
-  waitTests fgtests fluxgrid-txtest
+  waitNamedTest fgtests fluxgrid-txtest
   return $?
 }
 

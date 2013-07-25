@@ -78,7 +78,7 @@ buildTsTests() {
 ######################################################################
 
 installTsTests() {
-  waitTests $TESTSUITE_NAME ${SOFTWARE_BEING_TESTED}-txtest
+  waitNamedTest $TESTSUITE_NAME ${SOFTWARE_BEING_TESTED}-txtest
   return $?
 }
 

@@ -68,6 +68,6 @@ buildNimTests() {
 ######################################################################
 
 installNimTests() {
-  waitTests nimtests $nimversion-txtest
+  waitNamedTest nimtests $nimversion-txtest
   return $?
 }

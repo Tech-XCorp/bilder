@@ -58,7 +58,7 @@ buildWallpsiTests() {
 ######################################################################
 
 installWallpsiTests() {
-  cmd="waitTests wallpsitests wallpsi-txtest"
+  cmd="waitNamedTest wallpsitests wallpsi-txtest"
   techo "$cmd"
   $cmd
   return $?

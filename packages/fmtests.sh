@@ -62,7 +62,7 @@ buildFmTests() {
 ######################################################################
 
 installFmTests() {
-  waitTests fmtests fmcfm-txtest
+  waitNamedTest fmtests fmcfm-txtest
   return $?
 }
 

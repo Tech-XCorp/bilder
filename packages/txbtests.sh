@@ -69,7 +69,7 @@ fi
 ######################################################################
 
 installTxbTests() {
-  cmd="waitTests txbtests txbase-txtest"
+  cmd="waitNamedTest txbtests txbase-txtest"
   echo $cmd
   $cmd
   return $?

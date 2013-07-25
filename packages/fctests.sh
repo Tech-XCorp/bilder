@@ -63,7 +63,7 @@ buildFcTests() {
 ######################################################################
 
 installFcTests() {
-  waitTests fctests facets-txtest
+  waitNamedTest fctests facets-txtest
   return $?
 }
 

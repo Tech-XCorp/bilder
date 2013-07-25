@@ -61,7 +61,7 @@ buildUeTests() {
 ######################################################################
 
 installUeTests() {
-  cmd="waitTests uetests uedge-txtest"
+  cmd="waitNamedTest uetests uedge-txtest"
   techo "$cmd"
   $cmd
   return $?
