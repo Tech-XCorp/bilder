@@ -6,7 +6,6 @@
 # One or other started by jenkins.
 #
 
-
 #
 # Method to print out general and script specific options
 #
@@ -19,12 +18,11 @@ EOF
 #
 # Get startup parameters
 #
-args="$*"
-
-scripttorun=$1
-echo "scripttorun = $scripttorun."
+lecho "======= Executing jenkinsrun ======="
+lecho "$0 started with argument '$*' at `date`."
 
 # Find execution directory
+scripttorun=$1
 if [[ $scripttorun =~ "^/" ]]; then
   projdir=`dirname $scripttorun`
 else
@@ -34,10 +32,12 @@ else
   cd $projdir
   scripttorun=./$scripttorun
 fi
+lecho "projdir = $projdir."
+lecho "scripttorun = $scripttorun."
 
 case `uname` in 
   CYGWIN*) if [[ $projdir =~ jenkins/workspace ]]; then
-             echo "projdir still a subdir of jenkins/workspace.  Quitting."
+             lecho "projdir still a subdir of jenkins/workspace.  Quitting."
              exit 1
            fi;;
 esac
@@ -52,9 +52,6 @@ case $STEP in
   1) rm -f ${projdir}jenkinsrun.log;;
 esac
 
-# Beginning output
-lecho "======= Executing jenkinsrun ======="
-lecho "$0 started with arguments, $args, in ${projdir} at `date`."
 if declare -f module 1>/dev/null; then
   lecho "This system has modules."
 fi
@@ -74,11 +71,10 @@ if $srcbashrc; then
   cmd=
   if test -f $HOME/.bashrc; then
     cmd="source $HOME/.bashrc"
-    lecho "$cmd"
   elif test -f /etc/bashrc; then
     cmd="source /etc/bashrc"
-    lecho "$cmd"
   fi
+  lecho "Executing '$cmd'"
   $cmd
 fi
 
@@ -152,7 +148,7 @@ if [[ `uname` =~ CYGWIN ]]; then
 fi
 export BILDER_SVN
 
-lecho "<<<< Recording Final Environment >>>>"
+lecho ":: Recording Final Environment"
 lecho "   USER = $USER"
 lecho "   HOME = $HOME"
 lecho "   PATH = $PATH"
@@ -169,17 +165,12 @@ lecho "   BILDER_SVN = $BILDER_SVN"
 lecho "   BILDER_CONFDIR = $BILDER_CONFDIR"
 
 
-cmd="$*"
-if $PRINT_ONLY; then
-  lecho "Executing $cmd in `pwd -P` at `date`."
-  lecho "Completing with result = 0."
-  exit 0
-fi
-
 # Execute the command
+cmd="$*"
 lecho "Executing $cmd in `pwd -P` at `date`."
 eval "$cmd"
 res=$?
 lecho "Completing with result = $res."
-exit $res
+lecho "======= Finished with jenkinsrun ======="
 
+exit $res
