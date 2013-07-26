@@ -7,6 +7,7 @@ rem $Id: jenkinsrun.bat 276 2013-07-13 20:08:15Z techxdws $
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 
+DEL /Q jenkinsrun.log
 LECHO ========= EXECUTING jenkinsrun.bat ========
 LECHO starting up in %CD% with arguments, %*.
 LECHO   ++++++JENKINS VARIABLES++++++
