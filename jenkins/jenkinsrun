@@ -1,0 +1,185 @@
+#!/bin/bash
+#
+# $Id: jenkinsrun alexanda$
+#
+# Script run in bash.  Started by jenkinsrun.bat on cygwin.
+# One or other started by jenkins.
+#
+
+
+#
+# Method to print out general and script specific options
+#
+usage() {
+  cat >&2 <<EOF
+Usage: $0 <script to run>
+EOF
+}
+
+#
+# Get startup parameters
+#
+args="$*"
+
+scripttorun=$1
+echo "scripttorun = $scripttorun."
+
+# Find execution directory
+if [[ $scripttorun =~ "^/" ]]; then
+  projdir=`dirname $scripttorun`
+else
+  projdir=`dirname $0`
+# This puts us back in the jenkins subdir
+  projdir=`(cd $projdir/../..; pwd)`
+  cd $projdir
+  scripttorun=./$scripttorun
+fi
+
+case `uname` in 
+  CYGWIN*) if [[ $projdir =~ jenkins/workspace ]]; then
+             echo "projdir still a subdir of jenkins/workspace.  Quitting."
+             exit 1
+           fi;;
+esac
+
+lecho() {
+  echo "$1" >> ${projdir}/jenkinsrun.log
+  echo "  jenkinsrun: $1"
+}
+
+# Remove the log if first step
+case $STEP in
+  1) rm -f ${projdir}jenkinsrun.log;;
+esac
+
+# Beginning output
+lecho "======= Executing jenkinsrun ======="
+lecho "$0 started with arguments, $args, in ${projdir} at `date`."
+if declare -f module 1>/dev/null; then
+  lecho "This system has modules."
+fi
+
+#
+# Jenkins does not use a login shell, which we need to get modules.
+# So source any bashrc as needed.
+#
+srcbashrc=true
+if test `shopt | grep login_shell | sed 's/login_shell *//'` = on; then
+  lecho "This is a login shell."
+  if test -f $HOME/.bash_profile -o -f $HOME/.profile; then
+    srcbashrc=false
+  fi
+fi
+if $srcbashrc; then
+  cmd=
+  if test -f $HOME/.bashrc; then
+    cmd="source $HOME/.bashrc"
+    lecho "$cmd"
+  elif test -f /etc/bashrc; then
+    cmd="source /etc/bashrc"
+    lecho "$cmd"
+  fi
+  $cmd
+fi
+
+
+# Determine the Jenkins file system root
+lecho "WORKSPACE = $WORKSPACE, origdir = $origdir."
+if test -n "$WORKSPACE" && [[ `uname` =~ CYGWIN ]]; then
+  WORKSPACE=`cygpath -au $WORKSPACE`
+fi
+if test -n "$WORKSPACE"; then
+# See if workspace is up 3
+  if test -d "$WORKSPACE"/../../..; then
+    up3=`(cd "$WORKSPACE"/../../..; pwd -P)`
+    if test `basename $up3` = workspace; then
+      JENKINS_FSROOT=`(cd "$up3"/..; pwd -P)`
+    fi
+  fi
+# If not, then try up 1
+  if test -z "$JENKINS_FSROOT" -a -d "$WORKSPACE"/..; then
+    up1=`(cd "$WORKSPACE"/..; pwd -P)`
+    if test `basename $up1` = workspace; then
+      JENKINS_FSROOT=`(cd "$up1"/..; pwd -P)`
+    fi
+  fi
+fi
+if test -n "$JENKINS_FSROOT"; then
+  export JENKINS_FSROOT
+else
+  lecho "WARNING: Cannot find JENKINS_FSROOT."
+fi
+
+#
+# Make sure Windows svnversion is used, if found.
+#
+export BLDR_SVNVERSION
+if [[ `uname` =~ CYGWIN ]]; then
+# Convert some env vars
+  if test -n "$JENKINS_HOME"; then
+    JENKINS_HOME=`cygpath -au $JENKINS_HOME`
+  fi
+# Subversion must be compatible with the svnkit used by jenkins, which is
+# version 1.4-7, as selected in jenkins.  Try a custom installation:
+  BLDR_SVNVERSION=
+  BILDER_SVN=
+  for cand in \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Server 1.6.17/svnversion.exe" \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Server/svnversion.exe" \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Client 1.6.17/svnversion.exe" \
+      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client 1.6.17/svnversion.exe" \
+      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client/svnversion.exe" \
+      "/cygdrive/c/Program Files/CollabNet/Subversion Client/svnversion.exe"; do
+    if test -f "$cand"; then
+      BLDR_SVNVERSION="$cand"
+      break
+    fi
+  done
+  if test -z "$BLDR_SVNVERSION"; then
+    BLDR_SVNVERSION=`which svnversion`
+    if [[ $BLDR_SVNVERSION =~ /usr/bin ]]; then
+      lecho "Wrong svnversion.  Fix the path."
+      exit 1
+    fi
+  fi
+  lecho "BLDR_SVNVERSION='$BLDR_SVNVERSION' found."
+  BILDER_SVNDIR=`dirname "$BLDR_SVNVERSION"`
+  BILDER_SVN="$BILDER_SVNDIR/svn.exe"
+  if ! test -e "$BILDER_SVN"; then
+     lecho "svn not found in $BILDER_SVNDIR.  Fix the path."
+	 exit 1
+  fi
+fi
+export BILDER_SVN
+
+lecho "<<<< Recording Final Environment >>>>"
+lecho "   USER = $USER"
+lecho "   HOME = $HOME"
+lecho "   PATH = $PATH"
+lecho "   which svn = `which svn`"
+lecho "   BUILD_NUMBER = $BUILD_NUMBER"
+lecho "   BUILD_URL = $BUILD_URL"
+lecho "   JENKINS_HOME = $JENKINS_HOME"
+lecho "   WORKSPACE = $WORKSPACE"
+lecho "   JENKINS_FSROOT = $JENKINS_FSROOT"
+lecho "   JOB_NAME = $JOB_NAME"
+lecho "   JOB_URL = $JOB_URL"
+lecho "   BLDR_SVNVERSION = $BLDR_SVNVERSION"
+lecho "   BILDER_SVN = $BILDER_SVN"
+lecho "   BILDER_CONFDIR = $BILDER_CONFDIR"
+
+
+cmd="$*"
+if $PRINT_ONLY; then
+  lecho "Executing $cmd in `pwd -P` at `date`."
+  lecho "Completing with result = 0."
+  exit 0
+fi
+
+# Execute the command
+lecho "Executing $cmd in `pwd -P` at `date`."
+eval "$cmd"
+res=$?
+lecho "Completing with result = $res."
+exit $res
+
