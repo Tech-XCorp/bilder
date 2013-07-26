@@ -16,12 +16,16 @@ EOF
 }
 
 #
+# Print function
+#
+lecho() {
+  echo "$1" >> ${projdir}/jenkinsrun.log
+  echo "  jenkinsrun: $1"
+}
+
+#
 # Get startup parameters
 #
-lecho "======= Executing jenkinsrun ======="
-lecho "$0 started with argument '$*' at `date`."
-
-# Find execution directory
 scripttorun=$1
 if [[ $scripttorun =~ "^/" ]]; then
   projdir=`dirname $scripttorun`
@@ -32,26 +36,21 @@ else
   cd $projdir
   scripttorun=./$scripttorun
 fi
+
+#
+# Start Logging
+#
+rm -f ${projdir}jenkinsrun.log
+lecho "======= Executing jenkinsrun ======="
+lecho "$0 started with argument '$*' at `date`."
 lecho "projdir = $projdir."
 lecho "scripttorun = $scripttorun."
-
 case `uname` in 
   CYGWIN*) if [[ $projdir =~ jenkins/workspace ]]; then
              lecho "projdir still a subdir of jenkins/workspace.  Quitting."
              exit 1
            fi;;
 esac
-
-lecho() {
-  echo "$1" >> ${projdir}/jenkinsrun.log
-  echo "  jenkinsrun: $1"
-}
-
-# Remove the log if first step
-case $STEP in
-  1) rm -f ${projdir}jenkinsrun.log;;
-esac
-
 if declare -f module 1>/dev/null; then
   lecho "This system has modules."
 fi
