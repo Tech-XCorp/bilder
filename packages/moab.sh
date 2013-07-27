@@ -1,23 +1,10 @@
 #!/bin/bash
 #
-# Version and build information for cgma
+# Version and build information for moab
 #
 # $Id$
 #
 ######################################################################
-
-# For now, just recording what to get here
-cat >/dev/null <<EOF
-svn co https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk cgma
-cd cgma
-autoreconf -fi
-mkdir ser && cd ser
-../configure \
-  --prefix=/contrib/cgma-12.2.0 \
-  --with-occ=/internal/oce \
-  --without-cubit
-make
-EOF
 
 ######################################################################
 #
@@ -25,7 +12,7 @@ EOF
 #
 ######################################################################
 
-CGMA_BLDRVERSION=${CGMA_BLDRVERSION:-"12.3.0pre"}
+MOAB_BLDRVERSION=${MOAB_BLDRVERSION:-"4.7.0pre"}
 
 ######################################################################
 #
@@ -33,81 +20,82 @@ CGMA_BLDRVERSION=${CGMA_BLDRVERSION:-"12.3.0pre"}
 #
 ######################################################################
 
-CGMA_BUILDS=${CGMA_BUILDS:-"ser"}
-CGMA_DEPS=oce,libtool
-CGMA_UMASK=002
-# addtopathvar PATH $CONTRIB_DIR/cgma/bin
+MOAB_BUILDS=${MOAB_BUILDS:-"ser"}
+MOAB_DEPS=cgma
+MOAB_UMASK=002
+
+# addtopathvar PATH $CONTRIB_DIR/moab/bin
 
 ######################################################################
 #
-# Launch cgma builds.
+# Launch moab builds.
 #
 ######################################################################
 
-buildCgma() {
+buildMoab() {
 
 # Determine whether to use cmake
-  CGMA_USE_CMAKE=${CGMA_USE_CMAKE:-"false"}
-  if $CGMA_USE_CMAKE; then
-    CGMA_CMAKE_ARG=-c
+  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
+  if $MOAB_USE_CMAKE; then
+    MOAB_CMAKE_ARG=-c
   fi
 
 # Preconfig or unpack
-  if test -d $PROJECT_DIR/cgma; then
-    getVersion cgma
-    if ! bilderPreconfig $CGMA_CMAKE_ARG cgma; then
+  if test -d $PROJECT_DIR/moab; then
+    getVersion moab
+    if ! bilderPreconfig $MOAB_CMAKE_ARG moab; then
       return 1
     fi
   else
-    if ! bilderUnpack cgma; then
+    if ! bilderUnpack moab; then
       return 1
     fi
   fi
 
 # Seek oce in one of many places
-  local CGMA_OCE_DIR
+  local MOAB_OCE_DIR
   for i in volatile internal contrib; do
     if test -e /$i/oce; then
-      CGMA_OCE_DIR=`(cd /$i/oce; pwd -P)`
+      MOAB_OCE_DIR=`(cd /$i/oce; pwd -P)`
       break
     fi
   done
 
-# Set cgma configure args
-  if $CGMA_USE_CMAKE; then
-    CGMA_ALL_ADDL_ARGS=
+# Set moab configure args
+  if $MOAB_USE_CMAKE; then
+    MOAB_ALL_ADDL_ARGS=
   else
-    CGMA_ALL_ADDL_ARGS="--without-cubit"
-    if test -n "$CGMA_OCE_DIR"; then
-      CGMA_ALL_ADDL_ARGS="$CGMA_ALL_ADDL_ARGS --with-occ=$CGMA_OCE_DIR"
+    MOAB_ALL_ADDL_ARGS="--without-cubit"
+    if test -n "$MOAB_OCE_DIR"; then
+      MOAB_ALL_ADDL_ARGS="$MOAB_ALL_ADDL_ARGS --with-occ=$MOAB_OCE_DIR"
     fi
   fi
 
 # Configure and build
-  if bilderConfig $CGMA_CMAKE_ARG cgma ser; then
-    bilderBuild cgma ser
+  if bilderConfig $MOAB_CMAKE_ARG moab ser; then
+    bilderBuild moab ser
   fi
 
 }
 
 ######################################################################
 #
-# Test cgma
+# Test moab
 #
 ######################################################################
 
-testCgma() {
-  techo "Not testing cgma."
+testMoab() {
+  techo "Not testing moab."
 }
 
 ######################################################################
 #
-# Install cgma
+# Install moab
 #
 ######################################################################
 
-installCgma() {
-  if bilderInstall cgma ser; then
+installMoab() {
+  if bilderInstall moab ser; then
     : # Fix rpaths, library references here.
   fi
 }
