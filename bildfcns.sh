@@ -5013,7 +5013,6 @@ recordInstallation() {
 # -a accept build was correct
 # -c directly copy build dir to install dir
 # -f force the installation
-# -g webdocs
 # -m use the arg instead of make
 # -L do not create links
 # -n do not record the installation
@@ -5041,7 +5040,6 @@ bilderInstall() {
   local perms=
   local recordinstall=true
   local removesame=false
-  local webdocs=false
   local isctest=false
 # Parse options
   set -- "$@"
@@ -5052,7 +5050,6 @@ bilderInstall() {
       b) builddir="$OPTARG";;
       c) cpdir=true;;
       f) forceinstall=true;;
-      g) webdocs=true;;
       L) doLinks=false;;
       m) bildermake="$OPTARG";;
       n) recordinstall=false;;
@@ -5233,7 +5230,6 @@ bilderInstall() {
     fi
 
 # Determine the installation target.  Defined, then to defaults per system.
-# This could get rid of the -g arg?
     local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
     techo -2 "Before parsing $insttargvar, insttarg = $insttarg."
     local insttargval=`deref $insttargvar`
@@ -5243,16 +5239,12 @@ bilderInstall() {
     techo -2 "Finally, insttarg = $insttarg."
 
 # Complete the command
-    if $webdocs; then
-      cmd="$bildermake $4"
-    else
-      if $cpdir; then
+    if $cpdir; then
 # Perform a direct copy of the build dir to the install dir
 # no make install performed.
-        cmd="\cp -R $builddir $instdirval/$instsubdirval"
-      else
-        cmd="$bildermake $4 $insttarg"
-      fi
+      cmd="\cp -R $builddir $instdirval/$instsubdirval"
+    else
+      cmd="$bildermake $4 $insttarg"
     fi
 
 # Add environment
