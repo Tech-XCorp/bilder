@@ -29,19 +29,13 @@ CGMA_BLDRVERSION=${CGMA_BLDRVERSION:-"12.3.0pre"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-CGMA_BUILDS=${CGMA_BUILDS:-"NONE"}
-CGMA_DEPS=oce
+CGMA_BUILDS=${CGMA_BUILDS:-"ser"}
+# CGMA_DEPS=oce
 CGMA_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
 
 # addtopathvar PATH $CONTRIB_DIR/cgma/bin
 
@@ -51,41 +45,50 @@ CGMA_UMASK=002
 #
 ######################################################################
 
-buildCgmaAT() {
-# Configure and build
-  if bilderUnpack cgma; then
-# Seek oce in one of many places
-    local i
-    for i in volatile internal contrib; do
-      if test -e /$i/oce; then
-        break
-      fi
-    done
-    if ! test -e /$i/oce; then
-      techo "WARNING: cannot find oce."
-      return 1
-    elif ! test $i = contrib; then
-      techo "WARNING: oce found in /$i."
-    fi
-# Configure and builds
-    if bilderConfig cgma ser "--with-occ=/$i/oce --without-cubit"; then
-      bilderBuild cgma ser
-    fi
-  fi
-}
-
-# This appears to be just starting
-buildCgmaCM() {
-# Configure and build
-  if bilderUnpack cgma; then
-    if bilderConfig -c cgma ser; then
-      bilderBuild cgma ser
-    fi
-  fi
-}
-
 buildCgma() {
-  buildCgmaAT
+
+# Determine whether to use cmake
+  CGMA_USE_CMAKE=${CGMA_USE_CMAKE:-"false"}
+  if $CGMA_USE_CMAKE; then
+    CGMA_CMAKE_ARG=-c
+  fi
+
+# Preconfig or unpack
+  if test -d $PROJECT_DIR/cgma; then
+    getVersion cgma
+    if ! bilderPreconfig $CGMA_CMAKE_ARG cgma; then
+      return 1
+    fi
+  else
+    if ! bilderUnpack cgma; then
+      return 1
+    fi
+  fi
+
+# Seek oce in one of many places
+  local CGMA_OCE_DIR
+  for i in volatile internal contrib; do
+    if test -e /$i/oce; then
+      CGMA_OCE_DIR=`(cd /$i/oce; pwd -P)`
+      break
+    fi
+  done
+
+# Set cgma configure args
+  if $CGMA_USE_CMAKE; then
+    CGMA_ALL_ADDL_ARGS=
+  else
+    CGMA_ALL_ADDL_ARGS="--without-cubit"
+    if test -n "$CGMA_OCE_DIR"; then
+      CGMA_ALL_ADDL_ARGS="$CGMA_ALL_ADDL_ARGS --with-occ=$CGMA_OCE_DIR"
+    fi
+  fi
+
+# Configure and build
+  if bilderConfig $CGMA_CMAKE_ARG cgma ser; then
+    bilderBuild cgma ser
+  fi
+
 }
 
 ######################################################################
@@ -108,6 +111,5 @@ installCgma() {
   if bilderInstall cgma ser; then
     : # Fix rpaths, library references here.
   fi
-  # techo "WARNING: Quitting at end of cgma.sh."; exit
 }
 

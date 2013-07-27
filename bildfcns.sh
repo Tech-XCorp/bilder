@@ -3431,7 +3431,9 @@ bilderPreconfig() {
   elif test -x config/cleanconf.sh; then
     preconfigaction=config/cleanconf.sh
   elif test -e configure.ac -o -e configure.in; then
-    preconfigaction=${preconfigaction:-"autoreconf"}
+# JRC, 20130728: Add missing files.  If this breaks anything else we
+# will have to add an option to bilderPreconfig.
+    preconfigaction=${preconfigaction:-"autoreconf -fi"}
   fi
 
 # If no preconfigure action, compute make -j value and return
@@ -3444,13 +3446,20 @@ bilderPreconfig() {
 # Preconfigure action exists, so proceed
   techo "Preconfiguring $1-$verval in $PWD."
 
-# Remove any old configure files
-  cmd="rm -rf configure config.cache aclocal.m4 config.h.in autom4te*.cache CMakeCache.txt"
+# Remove any old cache files
+  cmd="rm -rf config.cache autom4te*.cache CMakeCache.txt"
+  techo "$cmd"
+  $cmd
+# Remove old configure files
+# JRC, 20130728: This is causing a problem with repos that have these added
+if false; then
+  cmd="rm -rf configure aclocal.m4 config.h.in"
   techo "$cmd"
   $cmd
   cmd="find . -name Makefile.in -delete"
   techo "$cmd"
   $cmd
+fi
 
 # Preconfigure as needed
   local preconfig_txt=$FQMAILHOST-$1-preconfig.txt
