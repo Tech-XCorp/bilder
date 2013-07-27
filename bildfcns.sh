@@ -5144,7 +5144,7 @@ bilderInstall() {
     instsubdirval=`deref $instsubdirvar`
 # Attempts to find base name for the link using the known installation subdir
 # and version.
-    # techo "instsubdirval = $instsubdirval."
+    techo -2 "instsubdirval = $instsubdirval."
     if test -n "$instsubdirval"; then
       if test -n "$verval" && echo $instsubdirval | grep -q -- "-${verval}-"; then
         instsubdirbase=`echo $instsubdirval | sed -e "s/-${verval}.*$//"`
@@ -5159,7 +5159,7 @@ bilderInstall() {
         instsubdirval=$1-$verval
       fi
     fi
-    techo "instsubdirval = $instsubdirval."
+    techo -2 "instsubdirval = $instsubdirval."
     if $recordinstall && $istest; then
       techo "Record successful test results in $instdirval/installations.txt. Not installing package tests."
 # Pause to provide time difference between recording installation of package
