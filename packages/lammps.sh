@@ -32,22 +32,36 @@ LAMMPS_DEPS=fftw,openmpi
 
 buildLammps() {
 
+  # NOTE: all variables for make cmd line need ' ' quotes so other
+  # args in line are parsed correctly
+
   # Specific variables for LAMMPS 'by-hand' make files
-  LAMMPS_OTHER_ARGS="LMP_INC=-DLAMMPS_GZIP"
+  LAMMPS_OTHER_ARGS="LMP_INC='-DLAMMPS_GZIP' JPG_INC='' JPG_PATH='' JPG_LIB=''"
 
-  # Serial flags
-  LAMMPS_SER_COMP_ARGS="CC=$CC LINK=$CC"
-  LAMMPS_SER_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw/include' FFT_PATH='-L$CONTRIB_DIR/fftw/lib' FFT_LIB='-lfftw -lrfftw'"
+  # Serial flags ( CC/LINK is defined by lammps make system)
+  LAMMPS_SER_COMP_ARGS="CC=$CXX LINK=$CXX"
+  LAMMPS_SER_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw/include' \
+                   FFT_PATH='-L$CONTRIB_DIR/fftw/lib' \
+                   FFT_LIB='-lfftw -lrfftw'" 
   LAMMPS_SER_ARGS="$LAMMPS_SER_COMP_ARGS $LAMMPS_SER_ARGS $LAMMPS_OTHER_ARGS"
-  echo "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
 
-  # Par flags (check mpi version)
-  LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICC"
-  LAMMPS_PAR_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi'"
-  LAMMPS_PAR_ARGS="$LAMMPS_PAR_ARGS MPI_INC='-I$CONTRIB_DIR/openmpi/include' MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
+  # Par flags (check mpi version) ( CC/LINK is defined by lammps make system)
+  LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICXX"
+  echo " "
+  echo "----- Note: selecting openmpi by default ------------------"
+  echo " "
+  LAMMPS_PAR_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
+                   FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' \
+                   FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi' \
+                   MPI_INC='-I$CONTRIB_DIR/openmpi/include' \
+                   MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
-  echo "LAMMPS_PAR_ARGS = $LAMMPS_PAR_ARGS"
 
+  # Status
+  techo "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
+  techo "LAMMPS_PAR_ARGS = $LAMMPS_PAR_ARGS"
+
+  # Builds
   if bilderUnpack lammps; then
 
     ARGS="$LAMMPS_SER_ARGS mac"
