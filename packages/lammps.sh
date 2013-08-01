@@ -24,6 +24,11 @@ LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
 LAMMPS_DEPS=fftw,openmpi
 
+# These targets are not needed, but the flags below are
+# expecting the setup in these files
+SER_TARGET='mac'
+PAR_TARGET='mac_mpi'
+
 ######################################################################
 #
 # Launch lammps builds.
@@ -46,15 +51,14 @@ buildLammps() {
   LAMMPS_SER_ARGS="$LAMMPS_SER_COMP_ARGS $LAMMPS_SER_ARGS $LAMMPS_OTHER_ARGS"
 
   # Par flags (check mpi version) ( CC/LINK is defined by lammps make system)
+  techo "----- Note: check MPI_INC and MPI_PATH vars ------------------"
   LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICXX"
-  echo " "
-  echo "----- Note: selecting openmpi by default ------------------"
-  echo " "
   LAMMPS_PAR_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
                    FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' \
                    FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi' \
-                   MPI_INC='-I$CONTRIB_DIR/openmpi/include' \
-                   MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
+                   MPI_INC='' MPI_PATH=''"
+  #                MPI_INC='-I$CONTRIB_DIR/openmpi/include'
+  #                MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
 
   # Status
@@ -64,10 +68,10 @@ buildLammps() {
   # Builds
   if bilderUnpack lammps; then
 
-    ARGS="$LAMMPS_SER_ARGS mac"
+    ARGS="$LAMMPS_SER_ARGS $SER_TARGET"
     makeLammps ser "$ARGS"
 
-    ARGS="$LAMMPS_PAR_ARGS mac_mpi"
+    ARGS="$LAMMPS_PAR_ARGS $PAR_TARGET"
     makeLammps par "$ARGS"
 
   fi
@@ -206,8 +210,13 @@ putLammps() {
   fi
 
   # Install command (if not build this time LAMMPS_BUILD_DIR fails)
-  LAMMPS_INSTTARG="lmp_mac"
-  cmd="cp -R $builddir/$LAMMPS_INSTTARG $LAMMPS_INSTALL_DIR/bin"
+  if [ $BLDTYPE == "ser" ]; then
+      LAMMPS_INSTTARG="lmp_mac"
+      cmd="cp -R $builddir/$LAMMPS_INSTTARG $LAMMPS_INSTALL_DIR/bin/lammps_ser"
+  else
+      LAMMPS_INSTTARG="lmp_mac_mpi"
+      cmd="cp -R $builddir/$LAMMPS_INSTTARG $LAMMPS_INSTALL_DIR/bin/lammps"
+  fi
   techo -2 "$cmd"
   $cmd
   echo "Default is to copy executable into $LAMMPS_INSTALL_DIR/bin"
