@@ -22,7 +22,7 @@ VOTCA_TOOLS_BLDRVERSION=${VOTCA_TOOLS_BLDRVERSION:-"r583"}
 ######################################################################
 
 VOTCA_TOOLS_BUILDS=${VOTCA_TOOLS_BUILDS:-"ser"}
-VOTCA_TOOLS_DEPS=fftw3,boost,gsl
+VOTCA_TOOLS_DEPS=fftw3,boost,gsl,expat
 
 # addtopathvar PATH $CONTRIB_DIR/votca_tools/bin
 
@@ -55,9 +55,12 @@ buildVotca_Tools() {
 
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DFFTW3_INCLUDE_DIR:PATH='$CONTRIB_DIR/fftw3/include'"
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DFFTW3_LIBRARY:FILEPATH='$CONTRIB_DIR/fftw3/lib/libfftw3.a'"
+
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DGSL_INCLUDE_DIR:PATH='$CONTRIB_DIR/gsl/include'"
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DGSL_LIBRARY:FILEPATH='$CONTRIB_DIR/gsl/lib/libgsl.a'"
 
+  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_INCLUDE_DIR:PATH='$CONTRIB_DIR/expat/include'"
+  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
 
   if bilderUnpack votca_tools; then
 

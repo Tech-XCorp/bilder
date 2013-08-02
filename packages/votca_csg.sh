@@ -58,6 +58,8 @@ buildVotca_Csg() {
   VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DGSL_INCLUDE_DIR:PATH='$CONTRIB_DIR/gsl/include'"
   VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DGSL_LIBRARY:FILEPATH='$CONTRIB_DIR/gsl/lib/libgsl.a'"
 
+  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DEXPAT_INCLUDE_DIR:PATH='$CONTRIB_DIR/expat/include'"
+  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
 
   if bilderUnpack votca_csg; then
 
