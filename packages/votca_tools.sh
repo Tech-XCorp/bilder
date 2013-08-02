@@ -60,7 +60,10 @@ buildVotca_Tools() {
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DGSL_LIBRARY:FILEPATH='$CONTRIB_DIR/gsl/lib/libgsl.a'"
 
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_INCLUDE_DIR:PATH='$CONTRIB_DIR/expat/include'"
-  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
+  case `uname` in
+      CYGWIN* | Darwin) VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
+      Linux)            VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.a'"
+  esac
 
   if bilderUnpack votca_tools; then
 

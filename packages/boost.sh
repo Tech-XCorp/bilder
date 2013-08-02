@@ -20,9 +20,9 @@
 BOOST_BLDRVERSION_STD=1_53_0
 BOOST_BLDRVERSION_EXP=1_53_0
 
-if [ $USER == 'ssides' ]; then
-    BOOST_BLDRVERSION_STD=1_47_0
-fi
+#if [ $USER == 'ssides' ]; then
+#    BOOST_BLDRVERSION_STD=1_47_0
+#fi
 
 ######################################################################
 #
