@@ -193,7 +193,7 @@ for absdir in $absdirs; do
     res=1
   fi
   numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
-  lecho "$numbuilds build directory lables found."
+  lecho "$numbuilds build directory labels found."
   numlines=`expr $numhosts \* $numbuilds`
   lecho "$numlines lines to keep from abstracts.txt file."
 

@@ -27,7 +27,7 @@ VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
 
 VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
 VTK_BUILD=$FORPYTHON_BUILD
-VTK_DEPS=mesa,cmake
+VTK_DEPS=cmake
 
 ######################################################################
 #
@@ -50,8 +50,8 @@ buildVtk() {
   local VTK_PYTHON_ARGS=
   local VTK_MAKE_ARGS=
 # build_visit sets both of these the same for Darwin
-  local MANGLED_MESA_LIB=libOSMesa${SHOBJEXT}
-  local MANGLED_OSMESA_LIB=libOSMesa${SHOBJEXT}
+  # local MANGLED_MESA_LIB=libOSMesa${SHOBJEXT}
+  # local MANGLED_OSMESA_LIB=libOSMesa${SHOBJEXT}
   case `uname` in
     CYGWIN*) # Add /MT flags
       VTK_OS_ARGS="$VTK_OS_ARGS -DVTK_USE_VIDEO_FOR_WINDOWS:BOOL=OFF"
@@ -75,7 +75,8 @@ buildVtk() {
       esac
       ;;
     Linux)
-      VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib:$LD_RUN_PATH
+      # VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib:$LD_RUN_PATH
+      VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:$LD_RUN_PATH
       trimvar VTK_LD_RUN_PATH ':'
       if test -n "$VTK_LD_RUN_PATH"; then
         local VTK_LD_RUN_ARGS="LD_RUN_PATH=$VTK_LD_RUN_PATH"
@@ -99,7 +100,7 @@ buildVtk() {
       trimvar VTK_ENV ' '
       VTK_MAKE_ARGS="$VTK_MAKE_ARGS $VTK_MAKEJ_ARGS"
 # build_visit uses MANGLED_OSMESA_LIB=libMesaGL on Linux.
-      MANGLED_OSMESA_LIB=libMesaGL${SHOBJEXT}	# per build_visit
+      # MANGLED_OSMESA_LIB=libMesaGL${SHOBJEXT}	# per build_visit
       if test -z "$PYTHON"; then
         techo "PYTHON NOT SET.  VTK Python wrappers will not build."
         return
@@ -115,13 +116,14 @@ buildVtk() {
   VTK_OS_ARGS="$VTK_OS_ARGS -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_WRAP_PYTHON:BOOL=ON"
 # Use PYC compilers
 # Upon going to VTK6, only Linux uses mesa
+# As of visit-2.6.2, no one uses mesa
   VTK_COMPILERS="$CMAKE_COMPILERS_PYC"
   VTK_FLAGS="$CMAKE_COMPFLAGS_PYC"
   case `uname` in
     CYGWIN*)
       ;;
     Linux)
-      VTK_MESA_ARGS="-DVTK_USE_MANGLED_MESA:BOOL=ON -DMANGLED_MESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DMANGLED_MESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_MESA_LIB} -DMANGLED_OSMESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DMANGLED_OSMESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_OSMESA_LIB}"
+      # VTK_MESA_ARGS="-DVTK_USE_MANGLED_MESA:BOOL=ON -DMANGLED_MESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DMANGLED_MESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_MESA_LIB} -DMANGLED_OSMESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DMANGLED_OSMESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_OSMESA_LIB}"
       ;;
   esac
 
@@ -194,8 +196,8 @@ installVtk() {
   if bilderInstall $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"; then
     case `uname` in
       Linux)
-        runnrExec "rm -f $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
-        runnrExec "ln -s $CONTRIB_DIR/mesa-$MESA_BLDRVERSION-mgl/include/GL $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
+        # runnrExec "rm -f $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
+        # runnrExec "ln -s $CONTRIB_DIR/mesa-$MESA_BLDRVERSION-mgl/include/GL $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
         ;;
     esac
   fi

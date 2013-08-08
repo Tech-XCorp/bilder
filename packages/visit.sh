@@ -37,9 +37,9 @@ VISIT_SER_BUILD=$FORPYTHON_BUILD
 VISIT_DEPS=Imaging,hdf5,VTK,qt,cmake
 VISIT_UMASK=002
 addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
-case `uname`-`uname -r` in
-  Linux) addVals MESA_DESIRED_BUILDS mgl,os;;
-esac
+# case `uname`-`uname -r` in
+  # Linux) addVals MESA_DESIRED_BUILDS mgl,os;;
+# esac
 
 ######################################################################
 #
@@ -159,16 +159,16 @@ buildVisit() {
       ;;
     Linux)
       VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
-      local VISIT_LD_RUN_PATH=$CONTRIB_DIR/mesa-mgl/lib:$PYC_LD_RUN_PATH:$LD_RUN_PATH
+      local VISIT_LD_RUN_PATH=$PYC_LD_RUN_PATH:$LD_RUN_PATH
       VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
-      if test -d $CONTRIB_DIR/mesa/lib; then
-        VISIT_MESA_DIR=$CONTRIB_DIR/mesa
-      fi
+      # if test -d $CONTRIB_DIR/mesa/lib; then
+        # VISIT_MESA_DIR=$CONTRIB_DIR/mesa
+      # fi
       ;;
   esac
 
 #
-# VisIt needs to find hdf5 mesa netcdf Python Qt VTK
+# VisIt needs to find hdf5 netcdf Python Qt VTK
 #
 # Set unix style directories
   VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
@@ -186,7 +186,7 @@ buildVisit() {
 # Get mixed (CYGWIN) or native (OTHER) paths.
 # VISIT_PYTHON_DIR is already mixed.
   VISIT_QT_BIN="$QT_BINDIR"
-  for i in VISIT_HDF5_DIR VISIT_MESA_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
+  for i in VISIT_HDF5_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
     local val=`deref $i`
     if test -n "$val"; then
       val=`(cd $val; pwd -P)`
@@ -202,7 +202,7 @@ buildVisit() {
 # Set cmake args for packages
   local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
   local VISIT_PKG_ARGS="$VISIT_QT_ARGS"
-  for i in HDF5 MESA NETCDF PYTHON VTK; do
+  for i in HDF5 NETCDF PYTHON VTK; do
     local var=VISIT_${i}_DIR
     local val=`deref ${var}`
     if test -n "$val"; then
