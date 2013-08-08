@@ -22,20 +22,22 @@ CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
 
 # Change clapack_cmake builds only if not set.
 # Needed for windows.
-if test -z "$CLAPACK_CMAKE_BUILDS"; then
+if test -z "$CLAPACK_CMAKE_DESIRED_BUILDS"; then
   case `uname`-$CC in
     CYGWIN*-mingw*)
       CLAPACK_CMAKE_BUILDS=NONE
       ;;
     CYGWIN*) # Darwin has -framework Accelerate
-      CLAPACK_CMAKE_BUILDS=ser
-      addCc4pyBuild clapack_cmake
+      CLAPACK_CMAKE_BUILDS="ser,sermd"
       ;;
     *)
       CLAPACK_CMAKE_BUILDS=NONE
       ;;
   esac
 fi
+
+computeBuilds clapack_cmake
+addCc4pyBuild clapack_cmake
 CLAPACK_CMAKE_DEPS=cmake
 
 ######################################################################
@@ -50,6 +52,10 @@ buildCLapack_CMake() {
 
     if bilderConfig clapack_cmake ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CLAPACK_CMAKE_SER_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS"; then
       bilderBuild clapack_cmake ser
+    fi
+
+    if bilderConfig clapack_cmake sermd "$CMAKE_COMPILERS_SER -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CLAPACK_CMAKE_SER_OTHER_ARGS"; then
+      bilderBuild clapack_cmake sermd
     fi
 
 # JRC: Why was this commented out?
@@ -97,7 +103,7 @@ makeLapackf2c() {
 
 installCLapack_CMake() {
   local anyinstalled=false
-  for bld in ser cc4py; do
+  for bld in ser sermd cc4py; do
     if bilderInstall clapack_cmake $bld; then
       makeLapackf2c $bld
       anyinstalled=true
