@@ -36,15 +36,11 @@ rmall() {
 #
 trimvar() {
   local varname=$1
-  # techo -2 varname = "'$varname'"
   local trimchar="$2"
-  # techo -2 trimchar = "'$trimchar'"
   local varval
   eval varval=\"`deref $varname`\"
   varval=`echo $varval | sed -e "s/${trimchar}${trimchar}/${trimchar}/g" -e "s/^${trimchar}//" -e "s/${trimchar}\$//"`
-  # echo "varval = '$varval'"
   eval $varname="\"$varval\""
-  # techo -2 $varname = `deref $varname`
 }
 
 #
