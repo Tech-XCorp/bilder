@@ -22,13 +22,14 @@ CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
 
 # Change clapack_cmake builds only if not set.
 # Needed for windows.
-if test -z "$CLAPACK_CMAKE_DESIRED_BUILDS"; then
+if test -z "$CLAPACK_CMAKE_BUILDS"; then
   case `uname`-$CC in
     CYGWIN*-mingw*)
       CLAPACK_CMAKE_BUILDS=NONE
       ;;
-    CYGWIN*) # Darwin has -framework Accelerate
+    CYGWIN*) 
       CLAPACK_CMAKE_BUILDS="ser,sermd"
+      addCc4pyBuild clapack_cmake
       ;;
     *)
       CLAPACK_CMAKE_BUILDS=NONE
@@ -36,8 +37,6 @@ if test -z "$CLAPACK_CMAKE_DESIRED_BUILDS"; then
   esac
 fi
 
-computeBuilds clapack_cmake
-addCc4pyBuild clapack_cmake
 CLAPACK_CMAKE_DEPS=cmake
 
 ######################################################################
@@ -54,7 +53,8 @@ buildCLapack_CMake() {
       bilderBuild clapack_cmake ser
     fi
 
-    if bilderConfig clapack_cmake sermd "$CMAKE_COMPILERS_SER -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CLAPACK_CMAKE_SER_OTHER_ARGS"; then
+# sermd keeps the /MD flags when compiling and building the CLAPACK library.
+    if bilderConfig clapack_cmake sermd "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CLAPACK_CMAKE_SER_OTHER_ARGS"; then
       bilderBuild clapack_cmake sermd
     fi
 
