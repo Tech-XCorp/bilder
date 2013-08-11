@@ -22,7 +22,9 @@ fi
 #
 ######################################################################
 
-MPICH_BUILDS=${MPICH_BUILDS:-"static"}
+if ! [[ `uname` =~ CYGWIN ]]; then
+  MPICH_BUILDS=${MPICH_BUILDS:-"static"}
+fi
 MPICH_DEPS=libtool,automake
 MPICH_UMASK=002
 # Not adding for now to not conflict with openmpi
