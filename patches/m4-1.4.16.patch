@@ -1,0 +1,14 @@
+diff -ruH m4-1.4.16/lib/stdio.in.h m4-1.4.16-new/lib/stdio.in.h
+--- m4-1.4.16/lib/stdio.in.h	2011-03-01 09:39:29.000000000 -0700
++++ m4-1.4.16-new/lib/stdio.in.h	2013-08-11 21:43:55.448991678 -0600
+@@ -162,7 +162,9 @@
+    so any use of gets warrants an unconditional warning.  Assume it is
+    always declared, since it is required by C89.  */
+ #undef gets
+-_GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
++/* compilation error on fedora 19 gcc 4.8 */
++/*_GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead"); */
++#define gets(a) fgets( a, sizeof(*(a)), stdin)
+ 
+ #if @GNULIB_FOPEN@
+ # if @REPLACE_FOPEN@
