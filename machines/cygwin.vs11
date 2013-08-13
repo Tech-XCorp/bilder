@@ -19,6 +19,7 @@ if test -z "$BILDER_DIR"; then
   bdir=`dirname $mdir`
   BILDER_DIR=`(cd $bdir; pwd -P)`
 fi
+export TAR="/usr/bin/tar"
 cmd="source $BILDER_DIR/machines/cygwin.vs"
 echo $cmd
 $cmd
