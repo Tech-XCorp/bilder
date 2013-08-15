@@ -40,7 +40,7 @@ buildMpich() {
 
 # Unpack
   if ! bilderUnpack mpich; then
-    exit 1
+    return 1
   fi
 # Needed?
   # MPICH_ADDL_ARGS="--enable-romio --enable-smpcoll --with-device=ch3:ssm --with-pm=hydra--with-mpe"
