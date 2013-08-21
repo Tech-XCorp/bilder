@@ -4151,9 +4151,9 @@ addActionToLists() {
 # 4: (optional) environment variables for the build
 #
 # Named args (must come first):
-# -k Keep old build, do not make clean
-# -m Use instead of make
-# -S Execute build in source directory, but assume out-of-source build
+# -k        Keep old build, do not make clean
+# -m <exec> Use <exec> instead of make (unix) or jom (Windows)
+# -S        Execute build in source directory, but assume out-of-source build
 #
 # Return 0 if a build launched
 #
