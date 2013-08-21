@@ -26,7 +26,7 @@ if test -z "$MATPLOTLIB_BUILDS"; then
   MATPLOTLIB_BUILDS=cc4py
 fi
 
-MATPLOTLIB_DEPS=numpy,Python,libpng,freetype
+MATPLOTLIB_DEPS=numpy,Python,libpng,freetype,pyqt
 
 ######################################################################
 #
