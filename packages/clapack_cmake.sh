@@ -16,27 +16,13 @@ CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-# Change clapack_cmake builds only if not set.
-# Needed for windows.
-if test -z "$CLAPACK_CMAKE_BUILDS"; then
-  case `uname`-$CC in
-    CYGWIN*-mingw*)
-      CLAPACK_CMAKE_BUILDS=NONE
-      ;;
-    CYGWIN*)
-      CLAPACK_CMAKE_BUILDS="ser,sermd"
-      addCc4pyBuild clapack_cmake
-      ;;
-    *)
-      CLAPACK_CMAKE_BUILDS=NONE
-      ;;
-  esac
-fi
-
+# Machine files should enable these builds as needed.
+# E.g., for Windows, modify cygwin.vs.
+CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
 CLAPACK_CMAKE_DEPS=cmake
 
 ######################################################################

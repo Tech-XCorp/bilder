@@ -63,6 +63,7 @@ techo "PATH = $PATH"
 #
 ######################################################################
 
+techo "Setting per-system variables."
 case `uname` in
 
   AIX)
@@ -97,6 +98,7 @@ case `uname` in
     CXX=${CXX:-"cl"}
     LIBEXT=.lib
     unset LIBPREFIX
+    techo "Getting number of cores."
     MAKEJ_TOTAL=`wmic cpu get NumberOfCores | sed -n 2p | tr -d '\r '`
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
@@ -111,11 +113,15 @@ case `uname` in
       techo "WARNING: Cannot build some packages."
       techo "WARNING: 'which link' must return the link executable from Visual Studio."
       return 1
+    else
+      techo "Correct link, $mylink, found."
     fi
     mysort=`which sort`
     if test "$mysort" != /usr/bin/sort; then
       techo "WARNING: Not using /usr/bin/sort from cygwin (found $mysort)."
       return 1
+    else
+      techo "Correct sort, $mysort, found."
     fi
     USE_ATLAS_CC4PY=true
     case $CC in
