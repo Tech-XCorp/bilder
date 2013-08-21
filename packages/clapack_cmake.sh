@@ -27,7 +27,7 @@ if test -z "$CLAPACK_CMAKE_BUILDS"; then
     CYGWIN*-mingw*)
       CLAPACK_CMAKE_BUILDS=NONE
       ;;
-    CYGWIN*) 
+    CYGWIN*)
       CLAPACK_CMAKE_BUILDS="ser,sermd"
       addCc4pyBuild clapack_cmake
       ;;
@@ -49,20 +49,25 @@ buildCLapack_CMake() {
 
   if bilderUnpack clapack_cmake; then
 
+    local CLAPACK_BUILD_ARGS="-m nmake"
+    if [[ `uname` =~ CYGWIN ]]; then
+      CLAPACK_BUILD_ARGS="-m nmake"
+    fi
+
     if bilderConfig clapack_cmake ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CLAPACK_CMAKE_SER_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS"; then
-      bilderBuild clapack_cmake ser
+      bilderBuild $CLAPACK_BUILD_ARGS clapack_cmake ser
     fi
 
 # sermd keeps the /MD flags when compiling and building the CLAPACK library.
     if bilderConfig clapack_cmake sermd "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CLAPACK_CMAKE_SER_OTHER_ARGS"; then
-      bilderBuild clapack_cmake sermd
+      bilderBuild $CLAPACK_BUILD_ARGS clapack_cmake sermd
     fi
 
 # JRC: Why was this commented out?
     if false; then
 # Add the pycc flags
     if bilderConfig clapack_cmake cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CLAPACK_CMAKE_PYC_OTHER_ARGS"; then
-      bilderBuild clapack_cmake cc4py
+      bilderBuild $CLAPACK_BUILD_ARGS clapack_cmake cc4py
     fi
     fi
 
