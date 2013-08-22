@@ -21,8 +21,8 @@
 ######################################################################
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
-
-NIMDEVEL_DEPS=fluxgrid,openmpi,superlu_dist,superlu,cmake
+NIMDEVEL_DEPS=fluxgrid,openmpi,superlu_dist,superlu,cmake,grin
+NIMDEVEL_UMASK=002
 
 ######################################################################
 #
