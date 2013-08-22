@@ -54,6 +54,7 @@ buildBreathe() {
     ln -sf $CONTRIB_DIR/breathe-${BREATHE_BLDRVERSION} $CONTRIB_DIR/breathe
     # SWS: link name with all lowercase to aid in cmake package find
     ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR breathe,ser
+    rmall $CONTRIB_DIR/breathe/.git
   fi
 }
 
