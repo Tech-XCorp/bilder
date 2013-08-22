@@ -184,3 +184,14 @@ diff -rupN trilinos-10.12.2/packages/zoltan/src/zz/murmur3.c trilinos-10.12.2-ne
  {
    k ^= k >> 33;
    k *= BIG_CONSTANT(0xff51afd7ed558ccd);
+diff  -rupN trilinos-10.12.2/packages/teuchos/src/Teuchos_Array.hpp trilinos-10.12.2-new/packages/teuchos/src/Teuchos_Array.hpp
+--- trilinos-10.12.2/packages/teuchos/src/Teuchos_Array.hpp     2012-08-02 11:42:42.000000000 -0600
++++ trilinos-10.12.2-new/packages/teuchos/src/Teuchos_Array.hpp 2013-08-22 11:45:46.147921700 -0600
+@@ -1150,6 +1150,6 @@ void Array<T>::insert(iterator position,
+   const typename std::vector<T>::iterator raw_poss = raw_position(position);
+   vec(true, true).insert(raw_poss, first, last);
+ #else
+-  return vec_.insert(position, first, last);
++  vec_.insert(position, first, last);
+ #endif
+ }
