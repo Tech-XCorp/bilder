@@ -195,3 +195,33 @@ diff  -rupN trilinos-10.12.2/packages/teuchos/src/Teuchos_Array.hpp trilinos-10.
 +  vec_.insert(position, first, last);
  #endif
  }
+diff -rupN trilinos-10.12.2/packages/ifpack/src/Ifpack_ICT.cpp trilinos-10.12.2-new/packages/ifpack/src/Ifpack_ICT.cpp
+--- trilinos-10.12.2/packages/ifpack/src/Ifpack_ICT.cpp 2012-08-02 11:43:20.000000000 -0600
++++ trilinos-10.12.2-new/packages/ifpack/src/Ifpack_ICT.cpp     2013-08-22 13:35:34.467942300 -0600
+@@ -27,6 +27,7 @@
+ //@HEADER
+ */
+ 
++#include <functional>
+ #include "Ifpack_ConfigDefs.h"
+ #include "Ifpack_Preconditioner.h"
+ #include "Ifpack_ICT.h"
+@@ -327,6 +328,6 @@ int Ifpack_ICT::Compute()
+     double cutoff = 0.0;
+     if (count > LOF) {
+       nth_element(AbsRow.begin(), AbsRow.begin() + LOF, AbsRow.begin() + count, 
+-                  greater<double>());
++                  std::greater<double>());
+       cutoff = AbsRow[LOF];
+     }
+diff -rupN trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_MultiVector.h trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_MultiVector.h  
+--- trilinos-10.12.2/packages/ml/src/MLAPI/MLAPI_MultiVector.h  2012-08-02 11:44:06.000000000 -0600
++++ trilinos-10.12.2-new/packages/ml/src/MLAPI/MLAPI_MultiVector.h      2013-08-22 13:35:43.778873300 -0600
+@@ -15,6 +15,7 @@
+ /* person and disclaimer.                                               */        
+ /* ******************************************************************** */
+ 
++#include <functional>
+ //#include "ml_lapack.h"
+ #include "MLAPI_Error.h"
+ #include "MLAPI_BaseObject.h"
