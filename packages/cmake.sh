@@ -22,7 +22,7 @@ case `uname` in
     CMAKE_BLDRVERSION_STD=2.8.10.1
     CMAKE_BLDRVERSION_EXP=2.8.11
     ;;
-  esac
+esac
 
 
 ######################################################################
