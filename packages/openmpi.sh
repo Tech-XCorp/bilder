@@ -53,6 +53,9 @@ addtopathvar PATH $CONTRIB_DIR/openmpi/bin
 buildOpenmpiAT() {
 
   if bilderUnpack openmpi; then
+
+    techo "OPENMPI_BLDRVERSION = $OPENMPI_BLDRVERSION."
+# Look for valgrind
     if test -h $CONTRIB_DIR/valgrind; then
       OPENMPI_VALGRIND_ARG="--with-valgrind=$CONTRIB_DIR/valgrind"
     fi
@@ -182,7 +185,9 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
+  local anyinstalled=false
   if bilderInstall openmpi nodl openmpi; then
+    anyinstalled=true
     if test -h $CONTRIB_DIR/mpi; then
       rm -f $CONTRIB_DIR/mpi
     fi
@@ -200,13 +205,17 @@ installOpenmpi() {
       esac
     fi
   fi
-  bilderInstall openmpi static
+  if bilderInstall openmpi static; then
+    anyinstalled=true
+  fi
+  if $anyinstalled; then
 # Obtain correct mpi compiler names after bildall.sh is called
-  MPICC=`basename "$MPICC"`
-  MPICXX=`basename "$MPICXX"`
-  MPIFC=`basename "$MPIFC"`
-  MPIF77=`basename "$MPIF77"`
-  findParallelFcComps
-  getCombinedCompVars
+    MPICC=`basename "$MPICC"`
+    MPICXX=`basename "$MPICXX"`
+    MPIFC=`basename "$MPIFC"`
+    MPIF77=`basename "$MPIF77"`
+    findParallelFcComps
+    getCombinedCompVars
+  fi
 }
 
