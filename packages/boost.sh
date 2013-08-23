@@ -20,10 +20,6 @@
 BOOST_BLDRVERSION_STD=1_53_0
 BOOST_BLDRVERSION_EXP=1_53_0
 
-#if [ $USER == 'ssides' ]; then
-#    BOOST_BLDRVERSION_STD=1_47_0
-#fi
-
 ######################################################################
 #
 # Other values
@@ -68,7 +64,7 @@ buildBoost() {
     local toolsetarg_ser=
     local toolsetarg_cc4py=
     case `uname`-`uname -r` in
-      CYGWIN*-WOW64*) 
+      CYGWIN*-WOW64*)
         toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
         ;;
       CYGWIN-*) ;;
