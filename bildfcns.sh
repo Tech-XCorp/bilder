@@ -3094,6 +3094,7 @@ bilderUnpack() {
   computeVersion $1
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
+  techo -2 "$vervar = $verval."
   if test -z "$verval"; then
     techo "$vervar not defined.  Cannot build."
     return 1
@@ -6536,11 +6537,12 @@ getDeps() {
 # Get all dependencies of these packages
   local alldeps=
   local pkg=
-  local dep=
   for pkg in $newpkgs; do
     local deps=
+    local builds=
     if deps=`grep "^${pkg} " stateddeps$$.txt`; then
       deps=`echo "$deps" | sed "s/^${pkg} //"`
+      builds=`grep "^${pkg} " statedbuilds$$.txt | sed "s/^${pkg} //"`
     else
       local pkgfile=`echo $pkg | tr '[A-Z]' '[a-z]'`.sh
       if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$pkgfile; then
@@ -6558,23 +6560,22 @@ getDeps() {
       $cmd 1>&2
       local buildsvar=`genbashvar $pkg`_BUILDS
       builds=`deref $buildsvar | tr ',' ' '`
-      # techo "$buildsvar = $builds." 1>&2
-      local deps=
-# If first package has no builds, then neither it nor its dependents
-# matter at this point, so pull out of resulting packages
-      if test -z "$builds" -o "$builds" = NONE; then
-        techo "Package $pkg has no builds.  No further analysis needed." 1>&2
-        rempkgs=`echo ' '$rempkgs' ' | sed -e "s/ $pkg / /"`
-        techo "$pkg " >>stateddeps$$.txt
-        continue
-      fi
-      techo "Package $pkg has builds, $builds.  Following dependencies." 1>&2
 # Otherwise collect its deps
       local depsvar=`genbashvar $pkg`_DEPS
       deps=`deref $depsvar | tr ',' ' '`
-      techo "Package $pkg dependencies = '$deps'." 1>&2
+# Store builds and deps in files
       techo "$pkg $deps" >>stateddeps$$.txt
+      techo "$pkg $builds" >>statedbuilds$$.txt
     fi
+# If first package has no builds, then neither it nor its dependents
+# matter at this point, so pull out of resulting packages
+    if test -z "$builds" -o "$builds" = NONE; then
+      techo "Package $pkg has no builds.  No further analysis needed." 1>&2
+      rempkgs=`echo ' '$rempkgs' ' | sed -e "s/ $pkg / /"`
+      continue
+    fi
+    techo "Package $pkg has builds, $builds.  Following dependencies." 1>&2
+    techo "Package $pkg dependencies = '$deps'." 1>&2
 # Add deps to alldeps if not yet present
     if test -n "$deps"; then
       for dep in $deps; do
@@ -6619,70 +6620,6 @@ getDeps() {
 }
 
 #
-# Get the additional packages to be built as those after the
-# first package plus all dependencies of those.
-#
-# Args:
-#  1: comma separated package list
-#
-getAddlPkgs() {
-  local firstpkg=`echo $1 | sed 's/,.*$//'`
-  local rempkgs=`echo $1 | sed -e "s/${firstpkg},*//" -e 's/,/ /g'`
-  local pkgfile=`echo $firstpkg | tr '[A-Z]' '[a-z]'`.sh
-  local deps=
-  if deps=`grep "^${firstpkg} " stateddeps$$.txt`; then
-    deps=`echo "$deps" | sed "s/^${firstpkg} //"`
-  else
-    if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$pkgfile; then
-      source $BILDER_CONFDIR/packages/$pkgfile 1>&2
-    elif test -f $BILDER_DIR/packages/$pkgfile; then
-      source $BILDER_DIR/packages/$pkgfile 1>&2
-    else
-      TERMINATE_ERROR_MSG="Catastrophic error in getAddlPkgs.  Bilder package file, $pkgfile, not found."
-# Cannot use cleanup here, as the print gives the dependencies
-      techo "$TERMINATE_ERROR_MSG" 1>&2
-      exit 1
-    fi
-    if test -e $PROJECT_DIR/${WAIT_PACKAGE}.conf; then
-      source $PROJECT_DIR/${WAIT_PACKAGE}.conf
-    fi
-    local buildsvar=`genbashvar $firstpkg`_BUILDS
-    builds=`deref $buildsvar | tr ',' ' '`
-    local deps=
-# If first package has no builds, then neither it nor its dependents
-# matter at this point, so just return empty
-    if test -z "$builds" -o "$builds" = NONE; then
-      echo "Package $firstpkg has no builds.  No further analysis needed." 1>&2
-      trimvar rempkgs ' '
-      echo $rempkgs
-      return
-    fi
-    local depsvar=`genbashvar $firstpkg`_DEPS
-    deps=`deref $depsvar | tr ',' ' '`
-    echo "Package $firstpkg to-build dependencies = '$deps'." 1>&2
-    echo "$firstpkg $deps" >>stateddeps$$.txt
-  fi
-# Concat rempkgs and deps to get the additional packages to be built
-  local addlpkgs="$rempkgs $deps"
-  if test -n "$addlpkgs"; then
-    local pkg=
-    for pkg in $addlpkgs; do
-      local subpkgs=`getAddlPkgs $pkg`
-      if test -n "$subpkgs"; then
-# Pull dependencies out of list to be appended
-        for subpkg in $subpkgs; do
-          addlpkgs=`echo ' '$addlpkgs' ' | sed "s/ ${subpkg} / /"`
-        done
-      fi
-# Now append
-      addlpkgs="$addlpkgs $subpkgs"
-      trimvar addlpkgs ' '
-    done
-  fi
-  echo "$firstpkg $addlpkgs"
-}
-
-#
 # build the chain for a given package
 #
 # Args:
@@ -6720,17 +6657,19 @@ buildChain() {
   techo "Analyzing Build Chain."
   local analyze=true
   if $analyze; then
-    rmall stateddeps$$.txt
-    touch stateddeps$$.txt
+    rmall stateddeps$$.txt statedbuilds$$.txt
+    touch stateddeps$$.txt statedbuilds$$.txt
     SOURCED_PKGS=
     # techo "buildChain: 1 = $1."
     local startsec=`date +%s`
     hifirst=`getDeps "" $1`
-    # hifirst=`getAddlPkgs $1`
     local endsec=`date +%s`
     local elapsedsec=`expr $endsec - $startsec`
     techo "Build chain analysis took $elapsedsec seconds."
-    rm stateddeps$$.txt
+    if test $VERBOSITY -lt 2; then
+      rm stateddeps$$.txt
+      rm statedbuilds$$.txt
+    fi
     trimvar hifirst ' '
     chain=`echo $hifirst | awk '{for (i=NF;i>=1;i--) printf $i" "} END{print ""}'`
     trimvar chain ' '
