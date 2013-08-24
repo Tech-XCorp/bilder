@@ -6623,7 +6623,7 @@ getDeps() {
 # build the chain for a given package
 #
 # Args:
-#  possibly comma separate packages
+#  1: comma separated package list
 #
 # Named args:
 #  -a: analyze only
@@ -6636,14 +6636,14 @@ buildChain() {
   OPTIND=1
   while getopts "a" arg; do
     case $arg in
-      a) analyzeonly=true
+      a) analyzeonly=true;;
     esac
   done
   shift $(($OPTIND - 1))
 
 # Determine the packages to build
   local buildpkgs=`echo $* | sed 's/ /,/g'`
-  trimvar $buildpkgs ','
+  trimvar buildpkgs ','
   echo $buildpkgs >$PROJECT_DIR/lastbuildpkgs.txt
 
   if ! $analyzeonly; then

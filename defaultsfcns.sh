@@ -228,6 +228,8 @@ EOF
   if $USE_NOHUP; then
     local inst_subdir=`basename $BLDR_INSTALL_DIR`
     ofilename=$SCRIPT_BASE-$UQMAILHOST-$inst_subdir.out
+    echo "Removing $PWD/ from output file name, $ofilename."
+    ofilename=`echo $ofilename | sed "s?^$PWD/??"`
   fi
 
 # Print and/or execute the command
