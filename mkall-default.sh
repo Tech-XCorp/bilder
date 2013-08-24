@@ -166,12 +166,13 @@ cat >$REDO_SCRIPT <<END
 # How to use
 usage() {
 cat >&2 <<EOF
-Usage: "\$0 [run | target1,target2,...]"
+Usage: "\$0 [previous | default | target1,target2,...]"
 Arguments:
   None: Get this usage description.
-  run:  Run the previous run:
+  previous:  Run the previous run:
           $0 $redoargs
-  Comma delimited list of targets: Build these packages instead.
+  default:   Do the default run with no build targets
+  Or comma delimited list of targets: Build these packages instead.
 EOF
 exit
 }
@@ -182,8 +183,8 @@ if test -z "\$1"; then
   exit
 fi
 
-# Arg is run, just rerun
-if test "\$1" = run; then
+# Arg is previous, just rerun
+if test "\$1" = previous; then
   cmd="$0 $redoargs"
   echo "\$cmd"
   exec \$cmd
@@ -196,7 +197,9 @@ if test -f $PROJECT_DIR/lastbuildpkgs.txt; then
 else
   scrargs="$redoargs"
 fi
-scrargs="\$scrargs \$1"
+if test "\$1" != default; then
+  scrargs="\$scrargs \$1"
+fi
 cmd="$0 \$scrargs"
 echo "\$cmd"
 exec \$cmd
