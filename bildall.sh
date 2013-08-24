@@ -98,4 +98,3 @@ then
   source $conffile
 fi
 
-

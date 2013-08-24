@@ -6623,7 +6623,7 @@ getDeps() {
 # build the chain for a given package
 #
 # Args:
-#  1: comma separate package list
+#  possibly comma separate packages
 #
 # Named args:
 #  -a: analyze only
@@ -6632,17 +6632,20 @@ buildChain() {
 
 # Get options
   local analyzeonly=false
-  while test -n "$1"; do
-    case "$1" in
-      -a)
-        analyzeonly=true
-        ;;
-      *)
-        break
-        ;;
+  set -- "$@"
+  OPTIND=1
+  while getopts "a" arg; do
+    case $arg in
+      a) analyzeonly=true
     esac
-    shift
   done
+  shift $(($OPTIND - 1))
+
+# Determine the packages to build
+  local buildpkgs=`echo $* | sed 's/ /,/g'`
+  trimvar $buildpkgs ','
+  echo $buildpkgs >$PROJECT_DIR/lastbuildpkgs.txt
+
   if ! $analyzeonly; then
     USING_BUILD_CHAIN=true
   fi
@@ -6660,9 +6663,9 @@ buildChain() {
     rmall stateddeps$$.txt statedbuilds$$.txt
     touch stateddeps$$.txt statedbuilds$$.txt
     SOURCED_PKGS=
-    # techo "buildChain: 1 = $1."
+    # techo "buildChain: buildpkgs = $buildpkgs."
     local startsec=`date +%s`
-    hifirst=`getDeps "" $1`
+    hifirst=`getDeps "" $buildpkgs`
     local endsec=`date +%s`
     local elapsedsec=`expr $endsec - $startsec`
     techo "Build chain analysis took $elapsedsec seconds."
