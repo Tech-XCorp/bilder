@@ -16,11 +16,11 @@ case `uname` in
   CYGWIN*)
     # fortran binding issues with 2.8.10.1 on windows
     CMAKE_BLDRVERSION_STD=2.8.9
-    CMAKE_BLDRVERSION_EXP=2.8.11
+    CMAKE_BLDRVERSION_EXP=2.8.11.2
     ;;
   *)
     CMAKE_BLDRVERSION_STD=2.8.10.1
-    CMAKE_BLDRVERSION_EXP=2.8.11
+    CMAKE_BLDRVERSION_EXP=2.8.11.2
     ;;
 esac
 
