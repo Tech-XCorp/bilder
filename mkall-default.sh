@@ -80,7 +80,7 @@ BILDER_PACKAGE=`basename $PROJECT_DIR`
 BILDER_DIR=`dirname $BASH_SOURCE`
 BILDER_DIR=`(cd $BILDER_DIR; pwd -P)`
 
-# Save to print out later if rung
+# Save to print out later if run
 redoargs="$*"
 
 # Get machine info
@@ -162,19 +162,45 @@ SCRIPT_ADDL_ARGS="$*"
 REDO_SCRIPT=`basename $SCRIPT_NAME -default.sh`-defredo.sh
 cat >$REDO_SCRIPT <<END
 #!/usr/bin/env bash
+
+# How to use
+usage() {
+cat >&2 <<EOF
+Usage: "\$0 [run | target1,target2,...]"
+Arguments:
+  None: Get this usage description.
+  run:  Run the previous run:
+          $0 $redoargs
+  Comma delimited list of targets: Build these packages instead.
+EOF
+exit
+}
+
+# No args, type usage and exit
 if test -z "\$1"; then
-  echo "# To redo this run, execute"
-  echo "$0 $redoargs"
-  echo "# Or simply"
-  echo $REDO_SCRIPT run
+  usage
   exit
 fi
+
+# Arg is run, just rerun
 if test "\$1" = run; then
   cmd="$0 $redoargs"
   echo "\$cmd"
   exec \$cmd
 fi
-echo Not understood: \"\$0 \$*\"
+
+# Otherwise, remove any previous build args add new ones and rerun
+if test -f $PROJECT_DIR/lastbuildpkgs.txt; then
+  lastbuildpkgs=\`cat $PROJECT_DIR/lastbuildpkgs.txt\`
+  scrargs=\`printf -- "$redoargs" | sed -e "s/\$lastbuildpkgs$//"\`
+else
+  scrargs="$redoargs"
+fi
+scrargs="\$scrargs \$1"
+cmd="$0 \$scrargs"
+echo "\$cmd"
+exec \$cmd
+
 END
 chmod a+x $REDO_SCRIPT
 
