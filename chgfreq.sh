@@ -16,6 +16,12 @@ Usage: $0 [options] <value>
   to change the frequency throttling
 OPTIONS:
   -h  Print this help
+
+performance = throttling OFF
+on demand = when you run a job, it will step up the power consumption
+powersave = throttling on all the time
+
+(OK to leave it at 'performance' and throttling will stay off until next reboot)
 EOF
   exit $1
 }
