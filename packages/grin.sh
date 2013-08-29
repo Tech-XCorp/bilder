@@ -42,7 +42,7 @@ buildGrin() {
 
   getVersion grin
   if bilderPreconfig -c grin; then
-    if bilderConfig grin ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SE $GRIN_SER_OTHER_ARGS"; then
+    if bilderConfig grin ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_LINLIB_SER_ARGS $GRIN_SER_OTHER_ARGS"; then
       bilderBuild grin ser
     fi
   fi
