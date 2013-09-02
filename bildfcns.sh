@@ -5426,19 +5426,14 @@ EOF
             fi
           done
           installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
-#SEK: This is my error so commenting out:
-#
-#/scr_sandybridge/kruger/ptsolveall/bilder/bildfcns.sh: line 5283: syntax error near unexpected token `then'
-#/scr_sandybridge/kruger/ptsolveall/bilder/bildfcns.sh: line 5283: `             ssh ${INSTALLER_HOST} mkdir -p ${subdir}; then'
-#SEK
 # Ensure subdir exists
-	    if test -n "$INSTALLER_HOST"; then
-		local subdir=$INSTALLER_ROOTDIR/$installersubdir
-		if ! ssh ${INSTALLER_HOST} ls ${subdir}; then
-		   ssh ${INSTALLER_HOST} mkdir -p ${subdir}
-		   ssh ${INSTALLER_HOST} chmod 775 ${subdir}
-		fi
-	    fi
+          if test -n "$INSTALLER_HOST"; then
+            local subdir=$INSTALLER_ROOTDIR/$installersubdir
+            if ! ssh ${INSTALLER_HOST} ls ${subdir}; then
+              ssh ${INSTALLER_HOST} mkdir -p ${subdir}
+              ssh ${INSTALLER_HOST} chmod 775 ${subdir}
+            fi
+          fi
 # Make sure depotdir exists
           local depotdir=$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
           cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
