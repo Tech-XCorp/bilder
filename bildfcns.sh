@@ -5426,15 +5426,16 @@ EOF
             fi
           done
           installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
-# Ensure subdir exists
+# Ensure depot root directory exists
           if test -n "$INSTALLER_HOST"; then
             local subdir=$INSTALLER_ROOTDIR/$installersubdir
-            if ! ssh ${INSTALLER_HOST} ls ${subdir}; then
+            if ! ssh ${INSTALLER_HOST} ls ${subdir} 1>/dev/null 2>&1; then
+              techo -2 "Depot Root Directory, ${INSTALLER_HOST}:${subdir}, does not exists, creating it."
               ssh ${INSTALLER_HOST} mkdir -p ${subdir}
               ssh ${INSTALLER_HOST} chmod 775 ${subdir}
             fi
           fi
-# Make sure depotdir exists
+# Ensure depot installer version subdirectory exists
           local depotdir=$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
           cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
           if ! $cmd 1>/dev/null 2>&1; then
