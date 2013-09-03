@@ -1189,7 +1189,7 @@ getVersion() {
 
 # Finally, store the revision in <project>_BLDRVERSION
   eval ${vervar}=$rev
-  # techo "${vervar} = $rev."
+  techo "${vervar} = $rev."
   case $rev in
     *:* | *M) techo "WARNING: $repodir is not clean.  ${vervar} = $rev.";;
   esac
