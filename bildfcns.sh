@@ -3094,7 +3094,6 @@ bilderUnpack() {
   computeVersion $1
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
-  techo -2 "$vervar = $verval."
   if test -z "$verval"; then
     techo "$vervar not defined.  Cannot build."
     return 1
