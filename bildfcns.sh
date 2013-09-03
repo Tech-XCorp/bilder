@@ -6337,9 +6337,9 @@ EOF
   if test -s $BILDER_LOGDIR/versions.txt; then
     echo VERSIONS >>$SUMMARY
     cat $BILDER_LOGDIR/versions.txt >>$SUMMARY
-    cat $BILDER_LOGDIR/versions.txt | while read vline; do
-      addHtmlLine 4 "$vline" BLACK $ABSTRACT
-    done
+#    cat $BILDER_LOGDIR/versions.txt | while read vline; do
+#      addHtmlLine 4 "$vline" BLACK $ABSTRACT
+#    done
     echo >>$SUMMARY
   fi
 
