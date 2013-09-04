@@ -84,12 +84,16 @@ testCLapack_CMake() {
 # 1: the build
 #
 makeLapackf2c() {
-  cd $CONTRIB_DIR/clapack_cmake-${CLAPACK_CMAKE_BLDRVERSION}-ser/lib
+  
   case `uname` in
     CYGWIN* | MINGW*)
+      cd $CONTRIB_DIR/clapack_cmake-${CLAPACK_CMAKE_BLDRVERSION}-ser/lib
+      mv libf2c.lib f2c.lib
+      cd $CONTRIB_DIR/clapack_cmake-${CLAPACK_CMAKE_BLDRVERSION}-sermd/lib
       mv libf2c.lib f2c.lib
       ;;
   esac
+
 }
 
 installCLapack_CMake() {
