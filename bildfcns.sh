@@ -5868,7 +5868,7 @@ bilderDuInstall() {
   cd $PROJECT_DIR
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
-  techo -2 "$vervar = $verval."
+  # techo -2 "$vervar = $verval."
   # local installstrval=$1-$verval-cc4py
 
 # Wait on the build.  waitAction writes SUCCESS or FAILURE.
