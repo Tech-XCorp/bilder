@@ -12,11 +12,11 @@
 #
 ######################################################################
 
-FREETYPE_BLDRVERSION=${FREETYPE_BLDRVERSION:-"2.4.11"}
+FREETYPE_BLDRVERSION=${FREETYPE_BLDRVERSION:-"2.5.0.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
