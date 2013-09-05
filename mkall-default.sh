@@ -166,13 +166,13 @@ cat >$REDO_SCRIPT <<END
 # How to use
 usage() {
 cat >&2 <<EOF
-Usage: "\$0 [previous | default | package1,package2,...]"
+Usage: "\$0 [previous | default | pkg1,pkg2,...]"
 Arguments:
   None: Get this usage description.
-  previous:  Run the previous run:
-          $0 $redoargs
-  default:   Do the default run with no build targets
-  Or comma delimited list of packages: Build these packages instead.
+  previous: Do the previous run:
+    $0 $redoargs
+  default:  Do the default run with no build targets
+  pkg1,pkg2,...: comma delimited list of packages to build with same arguments
 EOF
 exit
 }
