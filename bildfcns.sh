@@ -4906,10 +4906,14 @@ shouldInstallTestedPkg() {
       for bld in $builds; do
         local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
         local tstsresval=`deref $tstsresvar`
-        if test -n "$tstsresval" -a "$tstsresval" != 0; then
-          techo "Not installing as $pkgname-$bld-test failed."
-          installPkg=false
-          return 1
+        if test ! $IGNORE_TEST_RESULTS; then
+          if test -n "$tstsresval" -a "$tstsresval" != 0; then
+            techo "Not installing as $pkgname-$bld-test failed."
+            installPkg=false
+            return 1
+          fi
+        else
+          techo "Ignoring test result of $pkgname-$bld."
         fi
       done
       techo "All $pkgname build tests passed."
