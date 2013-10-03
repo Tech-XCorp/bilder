@@ -166,10 +166,10 @@ cat >$REDO_SCRIPT <<END
 # How to use
 usage() {
 cat >&2 <<EOF
-Usage: "\$0 [previous | default | pkg1,pkg2,...]"
+Usage: "\$0 [previous | redo | default | pkg1,pkg2,...]"
 Arguments:
   None: Get this usage description.
-  previous: Do the previous run:
+  previous | redo: Redo the previous run:
     $0 $redoargs
   default:  Do the default run with no build targets
   pkg1,pkg2,...: comma delimited list of packages to build with same arguments
@@ -184,7 +184,7 @@ if test -z "\$1"; then
 fi
 
 # Arg is previous, just rerun
-if test "\$1" = previous; then
+if test "\$1" = previous -o "\$1" = redo; then
   cmd="$0 $redoargs"
   echo "\$cmd"
   exec \$cmd
