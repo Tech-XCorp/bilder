@@ -3225,7 +3225,14 @@ bilderUnpack() {
           if grep -q '\.\./' $BILDER_DIR/patches/$1-$verval.patch; then
             patchlev=-p1
           fi
-          (cd $BUILD_DIR/$1-$verval/$i; cmd="patch $patchlev -N <$patchval"; techo "In $PWD: $cmd"; patch $patchlev -N <$patchval >$BUILD_DIR/$1-$verval/$i/patch.out 2>&1)
+# For cr-lf endings, need to get those right and use --binary on cygwin.
+# This needed on bzip2.  Will try for all for simplicity.
+          local patchargs=-N
+          if [[ `uname` =~ CYGWIN ]]; then
+            patchargs="$patchargs --binary"
+          fi
+#
+          (cd $BUILD_DIR/$1-$verval/$i; cmd="patch $patchlev $patchargs <$patchval"; techo "In $PWD: $cmd"; patch $patchlev $patchargs <$patchval >$BUILD_DIR/$1-$verval/$i/patch.out 2>&1)
           techo "Package $1-$i patched.  Results in $BUILD_DIR/$1-$verval/$i/patch.out."
           if grep -qi fail $BUILD_DIR/$1-$verval/$i/patch.out; then
             grep -i fail $BUILD_DIR/$1-$verval/$i/patch.out | sed 's/^/WARNING: /' >$BUILD_DIR/$1-$verval/$i/patch.fail
