@@ -50,7 +50,7 @@ fi
 
 # Configure and run all tests
   if bilderPreconfig -t $forcetests txbtests; then
-    cmd="bilderConfig -i -t $forcetests txbtests all '--with-source-dir=$PROJECT_DIR/txbase --with-serial-dir=${BUILD_DIR}/txbase/ser --with-parallel-dir=${BUILD_DIR}/txbase/par --with-txutils-dir=$BLDR_INSTALL_DIR/txutils $CONFIG_SUPRA_SP_ARG $EMAIL_ARG $MPI_LAUNCHER_ARG'"
+    cmd="bilderConfig -i -t $forcetests txbtests all '--with-source-dir=$PROJECT_DIR/txbase --with-serial-dir=${BUILD_DIR}/txbase/ser --with-parallel-dir=${BUILD_DIR}/txbase/par $CONFIG_SUPRA_SP_ARG $EMAIL_ARG $MPI_LAUNCHER_ARG'"
     if eval "$cmd"; then
       local TXBTESTS_BUILD_ARGS=
       if [[ `uname` =~ CYGWIN ]]; then
