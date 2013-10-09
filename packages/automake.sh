@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-AUTOMAKE_BLDRVERSION_STD=1.12.1
-AUTOMAKE_BLDRVERSION_EXP=1.12.1
+AUTOMAKE_BLDRVERSION_STD=1.14
+AUTOMAKE_BLDRVERSION_EXP=1.14
 
 ######################################################################
 #
