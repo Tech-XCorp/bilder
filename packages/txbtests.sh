@@ -21,7 +21,7 @@
 ######################################################################
 
 TXBTESTS_BUILDS=${TXBTESTS_BUILDS:-"all"}
-TXBTESTS_DEPS=autotools,txutils
+TXBTESTS_DEPS=autotools
 TXBTESTS_TESTDATA=txbresults
 
 ######################################################################
