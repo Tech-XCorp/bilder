@@ -11,7 +11,7 @@
 
 # KEEP THIS
 if ! modulecmd bash list 2>&1 | grep PrgEnv-intel 1>/dev/null 2>&1; then
-  echo Wrong programming environment. Should be PrgEnv-gnu.
+  echo Wrong programming environment. Should be PrgEnv-intel.
   exit
 fi
 case $UQMAILHOST in

@@ -21,7 +21,7 @@
 ######################################################################
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
-NIMDEVEL_DEPS=fluxgrid,openmpi,superlu_dist,superlu,cmake,grin
+NIMDEVEL_DEPS=fluxgrid,openmpi,superlu_dist,superlu,cmake
 NIMDEVEL_UMASK=002
 
 ######################################################################
@@ -35,6 +35,11 @@ if $BUILD_DEBUG; then
 fi
 if $NIMDEVEL_SURFORIG; then
   NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS}",sersurf,parsurf"
+fi
+if $NIMDEVEL_WITH_GRIN; then
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",grin"
+  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_Grin:BOOL=TRUE"
+  NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_Grin:BOOL=TRUE"
 fi
 if $NIMDEVEL_WITH_TAU; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",metatau"
