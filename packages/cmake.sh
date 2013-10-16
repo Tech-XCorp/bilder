@@ -62,7 +62,7 @@ buildCmake() {
       local cmakever=`"$cmakepath" --version | sed 's/^cmake version //'`
       techo "$cmakepath is version $cmakever."
       case "$cmakever" in
-        2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.10.1) # Minimum version to build 2.8.9
+        2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.1?.?)
           CMAKE_CONFIG_ARGS=-c
           CONFIGURE_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
           ;;
@@ -82,8 +82,8 @@ buildCmake() {
     case `uname` in
       CYGWIN*)
         if test -z "$CMAKE_CONFIG_ARGS"; then
-          techo "WARNING: No cmake in your path."
-          techo "WARNING: Install cmake from KitWare and make sure it is found in your path before the cygwin version."
+          techo "WARNING: cmake of sufficient version not found in your path."
+          techo "WARNING: Update cmake.sh for allowed versions or install cmake from KitWare and make sure it is found in your path before the cygwin version."
           return 1
         fi
         if [[ $cmakepath =~ "^/usr/" ]]; then
