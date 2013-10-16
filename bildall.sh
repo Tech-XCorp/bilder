@@ -82,12 +82,15 @@ if test -z "$1"; then
 fi
 
 # Options
+echo "Sourcing $BILDER_DIR/bildopts.sh."
 source $BILDER_DIR/bildopts.sh
 
 # Common initializations
+echo "Sourcing $BILDER_DIR/bildinit.sh."
 source $BILDER_DIR/bildinit.sh
 
 # Build variables
+echo "Sourcing $BILDER_DIR/bildvars.sh."
 source $BILDER_DIR/bildvars.sh
 
 # Source trilinos.conf if present
@@ -97,4 +100,5 @@ then
   echo "$conffile exists. sourcing..."
   source $conffile
 fi
+
 

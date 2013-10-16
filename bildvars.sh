@@ -107,7 +107,7 @@ case `uname` in
     if which blat 1>/dev/null 2>&1; then
       SENDMAIL=blat
     fi
-    mylink=`which link`
+    mylink=$(which link)
     if test "$mylink" = /usr/bin/link; then
       techo "WARNING: Wrong link (/usr/bin/link) in path on cygwin."
       techo "WARNING: Cannot build some packages."
@@ -116,7 +116,7 @@ case `uname` in
     else
       techo "Correct link, $mylink, found."
     fi
-    mysort=`which sort`
+    mysort=$(which sort)
     if test "$mysort" != /usr/bin/sort; then
       techo "WARNING: Not using /usr/bin/sort from cygwin (found $mysort)."
       return 1
@@ -141,6 +141,16 @@ case `uname` in
         techo -2 "REPO_NODEFLIB_FLAGS = $REPO_NODEFLIB_FLAGS"
         TARBALL_NODEFLIB_FLAGS=`deref CMAKE_NODEFLIB_FLAGS_$TARBALL_BUILD_TYPE_UC`
         techo -2 "TARBALL_NODEFLIB_FLAGS = $TARBALL_NODEFLIB_FLAGS"
+        
+        # Make sure qmakespec is specified
+        if test -z "${QMAKESPECARG}"; then
+          case ${VISUALSTUDIO_VERSION} in
+            9)  QMAKESPECARG="-spec win32-msvc2008";;
+            10) QMAKESPECARG="-spec win32-msvc2010";;
+            11) QMAKESPECARG="-spec win32-msvc2012";;
+          esac
+        fi
+        QMAKE_PLATFORM_ARGS="${QMAKESPECARG}"
         ;;
       *mingw32*)
         ;;
@@ -307,8 +317,8 @@ fi
 # We may want to add version to the chain variable
 if test -z "$BILDER_CHAIN"; then
 # Compiler base name determines the BILDER_CHAIN
-  ccbase=`basename $CC .exe`
-  case `uname` in
+  ccbase=$(basename "${CC}" .exe)
+  case $(uname) in
     CYGWIN*)
       case $CC in
         *mingw*)

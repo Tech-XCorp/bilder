@@ -3967,9 +3967,9 @@ bilderConfig() {
           profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
         fi
         if [[ `uname` =~ CYGWIN ]]; then
-          profilename=`cygpath -aw $profilename`
+          profilename="$(cygpath -aw ${profilename})"
         fi
-        configargs="$configargs '$profilename'"
+        configargs="${configargs} '${profilename}'"
         ;;
       cmake)
         case `uname` in

@@ -92,8 +92,8 @@ buildQt3d() {
       local QT3D_PLATFORM_BUILD_ARGS=
       case `uname`-`uname -r` in
         Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
-        CYGWIN*) QT3D_PLATFORM_BUILD_ARGS="CXX=cl";;
-        *) QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
+        CYGWIN*)     QT3D_PLATFORM_BUILD_ARGS="CXX=$(basename "${CXX}")";;
+        *)           QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
       esac
 # During testing, do not "make clean".
       bilderBuild -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
