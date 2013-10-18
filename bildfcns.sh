@@ -1121,7 +1121,7 @@ getVersion() {
   res=$?
   if test $res != 0; then
     eval ${vervar}=unknown
-    techo "Directory $repodir does not exist.  Version is unknown.  Cannot configure."
+    techo "WARNING: Directory $repodir does not exist.  Version is unknown.  Cannot configure."
     return 1
   fi
 
