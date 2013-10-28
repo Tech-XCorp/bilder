@@ -29,7 +29,7 @@ MULASSIS_DEPS=pcre
 #
 ######################################################################
 
-addtopathvar PATH $CONTRIB_DIR/mulassis/bin
+#addtopathvar PATH $CONTRIB_DIR/mulassis/bin
 
 ######################################################################
 #
@@ -37,7 +37,7 @@ addtopathvar PATH $CONTRIB_DIR/mulassis/bin
 #
 ######################################################################
 
-buildGeant4() {
+buildMulassis() {
   if bilderUnpack mulassis; then
     bilderBuild mulassis ser
   fi
@@ -49,7 +49,7 @@ buildGeant4() {
 #
 ######################################################################
 
-testGeant4() {
+testMulassis() {
   techo "Not testing mulassis."
 }
 
@@ -59,8 +59,7 @@ testGeant4() {
 #
 ######################################################################
 
-installGeant4() {
-  bilderInstall -r mulassis ser mulassis
-  # techo exit; exit
+installMulassis() {
+  bilderInstall -r mulassis ser
 }
 
