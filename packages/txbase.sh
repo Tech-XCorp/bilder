@@ -119,6 +119,12 @@ buildTxbase() {
 
 testTxbase() {
   bilderRunTests txbase ${TXBASE_TESTNAME}
+  bilderTest txbase ser
+  bilderTest txbase sersh
+  bilderTest txbase sermd
+  bilderTest txbase par
+  bilderTest txbase parsh
+  bilderTest txbase cc4py
 }
 
 ######################################################################
