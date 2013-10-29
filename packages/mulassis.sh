@@ -21,7 +21,7 @@ MULASSIS_BLDRVERSION=${MULASSIS_BLDRVERSION:-"1.21"}
 ######################################################################
 
 MULASSIS_BUILDS=${MULASSIS_BUILDS:-"ser"}
-MULASSIS_DEPS=pcre
+MULASSIS_DEPS=geant4,pcre
 
 ######################################################################
 #
@@ -38,8 +38,11 @@ MULASSIS_DEPS=pcre
 ######################################################################
 
 buildMulassis() {
-  if bilderUnpack mulassis; then
-    bilderBuild mulassis ser
+  MULASSIS_CONFIG_METHOD=none
+  MULASSIS_SER_INSTALL_DIR=$CONTRIB_DIR
+  MULASSIS_SER_BUILD_DIR=$BUILD_DIR/mulassis-$MULASSIS_BLDRVERSION/ser
+  if bilderUnpack -i mulassis; then
+    bilderBuild mulassis ser "G4INSTALL=../../geant4-${GEANT4_BLDRVERSION}"
   fi
 }
 
@@ -60,6 +63,6 @@ testMulassis() {
 ######################################################################
 
 installMulassis() {
-  bilderInstall -r mulassis ser
+  bilderInstall mulassis ser
 }
 
