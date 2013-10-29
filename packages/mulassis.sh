@@ -41,8 +41,11 @@ buildMulassis() {
   MULASSIS_CONFIG_METHOD=none
   MULASSIS_SER_INSTALL_DIR=$CONTRIB_DIR
   MULASSIS_SER_BUILD_DIR=$BUILD_DIR/mulassis-$MULASSIS_BLDRVERSION/ser
+  G4INSTALL="$CONTRIB_DIR/geant4"
+  MULASSIS_ENV="$MULASSIS_ENV G4INSTALL='$G4INSTALL'"
+  export G4INSTALL
   if bilderUnpack -i mulassis; then
-    bilderBuild mulassis ser "G4INSTALL=../../geant4-${GEANT4_BLDRVERSION}"
+  bilderBuild mulassis ser "" "$MULASSIS_ENV"
   fi
 }
 
