@@ -49,9 +49,6 @@ fi
 # Need to do after path fixed to find python.
 PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
 # Set additional load flags if known.
-if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
-  setCc4pyAddlLdflags
-fi
 
 ######################################################################
 #
@@ -64,6 +61,9 @@ buildPython() {
   if bilderUnpack Python; then
 
 # Set up flags
+    if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
+      setCc4pyAddlLdflags
+    fi
     local pyldflags="$CC4PY_ADDL_LDFLAGS"
     local pycppflags=
     case `uname` in
