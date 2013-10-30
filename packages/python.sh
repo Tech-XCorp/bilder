@@ -48,7 +48,6 @@ fi
 # Recompute as if version unknown, previous calculation wrong
 # Need to do after path fixed to find python.
 PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
-# Set additional load flags if known.
 
 ######################################################################
 #
