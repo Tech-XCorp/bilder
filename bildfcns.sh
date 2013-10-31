@@ -2847,6 +2847,52 @@ computeMakeJ() {
 }
 
 #
+# Check for existence of a package using wget
+#
+# Args:
+# 1: url
+#
+# return by echo the name of the package
+#
+bilderWgetCheck() {
+  len=`wget -S --spider $1 2>&1 | grep -E '^ Content-Length:|^213' | tail -n1 | sed 's/ Content-Length://;s/213//'`
+  if test "$len" != 0; then
+    return 0
+  fi
+  return 1
+}
+
+#
+# Check for existence of a package using curl so that it behaves like wget
+#
+# Args:
+# 1: url
+#
+# return by echo the name of the package
+#
+bilderCurlCheck() {
+  cmd="curl -fI $1 >/dev/null"
+  echo $cmd
+  $cmd
+  return $?
+}
+
+#
+# Get a package using curl so that it behaves like wget
+#
+# Args:
+# 1: url
+#
+# return by echo the name of the package
+#
+bilderCurlGet() {
+  fname=`echo $1 | sed 's?^.*/??'`
+  cmd="curl -f -o $fname $1"
+  echo $cmd
+  $cmd
+}
+
+#
 # Get a package
 #
 # Args:
@@ -2864,60 +2910,77 @@ getPkg() {
 
 # Search for the package in all repos with all suffixes
   local tarball=
+  local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
   local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
-    # local pkgdir=$PROJECT_DIR/${PACKAGE_REPO_DIRS[$i]}
     local pkgdir=${PACKAGE_REPO_DIRS[$i]}
     local sfx
-    local sfxs=".tar.gz .tgz .tar.bz2 .tar.xz"
-    for sfx in $sfxs; do
-      local tarballbase=${1}${sfx}
-      techo "Seeking $tarballbase in $pkgdir." 1>&2
-      local tarballtry=$pkgdir/$tarballbase
-      if test -f $tarballtry; then
-        tarball=$tarballtry
-      fi
-      if $SVNUP_PKGS; then
-        techo -n "Using " 1>&2
-        case ${PACKAGE_REPO_METHODS[$i]} in
-          svn)
-            techo " svn." 1>&2
-            local pkgdiff=`svn diff $pkgdir/$tarballbase`
-            if test -n "$pkgdiff"; then
-              techo "svn diff detected for $pkgdir/$tarballbase.  Deleting file. Will check out again." 1>&2
-              rmall $pkgdir/$tarballbase
+
+# Look for the tarball to be already present
+    tarballbase=`(cd $pkgdir; ls ${1}.* 2>/dev/null)`
+
+# Determine the method if direct
+    local DIRECT_GET=
+    if $SVNUP_PKGS; then
+      techo -n "Getting packages in $pkgdir with" 1>&2
+      case ${PACKAGE_REPO_METHODS[$i]} in
+        svn)
+          techo " svn." 1>&2
+          ;;
+        direct)
+          if which wget 1>/dev/null 2>&1; then
+            DIRECT_CHECK="bilderWgetCheck"
+            DIRECT_GET="wget -N -nv"
+            techo " wget." 1>&2
+          else
+            DIRECT_CHECK="bilderCurlCheck"
+            DIRECT_GET="bilderCurlGet"
+            techo " curl." 1>&2
+          fi
+          ;;
+      esac
+    fi
+
+# Determine name if not specified
+    cd $pkgdir
+    if test -z "$tarballbase" -a $SVNUP_PKGS; then
+      case ${PACKAGE_REPO_METHODS[$i]} in
+        svn)
+          tarballbase=`bilderSvn ls | grep ${1}`
+          ;;
+        direct)
+          for sfx in $sfxs; do
+            cmd="${DIRECT_CHECK} ${PACKAGE_REPO_URLS[$i]}/${1}${sfx}"
+            techo "$cmd" 1>&2
+            if $cmd 1>&2; then
+              tarballbase=${1}${sfx}
+              break
             fi
-            (cd $pkgdir; bilderSvn up $tarballbase) 1>&2
-            ;;
-          direct)
-# Determine whether to use wget or curl
-            local DIRECT_METHOD=
-            if which wget 1>/dev/null 2>&1; then
-              DIRECT_METHOD="wget -N -nv"
-              techo " wget." 1>&2
-            else
-              DIRECT_METHOD="curl -f -o $tarballbase"
-              techo " curl." 1>&2
-            fi
-            cd $pkgdir
-            if ! test -f $tarballbase; then
-              cmd="${DIRECT_METHOD} ${PACKAGE_REPO_URLS[$i]}/$tarballbase"
-              techo "$cmd" 1>&2
-              $cmd 1>&2
-            fi
-            cd - 1>/dev/null 2>&1
-            ;;
-        esac
-      fi
-      if test -f $tarballtry; then
-        techo "$tarballbase found." 1>&2
-        tarball=$tarballtry
-        tarballbase=`basename $tarballtry`
-        pkgsandpatches="$pkgsandpatches $tarballbase"
-        break
-      else
-        techo "$tarballbase not found." 1>&2
-      fi
-    done
+          done
+          ;;
+      esac
+    fi
+
+# Now get package
+    if test -n "$tarballbase" -a $SVNUP_PKGS; then
+      case ${PACKAGE_REPO_METHODS[$i]} in
+        svn) bilderSvn up $tarballbase 1>&2;;
+        direct)
+          cmd="${DIRECT_GET} ${PACKAGE_REPO_URLS[$i]}/${1}${sfx}"
+          techo "$cmd" 1>&2
+          $cmd 1>&2
+          ;;
+      esac
+    fi
+
+# Check for tarball
+    if test -f $pkgdir/$tarballbase; then
+      techo "$tarballbase found." 1>&2
+      tarball=$pkgdir/$tarballbase
+      pkgsandpatches="$pkgsandpatches $tarballbase"
+    else
+      techo "$tarballbase not found." 1>&2
+    fi
+
     if test -n "$tarball"; then
       break
     fi
@@ -3245,8 +3308,8 @@ bilderUnpack() {
     else
       rmall $1-$verval/*
       techo "Unpacking for all builds in $PWD."
-      if test ! -f  $tarball; then
-        TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack. Tarball$tarball did not show up."
+      if test ! -f "$tarball"; then
+        TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack. Tarball, $tarball, did not show up."
         cleanup
       fi
       cmd="$pretar $tarball | $TAR -xf -"
