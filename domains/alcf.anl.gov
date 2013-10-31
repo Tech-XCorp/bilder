@@ -59,24 +59,21 @@ setBilderHostVars() {
     echo "PROJECT_INSTALL_SUBDIR not set.  Quitting."
     exit 1
   fi
-  INSTALL_ROOTDIR=/project/projectdirs/$PROJECT_INSTALL_SUBDIR/$build_host
+  INSTALL_ROOTDIR=/home/projects/$PROJECT_INSTALL_SUBDIR/$UQMAILHOST/$build_host
   PROJECT_CONTRIB_SUBDIR=${PROJECT_CONTRIB_SUBDIR:-"$PROJECT_INSTALL_SUBDIR"}
-  CONTRIB_ROOTDIR=/home/projects/$PROJECT_CONTRIB_SUBDIR/$build_host
+  CONTRIB_ROOTDIR=/home/projects/$PROJECT_CONTRIB_SUBDIR/$UQMAILHOST/$build_host
   USERINST_ROOTDIR=$INSTALL_ROOTDIR/$USER/$machinedir
 
 # Set the build directory
-  if test -n "$GSCRATCH"; then
-    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH"}
-  elif test -n "$SCRATCH"; then
-    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH"}
-  fi
-  BUILD_ROOTDIR=$BUILD_ROOTDIR/builds-${UQHOSTNAME}-$compkey
+  BUILD_ROOTDIR=/scratch/$USER
+  BUILD_ROOTDIR=$BUILD_ROOTDIR/builds-${UQMAILHOST}-$compkey
+  # BUILD_ROOTDIR=$BUILD_ROOTDIR/builds-$compkey
 
 # Add to BILDER_ARGS
-  BILDER_ADDL_ARGS=-P
+  # BILDER_ADDL_ARGS=-P
 
 # Set machine file
-  MACHINEFILE=${MACHINEFILE:-"bgp.xlc"};;
+  MACHINEFILE=${MACHINEFILE:-"bgp.xlc"}
 
 }
 

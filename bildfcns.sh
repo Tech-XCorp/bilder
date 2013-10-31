@@ -645,7 +645,9 @@ checkDirWritable() {
     if $exitonfailure; then
       techo "Quitting."
       emailerror "Cannot write to $dir."
-      usage 1
+      if declare -f usage >/dev/null 2>&1; then
+        usage 1
+      fi
       exit
     fi
   fi
