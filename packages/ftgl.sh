@@ -37,30 +37,37 @@ FTGL_UMASK=002
 ######################################################################
 
 buildFtgl() {
-  if bilderUnpack ftgl; then
-    local ftconfigtype=
-    case `uname` in
-      CYGWIN*) ftconfigtype=-c
-    esac
-    local freetype_rootdir=`findFreetypeRootdir`
-    if test -z "$freetype_rootdir"; then
-      techo "WARNING: [ftgl.sh] Could not find freetype."
-    fi
-    techo "freetype_rootdir $freetype_rootdir"
-    local ftconfigargs=
-    local ftconfigenv=
-    if test -z "$ftconfigtype"; then
-      ftconfigargs="--enable-shared --without-x"
-      if test -n "$freetype_rootdir"; then
-        ftconfigargs="$ftconfigargs --with-ft-prefix=$freetype_rootdir"
-      fi
+  if ! bilderUnpack ftgl; then
+    return
+  fi
+# Moving to cmake all the time
+  local ftconfigtype=-c
+  case `uname` in
+    CYGWIN*) ftconfigtype=-c
+  esac
+  local freetype_rootdir=`findFreetypeRootdir`
+  if test -z "$freetype_rootdir"; then
+    techo "NOTE: [ftgl.sh] Could not find a system freetype. Will look in $CONTRIB_DIR."
+    if test -e $CONTRIB_DIR/freetype-sersh; then
+      freetype_rootdir=`(cd $CONTRIB_DIR/freetype-sersh; pwd -P)`
     else
-      ftconfigargs="-DBUILD_SHARED_LIBS:BOOL=TRUE"
-      ftconfigenv="FREETYPE_DIR=$freetype_rootdir"
+      techo "WARNING: [ftgl.sh] Could not find a freetype in $CONTRIB_DIR."
     fi
-    if bilderConfig $ftconfigtype ftgl $FTGL_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
-      bilderBuild ftgl $FTGL_BUILD "" "ECHO=echo"
+  fi
+  techo "freetype_rootdir = $freetype_rootdir."
+  local ftconfigargs=
+  local ftconfigenv=
+  if test -z "$ftconfigtype"; then
+    ftconfigargs="--enable-shared --without-x"
+    if test -n "$freetype_rootdir"; then
+      ftconfigargs="$ftconfigargs --with-ft-prefix=$freetype_rootdir"
     fi
+  else
+    ftconfigargs="-DBUILD_SHARED_LIBS:BOOL=TRUE"
+    ftconfigenv="FREETYPE_DIR=$freetype_rootdir"
+  fi
+  if bilderConfig $ftconfigtype ftgl $FTGL_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
+    bilderBuild ftgl $FTGL_BUILD "" "ECHO=echo"
   fi
 }
 
