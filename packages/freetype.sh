@@ -16,14 +16,53 @@ FREETYPE_BLDRVERSION=${FREETYPE_BLDRVERSION:-"2.5.0.1"}
 
 ######################################################################
 #
+# Find freetype.  This should not look in /contrib, as if there,
+#  rebuilding will depend on whether it is out of date.
+#
+######################################################################
+
+findFreetypeRootdir() {
+  local ftdir=
+  for bld in sersh sermd; do
+    if test -e $CONTRIB_DIR/freetype-$bld; then
+      ftdir=`(cd $CONTRIB_DIR/freetype-$bld; pwd -P)`
+      break
+    fi
+  done
+# OSX puts freetype under the X11 location, which may be in more than one place.
+  if test -z "$ftdir"; then
+    for dir in /opt/X11 /usr/X11R6 /opt/homebrew; do
+      if test -d $dir/include/freetype2; then
+        ftdir=$dir
+        break
+      fi
+    done
+  fi
+  if test -n "$ftdir" && [[ `uname` =~ CYGWIN ]]; then
+    ftdir=`cygpath -am $ftdir`
+  fi
+  echo $ftdir
+}
+
+######################################################################
+#
 # Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 # freetype generally needed on windows
-if [[ `uname` =~ CYGWIN ]]; then
-  FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-  computeBuilds freetype
+case `uname` in
+  CYGWIN*) FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"};;
+  Linux)
+    ftdir=`findFreetypeRootdir`
+    if test -z "$ftdir"; then
+      techo "System freetype not found.  Will build."
+      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+    fi
+    ;;
+esac
+computeBuilds freetype
+if test -n "$FREETYPE_BUILDS"; then
   addCc4pyBuild freetype
 fi
 FREETYPE_DEPS=
@@ -113,34 +152,5 @@ installFreetype() {
   done
   # techo "Quitting at end of freetype.sh."; exit
 
-}
-
-######################################################################
-#
-# Find freetype
-#
-######################################################################
-
-findFreetypeRootdir() {
-  local ftdir=
-  for bld in sersh sermd; do
-    if test -e $CONTRIB_DIR/freetype-$bld; then
-      ftdir=`(cd $CONTRIB_DIR/freetype-$bld; pwd -P)`
-      break
-    fi
-  done
-# OSX puts freetype under the X11 location, which may be in more than one place.
-  if test -z "$ftdir"; then
-    for dir in /opt/X11 /usr/X11R6 /opt/homebrew; do
-      if test -d $dir/include/freetype2; then
-        ftdir=$dir
-        break
-      fi
-    done
-  fi
-  if test -n "$ftdir" && [[ `uname` =~ CYGWIN ]]; then
-    ftdir=`cygpath -am $ftdir`
-  fi
-  echo $ftdir
 }
 
