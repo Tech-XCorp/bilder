@@ -23,9 +23,9 @@
 # uedge-nopetsc has to be built "parallel" even though it is serial to
 #   use the same hdf5 libs as facets.  We are dropping this case.
 # vorpal is fully building.
-cmd="svn up $PROJECT_DIR/numpkgs/Toolchain-BlueGeneP-mpixl.cmake"
-techo "$cmd"
-$cmd
+# cmd="svn up $PROJECT_DIR/numpkgs/Toolchain-BlueGeneP-mpixl.cmake"
+# techo "$cmd"
+# $cmd
 cmd="mkdir -p /scratch/$USER/tmp"
 techo "$cmd"
 $cmd
@@ -34,6 +34,9 @@ techo "$cmd"
 $cmd
 # FACETS built only parallel as cannot build serial petsc.
 case $UQMAILHOST in
+  challenger)
+    techo "Be sure to use the system cmake, which has the BlueGeneP-xxx files."
+    ;;
   surveyor)
     techo "BlueGeneP-static is not available on surveyor."
     ;;
@@ -43,6 +46,7 @@ case $UQMAILHOST in
 esac
 USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
 USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
+USE_CONTRIB_LAPACK=true    # Use lapack built in contrib if no system version.
 
 # Make sure we have the XL mpi.mod, as the one in
 # /bgsys/drivers/V1R4M2_200_2010-100508P/ppc/comm/default/include
@@ -456,7 +460,7 @@ HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF"}
 # JSMATH_CC4PY_OTHER_ARGS=${JSMATH_CC4PY_OTHER_ARGS:-""}
 
 # LAPACK_BLDRVERSION=${LAPACK_BLDRVERSION:-""}
-# LAPACK_BUILDS=${LAPACK_BUILDS:-""}
+LAPACK_BUILDS=${LAPACK_BUILDS:-"ser,cc4py"}
 # LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-""}
 # LAPACK_CC4PY_OTHER_ARGS=${LAPACK_CC4PY_OTHER_ARGS:-""}
 # LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-""}
@@ -838,12 +842,12 @@ PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-"--enable-static"}
 # SUNDIALS_SER_OTHER_ARGS=${SUNDIALS_SER_OTHER_ARGS:-""}
 
 # SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-""}
-# SUPERLU_BUILDS=${SUPERLU_BUILDS:-""}
+SUPERLU_BUILDS=${SUPERLU_BUILDS:-"ser"}
 # SUPERLU_SER_OTHER_ARGS=${SUPERLU_SER_OTHER_ARGS:-""}
 # SUPERLU_SERSH_OTHER_ARGS=${SUPERLU_SERSH_OTHER_ARGS:-""}
 
 # SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-""}
-# SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-""}
+SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"ben"}
 # SUPERLU_DIST_PAR_OTHER_ARGS=${SUPERLU_DIST_PAR_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMMSH_OTHER_ARGS=${SUPERLU_DIST_PARCOMMSH_OTHER_ARGS:-""}
