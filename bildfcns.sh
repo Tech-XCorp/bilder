@@ -2847,19 +2847,24 @@ computeMakeJ() {
 }
 
 #
-# Check for existence of a package using wget
+# Check for existence of a url using wget
 #
 # Args:
 # 1: url
 #
-# return by echo the name of the package
+# return whether url exists
 #
 bilderWgetCheck() {
-  len=`wget -S --spider $1 2>&1 | grep -E '^ Content-Length:|^213' | tail -n1 | sed 's/ Content-Length://;s/213//'`
-  if test "$len" != 0; then
-    return 0
+  wget -S --spider $1 1>/tmp/wgettmp.txt 2>&1
+  local res=$?
+  if test $res = 0; then
+    local len=`grep 'Content-Length:' /tmp/wgettmp.txt | sed -e 's/^ *Content-Length:*//'`
+    techo -2 "$1 has length, $len."
+  else
+    techo -2 "$1 not found."
   fi
-  return 1
+  rm -f /tmp/wgettmp.txt
+  return $res
 }
 
 #
