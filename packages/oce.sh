@@ -73,11 +73,20 @@ buildOce() {
     OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
   fi
 
-# Determine other configure args
+# Find freetype
   if ! declare -f findFreetypeRootdir 1>/dev/null 2>&1; then
     source $BILDER_DIR/packages/freetype.sh
   fi
   local freetype_rootdir=`findFreetypeRootdir`
+# Find ftgl
+  local ftgl_rootdir=
+  if test -e $CONTRIB_DIR/ftgl-sersh; then
+    ftgl_rootdir=`(cd $CONTRIB_DIR/ftgl-sersh; pwd -P)`
+    if [[ `uname` =~ CYGWIN ]]; then
+      ftgl_rootdir=`cygpath -am $ftgl_rootdir`
+    fi
+  fi
+# Set other args, env
   local OCE_ENV=
   if test -n "$freetype_rootdir"; then
     OCE_ENV="FREETYPE_DIR=$freetype_rootdir"
@@ -87,19 +96,25 @@ buildOce() {
       ;;
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
+# Cannot disable X11 or will not build TKMeshVS, which is needed
+# for salomesh in freecad.
+if false; then
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
+fi
       ;;
     Linux)
       # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
       # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_VISUALISATION:BOOL=ON"
+      if test ! -e /usr/lib64/libXmu.so -a ! -e /usr/lib/libXmu.so; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
+      fi
       ;;
   esac
-# Cannot disable X11 or will not build TKMeshVS, which is needed
-# for salomesh in freecad.
-if false; then
-  case `uname` in
-    Darwin) OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE";;
-  esac
-fi
+
+# Add in ftgl location
+  if test -n "$ftgl_rootdir"; then
+    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_ROOT_DIR:PATH=$ftgl_rootdir"
+  fi
 
 # OCE does not have all dependencies right, so needs nmake
   local buildargs=

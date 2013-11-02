@@ -45,11 +45,13 @@ buildFtgl() {
   case `uname` in
     CYGWIN*) ftconfigtype=-c
   esac
+# Find freetype
   local freetype_rootdir=`findFreetypeRootdir`
   if test -z "$freetype_rootdir"; then
     techo "WARNING: [ftgl.sh] Could not find freetype."
   fi
   techo "freetype_rootdir = $freetype_rootdir."
+# Set options
   local ftconfigargs=
   local ftconfigenv=
   if test -z "$ftconfigtype"; then
