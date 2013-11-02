@@ -58,91 +58,100 @@ buildBoost() {
   esac
 
 # Process
-  if bilderUnpack -i boost; then
+  if ! bilderUnpack -i boost; then
+    return
+  fi
 
 # Determine the toolset
-    local toolsetarg_ser=
-    local toolsetarg_cc4py=
-    case `uname`-`uname -r` in
-      CYGWIN*-WOW64*)
-        toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
-        ;;
-      CYGWIN-*) ;;
-      Darwin-12.*)
+  local toolsetarg_ser=
+  local toolsetarg_cc4py=
+  case `uname`-`uname -r` in
+    CYGWIN*-WOW64*)
+      toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+      ;;
+    CYGWIN-*) ;;
+    Darwin-12.*)
 # Clang works for g++ as well on Darwin-12
-        toolsetarg_ser="toolset=clang"
-        ;;
-      Darwin-*)
-        case $CXX in
-          *clang++) toolsetarg_ser="toolset=clang";;
-          *g++) ;;
-        esac
-        ;;
-      Linux-*)
-        toolsetarg_cc4py="toolset=gcc"
-        case $CXX in
-          *g++) ;;
-          *icpc) toolsetarg_ser="toolset=intel";;
-          *pgCC) toolsetarg_ser="toolset=pgi";;
-        esac
-        ;;
-    esac
-    toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
+      toolsetarg_ser="toolset=clang"
+      ;;
+    Darwin-*)
+      case $CXX in
+        *clang++) toolsetarg_ser="toolset=clang";;
+        *g++) ;;
+      esac
+      ;;
+    Linux-*)
+      toolsetarg_cc4py="toolset=gcc"
+      case $CXX in
+        *g++) ;;
+        *icpc) toolsetarg_ser="toolset=intel";;
+        *pgCC) toolsetarg_ser="toolset=pgi";;
+        *xlC) toolsetarg_ser="toolset=vacpp";;
+      esac
+      ;;
+  esac
+  toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
-    local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
-    local staticlinkargs="link=static"
-    local sharedlinkargs="link=shared"
-    local sermdlinkargs="link=static"  # Not yet used, but this should be right
-    if [[ `uname` =~ CYGWIN ]]; then
-      staticlinkargs="runtime-link=static $staticlinkargs"
-      sharedlinkargs="runtime-link=shared $sharedlinkargs"
-      sermdlinkargs="runtime-link=shared $sermdlinkargs"
-    fi
-    case `uname` in
-      CYGWIN*-WOW64*)
-        BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
-        ;;
-    esac
+  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
+  local staticlinkargs="link=static"
+  local sharedlinkargs="link=shared"
+  local sermdlinkargs="link=static"  # Not yet used, but this should be right
+  if [[ `uname` =~ CYGWIN ]]; then
+    staticlinkargs="runtime-link=static $staticlinkargs"
+    sharedlinkargs="runtime-link=shared $sharedlinkargs"
+    sermdlinkargs="runtime-link=shared $sermdlinkargs"
+  fi
+  case `uname` in
+    CYGWIN*-WOW64*)
+      BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
+      ;;
+  esac
 # Only the shared and cc4py build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags.  For simplicity, use for all.
-    BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
-    BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
-    BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
+  BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
+  BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
 # When that is done, the below will be needed.
 if false; then
-    for bld in `echo BOOST_BUILDS | sed 's/,/ /'`; do
-      local addlargsvar=`genbashvar BOOST_$bld`_ADDL_ARGS
-      local addlargsval=`deref $addlargsvar`
-      eval $addlargsvar="--build-dir=$bld --stagedir=$bld/stage $addlargsval"
-    done
+  for bld in `echo BOOST_BUILDS | sed 's/,/ /'`; do
+    local addlargsvar=`genbashvar BOOST_$bld`_ADDL_ARGS
+    local addlargsval=`deref $addlargsvar`
+    eval $addlargsvar="--build-dir=$bld --stagedir=$bld/stage $addlargsval"
+  done
 fi
 
-    if bilderConfig -i boost ser; then
+  if bilderConfig -i boost ser; then
 # In-place build, so done now
-      cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-      techo "$cmd"
-      eval "$cmd"
-      bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
-    fi
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
+    bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
+  fi
 
-    if bilderConfig -i boost sersh; then
+  if bilderConfig -i boost sersh; then
 # In-place build, so done now
-      cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-      techo "$cmd"
-      eval "$cmd"
-      bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
-    fi
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
+    bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
+  fi
 
-    if bilderConfig -i boost cc4py; then
+  if bilderConfig -i boost cc4py; then
 # In-place build, so done now
-      cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-      techo "$cmd"
-      eval "$cmd"
-      bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
-    fi
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
+    bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
+  fi
 
+  if bilderConfig -i boost ben; then
+# In-place build, so done now
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
+    bilderBuild -m ./b2 boost ben "$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS stage"
   fi
 
 }
@@ -179,6 +188,7 @@ installBoost() {
       ser) instargs="$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS";;
       sersh) sfx=-sersh; instargs="$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS";;
       cc4py) sfx=-cc4py; instargs="$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS";;
+      ben) sfx=-cc4py; instargs="$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS";;
     esac
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
