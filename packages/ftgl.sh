@@ -47,12 +47,7 @@ buildFtgl() {
   esac
   local freetype_rootdir=`findFreetypeRootdir`
   if test -z "$freetype_rootdir"; then
-    techo "NOTE: [ftgl.sh] Could not find a system freetype. Will look in $CONTRIB_DIR."
-    if test -e $CONTRIB_DIR/freetype-sersh; then
-      freetype_rootdir=`(cd $CONTRIB_DIR/freetype-sersh; pwd -P)`
-    else
-      techo "WARNING: [ftgl.sh] Could not find a freetype in $CONTRIB_DIR."
-    fi
+    techo "WARNING: [ftgl.sh] Could not find freetype."
   fi
   techo "freetype_rootdir = $freetype_rootdir."
   local ftconfigargs=

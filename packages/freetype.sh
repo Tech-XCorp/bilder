@@ -16,19 +16,34 @@ FREETYPE_BLDRVERSION=${FREETYPE_BLDRVERSION:-"2.5.0.1"}
 
 ######################################################################
 #
-# Find freetype.  This should not look in /contrib, as if there,
-#  rebuilding will depend on whether it is out of date.
+# Find freetype.
+#
+# Named args (must come first):
+# -s  Look in system directories only
 #
 ######################################################################
 
 findFreetypeRootdir() {
-  local ftdir=
-  for bld in sersh sermd; do
-    if test -e $CONTRIB_DIR/freetype-$bld; then
-      ftdir=`(cd $CONTRIB_DIR/freetype-$bld; pwd -P)`
-      break
-    fi
+# Parse options
+  set -- "$@"
+  OPTIND=1
+  local SYSTEM_ONLY=false
+  while getopts "s" arg; do
+    case $arg in
+      s) SYSTEM_ONLY=true;;
+    esac
   done
+  shift $(($OPTIND - 1))
+# Look for freetype in contrib
+  if ! $SYSTEM_ONLY; then
+    local ftdir=
+    for bld in sersh sermd; do
+      if test -e $CONTRIB_DIR/freetype-$bld; then
+        ftdir=`(cd $CONTRIB_DIR/freetype-$bld; pwd -P)`
+        break
+      fi
+    done
+  fi
 # OSX puts freetype under the X11 location, which may be in more than one place.
   if test -z "$ftdir"; then
     for dir in /opt/X11 /usr/X11R6 /opt/homebrew; do
@@ -53,8 +68,9 @@ findFreetypeRootdir() {
 # freetype generally needed on windows
 case `uname` in
   CYGWIN*) FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"};;
-  Linux)
-    ftdir=`findFreetypeRootdir`
+  Darwin | Linux)
+# Build on Linux or Darwin only if not found in system
+    ftdir=`findFreetypeRootdir -s`
     if test -z "$ftdir"; then
       techo "System freetype not found.  Will build."
       FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
@@ -70,47 +86,39 @@ FREETYPE_UMASK=002
 
 ######################################################################
 #
-# Add to path
-#
-######################################################################
-
-# addtopathvar PATH $CONTRIB_DIR/freetype/bin
-
-######################################################################
-#
 # Launch freetype builds.
 #
 ######################################################################
 
 buildFreetype() {
 
-  if bilderUnpack freetype; then
+  if ! bilderUnpack freetype; then
+    return
+  fi
 
 # For cygwin, get zlib version
-    local FREETYPE_ADDL_ARGS=
-    local FREETYPE_MAKE_ARGS=
-    case `uname` in
-      CYGWIN*)
-        if test -z "$ZLIB_BLDRVERSION"; then
-          source $BILDER_DIR/packages/zlib.sh
-        fi
-        if test -z "$LIBPNG_BLDRVERSION"; then
-          source $BILDER_DIR/packages/libpng.sh
-        fi
-        FREETYPE_SERSH_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/lib/zlib.lib"
-        FREETYPE_CC4PY_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-cc4py/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-cc4py/lib/zlib.lib"
-        FREETYPE_MAKE_ARGS="-m nmake"
-        ;;
-    esac
+  local FREETYPE_ADDL_ARGS=
+  local FREETYPE_MAKE_ARGS=
+  case `uname` in
+    CYGWIN*)
+      if test -z "$ZLIB_BLDRVERSION"; then
+        source $BILDER_DIR/packages/zlib.sh
+      fi
+      if test -z "$LIBPNG_BLDRVERSION"; then
+        source $BILDER_DIR/packages/libpng.sh
+      fi
+      FREETYPE_SERSH_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/lib/zlib.lib"
+      FREETYPE_CC4PY_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-cc4py/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-cc4py/lib/zlib.lib"
+      FREETYPE_MAKE_ARGS="-m nmake"
+      ;;
+  esac
 
 # cc4py always built shared
-    if bilderConfig -c freetype cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_CC4PY_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-      bilderBuild $FREETYPE_MAKE_ARGS freetype cc4py "" "$DISTUTILS_NOLV_ENV"
-    fi
-    if bilderConfig -c freetype sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_SERSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-      bilderBuild $FREETYPE_MAKE_ARGS freetype sersh "" "$DISTUTILS_NOLV_ENV"
-    fi
-
+  if bilderConfig -c freetype cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_CC4PY_OTHER_ARGS"; then
+    bilderBuild $FREETYPE_MAKE_ARGS freetype cc4py
+  fi
+  if bilderConfig -c freetype sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_SERSH_OTHER_ARGS"; then
+    bilderBuild $FREETYPE_MAKE_ARGS freetype sersh
   fi
 
 }
