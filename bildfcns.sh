@@ -2978,6 +2978,7 @@ getPkg() {
     fi
 
 # Check for tarball
+    techo -2 "Looking for $pkgdir/$tarballbase." 1>&2
     if test -f $pkgdir/$tarballbase; then
       techo "$tarballbase found." 1>&2
       tarball=$pkgdir/$tarballbase
@@ -2993,7 +2994,7 @@ getPkg() {
   done
 
 # Not found
-  if test -z $tarball; then
+  if test -z "$tarball"; then
     TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No ${1} tarball of any compression appeared.  Network okay?"
     cleanup
   fi
