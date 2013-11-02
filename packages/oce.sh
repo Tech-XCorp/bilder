@@ -78,7 +78,8 @@ buildOce() {
     source $BILDER_DIR/packages/freetype.sh
   fi
   local freetype_rootdir=`findFreetypeRootdir`
-# Find ftgl
+# Find ftgl: NO LONGER NEEDED
+if false; then
   local ftgl_rootdir=
   if test -e $CONTRIB_DIR/ftgl-sersh; then
     ftgl_rootdir=`(cd $CONTRIB_DIR/ftgl-sersh; pwd -P)`
@@ -86,6 +87,7 @@ buildOce() {
       ftgl_rootdir=`cygpath -am $ftgl_rootdir`
     fi
   fi
+fi
 # Set other args, env
   local OCE_ENV=
   if test -n "$freetype_rootdir"; then
@@ -111,10 +113,12 @@ fi
       ;;
   esac
 
-# Add in ftgl location
+# Add in ftgl location.  NO LONGER NEEDED.
+if false; then
   if test -n "$ftgl_rootdir"; then
     OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_ROOT_DIR:PATH=$ftgl_rootdir"
   fi
+fi
 
 # OCE does not have all dependencies right, so needs nmake
   local buildargs=
