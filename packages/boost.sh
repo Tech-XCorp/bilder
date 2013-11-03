@@ -86,7 +86,7 @@ buildBoost() {
         *g++) ;;
         *icpc) toolsetarg_ser="toolset=intel";;
         *pgCC) toolsetarg_ser="toolset=pgi";;
-        *xlC) toolsetarg_ser="toolset=vacpp";;
+        *xlC | *xlC_r) toolsetarg_ser="toolset=vacpp";;
       esac
       ;;
   esac
@@ -112,6 +112,7 @@ buildBoost() {
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
   BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
+  BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
 # When that is done, the below will be needed.
 if false; then
