@@ -21,12 +21,7 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 ######################################################################
 
 # Only the python build needed.
-# if [[ `uname` =~ CYGWIN ]]; then
-  # FTGL_BUILD=sermd
-# else
-  FTGL_BUILD=$FORPYTHON_BUILD
-# fi
-FTGL_BUILDS=${FTGL_BUILDS:-"$FTGL_BUILD"}
+FORPYTHON_BUILDS=${FORPYTHON_BUILDS:-"$FORPYTHON_BUILD"}
 FTGL_DEPS=freetype
 FTGL_UMASK=002
 
@@ -63,8 +58,8 @@ buildFtgl() {
     ftconfigargs="-DBUILD_SHARED_LIBS:BOOL=TRUE"
     ftconfigenv="FREETYPE_DIR=$freetype_rootdir"
   fi
-  if bilderConfig $ftconfigtype ftgl $FTGL_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
-    bilderBuild ftgl $FTGL_BUILD "" "ECHO=echo"
+  if bilderConfig $ftconfigtype ftgl $FORPYTHON_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
+    bilderBuild ftgl $FORPYTHON_BUILD "" "ECHO=echo"
   fi
 }
 
@@ -85,7 +80,7 @@ testFtgl() {
 ######################################################################
 
 installFtgl() {
-  bilderInstall ftgl $FTGL_BUILD "" "" "ECHO=echo"
+  bilderInstall ftgl $FORPYTHON_BUILD "" "" "ECHO=echo"
   # techo "Quitting at the end of ftgl.sh."; exit
 }
 
