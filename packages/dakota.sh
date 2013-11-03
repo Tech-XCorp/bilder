@@ -28,7 +28,7 @@ fi
 ######################################################################
 
 DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
-DAKOTA_DEPS=trilinos,boost
+DAKOTA_DEPS=trilinos,boostdevel
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 ######################################################################
@@ -95,7 +95,11 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 # SEK: Not sure this is the best
 # --without-graphics
 # SWS: adding boost include explicitly
-DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boost/include"
+DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boostdevel/include"
+
+techo " "
+techo "Setting MPI_LIBRARY explicitly to openmpi"
+techo " "
 
 case `uname` in
     CYGWIN* | Darwin) DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib";;

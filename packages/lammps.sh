@@ -22,7 +22,7 @@ LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 
 LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
-LAMMPS_DEPS=fftw,fftw3,gsl,openmpi,votca_tools,votca_csg
+LAMMPS_DEPS=fftw,fftw3,gsl,openmpi,votca_csg,votca_csg_tutorials,moltemplate
 
 # These targets are not needed, but the flags below are
 # expecting the setup in these files
@@ -52,7 +52,8 @@ buildLammps() {
 
   # Par flags (check mpi version) ( CC/LINK is defined by lammps make system)
   techo "----- Note: check MPI_INC and MPI_PATH vars ------------------"
-  LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICXX"
+  LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICXX \
+                        CCFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK' LINKFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK'"
   LAMMPS_PAR_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
                    FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' \
                    FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi' \
@@ -60,6 +61,7 @@ buildLammps() {
   #                MPI_INC='-I$CONTRIB_DIR/openmpi/include'
   #                MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
+
 
   # Status
   techo "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
@@ -216,9 +218,12 @@ putLammps() {
   else
       LAMMPS_INSTTARG="lmp_mac_mpi"
       cmd="cp -R $builddir/$LAMMPS_INSTTARG $LAMMPS_INSTALL_DIR/bin/lammps"
+      lncmd="ln -s ./lammps ./lmp"
   fi
   techo -2 "$cmd"
   $cmd
+  techo -2 "$lncmd"
+  $lncmd
   echo "Default is to copy executable into $LAMMPS_INSTALL_DIR/bin"
 
   # Register install

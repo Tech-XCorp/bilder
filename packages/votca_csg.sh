@@ -13,7 +13,8 @@
 ######################################################################
 
 # This is the revision number from the Mercurial repo
-VOTCA_CSG_BLDRVERSION=${VOTCA_CSG_BLDRVERSION:-"r583"}
+# VOTCA_CSG_BLDRVERSION=${VOTCA_CSG_BLDRVERSION:-"r2134"}
+VOTCA_CSG_BLDRVERSION=${VOTCA_CSG_BLDRVERSION:-"r2135"}
 
 ######################################################################
 #
@@ -22,24 +23,7 @@ VOTCA_CSG_BLDRVERSION=${VOTCA_CSG_BLDRVERSION:-"r583"}
 ######################################################################
 
 VOTCA_CSG_BUILDS=${VOTCA_CSG_BUILDS:-"ser"}
-VOTCA_CSG_DEPS=fftw3,boost,gsl
-
-# addtopathvar PATH $CONTRIB_DIR/votca_csg/bin
-
-######################################################################
-#
-# Common arguments to find stuff or to simplify the builds
-# See notes at the end
-#
-######################################################################
-
-# 
-VOTCA_CSG_ADDL_ARGS="-DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boost/include"
-
-#case `uname` in
-#    CYGWIN* | Darwin) VOTCA_CSG_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib";;
-#    Linux)            VOTCA_CSG_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpicxx.a";;
-#esac
+VOTCA_CSG_DEPS=boost,votca_tools,cmake
 
 ######################################################################
 #
@@ -50,20 +34,37 @@ buildVotca_Csg() {
 
   # Setting non-optional dependencies
   VOTCA_CSG_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG"
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boost/include"
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DWITH_FFTW=ON  -DWITH_GSL=ON"
 
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DFFTW3_INCLUDE_DIR:PATH='$CONTRIB_DIR/fftw3/include'"
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DFFTW3_LIBRARY:FILEPATH='$CONTRIB_DIR/fftw3/lib/libfftw3.a'"
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DGSL_INCLUDE_DIR:PATH='$CONTRIB_DIR/gsl/include'"
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DGSL_LIBRARY:FILEPATH='$CONTRIB_DIR/gsl/lib/libgsl.a'"
+  # Turning off gromacs support (because no gromacs part of bilder)
+  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DWITH_GMX=OFF"
 
-  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DEXPAT_INCLUDE_DIR:PATH='$CONTRIB_DIR/expat/include'"
+  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_INCLUDE_DIR:PATH='$CONTRIB_DIR/votca_tools-ser/include'"
   case `uname` in
-      CYGWIN* | Darwin) VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
-      Linux)            VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.a'"
+      CYGWIN* | Darwin)
+	  # lib path needed because a built executable is called as part of build
+	  export DYLD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$DYLD_LIBRARY_PATH
+	  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.dylib'" ;;
+      Linux)
+	  export LD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$DYLD_LIBRARY_PATH
+	  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.so'" ;;
   esac
 
+  #
+  # Votca cmake modules will corrupt lib finding if another boost is found
+  # Fixing this on Peregrine through machine file
+  # 
+  if [[ -z $BOOST_INCLUDEDIR ]]; then
+      techo -2 "BOOST_INCLUDEDIR enviroment var is unset. Will set BOOST_ROOT"
+      VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost"
+  else
+      VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS BOOST_INCLUDEDIR=$CONTRIB_DIR/boost/include"
+      VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS BOOST_LIBRARYDIR=$CONTRIB_DIR/boost/lib"
+      techo -2 "BOOST_INCLUDEDIR enviroment var is set. Assuming BOOST_LIBRARYDIR is set."
+  fi
+
+  #
+  # Main build command
+  #
   if bilderUnpack votca_csg; then
 
     # Serial build
