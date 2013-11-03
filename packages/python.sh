@@ -67,8 +67,8 @@ buildPython() {
     local pycppflags=
     case `uname` in
       Linux)
-# Ensure python can find its own library
-        pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib"
+# Ensure python can find its own library and any libraries linked into contrib
+        pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
 	if cd $CONTRIB_DIR/sqlite; then
           local preswd=`pwd -P`
           pyldflags="$pyldflags -L$preswd/lib"
