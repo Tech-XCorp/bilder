@@ -24,9 +24,16 @@
 # uedge-nopetsc has to be built "parallel" even though it is serial to
 #   use the same hdf5 libs as facets.  We are dropping this case.
 # vorpal is fully building.
-# cmd="svn up $PROJECT_DIR/numpkgs/Toolchain-BlueGeneP-mpixl.cmake"
-# techo "$cmd"
-# $cmd
+
+# System setup
+cat >/dev/null <<EOF
+# Follwing needed to get python to build with hashlib, which numpy now needs
+cd $CONTRIB_DIR/lib
+ln -s /usr/lib64/libcrypto.so.0.9.8 libcrypto.so
+ln -s /usr/lib64/libssl.so.4 libssl.so
+# Not needed? -L/usr/lib64 -L/usr/X11R6/lib64
+EOF
+
 cmd="mkdir -p /scratch/$USER/tmp"
 techo "$cmd"
 $cmd

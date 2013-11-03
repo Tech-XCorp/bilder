@@ -2025,6 +2025,8 @@ setDistutilsEnv() {
         LDVARS_ENV="$LDVARS_ENV $i='$val:$val2'"
       fi
     done
+# Ensure pick up any libs linked in, as needed for BGP, e.g.
+    PYC_MODFLAGS="$PYC_MODFLAGS -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
     if test -n "$PYC_LD_LIBRARY_PATH"; then
       PYC_MODFLAGS="$PYC_MODFLAGS -Wl,-rpath,$PYC_LD_LIBRARY_PATH"
     fi
