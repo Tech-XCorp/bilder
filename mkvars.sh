@@ -225,7 +225,7 @@ echo
 echo "# Variables for the packages, "${pkgs}.
 echo "# All variables override defaults in files in bilder/packages."
 echo "# <PKG>_BLDRVERSION contains the version to be built."
-echo "# <PKG>_BUILDS contains the desired builds."
+echo "# <PKG>_BUILDS contains the desired builds.  NOBUILD is deprecated."
 echo "# <PKG>_<BUILD>_OTHER_ARGS contains the other configuration arguments"
 echo "#   for build <BUILD>.  If a package could have a cmake or an autotools"
 echo "#   build, then the variables are <PKG>_<BUILD>_CMAKE_OTHER_ARGS"
@@ -250,7 +250,7 @@ for pkgdir in $pkgdirs; do
 
 # For python packages, only cc4py build
     unset builds
-    local ispypkg=false
+    ispypkg=false
     if grep -q bilderDuBuild $pkgdir/$pkg.sh; then
       builds=cc4py
       ispypkg=true
