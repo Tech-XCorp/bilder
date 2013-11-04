@@ -36,10 +36,6 @@ computeBuilds visit
 VISIT_SER_BUILD=$FORPYTHON_BUILD
 VISIT_DEPS=Imaging,hdf5,VTK,qt,cmake
 VISIT_UMASK=002
-addtopathvar PATH $BLDR_INSTALL_DIR/visit2/bin
-# case `uname`-`uname -r` in
-  # Linux) addVals MESA_DESIRED_BUILDS mgl,os;;
-# esac
 
 ######################################################################
 #
@@ -392,9 +388,6 @@ installVisit() {
 
 # Install
     if bilderInstall -r visit $bld; then
-
-# Remove old links
-      rmall ${BLDR_INSTALL_DIR}/visit2*
 
 # Visit variables
       local VISIT_ARCH=`getVisitArch`

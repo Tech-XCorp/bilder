@@ -1,6 +1,6 @@
 Index: visit/CMake/FindHDF5.cmake
 ===================================================================
---- visit/CMake/FindHDF5.cmake	(revision 21259)
+--- visit/CMake/FindHDF5.cmake	(revision 22315)
 +++ visit/CMake/FindHDF5.cmake	(working copy)
 @@ -47,9 +47,10 @@
  
@@ -16,42 +16,3 @@ Index: visit/CMake/FindHDF5.cmake
 -ENDIF (WIN32)
 +ENDIF ()
  
-Index: visit/CMake/PluginMacros.cmake
-===================================================================
---- visit/CMake/PluginMacros.cmake	(revision 21259)
-+++ visit/CMake/PluginMacros.cmake	(working copy)
-@@ -68,26 +68,15 @@
-             # not configure, so the dollar sign must be escaped in the string
-             # below.  Then during install, ${BUILD_TYPE} will be expanded.
-             FOREACH(target ${ARGN})
--                IF(MSVC_IDE)
--                  SET(filename "${VISIT_BINARY_DIR}/exe/\${BUILD_TYPE}/${type}/${target}.dll")
--                  INSTALL(FILES ${filename}
--                    DESTINATION ${VISIT_INSTALLED_VERSION_PLUGINS}/${type}
--                    COMPONENT RUNTIME
--                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
--                                GROUP_READ GROUP_WRITE GROUP_EXECUTE 
-+                SET(filename "${VISIT_BINARY_DIR}/exe/\${BUILD_TYPE}/${type}/${target}.dll")
-+                INSTALL(FILES ${filename}
-+                  DESTINATION ${VISIT_INSTALLED_VERSION_PLUGINS}/${type}
-+                  COMPONENT RUNTIME
-+                  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-+                                GROUP_READ GROUP_WRITE GROUP_EXECUTE
-                                 WORLD_READ             WORLD_EXECUTE
--                    CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
--                  )
--                ELSE()  # For no IDE, installed straight into exe
--                  SET(filename "${VISIT_BINARY_DIR}/exe/${target}.dll")
--                  INSTALL(FILES ${filename}
--                    DESTINATION ${VISIT_INSTALLED_VERSION_PLUGINS}/${type}
--                    COMPONENT RUNTIME
--                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
--                                GROUP_READ GROUP_WRITE GROUP_EXECUTE 
--                                WORLD_READ             WORLD_EXECUTE
--                  )
--                ENDIF()
-+                  CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
-+                )
-             ENDFOREACH(target)
-         ENDIF(NOT WIN32)
-         IF(APPLE)
