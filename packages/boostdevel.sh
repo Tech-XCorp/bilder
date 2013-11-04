@@ -108,7 +108,10 @@ buildBoostdevel() {
     fi
 
     if bilderConfig -i boostdevel parsh; then
+      # Redo bootstrap (config cmd above is hard-wired to do --show-libraries, which does nothing)
+      $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/bootstrap.sh
       # Adds 'using mpi ;" line to user-config.jam in parsh build dir
+      echo "Running edit on $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam"
       echo -e "\nusing mpi ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam
       bilderBuild -m ./b2 boostdevel parsh
       # bilderBuild -m ./b2 boostdevel parsh "$BOOSTDEVEL_PARSH_ADDL_ARGS"
