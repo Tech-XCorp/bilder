@@ -22,7 +22,7 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 # Module dependency
 #
 module purge
-module load epel
+# module load epel
 module load comp-intel
 module load impi-intel
 module load subversion

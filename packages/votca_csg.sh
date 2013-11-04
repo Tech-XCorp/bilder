@@ -45,7 +45,7 @@ buildVotca_Csg() {
 	  export DYLD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$DYLD_LIBRARY_PATH
 	  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.dylib'" ;;
       Linux)
-	  export LD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$DYLD_LIBRARY_PATH
+	  export LD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$LD_LIBRARY_PATH
 	  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.so'" ;;
   esac
 
