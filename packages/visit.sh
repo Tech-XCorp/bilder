@@ -414,73 +414,73 @@ installVisit() {
         fi
       fi
 
-# If parallel-Linux, link in the mpi libraries
-      case $bld in
-        par)
-          local VISIT_MPI_STUFF=`$MPICXX -show`
-          local VISIT_MPI_LIBDIRS=
-          local VISIT_MPI_LIBS=
+# If parallel-Linux, pull in the mpi libraries
+      if test $bld = par; then
+
+# Determine mpi libs
+        local VISIT_MPI_STUFF=`$MPICXX -show`
+        local VISIT_MPI_LIBDIRS=
+        local VISIT_MPI_LIBS=
 
 # Find names of libraries and libdir
-          for i in $VISIT_MPI_STUFF; do
-            case $i in
-              -L*)
-                libdir=`echo $i | sed -e 's/^-L//'`
-                VISIT_MPI_LIBDIRS="$VISIT_MPI_LIBDIRS $libdir"
-                ;;
-              -l*)
-                libname=`echo $i | sed -e 's/^-l/lib/' -e "s/\$/${SHOBJEXT}/"`
-                VISIT_MPI_LIBS="$VISIT_MPI_LIBS $libname ${libname}.0"
-                ;;
-            esac
-          done
+        for i in $VISIT_MPI_STUFF; do
+          case $i in
+            -L*)
+              libdir=`echo $i | sed -e 's/^-L//'`
+              VISIT_MPI_LIBDIRS="$VISIT_MPI_LIBDIRS $libdir"
+              ;;
+            -l*)
+              libname=`echo $i | sed -e 's/^-l/lib/' -e "s/\$/${SHOBJEXT}/"`
+              VISIT_MPI_LIBS="$VISIT_MPI_LIBS $libname ${libname}.0"
+              ;;
+          esac
+        done
 
 # Absolute paths to mpi libraries
-          local VISIT_MPI_ABSLIBS
-          unset VISIT_MPI_ABSLIBS
-          for i in $VISIT_MPI_LIBDIRS; do
-            for j in $VISIT_MPI_LIBS; do
-              if test -f $i/$j; then
-                VISIT_MPI_ABSLIBS="$VISIT_MPI_ABSLIBS $i/$j"
-                continue
-              fi
-            done
-          done
-          techo "VISIT_MPI_ABSLIBS = $VISIT_MPI_ABSLIBS"
-
-# Link into the libdir
-          for libdir in $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib $BUILD_DIR/visit/par/lib; do
-            local mpilinked=
-            for i in $VISIT_MPI_ABSLIBS; do
-              local libname=`basename $i`
-              if test ! -h $libdir/$libname -a ! -f $libdir/$libname; then
-                mpilinked="$mpilinked $libname"
-                cmd="ln -s $i $libdir/$libname"
-                echo "$cmd" >>$installfixfile
-                $cmd
-              fi
-            done
-            if test -n "$mpilinked"; then
-              trimvar mpilinked ' '
-              techo "# NOTE: Had to link the following MPI libraries into $libdir: $mpilinked." | tee -a $installfixfile
-            else
-              techo "# NOTE: Did not have to link any MPI libraries into $libdir." | tee -a $installfixfile
+        local VISIT_MPI_ABSLIBS
+        unset VISIT_MPI_ABSLIBS
+        for i in $VISIT_MPI_LIBDIRS; do
+          for j in $VISIT_MPI_LIBS; do
+            if test -f $i/$j; then
+              VISIT_MPI_ABSLIBS="$VISIT_MPI_ABSLIBS $i/$j"
+              continue
             fi
           done
+        done
+        techo "VISIT_MPI_ABSLIBS = $VISIT_MPI_ABSLIBS"
+
+# Link into the libdir
+        for libdir in $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib $BUILD_DIR/visit/par/lib; do
+          local mpilinked=
+          for i in $VISIT_MPI_ABSLIBS; do
+            local libname=`basename $i`
+            if test ! -h $libdir/$libname -a ! -f $libdir/$libname; then
+              mpilinked="$mpilinked $libname"
+              cmd="ln -s $i $libdir/$libname"
+              echo "$cmd" >>$installfixfile
+              $cmd
+            fi
+          done
+          if test -n "$mpilinked"; then
+            trimvar mpilinked ' '
+            techo "# NOTE: Had to link the following MPI libraries into $libdir: $mpilinked." | tee -a $installfixfile
+          else
+            techo "# NOTE: Did not have to link any MPI libraries into $libdir." | tee -a $installfixfile
+          fi
+        done
 
 # Copy the parallel engine into the installation directory
-          parlib=$visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib/libengine_par${SHOBJEXT}
-          if ! test -f $parlib; then
-            techo "# NOTE: Installing lib, $parlib."
-            cmd="install -m 775 $BUILD_DIR/visit/par/lib/libengine_par${SHOBJEXT} $parlib"
-            techo "$cmd" | tee -a $installfixfile
-            $cmd
-          else
-            techo "# NOTE: VisIt correctly installed lib, $parlib."
-          fi
-          ;;
+        parlib=$visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib/libengine_par${SHOBJEXT}
+        if ! test -f $parlib; then
+          techo "# NOTE: Installing lib, $parlib."
+          cmd="install -m 775 $BUILD_DIR/visit/par/lib/libengine_par${SHOBJEXT} $parlib"
+          techo "$cmd" | tee -a $installfixfile
+          $cmd
+        else
+          techo "# NOTE: VisIt correctly installed lib, $parlib."
+        fi
 
-      esac
+      fi
 
 # Fix installation libraries
 # Fix hdf5
