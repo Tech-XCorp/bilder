@@ -29,7 +29,7 @@ if test -z "$BOOSTDEVEL_DESIRED_BUILDS"; then
   BOOSTDEVEL_DESIRED_BUILDS=ser
   # No need for shared library unless that is the library for Python
   if isCcCc4py; then
-    BOOSTDEVEL_DESIRED_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS,parsh
+      BOOSTDEVEL_DESIRED_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS,parsh
   fi
 fi
 

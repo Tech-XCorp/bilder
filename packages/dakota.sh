@@ -27,7 +27,8 @@ fi
 #
 ######################################################################
 
-DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
+#DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
+DAKOTA_BUILDS=${DAKOTA_BUILDS:-"par"}
 # DAKOTA_DEPS=trilinos,boostdevel
 # DAKOTA_DEPS=boostdevel,cmake
 DAKOTA_DEPS=boostdevel,lapack,cmake
@@ -101,6 +102,13 @@ DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_
 
 # SWS: adding lapack explicitly (instead of full trilinos build)
 DAKOTA_ADDL_ARGS="-DLAPACK_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
+
+# SWS: adding blas explicitly (instead of full trilinos build)
+DAKOTA_ADDL_ARGS="-DBLAS_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
+
+# SWS: adding blas explicitly (instead of full trilinos build)
+DAKOTA_ADDL_ARGS="-DLAPACK_ADD_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
+
 
 techo " "
 techo "Setting MPI_LIBRARY explicitly to openmpi"
