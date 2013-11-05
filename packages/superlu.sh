@@ -16,9 +16,10 @@ SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-"4.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
+
 if test -z "$SUPERLU_BUILDS"; then
   SUPERLU_BUILDS=ser
   case `uname` in
@@ -29,12 +30,6 @@ fi
 
 SUPERLU_DEPS=cmake,atlas,lapack,clapack_cmake
 SUPERLU_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
 
 ######################################################################
 #
@@ -53,15 +48,15 @@ buildSuperlu() {
     res=$?
   fi
 
-  if test $res = 0; then
+  if test $res != 0; then
+    return
+  fi
 
-    if bilderConfig superlu ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS"; then
-      bilderBuild superlu ser
-    fi
-    if bilderConfig superlu sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
-      bilderBuild superlu sersh
-    fi
-
+  if bilderConfig superlu ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_LINLIB_SER_ARGS $SUPERLU_SER_OTHER_ARGS"; then
+    bilderBuild superlu ser
+  fi
+  if bilderConfig superlu sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_LINLIB_SERSH_ARGS $SUPERLU_SERSH_OTHER_ARGS"; then
+    bilderBuild superlu sersh
   fi
 
 }
@@ -83,7 +78,7 @@ testSuperlu() {
 ######################################################################
 
 installSuperlu() {
- for bld in sersh ser; do
+  for bld in sersh ser; do
     if bilderInstall -r superlu $bld; then
       bldpre=`echo $bld | sed 's/sh$//'`
       local instdir=$CONTRIB_DIR/superlu-$SUPERLU_BLDRVERSION-$bldpre
