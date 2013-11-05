@@ -69,6 +69,9 @@ buildSuperlu_Dist() {
   if bilderConfig superlu_dist parcommsh "-DENABLE_PARALLEL:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=ON -DENABLE_PARMETIS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PARCOMMSH_OTHER_ARGS"; then
     bilderBuild superlu_dist parcommsh
   fi
+  if bilderConfig -c superlu_dist ben "-DENABLE_PARALLEL:BOOL=TRUE -DDISABLE_CPUCHECK:BOOL=TRUE $CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $CMAKE_HDF5_BEN_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_BEN_OTHER_ARGS"; then
+    bilderBuild superlu_dist ben
+  fi
 
 }
 
@@ -89,7 +92,7 @@ testSuperlu_Dist() {
 ######################################################################
 
 installSuperlu_Dist() {
-  for bld in parcommsh parcomm parsh par; do
+  for bld in parcommsh parcomm parsh par ben; do
     if bilderInstall -r superlu_dist $bld; then
       bldpre=`echo $bld | sed 's/sh$//'`
       local instdir=$CONTRIB_DIR/superlu_dist-$SUPERLU_DIST_BLDRVERSION-$bldpre
