@@ -11,15 +11,7 @@
 # Version
 #
 ######################################################################
-
-
-if [ $USER == 'ssides' ]; then
-    DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
-else
-    DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.2"}
-fi
-
-
+DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
 
 ######################################################################
 #
@@ -27,11 +19,10 @@ fi
 #
 ######################################################################
 
-#DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
-DAKOTA_BUILDS=${DAKOTA_BUILDS:-"par"}
-# DAKOTA_DEPS=trilinos,boostdevel
-# DAKOTA_DEPS=boostdevel,cmake
-DAKOTA_DEPS=boostdevel,lapack,cmake
+DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
+DAKOTA_DEPS=trilinos,boostdevel
+# SWS: Tried linking lapack/blas directly and build problems occured
+# DAKOTA_DEPS=boostdevel,lapack,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 ######################################################################
@@ -100,15 +91,12 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 # SWS: adding boost include explicitly
 DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boostdevel/include"
 
+
+# These explicit settings do not work for 5.3.1. Using trilinos build
 # SWS: adding lapack explicitly (instead of full trilinos build)
-DAKOTA_ADDL_ARGS="-DLAPACK_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
-
+# DAKOTA_ADDL_ARGS="-DLAPACK_LIBS:PATH=$CONTRIB_DIR/lapack-sersh/lib $DAKOTA_ADDL_ARGS"
 # SWS: adding blas explicitly (instead of full trilinos build)
-DAKOTA_ADDL_ARGS="-DBLAS_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
-
-# SWS: adding blas explicitly (instead of full trilinos build)
-DAKOTA_ADDL_ARGS="-DLAPACK_ADD_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
-
+# DAKOTA_ADDL_ARGS="-DBLAS_LIBS:PATH=$CONTRIB_DIR/lapack-sersh/lib $DAKOTA_ADDL_ARGS"
 
 techo " "
 techo "Setting MPI_LIBRARY explicitly to openmpi"
@@ -116,6 +104,7 @@ techo " "
 
 case `uname` in
     CYGWIN* | Darwin) DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib";;
+    # This path will need to be modifed on peregrine to use enviro variable from toolchain modules
     Linux)            DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpicxx.a";;
 esac
 
@@ -140,8 +129,6 @@ buildDakota() {
 
   fi
 }
-
-
 
 ######################################################################
 #
