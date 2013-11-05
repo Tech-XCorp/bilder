@@ -99,6 +99,9 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 # SWS: adding boost include explicitly
 DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boostdevel/include"
 
+# SWS: adding lapack explicitly (instead of full trilinos build)
+DAKOTA_ADDL_ARGS="-DLAPACK_LIBS:PATH=$CONTRIB_DIR/lapack/lib $DAKOTA_ADDL_ARGS"
+
 techo " "
 techo "Setting MPI_LIBRARY explicitly to openmpi"
 techo " "
