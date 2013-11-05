@@ -16,7 +16,7 @@ SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -38,12 +38,6 @@ fi
 
 ######################################################################
 #
-# Add to paths
-#
-######################################################################
-
-######################################################################
-#
 # Launch superlu_dist builds.
 #
 ######################################################################
@@ -59,21 +53,21 @@ buildSuperlu_Dist() {
     res=$?
   fi
 
-  if test $res = 0; then 
+  if test $res != 0; then
+    return
+  fi
 
-     if bilderConfig -c superlu_dist par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS"; then
-      bilderBuild superlu_dist par "$SUPERLU_DIST_PAR_MAKE_ARGS"
-    fi
-    if bilderConfig superlu_dist parsh "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
-      bilderBuild superlu_dist parsh "$SUPERLU_DIST_PAR_MAKE_ARGS"
-    fi
-    if bilderConfig -c superlu_dist parcomm "-DENABLE_PARALLEL:BOOL=TRUE -DENABLE_PARMETIS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS"; then
-      bilderBuild superlu_dist parcomm "$SUPERLU_DIST_PAR_MAKE_ARGS"
-    fi
-    if bilderConfig superlu_dist parcommsh "-DENABLE_PARALLEL:BOOL=TRUE -DENABLE_PARMETIS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS $SUPERLU_DIST_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=ON" ; then
-      bilderBuild superlu_dist parcommsh "$SUPERLU_DIST_PAR_MAKE_ARGS"
-    fi
-
+  if bilderConfig -c superlu_dist par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PAR_OTHER_ARGS"; then
+    bilderBuild superlu_dist par
+  fi
+  if bilderConfig superlu_dist parsh "-DENABLE_PARALLEL:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PARSH_OTHER_ARGS"; then
+    bilderBuild superlu_dist parsh
+  fi
+  if bilderConfig -c superlu_dist parcomm "-DENABLE_PARALLEL:BOOL=TRUE -DENABLE_PARMETIS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PARCOMM_OTHER_ARGS"; then
+    bilderBuild superlu_dist parcomm
+  fi
+  if bilderConfig superlu_dist parcommsh "-DENABLE_PARALLEL:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=ON -DENABLE_PARMETIS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $SUPERLU_DIST_PARCOMMSH_OTHER_ARGS"; then
+    bilderBuild superlu_dist parcommsh
   fi
 
 }
@@ -103,3 +97,4 @@ installSuperlu_Dist() {
     fi
   done
 }
+
