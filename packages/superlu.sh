@@ -80,8 +80,10 @@ testSuperlu() {
 installSuperlu() {
   for bld in sersh ser; do
     if bilderInstall -r superlu $bld; then
-      bldpre=`echo $bld | sed 's/sh$//'`
-      local instdir=$CONTRIB_DIR/superlu-$SUPERLU_BLDRVERSION-$bldpre
+# JRC: code below does not make sense to me, as these are installed in separate directories
+      # bldpre=`echo $bld | sed 's/sh$//'`
+      # local instdir=$CONTRIB_DIR/superlu-$SUPERLU_BLDRVERSION-$bldpre
+      local instdir=$CONTRIB_DIR/superlu-$SUPERLU_BLDRVERSION-$bld
       setOpenPerms $instdir
     fi
   done
