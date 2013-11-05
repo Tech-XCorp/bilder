@@ -28,7 +28,9 @@ fi
 ######################################################################
 
 DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
-DAKOTA_DEPS=trilinos,boostdevel
+# DAKOTA_DEPS=trilinos,boostdevel
+# DAKOTA_DEPS=boostdevel,cmake
+DAKOTA_DEPS=boostdevel,lapack,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 ######################################################################
