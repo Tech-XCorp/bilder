@@ -21,7 +21,8 @@ GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
 ######################################################################
 
 GEANT4_BUILDS=${GEANT4_BUILDS:-"ser"}
-GEANT4_DEPS=cmake,pcre,expat
+#GEANT4_DEPS=cmake,pcre,expat
+GEANT4_DEPS=cmake,pcre
 
 ######################################################################
 #
