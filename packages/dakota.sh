@@ -19,8 +19,10 @@ DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
 #
 ######################################################################
 
-DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
-DAKOTA_DEPS=trilinos,boostdevel
+DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser"}
+DAKOTA_DEPS=boostdevel,lapack,cmake
+# SWS: separate trilinos build is not needed
+# DAKOTA_DEPS=trilinos,boostdevel
 # SWS: Tried linking lapack/blas directly and build problems occured
 # DAKOTA_DEPS=boostdevel,lapack,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
