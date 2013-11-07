@@ -19,12 +19,16 @@ DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
 #
 ######################################################################
 
-DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser"}
-DAKOTA_DEPS=boostdevel,lapack,cmake
-# SWS: separate trilinos build is not needed
-# DAKOTA_DEPS=trilinos,boostdevel
-# SWS: Tried linking lapack/blas directly and build problems occured
-# DAKOTA_DEPS=boostdevel,lapack,cmake
+DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
+
+# Dependency notes:
+#   1. trilinos external is not needed. Dakota uses
+#      an internal version of trilinos code.
+#   2. On Darwin lapack build is skipped because system lapack/blas is used.
+#   3. boostdevel used for pure boost builds with all enabled including MPI
+#      Default boost can be used for Dakota
+# DAKOTA_DEPS=lapack,boostdevel,openmpi,cmake
+DAKOTA_DEPS=lapack,boost,openmpi,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 ######################################################################
@@ -88,26 +92,44 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 #
 ######################################################################
 
-# SEK: Not sure this is the best
-# --without-graphics
+# SEK: Not sure this is the best --without-graphics
 # SWS: adding boost include explicitly
-DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boostdevel/include"
+# DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boostdevel/include"
+
+# System boost is breaking Peregrine build and we are always using bldr boost
+# so system boost is explicitly turned off.
+# Graphics off for now until tested on all platforms
+# Shared version of boost needed for Peregrine. Shared bosst for Mac but not needed
+
+DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE \
+                  -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE \
+                  -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost-sersh"
+
+#  -DBLAS_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/libblas.so' \
+#  -DLAPACK_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/liblapack.so' \
+#  -DBLAS_LIBS:FILEPATH='/nopt/nrel/apps/dakota/bldr/5.3.1-openmpi-gcc/lapack-sersh/lib/libblas.so' \
+#  -DLAPACK_LIBS:FILEPATH='/nopt/nrel/apps/dakota/bldr/5.3.1-openmpi-gcc/lapack-sersh/lib/liblapack.so' \
+#  -DBOOST_ROOT:PATH='/nopt/nrel/apps/dakota/bldr/5.3.1-openmpi-gcc/boost-sersh' \
+#  -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE
 
 
-# These explicit settings do not work for 5.3.1. Using trilinos build
-# SWS: adding lapack explicitly (instead of full trilinos build)
-# DAKOTA_ADDL_ARGS="-DLAPACK_LIBS:PATH=$CONTRIB_DIR/lapack-sersh/lib $DAKOTA_ADDL_ARGS"
-# SWS: adding blas explicitly (instead of full trilinos build)
-# DAKOTA_ADDL_ARGS="-DBLAS_LIBS:PATH=$CONTRIB_DIR/lapack-sersh/lib $DAKOTA_ADDL_ARGS"
+#  DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include \
+#                         -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"
 
 techo " "
 techo "Setting MPI_LIBRARY explicitly to openmpi"
 techo " "
 
 case `uname` in
-    CYGWIN* | Darwin) DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib";;
+    CYGWIN* | Darwin)
+	DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$CONTRIB_DIR/openmpi/include \
+                               -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib"
+	;;
     # This path will need to be modifed on peregrine to use enviro variable from toolchain modules
-    Linux)            DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:FILEPATH=$CONTRIB_DIR/openmpi/include -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpicxx.a";;
+    Linux)
+        DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$CONTRIB_DIR/openmpi/include \
+                               -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.a"
+	;;
 esac
 
 ######################################################################
