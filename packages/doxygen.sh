@@ -13,9 +13,10 @@
 ######################################################################
 
 case `uname`-`uname -r` in
-  Darwin-11.*) DOXYGEN_BLDRVERSION=${DOXYGEN_BLDRVERSION:-"1.8.0"};;
-  *) DOXYGEN_BLDRVERSION=${DOXYGEN_BLDRVERSION:-"1.8.1.1"};;
+  Darwin-11.*) DOXYGEN_BLDRVERSION_STD=${DOXYGEN_BLDRVERSION:-"1.8.0"};;
+  *) DOXYGEN_BLDRVERSION_STD=${DOXYGEN_BLDRVERSION:-"1.8.1.1"};;
 esac
+DOXYGEN_BLDRVERSION_EXP=1.8.5
 
 ######################################################################
 #
