@@ -4,10 +4,6 @@
 #
 # $Id: boost.sh 337 2013-08-02 23:32:38Z swsides $
 #
-# ./bootstrap.sh -show-libraries
-# ./b2 --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi stage
-# ./b2 --prefix=/contrib/boost-1_50_0-ser --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi install
-#
 ######################################################################
 
 ######################################################################
@@ -26,15 +22,17 @@ BOOSTDEVEL_BLDRVERSION_STD=1_53_0
 ######################################################################
 
 if test -z "$BOOSTDEVEL_DESIRED_BUILDS"; then
-  BOOSTDEVEL_DESIRED_BUILDS=ser
+  BOOSTDEVEL_DESIRED_BUILDS=ser,parsh
   # No need for shared library unless that is the library for Python
-  if isCcCc4py; then
-      BOOSTDEVEL_DESIRED_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS,parsh
-  fi
+  #  if isCcCc4py; then
+  #    BOOSTDEVEL_DESIRED_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS,parsh
+  # fi
 fi
 
-computeBuilds boostdevel
-addCc4pyBuild boostdevel
+# computeBuilds boostdevel
+# addCc4pyBuild boostdevel
+BOOSTDEVEL_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS
+
 # It does not hurt to add deps that do not get built
 # (e.g., Python on Darwin and CYGWIN)
 # Only certain builds depend on Python
@@ -78,7 +76,7 @@ buildBoostdevel() {
         toolsetarg_cc4py="toolset=gcc"
         case $CXX in
           *g++) ;;
-          *icpc) toolsetarg_ser="toolset=intel";;
+          *icc) toolsetarg_ser="toolset=intel-linux";;
           *pgCC) toolsetarg_ser="toolset=pgi";;
         esac
         ;;
@@ -94,9 +92,9 @@ buildBoostdevel() {
 
     # Parallel enabled through mpi flags to bootstrap... but MPI wrappers must be in path (?)
     # For now parallel only needed by python enabled. serial toolset same for par for now
-    toolsetarg_parsh="$toolsetarg_ser"
     # BOOSTDEVEL_PARSH_ADDL_ARGS="$toolsetarg_ser link=shared   $BOOSTDEVEL_ALL_ADDL_ARGS"
-    BOOSTDEVEL_PARSH_ADDL_ARGS=
+    toolsetarg_parsh="$toolsetarg_ser"
+    BOOSTDEVEL_PARSH_ADDL_ARGS=$toolsetarg_parsh
 
     if bilderConfig -i boostdevel ser; then
       # In-place build, so done now
@@ -108,13 +106,30 @@ buildBoostdevel() {
     fi
 
     if bilderConfig -i boostdevel parsh; then
+
       # Redo bootstrap (config cmd above is hard-wired to do --show-libraries, which does nothing)
       $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/bootstrap.sh
+
+      # Selecting correct user-config.jam line
       # Adds 'using mpi ;" line to user-config.jam in parsh build dir
-      echo "Running edit on $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam"
-      echo -e "\nusing mpi ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam
-      bilderBuild -m ./b2 boostdevel parsh
-      # bilderBuild -m ./b2 boostdevel parsh "$BOOSTDEVEL_PARSH_ADDL_ARGS"
+      DOMAIN_NAME=`hostname -d`
+      case $DOMAIN_NAME in
+	  hpc.nrel.gov )
+	      techo "boostdevel.sh: Assuming Peregrine"
+              # MPICXX should be set by module (intel too?)
+	      jamCmd=`echo -e "\nusing mpi : $MPICXX ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam`
+	      ;;
+	  * )
+	      techo "boostdevel.sh: Assuming default linux"
+	      jamCmd=`echo -e "\nusing mpi ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam`
+      esac
+
+      techo " "
+      techo "Will do $jamCmd"
+      techo "Running edit on $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam"
+      techo " "
+      $jamCmd
+      bilderBuild -m ./b2 boostdevel parsh  "$BOOSTDEVEL_PARSH_ADDL_ARGS"
     fi
 
   fi
