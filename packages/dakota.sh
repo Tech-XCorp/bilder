@@ -47,7 +47,10 @@ DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE \
                   -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost-sersh"
 
 techo " "
-techo "Setting MPI_LIBRARY explicitly to openmpi"
+techo "NOTE: !!! "
+techo "     Setting MPI_LIBRARY explicitly"
+techo "     Darwin/Linux/Peregrine assume type and name of library."
+techo "     For new setup/versions or platforms these may change"
 techo " "
 
 case `uname` in
@@ -68,8 +71,9 @@ case `uname` in
 	    hpc.nrel.gov )
 		echo "Assuming Peregrine"
                 # MPIROOT should be set my module (intel too?)
-		DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$MPIROOT/include \
-                                       -DMPI_LIBRARY:FILEPATH=$MPIROOT/lib/libmpi_cxx.a"
+		# DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$MPIROOT/include \
+                #                        -DMPI_LIBRARY:FILEPATH=$MPIROOT/lib/libmpi_cxx.a"
+		DAKOTA_PAR_OTHER_ARGS="-DMPI_LIBRARY:FILEPATH=$MPIROOT/lib64/libmpi.so"
 	esac
 	;;
 esac
