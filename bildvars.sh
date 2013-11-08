@@ -141,8 +141,7 @@ case `uname` in
         techo -2 "REPO_NODEFLIB_FLAGS = $REPO_NODEFLIB_FLAGS"
         TARBALL_NODEFLIB_FLAGS=`deref CMAKE_NODEFLIB_FLAGS_$TARBALL_BUILD_TYPE_UC`
         techo -2 "TARBALL_NODEFLIB_FLAGS = $TARBALL_NODEFLIB_FLAGS"
-        
-        # Make sure qmakespec is specified
+# Make sure qmakespec is specified
         if test -z "${QMAKESPECARG}"; then
           case ${VISUALSTUDIO_VERSION} in
             9)  QMAKESPECARG="-spec win32-msvc2008";;
@@ -163,6 +162,14 @@ case `uname` in
       techo "WARNING: ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
     fi
     ARCHIVER=ar
+    case `uname -r` in
+      1[3-9].*)
+        CC=${CC:-"clang"}
+        CXX=${CXX:-"clang++"}
+        FC=${FC:-"gfortran"}
+        F77=${F77:-"gfortran"}
+        ;;
+    esac
     SYSTEM_BLAS_SER_LIB="-framework Accelerate"
     SYSTEM_LAPACK_SER_LIB="-framework Accelerate"
     LIBEXT=.a
@@ -579,11 +586,17 @@ PYC_PIC_FLAG=-fPIC
 
 # Pipe flags
 case $CC in
-  /*/gcc* | gcc*)
+  /*/gcc* | gcc* | /*/clang | clang*)
     CFLAGS="$CFLAGS -pipe"
     CXXFLAGS="$CXXFLAGS -pipe"
     FLAGS="$FLAGS -pipe"
     F77LAGS="$F77LAGS -pipe"
+    ;;
+esac
+case $CXX in
+  /*/clang++ | clang++*)
+    # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
+    CXXFLAGS="$CXXFLAGS -stdlib=libc++"
     ;;
 esac
 
