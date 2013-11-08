@@ -27,6 +27,9 @@ module load comp-intel
 module load impi-intel
 module load subversion
 
+# Specific top-level script is loading for now
+# module load python/2.7.4 
+
 echo " "
 module list
 echo " "
@@ -113,6 +116,8 @@ BOOST_LIBRARYDIR='set'
 
 #
 # Python (etc. no builds) epel will supply python
+# Turning off for dakota/boost. Will need to have separate
+# build for testing
 #
 PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
 TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
