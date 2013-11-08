@@ -107,9 +107,10 @@ fi
     Linux)
       # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
       # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_VISUALISATION:BOOL=ON"
-      if test ! -e /usr/lib64/libXmu.so -a ! -e /usr/lib/libXmu.so; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
-      fi
+      # Need to enable x11, need libTKXDEIGES.so for txgml
+      #if test ! -e /usr/lib64/libXmu.so -a ! -e /usr/lib/libXmu.so; then
+      #  OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
+      #fi
       ;;
   esac
 
