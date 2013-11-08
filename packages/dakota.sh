@@ -27,9 +27,96 @@ DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
 #   2. On Darwin lapack build is skipped because system lapack/blas is used.
 #   3. boostdevel used for pure boost builds with all enabled including MPI
 #      Default boost can be used for Dakota
-# DAKOTA_DEPS=lapack,boostdevel,openmpi,cmake
 DAKOTA_DEPS=lapack,boost,openmpi,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
+
+######################################################################
+#
+# Common arguments to find stuff or to simplify the builds
+# See notes at the end
+#
+######################################################################
+
+# System boost is breaking Peregrine build and we are always using bldr boost
+# so system boost is explicitly turned off.
+# Graphics off for now until tested on all platforms
+# Shared version of boost needed for Peregrine. Shared boost for Mac but not needed
+
+DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE \
+                  -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE \
+                  -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost-sersh"
+
+techo " "
+techo "Setting MPI_LIBRARY explicitly to openmpi"
+techo " "
+
+case `uname` in
+    CYGWIN* | Darwin)
+	DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$CONTRIB_DIR/openmpi/include \
+                               -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib"
+	;;
+    Linux)
+        # On all but Mac need to find bilder versions of shared lapack builds
+	DAKOTA_ADDL_ARGS="-DBLAS_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/libblas.so' \
+                          -DLAPACK_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/liblapack.so' \
+                          $DAKOTA_ADDL_ARGS"
+        DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$CONTRIB_DIR/openmpi/include \
+                               -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.a"
+
+	DOMAIN_NAME=`hostname -d`
+	case $DOMAIN_NAME in
+	    hpc.nrel.gov )
+		echo "Assuming Peregrine"
+                # OPENMPIROOT should be set my module (intel too?)
+		DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include \
+                                       -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"
+	esac
+	;;
+esac
+
+######################################################################
+#
+# Launch dakota builds.
+#
+######################################################################
+buildDakota() {
+
+  if bilderUnpack dakota; then
+
+    # Serial build
+    if bilderConfig -c dakota ser "-DDAKOTA_HAVE_MPI:BOOL=FALSE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
+      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
+    fi
+
+    # Parallel build
+    if bilderConfig -c dakota par "-DDAKOTA_HAVE_MPI:BOOL=TRUE  $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
+      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
+    fi
+
+  fi
+}
+
+######################################################################
+#
+# Test dakota
+#
+######################################################################
+
+testDakota() {
+  techo "Not testing dakota."
+}
+
+######################################################################
+#
+# Install dakota
+#
+######################################################################
+
+installDakota() {
+  bilderInstall dakota ser dakota-ser
+  bilderInstall dakota par dakota-par
+}
+
 
 ######################################################################
 #
@@ -84,95 +171,4 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 #  --without-psuade        turn PSUADE support off
 #  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)
 #  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)
-
-######################################################################
-#
-# Common arguments to find stuff or to simplify the builds
-# See notes at the end
-#
-######################################################################
-
-# SEK: Not sure this is the best --without-graphics
-# SWS: adding boost include explicitly
-# DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE -DBOOST_INCLUDEDIR:PATH=$CONTRIB_DIR/boostdevel/include"
-
-# System boost is breaking Peregrine build and we are always using bldr boost
-# so system boost is explicitly turned off.
-# Graphics off for now until tested on all platforms
-# Shared version of boost needed for Peregrine. Shared bosst for Mac but not needed
-
-DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE \
-                  -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE \
-                  -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost-sersh"
-
-#  -DBLAS_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/libblas.so' \
-#  -DLAPACK_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/liblapack.so' \
-#  -DBLAS_LIBS:FILEPATH='/nopt/nrel/apps/dakota/bldr/5.3.1-openmpi-gcc/lapack-sersh/lib/libblas.so' \
-#  -DLAPACK_LIBS:FILEPATH='/nopt/nrel/apps/dakota/bldr/5.3.1-openmpi-gcc/lapack-sersh/lib/liblapack.so' \
-#  -DBOOST_ROOT:PATH='/nopt/nrel/apps/dakota/bldr/5.3.1-openmpi-gcc/boost-sersh' \
-#  -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE
-
-
-#  DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include \
-#                         -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"
-
-techo " "
-techo "Setting MPI_LIBRARY explicitly to openmpi"
-techo " "
-
-case `uname` in
-    CYGWIN* | Darwin)
-	DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$CONTRIB_DIR/openmpi/include \
-                               -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib"
-	;;
-    # This path will need to be modifed on peregrine to use enviro variable from toolchain modules
-    Linux)
-        DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$CONTRIB_DIR/openmpi/include \
-                               -DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.a"
-	;;
-esac
-
-######################################################################
-#
-# Launch dakota builds.
-#
-######################################################################
-buildDakota() {
-
-  if bilderUnpack dakota; then
-
-    # Serial build
-    if bilderConfig -c dakota ser "-DDAKOTA_HAVE_MPI:BOOL=FALSE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $DAKOTA_ADDL_ARGS $DAKOTA_SER_OTHER_ARGS"; then
-      bilderBuild dakota ser "$DAKOTA_MAKEJ_ARGS"
-    fi
-
-    # Parallel build
-    if bilderConfig -c dakota par "-DDAKOTA_HAVE_MPI:BOOL=TRUE  $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $DAKOTA_ADDL_ARGS $DAKOTA_PAR_OTHER_ARGS"; then
-      bilderBuild dakota par "$DAKOTA_MAKEJ_ARGS"
-    fi
-
-  fi
-}
-
-######################################################################
-#
-# Test dakota
-#
-######################################################################
-
-testDakota() {
-  techo "Not testing dakota."
-}
-
-######################################################################
-#
-# Install dakota
-#
-######################################################################
-
-installDakota() {
-  bilderInstall dakota ser dakota-ser
-  bilderInstall dakota par dakota-par
-}
-
 
