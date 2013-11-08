@@ -105,6 +105,20 @@ CXXFLAGS=${CXXFLAGS:-"-fPIC -O2"}
 # FFTW_PAR_OTHER_ARGS=${FFTW_PAR_OTHER_ARGS:-"--disable-fortran --enable-mpi"}
 # FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-fortran --disable-mpi"}
 
+#
+# DAKOTA
+#
+# DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-""}
+# DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
+# DAKOTA_SER_OTHER_ARGS=${DAKOTA_SER_OTHER_ARGS:-""}
+# DAKOTA_PAR_OTHER_ARGS=${DAKOTA_PAR_OTHER_ARGS:-""}
+# 
+# OPENMPIROOT should be set my module (intel too?)
+# DAKOTA_PAR_OTHER_ARGS=${DAKOTA_PAR_OTHER_ARGS:"-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"}
+# DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"
+
+# For reasons I dont understand, parallel make is causing problems (not working)
+# DAKOTA_MAKEJ_ARGS='-j1'
 
 
 #

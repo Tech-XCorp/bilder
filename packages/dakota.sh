@@ -67,9 +67,9 @@ case `uname` in
 	case $DOMAIN_NAME in
 	    hpc.nrel.gov )
 		echo "Assuming Peregrine"
-                # OPENMPIROOT should be set my module (intel too?)
-		DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include \
-                                       -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"
+                # MPIROOT should be set my module (intel too?)
+		DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$MPIROOT/include \
+                                       -DMPI_LIBRARY:FILEPATH=$MPIROOT/lib/libmpi_cxx.a"
 	esac
 	;;
 esac
