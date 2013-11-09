@@ -8,6 +8,7 @@
 
 CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-pgi-12.9
 CONTRIB_DIR=/global/project/projectdirs/facets/edison/contrib-intel-13.0
+CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-gcc-4.7
 
 exec() {
   echo $*
@@ -15,7 +16,7 @@ exec() {
 }
 
 # gstreamer
-exec wget http://gstreamer.freedesktop.org/src/gstreamer/gstreamer-0.10.22.tar.bz2
+exec wget -N -nv http://gstreamer.freedesktop.org/src/gstreamer/gstreamer-0.10.22.tar.bz2
 exec tar xjf gstreamer-0.10.22.tar.bz2
 exec mkdir gstreamer-0.10.22/ser
 exec cd gstreamer-0.10.22/ser
@@ -25,7 +26,7 @@ exec make install
 exec cd -
 
 # liboil
-exec wget http://liboil.freedesktop.org/download/liboil-0.3.14.tar.gz
+exec wget -N -nv http://liboil.freedesktop.org/download/liboil-0.3.14.tar.gz
 exec tar xzf liboil-0.3.14.tar.gz
 exec mkdir liboil-0.3.14/ser
 exec cd liboil-0.3.14/ser
@@ -35,7 +36,7 @@ exec make install
 exec cd -
 
 # gst-plugins-base
-exec wget http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-0.10.22.tar.bz2
+exec wget -N -nv http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-0.10.22.tar.bz2
 exec tar xjf gst-plugins-base-0.10.22.tar.bz2
 exec mkdir gst-plugins-base-0.10.22/ser
 exec cd gst-plugins-base-0.10.22/ser
@@ -43,4 +44,7 @@ exec ../configure -with-pkg-config-path=$CONTRIB_DIR/extras/lib/pkgconfig --pref
 exec make -j 4
 exec make install
 exec cd -
+
+# Fix permissions
+chmod -R g=rwX,o=rX $CONTRIB_DIR/extras
 
