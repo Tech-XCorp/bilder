@@ -1,6 +1,33 @@
+diff -ruN boost-1_53_0/boost/config/compiler/nvcc.hpp boost-1_53_0-new/boost/config/compiler/nvcc.hpp
+--- boost-1_53_0/boost/config/compiler/nvcc.hpp	2011-03-07 06:07:30.000000000 -0700
++++ boost-1_53_0-new/boost/config/compiler/nvcc.hpp	2013-11-12 14:40:37.982315166 -0700
+@@ -26,3 +26,8 @@
+ #include <boost/config/compiler/visualc.hpp>
+ 
+ #endif
++
++#if defined(BOOST_HAS_INT128) && defined(__CUDACC__)
++#undef BOOST_HAS_INT128
++#endif
++
+diff -ruN boost-1_53_0/boost/cstdint.hpp boost-1_53_0-new/boost/cstdint.hpp
+--- boost-1_53_0/boost/cstdint.hpp	2012-12-11 07:42:26.000000000 -0700
++++ boost-1_53_0-new/boost/cstdint.hpp	2013-11-12 14:42:49.332828873 -0700
+@@ -41,7 +41,10 @@
+ // so we disable use of stdint.h when GLIBC does not define __GLIBC_HAVE_LONG_LONG.
+ // See https://svn.boost.org/trac/boost/ticket/3548 and http://sources.redhat.com/bugzilla/show_bug.cgi?id=10990
+ //
+-#if defined(BOOST_HAS_STDINT_H) && (!defined(__GLIBC__) || defined(__GLIBC_HAVE_LONG_LONG))
++#if defined(BOOST_HAS_STDINT_H)	\
++   && (!defined(__GLIBC__) 	\
++     || defined(__GLIBC_HAVE_LONG_LONG) \
++     || (defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 17)))))
+ 
+ // The following #include is an implementation artifact; not part of interface.
+ # ifdef __hpux
 diff -ruN boost-1_53_0/boost/math/special_functions/sinc.hpp boost-1_53_0-new/boost/math/special_functions/sinc.hpp
---- boost-1_53_0/boost/math/special_functions/sinc.hpp      2009-01-07 09:37:59.000000000 -0700
-+++ boost-1_53_0/boost/math/special_functions/sinc_new.hpp  2013-03-18 16:13:57.281599100 -0600
+--- boost-1_53_0/boost/math/special_functions/sinc.hpp	2009-01-07 09:37:59.000000000 -0700
++++ boost-1_53_0-new/boost/math/special_functions/sinc.hpp	2013-11-12 14:40:37.982315166 -0700
 @@ -67,7 +67,7 @@
              static T const    taylor_2_bound = sqrt(taylor_0_bound);
              static T const    taylor_n_bound = sqrt(taylor_2_bound);
@@ -27,9 +54,63 @@ diff -ruN boost-1_53_0/boost/math/special_functions/sinc.hpp boost-1_53_0-new/bo
                      {
                          // approximation by taylor series in x at 0 up to order 4
                          result += (x2*x2)/static_cast<T>(120);
+diff -ruN boost-1_53_0/.rej boost-1_53_0-new/.rej
+--- boost-1_53_0/.rej	1969-12-31 17:00:00.000000000 -0700
++++ boost-1_53_0-new/.rej	2013-11-12 14:39:32.455391947 -0700
+@@ -0,0 +1,50 @@
++--- boost/math/special_functions/sinc.hpp      2009-01-07 09:37:59.000000000 -0700
+++++ boost/math/special_functions/sinc_new.hpp  2013-03-18 16:13:57.281599100 -0600
++@@ -67,7 +67,7 @@
++             static T const    taylor_2_bound = sqrt(taylor_0_bound);
++             static T const    taylor_n_bound = sqrt(taylor_2_bound);
++ 
++-            if    (abs(x) >= taylor_n_bound)
+++            if    (std::abs(x) >= taylor_n_bound)
++             {
++                 return(sin(x)/x);
++             }
++@@ -76,14 +76,14 @@
++                 // approximation by taylor series in x at 0 up to order 0
++                 T    result = static_cast<T>(1);
++ 
++-                if    (abs(x) >= taylor_0_bound)
+++                if    (std::abs(x) >= taylor_0_bound)
++                 {
++                     T    x2 = x*x;
++ 
++                     // approximation by taylor series in x at 0 up to order 2
++                     result -= x2/static_cast<T>(6);
++ 
++-                    if    (abs(x) >= taylor_2_bound)
+++                    if    (std::abs(x) >= taylor_2_bound)
++                     {
++                         // approximation by taylor series in x at 0 up to order 4
++                         result += (x2*x2)/static_cast<T>(120);
++--- tools/build/v2/tools/darwin.jam	 2012-04-25 21:35:55.000000000 -0600	
+++++ tools/build/v2/tools/darwin.jam	 2013-03-14 09:36:37.000000000 -0600	
++@@ -183,7 +183,7 @@
++     #   archives in darwin is complicated.
++     local archiver =
++         [ common.get-invocation-command darwin
++-            : libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
+++            : /usr/bin/libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
++     flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
++     if $(.debug-configuration)
++     {
++--- boost/config/compiler/nvcc.hpp	2011-03-07 06:07:30.000000000 -0700
+++++ boost/config/compiler/nvcc_new.hpp	2013-06-28 10:10:27.939797267 -0600
++@@ -26,3 +26,8 @@
++ #include <boost/config/compiler/visualc.hpp>
++ 
++ #endif
+++
+++#if defined(BOOST_HAS_INT128) && defined(__CUDACC__)
+++#undef BOOST_HAS_INT128
+++#endif
+++
 diff -ruN boost-1_53_0/tools/build/v2/tools/darwin.jam boost-1_53_0-new/tools/build/v2/tools/darwin.jam
---- boost-1_53_0/tools/build/v2/tools/darwin.jam	 2012-04-25 21:35:55.000000000 -0600	
-+++ boost-1_53_0-new/tools/build/v2/tools/darwin.jam	 2013-03-14 09:36:37.000000000 -0600	
+--- boost-1_53_0/tools/build/v2/tools/darwin.jam	2012-04-25 21:35:55.000000000 -0600
++++ boost-1_53_0-new/tools/build/v2/tools/darwin.jam	2013-11-12 14:40:37.982315166 -0700
 @@ -183,7 +183,7 @@
      #   archives in darwin is complicated.
      local archiver =
@@ -39,14 +120,3 @@ diff -ruN boost-1_53_0/tools/build/v2/tools/darwin.jam boost-1_53_0-new/tools/bu
      flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
      if $(.debug-configuration)
      {
---- boost-1_53_0/boost/config/compiler/nvcc.hpp	2011-03-07 06:07:30.000000000 -0700
-+++ boost-1_53_0/boost/config/compiler/nvcc_new.hpp	2013-06-28 10:10:27.939797267 -0600
-@@ -26,3 +26,8 @@
- #include <boost/config/compiler/visualc.hpp>
- 
- #endif
-+
-+#if defined(BOOST_HAS_INT128) && defined(__CUDACC__)
-+#undef BOOST_HAS_INT128
-+#endif
-+
