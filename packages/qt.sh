@@ -136,7 +136,8 @@ buildQt() {
 #  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
         local incdir=
         local libdir=
-        for i in gstreamer libxml2; do
+# qt will not compile with gstreamer-1.0, so specifically look for 0.10
+        for i in gstreamer-0.10 libxml2; do
 # Get the latest
           incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
           if test -z "$incdir"; then
