@@ -43,8 +43,8 @@ buildGras() {
   G4INSTALL="$CONTRIB_DIR/geant4/Geant4"
   GRAS_ENV="$GRAS_ENV G4INSTALL='$G4INSTALL'"
   export G4INSTALL
-  if bilderUnpack -i gras; then
-    if bilderConfig -c gras ser; then
+  if bilderUnpack gras; then
+    if bilderConfig -c gras ser "$CMAKE_SUPRA_SP_ARG"; then
       bilderBuild gras ser "" "$GRAS_ENV"
     fi
   fi
