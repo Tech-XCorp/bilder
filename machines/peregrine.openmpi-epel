@@ -1,0 +1,179 @@
+#!/bin/bash
+#
+# $Id: peregrine.gcc 109 2013-03-01 09:10:58Z swsides $
+#
+# Define variables.
+# Do not override existing definitions.
+# Put any comments between the first block starting with '# KEEP THIS'
+# and ending with '# END KEEP THIS'
+#
+######################################################################
+
+# KEEP THIS
+# These contents are not sourced or changed on a file update, but
+# they are sourced for an actual build.
+# cmd="mkdir -p /scratch/$USER/tmp"
+# techo "$cmd"
+# $cmd
+# cmd="export TMP=/scratch/$USER/tmp"
+# techo "$cmd"
+# $cmd
+
+USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
+USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
+
+#
+# Module dependency
+#
+module purge
+module load openmpi-epel
+module load subversion
+
+# Specific top-level script is loading for now
+# module load python/2.7.4 
+
+echo " "
+module list
+echo " "
+
+export LD_LIBRARY_PATH="/nopt/intel/13.0/composer_xe_2013.3.163/compiler/lib/intel64":$LD_LIBRARY_PATH
+
+echo " "
+echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
+echo "     PYTHONPATH = $PYTHONPATH"
+echo " "
+
+# END KEEP THIS
+
+# Serial compilers
+# FC should be a compiler that compiles F77 or F90 but takes free format.
+# F77 should be a compiler that compiles F77 or F90 but takes fixed format.
+# Typically this means that both are the F90 compiler, and they figure out the
+# format from the file suffix.  The exception is the XL suite, where xlf
+# compiles F77 or F90, and expects fixed format, while xlf9x ignores
+# the suffix and looks for the -qfixed flag or else fails on fixed format.
+# CC=${CC:-"gcc"}
+# CXX=${CXX:-"g++"}
+# FC=${FC:-"gfortran"}
+# F77=${F77:-"gfortran"}
+
+# Python builds -- much use gcc for consistency.
+# PYC_CC=${PYC_CC:-""}
+# PYC_CXX=${PYC_CXX:-""}
+# PYC_FC=${PYC_FC:-""}
+# PYC_F77=${PYC_F77:-""}
+
+# Parallel compilers:
+# MPICC=${MPICC:-"mpiicc"}
+# MPICXX=${MPICXX:-"mpiicpc"}
+# MPIFC=${MPIFC:-"mpiifort"}
+# MPIF77=${MPIF77:-"mpiifort"}
+# MPIF90=${MPIF90:-"mpiifort"}
+
+# Compilation flags:
+# Do not set optimization flags as packages should add good defaults
+# pic flags are added later
+
+# Serial
+CFLAGS=${CFLAGS:-"-fPIC -O2"}
+CXXFLAGS=${CXXFLAGS:-"-fPIC -O2"}
+# FCFLAGS=${FCFLAGS:-""}
+# FFLAGS=${FFLAGS:-""}
+
+# Parallel
+# MPI_CFLAGS=${MPI_CFLAGS:-"-lmpi -mkl"}
+# MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-lmpi -mkl"}
+# MPI_FCFLAGS=${MPI_FCFLAGS:-"-lmpi -mkl"}
+# MPI_FFLAGS=${MPI_FFLAGS:-"-lmpi -mkl"}
+
+# Choose preferred buildsystem
+# PREFER_CMAKE=${PREFER_CMAKE:-""}
+
+# Variables for the packages, .
+# All variables override defaults in files in bilder/packages.
+# <PKG>_BLDRVERSION contains the version to be built.
+# <PKG>_BUILDS contains the desired builds. Use of NOBUILD is deprecated.
+# <PKG>_<BUILD>_OTHER_ARGS contains the other configuration arguments
+#   for build <BUILD>.  If a package could have a cmake or an autotools
+#   build, then the variables are <PKG>_<BUILD>_CMAKE_OTHER_ARGS
+#   and <PKG>_<BUILD>_CONFIG_OTHER_ARGS
+
+#
+# FFTW
+#
+# FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-""}
+# FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}         # need this?
+# FFTW_BEN_OTHER_ARGS=${FFTW_BEN_OTHER_ARGS:-""}
+# FFTW_PAR_OTHER_ARGS=${FFTW_PAR_OTHER_ARGS:-"--disable-fortran --enable-mpi"}
+# FFTW_SER_OTHER_ARGS=${FFTW_SER_OTHER_ARGS:-"--disable-fortran --disable-mpi"}
+
+#
+# DAKOTA
+#
+# DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-""}
+# DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
+# DAKOTA_SER_OTHER_ARGS=${DAKOTA_SER_OTHER_ARGS:-""}
+# DAKOTA_PAR_OTHER_ARGS=${DAKOTA_PAR_OTHER_ARGS:-""}
+# 
+# OPENMPIROOT should be set my module (intel too?)
+# DAKOTA_PAR_OTHER_ARGS=${DAKOTA_PAR_OTHER_ARGS:"-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"}
+# DAKOTA_PAR_OTHER_ARGS="-DMPI_INCLUDE_PATH:PATH=$OPENMPIROOT/include -DMPI_LIBRARY:FILEPATH=$OPENMPIROOT/lib/libmpi_cxx.a"
+
+# For reasons I dont understand, parallel make is causing problems (not working)
+# DAKOTA_MAKEJ_ARGS='-j1'
+
+
+#
+# HDF5
+#   not sure why fortran having a problem on peregrine
+#   may have problem with other compiler chains
+#
+# HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
+HDF5_BUILDS=${HDF5_BUILDS:-"ser,sersh,par,cc4py"}
+# HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
+HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF -DHDF5_BUILD_HL_LIB:BOOL=OFF"}
+HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
+HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
+HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON  -DHDF5_BUILD_HL_LIB:BOOL=ON"}
+# HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
+# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
+
+#
+# VOTCA
+#
+# VOTCA_TOOLS_BLDRVERSION=${VOTCA_TOOLS_BLDRVERSION:-""}
+BOOST_INCLUDEDIR='set'
+BOOST_LIBRARYDIR='set'
+# VOTCA_TOOLS_BUILDS=${VOTCA_TOOLS_BUILDS:-"ser"}         # need this?
+# VOTCA_TOOLS_ARGS=${VOTCA_TOOLS_ARGS:-"--disable-fortran --disable-mpi"}
+
+
+
+#
+# Python
+#
+#
+# Python (etc. no builds) epel will supply python
+# Turning off for dakota/boost. Will need to have separate
+# build for testing
+#
+PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
+SETUPTOOLS=${SETUPTOOLS:-"NONE"}
+SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
+NUMEXPER_BUILDS=${NUMEXPER_BUILDS:-"NONE"}
+# PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
+# PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-""}
+# PYTHONOCC_BLDRVERSION=${PYTHONOCC_BLDRVERSION:-""}
+# PYTHONOCC_BUILDS=${PYTHONOCC_BUILDS:-""}
+# PYTHONOCC_CC4PY_OTHER_ARGS=${PYTHONOCC_CC4PY_OTHER_ARGS:-""}
+
+
+
+#
+# PolySwift ++
+#
+# POLYSWIFT_BUILDS=${POLYSWIFT_BUILDS:-"ser,par"}
+# POLYSWIFT_SER_CMAKE_OTHER_ARGS=${POLYSWIFT_SER_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
+
+# POLYSWIFT_PAR_CMAKE_OTHER_ARGS=${POLYSWIFT_PAR_CMAKE_OTHER_ARGS:-"-DPython_INCLUDE_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/include/python2.7 -DPython_LIBRARY_DIRS:PATH=/nopt/nrel/apps/python/2.7.4/lib -DPython_LIBRARY_NAME:STRING=python2.7 -DPython_LIBRARIES:FILEPATH=/nopt/nrel/apps/python/2.7.4/lib/libpython2.7.so -DPYTHON:FILEPATH=/nopt/nrel/apps/python/2.7.4/bin/python -DPython_VERSION:STRING=2.7 -DPython_PYLIBDIR:PATH=/nopt/nrel/apps/python/2.7.4/lib/python2.7"}
