@@ -21,7 +21,7 @@ GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-03-r1561"}
 ######################################################################
 
 GRAS_BUILDS=${GRAS_BUILDS:-"ser"}
-GRAS_DEPS=geant4,pcre
+GRAS_DEPS=geant4,pcre,xercesc
 
 ######################################################################
 #
@@ -45,7 +45,7 @@ buildGras() {
   export G4INSTALL
   #source $G4INSTALL/bin/geant4.sh
   if bilderUnpack gras; then
-    if bilderConfig -c gras ser "$CMAKE_SUPRA_SP_ARG"; then
+    if bilderConfig -c gras ser "-DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc' $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild gras ser "" "$GRAS_ENV"
     fi
   fi
