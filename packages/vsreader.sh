@@ -20,7 +20,11 @@ VSREADER_BLDRVERSION=${VSREADER_BLDRVERSION:-""}
 ######################################################################
 
 VSREADER_DEPS=${VSREADER_DEPS:-"hdf5"}
-VSREADER_DESIRED_BUILDS=${VSREADER_DESIRED_BUILDS:-"ser"}
+if [[ `uname` =~ "CYGWIN" ]]; then
+  VSREADER_DESIRED_BUILDS=${VSREADER_DESIRED_BUILDS:-"sermd"}
+else
+  VSREADER_DESIRED_BUILDS=${VSREADER_DESIRED_BUILDS:-"ser"}
+fi
 
 computeBuilds vsreader
 
