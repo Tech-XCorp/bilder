@@ -2878,9 +2878,9 @@ bilderWgetCheck() {
 # return by echo the name of the package
 #
 bilderCurlCheck() {
-  cmd="curl -fI $1 >/dev/null"
-  echo $cmd
-  $cmd
+  cmd="curl -fI $1"
+  techo "$cmd" 1>&2
+  $cmd 1>&2
   return $?
 }
 
