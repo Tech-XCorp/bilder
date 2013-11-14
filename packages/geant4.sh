@@ -23,6 +23,18 @@ GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
 GEANT4_BUILDS=${GEANT4_BUILDS:-"ser"}
 GEANT4_DEPS=cmake,pcre,xercesc
 
+case `uname` in
+  CYGWIN*)
+    ;;
+  Darwin)
+    ;;
+  Linux)
+    GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF"
+    ;;
+esac
+
+GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc'"
+
 ######################################################################
 #
 # Add to path
@@ -39,7 +51,7 @@ GEANT4_DEPS=cmake,pcre,xercesc
 
 buildGeant4() {
   if bilderUnpack geant4; then
-    if bilderConfig -c geant4 ser "-DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc' $CMAKE_SUPRA_SP_ARG"; then
+    if bilderConfig -c geant4 ser "$GEANT4_ARGS $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild geant4 ser ""
     fi
   fi
