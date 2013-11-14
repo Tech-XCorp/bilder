@@ -20,10 +20,9 @@ VSREADER_BLDRVERSION=${VSREADER_BLDRVERSION:-""}
 ######################################################################
 
 VSREADER_DEPS=${VSREADER_DEPS:-"hdf5"}
+VSREADER_BUILDS=ser
 if [[ `uname` =~ "CYGWIN" ]]; then
-  VSREADER_DESIRED_BUILDS=${VSREADER_DESIRED_BUILDS:-"sermd"}
-else
-  VSREADER_DESIRED_BUILDS=${VSREADER_DESIRED_BUILDS:-"ser"}
+  VSREADER_BUILDS=sermd
 fi
 
 computeBuilds vsreader
@@ -42,8 +41,11 @@ buildVsreader() {
 
 # Standard sequence
   if bilderPreconfig -c vsreader; then
-    if bilderConfig vsreader ser "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $CMAKE_LINLIB_SER_ARGS $VSREADER_SER_OTHER_ARGS"; then
+    if bilderConfig vsreader ser "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_SER_OTHER_ARGS"; then
       bilderBuild vsreader ser
+    fi
+    if bilderConfig vsreader sermd "-DUSE_TXBASE_SERMD:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_SER_OTHER_ARGS -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE"; then 
+      bilderBuild vsreader sermd
     fi
   fi
 }
@@ -66,4 +68,5 @@ testVsreader() {
 
 installVsreader() {
   bilderInstall vsreader ser
+  bilderInstall vsreader sermd
 }
