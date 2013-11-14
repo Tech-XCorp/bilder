@@ -43,7 +43,7 @@ buildGras() {
   G4INSTALL="$CONTRIB_DIR/geant4"
   GRAS_ENV="$GRAS_ENV G4INSTALL='$G4INSTALL'"
   export G4INSTALL
-  #source $G4INSTALL/bin/geant4.sh
+  source $G4INSTALL/bin/geant4.sh
   if bilderUnpack gras; then
     if bilderConfig -c gras ser "-DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc' $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild gras ser "" "$GRAS_ENV"
