@@ -2972,7 +2972,7 @@ getPkg() {
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn) bilderSvn up $tarballbase 1>&2;;
         direct)
-          cmd="${DIRECT_GET} ${PACKAGE_REPO_URLS[$i]}/${1}${sfx}"
+          cmd="${DIRECT_GET} ${PACKAGE_REPO_URLS[$i]}/${tarballbase}"
           techo "$cmd" 1>&2
           $cmd 1>&2
           ;;
