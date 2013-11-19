@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-"2.4.1"}
+MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-"2.8"}
 
 ######################################################################
 #
@@ -21,7 +21,7 @@ MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-"2.4.1"}
 ######################################################################
 
 HG=`which hg 2>/dev/null`
-if test -z "$HG" -o "$HG" = /contrib/bin/hg; then
+if test -z "$HG" -o "$HG" = $CONTRIB_DIR/bin/hg; then
   MERCURIAL_BUILDS=${MERCURIAL_BUILDS:-"cc4py"}
 fi
 # setuptools gets site-packages correct
