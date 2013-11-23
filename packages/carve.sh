@@ -90,6 +90,9 @@ getHgCarve() {
       cmd="hg pull"
       techo "$cmd"
       $cmd
+      cmd="hg update"
+      techo "$cmd"
+      $cmd
     fi
   fi
   cd $origdir
