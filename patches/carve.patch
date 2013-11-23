@@ -1,6 +1,6 @@
-diff -r 2e6e59022e6e common/read_ply.cpp
---- a/common/read_ply.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/common/read_ply.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 common/read_ply.cpp
+--- a/common/read_ply.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/common/read_ply.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -286,7 +286,8 @@
    }
  
@@ -21,9 +21,9 @@ diff -r 2e6e59022e6e common/read_ply.cpp
      if (poly) {
        result = poly;
        return true;
-diff -r 2e6e59022e6e external/GLOOP/include/gloop/model/stream.hpp
---- a/external/GLOOP/include/gloop/model/stream.hpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/external/GLOOP/include/gloop/model/stream.hpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 external/GLOOP/include/gloop/model/stream.hpp
+--- a/external/GLOOP/include/gloop/model/stream.hpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/external/GLOOP/include/gloop/model/stream.hpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -32,7 +32,7 @@
  #include <gloop/exceptions.hpp>
  #include <gloop/ref.hpp>
@@ -42,9 +42,9 @@ diff -r 2e6e59022e6e external/GLOOP/include/gloop/model/stream.hpp
  
  #include <stdint.h>
  
-diff -r 2e6e59022e6e external/GLOOP/src/model/ply_format.cpp
---- a/external/GLOOP/src/model/ply_format.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/external/GLOOP/src/model/ply_format.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 external/GLOOP/src/model/ply_format.cpp
+--- a/external/GLOOP/src/model/ply_format.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/external/GLOOP/src/model/ply_format.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -34,7 +34,8 @@
  #include <stdarg.h>
  #include <stdio.h>
@@ -64,9 +64,9 @@ diff -r 2e6e59022e6e external/GLOOP/src/model/ply_format.cpp
  
  #include <stdint.h>
  #include <cstring>
-diff -r 2e6e59022e6e include/carve/input.hpp
---- a/include/carve/input.hpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/include/carve/input.hpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 include/carve/input.hpp
+--- a/include/carve/input.hpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/include/carve/input.hpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -173,11 +173,11 @@
          faceCount = 0;
        }
@@ -98,9 +98,9 @@ diff -r 2e6e59022e6e include/carve/input.hpp
        PolyhedronData *p = dynamic_cast<PolyhedronData *>(d);
        if (p == NULL) return NULL;
        return p->create(options);
-diff -r 2e6e59022e6e include/carve/mesh_simplify.hpp
---- a/include/carve/mesh_simplify.hpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/include/carve/mesh_simplify.hpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 include/carve/mesh_simplify.hpp
+--- a/include/carve/mesh_simplify.hpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/include/carve/mesh_simplify.hpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -34,6 +34,13 @@
  
  #include "write_ply.hpp"
@@ -133,9 +133,9 @@ diff -r 2e6e59022e6e include/carve/mesh_simplify.hpp
            aabb_t aabb = (*i)->getAABB();
            while (++i != faces.end()) {
              aabb.unionAABB((*i)->getAABB());
-diff -r 2e6e59022e6e lib/shewchuk_predicates.cpp
---- a/lib/shewchuk_predicates.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/lib/shewchuk_predicates.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
+--- a/lib/shewchuk_predicates.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/lib/shewchuk_predicates.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -116,7 +116,13 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -187,9 +187,9 @@ diff -r 2e6e59022e6e lib/shewchuk_predicates.cpp
      result = (double) (a - 1073741824) * 8388608.0 + (double) (b >> 8);
      return result;
    }
-diff -r 2e6e59022e6e src/convert.cpp
---- a/src/convert.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/src/convert.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 src/convert.cpp
+--- a/src/convert.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/src/convert.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -130,7 +130,7 @@
      carve::point::PointSet *ps;
      carve::line::PolylineSet *l;
@@ -217,9 +217,9 @@ diff -r 2e6e59022e6e src/convert.cpp
        if (options.obj) {
          std::cerr << "Can't write a point set in .obj format" << std::endl;
        } else if (options.vtk) {
-diff -r 2e6e59022e6e src/face_merge.cpp
---- a/src/face_merge.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/src/face_merge.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 src/face_merge.cpp
+--- a/src/face_merge.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/src/face_merge.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -41,7 +41,7 @@
  #include <algorithm>
  
@@ -229,9 +229,9 @@ diff -r 2e6e59022e6e src/face_merge.cpp
  
  typedef carve::mesh::MeshSet<3> meshset_t;
  typedef carve::mesh::Mesh<3> mesh_t;
-diff -r 2e6e59022e6e src/selfintersect.cpp
---- a/src/selfintersect.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/src/selfintersect.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 src/selfintersect.cpp
+--- a/src/selfintersect.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/src/selfintersect.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -463,10 +463,11 @@
  }
  
@@ -245,10 +245,10 @@ diff -r 2e6e59022e6e src/selfintersect.cpp
  
  // 0 = not intersecting
  // 1 = shared vertex
-diff -r 2e6e59022e6e tests/CMakeLists.txt
---- a/tests/CMakeLists.txt	Fri Nov 09 09:35:35 2012 +1100
-+++ b/tests/CMakeLists.txt	Mon May 13 15:35:33 2013 -0600
-@@ -107,8 +107,9 @@
+diff -r be054bc7ed86 tests/CMakeLists.txt
+--- a/tests/CMakeLists.txt	Fri Oct 25 12:19:31 2013 +1100
++++ b/tests/CMakeLists.txt	Sat Nov 23 11:57:25 2013 -0700
+@@ -110,8 +110,9 @@
    cxx_test(mesh_unittest gtest_main)
    target_link_libraries(mesh_unittest carve carve_fileformats gloop_model)
    
@@ -260,9 +260,9 @@ diff -r 2e6e59022e6e tests/CMakeLists.txt
    
    cxx_test(heap_unittest gtest_main)
    target_link_libraries(heap_unittest carve)
-diff -r 2e6e59022e6e tests/exact_unittest.cpp
---- a/tests/exact_unittest.cpp	Fri Nov 09 09:35:35 2012 +1100
-+++ b/tests/exact_unittest.cpp	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 tests/exact_unittest.cpp
+--- a/tests/exact_unittest.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/tests/exact_unittest.cpp	Sat Nov 23 11:57:25 2013 -0700
 @@ -67,9 +67,12 @@
    EXPECT_EQ((detail::sub<2,1>(detail::sub<1,1>(&c, &a), &a)), exact_t(0.0, -8.0, 1e60));
  
@@ -279,9 +279,9 @@ diff -r 2e6e59022e6e tests/exact_unittest.cpp
  
    exact_t s;
  
-diff -r 2e6e59022e6e tests/mersenne_twister.h
---- a/tests/mersenne_twister.h	Fri Nov 09 09:35:35 2012 +1100
-+++ b/tests/mersenne_twister.h	Mon May 13 15:35:33 2013 -0600
+diff -r be054bc7ed86 tests/mersenne_twister.h
+--- a/tests/mersenne_twister.h	Fri Oct 25 12:19:31 2013 +1100
++++ b/tests/mersenne_twister.h	Sat Nov 23 11:57:25 2013 -0700
 @@ -65,10 +65,10 @@
  #include <time.h>
  #include <math.h>
