@@ -9,6 +9,8 @@
 CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-pgi-12.9
 CONTRIB_DIR=/global/project/projectdirs/facets/edison/contrib-intel-13.0
 CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-gcc-4.7
+# Janus
+CONTRIB_DIR=/projects/cary/contrib-gcc-4.7
 
 exec() {
   echo $*
@@ -24,6 +26,8 @@ exec ../configure --prefix=$CONTRIB_DIR/extras
 exec make -j 4
 exec make install
 exec cd -
+# Just in case of premature quit
+chmod -R g=rwX,o=rX $CONTRIB_DIR/extras
 
 # liboil
 exec wget -N -nv http://liboil.freedesktop.org/download/liboil-0.3.14.tar.gz
@@ -34,6 +38,8 @@ exec ../configure --prefix=$CONTRIB_DIR/extras
 exec make -j 4
 exec make install
 exec cd -
+# Just in case of premature quit
+chmod -R g=rwX,o=rX $CONTRIB_DIR/extras
 
 # gst-plugins-base
 exec wget -N -nv http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-0.10.22.tar.bz2
