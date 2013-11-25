@@ -166,24 +166,22 @@ Index: visit4ctk/CMakeLists.txt
          FILES_MATCHING PATTERN "*.h"
          PATTERN "*.hpp"
          PATTERN ".svn" EXCLUDE
-@@ -1400,6 +1400,8 @@
+@@ -1400,7 +1400,13 @@
      # if there truly are current definitions, and more than 1 in the list, then
      # IF(${currentDefs} MATCHES NOTFOUND) causes a configure failure.
      # Grab the first item in the list for comparison instead.
+-    LIST(GET currentDefs 0 firstItem )
++    # JRC, 20131126: also possible to have empty list.
 +    LIST(LENGTH currentDefs listlen)
 +    if (${listlen} GREATER 0)
-     LIST(GET currentDefs 0 firstItem )
++      LIST(GET currentDefs 0 firstItem)
++    else ()
++      LIST(set firstItem NOTFOUND)
++    endif
      IF(${firstItem} MATCHES NOTFOUND)
          SET(allDefs ${newDefs})
-@@ -1409,6 +1411,7 @@
-     SET_TARGET_PROPERTIES(${target} PROPERTIES
-             COMPILE_DEFINITIONS "${allDefs}"
-         )
-+    endif ()
- ENDFUNCTION(ADD_TARGET_DEFINITIONS)
- 
- FUNCTION(ADD_PARALLEL_EXECUTABLE target)
-@@ -2042,7 +2045,7 @@
+     ELSE(${firstItem} MATCHES NOTFOUND)
+@@ -2042,7 +2048,7 @@
          DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                                GROUP_READ GROUP_WRITE GROUP_EXECUTE
                                WORLD_READ             WORLD_EXECUTE
@@ -192,7 +190,7 @@ Index: visit4ctk/CMakeLists.txt
      )
      INSTALL(DIRECTORY ${VISIT_MPICH_DIR}/bin
          DESTINATION ${VISIT_INSTALLED_VERSION}
-@@ -2052,7 +2055,7 @@
+@@ -2052,7 +2058,7 @@
          DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                                GROUP_READ GROUP_WRITE GROUP_EXECUTE
                                WORLD_READ             WORLD_EXECUTE
@@ -201,7 +199,7 @@ Index: visit4ctk/CMakeLists.txt
      )
      INSTALL(DIRECTORY ${VISIT_MPICH_DIR}/lib
          DESTINATION ${VISIT_INSTALLED_VERSION}
-@@ -2062,7 +2065,7 @@
+@@ -2062,7 +2068,7 @@
          DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                                GROUP_READ GROUP_WRITE GROUP_EXECUTE
                                WORLD_READ             WORLD_EXECUTE
@@ -210,7 +208,7 @@ Index: visit4ctk/CMakeLists.txt
      )
      IF(APPLE)
          FOREACH(filename libmpich.dylib libopa.dylib libmpl.dylib libpmpich.dylib)
-@@ -2294,7 +2297,7 @@
+@@ -2294,7 +2300,7 @@
          PERMISSIONS OWNER_READ OWNER_WRITE
                      GROUP_READ GROUP_WRITE
                      WORLD_READ
