@@ -176,8 +176,8 @@ Index: visit4ctk/CMakeLists.txt
 +    if (${listlen} GREATER 0)
 +      LIST(GET currentDefs 0 firstItem)
 +    else ()
-+      LIST(set firstItem NOTFOUND)
-+    endif
++      set(firstItem NOTFOUND)
++    endif ()
      IF(${firstItem} MATCHES NOTFOUND)
          SET(allDefs ${newDefs})
      ELSE(${firstItem} MATCHES NOTFOUND)
