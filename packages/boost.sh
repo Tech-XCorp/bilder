@@ -17,8 +17,13 @@
 ######################################################################
 
 # version 1_50_0 does not build with Intel compiler on windows (Pletzer)
+# 1_55_0 does not build on mavericks:
+#   https://svn.boost.org/trac/boost/ticket/9156
 BOOST_BLDRVERSION_STD=1_53_0
-BOOST_BLDRVERSION_EXP=1_53_0
+case `uname`-`uname -r` in
+  Darwin-13.*) BOOST_BLDRVERSION_EXP=1_53_0;;
+  *) BOOST_BLDRVERSION_EXP=1_55_0;;
+esac
 
 ######################################################################
 #
