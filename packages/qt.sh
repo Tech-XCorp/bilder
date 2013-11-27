@@ -29,8 +29,17 @@
 #
 ######################################################################
 
-QT_BLDRVERSION_STD=4.8.4
-QT_BLDRVERSION_EXP=4.8.4
+case `uname`-`uname -r` in
+  Darwin-13.*)
+# 4.8.6 likely not available until Jan 2014.  For now install with homebrew.
+    QT_BLDRVERSION_STD=4.8.6
+    QT_BLDRVERSION_EXP=4.8.6
+    ;;
+  *)
+    QT_BLDRVERSION_STD=4.8.4
+    QT_BLDRVERSION_EXP=4.8.4
+    ;;
+esac
 
 ######################################################################
 #
@@ -39,7 +48,10 @@ QT_BLDRVERSION_EXP=4.8.4
 ######################################################################
 
 # Only the python build is needed
-QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
+case `uname`-`uname -r` in
+  Darwin-13.*) QT_BUILDS=NONE;; # Until 4.8.6 comes out.
+  *) QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"};;
+esac
 QT_BUILD=$FORPYTHON_BUILD
 QT_DEPS=bzip2
 QT_UMASK=002
