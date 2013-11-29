@@ -5504,7 +5504,7 @@ EOF
             fi
             if test -n "$installer"; then
               sfx=`echo $ending | sed 's/^[^\.]*\.//'`
-              techo -2 "Found installer: '${installer}'."
+              techo "NOTE: Installer = '${installer}'"
               break
             fi
           done
@@ -5574,7 +5574,7 @@ EOF
               copycmd="cp -v ${installer} ${windepotdir}/${installername}"
               techo "$copycmd"
               if $copycmd 2>&1; then
-                techo "NOTE: $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
+                techo -2 "Installer $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
               else
                 techo "WARNING: $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
               fi
