@@ -17,6 +17,16 @@ exec() {
   $*
 }
 
+BUILD_GLIB2=false
+BUILD_GLIB2=${BUILD_GLIB2:-"false"}
+if $BUILD_GLIB2; then
+  exec wget -N -nv http://ftp.gnome.org/pub/gnome/sources/glib/2.36/glib-2.36.4.tar.xz
+  exec tar xJf glib-2.36.4.tar.xz
+  exec mkdir glib-2.36.4/ser
+  exec cd glib-2.36.4/ser
+fi
+exit
+
 # gstreamer
 exec wget -N -nv http://gstreamer.freedesktop.org/src/gstreamer/gstreamer-0.10.22.tar.bz2
 exec tar xjf gstreamer-0.10.22.tar.bz2
