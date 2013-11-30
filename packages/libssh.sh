@@ -30,7 +30,7 @@ if ! isCcCc4py; then
   addCc4pyBuild libssh
 fi
 
-LIBSSH_DEPS=cmake,zlib
+LIBSSH_DEPS=openssl,cmake,zlib
 LIBSSH_UMASK=002
 
 ######################################################################
