@@ -11,7 +11,8 @@
 # Version
 #
 ######################################################################
-VSREADER_BLDRVERSION=${VSREADER_BLDRVERSION:-""}
+
+# VSREADER_BLDRVERSION=${VSREADER_BLDRVERSION:-""}
 
 ######################################################################
 #
@@ -19,9 +20,7 @@ VSREADER_BLDRVERSION=${VSREADER_BLDRVERSION:-""}
 #
 ######################################################################
 
-VSREADER_BUILDS=${VSREADER_DESIRED_BUILDS:-"sersh"}
-computeBuilds vsreader
-
+VSREADER_BUILDS=${VSREADER_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
 VSREADER_UMASK=007
 VSREADER_DEPS=hdf5
 
@@ -36,11 +35,14 @@ buildVsreader() {
   getVersion vsreader
 
 # Standard sequence
-  if bilderPreconfig -c vsreader; then
-    # must use /MD on windows
-    if bilderConfig vsreader sersh "-DUSE_TXBASE_SERMD:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_SER_OTHER_ARGS"; then
-        bilderBuild vsreader sersh
-    fi
+  if ! bilderPreconfig -c vsreader; then
+    return
+  fi
+
+# must use /MD on windows
+  VSREADER_OTHER_ARGS=`deref VSREADER_${FORPYTHON_BUILD}_OTHER_ARGS`
+  if bilderConfig vsreader $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_OTHER_ARGS"; then
+    bilderBuild vsreader $FORPYTHON_BUILD
   fi
 }
 
@@ -61,5 +63,5 @@ testVsreader() {
 ######################################################################
 
 installVsreader() {
-  bilderInstall vsreader sersh
+  bilderInstall vsreader $FORPYTHON_BUILD
 }
