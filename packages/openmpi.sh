@@ -74,6 +74,7 @@ WARNING:   mkdir openmpi-save
 WARNING:   mv mpi* openmpi-save
 EOF
         fi
+# Need to add -Wreserved-user-defined-literal to 1.6.4 for clang?
         ;;
       Linux)
         OPENMPI_NODL_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-nodl/lib $SER_EXTRA_LDFLAGS'"

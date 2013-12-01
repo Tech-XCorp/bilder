@@ -17,7 +17,7 @@
 ######################################################################
 
 # version 1_50_0 does not build with Intel compiler on windows (Pletzer)
-# 1_55_0 does not build with NOCOMPRESSION:
+# 1_55_0 does not build with NO_COMPRESSION:
 #   https://svn.boost.org/trac/boost/ticket/9156
 BOOST_BLDRVERSION_STD=1_53_0
 BOOST_BLDRVERSION_EXP=1_53_0
