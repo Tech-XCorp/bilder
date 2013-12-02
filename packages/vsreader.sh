@@ -49,6 +49,10 @@ buildVsreader() {
   if bilderConfig vsreader $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_OTHER_ARGS"; then
     bilderBuild vsreader $FORPYTHON_BUILD
   fi
+  if bilderConfig vsreader sermd "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_OTHER_ARGS"; then
+    bilderBuild vsreader sermd
+  fi
+
 }
 
 ######################################################################
