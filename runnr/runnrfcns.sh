@@ -925,12 +925,13 @@ runnrEmail() {
       techo "$cmd"
       eval "$cmd"
     else
-      local msg=`cat $4`
-      # local cmd="$SENDMAIL -f $2 $1"
+if true; then
 # Message must contain To, or get implicit destination error with mailman
-      # local cmd="$SENDMAIL -t"
 # Need -f or get domain does not exist and not delivered
+if true; then
+      local msg=`cat $4`
       local cmd="$SENDMAIL -f $2 -t"
+      techo "$cmd"
       $cmd <<END
 From: $2
 To: $1
@@ -938,6 +939,16 @@ Subject: $3
 
 $msg
 END
+else
+      techo "(echo 'To: $1\nSubject $3\n'; cat $4) | eval \"$cmd\" - $mailsrvrargs"
+fi
+else
+# Attempt to use mail to allow sendmail server arg.
+# Does not work on OSX, because it uses postfix?
+      local cmd="mail -f $2 -s '$3' $1 - $mailsrvrargs"
+      techo "(echo To: $1; cat $4) | eval \"$cmd\""
+      (echo To: $1; cat $4) | eval "$cmd"
+fi
     fi
   else
     techo "Not emailing as SENDMAIL not defined."
