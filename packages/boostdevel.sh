@@ -13,7 +13,8 @@
 ######################################################################
 
 # version 1_50_0 does not build with Intel compiler on windows (Pletzer)
-BOOSTDEVEL_BLDRVERSION_STD=1_53_0
+# BOOSTDEVEL_BLDRVERSION_STD=1_53_0
+BOOSTDEVEL_BLDRVERSION_STD=1_54_0
 
 ######################################################################
 #
@@ -182,5 +183,17 @@ installBoostdevel() {
       setOpenPerms $boostdevel_instdir
       findBoostdevel
     fi
+
+    # Creates link in a 'boost' directory for backward compatibility eg 'import boost.mpi'
+    # only for parsh version. Note: these paths are dependent for use on module settings
+    case $bld in
+      parsh) 
+        local boostdevel_instdir=$CONTRIB_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION-$bld
+	mkdir $boostdevel_instdir/lib/boost
+	ln -s $boostdevel_instdir/lib/mpi.so $boostdevel_instdir/lib/boost
+	touch $boostdevel_instdir/lib/boost/__init__.py
+	;;
+    esac
+
   done
 }
