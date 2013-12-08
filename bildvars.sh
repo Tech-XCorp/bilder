@@ -162,14 +162,6 @@ case `uname` in
       techo "WARNING: ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
     fi
     ARCHIVER=ar
-    case `uname -r` in
-      1[3-9].*)
-        CC=${CC:-"clang"}
-        CXX=${CXX:-"clang++"}
-        FC=${FC:-"gfortran"}
-        F77=${F77:-"gfortran"}
-        ;;
-    esac
     SYSTEM_BLAS_SER_LIB="-framework Accelerate"
     SYSTEM_LAPACK_SER_LIB="-framework Accelerate"
     LIBEXT=.a
@@ -208,6 +200,13 @@ case `uname` in
 # 20120329: -bundle seems to be wrong?
 # 20121108: but it was present in many packages without harm.
         PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
+        ;;
+      1[3-9].*)
+        CC=${CC:-"clang"}
+        CXX=${CXX:-"clang++"}
+        FC=${FC:-"gfortran"}
+        F77=${F77:-"gfortran"}
+        CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
         ;;
     esac
     QMAKE_PLATFORM_ARGS="-spec macx-g++ -r"
