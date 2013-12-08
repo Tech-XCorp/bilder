@@ -207,6 +207,9 @@ case `uname` in
         FC=${FC:-"gfortran"}
         F77=${F77:-"gfortran"}
         CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
+        PYC_CC=${PYC_CC:-"clang"}
+        PYC_CXX=${PYC_CXX:-"clang++"}
+        PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
         ;;
     esac
     QMAKE_PLATFORM_ARGS="-spec macx-g++ -r"
