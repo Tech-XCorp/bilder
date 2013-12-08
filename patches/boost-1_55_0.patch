@@ -1,0 +1,15 @@
+diff -ruN boost-1_55_0/libs/iostreams/build/Jamfile.v2 boost-1_55_0-new/libs/iostreams/build/Jamfile.v2
+--- boost-1_55_0/libs/iostreams/build/Jamfile.v2	2013-05-26 08:13:58.000000000 -0600
++++ boost-1_55_0-new/libs/iostreams/build/Jamfile.v2	2013-12-08 08:16:50.000000000 -0700
+@@ -159,8 +159,9 @@
+     : $(sources) 
+     : <link>shared:<define>BOOST_IOSTREAMS_DYN_LINK=1 
+       <define>BOOST_IOSTREAMS_USE_DEPRECATED
+-      [ ac.check-library /zlib//zlib : <library>/zlib//zlib
+-        <source>zlib.cpp <source>gzip.cpp ]
++      # [ ac.check-library /zlib//zlib : <library>/zlib//zlib
++      #   <source>zlib.cpp <source>gzip.cpp ]
++      #   See https://github.com/boostorg/iostreams/commit/dfb1f61c26b77556a1cca0654d08847cf87d26ae
+     :
+     : <link>shared:<define>BOOST_IOSTREAMS_DYN_LINK=1
+     ;

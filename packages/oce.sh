@@ -49,7 +49,6 @@ getOce() {
 buildOce() {
 
 # Get oce from repo
-  techo OCE_BRANCHREV = $OCE_BRANCHREV
   (cd $PROJECT_DIR; getOce)
 
 # If no subdir, done.

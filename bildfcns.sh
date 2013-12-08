@@ -3007,21 +3007,36 @@ getPkg() {
 
 }
 
-# Update a git repo
+# Update a repo
 #
 # Args:
 # 1: package name
-# 2: package repo url
+# 2: package executable (if empty, git found from URL, otherwise hg, svn
+#      assumed updated as an external)
 #
-updateGitRepo() {
+updateRepo() {
 
-# Store args
+# Local vars
   local pkg=$1
-  local pkgurl=$2
 
-# Make sure they have git
-  if ! which git 1>/dev/null 2>&1; then
-    techo "WARNING: git not in path.  Cannot get $pkg."
+# Find the repo
+  local urlvar=`genbashvar $1`_URL
+  local pkgurl=`deref $urlvar`
+  techo -2 "$urlvar = $pkgurl."
+
+# Determine type
+  local scmexec=$2
+  if test -z "$scmexec"; then
+    case $pkgurl in
+      git*) scmexec=git;;
+      *) scmexec=hg;;
+    esac
+  fi
+  techo "$pkg is a $scmexec repo."
+
+# Make sure they have the executable
+  if ! which $scmexec 1>/dev/null 2>&1; then
+    techo "WARNING: $scmexec is not in path.  Cannot get $pkg."
     return 1
   fi
 
@@ -3032,45 +3047,24 @@ updateGitRepo() {
     PROJECT_DIR=`dirname $bldrdir`
   fi
   cd $PROJECT_DIR
-  # techo "updateGitRepo: PWD = $PWD."
 
 # Get clean version of repo
-  if test -d $pkg/.git; then
+  if test -d $pkg/.$scmexec; then
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
-      cmd="(cd $pkg; git reset --hard; git pull)"
+      case $scmexec in
+        git) cmd="(cd $pkg; git reset --hard; git pull)";;
+        hg) cmd="(cd $pkg; hg revert -a; hg pull; hg update)";;
+      esac
       techo "$cmd"
       eval "$cmd"
     fi
   else
-    techo "$PWD/$pkg/.git does not exist.  No git checkout of $pkg."
+    techo "$PWD/$pkg/.$scmexec does not exist.  No $scmexec checkout of $pkg."
     if test -d $pkg; then rm -rf $pkg.sav; mv $pkg $pkg.sav; fi
-    cmd="git clone $pkgurl $pkg"
+    cmd="$scmexec clone $pkgurl $pkg"
     techo "$cmd"
     $cmd
   fi
-
-}
-
-# Update a repo
-#
-# Args:
-# 1: package name
-#
-updateRepo() {
-
-# Find the repo
-  local urlvar=`genbashvar $1`_URL
-  local urlval=`deref $urlvar`
-
-# Branch on type
-  case $urlval in
-    git*)
-      cmd="updateGitRepo $1 $urlval"
-      techo -2 "$cmd"
-      $cmd
-      return $?
-      ;;
-  esac
 
 }
 

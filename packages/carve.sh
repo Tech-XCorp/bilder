@@ -30,6 +30,9 @@ CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
 computeBuilds carve
 CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
+CARVE_URL=https://code.google.com/p/carve
+# Blender maintains carve in the repo
+#   https://svn.blender.org/svnroot/bf-blender/trunk/blender/extern/carve
 
 ######################################################################
 #
@@ -38,87 +41,10 @@ CARVE_UMASK=002
 ######################################################################
 
 #
-# Move old carve aside.
-#
-# Args
-# 1: the repo to look for
-#
-mvOldCarveDir() {
-  if test -d carve; then
-    techo "Moving aside old carve directory."
-    if test -n "$1" -a -d carve/.${1}; then
-      olddir=carve-$1
-    else
-      olddir=carve-old
-    fi
-    cmd="rm -rf $olddir"
-    techo "$cmd"
-    $cmd
-    cmd="mv carve $olddir"
-    techo "$cmd"
-    $cmd
-  fi
-}
-
-#
-# Get carve using hg.  This gives a version that does not
-# build on Windows.
-#
-getHgCarve() {
-  local HG=`which hg`
-  if test -z "$HG"; then
-    techo "WARNING: hg not in path.  Cannot get carve."
-    return 1
-  else
-    techo "HG = $HG."
-  fi
-  local origdir=`pwd -P`
-  if ! test -d carve/.hg; then
-    techo "No mercurial checkout of carve."
-    mvOldCarveDir svn
-    cmd="hg clone https://code.google.com/p/carve"
-    techo "$cmd"
-    $cmd 2>&1 | tee -a $LOGFILE
-  else
-    cmd="cd carve"
-    techo "$cmd"
-    $cmd
-    cmd="hg revert -a"
-    techo "$cmd"
-    $cmd
-    if $SVNUP || test -n "$JENKINS_FSROOT"; then
-      cmd="hg pull"
-      techo "$cmd"
-      $cmd
-      cmd="hg update"
-      techo "$cmd"
-      $cmd
-    fi
-  fi
-  cd $origdir
-  return 0
-}
-
-#
-# A window compatible Carve is in the blender trunk at
-# trunk/blender/extern/carve.  Will figure out how to
-# obtain with svn.
-#
-getSvnCarve() {
-  if ! test -d carve/.svn; then
-    techo "No subversion checkout of carve."
-    mvOldCarveDir hg
-    cmd="svn co https://svn.blender.org/svnroot/bf-blender/trunk/blender/extern/carve"
-    techo "$cmd"
-    $cmd
-  fi
-}
-
-#
 # Get carve.  Delegate to git or hg.
 #
 getCarve() {
-  getHgCarve
+  updateRepo carve
   return $?
 }
 
