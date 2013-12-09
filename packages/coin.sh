@@ -2,6 +2,10 @@
 #
 # Version and build information for coin
 #
+# See
+# https://bitbucket.org/Coin3D/coin/wiki/Building%20from%20the%20command%20line
+# to build coin on windows from the command line.
+#
 # $Id$
 #
 ######################################################################
