@@ -60,7 +60,7 @@ buildCarve() {
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/carve; then
-    techo "WARNING: Carve not found."
+    techo "WARNING: Carve not found.  Not building."
     return 1
   fi
 

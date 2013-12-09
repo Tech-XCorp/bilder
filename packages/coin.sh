@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
+# Build from repo
+# COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
 
 ######################################################################
 #
@@ -25,6 +26,7 @@ COIN_BUILDS=${COIN_BUILDS:-"$FORPYTHON_BUILD"}
 COIN_BUILD=$FORPYTHON_BUILD
 COIN_DEPS=qt
 COIN_UMASK=002
+COIN_URL=https://bitbucket.org/Coin3D/coin
 addtopathvar PATH $CONTRIB_DIR/coin/bin
 
 ######################################################################
@@ -33,21 +35,37 @@ addtopathvar PATH $CONTRIB_DIR/coin/bin
 #
 ######################################################################
 
+#
+# Get coin using hg.
+#
+getCoin() {
+  techo "Updating coin from the repo."
+  updateRepo coin
+}
+
 buildCoin() {
 
-  if bilderUnpack Coin; then
-    local COIN_ADDL_ARGS=
-    case `uname` in
-      Darwin)
-        COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework"
-        ;;
-    esac
-    if bilderConfig Coin sersh "$CONFIG_COMPILERS_SER CFLAGS='$CFLAGS -fpermissive' CXXFLAGS='$CXXFLAGS -fpermissive' $COIN_ADDL_ARGS $COIN_SERSH_OTHER_ARGS"; then
-      bilderBuild Coin sersh
-    fi
-    if bilderConfig Coin cc4py "$CONFIG_COMPILERS_PYC CFLAGS='$PYC_CFLAGS -fpermissive' CXXFLAGS='$PYC_CXXFLAGS -fpermissive' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
-      bilderBuild Coin cc4py
-    fi
+# Try to get coin from repo
+  if ! (cd $PROJECT_DIR; getCoin); then
+    echo "WARNING: Problem in getting coin."
+  fi
+
+# If no subdir, done.
+  if ! test -d $PROJECT_DIR/coin; then
+    techo "WARNING: Coin not found.  Not building."
+    return 1
+  fi
+
+  if ! bilderUnpack Coin; then
+    return
+  fi
+
+  local COIN_ADDL_ARGS=
+  case `uname` in
+    Darwin) COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework";;
+  esac
+  if bilderConfig Coin $FORPYTHON_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$PYC_CFLAGS -fpermissive' CXXFLAGS='$PYC_CXXFLAGS -fpermissive' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
+      bilderBuild Coin $FORPYTHON_BUILD
   fi
 
 }
