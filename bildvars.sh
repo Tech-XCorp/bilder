@@ -908,7 +908,7 @@ USING_BUILD_CHAIN=false
 #
 ######################################################################
 
-techo -2 "Writing out all variables."
+techo -2 "Trimming and writing out all variables."
 hostvars="USER BLDRHOSTID FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
 pathvars="PATH PATH_NATIVE CMAKE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
@@ -928,6 +928,7 @@ techo ""
 techo "Environment settings:"
 completevars="RUNNRSYSTEM $hostvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
+  trimvar $i ' '
   printvar $i
 done
 techo "All variables written."
