@@ -1,50 +1,65 @@
 diff -r be054bc7ed86 common/read_ply.cpp
 --- a/common/read_ply.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/common/read_ply.cpp	Sat Nov 23 11:57:25 2013 -0700
-@@ -286,7 +286,8 @@
++++ b/common/read_ply.cpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -30,7 +30,7 @@
+ 
+ #include <fstream>
+ 
+-#ifndef WIN32
++#ifndef _WIN32
+ #  include <stdint.h>
+ #endif
+ 
+@@ -286,7 +286,9 @@
    }
  
    for (std::list<carve::input::Data *>::const_iterator i = inputs.input.begin(); i != inputs.input.end(); ++i) {
 -    carve::poly::Polyhedron *poly = inputs.create<carve::poly::Polyhedron>(*i);
++    // carve::poly::Polyhedron *poly = inputs.create<carve::poly::Polyhedron>(*i);
 +    carve::poly::Polyhedron *poly = inputs.create<carve::poly::Polyhedron>(*i,
-+      carve::input::Options());
++        carve::input::Options());
      if (poly) {
        result = poly;
        return true;
-@@ -328,7 +329,8 @@
+@@ -328,7 +330,9 @@
    }
  
    for (std::list<carve::input::Data *>::const_iterator i = inputs.input.begin(); i != inputs.input.end(); ++i) {
 -    carve::mesh::MeshSet<3> *poly = inputs.create<carve::mesh::MeshSet<3> >(*i);
++    // carve::mesh::MeshSet<3> *poly = inputs.create<carve::mesh::MeshSet<3> >(*i);
 +    carve::mesh::MeshSet<3> *poly = inputs.create<carve::mesh::MeshSet<3> >(*i,
-+      carve::input::Options());
++        carve::input::Options());
      if (poly) {
        result = poly;
        return true;
+diff -r be054bc7ed86 common/write_ply.cpp
+--- a/common/write_ply.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/common/write_ply.cpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -29,7 +29,7 @@
+ #include <stdio.h>
+ #include <iomanip>
+ 
+-#ifndef WIN32
++#ifndef _WIN32
+ #  include <stdint.h>
+ #endif
+ 
 diff -r be054bc7ed86 external/GLOOP/include/gloop/model/stream.hpp
 --- a/external/GLOOP/include/gloop/model/stream.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/external/GLOOP/include/gloop/model/stream.hpp	Sat Nov 23 11:57:25 2013 -0700
-@@ -32,7 +32,7 @@
++++ b/external/GLOOP/include/gloop/model/stream.hpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -32,7 +32,8 @@
  #include <gloop/exceptions.hpp>
  #include <gloop/ref.hpp>
  
 -#ifdef WIN32
++// #ifdef WIN32
 +#if defined(_MSC_VER) && _MSC_VER < 1600
  
  typedef char int8_t;
  typedef short int16_t;
-@@ -42,7 +42,7 @@
- typedef unsigned short uint16_t;
- typedef unsigned long uint32_t;
- 
--#else 
-+#else
- 
- #include <stdint.h>
- 
 diff -r be054bc7ed86 external/GLOOP/src/model/ply_format.cpp
 --- a/external/GLOOP/src/model/ply_format.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/external/GLOOP/src/model/ply_format.cpp	Sat Nov 23 11:57:25 2013 -0700
++++ b/external/GLOOP/src/model/ply_format.cpp	Tue Dec 10 11:38:43 2013 -0700
 @@ -34,7 +34,8 @@
  #include <stdarg.h>
  #include <stdio.h>
@@ -55,53 +70,23 @@ diff -r be054bc7ed86 external/GLOOP/src/model/ply_format.cpp
  
  typedef char int8_t;
  typedef short int16_t;
-@@ -44,7 +45,7 @@
- typedef unsigned short uint16_t;
- typedef unsigned long uint32_t;
+diff -r be054bc7ed86 include/carve/carve.hpp
+--- a/include/carve/carve.hpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/include/carve/carve.hpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -26,7 +26,8 @@
+ #  include <carve/config.h>
+ #endif
  
--#else 
-+#else
- 
- #include <stdint.h>
- #include <cstring>
-diff -r be054bc7ed86 include/carve/input.hpp
---- a/include/carve/input.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/include/carve/input.hpp	Sat Nov 23 11:57:25 2013 -0700
-@@ -173,11 +173,11 @@
-         faceCount = 0;
-       }
- 
--      carve::poly::Polyhedron *create(const Options &options) const {
-+      carve::poly::Polyhedron *create(const Options& options) const {
-         return new carve::poly::Polyhedron(points, faceCount, faceIndices);
-       }
- 
--      carve::mesh::MeshSet<3> *createMesh(const Options &options) const {
-+      carve::mesh::MeshSet<3> *createMesh(const Options& options) const {
-         Options::const_iterator i;
-         carve::mesh::MeshOptions opts;
-         i = options.find("avoid_cavities");
-@@ -273,14 +273,14 @@
-     };
- 
-     template<>
--    inline carve::mesh::MeshSet<3> *Input::create(Data *d, const Options &options) {
-+    inline carve::mesh::MeshSet<3> *Input::create(Data *d, const Options& options) {
-       PolyhedronData *p = dynamic_cast<PolyhedronData *>(d);
-       if (p == NULL) return NULL;
-       return p->createMesh(options);
-     }
- 
-     template<>
--    inline carve::poly::Polyhedron *Input::create(Data *d, const Options &options) {
-+    inline carve::poly::Polyhedron *Input::create(Data *d, const Options& options) {
-       PolyhedronData *p = dynamic_cast<PolyhedronData *>(d);
-       if (p == NULL) return NULL;
-       return p->create(options);
+-#if defined(WIN32)
++// #if defined(WIN32)
++#if defined(_WIN32)
+ #  include <carve/win32.h>
+ #elif defined(__GNUC__)
+ #  include <carve/gnu_cxx.h>
 diff -r be054bc7ed86 include/carve/mesh_simplify.hpp
 --- a/include/carve/mesh_simplify.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/include/carve/mesh_simplify.hpp	Sat Nov 23 11:57:25 2013 -0700
-@@ -34,6 +34,13 @@
++++ b/include/carve/mesh_simplify.hpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -34,6 +34,12 @@
  
  #include "write_ply.hpp"
  
@@ -111,20 +96,19 @@ diff -r be054bc7ed86 include/carve/mesh_simplify.hpp
 +  return y;
 +}
 +#endif
-+
  
  namespace carve {
    namespace mesh {
-@@ -1445,7 +1452,7 @@
+@@ -1445,7 +1451,7 @@
          heapval_t last;
          std::vector<heapval_t> heap;
  
 -        point_enumerator_t(vector_t _origin, int _base, int _n_dp) : origin(_origin), rounding_fac(pow(_base, _n_dp)), last(-1.0, _origin), heap() {
-+        point_enumerator_t(vector_t _origin, int _base, int _n_dp) : origin(_origin), rounding_fac(std::pow((double)_base, _n_dp)), last(-1.0, _origin), heap() {
++        point_enumerator_t(vector_t _origin, int _base, int _n_dp) : origin(_origin), rounding_fac(std::pow((double) _base, _n_dp)), last(-1.0, _origin), heap() {
            for (size_t i = 0; i < (1 << 3); ++i) {
              vector_t t = origin;
              for (size_t j = 0; j < 3; ++j) {
-@@ -1502,7 +1509,7 @@
+@@ -1502,7 +1508,7 @@
          }
  
          aabb_t getAABB() const {
@@ -135,7 +119,7 @@ diff -r be054bc7ed86 include/carve/mesh_simplify.hpp
              aabb.unionAABB((*i)->getAABB());
 diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
 --- a/lib/shewchuk_predicates.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/lib/shewchuk_predicates.cpp	Sat Nov 23 11:57:25 2013 -0700
++++ b/lib/shewchuk_predicates.cpp	Tue Dec 10 11:38:43 2013 -0700
 @@ -116,7 +116,13 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -145,11 +129,22 @@ diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
 +#define RANDOM rand
 +#else
  #include <sys/time.h>
-+#define RANDOM random
++#define RANDOM RANDOM
 +#endif
  
  /* On some machines, the exact arithmetic routines might be defeated by the  */
  /*   use of internal extended precision floating-point registers.  Sometimes */
+@@ -506,8 +512,8 @@
+   
+   /*****************************************************************************/
+   /*                                                                           */
+-  /*  doublerand()   Generate a double with random 53-bit significand and a    */
+-  /*                 random exponent in [0, 511].                              */
++  /*  doublerand()   Generate a double with RANDOM 53-bit significand and a    */
++  /*                 RANDOM exponent in [0, 511].                              */
+   /*                                                                           */
+   /*****************************************************************************/
+   
 @@ -518,9 +524,9 @@
      long a, b, c;
      long i;
@@ -163,6 +158,17 @@ diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
      result = (double) (a - 1073741824) * 8388608.0 + (double) (b >> 8);
      for (i = 512, expo = 2; i <= 131072; i *= 2, expo = expo * expo) {
        if (c & i) {
+@@ -532,8 +538,8 @@
+   
+   /*****************************************************************************/
+   /*                                                                           */
+-  /*  narrowdoublerand()   Generate a double with random 53-bit significand    */
+-  /*                       and a random exponent in [0, 7].                    */
++  /*  narrowdoublerand()   Generate a double with RANDOM 53-bit significand    */
++  /*                       and a RANDOM exponent in [0, 7].                    */
+   /*                                                                           */
+   /*****************************************************************************/
+   
 @@ -544,9 +550,9 @@
      long a, b, c;
      long i;
@@ -176,6 +182,15 @@ diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
      result = (double) (a - 1073741824) * 8388608.0 + (double) (b >> 8);
      for (i = 512, expo = 2; i <= 2048; i *= 2, expo = expo * expo) {
        if (c & i) {
+@@ -558,7 +564,7 @@
+   
+   /*****************************************************************************/
+   /*                                                                           */
+-  /*  uniformdoublerand()   Generate a double with random 53-bit significand.  */
++  /*  uniformdoublerand()   Generate a double with RANDOM 53-bit significand.  */
+   /*                                                                           */
+   /*****************************************************************************/
+   
 @@ -567,8 +573,8 @@
      double result;
      long a, b;
@@ -189,13 +204,13 @@ diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
    }
 diff -r be054bc7ed86 src/convert.cpp
 --- a/src/convert.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/convert.cpp	Sat Nov 23 11:57:25 2013 -0700
++++ b/src/convert.cpp	Tue Dec 10 11:38:43 2013 -0700
 @@ -130,7 +130,7 @@
      carve::point::PointSet *ps;
      carve::line::PolylineSet *l;
  
 -    if ((p = carve::input::Input::create<carve::mesh::MeshSet<3> >(*i)) != NULL)  {
-+    if ((p = carve::input::Input::create<carve::mesh::MeshSet<3> >(*i, carve::input::Options()) ) != NULL)  {
++    if ((p = carve::input::Input::create<carve::mesh::MeshSet<3> >(*i, carve::input::Options() )) != NULL)  {
        if (options.canonicalize) p->canonicalize();
        if (options.obj) {
          writeOBJ(std::cout, p);
@@ -204,22 +219,24 @@ diff -r be054bc7ed86 src/convert.cpp
        }
        delete p;
 -    } else if ((l = carve::input::Input::create<carve::line::PolylineSet>(*i)) != NULL)  {
-+    } else if ((l = carve::input::Input::create<carve::line::PolylineSet>(*i, carve::input::Options()) ) != NULL)  {
++    } else if ((l = carve::input::Input::create<carve::line::PolylineSet>(*i, carve::input::Options())) != NULL)  {
        if (options.obj) {
          writeOBJ(std::cout, l);
        } else if (options.vtk) {
-@@ -149,7 +149,7 @@
+@@ -149,7 +149,9 @@
          writePLY(std::cout, l, options.ascii);
        }
        delete l;
 -    } else if ((ps = carve::input::Input::create<carve::point::PointSet>(*i)) != NULL)  {
-+    } else if ((ps = carve::input::Input::create<carve::point::PointSet>(*i, carve::input::Options())) != NULL)  {
++    }
++    else if ((ps = carve::input::Input::create<carve::point::PointSet>(*i)) != NULL)  {
++    // else if ((ps = carve::input::Input::create<carve::point::PointSet>(*i), carve::input::Options()) != NULL)  {
        if (options.obj) {
          std::cerr << "Can't write a point set in .obj format" << std::endl;
        } else if (options.vtk) {
 diff -r be054bc7ed86 src/face_merge.cpp
 --- a/src/face_merge.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/face_merge.cpp	Sat Nov 23 11:57:25 2013 -0700
++++ b/src/face_merge.cpp	Tue Dec 10 11:38:43 2013 -0700
 @@ -41,7 +41,7 @@
  #include <algorithm>
  
@@ -229,13 +246,26 @@ diff -r be054bc7ed86 src/face_merge.cpp
  
  typedef carve::mesh::MeshSet<3> meshset_t;
  typedef carve::mesh::Mesh<3> mesh_t;
+diff -r be054bc7ed86 src/glu_triangulator.hpp
+--- a/src/glu_triangulator.hpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/src/glu_triangulator.hpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -19,7 +19,7 @@
+ #include <OpenGL/glu.h>
+ #else
+ 
+-#ifdef WIN32
++#ifdef _WIN32
+ #include <windows.h>
+ #undef rad1
+ #undef rad2
 diff -r be054bc7ed86 src/selfintersect.cpp
 --- a/src/selfintersect.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/selfintersect.cpp	Sat Nov 23 11:57:25 2013 -0700
-@@ -463,10 +463,11 @@
++++ b/src/selfintersect.cpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -462,11 +462,11 @@
+   return lo > 0.0 || hi < 0.0;
  }
  
- 
+-
 +/*
  // returns true if no intersection, based upon edge^a_i and edge^b_j separating axis.
  bool sat_edge(const vec3 tri_a[3], const vec3 tri_b[3], unsigned i, unsigned j) {
@@ -245,54 +275,19 @@ diff -r be054bc7ed86 src/selfintersect.cpp
  
  // 0 = not intersecting
  // 1 = shared vertex
-diff -r be054bc7ed86 tests/CMakeLists.txt
---- a/tests/CMakeLists.txt	Fri Oct 25 12:19:31 2013 +1100
-+++ b/tests/CMakeLists.txt	Sat Nov 23 11:57:25 2013 -0700
-@@ -110,8 +110,9 @@
-   cxx_test(mesh_unittest gtest_main)
-   target_link_libraries(mesh_unittest carve carve_fileformats gloop_model)
-   
--  cxx_test(mesh_triangulate_unittest gtest_main)
--  target_link_libraries(mesh_triangulate_unittest carve carve_fileformats gloop_model)
-+# These not compiling with VS10
-+  # cxx_test(mesh_triangulate_unittest gtest_main)
-+  # target_link_libraries(mesh_triangulate_unittest carve carve_fileformats gloop_model)
-   
-   cxx_test(heap_unittest gtest_main)
-   target_link_libraries(heap_unittest carve)
 diff -r be054bc7ed86 tests/exact_unittest.cpp
 --- a/tests/exact_unittest.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/tests/exact_unittest.cpp	Sat Nov 23 11:57:25 2013 -0700
-@@ -67,9 +67,12 @@
++++ b/tests/exact_unittest.cpp	Tue Dec 10 11:38:43 2013 -0700
+@@ -67,9 +67,9 @@
    EXPECT_EQ((detail::sub<2,1>(detail::sub<1,1>(&c, &a), &a)), exact_t(0.0, -8.0, 1e60));
  
    double s1 = 4;
 -  double s2 = 3 * exp2(60);
 -  double s3 = 2 * exp2(120);
 -  double s4 = 1 * exp2(180);
-+  // double s2 = 3 * exp2(60);
 +  double s2 = 3 * pow(2., 60);
-+  // double s3 = 2 * exp2(120);
 +  double s3 = 2 * pow(2., 120);
-+  // double s4 = 1 * exp2(180);
 +  double s4 = 1 * pow(2., 180);
  
    exact_t s;
  
-diff -r be054bc7ed86 tests/mersenne_twister.h
---- a/tests/mersenne_twister.h	Fri Oct 25 12:19:31 2013 +1100
-+++ b/tests/mersenne_twister.h	Sat Nov 23 11:57:25 2013 -0700
-@@ -65,10 +65,10 @@
- #include <time.h>
- #include <math.h>
- 
--#if !defined(_WIN32)
-+#if defined(_MSC_VER) && _MSC_VER < 1600
-+typedef unsigned long uint32_t;
-+#else
- #include <stdint.h>
--#else
--typedef unsigned long uint32_t;
- #endif
- 
- class MTRand {
