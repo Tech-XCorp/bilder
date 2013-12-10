@@ -4372,8 +4372,11 @@ bilderTest() {
 
 # Check to test
   # techo "TESTING = $TESTING."
-  if ! $TESTING; then
-    techo "Not testing $1-$2, as TESTING = $TESTING."
+  local PKG_TEST=`genbashvar $1`_TESTING
+  PKG_TEST_VAL=`deref ${PKG_TEST}`
+  PKG_TEST_VAL=${PKG_TEST_VAL:-$TESTING}
+  if ! $PKG_TEST_VAL; then
+    techo "Not testing $1-$2, as ${PKG_TEST}=${PKG_TEST_VAL}."
     return 0
   fi
 
@@ -4447,7 +4450,7 @@ bilderTest() {
   local dotestvar=`genbashvar $1-$2`_DOTEST
   local dotestval=`deref $dotestvar`
 # Presence of file enough to know it built.
-  if ! $TESTING || ! $dotestval; then
+  if ! $PKG_TEST_VAL || ! $dotestval; then
     techo "Not testing $1-$verval-$2."
     techo -2 "TESTING = $TESTING.  $dotestvar = $dotestval."
     return 1
