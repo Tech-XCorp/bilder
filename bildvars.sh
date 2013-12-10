@@ -936,5 +936,12 @@ techo "All variables written."
 
 env >$BUILD_DIR/bilderenv.txt
 
+# Various cleanups
+
+# Remove incorrect installations
+if isCcCc4py; then
+  rm -rf $BLDR_INSTALL_DIR/*-cc4py $CONTRIB_DIR/*-cc4py  # Should be sersh
+fi
+
 # techo "WARNING: Quitting at end of bildvars.sh."; exit
 
