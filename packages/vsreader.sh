@@ -20,7 +20,12 @@
 #
 ######################################################################
 
-VSREADER_BUILDS=${VSREADER_DESIRED_BUILDS:-"${FORPYTHON_BUILD},sermd"}
+if test -z "$VSREADER_BUILDS"; then
+  VSREADER_BUILDS=${FORPYTHON_BUILD}
+  if [[ `uname` =~ CYGWIN ]]; then
+    VSREADER_BUILDS="${VSREADER_BUILDS},sermd"
+  fi
+fi
 VSREADER_UMASK=007
 VSREADER_DEPS=hdf5
 
@@ -42,14 +47,14 @@ buildVsreader() {
 # must use /MD on windows
   if [[ `uname` =~ CYGWIN ]]; then
     local HDF5_INSTALL_DIR=$MIXED_CONTRIB_DIR/hdf5-${HDF5-BLDRVERSION}-sermd
-    VSREADER_SER_ADDL_ARGS="-DHdf5_ROOT_DIR:PATH=\'${HDF5_INSTALL_DIR}\'"
+    VSREADER_SER_ADDL_ARGS="-DHdf5_ROOT_DIR:PATH='${HDF5_INSTALL_DIR}'"
   fi
 
-  VSREADER_OTHER_ARGS=`deref VSREADER_${FORPYTHON_BUILD}_OTHER_ARGS`
-  if bilderConfig vsreader $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_OTHER_ARGS"; then
+  VSREADER_4PY_OTHER_ARGS=`deref VSREADER_${FORPYTHON_BUILD}_OTHER_ARGS`
+  if bilderConfig vsreader $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $VSREADER_4PY_OTHER_ARGS"; then
     bilderBuild vsreader $FORPYTHON_BUILD
   fi
-  if bilderConfig vsreader sermd "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_OTHER_ARGS"; then
+  if bilderConfig vsreader sermd "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $VSREADER_SERMD_OTHER_ARGS"; then
     bilderBuild vsreader sermd
   fi
 
@@ -72,5 +77,7 @@ testVsreader() {
 ######################################################################
 
 installVsreader() {
-  bilderInstall vsreader $FORPYTHON_BUILD
+  for bld in `echo $VSREADER_BUILDS | tr ',' ' '`; do
+    bilderInstall vsreader $bld
+  done
 }
