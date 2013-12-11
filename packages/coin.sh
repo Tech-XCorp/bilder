@@ -60,7 +60,9 @@ buildCoin() {
     return 1
   fi
 
-  if ! bilderUnpack Coin; then
+# Get version and preconfig
+  getVersion coin
+  if ! bilderPreconfig Coin; then
     return
   fi
 
