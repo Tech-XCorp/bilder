@@ -22,13 +22,14 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 # Module dependency
 #
 module purge
-# module load epel
+module load epel
 module load comp-intel
 module load impi-intel
 module load subversion
+module load python/2.7.4/impi-intel
 
 # Specific top-level script is loading for now
-# module load python/2.7.4 
+# module load python/2.7.4/impi-intel
 
 echo " "
 module list
@@ -119,11 +120,17 @@ BOOST_LIBRARYDIR='set'
 # Turning off for dakota/boost. Will need to have separate
 # build for testing
 #
-PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
-TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
-SETUPTOOLS=${SETUPTOOLS:-"NONE"}
-SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
-NUMEXPER_BUILDS=${NUMEXPER_BUILDS:-"NONE"}
+#PYTHON_BUILDS=${PYTHON_BUILDS:-"sersh"}
+# This keeps system libs for libm (and others!) from being found
+PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-libm='/nopt/nrel/apps/epel/6.3/lib64/libm.so.6'"}
+PYTHON_BLDRVERSION_STD=2.7.4
+NUMPY_BLDRVERSION_STD=1.7.1
+SCIPYY_BLDRVERSION_STD=0.12.0
+# TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
+# SETUPTOOLS=${SETUPTOOLS:-"NONE"}
+# SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
+# NUMEXPER_BUILDS=${NUMEXPER_BUILDS:-"NONE"}
+
 
 #
 # PolySwift ++
