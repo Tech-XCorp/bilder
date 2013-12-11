@@ -36,8 +36,16 @@ case `uname` in
     MINGW_BINDIR=`which mingw64-gfortran 2>/dev/null`
     ;;
   CYGWIN*)
-    MINGW_BINDIR=`which mingw32-gfortran 2>/dev/null`
-    programfiles='Program Files'
+    # if setup-x86_64.exe is used, uname is CYGWIN_NT-6.1,
+    # and uname -m is x86_64
+    if [ "`uname -m`" == "x86_64" ]; then
+      IS_64_BIT=true
+      programfiles='Program Files (x86)'
+      MINGW_BINDIR=`which mingw64-gfortran 2>/dev/null`
+    else
+      MINGW_BINDIR=`which mingw32-gfortran 2>/dev/null`
+      programfiles='Program Files'
+    fi
     ;;
 esac
 if test -n "$MINGW_BINDIR"; then
