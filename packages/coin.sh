@@ -56,13 +56,14 @@ buildCoin() {
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/coin; then
-    techo "WARNING: Coin not found.  Not building."
+    techo "WARNING: coin not found.  Not building."
     return 1
   fi
 
+<<<<<<< .mine
 # Get version and preconfig
   getVersion coin
-  if ! bilderPreconfig Coin; then
+  if ! bilderPreconfig -p : coin; then
     return
   fi
 
@@ -70,8 +71,15 @@ buildCoin() {
   case `uname` in
     Darwin) COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework";;
   esac
-  if bilderConfig Coin $FORPYTHON_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$PYC_CFLAGS -fpermissive' CXXFLAGS='$PYC_CXXFLAGS -fpermissive' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
-      bilderBuild Coin $FORPYTHON_BUILD
+  COIN_CC=`basename "$CC"`
+  COIN_CXX=`basename "$CXX"`
+  COIN_COMPILERS="CC='$COIN_CC' CXX='$COIN_CXX'"
+  COIN_CFLAGS="$PYC_CFLAGS -fpermissive"
+  trimvar COIN_CFLAGS ' '
+  COIN_CXXFLAGS="$PYC_CXXFLAGS -fpermissive"
+  trimvar COIN_CXXFLAGS ' '
+  if bilderConfig coin $FORPYTHON_BUILD "$COIN_COMPILERS CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
+    bilderBuild coin $FORPYTHON_BUILD
   fi
 
 }
@@ -94,7 +102,7 @@ testCoin() {
 
 installCoin() {
   for bld in `echo $COIN_BUILDS | tr ',' ' '`; do
-    bilderInstall -r Coin $bld
+    bilderInstall -r coin $bld
   done
 }
 
