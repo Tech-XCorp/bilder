@@ -60,7 +60,6 @@ buildCoin() {
     return 1
   fi
 
-<<<<<<< .mine
 # Get version and preconfig
   getVersion coin
   if ! bilderPreconfig -p : coin; then
