@@ -22,13 +22,13 @@ case $UQMAILHOST in
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
 
-    # System linear algebra, note sandybridge for edison.
+# System linear algebra, note sandybridge for edison.
     SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray_mp.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray_mp.a
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
 
-    # System IO libs
+# System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/81
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/81
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/81
@@ -39,36 +39,36 @@ case $UQMAILHOST in
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-    # System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+# System linear algebra, note mc12 (Magny-Cours) for Hopper.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/CRAY/81/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/CRAY/81/mc12/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
 
-    # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/74
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/74
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/74
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/cray/74
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/81
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/81
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/81
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/cray/81
 
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
     ;;
   titan*)
-    # Make sure your code is built for the compute nodes,
-    # module xtpe-interlagos should be loaded.
+# Make sure your code is built for the compute nodes,
+# module xtpe-interlagos should be loaded.
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-    # System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
+# System linear algebra, note interlagos for Titan backend nodes.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_BEN_LIB=/opt/cray/libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_BEN_LIB=/opt/cray/libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
 
-    # System IO libs
+# System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/74/
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/cray/74
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/cray/74
@@ -345,7 +345,7 @@ FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-"cross_compiling=yes"}
 
 # FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-""}
 # FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-""}
-FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes -DHDF5_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}'"}
+FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}'"}
 FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_SER_DIR}'"}
 
 # FCTESTS_BLDRVERSION=${FCTESTS_BLDRVERSION:-""}
@@ -946,7 +946,7 @@ TORIC_PAR_OTHER_ARGS=${TORIC_PAR_OTHER_ARGS:-"--disable-shared --enable-static c
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
 # TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
-TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
+# TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-""}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
 
 # TXBTESTS_BLDRVERSION=${TXBTESTS_BLDRVERSION:-""}
@@ -961,7 +961,7 @@ TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"--disable-shared --enable-static
 # TXPHYSICS_BLDRVERSION=${TXPHYSICS_BLDRVERSION:-""}
 # TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-""}
 # TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-""}
-TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes"}
+# TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-""}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
 # TXSSH_BLDRVERSION=${TXSSH_BLDRVERSION:-""}
