@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-"1.1.1-r171"}
+FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-"1.1.1-r172"}
 
 ######################################################################
 #
