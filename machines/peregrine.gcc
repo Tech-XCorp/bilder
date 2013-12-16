@@ -31,7 +31,7 @@ module load openmpi-gcc
 module load subversion
 
 # Specific top-level script is loading for now
-# module load python/2.7.4 
+# module load python/2.7.4/openmpi-gcc
 
 echo " "
 module list
@@ -158,11 +158,19 @@ BOOST_LIBRARYDIR='set'
 # Turning off for dakota/boost. Will need to have separate
 # build for testing
 #
-PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
-TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
-SETUPTOOLS=${SETUPTOOLS:-"NONE"}
-SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
-NUMEXPER_BUILDS=${NUMEXPER_BUILDS:-"NONE"}
+#PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-libm='/nopt/nrel/apps/epel/6.3/lib64/libm.so.6'"}
+PYTHON_BLDRVERSION=2.7.4
+NUMPY_BLDRVERSION=1.7.1
+SCIPY_BLDRVERSION=0.12.0
+
+# No lapack is for shorter build times for pythonall
+LAPACK_BUILDS=${LAPACK_BUILDS:-"NONE"}
+
+#PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
+#TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
+#SETUPTOOLS=${SETUPTOOLS:-"NONE"}
+#SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
+#NUMEXPER_BUILDS=${NUMEXPER_BUILDS:-"NONE"}
 # PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
 # PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-""}
 # PYTHONOCC_BLDRVERSION=${PYTHONOCC_BLDRVERSION:-""}

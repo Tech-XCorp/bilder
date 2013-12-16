@@ -28,8 +28,12 @@ BUILD_ATLAS=${BUILD_ATLAS:-"false"}
 # Set any variables based on 32/64 bit
 FC=
 if $IS_64BIT; then
-#  ATLAS_BUILDS=${ATLAS_BUILDS:-"NONE"}
+  PATH_SAV="$PATH"
+  PATH="$PATH":/cygdrive/c/TDM-GCC-64/bin
+  FC=${FC:-`which x86_64-w64-mingw32-gfortran.exe 2>/dev/null`}
+  PATH="$PATH":/cygdrive/c/MinGW64/bin
   FC=${FC:-`which mingw64-gfortran.exe 2>/dev/null`}
+  PATH="$PATH_SAV"
 else
   FC=${FC:-`which mingw32-gfortran.exe 2>/dev/null`}
 fi
