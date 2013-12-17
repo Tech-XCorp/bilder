@@ -3053,7 +3053,7 @@ updateRepo() {
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git) cmd="(cd $pkg; git reset --hard; git pull)";;
-        hg) cmd="(cd $pkg; hg revert -a; hg pull; hg update)";;
+        hg) cmd="(cd $pkg; hg revert -aC; hg pull; hg update)";;
       esac
       techo "$cmd"
       eval "$cmd"
