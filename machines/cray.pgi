@@ -51,21 +51,22 @@ case $UQMAILHOST in
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-    # System linear algebra, note mc12 (Magny-Cours) for Hopper.
+# System linear algebra, note mc12 (Magny-Cours) for Hopper.
     SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/PGI/121/mc12/lib/libsci_pgi.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/PGI/121/mc12/lib/libsci_pgi.a
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
 
-    # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/121
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/121
+# System IO libs
+# JRK 12/17/13 - hdf5 downgraded from default as there are 
+# problems with linking (libdl) at version 1.8.11
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/pgi/119
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/pgi/119
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/121
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/121
 
-    # Trilinos and Petsc
+# Trilinos and Petsc
     TRILINOS_PARCOMM_OTHER_ARGS="${TRILINOS_PARCOMM_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
-
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
 
@@ -73,15 +74,15 @@ case $UQMAILHOST in
     ;;
 
   titan*)
-    # Make sure your code is built for the compute nodes,
-    # module xtpe-interlagos should be loaded.
+# Make sure your code is built for the compute nodes,
+# module xtpe-interlagos should be loaded.
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-    # System linear algebra, note interlagos for Titan backend nodes.
-    # Use threaded libraries. I've set the CC4PY to mc12, such that these
-    # versions run on the login nodes, but I'm not sure this is right. (JRK)
+# System linear algebra, note interlagos for Titan backend nodes.
+# Use threaded libraries. I've set the CC4PY to mc12, such that these
+# versions run on the login nodes, but I'm not sure this is right. (JRK)
     SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/pgi/119/mc12/lib/libsci_pgi_mp.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
     SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
@@ -89,28 +90,25 @@ case $UQMAILHOST in
     SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/47/mc12/lib/libsci_gnu.a
     SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/pgi/119/interlagos/lib/libsci_pgi_mp.a
 
-    # System IO libs
+# System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/119
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/119
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/119
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/119
 
-    # Trilinos and Petsc
-    # This was required on jaguar, try it on titan if there are problems.
+# Trilinos and Petsc
+# This was required on jaguar, try it on titan if there are problems.
     #TRILINOS_PAR_OTHER_ARGS="${TRILINOS_PAR_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
-
-    # These options for jaguar, confirm on titan.
-    # With these options the build WILL fail as the conftest script must
-    # be executed on a compute node (with aprun -n 2), then execute
-    # reconfigure.py on the login node before building.  The bilder build
-    # script should succeed at this point.  Install by hand for now.
+# These options for jaguar, confirm on titan.
+# With these options the build WILL fail as the conftest script must
+# be executed on a compute node (with aprun -n 2), then execute
+# reconfigure.py on the login node before building.  The bilder build
+# script should succeed at this point.  Install by hand for now.
     PETSC_MPIEXEC=${PROJECT_DIR}/bilder/mpiexec.aprun
     PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 --with-batch --known-mpi-shared=1 $PETSC_MPIEXEC_ARG"}
 
-    #PYC_FC=${PYC_FC:-"/opt/gcc/4.7.2/bin/gfortran"}
-    #PYC_F77=${PYC_F77:-"/opt/gcc/4.7.2/bin/gfortran"}
     LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
-    #This gets numpy built
+#This gets numpy built
     PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-"/opt/gcc/4.7.2/snos/lib64:/opt/gcc/mpc/0.8.1/lib"}
     ;;
 esac
@@ -140,10 +138,10 @@ PYC_FC=${PYC_FC:-"gfortran"}
 PYC_F77=${PYC_F77:-"gfortran"}
 
 # Backend compilers:
-# BENCC=${BENCC:-""}
-# BENCXX=${BENCXX:-""}
-# BENFC=${BENFC:-""}
-# BENF77=${BENF77:-""}
+BENCC=${BENCC:-"cc"}
+BENCXX=${BENCXX:-"CC"}
+BENFC=${BENFC:-"ftn"}
+BENF77=${BENF77:-"ftn"}
 
 # Parallel compilers:
 MPICC=${MPICC:-"cc"}
