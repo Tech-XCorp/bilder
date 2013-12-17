@@ -35,25 +35,32 @@ SOQT_UMASK=002
 
 buildSoQt() {
 
-  case `uname` in
-    CYGWIN*) ;;
-    *)
-      SOQT_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-$SOQT_BUILD"
-      ;;
-  esac
-
   if ! bilderUnpack SoQt; then
     return
   fi
 
-#
+# Set env
+  case `uname` in
+    CYGWIN*) ;;
+    *)
+      SOQT_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-$SOQT_BUILD"
+      if test -d $BLDR_INSTALL_DIR/coin-sersh/bin; then
+        local COIN_BINDIR=`(cd $BLDR_INSTALL_DIR/coin-sersh/bin; pwd -P)`
+        SOQT_ENV="$SOQT_ENV PATH=$COIN_BINDIR:'$PATH'"
+      fi
+      ;;
+  esac
+
+# Get configure args
   local otherargsvar=`genbashvar SOQT_${SOQT_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
   SOQT_CFLAGS='$CFLAGS -fpermissive'
   trimvar SOQT_CFLAGS ' '
   SOQT_CXXFLAGS='$CXXFLAGS -fpermissive'
   trimvar SOQT_CXXFLAGS ' '
-  if bilderConfig -p Coin-$COIN_BLDRVERSION-$SOQT_BUILD SoQt $SOQT_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$CFLAGS -fpermissive' CXXFLAGS='$CXXFLAGS -fpermissive' $otherargsval" "" "$SOQT_ENV"; then
+
+# Configure and build
+  if bilderConfig -p Coin-$COIN_BLDRVERSION-$SOQT_BUILD SoQt $SOQT_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $otherargsval" "" "$SOQT_ENV"; then
     bilderBuild SoQt $SOQT_BUILD
   fi
 
