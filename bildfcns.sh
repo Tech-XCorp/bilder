@@ -3053,7 +3053,9 @@ updateRepo() {
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git) cmd="(cd $pkg; git reset --hard; git pull)";;
-        hg) cmd="(cd $pkg; hg revert -aC; hg pull; hg update)";;
+        # hg) cmd="(cd $pkg; hg revert -aC; hg pull; hg update)";;
+# The below will clean out old problems.  Run until 20131220
+        hg) cmd="(cd $pkg; hg revert -aC; find . -name \*.orig -delete; find . -name \*.reg -delete; hg pull; hg update)";;
       esac
       techo "$cmd"
       eval "$cmd"
