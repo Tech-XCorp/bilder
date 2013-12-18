@@ -29,7 +29,7 @@ ROOT_DEPS=cmake
 #
 ######################################################################
 
-buildGeant4() {
+buildRoot() {
   if bilderUnpack root; then
     if bilderConfig -c root ser "$CMAKE_SUPRA_SP_ARG"; then
       bilderBuild root ser ""
@@ -43,7 +43,7 @@ buildGeant4() {
 #
 ######################################################################
 
-testGeant4() {
+testRoot() {
   techo "Not testing root."
 }
 
@@ -53,7 +53,7 @@ testGeant4() {
 #
 ######################################################################
 
-installGeant4() {
+installRoot() {
   bilderInstall -r root ser root
 }
 
