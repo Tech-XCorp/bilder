@@ -48,7 +48,9 @@ case $UQMAILHOST in
 
 # System IO libs
 # JRK 12/17/13 - use bilder hdf5 as there are problems with linking (libdl)
-# at version 1.8.11 (NERSC version). Netcdf depends on hdf5.
+# at version 1.8.11 (NERSC version). Netcdf depends on hdf5. Downgrading the
+# version does not work as the old version is built with gcc 4.7 and not 
+# binary compatible.
     HDF5_BUILDS=${HDF5_BUILDS:-"ser,sersh,par"}
     NETCDF_BUILDS=${NETCDF_BUILDS:-"ser,par"}
     #SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/48

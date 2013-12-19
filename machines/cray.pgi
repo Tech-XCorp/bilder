@@ -58,10 +58,12 @@ case $UQMAILHOST in
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
 
 # System IO libs
-# JRK 12/17/13 - use bilder hdf5 as there are problems with linking (libdl)
-# at version 1.8.11 (NERSC version). Netcdf depends on hdf5.
-    HDF5_BUILDS=${HDF5_BUILDS:-"ser,par,cc4py"}
-    NETCDF_BUILDS=${NETCDF_BUILDS:-"ser,par"}
+# JRK 12/17/13 - there are problems with linking (libdl) at version 1.8.11 
+# (NERSC version). Netcdf depends on hdf5. Downgrade to version 1.8.9.
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/pgi/119/
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/pgi/119/
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/pgi/119/
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/pgi/119/
     #SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/121
     #SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/121
     #SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/121
