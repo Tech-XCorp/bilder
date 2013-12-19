@@ -3055,7 +3055,7 @@ updateRepo() {
       case $scmexec in
         git) cmd="(cd $pkg; git reset --hard)";;
 # The below will clean out old problems.  After 20131220, remove find commands.
-        hg) cmd="(cd $pkg; hg revert -aC; find . -name \*.orig -delete; find . -name \*.reg -delete)";;
+        hg) cmd="(cd $pkg; hg revert -aC; find . -name \*.orig -delete; find . -name \*.rej -delete)";;
       esac
       techo "$cmd"
       eval "$cmd"
