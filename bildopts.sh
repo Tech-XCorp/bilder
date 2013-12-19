@@ -78,11 +78,12 @@ BILDER OPTIONS
   -u ................ Do "svn up" at start.
   -U ................ Do not get (direct access or svn up) tarballs.
   -v <level> ........ Verbose: print debug information from bilder
-                       according to level (2 is good for understanding bilder).
+                        according to level (2 is good for understanding bilder).
   -w <wait days>      Wait this many days before doing a new installation.
   -W <disable builds> Build without these packages (comma delimited list)
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
+  -y ................ Do not clean git and hg subrepos
   -Z ................ Do not execute the definable bilderFinalAction.
   -z ................ Do not post to depot regardless of other settings.
   -2 ................ Use the second installation directory of the comma
@@ -150,6 +151,7 @@ processBilderArgs() {
     w) BILDER_WAIT_DAYS=$OPTARG;;
     W) NOBUILD_PKGS=${NOBUILD_PKGS},$OPTARG;;
     X) BUILD_EXPERIMENTAL=true;;
+    z) CLEAN_GITHG_SUBREPOS=false;;
     z) POST2DEPOT=false;;
     Z) DO_FINAL_ACTION=false;;
     2) IS_SECOND_INSTALL=true;;
@@ -202,6 +204,7 @@ setBilderOptions() {
   MAX_THREADS=false
   NOBUILD=false
   DO_FINAL_ACTION=true
+  CLEAN_GITHG_SUBREPOS=true
   POST2DEPOT=true
   REMOVE_OLD=false
   RM_BUILD=true
@@ -214,7 +217,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:rRs:StTuUv:VW:w:XZz2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:rRs:StTuUv:VW:w:XyZz2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."

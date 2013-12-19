@@ -3048,14 +3048,22 @@ updateRepo() {
   fi
   cd $PROJECT_DIR
 
-# Get clean version of repo
+# Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
+# Get clean version of repo
+    if $CLEAN_GITHG_SUBREPOS; then
+      case $scmexec in
+        git) cmd="(cd $pkg; git reset --hard)";;
+# The below will clean out old problems.  After 20131220, remove find commands.
+        hg) cmd="(cd $pkg; hg revert -aC; find . -name \*.orig -delete; find . -name \*.reg -delete)";;
+      esac
+      techo "$cmd"
+      eval "$cmd"
+    fi
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
-        git) cmd="(cd $pkg; git reset --hard; git pull)";;
-        # hg) cmd="(cd $pkg; hg revert -aC; hg pull; hg update)";;
-# The below will clean out old problems.  Run until 20131220
-        hg) cmd="(cd $pkg; hg revert -aC; find . -name \*.orig -delete; find . -name \*.reg -delete; hg pull; hg update)";;
+        git) cmd="(cd $pkg; git pull)";;
+        hg) cmd="(cd $pkg; hg pull; hg update)";;
       esac
       techo "$cmd"
       eval "$cmd"
