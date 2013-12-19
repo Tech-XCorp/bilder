@@ -12,9 +12,8 @@
 #
 ######################################################################
 
-if test -z "$MATPLOTLIB_BLDRVERSION"; then
-  MATPLOTLIB_BLDRVERSION=1.1.0
-fi
+MATPLOTLIB_BLDRVERSION_STD=1.1.0
+MATPLOTLIB_BLDRVERSION_STD=1.3.1
 
 ######################################################################
 #
