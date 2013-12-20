@@ -12,11 +12,12 @@
 #
 ######################################################################
 
-CYTHON_BLDRVERSION=${CYTHON_BLDRVERSION:-"0.14.1"}
+CYTHON_BLDRVERSION_STD=0.14.1
+CYTHON_BLDRVERSION_EXP=0.19.2
 
 ######################################################################
 #
-# Builds and deps
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -33,32 +34,33 @@ fi
 ######################################################################
 
 buildCython() {
-# arch flags now fixed in bildvars.sh
 
-  if bilderUnpack Cython; then
-# Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/Cython*"
-    techo "$cmd"
-    $cmd
-    case `uname`-"$CC" in
-      CYGWIN*-*cl*)
-        CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        CYTHON_ENV_USED="$DISTUTILS_ENV"
-        ;;
-      CYGWIN*-mingw*)
-# Have to install with build to get both prefix and compiler correct.
-        CYTHON_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        local mingwgcc=`which mingw32-gcc`
-        local mingwdir=`dirname $mingwgcc`
-        CYTHON_ENV_USED="PATH=$mingwdir:'$PATH'"
-        ;;
-      *)
-        CYTHON_ENV_USED="$DISTUTILS_ENV"
-        ;;
-    esac
-    bilderDuBuild Cython "$CYTHON_ARGS" "$CYTHON_ENV_USED"
-
+# Get Cython
+  if ! bilderUnpack Cython; then
+    return
   fi
+
+# Remove all old installations
+  cmd="rmall ${PYTHON_SITEPKGSDIR}/Cython*"
+  techo "$cmd"
+  $cmd
+  case `uname`-"$CC" in
+    CYGWIN*-*cl*)
+      CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      CYTHON_ENV_USED="$DISTUTILS_ENV"
+      ;;
+    CYGWIN*-mingw*)
+# Have to install with build to get both prefix and compiler correct.
+      CYTHON_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      local mingwgcc=`which mingw32-gcc`
+      local mingwdir=`dirname $mingwgcc`
+      CYTHON_ENV_USED="PATH=$mingwdir:'$PATH'"
+      ;;
+    *)
+      CYTHON_ENV_USED="$DISTUTILS_ENV"
+      ;;
+  esac
+  bilderDuBuild Cython "$CYTHON_ARGS" "$CYTHON_ENV_USED"
 
 }
 

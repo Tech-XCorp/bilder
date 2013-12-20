@@ -2,6 +2,11 @@
 #
 # Version and build information for sphinx
 #
+# Repackage by, e.g.,
+#  tar xjf birkenfeld-sphinx-869bf6d21292.tar.bz2
+#  mv birkenfeld-sphinx-869bf6d21292.tar.bz2 sphinx-1.3a0
+#  tar cjf sphinx-1.3a0.tar.bz2 sphinx-1.3a0
+#
 # $Id$
 #
 ######################################################################
@@ -13,7 +18,7 @@
 ######################################################################
 
 SPHINX_BLDRVERSION_STD=1.1.3
-SPHINX_BLDRVERSION_EXP=1.1.3
+SPHINX_BLDRVERSION_EXP=1.3a0
 
 ######################################################################
 #
@@ -27,7 +32,7 @@ SPHINX_UMASK=002
 
 ######################################################################
 #
-# Add to paths.
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -44,20 +49,24 @@ esac
 
 buildSphinx() {
 
-  if bilderUnpack sphinx; then
+# Get sphinx, check for build need
+  if ! bilderUnpack sphinx; then
+    return
+  fi
+
 # Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/Sphinx*"
+  cmd="rmall ${PYTHON_SITEPKGSDIR}/Sphinx*"
+  techo "$cmd"
+# Do second time for cygwin
+  if ! $cmd; then
     techo "$cmd"
-    if ! $cmd; then
-      techo "$cmd"
-      $cmd
-    fi
+    $cmd
+  fi
 
 # Build away
-    SPHINX_ENV="$DISTUTILS_ENV $SPHINX_GFORTRAN"
-    techo -2 SPHINX_ENV = $SPHINX_ENV
-    bilderDuBuild sphinx '-' "$SPHINX_ENV"
-  fi
+  SPHINX_ENV="$DISTUTILS_ENV $SPHINX_GFORTRAN"
+  techo -2 SPHINX_ENV = $SPHINX_ENV
+  bilderDuBuild sphinx '-' "$SPHINX_ENV"
 
 }
 
@@ -93,6 +102,5 @@ installSphinx() {
     setOpenPerms $PYTHON_SITEPKGSDIR/Sphinx-*.egg
     setOpenPerms $PYTHON_SITEPKGSDIR/Jinja2-*.egg
   fi
-  # techo "WARNING: Quitting at end of sphinx.sh."; exit
 }
 

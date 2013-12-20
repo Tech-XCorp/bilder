@@ -12,12 +12,12 @@
 #
 ######################################################################
 
-# MATHJAX_BLDRVERSION_STD="1.0.1a"
-MATHJAX_BLDRVERSION="2.1"
+MATHJAX_BLDRVERSION_STD=2.1
+MATHJAX_BLDRVERSION_EXP=2.3
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -91,32 +91,32 @@ copyMathjax() {
 ######################################################################
 
 buildMathjax() {
-  if bilderUnpack MathJax; then
+  if ! bilderUnpack MathJax; then
+    return
+  fi
 
-#  "build" full version (really just a copy)
-    copyMathjax full
+# Copy full version into place
+  copyMathjax full
 
-# lite "build"
-    if copyMathjax lite; then
-      cmd="rmall $CONTRIB_DIR/MathJax-${MATHJAX_BLDRVERSION}-lite/fonts/HTML-CSS/TeX/png"
+# Create lite version and copy it into place
+  if copyMathjax lite; then
+    cmd="rmall $CONTRIB_DIR/MathJax-${MATHJAX_BLDRVERSION}-lite/fonts/HTML-CSS/TeX/png"
+    techo "$cmd"
+    if ! $cmd; then
       techo "$cmd"
-      if ! $cmd; then
-        techo "$cmd"
-      fi
-      if ! $cmd; then
-        techo "Failed to clean out MathJax-lite.  Check permissions."
-        installFailures="$installFailures MathJax-lite"
-      fi
-# Fix up font size on windows
-      case `uname` in
-        CYGWIN*)
-          techo "MathJax-lite: Changing scale to 120 on windows to boost size of equations."
-          sed 's/scale: 100,/scale: 120,/' -i $CONTRIB_DIR/MathJax-lite/config/MathJax.js
-          ;;
-      esac
-      mkLink $CONTRIB_DIR MathJax-${MATHJAX_BLDRVERSION}-lite MathJax-lite
     fi
-
+    if ! $cmd; then
+      techo "Failed to clean out MathJax-lite.  Check permissions."
+      installFailures="$installFailures MathJax-lite"
+    fi
+# Fix up font size on windows
+    case `uname` in
+      CYGWIN*)
+        techo "MathJax-lite: Changing scale to 120 on windows to boost size of equations."
+        sed 's/scale: 100,/scale: 120,/' -i $CONTRIB_DIR/MathJax-lite/config/MathJax.js
+        ;;
+    esac
+    mkLink $CONTRIB_DIR MathJax-${MATHJAX_BLDRVERSION}-lite MathJax-lite
   fi
 
 }

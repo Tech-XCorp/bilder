@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-PYGMENTS_BLDRVERSION=${PYGMENTS_BLDRVERSION:-"1.3.1"}
+PYGMENTS_BLDRVERSION_STD=1.3.1
+PYGMENTS_BLDRVERSION_EXP=1.6
 
 ######################################################################
 #

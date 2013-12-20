@@ -12,11 +12,12 @@
 #
 ######################################################################
 
-SWIG_BLDRVERSION=${SWIG_BLDRVERSION:-"2.0.4"}
+SWIG_BLDRVERSION_STD=2.0.4
+SWIG_BLDRVERSION_EXP=2.0.11
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -38,15 +39,18 @@ addtopathvar PATH $CONTRIB_DIR/swig/bin
 ######################################################################
 
 buildSwig() {
-  if bilderUnpack swig; then
-    if bilderConfig swig ser; then
-      case `uname` in
-        Linux) # Fix rpath
-          local SWIG_MAKE_ENV=LD_RUN_PATH=`(cd $CONTRIB_DIR/pcre/lib; pwd -P)`
-          ;;
-      esac
-      bilderBuild swig ser "$SWIG_MAKE_ENV"
-    fi
+
+# Unpack if needed
+  if ! bilderUnpack swig; then
+    return
+  fi
+
+# Should build
+  if bilderConfig swig ser; then
+    case `uname` in
+      Linux) local SWIG_MAKE_ENV=LD_RUN_PATH=`(cd $CONTRIB_DIR/pcre/lib; pwd -P)`;; # Fix rpath
+    esac
+    bilderBuild swig ser "$SWIG_MAKE_ENV"
   fi
 }
 
