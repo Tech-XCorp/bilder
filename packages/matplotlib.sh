@@ -17,7 +17,7 @@ MATPLOTLIB_BLDRVERSION_EXP=1.3.1
 
 ######################################################################
 #
-# Builds and deps
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -98,107 +98,107 @@ buildMatplotlib() {
 # sudo port install ImageMagick +no_x11
 # which gives a very useful package and freetype as well.
 
-# Do it
-  if bilderUnpack matplotlib; then
+# Get package, continue building if needed
+  if ! bilderUnpack matplotlib; then
+    return
+  fi
 
 # Find dependencies and construct the basedirs variable needed for setupext.py
-    # techo "Looking for png."
-    local pngdir=`findMatplotlibDepDir libpng png.h png`
-    # techo "Looking for freetype."
-    local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype`
-    if test -z "${pngdir}${freetypedir}"; then
-      case `uname` in
-        Darwin)
-          techo "WARNING: Install macports, then do."
-          techo "WARNING:   sudo port install ImageMagick +no_x11."
-          ;;
-        Linux)
-          techo "WARNING: May need to install the -devel or -dev versions of libpng and/or freetype."
-          ;;
-      esac
-    fi
-    # techo "Looking for zlib."
-    local zlibdir=
+  # techo "Looking for png."
+  local pngdir=`findMatplotlibDepDir libpng png.h png`
+  # techo "Looking for freetype."
+  local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype`
+  if test -z "${pngdir}${freetypedir}"; then
     case `uname` in
-      CYGWIN*) zlibdir=`findMatplotlibDepDir zlib zlib.h zlib`;;
-      *)       zlibdir=`findMatplotlibDepDir zlib zlib.h z`;;
-    esac
-    local basedirs=
-    # techo "pngdir = $pngdir."
-    if test -n "$pngdir"; then
-      basedirs="'$pngdir',"
-    fi
-    # techo "freetypedir = $freetypedir."
-    if test -n "$freetypedir" -a "$freetypedir" != "$pngdir"; then
-      basedirs="$basedirs '$freetypedir',"
-    fi
-    # techo "zlibdir = $zlibdir."
-    if test -n "$zlibdir" && ! echo $basedirs | grep -q "'$zlibdir'"; then
-      basedirs="$basedirs '$zlibdir',"
-    fi
-    # techo "basedirs = $basedirs."
-# Escape backslashes one more time to get through sed
-    if [[ `uname` =~ CYGWIN ]]; then
-      basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
-    fi
-    techo "basedirs = $basedirs."
-    cd $BUILD_DIR/matplotlib-$MATPLOTLIB_BLDRVERSION
-    case `uname` in
-      CYGWIN*)
-        sed -i.bak "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
-        ;;
       Darwin)
-        sed -i.bak "/^ *'darwin' *:/s?\]?$basedirs]?" setupext.py
+        techo "WARNING: Install macports, then do."
+        techo "WARNING:   sudo port install ImageMagick +no_x11."
         ;;
       Linux)
-        sed -i.bak "/^ *'linux' *:/s?\]?$basedirs]?" setupext.py
+        techo "WARNING: May need to install the -devel or -dev versions of libpng and/or freetype."
         ;;
     esac
+  fi
+  # techo "Looking for zlib."
+  local zlibdir=
+  case `uname` in
+    CYGWIN*) zlibdir=`findMatplotlibDepDir zlib zlib.h zlib`;;
+    *)       zlibdir=`findMatplotlibDepDir zlib zlib.h z`;;
+  esac
+  local basedirs=
+  # techo "pngdir = $pngdir."
+  if test -n "$pngdir"; then
+    basedirs="'$pngdir',"
+  fi
+  # techo "freetypedir = $freetypedir."
+  if test -n "$freetypedir" -a "$freetypedir" != "$pngdir"; then
+    basedirs="$basedirs '$freetypedir',"
+  fi
+  # techo "zlibdir = $zlibdir."
+  if test -n "$zlibdir" && ! echo $basedirs | grep -q "'$zlibdir'"; then
+    basedirs="$basedirs '$zlibdir',"
+  fi
+  # techo "basedirs = $basedirs."
+# Escape backslashes one more time to get through sed
+  if [[ `uname` =~ CYGWIN ]]; then
+    basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
+  fi
+  techo "basedirs = $basedirs."
+  cd $BUILD_DIR/matplotlib-$MATPLOTLIB_BLDRVERSION
+  case `uname` in
+    CYGWIN*)
+      sed -i.bak "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
+      ;;
+    Darwin)
+      sed -i.bak "/^ *'darwin' *:/s?\]?$basedirs]?" setupext.py
+      ;;
+    Linux)
+      sed -i.bak "/^ *'linux' *:/s?\]?$basedirs]?" setupext.py
+      ;;
+  esac
 
 # Accumulate link flags for modules, and make ATLAS modifications.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
-    local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # Compute args such that for
 #   Cygwin: build, install, and make packages all at once.
 #   Others, just build.
-    MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
-    case `uname`-"$CC" in
-      CYGWIN*-*cl*)
-        MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        ;;
-      CYGWIN*-mingw*)
-        MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        MATPLOTLIB_ENV="$MATPLOTLIB_ENV PATH=/MinGW/bin:'$PATH'"
-        ;;
-      Darwin-*)
-        ;;
-      Linux-*)
+  MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
+  case `uname`-"$CC" in
+    CYGWIN*-*cl*)
+      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      ;;
+    CYGWIN*-mingw*)
+      MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      MATPLOTLIB_ENV="$MATPLOTLIB_ENV PATH=/MinGW/bin:'$PATH'"
+      ;;
+    Darwin-*)
+      ;;
+    Linux-*)
 # On hopper cannot include LD_LIBRARY_PATH
-        if test -n "$pngdir"; then
-          linkflags="$linkflags -Wl,-rpath,$pngdir/lib"
-        fi
-        if test -n "$freetypelibdir"; then
-          linkflags="$linkflags -Wl,-rpath,$freetypedir/lib"
-        fi
-        ;;
-      *)
-        techo "WARNING: [matplotlib.sh] uname-CC `uname`-$CC not recognized.  Not building."
-        return
-        ;;
-    esac
-    trimvar linkflags ' '
-    if test -n "$linkflags"; then
-      MATPLOTLIB_ENV="$MATPLOTLIB_ENV LDFLAGS='$linkflags'"
-    fi
+      if test -n "$pngdir"; then
+        linkflags="$linkflags -Wl,-rpath,$pngdir/lib"
+      fi
+      if test -n "$freetypelibdir"; then
+        linkflags="$linkflags -Wl,-rpath,$freetypedir/lib"
+      fi
+      ;;
+    *)
+      techo "WARNING: [matplotlib.sh] uname-CC `uname`-$CC not recognized.  Not building."
+      return
+      ;;
+  esac
+  trimvar linkflags ' '
+  if test -n "$linkflags"; then
+    MATPLOTLIB_ENV="$MATPLOTLIB_ENV LDFLAGS='$linkflags'"
+  fi
 
 # Build/install
-    techo "NOTE: Building matplotlib without a GUI backend."
-    bilderDuBuild matplotlib "$MATPLOTLIB_ARGS" "$MATPLOTLIB_ENV"
-
-  fi
+  techo "NOTE: Building matplotlib without a GUI backend."
+  bilderDuBuild matplotlib "$MATPLOTLIB_ARGS" "$MATPLOTLIB_ENV"
 
 }
 
