@@ -1,0 +1,41 @@
+diff -ruN tables-3.0.0/setup.py tables-3.0.0-new/setup.py
+--- tables-3.0.0/setup.py	2013-12-19 17:11:47.464521700 -0700
++++ tables-3.0.0-new/setup.py	2013-05-08 10:03:00.000000000 -0600
+@@ -340,32 +340,19 @@
+     }
+ elif os.name == 'nt':
+     _Package = WindowsPackage
+-    HDF5_LIBNAMES_LACK_DLL = os.environ.get('HDF5_LIBNAMES_LACK_DLL', '')
+-    if HDF5_LIBNAMES_LACK_DLL:
+-      _platdep = {  # package tag -> platform-dependent components
+-        'HDF5': ['hdf5', 'hdf5'],
+-        'LZO2': ['lzo2', 'lzo2'],
+-        'LZO': ['liblzo', 'lzo1'],
+-        'BZ2': ['bzip2', 'bzip2'],
+-        }
+-    else:
+-      _platdep = {  # package tag -> platform-dependent components
++    _platdep = {  # package tag -> platform-dependent components
+         'HDF5': ['hdf5dll', 'hdf5dll'],
+         'LZO2': ['lzo2', 'lzo2'],
+         'LZO': ['liblzo', 'lzo1'],
+         'BZ2': ['bzip2', 'bzip2'],
+-        }
++    }
+ 
+     # Copy the next DLL's to binaries by default.
+     # Update these paths for your own system!
+-    # dll_files = ['\\windows\\system\\zlib1.dll',
+-                 # '\\windows\\system\\szip.dll',
+-                 # ]
+-    dll_files = []
++    dll_files = ['\\windows\\system\\zlib1.dll',
++                 '\\windows\\system\\szip.dll',
++                 ]
+     if '--debug' in sys.argv:
+-      if HDF5_LIBNAMES_LACK_DLL:
+-        _platdep['HDF5'] = ['hdf5d', 'hdf5d']
+-      else:
+         _platdep['HDF5'] = ['hdf5ddll', 'hdf5ddll']
+ 
+ hdf5_package = _Package("HDF5", 'HDF5', 'H5public', *_platdep['HDF5'])
