@@ -14,7 +14,7 @@
 
 SCIPY_BLDRVERSION_STD=0.11.0
 SCIPY_BLDRVERSION_EXP=0.13.2
-computeVersion numpy
+computeVersion scipy
 
 ######################################################################
 #
