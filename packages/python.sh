@@ -13,13 +13,8 @@
 ######################################################################
 
 PYTHON_BLDRVERSION_STD=2.7.3
-PYTHON_BLDRVERSION_EXP=2.7.3
-# Need to compute version and majmin here for additional load flags
-if $BUILD_EXPERIMENTAL -a -z "$PYTHON_BLDRVERSION"; then
-  PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"$PYTHON_BLDRVERSION_EXP"}
-else
-  PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"$PYTHON_BLDRVERSION_STD"}
-fi
+PYTHON_BLDRVERSION_EXP=2.7.6
+computeVersion Python
 # Export so available to setinstald.sh
 export PYTHON_BLDRVERSION
 
