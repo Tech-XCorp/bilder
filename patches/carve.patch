@@ -1,6 +1,6 @@
 diff -r be054bc7ed86 common/read_ply.cpp
 --- a/common/read_ply.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/common/read_ply.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/common/read_ply.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -30,7 +30,7 @@
  
  #include <fstream>
@@ -34,7 +34,7 @@ diff -r be054bc7ed86 common/read_ply.cpp
        return true;
 diff -r be054bc7ed86 common/write_ply.cpp
 --- a/common/write_ply.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/common/write_ply.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/common/write_ply.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -29,7 +29,7 @@
  #include <stdio.h>
  #include <iomanip>
@@ -46,7 +46,7 @@ diff -r be054bc7ed86 common/write_ply.cpp
  
 diff -r be054bc7ed86 external/GLOOP/include/gloop/model/stream.hpp
 --- a/external/GLOOP/include/gloop/model/stream.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/external/GLOOP/include/gloop/model/stream.hpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/external/GLOOP/include/gloop/model/stream.hpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -32,7 +32,8 @@
  #include <gloop/exceptions.hpp>
  #include <gloop/ref.hpp>
@@ -59,7 +59,7 @@ diff -r be054bc7ed86 external/GLOOP/include/gloop/model/stream.hpp
  typedef short int16_t;
 diff -r be054bc7ed86 external/GLOOP/src/model/ply_format.cpp
 --- a/external/GLOOP/src/model/ply_format.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/external/GLOOP/src/model/ply_format.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/external/GLOOP/src/model/ply_format.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -34,7 +34,8 @@
  #include <stdarg.h>
  #include <stdio.h>
@@ -70,9 +70,21 @@ diff -r be054bc7ed86 external/GLOOP/src/model/ply_format.cpp
  
  typedef char int8_t;
  typedef short int16_t;
+diff -r be054bc7ed86 external/GLOOP/src/model/stream.cpp
+--- a/external/GLOOP/src/model/stream.cpp	Fri Oct 25 12:19:31 2013 +1100
++++ b/external/GLOOP/src/model/stream.cpp	Thu Dec 19 17:51:13 2013 -0700
+@@ -30,7 +30,7 @@
+ #include <gloop/gloop.hpp>
+ #include <gloop/gloop-model.hpp>
+ 
+-#ifdef WIN32
++#ifdef _WIN32
+ 
+ #include <iterator>
+ 
 diff -r be054bc7ed86 include/carve/carve.hpp
 --- a/include/carve/carve.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/include/carve/carve.hpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/include/carve/carve.hpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -26,7 +26,8 @@
  #  include <carve/config.h>
  #endif
@@ -85,7 +97,7 @@ diff -r be054bc7ed86 include/carve/carve.hpp
  #  include <carve/gnu_cxx.h>
 diff -r be054bc7ed86 include/carve/mesh_simplify.hpp
 --- a/include/carve/mesh_simplify.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/include/carve/mesh_simplify.hpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/include/carve/mesh_simplify.hpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -34,6 +34,12 @@
  
  #include "write_ply.hpp"
@@ -119,7 +131,7 @@ diff -r be054bc7ed86 include/carve/mesh_simplify.hpp
              aabb.unionAABB((*i)->getAABB());
 diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
 --- a/lib/shewchuk_predicates.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/lib/shewchuk_predicates.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/lib/shewchuk_predicates.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -116,7 +116,11 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -203,7 +215,7 @@ diff -r be054bc7ed86 lib/shewchuk_predicates.cpp
    }
 diff -r be054bc7ed86 src/convert.cpp
 --- a/src/convert.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/convert.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/src/convert.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -130,7 +130,7 @@
      carve::point::PointSet *ps;
      carve::line::PolylineSet *l;
@@ -235,7 +247,7 @@ diff -r be054bc7ed86 src/convert.cpp
        } else if (options.vtk) {
 diff -r be054bc7ed86 src/face_merge.cpp
 --- a/src/face_merge.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/face_merge.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/src/face_merge.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -41,7 +41,7 @@
  #include <algorithm>
  
@@ -247,7 +259,7 @@ diff -r be054bc7ed86 src/face_merge.cpp
  typedef carve::mesh::Mesh<3> mesh_t;
 diff -r be054bc7ed86 src/glu_triangulator.hpp
 --- a/src/glu_triangulator.hpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/glu_triangulator.hpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/src/glu_triangulator.hpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -19,7 +19,7 @@
  #include <OpenGL/glu.h>
  #else
@@ -259,7 +271,7 @@ diff -r be054bc7ed86 src/glu_triangulator.hpp
  #undef rad2
 diff -r be054bc7ed86 src/selfintersect.cpp
 --- a/src/selfintersect.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/src/selfintersect.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/src/selfintersect.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -462,11 +462,11 @@
    return lo > 0.0 || hi < 0.0;
  }
@@ -276,7 +288,7 @@ diff -r be054bc7ed86 src/selfintersect.cpp
  // 1 = shared vertex
 diff -r be054bc7ed86 tests/exact_unittest.cpp
 --- a/tests/exact_unittest.cpp	Fri Oct 25 12:19:31 2013 +1100
-+++ b/tests/exact_unittest.cpp	Fri Dec 13 15:41:55 2013 -0700
++++ b/tests/exact_unittest.cpp	Thu Dec 19 17:51:13 2013 -0700
 @@ -67,9 +67,9 @@
    EXPECT_EQ((detail::sub<2,1>(detail::sub<1,1>(&c, &a), &a)), exact_t(0.0, -8.0, 1e60));
  
@@ -290,3 +302,15 @@ diff -r be054bc7ed86 tests/exact_unittest.cpp
  
    exact_t s;
  
+diff -r be054bc7ed86 tests/mersenne_twister.h
+--- a/tests/mersenne_twister.h	Fri Oct 25 12:19:31 2013 +1100
++++ b/tests/mersenne_twister.h	Thu Dec 19 17:51:13 2013 -0700
+@@ -68,7 +68,7 @@
+ #if !defined(_WIN32)
+ #include <stdint.h>
+ #else
+-typedef unsigned long uint32_t;
++typedef unsigned int uint32_t;
+ #endif
+ 
+ class MTRand {
