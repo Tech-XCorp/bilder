@@ -53,7 +53,7 @@ case `uname` in
   Linux) HDF5_BLDRVERSION_STD=1.8.10;;
 
 esac
-HDF5_BLDRVERSION_EXP=1.8.11
+HDF5_BLDRVERSION_EXP=1.8.12
 
 # If no experimental version alredy set, experimental = standard
 HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-$HDF5_BLDRVERSION_STD}
