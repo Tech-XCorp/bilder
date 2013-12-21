@@ -30,9 +30,8 @@ CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
 computeBuilds carve
 CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
-# CARVE_URL=https://cary%40txcorp.com@code.google.com/r/cary-carve4bilder
 CARVE_URL=https://code.google.com/r/cary-carve4bilder
-CARVE_MAINURL=https://code.google.com/p/carve
+CARVE_ORIGURL=https://code.google.com/p/carve
 # Cloned at 475:be054bc7ed86
 
 # Blender maintains carve in the repo
@@ -57,19 +56,33 @@ getCarve() {
 #
 buildCarve() {
 
-# Try to get carve from repo.  For a while, remove carve, then update
-# to switch repos
-  rm -rf $PROJECT_DIR/carve
+# If carve is wrong repo, remove it
+  if ! test -f $PROJECT_DIR/carve/.hg/hgrc; then
+    rm -rf $PROJECT_DIR/carve
+  else
+    local defrepo=`grep ^default $PROJECT_DIR/carve/.hg/hgrc | sed 's/^default.*= *//'`
+    if ! test "$defrepo" = "$CARVE_URL"; then
+      techo "Carve repo from $defrepo.  Removing."
+      rm -rf $PROJECT_DIR/carve
+    else
+      techo "Carve repo is correct."
+    fi
+  fi
+
+# Get carve from repo.
   if ! (cd $PROJECT_DIR; getCarve); then
     echo "WARNING: Problem in getting carve."
   fi
 
 # See if any changesets are available
-  cd $PROJECT_DIR/carve; hg incoming $CARVE_MAINURL 2>/dev/null 1>carve.chgsets
+  cd $PROJECT_DIR/carve; hg incoming $CARVE_ORIGURL 2>/dev/null 1>carve.chgsets
   if grep "no changes found" $PROJECT_DIR/carve/carve.chgsets; then
     techo "No changesets found for carve."
   else
-    techo "WARNING: Changesets available for importing into carve from $CARVE_MAINURL."
+    techo "WARNING: Changesets available for importing into carve from $CARVE_ORIGURL."
+  fi
+  if test "$VERBOSITY" = 0; then
+    rm -f $PROJECT_DIR/carve/carve.chgsets
   fi
 
 # If no subdir, done.
