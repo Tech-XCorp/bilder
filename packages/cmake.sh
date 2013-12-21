@@ -218,7 +218,6 @@ installCmake() {
 
 # Recompute cmake
   CMAKE=`which cmake`
-  # techo "WARNING: Quitting at end of cmake.sh."; cleanup
 
 }
 
