@@ -28,20 +28,13 @@ CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
 CMAKE_DEPS=${CMAKE_DEPS:-""}
 CMAKE_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 
 ######################################################################
@@ -53,104 +46,105 @@ addtopathvar PATH $CONTRIB_DIR/cmake/bin
 buildCmake() {
 
 # Configure and build
-  if bilderUnpack cmake; then
+  if ! bilderUnpack cmake; then
+    return
+  fi
 
 # Build cmake with cmake if present
-    local CMAKE_CONFIG_ARGS=
-    local CONFIGURE_ARGS=
-    CMAKE_BILDER_ENV=
-    if cmakepath=`which cmake 2>/dev/null`; then
-      local cmakever=`"$cmakepath" --version | sed 's/^cmake version //'`
-      techo "$cmakepath is version $cmakever."
-      case "$cmakever" in
-        2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.1?.?)
-          CMAKE_CONFIG_ARGS=-c
-          CONFIGURE_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
-          ;;
-        *)
-          techo "$cmakepath version, $cmakever, not recent enough to configure cmake.  Using the cmake's configure."
-          CMAKE_BILDER_ENV="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
-          ;;
-      esac
-    else
-      CMAKE_BILDER_ENV="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
-    fi
-    techo "cmake = $cmakepath."
+  local CMAKE_CONFIG_ARGS=
+  local CONFIGURE_ARGS=
+  CMAKE_BILDER_ENV=
+  if cmakepath=`which cmake 2>/dev/null`; then
+    local cmakever=`"$cmakepath" --version | sed 's/^cmake version //'`
+    techo "$cmakepath is version $cmakever."
+    case "$cmakever" in
+      2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.1?.?)
+        CMAKE_CONFIG_ARGS=-c
+        CONFIGURE_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
+        ;;
+      *)
+        techo "$cmakepath version, $cmakever, not recent enough to configure cmake.  Using the cmake's configure."
+        CMAKE_BILDER_ENV="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
+        ;;
+    esac
+  else
+    CMAKE_BILDER_ENV="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
+  fi
+  techo "cmake = $cmakepath."
 
 # Determine cmake args
 # This variable needs to be namespaced
-    local CMAKE_CONFIG_ADDL_ARGS=
-    case `uname` in
-      CYGWIN*)
-        if test -z "$CMAKE_CONFIG_ARGS"; then
-          techo "WARNING: cmake of sufficient version not found in your path."
-          techo "WARNING: Update cmake.sh for allowed versions or install cmake from KitWare and make sure it is found in your path before the cygwin version."
-          return 1
-        fi
-        if [[ $cmakepath =~ "^/usr/" ]]; then
-          techo "WARNING: Cannot use CYGWIN's cmake, $cmakepath, to build cmake."
-          techo "WARNING: Install cmake from KitWare and make sure it is found in your path before the cygwin version."
-          techo "WARNING: Will try to move bad cmake aside."
-          local cmd="mv '$cmakepath.exe' '$cmakepath.exe.cygwin'"
-          techo "$cmd"
-          eval "$cmd"
-          return 1
-        fi
+  local CMAKE_CONFIG_ADDL_ARGS=
+  case `uname` in
+    CYGWIN*)
+      if test -z "$CMAKE_CONFIG_ARGS"; then
+        techo "WARNING: cmake of sufficient version not found in your path."
+        techo "WARNING: Update cmake.sh for allowed versions or install cmake from KitWare and make sure it is found in your path before the cygwin version."
+        return 1
+      fi
+      if [[ $cmakepath =~ "^/usr/" ]]; then
+        techo "WARNING: Cannot use CYGWIN's cmake, $cmakepath, to build cmake."
+        techo "WARNING: Install cmake from KitWare and make sure it is found in your path before the cygwin version."
+        techo "WARNING: Will try to move bad cmake aside."
+        local cmd="mv '$cmakepath.exe' '$cmakepath.exe.cygwin'"
+        techo "$cmd"
+        eval "$cmd"
+        return 1
+      fi
 # On CYGWIN, need to specify cl compilers so that the built cmake can
 # make windows generators.
-        # CMAKE_CONFIG_ADDL_ARGS="$CMAKE_COMPILERS_SER"
-        local pycomp=`cygpath -am "$PYC_CC"`
-        pycomp="${pycomp%.exe}".exe
-        CMAKE_CONFIG_ADDL_ARGS="-DCMAKE_C_COMPILER:FILEPATH='$pycomp'"
-        pycomp=`cygpath -am "$PYC_CXX"`
-        pycomp="${pycomp%.exe}".exe
-        CMAKE_CONFIG_ADDL_ARGS="$CMAKE_CONFIG_ADDL_ARGS -DCMAKE_CXX_COMPILER:FILEPATH='$pycomp'"
-        ;;
-      Darwin)
-        ;;
-      *)
+      # CMAKE_CONFIG_ADDL_ARGS="$CMAKE_COMPILERS_SER"
+      local pycomp=`cygpath -am "$PYC_CC"`
+      pycomp="${pycomp%.exe}".exe
+      CMAKE_CONFIG_ADDL_ARGS="-DCMAKE_C_COMPILER:FILEPATH='$pycomp'"
+      pycomp=`cygpath -am "$PYC_CXX"`
+      pycomp="${pycomp%.exe}".exe
+      CMAKE_CONFIG_ADDL_ARGS="$CMAKE_CONFIG_ADDL_ARGS -DCMAKE_CXX_COMPILER:FILEPATH='$pycomp'"
+      ;;
+    Darwin)
+      ;;
+    *)
 # Below needed to get intermediate (bootstrap) cmake to work with
 # non-system compilers
-        if test -n "$PYC_LD_LIBRARY_PATH" && ! echo $LD_LIBRARY_PATH | egrep -q "(^|:)$PYC_LD_LIBRARY_PATH($|:)"; then
-          CMAKE_LD_LIBRARY_PATH="$PYC_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
-          trimvar CMAKE_LD_LIBRARY_PATH ':'
-          if test -n "$CMAKE_LD_LIBRARY_PATH"; then
-            CMAKE_BILDER_ENV="$CMAKE_BILDER_ENV LD_LIBRARY_PATH=$CMAKE_LD_LIBRARY_PATH"
-          fi
+      if test -n "$PYC_LD_LIBRARY_PATH" && ! echo $LD_LIBRARY_PATH | egrep -q "(^|:)$PYC_LD_LIBRARY_PATH($|:)"; then
+        CMAKE_LD_LIBRARY_PATH="$PYC_LD_LIBRARY_PATH:$LD_LIBRARY_PATH"
+        trimvar CMAKE_LD_LIBRARY_PATH ':'
+        if test -n "$CMAKE_LD_LIBRARY_PATH"; then
+          CMAKE_BILDER_ENV="$CMAKE_BILDER_ENV LD_LIBRARY_PATH=$CMAKE_LD_LIBRARY_PATH"
         fi
-        if test -n "$PYC_LD_RUN_PATH" && ! echo $LD_RUN_PATH | egrep -q "(^|:)$PYC_LD_RUN_PATH($|:)"; then
-          CMAKE_LD_RUN_PATH="$PYC_LD_RUN_PATH:$LD_RUN_PATH"
-          trimvar CMAKE_LD_RUN_PATH ':'
-          if test -n "$CMAKE_LD_RUN_PATH"; then
-            CMAKE_BILDER_ENV="$CMAKE_BILDER_ENV LD_RUN_PATH=$CMAKE_LD_RUN_PATH"
-          fi
+      fi
+      if test -n "$PYC_LD_RUN_PATH" && ! echo $LD_RUN_PATH | egrep -q "(^|:)$PYC_LD_RUN_PATH($|:)"; then
+        CMAKE_LD_RUN_PATH="$PYC_LD_RUN_PATH:$LD_RUN_PATH"
+        trimvar CMAKE_LD_RUN_PATH ':'
+        if test -n "$CMAKE_LD_RUN_PATH"; then
+          CMAKE_BILDER_ENV="$CMAKE_BILDER_ENV LD_RUN_PATH=$CMAKE_LD_RUN_PATH"
         fi
-        trimvar CMAKE_BILDER_ENV ' '
-        ;;
-    esac
-    trimvar CMAKE_CONFIG_ARGS ' '
-    trimvar CMAKE_MAKE_ARGS ' '
+      fi
+      trimvar CMAKE_BILDER_ENV ' '
+      ;;
+  esac
+  trimvar CMAKE_CONFIG_ARGS ' '
+  trimvar CMAKE_MAKE_ARGS ' '
 
 # Configure and build
-    if bilderConfig $CMAKE_CONFIG_ARGS cmake ser "$CONFIGURE_ARGS $CMAKE_CONFIG_ADDL_ARGS $CMAKE_CONFIG_OTHER_ARGS" "" "$CMAKE_BILDER_ENV"; then
-      bilderBuild cmake ser "$CMAKE_MAKE_ARGS $CMAKE_BILDER_ENV"
-    else
-      res=$?
-      if test $res != 99; then
-        techo "WARNING: $cmakepath cannot configure cmake."
-        if [[ $cmakepath =~ "$CONTRIB_DIR" ]]; then
-          techo "WARNING: Will remove old and exit."
-          cmd="rm -rf $CONTRIB_DIR/cmake* $CONTRIB_DIR/bin/cmake"
-          techo "$cmd"
-          $cmd
-          cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR cmake,ser"
-          techo "$cmd"
-          $cmd
-        else
-          techo "WARNING: $cmakepath does not match $CONTRIB_DIR."
-        fi
-        techo "Quitting."; cleanup
+  if bilderConfig $CMAKE_CONFIG_ARGS cmake ser "$CONFIGURE_ARGS $CMAKE_CONFIG_ADDL_ARGS $CMAKE_CONFIG_OTHER_ARGS" "" "$CMAKE_BILDER_ENV"; then
+    bilderBuild cmake ser "$CMAKE_MAKE_ARGS $CMAKE_BILDER_ENV"
+  else
+    res=$?
+    if test $res != 99; then
+      techo "WARNING: $cmakepath cannot configure cmake."
+      if [[ $cmakepath =~ "$CONTRIB_DIR" ]]; then
+        techo "WARNING: Will remove old and exit."
+        cmd="rm -rf $CONTRIB_DIR/cmake* $CONTRIB_DIR/bin/cmake"
+        techo "$cmd"
+        $cmd
+        cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR cmake,ser"
+        techo "$cmd"
+        $cmd
+      else
+        techo "WARNING: $cmakepath does not match $CONTRIB_DIR."
       fi
+      techo "Quitting."; cleanup
     fi
   fi
 
