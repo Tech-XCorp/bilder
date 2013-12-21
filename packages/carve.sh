@@ -65,7 +65,7 @@ buildCarve() {
   fi
 
 # See if any changesets are available
-  cd $PROJECT_DIR/carve; hg incoming $CARVE_MAINURL 2>/dev/null 1>carve.chgsets)
+  cd $PROJECT_DIR/carve; hg incoming $CARVE_MAINURL 2>/dev/null 1>carve.chgsets
   if grep "no changes found" $PROJECT_DIR/carve/carve.chgsets; then
     techo "No changesets found for carve."
   else
