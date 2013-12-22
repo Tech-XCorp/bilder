@@ -73,8 +73,10 @@ case `uname` in
 # Build on Linux or Darwin only if not found in system
     ftdir=`findFreetypeRootdir -s`
     if test -z "$ftdir"; then
-      techo "System freetype not found.  Will build."
+      techo "System freetype not found.  Will build if out of date."
       FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+    else
+      techo "System freetype found, ftdir = $ftdir, will not build."
     fi
     ;;
 esac
