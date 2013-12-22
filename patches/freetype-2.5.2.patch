@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c782fb7..4acf43d 100644
+index c782fb7..849b38a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -39,10 +39,35 @@ cmake_minimum_required(VERSION 2.6)
@@ -65,18 +65,28 @@ index c782fb7..4acf43d 100644
 +)
 +string(REPLACE "FT_CONFIG_STANDARD_LIBRARY_H" "<ftstdlib.h>"
 +  ftconfig "${ftconfig}"
- )
++)
 +string(REPLACE "/undef " "#undef "
 +  ftconfig "${ftconfig}"
-+)
+ )
 +file(WRITE ${PROJECT_BINARY_DIR}/include/ftconfig.h "${ftconfig}")
  
  set(BASE_SRCS
    src/autofit/autofit.c
-@@ -126,6 +157,37 @@ include_directories("src/psaux")
+@@ -125,7 +156,46 @@ include_directories("src/raster")
+ include_directories("src/psaux")
  include_directories("src/psnames")
  
- add_library(freetype ${BASE_SRCS})
+-add_library(freetype ${BASE_SRCS})
++if (WIN32)
++  if (BUILD_SHARED_LIBS)
++# freetype has no declspec stuff
++    message(WARNING "Ignoring BUILD_SHARED_LIBS.  Must be built static on Windows.")
++  endif ()
++  add_library(freetype STATIC ${BASE_SRCS})
++else ()
++  add_library(freetype ${BASE_SRCS})
++endif ()
 +if (BUILD_SHARED_LIBS)
 +  set_target_properties(freetype PROPERTIES
 +    SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}
@@ -111,7 +121,7 @@ index c782fb7..4acf43d 100644
  
  # Installations
  # Note the trailing slash in the argument to the `DIRECTORY' directive
-@@ -138,6 +200,11 @@ install(TARGETS freetype
+@@ -138,6 +208,11 @@ install(TARGETS freetype
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
  )
