@@ -24,7 +24,6 @@ MATPLOTLIB_BLDRVERSION_EXP=1.3.1
 if test -z "$MATPLOTLIB_BUILDS"; then
   MATPLOTLIB_BUILDS=cc4py
 fi
-
 MATPLOTLIB_DEPS=numpy,Python,libpng,freetype,pyqt
 
 ######################################################################
@@ -37,32 +36,48 @@ MATPLOTLIB_DEPS=numpy,Python,libpng,freetype,pyqt
 # Find the directory of matplotlib dependency
 #
 # Args:
-# 1: The name of the package
-# 2: The name of the include file
-# 3: The name of the library without any prefix or suffix
+# 1: The package name
+# 2: The include file
+# 3: The library name without any prefix or suffix
+# 4: All possible include dirs.  If empty, set to include
 #
 findMatplotlibDepDir() {
   local sysdirs="$CONTRIB_DIR /opt/local /usr /usr/X11"
   local pkgdir=
-  local prefix=
+  local libprefix=
+  local incdirs="$4"
+  incdirs=${incdirs:-"include"}
   case `uname` in
-    CYGWIN*) ;;
-    *) prefix=lib;;
+    CYGWIN*) libsfxs=lib;;
+    Darwin) libprefix=lib; libsfxs=dylib;;
+    Linux) libprefix=lib; libsfxs=so;;
   esac
-  for j in $CONTRIB_DIR/$1-cc4py $CONTRIB_DIR/$1-sersh $sysdirs; do
-    if test -f $j/include/$2; then
-      for k in dylib so lib; do
-        for l in lib64 lib; do
-          if test -L $j/$l/${prefix}$3.$k -o -f $j/$l/${prefix}$3.$k; then
-            pkgdir=$j
-            break
-          fi
-        done
-        if test -n "$pkgdir"; then
+  for j in $CONTRIB_DIR/$1-cc4py $CONTRIB_DIR/$1-sersh $CONTRIB_DIR/$1-sermd $sysdirs; do
+    local incdir=
+    for i in $incdirs; do
+      # techo "Looking for $j/$i/$2." 1>&2
+      if test -f $j/$i/$2; then
+        incdir=`(cd $j/$i; pwd -P)`
+        break
+      fi
+    done
+    if test -z "$incdir"; then
+      # techo "Not found." 1>&2
+      continue
+    fi
+    # techo "Found. incdir = $incdir." 1>&2
+    for k in ${libsfxs}; do
+      for l in lib64 lib; do
+        # techo "Looking for $j/$l/${libprefix}$3.$k." 1>&2
+        if test -L $j/$l/${libprefix}$3.$k -o -f $j/$l/${libprefix}$3.$k; then
+          pkgdir=$j
           break
         fi
       done
-    fi
+      if test -n "$pkgdir"; then
+        break
+      fi
+    done
     if test -n "$pkgdir"; then
       break
     fi
@@ -107,7 +122,8 @@ buildMatplotlib() {
   # techo "Looking for png."
   local pngdir=`findMatplotlibDepDir libpng png.h png`
   # techo "Looking for freetype."
-  local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype`
+  local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
+  # techo "freetypedir = $freetypedir."; exit
   if test -z "${pngdir}${freetypedir}"; then
     case `uname` in
       Darwin)
@@ -147,13 +163,13 @@ buildMatplotlib() {
   cd $BUILD_DIR/matplotlib-$MATPLOTLIB_BLDRVERSION
   case `uname` in
     CYGWIN*)
-      sed -i.bak "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
+      sed -i.bak -e "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
       ;;
     Darwin)
-      sed -i.bak "/^ *'darwin' *:/s?\]?$basedirs]?" setupext.py
+      sed -i.bak -e "/^ *'darwin' *:/s?\]?$basedirs]?" setupext.py
       ;;
     Linux)
-      sed -i.bak "/^ *'linux' *:/s?\]?$basedirs]?" setupext.py
+      sed -i.bak -e "/^ *'linux' *:/s?\]?$basedirs]?" setupext.py
       ;;
   esac
 
