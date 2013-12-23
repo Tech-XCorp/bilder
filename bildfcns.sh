@@ -5770,6 +5770,7 @@ bilderDuBuild() {
   fi
 
 # Record start time
+  sleep 60
   local starttimevar=`genbashvar $1`_START_TIME
   local starttimeval=`date +%s`
   eval $starttimevar=$starttimeval
