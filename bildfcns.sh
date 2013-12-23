@@ -5769,8 +5769,9 @@ bilderDuBuild() {
     return 0
   fi
 
+# Separate all installations by 1 minute to know what gets installed together
+  # sleep 60
 # Record start time
-  sleep 60
   local starttimevar=`genbashvar $1`_START_TIME
   local starttimeval=`date +%s`
   eval $starttimevar=$starttimeval
