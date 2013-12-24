@@ -195,7 +195,7 @@ installCmake() {
 
   local noarg=
 # Try command.  If fails, restore as best as possible
-  cmd="bilderInstall cmake ser '' '' '$CMAKE_BILDER_ENV'"
+  cmd="bilderInstall cmake ser '' '' \"$CMAKE_BILDER_ENV\""
   techo "$cmd"
   if eval "$cmd"; then
 # Worked.  Remove detritus

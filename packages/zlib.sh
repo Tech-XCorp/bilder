@@ -50,27 +50,28 @@ buildZlib() {
     fi
   fi
 
-  if bilderUnpack zlib; then
+  if ! bilderUnpack zlib; then
+    return
+  fi
 
 # The zlib package has this, but it needs to be removed
-    cmd="rm -f $BUILD_DIR/zlib-${ZLIB_BLDRVERSION}/zconf.h"
-    techo "$cmd"
-    $cmd
+  cmd="rm -f $BUILD_DIR/zlib-${ZLIB_BLDRVERSION}/zconf.h"
+  techo "$cmd"
+  $cmd
 
 # MINGW_RC_COMPILER_ARG is empty except where needed
 # ser for hdf5
-    if bilderConfig -c zlib ser "-DBUILD_SHARED_LIBS:BOOL=OFF $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SER_OTHER_ARGS"; then
-      bilderBuild zlib ser
-    fi
+  if bilderConfig -c zlib ser "-DBUILD_SHARED_LIBS:BOOL=OFF $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SER_OTHER_ARGS"; then
+    bilderBuild zlib ser
+  fi
 
 # sersh never used.  Keeping for legacy
-    if bilderConfig -c zlib sersh "-DBUILD_SHARED_LIBS:BOOL=ON $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SERSH_OTHER_ARGS"; then
-      bilderBuild zlib sersh
-    fi
+  if bilderConfig -c zlib sersh "-DBUILD_SHARED_LIBS:BOOL=ON $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SERSH_OTHER_ARGS"; then
+    bilderBuild zlib sersh
+  fi
 
-    if bilderConfig -c zlib sermd "-DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SER_OTHER_ARGS"; then
-      bilderBuild zlib sermd
-    fi
+  if bilderConfig -c zlib sermd "-DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $MINGW_RC_COMPILER_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ZLIB_SER_OTHER_ARGS"; then
+    bilderBuild zlib sermd
   fi
 
 }
@@ -153,7 +154,6 @@ installZlib() {
         ;;
     esac
   fi
-  # techo "Quitting at end of zlib.sh."; exit
 
 }
 
