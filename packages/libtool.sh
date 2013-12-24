@@ -14,13 +14,7 @@
 
 LIBTOOL_BLDRVERSION_STD=2.4.2
 LIBTOOL_BLDRVERSION_EXP=2.4.2
-
-# This needs to be done here for rest of autotools chain.
-if $BUILD_EXPERIMENTAL; then
-  LIBTOOL_BLDRVERSION=${LIBTOOL_BLDRVERSION:-"$LIBTOOL_BLDRVERSION_EXP"}
-else
-  LIBTOOL_BLDRVERSION=${LIBTOOL_BLDRVERSION:-"$LIBTOOL_BLDRVERSION_STD"}
-fi
+computeVersion libtool
 
 ######################################################################
 #

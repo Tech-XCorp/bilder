@@ -66,6 +66,7 @@ fi
 
 # Source needed functions
 source $bldrdir/runnr/runnrfcns.sh
+source $bldrdir/bildfcns.sh
 
 # Get tac
 if which tac 1>/dev/null 2>&1; then
@@ -233,7 +234,34 @@ if $REMOVE_UNFOUND; then
       continue
     fi
     case $pkglc in
-      m4 | autoconf | automake | libtool | doxygen | qt3d)
+      doxygen)
+        bindir=$CLN_INSTALL_DIR/bin
+        if test -x $bindir/doxygen; then
+          ver=`$bindir/doxygen --version`
+          if [[ "$LINE" =~ doxygen-$ver ]]; then
+            echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+          fi
+        fi
+        continue
+        ;;
+      m4 | autoconf | automake | libtool)
+        if test -z "$LIBTOOL_BLDRVERSION"; then
+          source $bldrdir/packages/libtool.sh
+        fi
+        bindir=$CLN_INSTALL_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin
+        if test -x $bindir/$pkglc; then
+          ver=`$bindir/$pkglc --version | head -1 | sed 's/^.* //'`
+          if [[ "$LINE" =~ $pkglc-$ver ]]; then
+            echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+          else
+            echo "'$LINE'" does not match $pkglc-$ver
+          fi
+        else
+          echo "$pkglc not found."
+        fi
+        continue
+        ;;
+      qt3d)
         echo "Keeping ${pkglc} as does not have a top-level installation dir."
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue
