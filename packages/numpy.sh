@@ -165,7 +165,7 @@ testNumpy() {
 
 getInstNumpyNodes() {
 # Get full paths, convert to native as needed
-  local nodes=($PYTHON_SITEPKGSDIR/numpy $PYTHON_SITEPKGSDIR/numpy-${NUMPY_BLDRVERSION}-py${PYTHON_MAJMIN}.egg-info)
+  local nodes=("$PYTHON_SITEPKGSDIR/numpy" "$PYTHON_SITEPKGSDIR/numpy-${NUMPY_BLDRVERSION}-py${PYTHON_MAJMIN}.egg-info")
   echo ${nodes[*]}
 }
 
