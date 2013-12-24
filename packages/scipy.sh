@@ -33,7 +33,7 @@ SCIPY_DEPS=numpy,atlas
 
 buildScipy() {
 
-  if bilderUnpack scipy; then
+  if ! bilderUnpack scipy; then
     return
   fi
 
