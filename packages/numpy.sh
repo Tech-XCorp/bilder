@@ -159,6 +159,18 @@ testNumpy() {
 
 ######################################################################
 #
+# Get the installed nodes of the numpy packages
+#
+######################################################################
+
+getInstNumpyNodes() {
+# Get full paths, convert to native as needed
+  local nodes=($PYTHON_SITEPKGSDIR/numpy $PYTHON_SITEPKGSDIR/numpy-${NUMPY_BLDRVERSION}-py${PYTHON_MAJMIN}.egg-info)
+  echo ${nodes[*]}
+}
+
+######################################################################
+#
 # Install
 #
 ######################################################################
@@ -169,16 +181,5 @@ installNumpy() {
     *) bilderDuInstall -r numpy numpy "-" "$NUMPY_ENV";;
   esac
   techo "numpy installation nodes are `getInstNumpyNodes`."
-}
-
-######################################################################
-#
-# Get the installed nodes of the numpy packages
-#
-######################################################################
-
-getInstNumpyNodes() {
-# Get full paths, convert to native as needed
-  nodes=`ls -d $PYTHON_SITEPKGSDIR/numpy $PYTHON_SITEPKGSDIR/numpy-${NUMPY_BLDRVERSION}-py${PYTHON_MAJMIN}.egg-info`
 }
 
