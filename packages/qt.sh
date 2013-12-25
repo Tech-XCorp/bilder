@@ -33,12 +33,12 @@ case `uname`-`uname -r` in
   Darwin-13.*)
 # 4.8.4 and 4.8.5 do not build on Mavericks
 # 4.8.6 likely not available until Jan 2014.  For now install with homebrew.
-    QT_BLDRVERSION_STD=4.8.6
-    QT_BLDRVERSION_EXP=4.8.6
+    QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.6"}
+    QT_BLDRVERSION_EXP=${QT_BLDRVERSION_STD:-"4.8.6"}
     ;;
   *)
-    QT_BLDRVERSION_STD=4.8.4
-    QT_BLDRVERSION_EXP=4.8.5
+    QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.4"}
+    QT_BLDRVERSION_EXP=${QT_BLDRVERSION_STD:-"4.8.5"}
     ;;
 esac
 
@@ -92,13 +92,18 @@ buildQt() {
     case `uname` in
 
       Darwin)
-        local PLATFORM=macx-g++
 # jpeg present, but qt cannot find headers
-        QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
         case `uname -r` in
-          10.*)
+          13.*)
+# This will need to be clang
+            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
+            ;;
+          1[0-2].*)
             case `uname -m` in
               i386) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64";;
+              *)
+                QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
+                ;;
             esac
             ;;
         esac
@@ -109,7 +114,6 @@ buildQt() {
         ;;
 
       Linux)
-
 # Adding to the LD_RUN_PATH gets rpath set for the qt libs.
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
