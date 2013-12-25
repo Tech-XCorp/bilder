@@ -215,16 +215,18 @@ if $REMOVE_UNFOUND; then
     pkglc=`echo $pkg | tr 'A-Z' 'a-z'`
     echo "Bilder file is ${pkglc}.sh."
     pkgfile=
-    if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${pkglc}.sh; then
-      pkgfile=$BILDER_CONFDIR/packages/${pkglc}.sh
-    elif test -f $bldrdir/packages/${pkglc}.sh; then
-      pkgfile=$bldrdir/packages/${pkglc}.sh
-    else
-# Look one level up
-      pkgfile=`ls $bldrdir/../*/packages/${pkglc}.sh 2>/dev/null | head -1`
+    if test -n "$BILDER_CONFDIR"; then
+      pkgfile=`(shopt -s nocaseglob; \ls $BILDER_CONFDIR/packages/${pkg}.sh 2>/dev/null)`
     fi
     if test -z "$pkgfile"; then
-      echo "WARNING: ${pkglc}.sh not found. Will keep installation."
+      pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/packages/${pkg}.sh 2>/dev/null)`
+    fi
+    if test -z "$pkgfile"; then
+# Look one level up
+      pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/../*/packages/${pkg}.sh 2>/dev/null)`
+    fi
+    if test -z "$pkgfile"; then
+      echo "WARNING: Package file for ${pkg}.sh not found. Will keep installation."
       echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
       continue
     fi
@@ -235,7 +237,7 @@ if $REMOVE_UNFOUND; then
         echo "$pkg installation has no version.  Will try lower case."
         ver=`python -c "import $pkglc; print ${pkglc}.__version__" 2>/dev/null`
         if test -z "$ver"; then
-          echo "$pkglc installation has no version.  Keeping record."
+          echo "WARNING: $pkglc installation has no version.  Keeping record."
           echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
           continue
         fi
