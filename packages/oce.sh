@@ -61,6 +61,12 @@ buildOce() {
   local OCE_ADDL_ARGS=
   if test -d oce; then
     getVersion oce
+    local patchfile=$BILDER_DIR/patches/oce.patch
+    if test -e $patchfile; then
+      cmd="(cd $PROJECT_DIR/oce; patch -p1 <$patchfile)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
     if ! bilderPreconfig oce; then
       return 1
     fi
