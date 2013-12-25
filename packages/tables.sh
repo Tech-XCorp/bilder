@@ -144,7 +144,11 @@ installTables() {
   case `uname` in
     CYGWIN*)
       hdf5shdir=$HDF5_CC4PY_DIR/bin
-      hdf5shlib=hdf5dll.dll
+      if echo $TABLES_ENV | grep HDF5_LIBNAMES_LACK_DLL; then
+        hdf5shlib=hdf5.dll
+      else
+        hdf5shlib=hdf5dll.dll
+      fi
       instopts=-n
       ;;
     Darwin)
