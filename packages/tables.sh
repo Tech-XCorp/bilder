@@ -100,7 +100,10 @@ buildTables() {
   esac
 # Add env if no dll at end of hdf5 files
   case $HDF5_BLDRVERSION in
-    1.8.1[1-9]) TABLES_ENV="$TABLES_ENV HDF5_LIBNAMES_LACK_DLL=1";;
+    1.8.1[1-9])
+      TABLES_ENV="$TABLES_ENV HDF5_LIBNAMES_LACK_DLL=1"
+      sed -i.bak -e 's/hdf5dll/hdf5/g' $BUILD_DIR/tables-$TABLES_BLDRVERSION/tables/__init__.py
+      ;;
   esac
   trimvar linkflags ' '
   if test -n "$linkflags"; then
