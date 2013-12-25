@@ -228,9 +228,25 @@ if $REMOVE_UNFOUND; then
       echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
       continue
     fi
-    if grep -q bilderDu $pkgfile; then
-      echo "$subdir is a python package.  Not checking."
-      echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+    if pkgline=`grep -q bilderDu $pkgfile`; then
+      echo "$pkg is a python package."
+      ver=`python -c "import $pkg; print $pkg.__version__" 2>/dev/null`
+      if test -z "$ver"; then
+        echo "$pkg installation has no version.  Will try lower case."
+        ver=`python -c "import $pkglc; print ${pkglc}.__version__" 2>/dev/null`
+        if test -z "$ver"; then
+          echo "$pkglc installation has no version.  Keeping record."
+          echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+          continue
+        fi
+      fi
+      pv=`echo $LINE | sed 's/-cc4py.*$//'`
+      echo "$pkg-$ver is installed.  Found record for $pv."
+      if test "$pv" = ${pkg}-$ver; then
+        echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+      else
+        echo "${pv} is not installed.  Removing record."
+      fi
       continue
     fi
     case $pkglc in
