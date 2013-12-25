@@ -236,22 +236,23 @@ testMatplotlib() {
 
 installMatplotlib() {
 
-# Define detritus to be removed. Some of these are archaic.
-# Warnings should tell us
-# First two are 1.0.1
-# dateutil appears gone as of 1.1.0.  Remove 20121231.
-  MATPLOTLIB_REMOVE="pytz mpl_toolkits pylab matplotlib"
-
+# Below installed by matplotlib-1.1.0.  Gone in 1.3.0
+  MATPLOTLIB_REMOVE="matplotlib mpl_toolkits pylab pytz"
+# Below built by matplotlib-1.3.0
+  MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
+# Below created by matplotlib-1.3.0
+  MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
   case `uname`-`uname -r` in
     CYGWIN*) bilderDuInstall -n matplotlib;;
     *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib;;
   esac
   res=$?
 
-# JRC 20120615: These seem to continue getting installed with 1.1.0.
+# Fix perms of other installed items
   if test $res = 0; then
-    for i in mpl_toolkits pytz pylab.py; do
-      if test -e $PYTHON_SITEPKGSDIR/$i; then
+    for i in $MATPLOTLIB_REMOVE; do
+      local instdirs=`\ls $PYTHON_SITEPKGSDIR/${i}* 2>/dev/null`
+      if test -n "$instdirs"; then
         for j in $PYTHON_SITEPKGSDIR/${i}*; do
           setOpenPerms ${j}
         done
@@ -259,22 +260,7 @@ installMatplotlib() {
         techo "WARNING: No longer need to set perms on $i."
       fi
     done
-# JRC 20120615: Below still present for 1.0.1.  Gone at 1.1.0.
-# Remove 20121231
-    if false; then
-      for i in dateutil; do
-        if test -e $PYTHON_SITEPKGSDIR/${i}; then
-          for j in $PYTHON_SITEPKGSDIR/${i}*; do
-            setOpenPerms ${j}
-          done
-        else
-          techo "WARNING: No longer need to set perms on $i."
-        fi
-      done
-    fi
   fi
-
-  # techo "WARNING: Quitting at end of matplotlib.sh."; exit
 
 }
 
