@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-XZ_BLDRVERSION=${XZ_BLDRVERSION:-"5.0.3"}
+XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
+XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
 
 ######################################################################
 #
