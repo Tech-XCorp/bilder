@@ -597,8 +597,9 @@ case $CC in
 esac
 case $CXX in
   /*/clang++ | clang++*)
+# Already done above.
     # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-    CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+    # CXXFLAGS="$CXXFLAGS -stdlib=libc++"
     ;;
 esac
 
