@@ -238,9 +238,9 @@ installMatplotlib() {
 
 # Below installed by matplotlib-1.1.0.  Gone in 1.3.0
   MATPLOTLIB_REMOVE="matplotlib mpl_toolkits pylab pytz"
-# Below built by matplotlib-1.3.0
+# Below installed by matplotlib-1.3.0
   MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
-# Below created by matplotlib-1.3.0
+# Below installed by matplotlib-1.3.0
   MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
   case `uname`-`uname -r` in
     CYGWIN*) bilderDuInstall -n matplotlib;;
@@ -257,7 +257,7 @@ installMatplotlib() {
           setOpenPerms ${j}
         done
       else
-        techo "WARNING: No longer need to set perms on $i."
+        techo "WARNING: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
       fi
     done
   fi
