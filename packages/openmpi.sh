@@ -107,10 +107,16 @@ if false; then
     esac
 fi
 
-    if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
+    local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
+    trimvar ompcxxflags ' '
+    ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
+    if test -n "$FCFLAGS"; then
+      ompcompflags="ompcompflags FCFLAGS='$FCFLAGS'"
+    fi
+    if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
       bilderBuild openmpi nodl "$ompimakeflags"
     fi
-    if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
+    if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
       bilderBuild openmpi static "$ompimakeflags"
     fi
 
