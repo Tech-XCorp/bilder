@@ -42,15 +42,15 @@ buildScipy() {
 # Older ppc require removal of arch from fortran flags
   case `uname -s` in
     Darwin)
-       case `uname -r` in
-         9.*)
-           case `uname -p` in
-             powerpc)
-               svn up $BILDER_DIR/scipygfortran.sh
-               SCIPY_GFORTRAN="F77=$BILDER_DIR/scipygfortran.sh"
-               ;;
-           esac
-           ;;
+      case `uname -r` in
+        9.*)
+          case `uname -p` in
+            powerpc)
+              svn up $BILDER_DIR/scipygfortran.sh
+              SCIPY_GFORTRAN="F77=$BILDER_DIR/scipygfortran.sh"
+              ;;
+          esac
+          ;;
         esac
       ;;
   esac
