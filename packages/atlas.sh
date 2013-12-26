@@ -27,17 +27,8 @@ ATLAS_BLDRVERSION_EXP=3.11.17
 if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
   case `uname` in
     CYGWIN*)
-      case `uname` in
-        focus.txcorp.com)
-          ATLAS_BUILDS=clp
-          if test -n "$FC"; then
-            ATLAS_BUILDS="$ATLAS_BUILDS",ser
-          fi
-          ;;
-        *)
-          ATLAS_BUILDS=NONE
-          ;;
-      esac
+      # ATLAS_BUILDS=clp
+      ATLAS_BUILDS=NONE
       ;;
     Darwin)
       ATLAS_BUILDS=NONE
