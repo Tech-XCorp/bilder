@@ -26,10 +26,10 @@ module load epel
 module load comp-intel
 module load impi-intel
 module load subversion
-module load python/2.7.4/impi-intel
 
 # Specific top-level script is loading for now
-# module load python/2.7.4/impi-intel
+# module load python/2.7.6/impi-intel
+# module load /nopt/nrel/apps/modules/candidate/modulefiles/python/2.7.4/impi-intel
 
 echo " "
 module list
@@ -123,12 +123,13 @@ BOOST_LIBRARYDIR='set'
 #PYTHON_BUILDS=${PYTHON_BUILDS:-"sersh"}
 # This keeps system libs for libm (and others!) from being found
 PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-libm='/nopt/nrel/apps/epel/6.3/lib64/libm.so.6'"}
-PYTHON_BLDRVERSION=2.7.4
-NUMPY_BLDRVERSION=1.7.1
+# PYTHON_BLDRVERSION=2.7.4
+# PYTHON_BLDRVERSION=2.7.6
+PYTHON_BLDRVERSION=3.2.5
+# NUMPY_BLDRVERSION=1.7.1
+NUMPY_BLDRVERSION=1.7.1a
 SCIPY_BLDRVERSION=0.12.0
 
-# No lapack is for shorter build times for pythonall
-LAPACK_BUILDS=${LAPACK_BUILDS:-"NONE"}
 # TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
 # SETUPTOOLS=${SETUPTOOLS:-"NONE"}
 # SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}

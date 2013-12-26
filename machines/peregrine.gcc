@@ -158,13 +158,13 @@ BOOST_LIBRARYDIR='set'
 # Turning off for dakota/boost. Will need to have separate
 # build for testing
 #
-#PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-libm='/nopt/nrel/apps/epel/6.3/lib64/libm.so.6'"}
-PYTHON_BLDRVERSION=2.7.4
-NUMPY_BLDRVERSION=1.7.1
+# 
+PYTHON_CC4PY_ADDL_ARGS=${PYTHON_CC4PY_ADDL_ARGS:-"--with-libm='/nopt/nrel/apps/epel/6.3/lib64/libm.so.6'"}
+# PYTHON_BLDRVERSION=2.7.4
+# PYTHON_BLDRVERSION=2.7.6
+PYTHON_BLDRVERSION=3.2.5
+NUMPY_BLDRVERSION=1.7.1a
 SCIPY_BLDRVERSION=0.12.0
-
-# No lapack is for shorter build times for pythonall
-LAPACK_BUILDS=${LAPACK_BUILDS:-"NONE"}
 
 #PYTHON_BUILDS=${PYTHON_BUILDS:-"NONE"}
 #TABLES_BUILDS=${TABLES_BUILDS:-"NONE"}
