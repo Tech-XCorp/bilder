@@ -31,7 +31,7 @@ computeBuilds carve
 CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
 CARVE_URL=https://code.google.com/r/cary-carve4bilder
-CARVE_ORIGURL=https://code.google.com/p/carve
+CARVE_UPSTREAM_URL=https://code.google.com/p/carve
 # Cloned at 475:be054bc7ed86
 
 # Blender maintains carve in the repo
@@ -75,11 +75,11 @@ buildCarve() {
   fi
 
 # See if any changesets are available
-  cd $PROJECT_DIR/carve; hg incoming $CARVE_ORIGURL 2>/dev/null 1>carve.chgsets
+  cd $PROJECT_DIR/carve; hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>carve.chgsets
   if grep "no changes found" $PROJECT_DIR/carve/carve.chgsets; then
     techo "No changesets found for carve."
   else
-    techo "WARNING: Changesets available for importing into carve from $CARVE_ORIGURL."
+    techo "WARNING: Changesets available for importing into carve from $CARVE_UPSTREAM_URL."
   fi
   if test "$VERBOSITY" = 0; then
     rm -f $PROJECT_DIR/carve/carve.chgsets
