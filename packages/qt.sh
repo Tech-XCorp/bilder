@@ -38,7 +38,7 @@ case `uname`-`uname -r` in
     ;;
   *)
     QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.4"}
-    QT_BLDRVERSION_EXP=${QT_BLDRVERSION_STD:-"4.8.5"}
+    QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.5"}
     ;;
 esac
 
