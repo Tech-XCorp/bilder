@@ -25,7 +25,8 @@ SOQT_BUILDS=${SOQT_BUILDS:-"$FORPYTHON_BUILD"}
 SOQT_BUILD=${SOQT_BUILD:-"$FORPYTHON_BUILD"}
 SOQT_DEPS=coin,qt
 SOQT_UMASK=002
-# addtopathvar PATH $CONTRIB_DIR/soqt/bin
+SOQT_URL=https://bitbucket.org/Coin3D/soqt
+SOQT_UPSTREAM_URL=https://bitbucket.org/Coin3D/soqt
 
 ######################################################################
 #
@@ -33,11 +34,61 @@ SOQT_UMASK=002
 #
 ######################################################################
 
+#
+# Get coin using hg.
+#
+getSoQt() {
+  techo "Updating soqt from the repo."
+  updateRepo soqt
+}
+
 buildSoQt() {
 
-  if ! bilderUnpack SoQt; then
+# Try to get soqt from repo
+  if ! (cd $PROJECT_DIR; getSoQt); then
+    echo "WARNING: Problem in getting soqt."
+  fi
+
+# If no subdir, done.
+  if ! test -d $PROJECT_DIR/soqt; then
+    techo "WARNING: soqt not found.  Not building."
+    return 1
+  fi
+
+# Get version and preconfig
+  getVersion soqt
+  if ! bilderPreconfig -p : soqt; then
     return
   fi
+
+# Get configure args
+  local SOQT_ADDL_ARGS=
+  local BASE_CC=`basename "$CC"`
+  local BASE_CXX=`basename "$CXX"`
+  local SOQT_COMPILERS=
+  case `uname` in
+    CYGWIN*)
+      SOQT_ADDL_ARGS="$SOQT_ADDL_ARGS --with-msvcrt=/md"
+      SOQT_COMPILERS="CC='' CXX=''"
+      ;;
+    Darwin)
+      SOQT_ADDL_ARGS="$SOQT_ADDL_ARGS --without-framework"
+      SOQT_COMPILERS="CC='$BASE_CC' CXX='$BASE_CXX'"
+      ;;
+    *)
+      SOQT_COMPILERS="CC='$BASE_CC' CXX='$BASE_CXX'"
+      ;;
+  esac
+  local SOQT_CFLAGS="$PYC_CFLAGS"
+  local SOQT_CXXFLAGS="$PYC_CXXFLAGS"
+  if [[ "$BASE_CC" =~ gcc ]]; then
+    SOQT_CFLAGS="$SOQT_CFLAGS -fpermissive"
+    SOQT_CXXFLAGS="$SOQT_CXXFLAGS -fpermissive"
+  fi
+  trimvar SOQT_CFLAGS ' '
+  trimvar SOQT_CXXFLAGS ' '
+  local otherargsvar=`genbashvar SOQT_${SOQT_BUILD}`_OTHER_ARGS
+  local otherargsval=`deref ${otherargsvar}`
 
 # Set env
   case `uname` in
@@ -50,18 +101,11 @@ buildSoQt() {
       fi
       ;;
   esac
-
-# Get configure args
-  local otherargsvar=`genbashvar SOQT_${SOQT_BUILD}`_OTHER_ARGS
-  local otherargsval=`deref ${otherargsvar}`
-  SOQT_CFLAGS='$CFLAGS -fpermissive'
-  trimvar SOQT_CFLAGS ' '
-  SOQT_CXXFLAGS='$CXXFLAGS -fpermissive'
-  trimvar SOQT_CXXFLAGS ' '
+  SOQT_ENV="$SOQT_ENV $SOQT_COMPILERS"
 
 # Configure and build
-  if bilderConfig -p Coin-$COIN_BLDRVERSION-$SOQT_BUILD SoQt $SOQT_BUILD "$CONFIG_COMPILERS_PYC CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $otherargsval" "" "$SOQT_ENV"; then
-    bilderBuild SoQt $SOQT_BUILD
+  if bilderConfig -p coin-$COIN_BLDRVERSION-$SOQT_BUILD soqt $SOQT_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $otherargsval" "" "$SOQT_ENV"; then
+    bilderBuild -m make soqt $SOQT_BUILD "" "$SOQT_ENV"
   fi
 
 }
@@ -73,7 +117,7 @@ buildSoQt() {
 ######################################################################
 
 testSoQt() {
-  techo "Not testing SoQt."
+  techo "Not testing soqt."
 }
 
 ######################################################################
@@ -84,7 +128,7 @@ testSoQt() {
 
 installSoQt() {
   for bld in `echo $SOQT_BUILDS | tr ',' ' '`; do
-    bilderInstall -L SoQt $bld
+    bilderInstall -m make -L soqt $bld
   done
 }
 

@@ -17,7 +17,7 @@
 ######################################################################
 
 # Build from repo
-# COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
+COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
 
 ######################################################################
 #
@@ -31,6 +31,7 @@ COIN_BUILD=$FORPYTHON_BUILD
 COIN_DEPS=qt
 COIN_UMASK=002
 COIN_URL=https://bitbucket.org/Coin3D/coin
+COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
 addtopathvar PATH $CONTRIB_DIR/coin/bin
 
 ######################################################################
@@ -91,6 +92,7 @@ buildCoin() {
   fi
   trimvar COIN_CFLAGS ' '
   trimvar COIN_CXXFLAGS ' '
+
   if bilderConfig coin $FORPYTHON_BUILD "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
     bilderBuild -m make coin $FORPYTHON_BUILD "" "$COIN_COMPILERS"
   fi
