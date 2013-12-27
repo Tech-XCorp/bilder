@@ -67,18 +67,32 @@ buildCoin() {
   fi
 
   local COIN_ADDL_ARGS=
+  local BASE_CC=`basename "$CC"`
+  local BASE_CXX=`basename "$CXX"`
+  local COIN_COMPILERS=
   case `uname` in
-    Darwin) COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework";;
+    CYGWIN*)
+      COIN_ADDL_ARGS="$COIN_ADDL_ARGS --with-msvcrt=/md"
+      COIN_COMPILERS="CC='' CXX=''"
+      ;;
+    Darwin)
+      COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework"
+      COIN_COMPILERS="CC='$BASE_CC' CXX='$BASE_CXX'"
+      ;;
+    *)
+      COIN_COMPILERS="CC='$BASE_CC' CXX='$BASE_CXX'"
+      ;;
   esac
-  COIN_CC=`basename "$CC"`
-  COIN_CXX=`basename "$CXX"`
-  COIN_COMPILERS="CC='$COIN_CC' CXX='$COIN_CXX'"
-  COIN_CFLAGS="$PYC_CFLAGS -fpermissive"
+  local COIN_CFLAGS="$PYC_CFLAGS"
+  local COIN_CXXFLAGS="$PYC_CXXFLAGS"
+  if [[ "$BASE_CC" =~ gcc ]]; then
+    COIN_CFLAGS="$COIN_CFLAGS -fpermissive"
+    COIN_CXXFLAGS="$COIN_CXXFLAGS -fpermissive"
+  fi
   trimvar COIN_CFLAGS ' '
-  COIN_CXXFLAGS="$PYC_CXXFLAGS -fpermissive"
   trimvar COIN_CXXFLAGS ' '
-  if bilderConfig coin $FORPYTHON_BUILD "$COIN_COMPILERS CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
-    bilderBuild coin $FORPYTHON_BUILD
+  if bilderConfig coin $FORPYTHON_BUILD "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
+    bilderBuild -m make coin $FORPYTHON_BUILD "" "$COIN_COMPILERS"
   fi
 
 }
@@ -101,7 +115,7 @@ testCoin() {
 
 installCoin() {
   for bld in `echo $COIN_BUILDS | tr ',' ' '`; do
-    bilderInstall -r coin $bld
+    bilderInstall -m make -r coin $bld
   done
 }
 
