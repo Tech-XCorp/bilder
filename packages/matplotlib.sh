@@ -257,7 +257,7 @@ installMatplotlib() {
           setOpenPerms ${j}
         done
       else
-        techo "WARNING: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
+        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
       fi
     done
   fi
