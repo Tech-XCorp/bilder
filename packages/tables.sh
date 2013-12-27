@@ -14,6 +14,7 @@
 
 TABLES_BLDRVERSION_STD=2.3.1
 TABLES_BLDRVERSION_EXP=3.0.0
+computeVersion tables
 
 ######################################################################
 #
