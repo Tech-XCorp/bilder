@@ -111,7 +111,7 @@ fi
     trimvar ompcxxflags ' '
     ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
     if test -n "$FCFLAGS"; then
-      ompcompflags="ompcompflags FCFLAGS='$FCFLAGS'"
+      ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
     fi
     if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
       bilderBuild openmpi nodl "$ompimakeflags"
