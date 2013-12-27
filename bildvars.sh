@@ -206,10 +206,13 @@ case `uname` in
         CXX=${CXX:-"clang++"}
         FC=${FC:-"gfortran"}
         F77=${F77:-"gfortran"}
-        CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
+        # -std=c++11 breaks too many codes
+        # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
+        CXXFLAGS="$CXXFLAGS -stdlib=libc++"
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
-        PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
+        # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
+        PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libc++"
         ;;
     esac
     QMAKE_PLATFORM_ARGS="-spec macx-g++ -r"
