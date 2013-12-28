@@ -97,7 +97,10 @@ buildFreecad() {
     fi
     eval $i="$val"
   done
-  FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DZLIB_INCLUDE_DIR:PATH=$zlibdir/include -DZLIB_LIBRARY:PATH=$zlibdir/lib/z.lib -DBOOST_ROOT:STRING='$boostdir' -DEIGEN3_INCLUDE_DIR:PATH='$eigendir/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='$xercescdir/include'"
+  FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DBOOST_ROOT:STRING='$boostdir' -DEIGEN3_INCLUDE_DIR:PATH='$eigendir/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='$xercescdir/include'"
+  if [[ `uname` =~ CYGWIN ]]; then
+    FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DZLIB_INCLUDE_DIR:PATH=$zlibdir/include -DZLIB_LIBRARY:PATH=$zlibdir/lib/z.lib"
+  fi
 
   local libpre=
   local libpost=
