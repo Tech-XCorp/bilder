@@ -76,13 +76,20 @@ buildFreecad() {
   techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
 
 # These will need conversion for Windows
-  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DBoost_NO_BOOST_CMAKE:BOOL=TRUE"
+  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DFREECAD_LIBPACK_USE:BOOL=FALSE -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DBoost_NO_BOOST_CMAKE:BOOL=TRUE"
+  local pkgvars=
+  if [[ `uname` =~ CYGWIN ]]; then
+    local zlibdir="${CONTRIB_DIR}/zlib-sersh"
+    pkgvars="zlibdir"
+  fi
   local boostdir="${CONTRIB_DIR}/boost-sersh"
   local eigendir="${CONTRIB_DIR}/eigen3-sersh"
   local xercescdir="${CONTRIB_DIR}/xercesc-sersh"
-  local coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
+  # local coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
+  local coin3ddir="${BLDR_INSTALL_DIR}/coin-$FREECAD_BUILD"
   local ocerootdir="${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"
-  for i in boostdir eigendir xercescdir coin3ddir ocerootdir; do
+  pkgvars="$pkgvars boostdir eigendir xercescdir coin3ddir ocerootdir"
+  for i in $pkgvars; do
     val=`deref $i`
     val=`(cd $val; pwd -P)`
     if [[ `uname` =~ CYGWIN ]]; then
@@ -90,7 +97,7 @@ buildFreecad() {
     fi
     eval $i="$val"
   done
-  FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DBOOST_ROOT:STRING='$boostdir' -DEIGEN3_INCLUDE_DIR:PATH='$eigendir/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='$xercescdir/include'"
+  FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DZLIB_INCLUDE_DIR:PATH=$zlibdir/include -DZLIB_LIBRARY:PATH=$zlibdir/lib/z.lib -DBOOST_ROOT:STRING='$boostdir' -DEIGEN3_INCLUDE_DIR:PATH='$eigendir/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='$xercescdir/include'"
 
   local libpre=
   local libpost=
@@ -99,6 +106,7 @@ buildFreecad() {
     CYGWIN*)
       libpre=
       libpost=lib
+      ocedevdir=${ocerootdir}/cmake
       ;;
     Darwin)
       libpre=lib
@@ -116,7 +124,8 @@ buildFreecad() {
       fi
       ;;
   esac
-  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' -DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost' -DOCE_DIR='${ocedevdir}'"
+  # FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' -DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost' -DOCE_DIR='${ocedevdir}'"
+  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' -DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}coin4.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}soqt1.$libpost' -DOCE_DIR='${ocedevdir}'"
 
 # Previously used
 #  -DOCC_LIBRARY_DIR='${ocerootdir}/lib'
