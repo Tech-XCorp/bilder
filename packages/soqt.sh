@@ -55,6 +55,15 @@ buildSoQt() {
     return 1
   fi
 
+# Patch if present
+  local patchfile=$BILDER_DIR/patches/soqt.patch
+  if test -e $patchfile; then
+    SOQT_PATCH="$patchfile"
+    cmd="(cd $PROJECT_DIR/soqt; patch -p1 <$patchfile)"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
 # Get version and preconfig
   getVersion soqt
   if ! bilderPreconfig -p : soqt; then
@@ -91,10 +100,12 @@ buildSoQt() {
   local otherargsval=`deref ${otherargsvar}`
 
 # Set env
+  local SOQT_QTDIR=$QT_CC4PY_DIR
+  SOQT_QTDIR=${SOQT_QTDIR:-"$QT_SERSH_DIR"}
+  local SOQT_ENV="QTDIR=$SOQT_QTDIR"
   case `uname` in
     CYGWIN*) ;;
     *)
-      SOQT_ENV="QTDIR=$CONTRIB_DIR/qt-$QT_BLDRVERSION-$SOQT_BUILD"
       if test -d $BLDR_INSTALL_DIR/coin-sersh/bin; then
         local COIN_BINDIR=`(cd $BLDR_INSTALL_DIR/coin-sersh/bin; pwd -P)`
         SOQT_ENV="$SOQT_ENV PATH=$COIN_BINDIR:'$PATH'"
@@ -102,9 +113,10 @@ buildSoQt() {
       ;;
   esac
   SOQT_ENV="$SOQT_ENV $SOQT_COMPILERS"
+  trimvar SOQT_ENV ' '
 
 # Configure and build
-  if bilderConfig -p coin-$COIN_BLDRVERSION-$SOQT_BUILD soqt $SOQT_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $otherargsval" "" "$SOQT_ENV"; then
+  if bilderConfig -p coin-$COIN_BLDRVERSION-$SOQT_BUILD soqt $SOQT_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_ADDL_ARGS $otherargsval" "" "$SOQT_ENV"; then
     bilderBuild -m make soqt $SOQT_BUILD "" "$SOQT_ENV"
   fi
 

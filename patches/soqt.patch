@@ -1,0 +1,24 @@
+diff -r e8310fe21c1b configure
+--- a/configure	Sun Dec 04 22:53:26 2011 +0100
++++ b/configure	Fri Dec 27 19:04:00 2013 -0700
+@@ -28628,7 +28628,7 @@
+ # breaking the ABI, so just silence the warning until the next major
+ # version (see also FIXME in SoGuiObject.h.in) 20060404 kyrah
+ 
+-if test x"$ac_compiler_gnu"=x"yes"; then
++if test x"$ac_compiler_gnu"=x"yes" && ! $BUILD_WITH_MSVC; then
+   gccversion4=`cpp -dM /dev/null | grep __VERSION__ |grep '__VERSION__ "4'`
+   if test "$gccversion4"; then
+     CXXFLAGS="$CXXFLAGS -Wno-non-virtual-dtor"
+diff -r e8310fe21c1b configure.ac
+--- a/configure.ac	Sun Dec 04 22:53:26 2011 +0100
++++ b/configure.ac	Fri Dec 27 19:04:00 2013 -0700
+@@ -768,7 +768,7 @@
+ # breaking the ABI, so just silence the warning until the next major
+ # version (see also FIXME in SoGuiObject.h.in) 20060404 kyrah
+ 
+-if test x"$ac_compiler_gnu"=x"yes"; then
++if test x"$ac_compiler_gnu"=x"yes" && ! $BUILD_WITH_MSVC; then
+   gccversion4=`cpp -dM /dev/null | grep __VERSION__ |grep '__VERSION__ "4'`
+   if test "$gccversion4"; then
+     CXXFLAGS="$CXXFLAGS -Wno-non-virtual-dtor"
