@@ -55,6 +55,8 @@ buildSoQt() {
     return 1
   fi
 
+# Get version, patch, and preconfig
+  getVersion soqt
 # Patch if present
   local patchfile=$BILDER_DIR/patches/soqt.patch
   if test -e $patchfile; then
@@ -63,9 +65,7 @@ buildSoQt() {
     techo "$cmd"
     eval "$cmd"
   fi
-
-# Get version and preconfig
-  getVersion soqt
+  # rm -f $PROJECT_DIR/soqt/*-soqt-preconfig.txt
   if ! bilderPreconfig -p : soqt; then
     return
   fi
