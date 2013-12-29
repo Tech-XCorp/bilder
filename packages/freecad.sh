@@ -30,7 +30,7 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 # Only the python build needed.
 FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
 FREECAD_BUILD=$FORPYTHON_BUILD
-FREECAD_DEPS=SoQt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
+FREECAD_DEPS=soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
 FREECAD_UMASK=002
 FREECAD_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
 addtopathvar PATH $CONTRIB_DIR/freecad/bin
@@ -85,9 +85,15 @@ buildFreecad() {
   local boostdir="${CONTRIB_DIR}/boost-sersh"
   local eigendir="${CONTRIB_DIR}/eigen3-sersh"
   local xercescdir="${CONTRIB_DIR}/xercesc-sersh"
+  local coin3ddir=
+  local ocerootdir=
+  if $COIN_USE_REPO; then
+    coin3ddir="${BLDR_INSTALL_DIR}/coin-$FREECAD_BUILD"
+  else
+    coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
+  fi
+  ocerootdir="${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"
   # local coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
-  local coin3ddir="${BLDR_INSTALL_DIR}/coin-$FREECAD_BUILD"
-  local ocerootdir="${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"
   pkgvars="$pkgvars boostdir eigendir xercescdir coin3ddir ocerootdir"
   for i in $pkgvars; do
     val=`deref $i`

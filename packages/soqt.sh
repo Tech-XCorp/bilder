@@ -13,6 +13,11 @@
 ######################################################################
 
 SOQT_BLDRVERSION=${SOQT_BLDRVERSION:-"1.5.0"}
+if $COIN_USE_REPO; then
+  SOQT_NAME=soqt
+else
+  SOQT_NAME=SoQt
+fi
 
 ######################################################################
 #
@@ -35,7 +40,7 @@ SOQT_UPSTREAM_URL=https://bitbucket.org/Coin3D/soqt
 ######################################################################
 
 #
-# Get coin using hg.
+# Get soqt using hg.
 #
 getSoQt() {
   techo "Updating soqt from the repo."
@@ -44,30 +49,41 @@ getSoQt() {
 
 buildSoQt() {
 
+  if $COIN_USE_REPO; then
+
 # Try to get soqt from repo
-  if ! (cd $PROJECT_DIR; getSoQt); then
-    echo "WARNING: Problem in getting soqt."
-  fi
+    if ! (cd $PROJECT_DIR; getSoQt); then
+      echo "WARNING: Problem in getting soqt."
+    fi
 
 # If no subdir, done.
-  if ! test -d $PROJECT_DIR/soqt; then
-    techo "WARNING: soqt not found.  Not building."
-    return 1
-  fi
+    if ! test -d $PROJECT_DIR/soqt; then
+      techo "WARNING: soqt not found.  Not building."
+      return 1
+    fi
 
 # Get version, patch, and preconfig
-  getVersion soqt
+    getVersion soqt
 # Patch if present
-  local patchfile=$BILDER_DIR/patches/soqt.patch
-  if test -e $patchfile; then
-    SOQT_PATCH="$patchfile"
-    cmd="(cd $PROJECT_DIR/soqt; patch -p1 <$patchfile)"
-    techo "$cmd"
-    eval "$cmd"
-  fi
-  # rm -f $PROJECT_DIR/soqt/*-soqt-preconfig.txt
-  if ! bilderPreconfig -p : soqt; then
-    return
+    local patchfile=$BILDER_DIR/patches/soqt.patch
+    if test -e $patchfile; then
+      SOQT_PATCH="$patchfile"
+      cmd="(cd $PROJECT_DIR/soqt; patch -p1 <$patchfile)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
+    # rm -f $PROJECT_DIR/soqt/*-soqt-preconfig.txt
+    if ! bilderPreconfig -p : soqt; then
+      return
+    fi
+
+  else
+
+# Build from tarball
+    if ! bilderUnpack SoQt; then
+      return 1
+    fi
+
   fi
 
 # Get configure args
@@ -106,8 +122,8 @@ buildSoQt() {
   case `uname` in
     CYGWIN*) ;;
     *)
-      if test -d $BLDR_INSTALL_DIR/coin-sersh/bin; then
-        local COIN_BINDIR=`(cd $BLDR_INSTALL_DIR/coin-sersh/bin; pwd -P)`
+      if test -d $BLDR_INSTALL_DIR/${COIN_NAME}-sersh/bin; then
+        local COIN_BINDIR=`(cd $BLDR_INSTALL_DIR/${COIN_NAME}-sersh/bin; pwd -P)`
         SOQT_ENV="$SOQT_ENV PATH=$COIN_BINDIR:'$PATH'"
       fi
       ;;
@@ -116,8 +132,8 @@ buildSoQt() {
   trimvar SOQT_ENV ' '
 
 # Configure and build
-  if bilderConfig -p coin-$COIN_BLDRVERSION-$SOQT_BUILD soqt $SOQT_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_ADDL_ARGS $otherargsval" "" "$SOQT_ENV"; then
-    bilderBuild -m make soqt $SOQT_BUILD "" "$SOQT_ENV"
+  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-$SOQT_BUILD $SOQT_NAME $SOQT_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_ADDL_ARGS $otherargsval" "" "$SOQT_ENV"; then
+    bilderBuild -m make $SOQT_NAME $SOQT_BUILD "" "$SOQT_ENV"
   fi
 
 }
@@ -140,7 +156,7 @@ testSoQt() {
 
 installSoQt() {
   for bld in `echo $SOQT_BUILDS | tr ',' ' '`; do
-    bilderInstall -m make -L soqt $bld
+    bilderInstall -m make -L $SOQT_NAME $bld
   done
 }
 

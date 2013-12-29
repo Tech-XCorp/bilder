@@ -16,8 +16,14 @@
 #
 ######################################################################
 
-# Build from repo
+# Build from tarball
 COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
+COIN_USE_REPO=false
+if $COIN_USE_REPO; then
+  COIN_NAME=coin
+else
+  COIN_NAME=Coin
+fi
 
 ######################################################################
 #
@@ -50,21 +56,32 @@ getCoin() {
 
 buildCoin() {
 
+  if $COIN_USE_REPO; then
+
 # Try to get coin from repo
-  if ! (cd $PROJECT_DIR; getCoin); then
-    echo "WARNING: Problem in getting coin."
-  fi
+    if ! (cd $PROJECT_DIR; getCoin); then
+      echo "WARNING: Problem in getting coin."
+    fi
 
 # If no subdir, done.
-  if ! test -d $PROJECT_DIR/coin; then
-    techo "WARNING: coin not found.  Not building."
-    return 1
-  fi
+    if ! test -d $PROJECT_DIR/coin; then
+      techo "WARNING: coin not found.  Not building."
+      return 1
+    fi
 
 # Get version and preconfig
-  getVersion coin
-  if ! bilderPreconfig -p : coin; then
-    return
+    getVersion coin
+    if ! bilderPreconfig -p : coin; then
+      return 1
+    fi
+
+  else
+
+# Build from tarball
+    if ! bilderUnpack Coin; then
+      return 1
+    fi
+
   fi
 
   local COIN_ADDL_ARGS=
@@ -93,8 +110,8 @@ buildCoin() {
   trimvar COIN_CFLAGS ' '
   trimvar COIN_CXXFLAGS ' '
 
-  if bilderConfig coin $FORPYTHON_BUILD "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
-    bilderBuild -m make coin $FORPYTHON_BUILD "" "$COIN_COMPILERS"
+  if bilderConfig $COIN_NAME $FORPYTHON_BUILD "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
+    bilderBuild -m make $COIN_NAME $FORPYTHON_BUILD "" "$COIN_COMPILERS"
   fi
 
 }
@@ -117,7 +134,7 @@ testCoin() {
 
 installCoin() {
   for bld in `echo $COIN_BUILDS | tr ',' ' '`; do
-    bilderInstall -m make -r coin $bld
+    bilderInstall -m make -r $COIN_NAME $bld
   done
 }
 
