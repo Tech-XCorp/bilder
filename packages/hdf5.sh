@@ -45,6 +45,7 @@ case `uname` in
 
   Darwin)
     case `uname -r` in
+      13.*)   HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
       10.8.*) HDF5_BLDRVERSION_STD=1.8.10;;	# Snow Leopard
            *) HDF5_BLDRVERSION_STD=1.8.7;;	# Lion, Mountain Lion, etc.
     esac
