@@ -48,8 +48,10 @@ WRAPPER OPTIONS
   -n ................ Invoke with a nohup and a redirect output
   -p ................ just print the command
   -q <timelimit> .... Run in queue if possible, with limit of timelimit time
-  -r <rootinst> ..... Use this directory as the root for the installation, under
-                        which will be the contrib, volatile, and internal dirs
+  -r <rootinst> ..... If absolute, use this directory as the root for the
+                        installation, under which will be the contrib,
+                        volatile, and internal dirs.
+                      If relative, add this to the computed root.
   -R <subdir> ....... Install both repo and tarball packages into
                         /internal/<subdir>. This used for releases builds.
   -t ................ Pass the -t flag to the  mk script (turn on testing)
@@ -111,7 +113,13 @@ processArg() {
     n) USE_NOHUP=true;;
     p) PRINTONLY=true;;
     q) QUEUE_TIME=$OPTARG;;
-    r) ROOTDIR_CVI=$OPTARG;;
+    r)
+      if [[ $OPTARG =~ "^/" ]]; then
+        ROOTDIR_CVI=$OPTARG  # New root dir for installation
+      else
+        ROOTDIR_REL=$OPTARG  # Subdir to add onto computed root dir
+      fi
+      ;;
     R) FIXED_INSTALL_SUBDIR=$OPTARG;;
     t) EXTRA_ARGS="$EXTRA_ARGS -t";;
     v) ENV_VARS_FILE="$OPTARG";;
@@ -131,6 +139,8 @@ INSTDIR_IS_INTERNAL=false
 INSTALL_IN_HOME=false
 unset MKJMAX
 PRINTONLY=false
+ROOTDIR_CVI=  # Absolute root dir for installation
+ROOTDIR_REL=  # Relative additional dir for installation
 QUEUE_TIME=
 USE_NOHUP=false
 USE_COMMON_INSTDIRS=true
