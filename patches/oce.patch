@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 14dca15..eb467a2 100644
+index 2811d92..d7d2497 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -338,7 +338,10 @@ endif(OCE_VISU_DEP)
+@@ -376,7 +376,10 @@ endif(OCE_VISU_DEP)
  if(OCE_REQUIRES_FREETYPE)
  	## TKService requires FreeType
  	if(NOT OCE_USE_BUNDLE AND NOT OCE_USE_BUNDLE_SOURCE)
@@ -14,7 +14,7 @@ index 14dca15..eb467a2 100644
  	else (NOT OCE_USE_BUNDLE AND NOT OCE_USE_BUNDLE_SOURCE)
  		find_library(FREETYPE_LIBRARY freetype)
  	endif(NOT OCE_USE_BUNDLE AND NOT OCE_USE_BUNDLE_SOURCE)
-@@ -346,6 +349,22 @@ if(OCE_REQUIRES_FREETYPE)
+@@ -384,6 +387,22 @@ if(OCE_REQUIRES_FREETYPE)
  	if(CMAKE_CONFIGURATION_TYPES OR NMAKE)
  		find_library(FREETYPE_LIBRARY_DEBUG freetyped "Location of freetype debug library")
  	endif(CMAKE_CONFIGURATION_TYPES OR NMAKE)
