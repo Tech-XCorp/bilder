@@ -133,8 +133,13 @@ buildFreecad() {
       fi
       ;;
   esac
-  # FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' -DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost' -DOCE_DIR='${ocedevdir}'"
-  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' -DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}coin4.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}soqt1.$libpost' -DOCE_DIR='${ocedevdir}'"
+  local coinlibs=
+  if $COIN_USE_REPO; then
+    coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}coin4.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}soqt1.$libpost'"
+  else
+    coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost'"
+  fi
+  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}'"
 
 # Previously used
 #  -DOCC_LIBRARY_DIR='${ocerootdir}/lib'
