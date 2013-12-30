@@ -65,9 +65,15 @@ WRAPPER OPTIONS
                         args are passed to the script.
 _
   if declare -f extraDefaultsUsage > /dev/null; then extraDefaultsUsage; fi
-  SET_BILDER_OPTIONS=false
-  source $BILDER_DIR/bildopts.sh
-  bilderUsage -s
+  if test $script != mkall.sh; then
+    cat <<_
+
+If you want to see the command line arguments for $script, then you
+should run the following command:
+
+        ./$script -h
+_
+  fi
   exit $1
 }
 
