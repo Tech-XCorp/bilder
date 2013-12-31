@@ -146,7 +146,7 @@ buildSoQt() {
       COIN_DIR=`(cd $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_BUILD}; pwd -P)`
     fi
   fi
-  if text -n "$COIN_DIR"; then
+  if test -n "$COIN_DIR"; then
     local COIN_BINDIR=$COIN_DIR/bin
     SOQT_ENV="$SOQT_ENV PATH=$COIN_BINDIR:'$PATH'"
     if [[ `uname` =~ CYGWIN ]]; then
