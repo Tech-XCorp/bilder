@@ -36,7 +36,7 @@ COIN_BUILDS=${COIN_BUILDS:-"$FORPYTHON_BUILD"}
 COIN_BUILD=$FORPYTHON_BUILD
 COIN_DEPS=qt
 COIN_UMASK=002
-COIN_URL=https://bitbucket.org/Coin3D/coin
+COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
 COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
 addtopathvar PATH $CONTRIB_DIR/coin/bin
 

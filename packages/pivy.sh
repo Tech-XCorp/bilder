@@ -30,7 +30,7 @@ PIVY_BUILDS=${PIVY_BUILDS:-"$FORPYTHON_BUILD"}
 PIVY_BUILD=${PIVY_BUILD:-"$FORPYTHON_BUILD"}
 PIVY_DEPS=coin,qt
 PIVY_UMASK=002
-PIVY_URL=https://bitbucket.org/Coin3D/pivy
+PIVY_REPO_URL=https://bitbucket.org/Coin3D/pivy
 PIVY_UPSTREAM_URL=https://bitbucket.org/Coin3D/pivy
 
 ######################################################################

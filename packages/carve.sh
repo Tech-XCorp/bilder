@@ -30,7 +30,7 @@ CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
 computeBuilds carve
 CARVE_DEPS=cmake,mercurial
 CARVE_UMASK=002
-CARVE_URL=https://code.google.com/r/cary-carve4bilder
+CARVE_REPO_URL=https://code.google.com/r/cary-carve4bilder
 CARVE_UPSTREAM_URL=https://code.google.com/p/carve
 # Cloned at 475:be054bc7ed86
 
@@ -61,7 +61,7 @@ buildCarve() {
     rm -rf $PROJECT_DIR/carve
   else
     local defrepo=`grep ^default $PROJECT_DIR/carve/.hg/hgrc | sed 's/^default.*= *//'`
-    if ! test "$defrepo" = "$CARVE_URL"; then
+    if ! test "$defrepo" = "$CARVE_REPO_URL"; then
       techo "Carve repo from $defrepo.  Removing."
       rm -rf $PROJECT_DIR/carve
     else

@@ -3020,7 +3020,7 @@ updateRepo() {
   local pkg=$1
 
 # Find the repo
-  local urlvar=`genbashvar $1`_URL
+  local urlvar=`genbashvar $1`_REPO_URL
   local pkgurl=`deref $urlvar`
   techo -2 "$urlvar = $pkgurl."
 

@@ -2,10 +2,6 @@
 #
 # Version and build information for freecad.
 #
-# Current tarball created from the trunk:
-# svn co https://free-cad.svn.sourceforge.net/svnroot/free-cad/trunk freecad
-# Revision is r5443
-#
 # To run this, for OS X:
 #  export DYLD_LIBRARY_PATH=/volatile/freecad/lib:/volatile/freecad/Mod/PartDesign:/contrib/boost-1_47_0-ser/lib:/volatile/oce-r747-ser/lib
 #
@@ -32,7 +28,9 @@ FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
 FREECAD_BUILD=$FORPYTHON_BUILD
 FREECAD_DEPS=soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
 FREECAD_UMASK=002
-FREECAD_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
+FREECAD_REPO_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
+FREECAD_UPSTREAM_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
+FREECAD_WEBSITE_URL=http://www.freecadweb.org/
 addtopathvar PATH $CONTRIB_DIR/freecad/bin
 
 ######################################################################
