@@ -240,8 +240,8 @@ installMatplotlib() {
   MATPLOTLIB_REMOVE="matplotlib mpl_toolkits pylab pytz"
 # Below installed by matplotlib-1.3.0
   MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
-# Below installed by matplotlib-1.3.0
-  MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
+# Below modified by matplotlib-1.3.0, but should not remove, as additive.
+  # MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
   case `uname`-`uname -r` in
     CYGWIN*) bilderDuInstall -n matplotlib;;
     *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib;;
