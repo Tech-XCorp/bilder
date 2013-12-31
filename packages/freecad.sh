@@ -74,7 +74,7 @@ buildFreecad() {
   techo "Found qmake in ${QMAKE_PATH}. Needed for FindQt4.cmake for proper configuration."
 
 # These will need conversion for Windows
-  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DFREECAD_LIBPACK_USE:BOOL=FALSE -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DBoost_NO_BOOST_CMAKE:BOOL=TRUE"
+  local FREECAD_ADDL_ARGS="-DFREECAD_USE_FREETYPE:BOOL=FALSE -DFREECAD_MAINTAINERS_BUILD:BOOL=TRUE -DFREECAD_LIBPACK_USE:BOOL=FALSE -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE -DBoost_NO_BOOST_CMAKE:BOOL=TRUE -DBUILD_SALOMESMESH:BOOL=FALSE"
   local pkgvars=
   if [[ `uname` =~ CYGWIN ]]; then
     local zlibdir="${CONTRIB_DIR}/zlib-sersh"
@@ -91,7 +91,6 @@ buildFreecad() {
     coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
   fi
   ocerootdir="${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"
-  # local coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
   pkgvars="$pkgvars boostdir eigendir xercescdir coin3ddir ocerootdir"
   for i in $pkgvars; do
     val=`deref $i`
@@ -135,7 +134,11 @@ buildFreecad() {
   if $COIN_USE_REPO; then
     coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}coin4.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}soqt1.$libpost'"
   else
-    coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost'"
+    if [[ `uname` =~ CYGWIN ]]; then
+      coinlibs="-DCOIN3D_LIBRARY_RELEASE:FILEPATH='${coin3ddir}/lib/coin3.lib' -DCOIN3D_LIBRARY_DEBUG:FILEPATH='${coin3ddir}dbg/lib/coin3.lib' -DSOQT_LIBRARY_RELEASE:FILEPATH='${coin3ddir}/lib/soqt1.lib' -DSOQT_LIBRARY_DEBUG:FILEPATH='${coin3ddir}dbg/lib/soqt1.lib' -DPYTHON_DEBUG_LIBRARY:FILEPATH='$PYTHON_LIB'"
+    else
+      coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost'"
+    fi
   fi
   FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}'"
 

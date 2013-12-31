@@ -1,0 +1,29 @@
+diff --git a/src/3rdParty/CMakeLists.txt b/src/3rdParty/CMakeLists.txt
+index 1027fc5..415391b 100644
+--- a/src/3rdParty/CMakeLists.txt
++++ b/src/3rdParty/CMakeLists.txt
+@@ -35,5 +35,10 @@ elseif(FREECAD_BUILD_GUI)
+ endif(FREECAD_BUILD_GUI AND FREECAD_LIBPACK_CHECKFILE6X)
+ 
+ # Build SalomeMesh for all Platforms since heavily patched
+-add_subdirectory(salomesmesh)
++if (NOT DEFINED BUILD_SALOMESMESH)
++  set(BUILD_SALOMESMESH TRUE)
++endif ()
++if (BUILD_SALOMESMESH)
++  add_subdirectory(salomesmesh)
++endif ()
+ 
+diff --git a/src/Doc/CMakeLists.txt b/src/Doc/CMakeLists.txt
+index ac445b4..9b76641 100644
+--- a/src/Doc/CMakeLists.txt
++++ b/src/Doc/CMakeLists.txt
+@@ -67,7 +67,7 @@ if(DOXYGEN_FOUND)
+         if (WIN32)
+         ADD_CUSTOM_TARGET(SourceDocu 
+             ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/BuildDevDoc.cfg 
+-            COMMAND ${QT_HELPCOMPILER_EXECUTABLE} "\"${CMAKE_BINARY_DIR}/doc/SourceDocu/html/index.qhp\""
++            COMMAND ${QT_HELPCOMPILER_EXECUTABLE} "${CMAKE_BINARY_DIR}/doc/SourceDocu/html/index.qhp"
+             COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/doc/SourceDocu/html/index.qch ${CMAKE_BINARY_DIR}/doc/FreeCADSource.qch
+             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/BuildDevDoc.cfg
