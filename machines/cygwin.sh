@@ -6,6 +6,8 @@
 # done.  Looks for Visual Studio 10 first, then 9.  Environment
 # modified according to which is found first.
 #
+# Compiling 64 bit using express: http://jenshuebel.wordpress.com/2009/02/12/visual-c-2008-express-edition-and-64-bit-targets/
+#
 # Variables can be determined by starting up the Visual Studio
 # Command Prompt, then '\cywin\bin\bash.exe --login', and then
 # getting the variables, INCLUDE, LIB, LIBPATH, and mods to PATH

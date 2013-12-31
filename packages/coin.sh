@@ -31,14 +31,18 @@ fi
 #
 ######################################################################
 
-# Only the python build needed.
-COIN_BUILDS=${COIN_BUILDS:-"$FORPYTHON_BUILD"}
-COIN_BUILD=$FORPYTHON_BUILD
+# Only python builds needed.
+if test -z "$COIN_BUILDS"; then
+  COIN_BUILDS=${FORPYTHON_BUILD}
+  if [[ `uname` =~ CYGWIN ]]; then
+    COIN_BUILDS=${COIN_BUILDS},${FORPYTHON_BUILD}dbg
+  fi
+fi
 COIN_DEPS=qt
 COIN_UMASK=002
 COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
 COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
-addtopathvar PATH $CONTRIB_DIR/coin/bin
+# addtopathvar PATH $CONTRIB_DIR/coin/bin
 
 ######################################################################
 #
@@ -91,6 +95,7 @@ buildCoin() {
   case `uname` in
     CYGWIN*)
       COIN_ADDL_ARGS="$COIN_ADDL_ARGS --with-msvcrt=/md"
+      COIN_DBG_ADDL_ARGS="$COIN_DBG_ADDL_ARGS --with-msvcrt=/mdd"
       COIN_COMPILERS="CC='' CXX=''"
       ;;
     Darwin)
@@ -112,6 +117,10 @@ buildCoin() {
 
   if bilderConfig $COIN_NAME $FORPYTHON_BUILD "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
     bilderBuild -m make $COIN_NAME $FORPYTHON_BUILD "" "$COIN_COMPILERS"
+  fi
+
+  if bilderConfig $COIN_NAME ${FORPYTHON_BUILD}dbg "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_DBG_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
+    bilderBuild -m make $COIN_NAME ${FORPYTHON_BUILD}dbg "" "$COIN_COMPILERS"
   fi
 
 }

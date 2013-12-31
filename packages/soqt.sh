@@ -25,9 +25,13 @@ fi
 #
 ######################################################################
 
-# SoQt is installed with Coin, so it is built the way Coin is built
-SOQT_BUILDS=${SOQT_BUILDS:-"$FORPYTHON_BUILD"}
-SOQT_BUILD=${SOQT_BUILD:-"$FORPYTHON_BUILD"}
+# SoQt is installed with Coin, so it is built the way Coin is built.
+if test -z "$SOQT_BUILDS"; then
+  SOQT_BUILDS=${FORPYTHON_BUILD}
+  if [[ `uname` =~ CYGWIN ]]; then
+    SOQT_BUILDS=${SOQT_BUILDS},${FORPYTHON_BUILD}dbg
+  fi
+fi
 SOQT_DEPS=coin,qt
 SOQT_UMASK=002
 SOQT_REPO_URL=https://bitbucket.org/Coin3D/soqt
@@ -94,6 +98,7 @@ buildSoQt() {
   case `uname` in
     CYGWIN*)
       SOQT_ADDL_ARGS="$SOQT_ADDL_ARGS --with-msvcrt=/md"
+      SOQT_DBG_ADDL_ARGS="$SOQT_DBG_ADDL_ARGS --with-msvcrt=/mdd"
       SOQT_COMPILERS="CC='' CXX=''"
       ;;
     Darwin)
@@ -112,28 +117,54 @@ buildSoQt() {
   fi
   trimvar SOQT_CFLAGS ' '
   trimvar SOQT_CXXFLAGS ' '
-  local otherargsvar=`genbashvar SOQT_${SOQT_BUILD}`_OTHER_ARGS
+  local otherargsvar=`genbashvar SOQT_${FORPYTHON_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
 
 # Set env
   local SOQT_QTDIR=$QT_CC4PY_DIR
   SOQT_QTDIR=${SOQT_QTDIR:-"$QT_SERSH_DIR"}
-  local SOQT_ENV="QTDIR=$SOQT_QTDIR"
-  case `uname` in
-    CYGWIN*) ;;
-    *)
-      if test -d $BLDR_INSTALL_DIR/${COIN_NAME}-sersh/bin; then
-        local COIN_BINDIR=`(cd $BLDR_INSTALL_DIR/${COIN_NAME}-sersh/bin; pwd -P)`
-        SOQT_ENV="$SOQT_ENV PATH=$COIN_BINDIR:'$PATH'"
-      fi
-      ;;
-  esac
+  if test -z "$SOQT_DIR" -a -n "$QT_SER_DIR"; then
+    techo "WARNING: Qt is installed in ser dir, not sersh dir.  Reinstallation needed."
+    SOQT_QTDIR="$QT_SER_DIR"
+  fi
+  if test -z "$SOQT_QTDIR"; then
+    techo "WARNING: Qt not found."
+  fi
+  local SOQT_ENV=
+  local SOQT_DBG_ENV=
+  if test -n "$SOQT_QTDIR"; then
+    SOQT_ENV="QTDIR=$SOQT_QTDIR"
+    SOQT_DBG_ENV="QTDIR=$SOQT_QTDIR"
+  fi
+  local COIN_DIR=
+  if $COIN_USE_REPO; then
+    if test -d $BLDR_INSTALL_DIR/${COIN_NAME}-${FORPYTHON_BUILD}/bin; then
+      COIN_DIR=`(cd $BLDR_INSTALL_DIR/${COIN_NAME}-${FORPYTHON_BUILD}; pwd -P)`
+    fi
+  else
+    if test -d $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_BUILD}/bin; then
+      COIN_DIR=`(cd $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_BUILD}; pwd -P)`
+    fi
+  fi
+  if text -n "$COIN_DIR"; then
+    local COIN_BINDIR=$COIN_DIR/bin
+    SOQT_ENV="$SOQT_ENV PATH=$COIN_BINDIR:'$PATH'"
+    if [[ `uname` =~ CYGWIN ]]; then
+      local COIN_DBG_BINDIR=${COIN_DIR}dbg/bin
+      SOQT_DBG_ENV="$SOQT_DBG_ENV PATH=$COIN_DBG_BINDIR:'$PATH'"
+    fi
+  fi
   SOQT_ENV="$SOQT_ENV $SOQT_COMPILERS"
   trimvar SOQT_ENV ' '
+  SOQT_DBG_ENV="$SOQT_DBG_ENV $SOQT_COMPILERS"
+  trimvar SOQT_DBG_ENV ' '
 
 # Configure and build
-  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-$SOQT_BUILD $SOQT_NAME $SOQT_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_ADDL_ARGS $otherargsval" "" "$SOQT_ENV"; then
-    bilderBuild -m make $SOQT_NAME $SOQT_BUILD "" "$SOQT_ENV"
+  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-$FORPYTHON_BUILD $SOQT_NAME $FORPYTHON_BUILD "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_ADDL_ARGS $otherargsval" "" "$SOQT_ENV"; then
+    bilderBuild -m make $SOQT_NAME $FORPYTHON_BUILD "" "$SOQT_ENV"
+  fi
+  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-${FORPYTHON_BUILD}dbg $SOQT_NAME ${FORPYTHON_BUILD}dbg "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_DBG_ADDL_ARGS $otherargsval" "" "$SOQT_DBG_ENV"; then
+    bilderBuild -m make $SOQT_NAME ${FORPYTHON_BUILD}dbg "" "$SOQT_DBG_ENV"
   fi
 
 }
