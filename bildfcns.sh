@@ -3051,23 +3051,37 @@ updateRepo() {
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
 # Get clean version of repo
+    cd $pkg
     if $CLEAN_GITHG_SUBREPOS; then
       case $scmexec in
-        git) cmd="(cd $pkg; git reset --hard)";;
-# The below will clean out old problems.  After 20131220, remove find commands.
-        hg) cmd="(cd $pkg; hg revert -aC; find . -name \*.orig -delete; find . -name \*.rej -delete)";;
+        git) cmd="git reset --hard";;
+        hg) cmd="hg revert -aC";;
       esac
       techo "$cmd"
       eval "$cmd"
     fi
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
-        git) cmd="(cd $pkg; git pull)";;
-        hg) cmd="(cd $pkg; hg pull; hg update)";;
+        git) cmd="git pull";;
+        hg) cmd="hg pull; hg update";;
       esac
       techo "$cmd"
       eval "$cmd"
+# If not doing experimental build, move to any given tag
+      if ! $BUILD_EXPERIMENTAL; then
+        local tagvar=`genbashvar $1`_REPO_TAG
+        local tagval=`deref $tagvar`
+        if test -n "$tagval"; then
+          case $scmexec in
+            git) cmd="git checkout $tagval";;
+            hg) cmd="hg update -C $tagval";;
+          esac
+          techo "$cmd"
+          eval "$cmd"
+        fi
+      fi
     fi
+    cd $PROJECT_DIR
   else
     techo "$PWD/$pkg/.$scmexec does not exist.  No $scmexec checkout of $pkg."
     if test -d $pkg; then rm -rf $pkg.sav; mv $pkg $pkg.sav; fi

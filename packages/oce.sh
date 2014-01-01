@@ -26,6 +26,8 @@ OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
 OCE_DEPS=freetype,cmake
 OCE_UMASK=002
 OCE_REPO_URL=git://github.com/tpaviot/oce.git
+OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
+OCE_REPO_TAG=OCE-0.14
 addtopathvar PATH $CONTRIB_DIR/oce/bin
 
 ######################################################################
