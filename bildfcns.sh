@@ -1169,6 +1169,9 @@ getVersion() {
       return 1
     fi
     branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
+    if [[ "$branch" =~ "no branch" ]]; then
+      branch=`git describe --tags`
+    fi
     # rev=${rev}-${branch}
     rev=${branch}.r${rev}
   elif test "$repotype" == "HG"; then
@@ -1554,24 +1557,6 @@ shouldInstall() {
     techo "File $dir/installations.txt does not exist.  Proceeding with next step."
     return 0
   fi
-
-# The below logic will test for all builds in installation
-#  local foundallbuilds=true
-#  local pkgdate="2000-01-01-00:00:00"
-#  for build in $builds; do
-#    local pkgline=`grep "^$1-$build " $dir/installations.txt | tail -1`
-#    techo -2 "pkgline = $pkgline."
-#    if test -z "$pkgline"; then
-#      techo -2 "$1-$build not found in $dir/installations.txt."
-#      foundallbuilds=false
-#    else
-#      pkgdate=`(echo $pkgdate; echo $pkgline) | awk '{ print $4 }'| sort -r | head -1`
-#    fi
-#  done
-#  if ! $foundallbuilds; then
-#    techo "Some builds of $proj not found in $dir/installations.txt.  Proceeding with next step."
-#    return 0
-#  fi
 
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
@@ -3068,6 +3053,7 @@ updateRepo() {
       techo "$cmd"
       eval "$cmd"
 # If not doing experimental build, move to any given tag
+      cmd=:
       if ! $BUILD_EXPERIMENTAL; then
         local tagvar=`genbashvar $1`_REPO_TAG
         local tagval=`deref $tagvar`
@@ -3076,10 +3062,16 @@ updateRepo() {
             git) cmd="git checkout $tagval";;
             hg) cmd="hg update -C $tagval";;
           esac
-          techo "$cmd"
-          eval "$cmd"
         fi
+      else
+# Otherwise make sure one is on master/default.
+        case $scmexec in
+          git) cmd="git checkout master";;
+          hg) cmd="hg update -C default";;
+        esac
       fi
+      techo "$cmd"
+      eval "$cmd"
     fi
     cd $PROJECT_DIR
   else
