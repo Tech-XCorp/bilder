@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-FREETYPE_BLDRVERSION_STD=2.5.0.1
-FREETYPE_BLDRVERSION_EXP=2.5.2
+FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.0.1"}
+FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.5.2"}
 
 ######################################################################
 #
@@ -47,7 +47,7 @@ findFreetypeRootdir() {
   fi
 # OSX puts freetype under the X11 location, which may be in more than one place.
   if test -z "$ftdir"; then
-    for dir in /opt/X11 /usr/X11R6 /opt/homebrew; do
+    for dir in /opt/homebrew /opt/X11 /usr/X11R6 /usr; do
       if test -d $dir/include/freetype2; then
         ftdir=$dir
         break
@@ -73,7 +73,7 @@ case `uname` in
 # Build on Linux or Darwin only if not found in system
     ftdir=`findFreetypeRootdir -s`
     if test -z "$ftdir"; then
-      techo "System freetype not found.  Will build if out of date."
+      techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
       FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
     else
       techo "System freetype found, ftdir = $ftdir, will not build."
