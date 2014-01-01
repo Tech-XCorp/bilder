@@ -88,17 +88,21 @@ buildFreecad() {
   if $COIN_USE_REPO; then
     coin3ddir="${BLDR_INSTALL_DIR}/coin-$FREECAD_BUILD"
   else
-    coin3ddir="${CONTRIB_DIR}/coin-$FREECAD_BUILD"
+    coin3ddir="${CONTRIB_DIR}/Coin-$FREECAD_BUILD"
   fi
   ocerootdir="${BLDR_INSTALL_DIR}/oce-$FREECAD_BUILD"
   pkgvars="$pkgvars boostdir eigendir xercescdir coin3ddir ocerootdir"
   for i in $pkgvars; do
     val=`deref $i`
-    val=`(cd $val; pwd -P)`
-    if [[ `uname` =~ CYGWIN ]]; then
-       val=`cygpath -am $val`
+    if test -d $val; then
+      val=`(cd $val; pwd -P)`
+      if [[ `uname` =~ CYGWIN ]]; then
+         val=`cygpath -am $val`
+      fi
+      eval $i="$val"
+    else
+      techo "WARNING: $coin3ddir does not exist."
     fi
-    eval $i="$val"
   done
   FREECAD_ADDL_ARGS="$FREECAD_ADDL_ARGS -DBOOST_ROOT:STRING='$boostdir' -DEIGEN3_INCLUDE_DIR:PATH='$eigendir/include/eigen3' -DXERCESC_INCLUDE_DIR:PATH='$xercescdir/include'"
   if [[ `uname` =~ CYGWIN ]]; then
