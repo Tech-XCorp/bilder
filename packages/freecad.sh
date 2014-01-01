@@ -188,7 +188,7 @@ installFreecad() {
 myenv="$libpathvar=$libpathval"
 mydir=\`dirname \$0\`
 mydir=\`(cd \$mydir; pwd -P)\`
-cmd="env \$myenv \$mydir/freecad -P $PYTHON_SITEPKGSDIR"
+cmd="env \$myenv \$mydir/FreeCAD -P $PYTHON_SITEPKGSDIR"
 echo \$cmd
 \$cmd
 EOF
