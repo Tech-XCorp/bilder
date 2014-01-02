@@ -12,11 +12,12 @@
 #
 ######################################################################
 
-SETUPTOOLS_BLDRVERSION=${SETUPTOOLS_BLDRVERSION:-"0.6c11"}
+SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"0.6c11"}
+SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"2.0.2"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
@@ -32,17 +33,23 @@ SETUPTOOLS_UMASK=002
 
 buildSetuptools() {
 
-  if bilderUnpack setuptools; then
+# Check for build need
+  if ! bilderUnpack setuptools; then
+    return 1
+  fi
+
 # Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/setuptools*"
-    techo -2 "$cmd"
-    $cmd
+# Is this necessary?
+  # cmd="rmall ${PYTHON_SITEPKGSDIR}/setuptools*"
+  # techo "$cmd"
+  # $cmd
 
 # Build away
-    SETUPTOOLS_ENV="$DISTUTILS_ENV $SETUPTOOLS_GFORTRAN"
-    techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
-    bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
-  fi
+  # SETUPTOOLS_ENV="$DISTUTILS_ENV $SETUPTOOLS_GFORTRAN"
+# Does setuptools need gfortran?
+  SETUPTOOLS_ENV="$DISTUTILS_ENV"
+  techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
+  bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
 
 }
 
@@ -63,16 +70,16 @@ testSetuptools() {
 ######################################################################
 
 installSetuptools() {
-  local res=1
+  local res=
+  mkdir -p $PYTHON_SITEPKGSDIR
   case `uname` in
-    # Windows does not have a lib versus lib64 issue
     CYGWIN*)
-      mkdir -p $CONTRIB_DIR/Lib/site-packages
+      # mkdir -p $CONTRIB_DIR/Lib/site-packages
       bilderDuInstall setuptools " " "$SETUPTOOLS_ENV"
       res=$?
       ;;
     *)
-      mkdir -p $PYTHON_SITEPKGSDIR
+      # mkdir -p $PYTHON_SITEPKGSDIR
       bilderDuInstall setuptools "--install-purelib=$PYTHON_SITEPKGSDIR" "$SETUPTOOLS_ENV"
       res=$?
       ;;
@@ -80,6 +87,5 @@ installSetuptools() {
   if test $res = 0; then
     chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
-  # echo "WARNING: Quitting at end of setuptools.sh."; exit
 }
 
