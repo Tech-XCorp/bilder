@@ -26,7 +26,7 @@ SETUPTOOLS_UMASK=002
 
 #####################################################################
 #
-# Launch setuptools builds.
+# Build setuptools
 #
 ######################################################################
 
@@ -35,7 +35,7 @@ buildSetuptools() {
   if bilderUnpack setuptools; then
 # Remove all old installations
     cmd="rmall ${PYTHON_SITEPKGSDIR}/setuptools*"
-    techo "$cmd"
+    techo -2 "$cmd"
     $cmd
 
 # Build away
