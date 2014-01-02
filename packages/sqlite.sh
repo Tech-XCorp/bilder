@@ -16,7 +16,8 @@
 #
 ######################################################################
 
-SQLITE_BLDRVERSION=${SQLITE_BLDRVERSION:-"3070800"}
+SQLITE_BLDRVERSION_STD=${SQLITE_BLDRVERSION_STD:-"3070800"}
+SQLITE_BLDRVERSION_EXP=${SQLITE_BLDRVERSION_EXP:-"3080200"}
 
 ######################################################################
 #
