@@ -17,18 +17,8 @@
 #
 ######################################################################
 
-SPHINX_BLDRVERSION_STD=1.1.3
-SPHINX_BLDRVERSION_EXP=1.3a0
-
-######################################################################
-#
-# Other values
-#
-######################################################################
-
-SPHINX_BUILDS=${SPHINX_BUILDS:-"cc4py"}
-SPHINX_DEPS=docutils,Pygments,Imaging,setuptools,MathJax,Python
-SPHINX_UMASK=002
+SPHINX_BLDRVERSION_STD=${SPHINX_BLDRVERSION_STD="1.1.3"}
+SPHINX_BLDRVERSION_EXP=${SPHINX_BLDRVERSION_EXP="1.3a0"}
 
 ######################################################################
 #
@@ -36,6 +26,9 @@ SPHINX_UMASK=002
 #
 ######################################################################
 
+SPHINX_BUILDS=${SPHINX_BUILDS:-"cc4py"}
+SPHINX_DEPS=docutils,Pygments,Imaging,setuptools,MathJax,Python
+SPHINX_UMASK=002
 case `uname` in
   CYGWIN*) addtopathvar PATH $CONTRIB_DIR/Scripts;;
         *) addtopathvar PATH $CONTRIB_DIR/bin;;
@@ -64,7 +57,9 @@ buildSphinx() {
   fi
 
 # Build away
-  SPHINX_ENV="$DISTUTILS_ENV $SPHINX_GFORTRAN"
+  # SPHINX_ENV="$DISTUTILS_ENV $SPHINX_GFORTRAN"
+# Sphinx needs fortran?
+  SPHINX_ENV="$DISTUTILS_ENV"
   techo -2 SPHINX_ENV = $SPHINX_ENV
   bilderDuBuild sphinx '-' "$SPHINX_ENV"
 
@@ -89,7 +84,7 @@ testSphinx() {
 installSphinx() {
   case `uname` in
     CYGWIN*)
-      bilderDuInstall sphinx " " "$SPHINX_ENV"
+      bilderDuInstall sphinx "" "$SPHINX_ENV"
       res=$?
       ;;
     *)
