@@ -17,7 +17,7 @@
 ######################################################################
 
 TRILINOS_BLDRVERSION_STD=10.12.2
-TRILINOS_BLDRVERSION_EXP=11.4.2
+TRILINOS_BLDRVERSION_EXP=11.4.3
 
 ######################################################################
 #
@@ -86,13 +86,13 @@ buildTrilinos() {
   case `uname` in
     CYGWIN*) ;;
     *)
-      local NETCDF_CMAKE_BASE_DIR=$MIXED_CONTRIB_DIR/netcdf_cmake-$NETCDF_CMAKE_BLDRVERSION-ser
+      local NETCDF_CMAKE_BASE_DIR=$MIXED_CONTRIB_DIR/netcdf-$NETCDF_BLDRVERSION-ser
       local HDF5_BASE_DIR=$MIXED_CONTRIB_DIR/hdf5-$HDF5_BLDRVERSION-ser
       local NETCDF_CMAKE_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH=\"$NETCDF_CMAKE_BASE_DIR/lib;$HDF5_BASE_DIR/lib\" -DNetcdf_LIBRARY_NAMES:STRING=\"netcdf;hdf5_hl;hdf5\" -DNetcdf_INCLUDE_DIRS:PATH=$NETCDF_CMAKE_BASE_DIR/include"
-      local SEACAS_ARGS="${SEACAS_ARGS} -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_ENABLE_SEACAS:BOOL=ON $NETCDF_CMAKE_ARGS -DTPL_ENABLE_MATLAB:BOOL=OFF"
+      local SEACAS_ARGS="${SEACAS_ARGS} -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_ENABLE_SEACASExodus:BOOL=ON -DTrilinos_ENABLE_SEACASNemesis:BOOL=ON $NETCDF_CMAKE_ARGS -DTPL_ENABLE_MATLAB:BOOL=OFF"
       if test -n "$LIBFORTRAN_DIR"; then
         TRILINOS_ADDL_STARGS="$TRILINOS_ALL_OTHER_ARGS -DTrilinos_EXTRA_LINK_FLAGS:STRING='-L$LIBFORTRAN_DIR'"
-        TRILINOS_ALL_OTHER_ARGS="$TRILINOS_ALL_OTHER_ARGS -DTrilinos_EXTRA_LINK_FLAGS:STRING='-L$LIBFORTRAN_DIR -Wl,-rpath,$LIBFORTRAN_DIR'"
+        TRILINOS_ALL_OTHER_ARGS="$TRILINOS_ALL_OTHER_ARGS -DTrilinos_ENABLE_Fortran=OFF -DTrilinos_EXTRA_LINK_FLAGS:STRING='-L$LIBFORTRAN_DIR -Wl,-rpath,$LIBFORTRAN_DIR'"
       fi
       ;;
   esac
@@ -143,7 +143,7 @@ buildTrilinos() {
   if bilderConfig trilinos sercomm "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SER_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu $TRILINOS_SERCOMM_OTHER_ARGS"; then
     bilderBuild trilinos sercomm "$TRILINOS_MAKEJ_ARGS"
   fi
-  if bilderConfig trilinos serseacas "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SER_OTHER_ARGS ${SEACAS_ARGS} -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu"; then
+  if bilderConfig trilinos serseacas "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_SER_OTHER_ARGS ${SEACAS_ARGS} -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu"; then
     bilderBuild trilinos serseacas "$TRILINOS_MAKEJ_ARGS"
   fi
 
@@ -156,7 +156,7 @@ buildTrilinos() {
   if bilderConfig trilinos parcomm "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PAR_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist $TRILINOS_PARCOMM_OTHER_ARGS"; then
     bilderBuild trilinos parcomm "$TRILINOS_MAKEJ_ARGS"
   fi
-  if bilderConfig trilinos parseacas "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PAR_OTHER_ARGS ${SEACAS_ARGS} -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist $TRILINOS_PARSEACAS_OTHER_ARGS"; then
+  if bilderConfig trilinos parseacas "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_OTHER_ARGS $TRILINOS_PAR_OTHER_ARGS ${SEACAS_ARGS} -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist $TRILINOS_PARSEACAS_OTHER_ARGS"; then
     bilderBuild trilinos parseacas "$TRILINOS_MAKEJ_ARGS"
   fi
 
@@ -193,7 +193,7 @@ testTrilinos() {
 
 installTrilinos() {
 # -DCMAKE_INSTALL_ALWAYS:BOOL=TRUE is not working, so add -r.
-  for bld in serbaresh parbaresh serfullsh parfullsh sercommsh parcommsh serbare parbare serfull parfull sercomm parcomm ben; do
+  for bld in serbaresh parbaresh serfullsh parfullsh sercommsh parcommsh serbare parbare serfull parfull sercomm serseacas parcomm parseacas ben; do
     # if bilderInstall -r trilinos $bld; then
     if bilderInstall -r trilinos $bld; then
 # Group writable perms for trilinos
