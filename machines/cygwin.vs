@@ -53,6 +53,7 @@ for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
   fi
 done
 if test -n "$MINGW64_PREFIX"; then
+  techo "MinGW64 gcc found, prefix = $MINGW64_PREFIX."
   for prog in gfortran ar ranlib; do
     if ! test -e /usr/bin/${MINGW64_PREFIX}-${prog}.exe; then
       techo "WARNING: ${MINGW64_PREFIX}-${prog}.exe not found."
