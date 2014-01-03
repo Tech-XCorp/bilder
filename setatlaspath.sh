@@ -4,12 +4,12 @@
 # "C:/Program Files (x86)" /ProgramFilesX86 ntfs binary 0 0
 echo $PATH >path.txt
 cat >path.sed <<EOF
-s/:/:\
+s/:/:\\
 /g
 s?cygdrive/c/Program Files (x86)?ProgramFilesX86?g
 EOF
 sed -f path.sed <path.txt >path.tmp
 grep -v '(' path.tmp | tr -d '\n' >path.txt
-rm path.tmp
+#rm path.tmp
 PATH=`cat path.txt`
 echo PATH = $PATH
