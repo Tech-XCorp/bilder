@@ -25,17 +25,56 @@ fi
 # Trilinos has problems, but numpy is building.
 BUILD_ATLAS=${BUILD_ATLAS:-"false"}
 
-# Set any variables based on 32/64 bit
-FC=
-if $IS_64BIT; then
-  PATH_SAV="$PATH"
-  PATH="$PATH":/cygdrive/c/TDM-GCC-64/bin
-  FC=${FC:-`which x86_64-w64-mingw32-gfortran.exe 2>/dev/null`}
-  PATH="$PATH":/cygdrive/c/MinGW64/bin
-  FC=${FC:-`which mingw64-gfortran.exe 2>/dev/null`}
-  PATH="$PATH_SAV"
+#
+# Find mingw
+#
+MINGW64_BINDIR=
+for dr in /TDM-GCC-64 /MinGW64; do
+  bd=`ls -1d $dr/bin $dr/*/bin 2>/dev/null | tail -1`
+  if test -n ${bd}; then
+    MINGW64_BINDIR=${bd}
+    break
+  fi
+done
+if test -n "$MINGW64_BINDIR"; then
+  techo "MinGW64 found: $MINGW64_BINDIR."
 else
-  FC=${FC:-`which mingw32-gfortran.exe 2>/dev/null`}
+  techo "WARNING: MinGW64 not found.  To build ATLAS and SciPy, install per http://sourceforge.net/p/bilder/wiki/Installing\\%20MinGW/ instructions."
+fi
+
+#
+# Atlas requires that the mingw compilers be linked into /usr/bin in Windows
+#
+MINGW64_PREFIX=
+for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
+  if test -x /usr/bin/${pr}-gcc; then
+    MINGW64_PREFIX=$pr
+    break
+  fi
+done
+if test -n "$MINGW64_PREFIX"; then
+  for prog in gfortran ar ranlib; do
+    if ! test -e /usr/bin/${MINGW64_PREFIX}-${prog}.exe; then
+      techo "WARNING: ${MINGW64_PREFIX}-${prog}.exe not found."
+      if test -n "$MINGW64_BINDIR"; then
+        if test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe; then
+          techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+        elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
+          techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+        else
+          techo "WARNING: Cannot find MinGW64 installation of ${prog}."
+        fi
+      fi
+    fi
+  done
+else
+  techo "WARNING: mingw64 gcc not linked into /usr/bin."
+fi
+
+# Set the fortran compiler
+FC=
+if test -x /usr/bin/${MINGW64_PREFIX}-gfortran.exe; then
+  FC=/usr/bin/${MINGW64_PREFIX}-gfortran.exe
 fi
 if test -n "$FC"; then
   # techo "Found FC = $FC."
