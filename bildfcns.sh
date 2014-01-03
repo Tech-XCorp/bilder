@@ -2937,7 +2937,7 @@ getPkg() {
     if test -z "$tarballbase" -a $SVNUP_PKGS; then
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
-          tarballbase=`bilderSvn up 1>/dev/null; bilderSvn ls | grep ${1}`
+          tarballbase=`bilderSvn up 1>/dev/null; bilderSvn ls | grep "^${1}\."`
           ;;
         direct)
           for sfx in $sfxs; do
