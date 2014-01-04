@@ -122,9 +122,7 @@ buildTxbase() {
 ######################################################################
 
 testTxbase() {
-  for build in `echo $TXBASE_BUILDS | tr , ' '`; do
-    bilderTest txbase $build
-  done
+  bilderRunTests -i develdocs,ben -c txbase # No longer valid: TxbTests
 }
 
 ######################################################################
@@ -134,7 +132,6 @@ testTxbase() {
 ######################################################################
 
 installTxbase() {
-  bilderInstallTestedPkg -r -p open txbase ser
-  # techo "WARNING: Quitting at end of txbase.sh."; cleanup
+  bilderInstallTestedPkg -r -p open txbase
 }
 

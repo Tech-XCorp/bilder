@@ -4823,8 +4823,8 @@ bilderRunTests() {
 
 # In some cases, the tests are not in their own repo but are part of
 # a larger repo.  Assign the pkg version to the tests.
-  if $usepkgver; then
-    getVersion $pkgname # In this case, no separate repo for tests.
+  if $usepkgver || test -z "$tstsname"; then
+    # getVersion $pkgname # In this case, no separate repo for tests.
     local verpkgvar=`genbashvar ${pkgname}`_BLDRVERSION
     local vertstsvar=`genbashvar ${tstsname}`_BLDRVERSION
     eval $vertstsvar=`deref $verpkgvar`
@@ -4859,8 +4859,10 @@ bilderRunTests() {
     techo -2 "$cmd"
     $cmd
     res=$?
-    if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
-      tbFailures="$tbFailures $i"
+    if test $res != 0; then
+      if echo $i | egrep -qv "(^|,)$i($|,)"; then
+        tbFailures="$tbFailures $i"
+      fi
     elif $hasunittests; then
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
@@ -5022,73 +5024,78 @@ shouldInstallTestedPkg() {
 # Check the per-build tests, if any
     if test -n "$builds"; then
       for bld in $builds; do
-        waitAction -t b $pkgname-$bld-test
         local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
         local tstsresval=`deref $tstsresvar`
-        if ! $IGNORE_TEST_RESULTS; then
-          if test -n "$tstsresval" -a "$tstsresval" != 0; then
+        if test -z "$tstsresval"; then
+          techo "Not installing as $pkgname-$bld-test not run, implying build failed."
+          installPkg=false
+        elif ! $IGNORE_TEST_RESULTS; then
+# If tests not run (build failed) or run and result is not zero, do not install
+          if test "$tstsresval" != 0; then
             techo "Not installing as $pkgname-$bld-test failed."
             installPkg=false
-            return 1
           fi
         else
           techo "Ignoring test result of $pkgname-$bld."
         fi
       done
-      techo "All $pkgname build tests passed."
+      if $installPkg; then
+        techo "All $pkgname build tests passed."
+      else
+        techo "One or more of $pkgname builds or build tests failed."
+      fi
     else
       techo "$pkgname has no build tests."
     fi
 
-# Check for named tests
+# Check named tests
     if test -z "$tstsnm"; then
-      techo "$pkgname has no named tests.  Installing $pkgname."
-      return 0
-    fi
-
-# If tests not run, do not install
-    tstspidvar=`genbashvar $2`_ALL_PID
-    tstspidval=`deref $tstspidvar`
-    local tstsresval=
-    if ! $IGNORE_TEST_RESULTS && test -z "$tstspidval"; then
-      techo "Test $tstsnm not run.  No installations to do."
-      tstsresval=99
-      return $tstsresval
-    fi
-
-# Determine results of installation/waitNamedTest
-    local instcmd="install${2}"
-    techo "$instcmd"
-    ${instcmd}
-    local tstsresvar=`genbashvar $2`_ALL_RES
-    tstsresval=`deref $tstsresvar`
-
-    case $tstsresval in
-      0)
-# If we got here, the tests were run successfully
-        techo "Test $tstsnm succeeded."
+      techo "No named tests."
+      if $installPkg; then
         return 0
-        ;;
-      99)
+      fi
+      return 1
+    else
+# If tests not run, do not install
+      tstspidvar=`genbashvar $2`_ALL_PID
+      tstspidval=`deref $tstspidvar`
+      local tstsresval=
+      if ! $IGNORE_TEST_RESULTS && test -z "$tstspidval"; then
+        techo "Test $tstsnm not run.  Failed configuration?"
+        tstsresval=99
+        return $tstsresval
+      fi
+
+# Determine results of installation/waitNamedTest.  Do before per-build
+# tests in order to collect result.
+      local instcmd="install${2}"
+      techo "$instcmd"
+      ${instcmd}
+      local tstsresvar=`genbashvar $2`_ALL_RES
+      tstsresval=`deref $tstsresvar`
+      case "$tstsresval" in
+        0)
+# If we got here, the tests were run successfully
+          techo "Test $tstsnm succeeded."
+          ;;
+        99)
 # If we got here, the tests were not run, but package was built.
-        techo "Test $tstsnm not run."
-        if $IGNORE_TEST_RESULTS; then
-          techo "Ignoring test results of $pkgname."
-          return 0
-        fi
-        techo "Not installing $pkgname."
-        return 99
-        ;;
-      *)
-        techo "$tstsnm failed."
-        if $IGNORE_TEST_RESULTS; then
-          techo "Ignoring test results of ${pkgname}."
-          return 0
-        fi
-        techo "Not installing ${pkgname} or its tests."
-        return 1
-        ;;
-    esac
+          techo "Test $tstsnm not run."
+          if ! $IGNORE_TEST_RESULTS; then
+            techo "Not installing $pkgname."
+            return 99
+          fi
+          ;;
+        *)
+          techo "$tstsnm failed."
+          if ! $IGNORE_TEST_RESULTS; then
+            techo "Not installing ${pkgname} or its tests."
+            return 1
+          fi
+          ;;
+      esac
+
+    fi
 
   fi
 
@@ -5751,6 +5758,7 @@ bilderInstallTestedPkg() {
 # and install all builds (except the ignored builds) as well as the tests.
   if test -n "$bldsval"; then
     if shouldInstallTestedPkg -b "$bldsval" $tstnmarg $1 $2; then
+      techo "All $1 builds and tests passed."
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
       for bld in $bldsval; do
@@ -5759,12 +5767,14 @@ bilderInstallTestedPkg() {
         $cmd
       done
       if $testinstall; then
-        techo -2 "bilderInstallTestedPkg not installing $tstsnam at request."
-      else
         techo -2 "bilderInstallTestedPkg calling bilderInstall -t $tstsnm all."
         bilderInstall $removearg -t $tstsnm all
+      else
+        techo -2 "bilderInstallTestedPkg not installing $tstsnam at request."
       fi
       return 0
+    else
+      techo "One or more $1 builds or tests failed.  Not installing."
     fi
   fi
 
