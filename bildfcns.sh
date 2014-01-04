@@ -4456,6 +4456,8 @@ bilderTest() {
 #SEK  done
 #SEK  trimvar tbFailures ' '
 
+# Wait for build to complete
+
   cmd="waitAction $1-$2"
   techo -2 "$cmd"
   $cmd
@@ -4540,7 +4542,7 @@ bilderTest() {
     return 1
   fi
 # Record test
-  addActionToLists $1-$2 $pid
+  addActionToLists $1-$2-test $pid
   if test -n "$BLDR_PROJECT_URL"; then
     local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
     techo "See $BLDR_PROJECT_URL/$subdir/$test_txt."
@@ -4575,6 +4577,7 @@ bilderTest() {
 # t <type>  If missing, this is a build, if present this is a test, of type
 #           either n for named or b for build.
 # JRC: there is an option 'z' below, but it is not documented. Help?
+# DWS: -z seems to be redundant with "-t b"
 #
 # Returns result of action if it occurred, otherwise 99
 #
@@ -4641,6 +4644,11 @@ waitAction() {
     actionsRunning=`echo " $actionsRunning " | sed -e "s/ $1 / /"`
 
 # Determine build directory
+# If $1 ends in _test, then we want to remove _TEST to get the BUILD DIR.
+    case $1 in
+      *-test) set `echo $1 | sed 's/-test$//'`;;
+    esac
+
     local builddirvar=`genbashvar $1`_BUILD_DIR
     local builddir=`deref $builddirvar`
     if test -z "$builddir"; then
@@ -5014,6 +5022,7 @@ shouldInstallTestedPkg() {
 # Check the per-build tests, if any
     if test -n "$builds"; then
       for bld in $builds; do
+        waitAction -t b $pkgname-$bld-test
         local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
         local tstsresval=`deref $tstsresvar`
         if ! $IGNORE_TEST_RESULTS; then
