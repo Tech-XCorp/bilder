@@ -134,7 +134,7 @@ testTxbase() {
 ######################################################################
 
 installTxbase() {
-  bilderInstallTestedPkg -r -p open txbase
+  bilderInstallTestedPkg -r -p open txbase ser
   # techo "WARNING: Quitting at end of txbase.sh."; cleanup
 }
 
