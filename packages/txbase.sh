@@ -27,9 +27,9 @@ TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
 
 if test -z "$TXBASE_DESIRED_BUILDS"; then
   TXBASE_DESIRED_BUILDS=ser,par,sersh
-  case `uname` in
-    CYGWIN*) TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd";;
-  esac
+  if [[ `uname` =~ CYGWIN ]]; then
+    TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
+  fi
   if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
     TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
   fi
@@ -84,12 +84,14 @@ buildTxbase() {
 
 # As of 1.8.11, hdf5 libraries have no dll added to basename for shared builds
 # on windows
+if false; then
   case $HDF5_BLDRVERSION in
-    1.8.11)
+    1.8.1[1-9])
       TXBASE_SERSH_ADDL_ARGS="-DHDF5_LIBNAMES_STANDARD:BOOL=TRUE"
       TXBASE_PARSH_ADDL_ARGS="-DHDF5_LIBNAMES_STANDARD:BOOL=TRUE"
       ;;
   esac
+fi
 
 # All builds
   if bilderConfig -c txbase ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $BOOST_INCDIR_ARG $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS"; then
