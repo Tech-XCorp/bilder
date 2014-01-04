@@ -122,13 +122,9 @@ buildTxbase() {
 ######################################################################
 
 testTxbase() {
-  bilderRunTests txbase ${TXBASE_TESTNAME}
-  bilderTest txbase ser
-  bilderTest txbase sersh
-  bilderTest txbase sermd
-  bilderTest txbase par
-  bilderTest txbase parsh
-  bilderTest txbase cc4py
+  for build in `echo $TXBASE_BUILDS | tr , ' '`; do
+    bilderTest txbase $build
+  done
 }
 
 ######################################################################
@@ -138,7 +134,7 @@ testTxbase() {
 ######################################################################
 
 installTxbase() {
-  bilderInstallTestedPkg -r -p open txbase ${TXBASE_TESTNAME}
+  bilderInstallTestedPkg -r -p open txbase
   # techo "WARNING: Quitting at end of txbase.sh."; cleanup
 }
 
