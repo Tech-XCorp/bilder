@@ -139,7 +139,7 @@ fi
 ######################################################################
 
 testTxbase() {
-  bilderRunTests -i ben -c txbase # No longer valid: TxbTests
+  bilderRunTests -i ben -b txbase # No longer valid: TxbTests
 }
 
 ######################################################################

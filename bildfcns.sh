@@ -4782,10 +4782,11 @@ getForceTests() {
 # Args:
 # 1: package name (e.g., vorpal)
 # 2: name of tests methods (e.g., VpTest)
+# 3: (optional) args to make for testing. Default is tests
 #
 # Named args (must come first)
 #
-# -c has a target "make check" that can be run in each build directory
+# -b has tests in each build directory
 # -i comma-separated list of build(s) to ignore when deciding to run tests
 #    (documentation generating builds always ignored.)
 # -v getversion will get version of package, not tests method.  This is useful
@@ -4799,13 +4800,13 @@ bilderRunTests() {
 # Always ignore the document generating builds.  See README-docs.txt.
   local ignoreBuilds=develdocs
   local usepkgver=false
-  local hasunittests=false
+  local hasbuildtests=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ci:v" arg; do
+  while getopts "bi:v" arg; do
     case $arg in
-      c) hasunittests=true;;
+      b) hasbuildtests=true;;
       i) ignoreBuilds="$OPTARG";;
       v) usepkgver=true;;
     esac
@@ -4820,6 +4821,8 @@ bilderRunTests() {
     techo -2 "bilderRunTests is not ignoring any builds of $pkgname."
   fi
   local tstsname=`echo $2 | tr 'A-Z.-' 'a-z__'`
+  local tststarget="$3"
+  tststarget=${tststarget:-"check"}
 
 # In some cases, the tests are not in their own repo but are part of
 # a larger repo.  Assign the pkg version to the tests.
@@ -4863,7 +4866,7 @@ bilderRunTests() {
       if echo $i | egrep -qv "(^|,)$i($|,)"; then
         tbFailures="$tbFailures $i"
       fi
-    elif $hasunittests; then
+    elif $hasbuildtests; then
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
       local builddir=`deref $builddirvar`
@@ -4879,7 +4882,7 @@ bilderRunTests() {
       fi
       cat <<EOF >$testScript
 #!/bin/bash
-cmd="$MAKER check"
+cmd="$MAKER $tststarget"
 echo \$cmd
 \$cmd
 res=\$?
@@ -4898,13 +4901,13 @@ EOF
     fi
   done
   trimvar tbFailures ' '
-  if $hasunittests; then
+  if $hasbuildtests; then
     techo "All build directory tests launched."
   fi
 
 # Collect results of tests in build dirs
   local tstFailures=
-  if $hasunittests && test -n "$builddirtests"; then
+  if $hasbuildtests && test -n "$builddirtests"; then
     for i in `echo $testedBuilds | tr ',' ' '`; do
       cmd="waitAction -t b $pkgname-$i-test"
       techo -2 "$cmd"
