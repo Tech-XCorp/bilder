@@ -5026,17 +5026,17 @@ shouldInstallTestedPkg() {
       for bld in $builds; do
         local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
         local tstsresval=`deref $tstsresvar`
+        # techo "$tstsresvar = $tstsresval."
+        # techo "IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS"
         if test -z "$tstsresval"; then
           techo "Not installing as $pkgname-$bld-test not run, implying build failed."
           installPkg=false
-        elif ! $IGNORE_TEST_RESULTS; then
-# If tests not run (build failed) or run and result is not zero, do not install
-          if test "$tstsresval" != 0; then
-            techo "Not installing as $pkgname-$bld-test failed."
-            installPkg=false
-          fi
-        else
+        elif $IGNORE_TEST_RESULTS; then
           techo "Ignoring test result of $pkgname-$bld."
+        elif test "$tstsresval" != 0; then
+          # techo "IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS"
+          techo "Not installing as $pkgname-$bld-test failed."
+          installPkg=false
         fi
       done
       if $installPkg; then
@@ -6359,8 +6359,10 @@ EOF
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
         for tstlist in check.failures unit.failures ctest.failures Testing/Temporary/LastTestsFailed.log; do
-          unset numTestFailures
-          numTestFailures=`cat $builddir/${tstlist} | wc -l`
+          local numTestFailures=0
+          if test -e "$builddir/${tstlist}"; then
+            numTestFailures=`cat $builddir/${tstlist} | wc -l`
+          fi
           if test $numTestFailures -gt 0; then
             techo "Failed tests found in $builddir/$tstlist."
             addHtmlLine 4 "Failed Tests: $tdir/$tstlist -- $numTestFailures tests" RED $ABSTRACT
