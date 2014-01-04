@@ -4383,7 +4383,10 @@ bilderBuild() {
 # This is meant to allow the workflow:
 #   config.sh; build.sh; test.sh; if pass_test: install.sh
 # when it is all in the same directory and generally `make tests` is
-# used.  # Simpler than the txtest-based methods elsewhere
+# used.
+#
+# Simpler than the txtest-based methods elsewhere.
+#
 # Sets the $1_$2_PID variable to allow later waiting for completion.
 # As the second argument demonstrates, this needs to be called per
 # build.
@@ -5013,7 +5016,7 @@ shouldInstallTestedPkg() {
       for bld in $builds; do
         local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
         local tstsresval=`deref $tstsresvar`
-        if test ! $IGNORE_TEST_RESULTS; then
+        if ! $IGNORE_TEST_RESULTS; then
           if test -n "$tstsresval" -a "$tstsresval" != 0; then
             techo "Not installing as $pkgname-$bld-test failed."
             installPkg=false
