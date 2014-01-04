@@ -39,7 +39,7 @@ done
 if test -n "$MINGW64_BINDIR"; then
   techo "MinGW64 found: $MINGW64_BINDIR."
 else
-  techo "WARNING: MinGW64 not found.  To build ATLAS and SciPy, install per http://sourceforge.net/p/bilder/wiki/Installing\\%20MinGW/ instructions."
+  techo "WARNING: MinGW64 not found.  To build ATLAS and SciPy, install per http://sourceforge.net/p/bilder/wiki/Installing MinGW/ instructions."
 fi
 
 #
