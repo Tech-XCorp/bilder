@@ -30,6 +30,9 @@ if test -z "$TXBASE_DESIRED_BUILDS"; then
   case `uname` in
     CYGWIN*) TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd";;
   esac
+  if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
+    TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
+  fi
 fi
 computeBuilds txbase
 addCc4pyBuild txbase
@@ -113,6 +116,18 @@ buildTxbase() {
     bilderBuild txbase ben "$TXBASE_MAKE_ARGS"
   fi
 
+# Developer doxygen (develdocs) build
+  local DOX_ARG="-DENABLE_DEVELDOCS:BOOL=ON"
+  local DOX_MAKE_ARGS=
+  case `uname` in
+    CYGWIN*)
+      DOX_MAKE_ARGS="-m nmake"
+      ;;
+  esac
+  if bilderConfig -I $DEVELDOCS_DIR txbase develdocs "$DOX_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $VORPAL_SER_ADDL_ARGS $VORPAL_SER_OTHER_ARGS" txbase; then
+    bilderBuild $DOX_MAKE_ARGS txbase develdocs "apidocs-force"
+  fi
+
 }
 
 ######################################################################
@@ -122,7 +137,7 @@ buildTxbase() {
 ######################################################################
 
 testTxbase() {
-  bilderRunTests -i develdocs,ben -c txbase # No longer valid: TxbTests
+  bilderRunTests -i ben -c txbase # No longer valid: TxbTests
 }
 
 ######################################################################
@@ -132,6 +147,7 @@ testTxbase() {
 ######################################################################
 
 installTxbase() {
+  TXBASE_DEVELDOCS_INSTALL_TARGET=install-apidocs
   bilderInstallTestedPkg -r -p open txbase
 }
 

@@ -5028,11 +5028,11 @@ shouldInstallTestedPkg() {
         local tstsresval=`deref $tstsresvar`
         # techo "$tstsresvar = $tstsresval."
         # techo "IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS"
-        if test -z "$tstsresval"; then
+        if $IGNORE_TEST_RESULTS; then
+          techo "Ignoring test result of $pkgname-$bld."
+        elif test -z "$tstsresval"; then
           techo "Not installing as $pkgname-$bld-test not run, implying build failed."
           installPkg=false
-        elif $IGNORE_TEST_RESULTS; then
-          techo "Ignoring test result of $pkgname-$bld."
         elif test "$tstsresval" != 0; then
           # techo "IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS"
           techo "Not installing as $pkgname-$bld-test failed."
