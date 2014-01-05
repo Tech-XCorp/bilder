@@ -215,15 +215,16 @@ if $REMOVE_UNFOUND; then
     pkglc=`echo $pkg | tr 'A-Z' 'a-z'`
     echo "Bilder file is ${pkglc}.sh."
     pkgfile=
+# Add * to end of file name to invoke globbing
     if test -n "$BILDER_CONFDIR"; then
-      pkgfile=`(shopt -s nocaseglob; \ls $BILDER_CONFDIR/packages/${pkg}.sh 2>/dev/null)`
+      pkgfile=`(shopt -s nocaseglob; \ls $BILDER_CONFDIR/packages/${pkg}.sh* 2>/dev/null)`
     fi
     if test -z "$pkgfile"; then
-      pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/packages/${pkg}.sh 2>/dev/null)`
+      pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/packages/${pkg}.sh* 2>/dev/null)`
     fi
     if test -z "$pkgfile"; then
 # Look one level up
-      pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/../*/packages/${pkg}.sh 2>/dev/null)`
+      pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/../*/packages/${pkg}.sh* 2>/dev/null)`
     fi
     if test -z "$pkgfile"; then
       echo "WARNING: Package file for ${pkg}.sh not found. Will keep installation."
