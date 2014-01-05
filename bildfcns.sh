@@ -4854,21 +4854,24 @@ bilderRunTests() {
     fi
   done
   trimvar testedBuilds ','
-  techo "Checking on tested builds '$testedBuilds' of $pkgname."
+  techo "Collecting $pkgname builds, $buildsval."
 
 # Wait on all builds, see if any tested build failed.
 # For those not failed, launch tests in build dir if asked.
   local tbFailures=
   local builddirtests=
-  for i in `echo $testedBuilds | tr ',' ' '`; do
+  for i in `echo $buildsval | tr ',' ' '`; do
     cmd="waitAction $pkgname-$i"
     techo -2 "$cmd"
     $cmd
     res=$?
     if test $res != 0; then
-      if echo $i | egrep -qv "(^|,)$i($|,)"; then
+      # if echo $i | egrep -qv "(^|,)$i($|,)"; then
         tbFailures="$tbFailures $i"
-      fi
+      # fi
+# Don't test ignored builds
+    elif echo $ignoreBuilds | egrep -q "(^|,)$i($|,)"; then
+      continue
     elif $hasbuildtests; then
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
