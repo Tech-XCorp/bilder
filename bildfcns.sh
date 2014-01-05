@@ -4085,6 +4085,9 @@ bilderConfig() {
         if test -n "$SVN_BINDIR"; then
           configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
         fi
+        if test -n "$CTEST_DROP_SITE"; then
+          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+        fi
         if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
           srcarg=$PROJECT_DIR/$1
         elif test -f $builddir/../CMakeLists.txt; then
