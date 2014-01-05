@@ -4078,7 +4078,7 @@ bilderConfig() {
             ;;
         esac
 # Some options are always chosen
-        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
 	if test $VERBOSITY -ge 1; then
 	  configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
         fi
