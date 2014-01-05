@@ -335,6 +335,7 @@ if ! $DEBUG; then
   rm -f $CLN_INSTALL_DIR/installations.{bak,rmv,txt~}
   rm -f $CLN_INSTALL_DIR/installationsr.txt
   rm -f $CLN_INSTALL_DIR/installationsrs.txt
+  rm -f $CLN_INSTALL_DIR/numversions_*.txt
   rm -f *.bak *.bak2
 fi
 
