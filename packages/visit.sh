@@ -210,7 +210,7 @@ buildVisit() {
 # hdf5 remove dll from library names as of 1.8.11
   if [[ `uname` =~ CYGWIN ]]; then
     case $HDF5_BLDRVERSION in
-      1.8.11)
+      1.8.1[1-9])
         VISIT_PKG_ARGS="$VISIT_PKG_ARGS -DHDF5_LIBNAMES_AFFIX_DLL:BOOL=OFF"
         ;;
     esac

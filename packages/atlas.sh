@@ -191,7 +191,7 @@ buildAtlas() {
       ;;
   esac
 
-# On multipole, atlas does not correctly detect that this is a 32 bit system
+# Atlas does not alway correctly detect 32 versus 64 bit
   case `uname`-`uname -m` in
     CYGWIN*WOW64-*)
       ATLAS_PTR_ARG="-b 64"
@@ -316,8 +316,8 @@ installAtlas() {
               techo "$cmd"
               $cmd
               cd -
+              (cd $CONTRIB_DIR; rm -rf atlas-sersh; ln -sf atlas-$ATLAS_BLDRVERSION-sersh atlas-sersh)
               $BILDER_DIR/setinstald.sh -i $CONTRIB_DIR atlas,sersh
-              (cd $CONTRIB_DIR; ln -sf atlas-$ATLAS_BLDRVERSION-sersh atlas-sersh)
               ;;
           esac
           ;;
