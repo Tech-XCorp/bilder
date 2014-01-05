@@ -288,7 +288,7 @@ if $REMOVE_UNFOUND; then
         fi
         continue
         ;;
-      qt3d | PyQt)
+      qt3d | pyqt)
         echo "Keeping ${pkglc} as does not have a top-level installation dir."
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue
