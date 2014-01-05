@@ -4810,7 +4810,7 @@ bilderRunTests() {
   while getopts "bi:v" arg; do
     case $arg in
       b) hasbuildtests=true;;
-      i) ignoreBuilds="$OPTARG";;
+      i) ignoreBuilds="$ignoreBuilds,$OPTARG";;
       v) usepkgver=true;;
     esac
   done
@@ -4819,9 +4819,9 @@ bilderRunTests() {
 # Initial handling
   local pkgname=$1
   if test -n "$ignoreBuilds"; then
-    techo -2 "bilderRunTests is ignoring '$ignoreBuilds' builds of $pkgname."
+    techo -2 "bilderRunTests will not test the $pkgname builds, $ignoreBuilds."
   else
-    techo -2 "bilderRunTests is not ignoring any builds of $pkgname."
+    techo -2 "bilderRunTests will test all $pkgname builds."
   fi
   local tstsname=`echo $2 | tr 'A-Z.-' 'a-z__'`
   local tststarget="$3"
@@ -4871,6 +4871,7 @@ bilderRunTests() {
       # fi
 # Don't test ignored builds
     elif echo $ignoreBuilds | egrep -q "(^|,)$i($|,)"; then
+      techo "Not testing $pkgname-$i."
       continue
     elif $hasbuildtests; then
 # Work in the build directory
@@ -5698,7 +5699,7 @@ bilderInstallAll() {
 # 2: Name of tests in methods, e.g., VpTests
 #
 # Named args (must come first):
-# -i ignore these builds when calling install, comma-separated list
+# -i ignore the tests of builds when calling install, comma-separated list
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -p <perms>   Type of permissions to set (open or closed)
 # -r remove the old installation before installing anew
@@ -5713,7 +5714,7 @@ bilderInstallTestedPkg() {
   techo -2 "bilderInstallTestedPkg called with args: '$*'."
 
 # Default option values
-  local ignorebuilds=
+  local ignorebuilds=develdocs
   local tstsnm=
   local perms=
   local installsubdir=
@@ -5725,7 +5726,7 @@ bilderInstallTestedPkg() {
   OPTIND=1
   while getopts "i:n:p:rs:t" arg; do
     case $arg in
-      i) ignorebuilds=$OPTARG;;
+      i) ignorebuilds=$ignorebuilds,$OPTARG;;
       n) tstsnm="$OPTARG";;
       p) perms="$OPTARG";;
       r) removePkg=true; removearg=-r;;
@@ -5757,16 +5758,18 @@ bilderInstallTestedPkg() {
 # Determine the full list of builds and the list after ignoring
   local bldsvar=`genbashvar $1`_BUILDS
   local bldsval=`deref $bldsvar | tr ',' ' '`
+  local tstdblds="$bldsval"
   if test -n "$ignorebuilds"; then
     for i in `echo $ignorebuilds | tr ',' ' '`; do
-      bldsval=`echo " $bldsval " | sed -e "s/ $i / /"`
+      tstdblds=`echo " $tstdblds " | sed -e "s/ $i / /"`
     done
   fi
+  trimvar tstdblds ' '
 
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
-  if test -n "$bldsval"; then
-    if shouldInstallTestedPkg -b "$bldsval" $tstnmarg $1 $2; then
+  if test -n "$tstdblds"; then
+    if shouldInstallTestedPkg -b "$tstdblds" $tstnmarg $1 $2; then
       techo "All $1 builds and tests passed."
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
