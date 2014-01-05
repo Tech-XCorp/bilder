@@ -435,7 +435,9 @@ EOF
 
 # The documentation directories are under the installation directory
   USERDOCS_DIR=$BLDR_INSTALL_DIR/userdocs
+  mkdir -p $USERDOCS_DIR
   DEVELDOCS_DIR=$BLDR_INSTALL_DIR/develdocs
+  mkdir -p $DEVELDOCS_DIR
 
 # Check ability to write into contrib directory
   checkDirWritable -c $CONTRIB_DIR
