@@ -51,10 +51,12 @@ s/ \(-platform \)/\
 s/ \(-webkit\)/\
 \1/g
 # Put newline in front of any path ending in <package>
-s/ \([[:graph:]]*@PACKAGE@\)/\
+# Need end space to not ruin rpath declarations for Python
+s/ \([[:graph:]]*@PACKAGE@ \)/\
 \1/
 # Put newline in front of any path ending in <package>-<version>
-s/ \([[:graph:]]*@PACKAGE@-@VERSION@\)/\
+# Need end space to not ruin rpath declarations for Python
+s/ \([[:graph:]]*@PACKAGE@-@VERSION@ \)/\
 \1/g
 # Put newline after any single quote followed by a space.  Assumes
 # all configuration variables are trim'd.
