@@ -39,12 +39,14 @@ done
 if test -n "$MINGW64_BINDIR"; then
   techo "MinGW64 found: $MINGW64_BINDIR."
 else
-  techo "WARNING: MinGW64 not found.  To build ATLAS and SciPy, install per http://sourceforge.net/p/bilder/wiki/Installing MinGW/ instructions."
+  techo "NOTE: MinGW64 not found.  ATLAS and SciPy require installation of MinGW64 per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
 fi
 
 #
 # Atlas requires that the mingw compilers be linked into /usr/bin in Windows
 #
+
+# Find the prefix for the compilers.
 MINGW64_PREFIX=
 for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
   if test -x /usr/bin/${pr}-gcc; then
@@ -52,6 +54,8 @@ for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
     break
   fi
 done
+
+# Find all the compilers if prefix known.
 if test -n "$MINGW64_PREFIX"; then
   techo "MinGW64 gcc found, prefix = $MINGW64_PREFIX."
   for prog in gfortran ar ranlib; do
@@ -63,13 +67,13 @@ if test -n "$MINGW64_PREFIX"; then
         elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
           techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
         else
-          techo "WARNING: Cannot find MinGW64 installation of ${prog}."
+          techo "NOTE: Cannot find MinGW64 installation of ${prog}."
         fi
       fi
     fi
   done
 else
-  techo "WARNING: mingw64 gcc not linked into /usr/bin."
+  techo "NOTE: mingw64 gcc not linked into /usr/bin."
 fi
 
 # Set the fortran compiler
