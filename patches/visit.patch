@@ -1,6 +1,6 @@
 Index: visit/CMake/FindHDF5.cmake
 ===================================================================
---- visit/CMake/FindHDF5.cmake	(revision 22315)
+--- visit/CMake/FindHDF5.cmake	(revision 22563)
 +++ visit/CMake/FindHDF5.cmake	(working copy)
 @@ -47,9 +47,10 @@
  
@@ -16,3 +16,16 @@ Index: visit/CMake/FindHDF5.cmake
 -ENDIF (WIN32)
 +ENDIF ()
  
+Index: visit/CMake/PluginMacros.cmake
+===================================================================
+--- visit/CMake/PluginMacros.cmake	(revision 22563)
++++ visit/CMake/PluginMacros.cmake	(working copy)
+@@ -79,7 +79,7 @@
+                     CONFIGURATIONS "" None Debug Release RelWithDebInfo MinSizeRel
+                   )
+                 ELSE()  # For no IDE, installed straight into exe
+-                  SET(filename "${VISIT_BINARY_DIR}/exe/${target}.dll")
++                  SET(filename "${VISIT_BINARY_DIR}/exe/${type}/${target}.dll")
+                   INSTALL(FILES ${filename}
+                     DESTINATION ${VISIT_INSTALLED_VERSION_PLUGINS}/${type}
+                     COMPONENT RUNTIME
