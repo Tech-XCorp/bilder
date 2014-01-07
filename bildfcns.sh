@@ -3716,7 +3716,7 @@ bilderConfig() {
 
 # Determine from build type whether to configure as a Debug build.
   local dbgflag
-  dbgflag=${2: -3}          
+  dbgflag=${2: -3}
   if test "$dbgflag" == "dbg"; then
     cmakebuildtype="Debug"
   else
