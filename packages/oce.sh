@@ -66,7 +66,7 @@ buildOce() {
     local patchfile=$BILDER_DIR/patches/oce.patch
     if test -e $patchfile; then
       OCE_PATCH=$patchfile
-      cmd="(cd $PROJECT_DIR/oce; patch -p1 <$patchfile)"
+      cmd="(cd $PROJECT_DIR/oce; patch -N -p1 <$patchfile)"
       techo "$cmd"
       eval "$cmd"
     fi
