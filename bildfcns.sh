@@ -4053,9 +4053,9 @@ bilderConfig() {
 # Location of source for cmake builds.
     local srcarg=
 # Add other, default args
-    techo -2 "cmval = $cmval."
     case $cmval in
       qmake)
+        techo -2 "Using qmake to configure."
         # eval $builddirvar=$builddir
         local profilename=
         if test -d $PROJECT_DIR/$1; then
@@ -4098,6 +4098,9 @@ bilderConfig() {
           techo "cmake build, but no CMakeLists.txt.  Skipping this build."
           return 1
         fi
+        ;;
+      *)
+        techo "NOTE: cmake or qmake not used to configure. cmval = $cmval."
         ;;
     esac
 # Fix up srcarg for Windows
