@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-LIBTOOL_BLDRVERSION_STD=2.4.2
-LIBTOOL_BLDRVERSION_EXP=2.4.2
+LIBTOOL_BLDRVERSION_STD=${LIBTOOL_BLDRVERSION_STD:-"2.4.2"}
+LIBTOOL_BLDRVERSION_EXP=${LIBTOOL_BLDRVERSION_EXP:-"2.4.2"}
 computeVersion libtool
 
 ######################################################################
