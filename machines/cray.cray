@@ -24,9 +24,9 @@ case $UQMAILHOST in
 
 # System linear algebra, note sandybridge for edison.
     SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray_mp.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray_mp.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/81
@@ -40,9 +40,9 @@ case $UQMAILHOST in
     CRAY_CONNECT=gemini
 
 # System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/CRAY/81/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/81/mc12/lib/libsci_cray_mp.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/CRAY/81/mc12/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/81/mc12/lib/libsci_cray_mp.a
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
 
 # System IO libs
@@ -61,12 +61,12 @@ case $UQMAILHOST in
     CRAY_CONNECT=gemini
 
 # System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/74/mc12/lib/libsci_cray_mp.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_BEN_LIB=/opt/cray/libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/CRAY/74/mc12/lib/libsci_cray_mp.a
+    SYSTEM_BLAS_BEN_LIB=/opt/cray/libsci/default/cray/74/interlagos/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/74/mc12/lib/libsci_cray_mp.a
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_BEN_LIB=/opt/cray/libsci/default/CRAY/74/interlagos/lib/libsci_cray_mp.a
+    SYSTEM_LAPACK_BEN_LIB=/opt/cray/libsci/default/cray/74/interlagos/lib/libsci_cray_mp.a
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/cray/74/
@@ -345,8 +345,8 @@ FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-"cross_compiling=yes"}
 
 # FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-""}
 # FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-""}
-FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}'"}
-FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_SER_DIR}'"}
+FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"-DHdf5_ROOT_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}' -DNetcdf_ROOT_DIR:PATH='${SYSTEM_NETCDF_PAR_DIR}'"}
+FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHdf5_ROOT_DIR:PATH='${SYSTEM_HDF5_SER_DIR}' -DNetcdf_ROOT_DIR:PATH='${SYSTEM_NETCDF_SER_DIR}'"}
 
 # FCTESTS_BLDRVERSION=${FCTESTS_BLDRVERSION:-""}
 # FCTESTS_BUILDS=${FCTESTS_BUILDS:-""}
@@ -584,7 +584,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NE7SSH_SERSH_OTHER_ARGS=${NE7SSH_SERSH_OTHER_ARGS:-""}
 
 # NETCDF_BLDRVERSION=${NETCDF_BLDRVERSION:-""}
-# NETCDF_BUILDS=${NETCDF_BUILDS:-""}
+NETCDF_BUILDS=${NETCDF_BUILDS:-"NONE"}
 # NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
 # NETCDF_CC4PY_OTHER_ARGS=${NETCDF_CC4PY_OTHER_ARGS:-""}
 NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-"--disable-shared --disable-utilities"}

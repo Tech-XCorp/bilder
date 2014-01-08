@@ -32,18 +32,8 @@ cd -
 case $UQMAILHOST in
 
   edison*)
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
-
-# System linear algebra: using gnu since no intel, sandybridge for Edison.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/cray/81/sandybridge/lib/libsci_cray.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/47/sandybridge/lib/libsci_gnu.a
-
-# System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
+    techo "The pgi compiler is not available on edison"
+    exit
     ;;
 
   hopper*)
@@ -52,22 +42,16 @@ case $UQMAILHOST in
     CRAY_CONNECT=gemini
 
 # System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/PGI/121/mc12/lib/libsci_pgi.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/PGI/121/mc12/lib/libsci_pgi.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/pgi/121/mc12/lib/libsci_pgi.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/pgi/121/mc12/lib/libsci_pgi.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
 
 # System IO libs
-# JRK 12/17/13 - there are problems with linking (libdl) at version 1.8.11 
-# (NERSC version). Netcdf depends on hdf5. Downgrade to version 1.8.9.
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/pgi/119/
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/pgi/119/
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/pgi/119/
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/pgi/119/
-    #SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/121
-    #SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/121
-    #SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/121
-    #SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/121
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/pgi/121
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/pgi/121
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/pgi/121
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/pgi/121
 
 # Trilinos and Petsc
     TRILINOS_PARCOMM_OTHER_ARGS="${TRILINOS_PARCOMM_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"

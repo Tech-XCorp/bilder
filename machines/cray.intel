@@ -21,34 +21,47 @@ case $UQMAILHOST in
 # JRC 20130407: Bzip2 is not installed on edison.
     BZIP2_BUILDS=$FORPYTHON_BUILD
 
-# JRC 20130407: No system linear algebra libraries on edison as of this date.
-# See http://www.nersc.gov/users/computational-systems/edison/known-issues
-    BUILD_ATLAS=true
-# Default builds work.
-    # ATLAS_BUILDS=ser,cc4py
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
 
+# System linear algebra, note sandybridge for Edison.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/130/sandybridge/lib/libsci_intel.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/130/sandybridge/lib/libsci_intel.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
+   
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/130
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/130
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/130
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/130
+
+# Python builds -- must use gcc for consistency.
+# Loading the module gcc produces errors with the icpc, ensure it is
+# not loaded. Specify full python compiler paths.
+    PYC_CC=${PYC_CC:-"/opt/gcc/4.8.2/bin/gcc"}
+    PYC_CXX=${PYC_CXX:-"/opt/gcc/4.8.2/bin/g++"}
+    PYC_FC=${PYC_FC:-"/opt/gcc/4.8.2/bin/gfortran"}
+    PYC_F77=${PYC_F77:-"${PYC_FC}"}
     ;;
 
   hopper*)
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
 
-    # System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
-    SYSTEM_LAPACK_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
-    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
+# System linear algebra, note mc12 (Magny-Cours) for Hopper.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel.a
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
 
-    # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/120
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/120
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/130
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/130
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/130
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/130
 
-    # Trilinos and Petsc
+# Trilinos and Petsc
     # TRILINOS_PARCOMM_OTHER_ARGS="${TRILINOS_PARCOMM_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
 
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
@@ -59,13 +72,13 @@ case $UQMAILHOST in
     ;;
 
   titan*)
-    # Make sure your code is built for the compute nodes,
-    # module xtpe-interlagos should be loaded.
+# Make sure your code is built for the compute nodes,
+# module xtpe-interlagos should be loaded.
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-    # System linear algebra, note interlagos for Titan backend nodes.
+# System linear algebra, note interlagos for Titan backend nodes.
     SYSTEM_BLAS_SER_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel_mp.a
     SYSTEM_BLAS_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
     SYSTEM_BLAS_BEN_LIB=/opt/xt-libsci/default/intel/120/interlagos/lib/libsci_intel_mp.a
@@ -73,7 +86,7 @@ case $UQMAILHOST in
     SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/intel/120/mc12/lib/libsci_intel.a
     SYSTEM_LAPACK_BEN_LIB=/opt/xt-libsci/default/intel/120/interlagos/lib/libsci_intel_mp.a
 
-    # System IO libs
+# System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/120
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/120
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/120
@@ -344,8 +357,8 @@ BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_
 
 # FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-""}
 # FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-""}
-FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"--disable-shared --enable-static cross_compiling=yes -DHDF5_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}'"}
-FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHDF5_DIR:PATH='${SYSTEM_HDF5_SER_DIR}'"}
+FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"-DHdf5_ROOT_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}' -DNetcdf_ROOT_DIR:PATH='${SYSTEM_NETCDF_PAR_DIR}'"}
+FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHdf5_ROOT_DIR:PATH='${SYSTEM_HDF5_SER_DIR}' -DNetcdf_ROOT_DIR:PATH='${SYSTEM_NETCDF_SER_DIR}'"}
 
 # FCTESTS_BLDRVERSION=${FCTESTS_BLDRVERSION:-""}
 # FCTESTS_BUILDS=${FCTESTS_BUILDS:-""}
@@ -583,7 +596,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NE7SSH_SERSH_OTHER_ARGS=${NE7SSH_SERSH_OTHER_ARGS:-""}
 
 # NETCDF_BLDRVERSION=${NETCDF_BLDRVERSION:-""}
-# NETCDF_BUILDS=${NETCDF_BUILDS:-""}
+NETCDF_BUILDS=${NETCDF_BUILDS:-"NONE"}
 # NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
 # NETCDF_CC4PY_OTHER_ARGS=${NETCDF_CC4PY_OTHER_ARGS:-""}
 NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-"--disable-shared --disable-utilities"}
@@ -596,13 +609,15 @@ NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-"--disable-shared --ena
 
 # NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
 # NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
-# NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-""}
-# NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
-# NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
-# NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-""}
-# NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-""}
-# NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-""}
-# NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-""}
+if test -n "$MKL_LIBRARIES"; then
+  NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+  NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+  NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+  NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+  NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+  NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+  NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DLINK_WITH_MKL:BOOL=TRUE"}
+fi
 
 # NIMTESTS_BLDRVERSION=${NIMTESTS_BLDRVERSION:-""}
 # NIMTESTS_BUILDS=${NIMTESTS_BUILDS:-""}
