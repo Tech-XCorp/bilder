@@ -1401,9 +1401,9 @@ mkConfigScript() {
     sed -e "s/'\(.*\)\"\(.*\)'/'\1\2'/" |\
     sed -e '2,$s/^/  /' -e '1,$s/$/ \\/' -e '$s/ \\$//' >>$configscript
   chmod u+rx $configscript
-# Also touch the build script file, so that CMake can find it
-  local buildscript=`echo $configscript | sed -e 's/-config\./-build./'`
-  touch $buildscript
+  if test $VERBOSITY -le 2; then
+    rm -f $sedfile
+  fi
 }
 
 # Install the config shell scripts if they exist.  This is useful
@@ -4191,6 +4191,9 @@ bilderConfig() {
     techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
     mkConfigScript $FQMAILHOST $1 $2
+    # Also touch the build script file, so that CMake can find it
+    local buildscript=$1-$2-build.sh
+    touch $builddir/$buildscript
 # Execute the command
     eval "$finalcmd" 1>>$configure_txt 2>&1
     RESULT=$?
