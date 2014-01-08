@@ -4088,6 +4088,9 @@ bilderConfig() {
         if test -n "$CTEST_DROP_SITE"; then
           configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
         fi
+        if test -n "$FQMAILHOST"; then
+          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
+        fi
         if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
           srcarg=$PROJECT_DIR/$1
         elif test -f $builddir/../CMakeLists.txt; then
