@@ -4055,7 +4055,7 @@ bilderConfig() {
 # Add other, default args
     case $cmval in
       qmake)
-        techo -2 "Using qmake to configure."
+        # techo -2 "Using qmake to configure."
         # eval $builddirvar=$builddir
         local profilename=
         if test -d $PROJECT_DIR/$1; then
@@ -4100,9 +4100,10 @@ bilderConfig() {
         fi
         ;;
       *)
-        techo "NOTE: cmake or qmake not used to configure. cmval = $cmval."
+        techo -2 "NOTE: Neither cmake nor qmake used to configure."
         ;;
     esac
+    techo -2 "NOTE: Configuring with cmval = $cmval."
 # Fix up srcarg for Windows
     techo -2 "srcarg = $srcarg, uname = `uname`"
     sleep 1 # Give cygwin time to catch up.
