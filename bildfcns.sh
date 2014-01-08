@@ -4792,9 +4792,27 @@ getForceTests() {
 #
 # Run tests for a particular package, if builds succeeded.
 #
+# Tests are of two types: per-build tests that are run inside
+# the build directory and separate named tests that require
+# all builds to succeed to be run.  Neither, either, or both
+# may be present.
+#
+# bilderRunTests collects the results of each build except for
+# those ignored with the -i flag.  For each of those builds
+# it then (if the -b # flag is present) launches the tests, using
+# "make <testarg>" or "nmake <testarg>" where <testarg> by default
+# is "check" but can instead be specified by the third argument.
+#
+# It then collects the results of all tests, storing them, after
+# which it launches the named tests, if present and if all non
+# ignored builds succeeded.  The results of the named tests are
+# collected by bilderInstallTestedPkg.
+#
 # Args:
 # 1: package name (e.g., vorpal)
-# 2: name of tests methods (e.g., VpTest)
+# 2: suffix (e.g., VpTest) of the test methods.  bilderRun finds the test
+#    package file by lower-casing this.  Then it runs the build method,
+#    e.g., buildVpTest to run the tests.
 # 3: (optional) args to make for testing. Default is tests
 #
 # Named args (must come first)
@@ -4802,10 +4820,10 @@ getForceTests() {
 # -b has tests in each build directory
 # -i comma-separated list of build(s) to ignore when deciding to run tests
 #    (documentation generating builds always ignored.)
+# -s submit the results of the builds and tests to the cdash site.
 # -v getversion will get version of package, not tests method.  This is useful
-#    for cases when the tests are stored within the package repo.
-#
-# Returns result if built, otherwise 99
+#    for cases when the tests are stored within the package repo.  Whichever
+#    version is used when recording the successful tests.
 #
 bilderRunTests() {
 
