@@ -4608,7 +4608,7 @@ waitAction() {
           n) isnamedtest=true;;
         esac
         ;;
-      z) isctest=true;;
+      z) istest=true; isctest=true;;
     esac
   done
   shift $(($OPTIND - 1))

@@ -59,40 +59,41 @@ LAPACK_UMASK=002
 
 buildLapack() {
 
-  if bilderUnpack lapack; then
-
-    local buildargs=
-    if [[ `uname` =~ CYGWIN ]]; then
-      buildargs="-m nmake"
-    fi
-
-    # A. Pletzer: building the testing code fails with a seg fault on 
-    # Linux systems running gfortran 4.4.6. Turn off BUILD_TESTING 
-    # for these cases
-    if [ `uname` = "Linux" -a "gfortran" = `basename $FC` ]; then
-      version=`$FC --version | tr '\n' ' ' | awk '{print $4}'`
-      if [ "4.4.6" = $version ]; then
-        LAPACK_SER_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
-	LAPACK_SERSH_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
-      fi
-    fi
-
-    if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then
-      bilderBuild $buildargs lapack ser
-    fi
-
-    if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
-      bilderBuild $buildargs lapack sersh
-    fi
-    if bilderConfig lapack cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_CC4PY_OTHER_ARGS"; then
-      bilderBuild $buildargs lapack cc4py
-    fi
-
-    if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
-      bilderBuild $buildargs lapack ben
-    fi
-
+  if ! bilderUnpack lapack; then
+    return
   fi
+
+  local buildargs=
+  if [[ `uname` =~ CYGWIN ]]; then
+    buildargs="-m nmake"
+  fi
+
+# A. Pletzer: building the testing code fails with a seg fault on
+# Linux systems running gfortran 4.4.6. Turn off BUILD_TESTING
+# for these cases
+  if [ `uname` = "Linux" -a "gfortran" = `basename $FC` ]; then
+    version=`$FC --version | tr '\n' ' ' | awk '{print $4}'`
+    if [ "4.4.6" = $version ]; then
+      LAPACK_SER_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
+	LAPACK_SERSH_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
+    fi
+  fi
+
+  if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then
+    bilderBuild $buildargs lapack ser
+  fi
+
+  if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
+    bilderBuild $buildargs lapack sersh
+  fi
+  if bilderConfig lapack cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_CC4PY_OTHER_ARGS"; then
+    bilderBuild $buildargs lapack cc4py
+  fi
+
+  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
+    bilderBuild $buildargs lapack ben
+  fi
+
   return 0
 
 }
