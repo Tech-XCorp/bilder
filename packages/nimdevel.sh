@@ -21,7 +21,7 @@
 ######################################################################
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
-NIMDEVEL_DEPS=openmpi,fciowrappers,superlu_dist3,superlu,cmake
+NIMDEVEL_DEPS=openmpi,netlib_lite,fciowrappers,superlu_dist3,superlu,cmake
 NIMDEVEL_UMASK=002
 
 ######################################################################
