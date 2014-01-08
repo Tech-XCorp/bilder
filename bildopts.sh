@@ -68,6 +68,7 @@ BILDER OPTIONS
   -o ................ Install openmpi if not on cygwin.
   -O ................ Install optional packages = ATLAS, parallel visit, ...
   -p <path> ......... Specify a supra-search-path.
+  -P ................ Do not post to depot regardless of other settings.
   -r ................ Remove other installations of a package upon successful
                         installation of that package.
   -R ................ Build RELEASE (i.e., licensed and signed when applicable)
@@ -84,8 +85,8 @@ BILDER OPTIONS
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
   -y ................ Do not clean git and hg subrepos
+  -z ................ Do only a pull and not a clean from any git repo. 
   -Z ................ Do not execute the definable bilderFinalAction.
-  -z ................ Do not post to depot regardless of other settings.
   -2 ................ Use the second installation directory of the comma
                         delimited list.  Causes -FI options.
 EOF
@@ -138,6 +139,7 @@ processBilderArgs() {
        esac;;
     O) BUILD_OPTIONAL=true;;
     p) SUPRA_SP=$OPTARG;;
+    P) POST2DEPOT=false;;
     r) REMOVE_OLD=true;;
     R) CREATE_RELEASE=true;;
     S) SER_EXTRA_LDFLAGS="--static $SER_EXTRA_LDFLAGS"    # For serial builds
@@ -152,7 +154,6 @@ processBilderArgs() {
     W) NOBUILD_PKGS=${NOBUILD_PKGS},$OPTARG;;
     X) BUILD_EXPERIMENTAL=true;;
     z) CLEAN_GITHG_SUBREPOS=false;;
-    z) POST2DEPOT=false;;
     Z) DO_FINAL_ACTION=false;;
     2) IS_SECOND_INSTALL=true;;
    \?) bilderUsage 1;;
@@ -217,7 +218,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:rRs:StTuUv:VW:w:XyZz2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:PrRs:StTuUv:VW:w:XyzZ2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."
