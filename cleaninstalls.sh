@@ -246,7 +246,7 @@ if $REMOVE_UNFOUND; then
       pv=`echo $LINE | sed 's/-cc4py.*$//'`
       echo "$pkg-$ver is installed.  Found record for $pv."
       case $pkg in
-        setuptools)
+        setuptools | sip)
           echo "WARNING: $pkglc has conflicting version.  Keeping record because matplotlib installs older version of setuptools."
           echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
           ;;
