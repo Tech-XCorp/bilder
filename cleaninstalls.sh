@@ -246,7 +246,7 @@ if $REMOVE_UNFOUND; then
       pv=`echo $LINE | sed 's/-cc4py.*$//'`
       echo "$pkg-$ver is installed.  Found record for $pv."
       case $pkg in
-        setuptools | sip)
+        setuptools)
           echo "WARNING: $pkglc has conflicting version.  Keeping record because matplotlib installs older version of setuptools."
           echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
           ;;
@@ -288,7 +288,7 @@ if $REMOVE_UNFOUND; then
         fi
         continue
         ;;
-      qt3d | pyqt)
+      qt3d | pyqt | sip)
         echo "Keeping ${pkglc} as does not have a top-level installation dir."
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue
