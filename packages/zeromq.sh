@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-ZEROMQ_BLDRVERSION=${ZEROMQ_BLDRVERSION:-"2.1.11"}
+ZEROMQ_BLDRVERSION_STD=${ZEROMQ_BLDRVERSION_STD:-"2.1.11"}
+ZEROMQ_BLDRVERSION_EXP=${ZEROMQ_BLDRVERSION_EXP:-"4.0.3"}
 
 ######################################################################
 #

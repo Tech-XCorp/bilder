@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-IPYTHON_BLDRVERSION=${IPYTHON_BLDRVERSION:-"0.12"}
-#IPYTHON_BLDRVERSION=${IPYTHON_BLDRVERSION:-"0.10.2"}
+IPYTHON_BLDRVERSION_STD=${IPYTHON_BLDRVERSION_STD:-"0.12"}
+IPYTHON_BLDRVERSION_EXP=${IPYTHON_BLDRVERSION_EXP:-"1.1.0"}
 
 ######################################################################
 #
@@ -42,17 +42,19 @@ addtopathvar PATH $BLDR_INSTALL_DIR/bin
 
 buildIpython() {
 
-  if bilderUnpack ipython; then
+  if ! bilderUnpack ipython; then
+    return
+  fi
+
 # Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/ipython*"
-    techo "$cmd"
-    $cmd
+  cmd="rmall ${PYTHON_SITEPKGSDIR}/ipython*"
+  techo "$cmd"
+  $cmd
 
 # Build away
-    IPYTHON_ENV="$DISTUTILS_ENV"
-    techo -2 IPYTHON_ENV = $IPYTHON_ENV
-    bilderDuBuild -p ipython ipython '-' "$IPYTHON_ENV"
-  fi
+  IPYTHON_ENV="$DISTUTILS_ENV"
+  techo -2 IPYTHON_ENV = $IPYTHON_ENV
+  bilderDuBuild -p ipython ipython '-' "$IPYTHON_ENV"
 
 }
 
@@ -73,13 +75,7 @@ testIpython() {
 ######################################################################
 
 installIpython() {
-  case `uname` in
-    # Windows does not have a lib versus lib64 issue
-    CYGWIN*)
-      bilderDuInstall -p ipython ipython " " "$IPYTHON_ENV"
-      ;;
-    *)
-      bilderDuInstall -p ipython ipython "--install-purelib=$PYTHON_SITEPKGSDIR" "$IPYTHON_ENV"
-      ;;
-  esac
+  bilderDuInstall -p ipython ipython " " "$IPYTHON_ENV"
+  bilderDuInstall -p ipython ipython "--install-purelib=$PYTHON_SITEPKGSDIR" "$IPYTHON_ENV"
 }
+

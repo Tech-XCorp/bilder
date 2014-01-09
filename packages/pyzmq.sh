@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-PYZMQ_BLDRVERSION=${PYZMQ_BLDRVERSION:-"63d88b0"}
+PYZMQ_BLDRVERSION_STD=${PYZMQ_BLDRVERSION_STD:-"63d88b0"}
+PYZMQ_BLDRVERSION_EXP=${PYZMQ_BLDRVERSION_EXP:-"13.0.0"}
 
 ######################################################################
 #
@@ -37,16 +38,18 @@ PYZMQ_UMASK=002
 
 buildPyzmq() {
 
-  if bilderUnpack pyzmq; then
-# Build away
-    PYZMQ_ENV="$DISTUTILS_ENV"
-    techo -2 "PYZMQ_ENV = $PYZMQ_ENV"
-    PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
-    if [[ `uname` =~ Linux ]]; then
-      PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
-    fi
-    bilderDuBuild pyzmq "$PYZMQ_ARGS" "$PYZMQ_ENV"
+  if ! bilderUnpack pyzmq; then
+    return
   fi
+
+# Build away
+  PYZMQ_ENV="$DISTUTILS_ENV"
+  techo -2 "PYZMQ_ENV = $PYZMQ_ENV"
+  PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
+  if [[ `uname` =~ Linux ]]; then
+    PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
+  fi
+  bilderDuBuild pyzmq "$PYZMQ_ARGS" "$PYZMQ_ENV"
 
 }
 
