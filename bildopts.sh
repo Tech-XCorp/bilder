@@ -179,6 +179,7 @@ setBilderOptions() {
 
 # Universal defaults
   BILDER_WAIT_DAYS=0
+  BILDER_CTEST_TARGET=Experimental
   BUILD_DEBUG=false
   BUILD_DIR=$PROJECT_DIR/builds
   DOCS_BUILDS=
