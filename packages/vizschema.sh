@@ -26,7 +26,7 @@ VIZSCHEMA_TESTING=${VIZSCHEMA_TESTING:-false}
 VIZSCHEMA_DESIRED_BUILDS=${VIZSCHEMA_DESIRED_BUILDS:-"sersh"}
 # Simpler way is to let clapack_cmake be a dependency but just not
 # build it when LINK_WITH_MKL is true.
-VIZSCHEMA_DEPS=vsreader,visit
+VIZSCHEMA_DEPS=vsreader,visit4vs
 VIZSCHEMA_UMASK=007
 
 computeBuilds vizschema
