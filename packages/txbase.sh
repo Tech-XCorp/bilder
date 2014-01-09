@@ -48,7 +48,7 @@ case `uname` in
 esac
 trimvar TXBASE_DEPS ','
 TXBASE_MASK=002
-TXBASE_TESTNAME=${TXBASE_TESTNAME:-"TxbTests"}
+TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"Experimental"}
 
 ######################################################################
 #
@@ -72,7 +72,7 @@ buildTxbase() {
   fi
 
 # Use make -j
-  TXBASE_MAKE_ARGS="$TXBASE_MAKEJ_ARGS"
+  TXBASE_MAKE_ARGS="$TXBASE_MAKEJ_ARGS ${TXBASE_MAKE_ARGS:-"${TXBASE_CTEST_TARGET}Start ${TXBASE_CTEST_TARGET}Build"}"
 
 # Determine whether shared
   local BUILD_SHARED_LIBS_FLAG=
@@ -139,7 +139,7 @@ fi
 ######################################################################
 
 testTxbase() {
-  bilderRunTests -i ben -b txbase # No longer valid: TxbTests
+  bilderRunTests -i ben -bs txbase "" "${TXBASE_CTEST_TARGET}Test"
 }
 
 ######################################################################

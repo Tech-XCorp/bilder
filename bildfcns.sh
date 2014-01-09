@@ -3510,7 +3510,7 @@ bilderPreconfig() {
     if shouldInstall -I $instdirs $1-$verval $chkbuilds $DEPS; then
       techo "Preconfiguring $1-$verval because a dependency rebuilt, or $1 not installed."
     else
-      techo "No reason to preconfiguring $1-$verval."
+      techo "No reason to preconfigure $1-$verval."
       return 1
     fi
   fi
@@ -4829,16 +4829,18 @@ bilderRunTests() {
 
 # Default option values
 # Always ignore the document generating builds.  See README-docs.txt.
-  local ignoreBuilds=develdocs
-  local usepkgver=false
   local hasbuildtests=false
+  local ignoreBuilds=develdocs
+  local submitres=false
+  local usepkgver=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bi:v" arg; do
+  while getopts "bi:sv" arg; do
     case $arg in
       b) hasbuildtests=true;;
       i) ignoreBuilds="$ignoreBuilds,$OPTARG";;
+      s) submitres=true;;
       v) usepkgver=true;;
     esac
   done
@@ -4866,10 +4868,10 @@ bilderRunTests() {
     getVersion $tstsname  # Done here as build may not be called
   fi
 # If not testing, done.
-  if ! $TESTING; then
-    techo "Not testing $pkgname."
-    return
-  fi
+  # if ! $TESTING; then
+    # techo "Not testing $pkgname."
+    # return
+  # fi
 
 # Get the builds to wait on
   local buildsvar=`genbashvar $1`_BUILDS
@@ -4884,6 +4886,13 @@ bilderRunTests() {
   trimvar testedBuilds ','
   techo "Collecting $pkgname builds, $buildsval."
 
+# Vars used for submitting results
+  local cmvar=`genbashvar $pkgname`_CONFIG_METHOD
+  local cmval=`deref $cmvar`
+  local maker=`getMaker $cmval`
+  local targvar=`genbashvar $pkgname`_CTEST_TARGET
+  local targval=`deref $targvar`
+
 # Wait on all builds, see if any tested build failed.
 # For those not failed, launch tests in build dir if asked.
   local tbFailures=
@@ -4894,12 +4903,28 @@ bilderRunTests() {
     $cmd
     res=$?
     if test $res != 0; then
-      # if echo $i | egrep -qv "(^|,)$i($|,)"; then
-        tbFailures="$tbFailures $i"
-      # fi
-# Don't test ignored builds
-    elif echo $ignoreBuilds | egrep -q "(^|,)$i($|,)"; then
-      techo "Not testing $pkgname-$i."
+      tbFailures="$tbFailures $i"
+      continue
+    fi
+# Don't test if not testing or this build is ignored
+    if ! $TESTING; then
+# TODO: figure out how to submit ignored builds, like develdocs
+      if ! echo $ignoreBuilds | egrep -q "(^|,)$i($|,)"; then
+        techo "Not testing $pkgname-$i."
+        if $submitres && test "$cmval" = cmake -a -n "$targval"; then
+          techo "Submitting build results for $pkgname-$bld."
+          cd $BUILD_DIR/$pkgname/$bld
+          cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+#!/bin/bash
+
+cmd="$maker -i ${targval}Submit"
+echo \$cmd
+\$cmd
+EOF
+          chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
+          ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
+        fi
+      fi
       continue
     elif $hasbuildtests; then
 # Work in the build directory
@@ -4943,18 +4968,35 @@ EOF
 # Collect results of tests in build dirs
   local tstFailures=
   if $hasbuildtests && test -n "$builddirtests"; then
-    for i in `echo $testedBuilds | tr ',' ' '`; do
-      cmd="waitAction -t b $pkgname-$i-test"
+    for bld in `echo $testedBuilds | tr ',' ' '`; do
+# Get individual build test results
+      cmd="waitAction -t b $pkgname-$bld-test"
       techo -2 "$cmd"
       $cmd
       res=$?
-      techo "Test $1-$i concluded with res = $res."
+      techo "Test $1-$bld concluded with res = $res."
       if test $res != 0; then
-        tstFailures="$tstFailures $pkgname-$i"
+        tstFailures="$tstFailures $pkgname-$bld"
       fi
-      local tstsresvar=`genbashvar $pkgname-$i`_TEST_RES
+      local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
       eval $tstsresvar=$res
       techo "$tstsresvar = $res."
+# Set the tests as installed
+# Submit results
+      if $submitres && test "$cmval" = cmake -a -n "$targval"; then
+        techo "Submitting test results for $pkgname-$bld."
+        cd $BUILD_DIR/$pkgname/$bld
+# TODO: add memcheck target for automated/nightly builds
+        cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+#!/bin/bash
+
+cmd="$maker -i ${targval}Coverage ${targval}Submit"
+echo \$cmd
+\$cmd
+EOF
+        chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
+        ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
+      fi
     done
   fi
   trimvar tstFailures ' '
@@ -4963,7 +5005,6 @@ EOF
     return
   fi
 
-# Source test file here even if not needed, as later will call install
   if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$tstsname.sh; then
     source $BILDER_CONFDIR/packages/$tstsname.sh
   elif test -f $BILDER_DIR/packages/$tstsname.sh; then
@@ -4974,7 +5015,10 @@ EOF
 
   if test -n "$tbFailures"; then
     techo "Not running $pkgname tests. One or more tested builds '$tbFailures' not built."
-# If not building, then still need version
+    return
+  fi
+  if test ! $TESTING; then
+    techo "Not testing so not running $pkgname tests."
     return
   fi
   techo "Testing $pkgname."
