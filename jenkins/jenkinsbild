@@ -77,12 +77,10 @@ else
   defscript=./$defscript
 fi
 
-case `uname` in 
-  CYGWIN*) if [[ $projdir =~ jenkins/workspace ]]; then
-             echo "projdir still a subdir of jenkins/workspace.  Quitting."
-             exit 1
-           fi;;
-esac
+if [[ `uname` =~ CYGWIN ]] && [[ $projdir =~ jenkins/workspace ]]; then
+  echo "projdir still a subdir of jenkins/workspace.  Quitting."
+  exit 1
+fi
 
 lecho() {
   echo "$1" >> ${projdir}/jenkinsbild.log
@@ -209,6 +207,10 @@ if [[ `uname` =~ CYGWIN ]]; then
 fi
 export BILDER_SVN
 
+# By default, Jenkins builds are Nightlies
+BILDER_CTEST_TARGET=${BILDER_CTEST_TARGET:-"Nightly"}
+export BILDER_CTEST_TARGET
+
 lecho "<<<< Recording Final Environment >>>>"
 lecho "   USER = $USER"
 lecho "   HOME = $HOME"
@@ -224,6 +226,7 @@ lecho "   JOB_URL = $JOB_URL"
 lecho "   BLDR_SVNVERSION = $BLDR_SVNVERSION"
 lecho "   BILDER_SVN = $BILDER_SVN"
 lecho "   BILDER_CONFDIR = $BILDER_CONFDIR"
+lecho "   BILDER_CTEST_TARGET = $BILDER_CTEST_TARGET"
 
 #
 # Additional options for mkall-default.sh.
