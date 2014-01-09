@@ -4897,20 +4897,20 @@ bilderRunTests() {
 # For those not failed, launch tests in build dir if asked.
   local tbFailures=
   local builddirtests=
-  for i in `echo $buildsval | tr ',' ' '`; do
-    cmd="waitAction $pkgname-$i"
+  for bld in `echo $buildsval | tr ',' ' '`; do
+    cmd="waitAction $pkgname-$bld"
     techo -2 "$cmd"
     $cmd
     res=$?
     if test $res != 0; then
-      tbFailures="$tbFailures $i"
+      tbFailures="$tbFailures $bld"
       continue
     fi
 # Don't test if not testing or this build is ignored
     if ! $TESTING; then
 # TODO: figure out how to submit ignored builds, like develdocs
-      if ! echo $ignoreBuilds | egrep -q "(^|,)$i($|,)"; then
-        techo "Not testing $pkgname-$i."
+      if ! echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo "Not testing $pkgname-$bld."
         if $submitres && test "$cmval" = cmake -a -n "$targval"; then
           techo "Submitting build results for $pkgname-$bld."
           cd $BUILD_DIR/$pkgname/$bld
@@ -4930,12 +4930,12 @@ EOF
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
       local builddir=`deref $builddirvar`
-      local builddir=${builddir:-"$BUILD_DIR/$pkgname/$i"}
-      local testdirvar=`genbashvar $1-$i-test`_BUILD_DIR
+      local builddir=${builddir:-"$BUILD_DIR/$pkgname/$bld"}
+      local testdirvar=`genbashvar $1-$bld-test`_BUILD_DIR
       eval $testdirvar=$builddir
       cd $builddir
 # The tests in this build can be checked
-      local testScript=$FQMAILHOST-$1-$i-test.sh
+      local testScript=$FQMAILHOST-$1-$bld-test.sh
       local MAKER=make
       if [[ `uname` =~ CYGWIN ]]; then
         MAKER=nmake
@@ -4946,18 +4946,18 @@ cmd="$MAKER $tststarget"
 echo \$cmd
 \$cmd
 res=\$?
-echo \$res > bildertest-$1-$i.res
+echo \$res > bildertest-$1-$bld.res
 exit \$res
 EOF
       chmod ug+x $testScript
-      local testpidvar=`genbashvar $1-$i`_TEST_PID
-      techo "Testing $1-$i"
+      local testpidvar=`genbashvar $1-$bld`_TEST_PID
+      techo "Testing $1-$bld"
       techo $testScript
-      ./$testScript 1>$FQMAILHOST-$1-$i-test.txt 2>&1 &
+      ./$testScript 1>$FQMAILHOST-$1-$bld-test.txt 2>&1 &
       pid=$!
       eval $testpidvar=$pid
-      builddirtests="$builddirtests $i"
-      addActionToLists $1-$i-test $pid
+      builddirtests="$builddirtests $bld"
+      addActionToLists $1-$bld-test $pid
     fi
   done
   trimvar tbFailures ' '
