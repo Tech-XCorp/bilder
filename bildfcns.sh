@@ -4103,10 +4103,10 @@ bilderConfig() {
         fi
         ;;
       *)
-        techo -2 "NOTE: Neither cmake nor qmake used to configure."
+        techo -2 "Neither cmake nor qmake used to configure."
         ;;
     esac
-    techo -2 "NOTE: Configuring with cmval = $cmval."
+    techo -2 "Configuring with cmval = $cmval."
 # Fix up srcarg for Windows
     techo -2 "srcarg = $srcarg, uname = `uname`"
     sleep 1 # Give cygwin time to catch up.
