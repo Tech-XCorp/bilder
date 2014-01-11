@@ -141,37 +141,37 @@ testTables() {
 
 installTables() {
 
-# Determine libraries, compatibility name/soname
-  local hdf5shlib=
-  local hdf5shlink=
-  local instopts=
-  case `uname` in
-    CYGWIN*)
-      hdf5shdir=$HDF5_CC4PY_DIR/bin
-      if echo $TABLES_ENV | grep HDF5_LIBNAMES_LACK_DLL; then
-        hdf5shlib=hdf5.dll
-      else
-        hdf5shlib=hdf5dll.dll
-      fi
-      instopts=-n
-      ;;
-    Darwin)
-      hdf5shdir=$HDF5_CC4PY_DIR/lib
-      hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
-echo "hdf5shlib=$hdf5shlib"
-      hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
-      instopts="-r tables"
-      ;;
-    Linux)
-      hdf5shdir=$HDF5_CC4PY_DIR/lib
-      hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
-      # hdf5shlink=`objdump -p $hdf5shdir/$hdf5shlib | grep SONAME | sed 's/^.*SONAME *//'`
-      instopts="-r tables"
-      ;;
-  esac
-
 # Install library if not present, make link if needed
   if bilderDuInstall $instopts tables "$TABLES_ARGS" "$TABLES_ENV"; then
+
+# Determine libraries, compatibility name/soname
+    local hdf5shlib=
+    local hdf5shlink=
+    local instopts=
+    case `uname` in
+      CYGWIN*)
+        hdf5shdir=$HDF5_CC4PY_DIR/bin
+        if echo $TABLES_ENV | grep HDF5_LIBNAMES_LACK_DLL; then
+          hdf5shlib=hdf5.dll
+        else
+          hdf5shlib=hdf5dll.dll
+        fi
+        instopts=-n
+        ;;
+      Darwin)
+        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
+echo "hdf5shlib=$hdf5shlib"
+        hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
+        instopts="-r tables"
+        ;;
+      Linux)
+        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
+        instopts="-r tables"
+        ;;
+    esac
+
     local tablesinstdir=${PYTHON_SITEPKGSDIR}/tables
     if ! test -f $tablesinstdir/$hdf5shlib; then
       techo "$tablesinstdir/$hdf5shlib missing.  Will install."
