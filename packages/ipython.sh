@@ -17,20 +17,13 @@ IPYTHON_BLDRVERSION_EXP=${IPYTHON_BLDRVERSION_EXP:-"1.1.0"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 IPYTHON_BUILDS=${IPYTHON_BUILDS:-"cc4py"}
 IPYTHON_DEPS=Python,tornado,pyzmq,zeromq,pyqt,pyreadline,readline,ncurses,matplotlib
 IPYTHON_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
 addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 
@@ -76,6 +69,5 @@ testIpython() {
 
 installIpython() {
   bilderDuInstall -p ipython ipython " " "$IPYTHON_ENV"
-  bilderDuInstall -p ipython ipython "--install-purelib=$PYTHON_SITEPKGSDIR" "$IPYTHON_ENV"
 }
 
