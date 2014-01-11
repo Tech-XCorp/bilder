@@ -4907,12 +4907,13 @@ bilderRunTests() {
       tbFailures="$tbFailures $bld"
       continue
     fi
-# Don't test if not testing or this build is ignored
+# Determine whether this build is ignored
     local untestedbuild=false
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
       untestedbuild=true
     fi
     if $untestedbuild || ! $TESTING; then
+# Don't test if not testing or this build is ignored
 # Submitting even ignored builds
 # If want to call bilderRunTests more than once, will need
 # a variable that holds builds to be collected and submitted.
