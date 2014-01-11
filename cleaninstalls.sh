@@ -41,8 +41,8 @@ cleanInstallDir() {
 
   CLN_INSTALL_DIR=$1
   if ! test -d "$CLN_INSTALL_DIR"; then
-    echo Installation directory, $CLN_INSTALL_DIR, not found.
-    usage 1
+    echo "Installation directory, $CLN_INSTALL_DIR, not found. Skipping."
+    return
   fi
   CLN_INSTALL_DIR=`(cd $CLN_INSTALL_DIR; pwd -P)`
 
