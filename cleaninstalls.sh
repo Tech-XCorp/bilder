@@ -44,6 +44,7 @@ cleanInstallDir() {
     echo Installation directory, $CLN_INSTALL_DIR, not found.
     usage 1
   fi
+  CLN_INSTALL_DIR=`(cd $CLN_INSTALL_DIR; pwd -P)`
 
   echo
   echo "---------- Cleaning directory, $CLN_INSTALL_DIR ----------"
@@ -342,10 +343,12 @@ while getopts "dhik:lrR" arg; do
 done
 shift $(($OPTIND - 1))
 
+echo "---------- cleaninstalls.sh will clean $* ----------"
+
 if $REMOVE_OLD; then
-  echo "Keeping $KEEP installations."
+  $DEBUG &&  echo "Keeping $KEEP installations."
 else
-  echo "Keeping all installations."
+  $DEBUG && echo "Keeping all installations."
 fi
 
 # Get tac
