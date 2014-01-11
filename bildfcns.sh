@@ -4849,7 +4849,7 @@ bilderRunTests() {
 # Initial handling
   local pkgname=$1
   if test -n "$ignoreBuilds"; then
-    techo -2 "bilderRunTests will not test the $pkgname builds, $ignoreBuilds."
+    techo -2 "bilderRunTests will not test these $pkgname builds: $ignoreBuilds."
   else
     techo -2 "bilderRunTests will test all $pkgname builds."
   fi
