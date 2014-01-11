@@ -141,6 +141,12 @@ testTables() {
 
 installTables() {
 
+# Determine installation args
+  case `uname` in
+    CYGWIN*) instopts=-n;;
+    *) instopts="-r tables";;
+  esac
+
 # Install library if not present, make link if needed
   if bilderDuInstall $instopts tables "$TABLES_ARGS" "$TABLES_ENV"; then
 
@@ -156,19 +162,16 @@ installTables() {
         else
           hdf5shlib=hdf5dll.dll
         fi
-        instopts=-n
         ;;
       Darwin)
         hdf5shdir=$HDF5_CC4PY_DIR/lib
         hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
 echo "hdf5shlib=$hdf5shlib"
         hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
-        instopts="-r tables"
         ;;
       Linux)
         hdf5shdir=$HDF5_CC4PY_DIR/lib
         hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
-        instopts="-r tables"
         ;;
     esac
 
