@@ -4898,18 +4898,25 @@ bilderRunTests() {
   local tbFailures=
   local builddirtests=
   for bld in `echo $buildsval | tr ',' ' '`; do
+# Is there a problem that only some builds might be done at any run?
     cmd="waitAction $pkgname-$bld"
     techo -2 "$cmd"
     $cmd
     res=$?
-    if test $res != 0; then
+    if test "$res" != 0; then
       tbFailures="$tbFailures $bld"
       continue
     fi
 # Don't test if not testing or this build is ignored
-    if ! $TESTING; then
-# TODO: figure out how to submit ignored builds, like develdocs
-      if ! echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+    local untestedbuild=false
+    if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+      untestedbuild=true
+    fi
+    if $untestedbuild || ! $TESTING; then
+# Submitting even ignored builds
+# If want to call bilderRunTests more than once, will need
+# a variable that holds builds to be collected and submitted.
+      # if ! echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
         techo "Not testing $pkgname-$bld."
         if $submitres && test "$cmval" = cmake -a -n "$targval"; then
           techo "Submitting build results for $pkgname-$bld."
@@ -4924,9 +4931,10 @@ EOF
           chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
           ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
         fi
-      fi
+      # fi
       continue
-    elif $hasbuildtests; then
+    # elif $TESTING && $hasbuildtests; then
+    else
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
       local builddir=`deref $builddirvar`
