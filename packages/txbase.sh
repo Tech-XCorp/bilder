@@ -93,12 +93,12 @@ buildTxbase() {
   fi
 
 # Developer doxygen (develdocs) build
-  if bilderConfig -I $DEVELDOCS_DIR txbase develdocs "-DENABLE_DEVELDOCS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS" txbase; then
+  if bilderConfig -I $DEVELDOCS_DIR txbase develdocs "-DCTEST_BUILD_TARGET:STRING=apidocs-force -DENABLE_DEVELDOCS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS" txbase; then
     local DOX_MAKE_ARGS=
     if [[ `uname` =~ CYGWIN ]]; then
       DOX_MAKE_ARGS="-m nmake"
     fi
-    bilderBuild $DOX_MAKE_ARGS txbase develdocs "apidocs-force"
+    bilderBuild $DOX_MAKE_ARGS txbase develdocs "$TXBASE_MAKE_ARGS"
   fi
 
 }
