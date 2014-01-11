@@ -5781,6 +5781,7 @@ bilderInstallAll() {
 #
 # Named args (must come first):
 # -i ignore the tests of builds when calling install, comma-separated list
+# -m use the arg instead of make/nmake
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -p <perms>   Type of permissions to set (open or closed)
 # -r remove the old installation before installing anew
@@ -5797,17 +5798,19 @@ bilderInstallTestedPkg() {
 # Default option values
   local ignorebuilds=develdocs
   local tstsnm=
-  local perms=
   local installsubdir=
-  local testinstall=false
+  local makerargs=
+  local perms=
   local removePkg=false
   local removearg=
+  local testinstall=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "i:n:p:rs:t" arg; do
+  while getopts "i:m:n:p:rs:t" arg; do
     case $arg in
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
+      m) makerargs="-m $OPTARG";;
       n) tstsnm="$OPTARG";;
       p) perms="$OPTARG";;
       r) removePkg=true; removearg=-r;;
@@ -5855,7 +5858,7 @@ bilderInstallTestedPkg() {
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
       for bld in $bldsval; do
-        cmd="bilderInstall $removearg $permsarg $subdirarg $1 $bld"
+        cmd="bilderInstall $makerargs $removearg $permsarg $subdirarg $1 $bld"
         techo -2 "$cmd"
         $cmd
       done
