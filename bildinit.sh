@@ -11,13 +11,12 @@ START_DATE=`date '+%Y-%m-%d'`
 
 # Set trapping for killing of running builds
 unset PIDLIST
-# trap 'echo trap caught; cleanup; exit 0' 1 2 15
-# trap 'cleanup' 1 2 15
-# For signaling to quit after next installation.
+# On trap, exit with untrapped error code or else get infinite loop
+# trap 'echo trap caught; cleanup; exit 3' 1 2 15
 trap -p >/tmp/traps$$.txt
 traps=`sed 's/trap --//' </tmp/traps$$.txt | tr -d '\n'`
 echo "Traps are $traps."
-# rm /tmp/traps$$.txt
+rm /tmp/traps$$.txt
 TERMINATE_REQUESTED=false
 
 # Remove old indicators, provide new
