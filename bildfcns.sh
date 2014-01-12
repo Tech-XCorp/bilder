@@ -1010,7 +1010,7 @@ finish() {
   cat $SUMMARY | tee $LOGFILE
   cat $LOGFILE.sav >> $LOGFILE
   techo
-  techo "$BILDER_NAME completed at `date`." | tee -a $BILDER_LOGDIR/timers.txt
+  techo "$BILDER_NAME completed at `date +%F-%T`." | tee -a $BILDER_LOGDIR/timers.txt
 
 # email
   subject=${subject:-"$EMAIL_SUBJECT"}
@@ -1133,7 +1133,7 @@ getVersion() {
   local branch=
   local hash=
   if test "$repotype" == "SVN"; then
-    techo -2 "Getting version of $repodir  at `date`."
+    techo -2 "Getting version of $repodir  at `date +%F-%T`."
     rev=`bilderSvnversion $lastChangedArg`
 
 # svnversion -c is likely to return a complex version such as 1535:2091 and
@@ -1150,7 +1150,7 @@ getVersion() {
     fi
 
     if test $subdir != "."; then
-      techo "Getting version of subdir, $subdir, at `date`."
+      techo "Getting version of subdir, $subdir, at `date +%F-%T`."
       local svntmp=`bilderSvnversion $subdir`
       rev="${rev}+${svntmp}"
     fi
@@ -1158,7 +1158,7 @@ getVersion() {
     rev="r"${rev}
 
   elif test "$repotype" == "GIT"; then
-    techo "Getting the current git branch name of $1 at `date`."
+    techo "Getting the current git branch name of $1 at `date +%F-%T`."
 # NB: For git, we are using the number of repository revisions as the version
 #     number. Depending on where you get your repository and how you have
 #     applied patches, I believe that your repo could get a different number
@@ -1175,7 +1175,7 @@ getVersion() {
     # rev=${rev}-${branch}
     rev=${branch}.r${rev}
   elif test "$repotype" == "HG"; then
-    techo "Getting the current version of $1 at `date`."
+    techo "Getting the current version of $1 at `date +%F-%T`."
     if ! rev=`hg id -n`; then
       techo "Hg failed.  In path?  Returning."
       cd $origdir
@@ -4137,7 +4137,7 @@ bilderConfig() {
 
 # Ready to start configuring
     local configure_txt=$FQMAILHOST-$1-$2-config.txt
-    techo "Configuring $1-$2 in $PWD at `date`." | tee $configure_txt
+    techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
     local finalcmd
     case `uname` in
       CYGWIN*)
@@ -4202,12 +4202,12 @@ bilderConfig() {
     RESULT=$?
 # Save the configuration command
     if test $RESULT = 0; then
-      techo "Package $1-$verval-$2 configured at `date`." | tee -a $configure_txt
+      techo "Package $1-$verval-$2 configured at `date +%F-%T`." | tee -a $configure_txt
       echo SUCCESS >>$configure_txt
       configSuccesses="$configSuccesses $1-$2"
     else
       eval $dobuildvar=false
-      techo "Package $1-$verval-$2 failed to configure at `date`." | tee -a $configure_txt
+      techo "Package $1-$verval-$2 failed to configure at `date +%F-%T`." | tee -a $configure_txt
       echo FAILURE >>$configure_txt
       if $recordfailure || ! $IGNORE_TEST_RESULTS; then
         configFailures="$configFailures $1-$2"
@@ -4254,7 +4254,7 @@ addActionToLists() {
   trimvar PIDLIST ' '
   actionsRunning="$actionsRunning $1"
   trimvar actionsRunning ' '
-  techo "Build $1 with $pidvarname = $pid launched at `date`."
+  techo "Build $1 with $pidvarname = $pid launched at `date +%F-%T`."
 }
 
 #
@@ -4370,7 +4370,7 @@ bilderBuild() {
   echo 'exit $res' >>$buildscript
   chmod ug+x $buildscript
   local build_txt=$FQMAILHOST-$1-$2-build.txt
-  techo "Building $1-$2 in $PWD using $buildscript at `date`." | tee $build_txt
+  techo "Building $1-$2 in $PWD using $buildscript at `date +%F-%T`." | tee $build_txt
   techo "$buildscript" | tee -a $build_txt
   # cat $buildscript | tee -a $build_txt | tee -a $LOGFILE
   techo "$envprefix $bildermake $buildargs" | tee -a $build_txt
@@ -4544,7 +4544,7 @@ bilderTest() {
   echo 'exit $res' >>$testscript
   chmod ug+x $testscript
   local test_txt=$FQMAILHOST-$1-$2-test.txt
-  techo "testing $1-$2 in $PWD using $testscript at `date`." | tee $test_txt
+  techo "testing $1-$2 in $PWD using $testscript at `date +%F-%T`." | tee $test_txt
   techo "$testscript" | tee -a $test_txt
   # cat $testscript | tee -a $test_txt | tee -a $LOGFILE
   techo "$envprefix $bildermake $testargs" | tee -a $test_txt
@@ -4650,7 +4650,7 @@ waitAction() {
     wait $pid
     res=$?
     eval $resvarname=$res
-    techo "Build $1 with $pidvarname = $pid concluded at `date` with result = $res."
+    techo "Build $1 with $pidvarname = $pid concluded at `date +%F-%T` with result = $res."
 
 # Remove from PIDLIST and actionsRunning
     PIDLIST=`echo $PIDLIST | sed -e "s/^$pid //" -e "s/ $pid$//" -e "s/ $pid / /" -e "s/^$pid$//"`
@@ -4920,7 +4920,7 @@ bilderRunTests() {
       # if ! echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
         techo "Not testing $pkgname-$bld."
         if $submitres && test "$cmval" = cmake -a -n "$targval"; then
-          techo "Submitting build results for $pkgname-$bld."
+          techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
           cd $BUILD_DIR/$pkgname/$bld
           cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
 #!/bin/bash
@@ -4993,7 +4993,7 @@ EOF
 # Set the tests as installed
 # Submit results
       if $submitres && test "$cmval" = cmake -a -n "$targval"; then
-        techo "Submitting test results for $pkgname-$bld."
+        techo "Submitting $targval test results for $pkgname-$bld at `date +%F-%T`."
         cd $BUILD_DIR/$pkgname/$bld
 # TODO: add memcheck target for automated/nightly builds
         cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
@@ -5404,7 +5404,7 @@ bilderInstall() {
 #      techo "WARNING: Installation subdirbase may not contain -.  Will not install."
 #      return 1
 #    fi
-    techo "Installing $1-$verval-$2 into $instdirval/$instsubdirval at `date` from $builddir."
+    techo "Installing $1-$verval-$2 into $instdirval/$instsubdirval at `date +%F-%T` from $builddir."
     if echo $instsubdirval | grep -q /; then
       techo "WARNING: Installation subdir may not contain /.  Will not make links or shortcuts."
       doLinks=false
@@ -5499,13 +5499,13 @@ EOF
     chmod ug+x $installscript
 # Use the installation script
     install_txt=$FQMAILHOST-$1-$2-install.txt
-    techo "Installing $1-$2 in $PWD using $installscript at `date`." | tee $install_txt
+    techo "Installing $1-$2 in $PWD using $installscript at `date +%F-%T`." | tee $install_txt
     techo "$installscript" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
     RESULT=$?
 
 # If installed, record
-    techo "Installation of $1-$verval-$2 concluded at `date` with result = $RESULT."
+    techo "Installation of $1-$verval-$2 concluded at `date +%F-%T` with result = $RESULT."
     if test $RESULT = 0; then
       echo SUCCESS >>$install_txt
 
@@ -6037,7 +6037,7 @@ echo \$res > $bilderaction_resfile
 exit \$res
 EOF
     chmod ug+x $buildscript
-    techo "Building $1-cc4py in $PWD using $buildscript at `date`." | tee -a $build_txt
+    techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
     techo "$cmd"
     techo ./$buildscript | tee -a $build_txt
     ./$buildscript >>$build_txt 2>&1 &
@@ -6171,7 +6171,7 @@ exit \$res
 EOF
     chmod ug+x $installscript
 # Use the installation script
-    techo "Installing $1-cc4py in $PWD using $installscript at `date`." | tee -a $install_txt
+    techo "Installing $1-cc4py in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
     techo "$cmd"
     techo ./$installscript | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
@@ -6652,9 +6652,9 @@ EOF
 
 # Determine whether quitting
   if test -n "$2"; then
-    echo "$BILDER_NAME completed at `date` with result = '$2'." >>$SUMMARY
+    echo "$BILDER_NAME completed at `date +%F-%T` with result = '$2'." >>$SUMMARY
   else
-    echo "$BILDER_NAME completed at `date`." >>$SUMMARY
+    echo "$BILDER_NAME completed at `date +%F-%T`." >>$SUMMARY
   fi
   echo "" >>$SUMMARY
   echo "END OF SUMMARY" >>$SUMMARY
