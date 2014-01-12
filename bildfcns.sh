@@ -302,7 +302,7 @@ bilderSvn() {
   cmd="'$BILDER_SVN' $svncmd $svnargs $svntarget"
   $echocmd && techo -2 "$cmd" 1>&2
 # May need to capture output of this command
-  eval "$cmd"
+  eval "$cmd" 1>&2
   res=$?
   cd $origdir
   $echocmd && techo -2 "Back in $PWD." 1>&2
@@ -601,7 +601,7 @@ checkDirWritable() {
   done
   if test -z "$1"; then
     TERMINATE_ERROR_MSG="Catastrophic error in checkDirWritable.  Directory not specified."
-    cleanup
+    cleanupandexit
   fi
   local dir=$1
 
@@ -1047,10 +1047,10 @@ finish() {
       exitcode=0
     fi
     techo "$msg"
-    techo "finish is exiting."
-    cmd="exit $exitcode"
-    techo "$cmd"
     echo $exitcode >$BUILD_DIR/bilder.res
+    techo "finish is returning."
+    cmd="return $exitcode"
+    techo "$cmd"
     $cmd
   else
 # Rotate log and summary and restore original logfile if continuing
@@ -2897,7 +2897,7 @@ getPkg() {
 # Ensure have some repos
   if test $NUM_PACKAGE_REPOS = 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No package repos defined.  PACKAGE_REPOS_FILE needs to be defined."
-    cleanup
+    cleanupandexit
   fi
 
 # Search for the package in all repos with all suffixes
@@ -2907,8 +2907,8 @@ getPkg() {
     local pkgdir=${PACKAGE_REPO_DIRS[$i]}
     local sfx
 
-# Look for the tarball to be already present
-    tarballbase=`(cd $pkgdir; ls ${1}.* 2>/dev/null)`
+# Look for the tarball to be already present.
+    tarballbase=`(cd $pkgdir; ls ${1}.tar* ${1}.tgz 2>/dev/null)`
 
 # Determine the method if direct
     local DIRECT_GET=
@@ -2937,7 +2937,16 @@ getPkg() {
     if test -z "$tarballbase" -a $SVNUP_PKGS; then
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
-          tarballbase=`bilderSvn up 1>/dev/null; bilderSvn ls | grep "^${1}\."`
+          bilderSvn up 1>/dev/null
+          local numtarballs=`bilderSvn ls | grep "^${1}\.tar" | wc -l`
+          techo -2 "numtarballs = $numtarballs." 1>&2
+          if test $numtarballs -gt 1; then
+            TERMINATE_MESSAGE="Catastrophic failure: [getPkg] more than one matching tarball in repo."
+            techo "$TERMINATE_MESSAGE" 1>&2
+            exit 1
+            cleanupandexit
+          fi
+          tarballbase=`bilderSvn up 1>/dev/null; bilderSvn ls | grep "^${1}\.tar"`
           ;;
         direct)
           for sfx in $sfxs; do
@@ -2983,7 +2992,7 @@ getPkg() {
 # Not found
   if test -z "$tarball"; then
     TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No ${1} tarball of any compression appeared.  Network okay?"
-    cleanup
+    cleanupandexit
   fi
 
 # Found
@@ -3280,14 +3289,14 @@ bilderUnpack() {
         $cmd
         if test ! -f $tarball; then
           TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack.  Tarball $tarball did not show up."
-          cleanup
+          cleanupandexit
         fi
         cmd="$pretar $tarball | $TAR -xf -"
         techo "$cmd"
         $pretar $tarball | $TAR -xf -
         if test $? != 0 -o ${PIPESTATUS[0]} != 0; then
           TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  Unpacking failed."
-          cleanup
+          cleanupandexit
         fi
         cmd="mv $1-$verval $i"
         techo -2 "$cmd"
@@ -3297,7 +3306,7 @@ bilderUnpack() {
           techo -2 "$cmd"
           if ! $cmd; then
             TERMINATE_ERROR_MSG="Catastrophic failure with mv in bilderUnpack."
-            cleanup
+            cleanupandexit
           fi
         fi
         if test -n "$patchval"; then
@@ -3328,14 +3337,14 @@ bilderUnpack() {
       techo "Unpacking for all builds in $PWD."
       if test ! -f "$tarball"; then
         TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack. Tarball, $tarball, did not show up."
-        cleanup
+        cleanupandexit
       fi
       cmd="$pretar $tarball | $TAR -xf -"
       techo "$cmd"
       eval "$cmd"
       if test $? != 0; then
         techo "Catastrophic error in bilderUnpack.  Unpacking failed."
-        cleanup
+        cleanupandexit
       fi
       if test -n "$patchval"; then
         techo "Patching $1."
@@ -3963,7 +3972,7 @@ bilderConfig() {
 # Validate presence of config command
     if ! which "$configexec" 1>/dev/null 2>&1; then
       TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
-      cleanup
+      cleanupandexit
     else
       configexec=`which "$configexec"`
     fi
@@ -4333,7 +4342,7 @@ bilderBuild() {
   res=$?
   if test $res != 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in building $1-$2.  Cannot change directory to $builddir."
-    cleanup
+    cleanupandexit
   fi
 # This needs to match what waitAction uses
   local bilderaction_resfile=bilderbuild-$1-$2.res
@@ -4516,7 +4525,7 @@ bilderTest() {
   res=$?
   if test $res != 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in testing $1-$2.  Cannot change directory to $testdir."
-    cleanup
+    cleanupandexit
   fi
   # This needs to match what waitLocalTests uses
   local bildertest_resfile=bildertest-$1-$2.res
@@ -4690,7 +4699,7 @@ waitAction() {
       newres=`cat $builddir/$bilderaction_resfile`
       if test -z "$newres"; then
         TERMINATE_ERROR_MSG="Catastrophic failure in waitAction.  No result in $builddir/$bilderaction_resfile."
-        cleanup
+        cleanupandexit
       fi
 # Check for inconsistency of wait return value and build result and correct
       if test $res = $newres; then
@@ -5368,7 +5377,7 @@ bilderInstall() {
 # Validation
     if test -z "$builddir" || ! cd $builddir; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  builddir unknown or cannot cd to $builddir."
-      cleanup
+      cleanupandexit
     fi
 
 # Determine where it will be installed
@@ -5377,7 +5386,7 @@ bilderInstall() {
     local instdirval=`deref $instdirvar`
     if test -z "$instdirval"; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $instdirvar is empty."
-      cleanup
+      cleanupandexit
     fi
     instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
     instsubdirval=`deref $instsubdirvar`
@@ -5491,7 +5500,7 @@ bilderInstall() {
     local umaskval=`deref $umaskvar`
     if test -z "$umaskval"; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $umaskvar not set."
-      cleanup
+      cleanupandexit
     fi
     local origumask=`umask`
     umask $umaskval
@@ -6026,7 +6035,7 @@ fi
     cd $BUILD_DIR/$1-${verval}
     if test $? != 0; then
       TERMINATE_ERROR_MSG="Catastrophic failure in bilderDuBuild.  Unable to cd to $BUILD_DIR/$1-${verval}."
-      cleanup
+      cleanupandexit
     fi
     local bilderaction_resfile=bilderbuild-$1-cc4py.res
     rm -f $bilderaction_resfile
@@ -6719,10 +6728,20 @@ emailSummary() {
 }
 
 #
+# Cleanup and exit
+#
+cleanupandexit() {
+  # cleanup
+  # techo "cleanupandexit is exiting."
+  techo "$TERMINATE_ERROR_MSG" 1>&2
+  exit 1
+}
+
+#
 # Cleanup builds
 #
 cleanup() {
-  techo "cleanup called for $BILDER_NAME.  Killing all pending builds."
+  techo "cleanup called for $BILDER_NAME.  Killing all pending builds." 1>&2
   TERMINATE_REQUESTED=true
   pidsKilled="$PIDLIST"
   trimvar pidsKilled ' '
@@ -6732,7 +6751,7 @@ cleanup() {
       kill $PID 2>/dev/null
     done
   fi
-  finish "-" 1
+  finish "-" 3
 }
 
 #
@@ -6978,7 +6997,7 @@ buildChain() {
       if ! $cmd2 1>&2; then
         techo "$cmd2" 1>&2
         TERMINATE_ERROR_MSG="Catastrophic error in buildChain: error in sourcing $pkgfile."
-        cleanup
+        cleanupandexit
       else
 # Determine the full list of builds
          local bldsvar=`genbashvar ${pkg}`_BUILDS
@@ -7000,7 +7019,7 @@ buildChain() {
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="Catastrophic error in buildChain: install method for $pkg not found."
-      cleanup
+      cleanupandexit
     fi
     techo "--------> Executing $cmd <--------"
     $cmd
