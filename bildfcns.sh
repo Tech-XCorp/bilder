@@ -4917,22 +4917,27 @@ bilderRunTests() {
 # Submitting even ignored builds
 # If want to call bilderRunTests more than once, will need
 # a variable that holds builds to be collected and submitted.
-      # if ! echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo "Not testing $pkgname-$bld."
-        if $submitres && test "$cmval" = cmake -a -n "$targval"; then
-          techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
-          cd $BUILD_DIR/$pkgname/$bld
-          cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+      techo "Not testing $pkgname-$bld."
+      if $submitres && test "$cmval" = cmake -a -n "$targval"; then
+        cd $BUILD_DIR/$pkgname/$bld
+        cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
 #!/bin/bash
 
 cmd="$maker -i ${targval}Submit"
 echo \$cmd
 \$cmd
+res=\$?
+echo \$res > bildersubmit-$1-$bld.res
+exit \$res
 EOF
-          chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
-          ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
+        chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
+        techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
+        if ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1; then
+          techo "Submission succeeded."
+        else
+          techo "Submission failed."
         fi
-      # fi
+      fi
       continue
     # elif $TESTING && $hasbuildtests; then
     else
@@ -4993,7 +4998,6 @@ EOF
 # Set the tests as installed
 # Submit results
       if $submitres && test "$cmval" = cmake -a -n "$targval"; then
-        techo "Submitting $targval test results for $pkgname-$bld at `date +%F-%T`."
         cd $BUILD_DIR/$pkgname/$bld
 # TODO: add memcheck target for automated/nightly builds
         cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
@@ -5002,9 +5006,17 @@ EOF
 cmd="$maker -i ${targval}Coverage ${targval}Submit"
 echo \$cmd
 \$cmd
+res=\$?
+echo \$res > bildersubmit-$1-$bld.res
+exit \$res
 EOF
         chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
-        ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
+        techo "Submitting $targval test results for $pkgname-$bld at `date +%F-%T`."
+        if ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1; then
+          techo "Submission succeeded."
+        else
+          techo "Submission failed."
+        fi
       fi
     done
   fi
