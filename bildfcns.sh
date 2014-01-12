@@ -2938,14 +2938,22 @@ getPkg() {
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
           bilderSvn up 1>/dev/null
-          local numtarballs=`bilderSvn ls | grep "^${1}\\.t*" 2>&1 | wc -l`
-          techo -2 "numtarballs = $numtarballs." 1>&2
-          if test $numtarballs -gt 1; then
-            TERMINATE_MESSAGE="Catastrophic failure: [getPkg] more than one matching tarball in repo."
+          bilderSvn ls | grep "^${1}"'\.t*' 1>/tmp/tarballs$$.tmp 2>/dev/null
+          local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+          # techo -2 "numtarballs = $numtarballs." 1>&2
+          techo "numtarballs = $numtarballs." 1>&2
+          if test "$numtarballs" = 0; then
+            TERMINATE_MESSAGE="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
             techo "$TERMINATE_MESSAGE" 1>&2
+            rm /tmp/tarballs$$.tmp
             exitOnError
           fi
-          tarballbase=`bilderSvn ls | grep "^${1}\\.t*"`
+          if test "$numtarballs" -gt 1; then
+            techo "WARNING: More than 1 tarball matches.  Taking last." 1>&2
+            cat /tmp/tarballs$$.tmp 1>&2
+          fi
+          tarballbase=`tail -1 /tmp/tarballs$$.tmp`
+          rm /tmp/tarballs$$.tmp
           ;;
         direct)
           for sfx in $sfxs; do
