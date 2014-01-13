@@ -12,12 +12,13 @@ START_DATE=`date '+%Y-%m-%d'`
 # Set trapping for killing of running builds
 unset PIDLIST
 # On trap, exit with untrapped error code or else get infinite loop
-# trap 'echo trap caught; cleanup; exit 3' 1 2 15
+trap 'echo trap caught; cleanup; exit 3' 1 2 15
 trap -p >/tmp/traps$$.txt
 traps=`sed 's/trap --//' </tmp/traps$$.txt | tr -d '\n'`
 echo "Traps are $traps."
 rm /tmp/traps$$.txt
-TERMINATE_REQUESTED=false
+export TERMINATE_REQUESTED=false
+export TERMINATE_ERROR_MSG=
 
 # Remove old indicators, provide new
 rm -f $BILDER_LOGDIR/$BILDER_NAME.end

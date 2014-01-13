@@ -1061,6 +1061,22 @@ finish() {
 }
 
 #
+# Cleanup builds
+#
+cleanup() {
+  techo "cleanup called for $BILDER_NAME.  Killing all pending builds." 1>&2
+  pidsKilled="$PIDLIST"
+  trimvar pidsKilled ' '
+  if test -n "$PIDLIST"; then
+    for PID in $PIDLIST; do
+      techo "kill $PID"
+      kill $PID 2>/dev/null
+    done
+  fi
+  finish "-" 3
+}
+
+#
 # Find the type of repository of the current directory
 #
 # Args: none
@@ -2890,14 +2906,15 @@ bilderCurlGet() {
 # Args:
 # 1: package base name
 #
-# return by echo the name of the package
+# Put tarball name into GETPKG_RETURN
 #
 getPkg() {
 
 # Ensure have some repos
   if test $NUM_PACKAGE_REPOS = 0; then
-    TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No package repos defined.  PACKAGE_REPOS_FILE needs to be defined."
-    exitOnError
+    TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  NUM_PACKAGE_REPOS = 0.  Must define package repos."
+    requestTermination
+    return
   fi
 
 # Search for the package in all repos with all suffixes
@@ -2908,7 +2925,16 @@ getPkg() {
     local sfx
 
 # Look for the tarball to be already present.
-    tarballbase=`(cd $pkgdir; ls ${1}.tar* ${1}.tgz 2>/dev/null)`
+    cd $pkgdir
+    ls -1 ${1}.tar* ${1}.tgz 1>/tmp/tarballs$$.tmp 2>/dev/null
+    local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+    techo "$numtarballs tarballs already present." 1>&2
+    if test "$numtarballs" -gt 1; then
+      techo "WARNING: More than 1 present tarball matches.  Taking last." 1>&2
+      cat /tmp/tarballs$$.tmp 1>&2
+    fi
+    tarballbase=`tail -1 /tmp/tarballs$$.tmp`
+    rm /tmp/tarballs$$.tmp
 
 # Determine the method if direct
     local DIRECT_GET=
@@ -2939,12 +2965,12 @@ getPkg() {
         svn)
           bilderSvn up 1>/dev/null
           bilderSvn ls | grep "^${1}"'\.t*' 1>/tmp/tarballs$$.tmp 2>/dev/null
-          local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+          numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
           # techo -2 "numtarballs = $numtarballs." 1>&2
           techo "numtarballs = $numtarballs." 1>&2
           if test "$numtarballs" = 0; then
-            TERMINATE_MESSAGE="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
-            techo "$TERMINATE_MESSAGE" 1>&2
+            TERMINATE_ERROR_MSG="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
+            techo "$TERMINATE_ERROR_MSG" 1>&2
             rm /tmp/tarballs$$.tmp
             exitOnError
           fi
@@ -3004,7 +3030,8 @@ getPkg() {
 
 # Found
   techo "Found $tarball." 1>&2
-  echo "$tarball"
+  # echo "$tarball"
+  GETPKG_RETURN="$tarball"
 
 }
 
@@ -3247,7 +3274,13 @@ bilderUnpack() {
     techo -2 "inplace = $inplace"
     techo "Unpacking $1."
     techo "$vervar = $verval."
-    local tarball=`getPkg $1-$verval`
+    getPkg $1-$verval
+    local tarball="$GETPKG_RETURN"
+    if test -z "$tarball" || $TERMINATE_REQUESTED; then
+      TERMINATE_ERROR_MSG=${TERMINATE_ERROR_MSG:-"bilderUnpack: tarball did not show up."}
+      cleanup
+      exitOnError
+    fi
     techo -2 "tarball = $tarball."
     if $JUST_GET_PACKAGES; then
       return 1
@@ -6735,30 +6768,20 @@ emailSummary() {
 }
 
 #
-# Cleanup and exit
+# Request termination at next opportunity
 #
-exitOnError() {
-  # cleanup
-  # techo "exitOnError is exiting."
+requestTermination() {
+  techo "Termination requested." 1>&2
   techo "$TERMINATE_ERROR_MSG" 1>&2
-  exit 1
+  TERMINATE_REQUESTED=true
 }
 
 #
-# Cleanup builds
+# Cleanup and exit
 #
-cleanup() {
-  techo "cleanup called for $BILDER_NAME.  Killing all pending builds." 1>&2
-  TERMINATE_REQUESTED=true
-  pidsKilled="$PIDLIST"
-  trimvar pidsKilled ' '
-  if test -n "$PIDLIST"; then
-    for PID in $PIDLIST; do
-      techo "kill $PID"
-      kill $PID 2>/dev/null
-    done
-  fi
-  finish "-" 3
+exitOnError() {
+  techo "$TERMINATE_ERROR_MSG" 1>&2
+  exit 1
 }
 
 #
