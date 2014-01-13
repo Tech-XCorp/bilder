@@ -5067,6 +5067,10 @@ bilderRunTests() {
   local maker=`getMaker $cmval`
   local targvar=`genbashvar $pkgname`_CTEST_TARGET
   local targval=`deref $targvar`
+# For selecting specific packages to test
+  local testingvar=`genbashvar $pkgname`_TESTING
+  local testingval=`deref $testingvar`
+  testingval=${testingval:-${TESTING}}
 
 # Wait on all builds, see if any tested build failed.
 # For those not failed, launch tests in build dir if asked.
@@ -5087,7 +5091,7 @@ bilderRunTests() {
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
       untestedbuild=true
     fi
-    if $untestedbuild || ! $TESTING; then
+    if $untestedbuild || ! $testingval; then
 # Don't test if not testing or this build is ignored
 # Submitting even ignored builds
 # If want to call bilderRunTests more than once, will need
@@ -5095,7 +5099,8 @@ bilderRunTests() {
       techo "Not testing $pkgname-$bld."
       if $submitres && test "$cmval" = cmake -a -n "$targval"; then
         cd $BUILD_DIR/$pkgname/$bld
-        cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+        local sub_fname=$FQMAILHOST-$pkgname-$bld-submit
+        cat >${sub_fname}.sh <<EOF
 #!/bin/bash
 
 cmd="$maker -i ${targval}Submit"
@@ -5105,13 +5110,13 @@ res=\$?
 echo \$res > bildersubmit-$1-$bld.res
 exit \$res
 EOF
-        chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
+        chmod a+x ${sub_fname}.sh
         techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
-        if ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1; then
-          techo "Submission succeeded."
-        else
-          techo "Submission failed."
-        fi
+        ./${sub_fname}.sh &> ${sub_fname}.txt &
+        sub_pid=$!
+        # Background the submission, we don't need to keep track of it at this
+        # point, since the build directory won't change
+        addActionToLists $pkgname-$bld-submit $sub_pid
       fi
       continue
     # elif $TESTING && $hasbuildtests; then
@@ -5175,7 +5180,8 @@ EOF
       if $submitres && test "$cmval" = cmake -a -n "$targval"; then
         cd $BUILD_DIR/$pkgname/$bld
 # TODO: add memcheck target for automated/nightly builds
-        cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+        local sub_fname=$FQMAILHOST-$pkgname-$bld-submit
+        cat >${sub_fname}.sh <<EOF
 #!/bin/bash
 
 cmd="$maker -i ${targval}Coverage ${targval}Submit"
@@ -5185,13 +5191,13 @@ res=\$?
 echo \$res > bildersubmit-$1-$bld.res
 exit \$res
 EOF
-        chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
-        techo "Submitting $targval test results for $pkgname-$bld at `date +%F-%T`."
-        if ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1; then
-          techo "Submission succeeded."
-        else
-          techo "Submission failed."
-        fi
+        chmod a+x ${sub_fname}.sh
+        techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
+        ./${sub_fname}.sh &> ${sub_fname}.txt &
+        sub_pid=$!
+        # Background the submission, we don't need to keep track of it at this
+        # point, since the build directory won't change
+        addActionToLists $pkgname-$bld-submit $sub_pid
       fi
     done
   fi
@@ -5213,7 +5219,7 @@ EOF
     techo "Not running $pkgname tests. One or more tested builds '$tbFailures' not built."
     return
   fi
-  if test ! $TESTING; then
+  if test ! $testingval; then
     techo "Not testing so not running $pkgname tests."
     return
   fi
