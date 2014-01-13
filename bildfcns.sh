@@ -2913,8 +2913,7 @@ getPkg() {
 # Ensure have some repos
   if test $NUM_PACKAGE_REPOS = 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  NUM_PACKAGE_REPOS = 0.  Must define package repos."
-    requestTermination
-    return
+    terminate
   fi
 
 # Search for the package in all repos with all suffixes
@@ -2970,9 +2969,8 @@ getPkg() {
           techo "numtarballs = $numtarballs." 1>&2
           if test "$numtarballs" = 0; then
             TERMINATE_ERROR_MSG="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
-            techo "$TERMINATE_ERROR_MSG" 1>&2
             rm /tmp/tarballs$$.tmp
-            exitOnError
+            terminate
           fi
           if test "$numtarballs" -gt 1; then
             techo "WARNING: More than 1 tarball matches.  Taking last." 1>&2
@@ -3025,7 +3023,7 @@ getPkg() {
 # Not found
   if test -z "$tarball"; then
     TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No ${1} tarball of any compression appeared.  Network okay?"
-    exitOnError
+    terminate
   fi
 
 # Found
@@ -3329,24 +3327,23 @@ bilderUnpack() {
         $cmd
         if test ! -f $tarball; then
           TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack.  Tarball $tarball did not show up."
-          exitOnError
+          terminate
         fi
         cmd="$pretar $tarball | $TAR -xf -"
         techo "$cmd"
         $pretar $tarball | $TAR -xf -
         if test $? != 0 -o ${PIPESTATUS[0]} != 0; then
           TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  Unpacking failed."
-          exitOnError
+          terminate
         fi
         cmd="mv $1-$verval $i"
         techo -2 "$cmd"
         if ! $cmd; then
-          techo "Catastrophic failure with mv in bilderUnpack."
           sleep 1
           techo -2 "$cmd"
           if ! $cmd; then
             TERMINATE_ERROR_MSG="Catastrophic failure with mv in bilderUnpack."
-            exitOnError
+            terminate
           fi
         fi
         if test -n "$patchval"; then
@@ -3377,14 +3374,14 @@ bilderUnpack() {
       techo "Unpacking for all builds in $PWD."
       if test ! -f "$tarball"; then
         TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack. Tarball, $tarball, did not show up."
-        exitOnError
+        terminate
       fi
       cmd="$pretar $tarball | $TAR -xf -"
       techo "$cmd"
       eval "$cmd"
       if test $? != 0; then
         techo "Catastrophic error in bilderUnpack.  Unpacking failed."
-        exitOnError
+        terminate
       fi
       if test -n "$patchval"; then
         techo "Patching $1."
@@ -4012,7 +4009,7 @@ bilderConfig() {
 # Validate presence of config command
     if ! which "$configexec" 1>/dev/null 2>&1; then
       TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
-      exitOnError
+      terminate
     else
       configexec=`which "$configexec"`
     fi
@@ -4382,7 +4379,7 @@ bilderBuild() {
   res=$?
   if test $res != 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in building $1-$2.  Cannot change directory to $builddir."
-    exitOnError
+    terminate
   fi
 # This needs to match what waitAction uses
   local bilderaction_resfile=bilderbuild-$1-$2.res
@@ -4565,7 +4562,7 @@ bilderTest() {
   res=$?
   if test $res != 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in testing $1-$2.  Cannot change directory to $testdir."
-    exitOnError
+    terminate
   fi
   # This needs to match what waitLocalTests uses
   local bildertest_resfile=bildertest-$1-$2.res
@@ -4739,7 +4736,7 @@ waitAction() {
       newres=`cat $builddir/$bilderaction_resfile`
       if test -z "$newres"; then
         TERMINATE_ERROR_MSG="Catastrophic failure in waitAction.  No result in $builddir/$bilderaction_resfile."
-        exitOnError
+        terminate
       fi
 # Check for inconsistency of wait return value and build result and correct
       if test $res = $newres; then
@@ -5417,7 +5414,7 @@ bilderInstall() {
 # Validation
     if test -z "$builddir" || ! cd $builddir; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  builddir unknown or cannot cd to $builddir."
-      exitOnError
+      terminate
     fi
 
 # Determine where it will be installed
@@ -5426,7 +5423,7 @@ bilderInstall() {
     local instdirval=`deref $instdirvar`
     if test -z "$instdirval"; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $instdirvar is empty."
-      exitOnError
+      terminate
     fi
     instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
     instsubdirval=`deref $instsubdirvar`
@@ -5540,7 +5537,7 @@ bilderInstall() {
     local umaskval=`deref $umaskvar`
     if test -z "$umaskval"; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $umaskvar not set."
-      exitOnError
+      terminate
     fi
     local origumask=`umask`
     umask $umaskval
@@ -6075,7 +6072,7 @@ fi
     cd $BUILD_DIR/$1-${verval}
     if test $? != 0; then
       TERMINATE_ERROR_MSG="Catastrophic failure in bilderDuBuild.  Unable to cd to $BUILD_DIR/$1-${verval}."
-      exitOnError
+      terminate
     fi
     local bilderaction_resfile=bilderbuild-$1-cc4py.res
     rm -f $bilderaction_resfile
@@ -6777,11 +6774,20 @@ requestTermination() {
 }
 
 #
-# Cleanup and exit
+# Exit
 #
 exitOnError() {
   techo "$TERMINATE_ERROR_MSG" 1>&2
   exit 1
+}
+
+#
+# Terminate (gracefully)
+#
+terminate() {
+  requestTermination
+  cleanup
+  exitOnError
 }
 
 #
