@@ -915,6 +915,7 @@ USING_BUILD_CHAIN=false
 
 techo -2 "Trimming and writing out all variables."
 hostvars="USER BLDRHOSTID FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
+instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CMAKE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
@@ -932,7 +933,7 @@ othervars="USE_ATLAS_CC4PY DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD
 
 techo ""
 techo "Environment settings:"
-completevars="RUNNRSYSTEM $hostvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
+completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
   trimvar $i ' '
   printvar $i

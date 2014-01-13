@@ -48,7 +48,22 @@ isLaterByDays() {
 # -i Any builds to ignore
 #
 isBuildTime() {
+
+# Defaults
   local ignorebuilds=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "i:" arg; do
+    case "$arg" in
+      s) ignorebuilds="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -i)
@@ -61,6 +76,8 @@ isBuildTime() {
     esac
     shift
   done
+fi
+
   techo -2 "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
   if test -z "$2"; then
     return 1
@@ -238,15 +255,32 @@ bilderSvn() {
   local redirecttoerr=false
   local echocmd=true
 
+# Parse options
+# This syntax is needed to keep parameters quoted
+if false; then
+  set -- "$@"
+  OPTIND=1
+  while getopts "qr2" arg; do
+    case "$arg" in
+      q) echocmd=false;;
+      r) redirecttoerr=true;;
+      2) usesecondauth=true;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+else
+
   while test -n "$1"; do
     case "$1" in
-      -2) usesecondauth=true;;
       -q) echocmd=false;;
       -r) redirecttoerr=true;;
+      -2) usesecondauth=true;;
       *)  break;;
     esac
     shift
   done
+fi
 
   local svncmd=$1
   shift
@@ -349,13 +383,13 @@ bilderSvnversion() {
   while test -n "$1"; do
 # Single quotes not working on cygwin, so removing
     if test $# -eq 1; then
-      techo -2 "Working on last arg, $1." 1>&2
+      techo -2 "bilderSvnversion: Working on last arg, $1." 1>&2
 # If using the windows client, convert path if not an option
       if [[ "$1" =~ ^- ]]; then
         techo -2 "Last arg, $1, is an option.  Adding to list." 1>&2
         args="$args $1"
       elif [[ "$svnver" =~ "Program Files" ]]; then
-        techo "Using windows: '$svnver'.  Will convert last arg, $1, using cygpath." 1>&2
+        techo "bilderSvnversion: windows: '$svnver'.  Will convert last arg, $1, using cygpath." 1>&2
         if node=`cygpath -aw "$1"`; then
           args="$args $node"
         else
@@ -588,6 +622,19 @@ setClosedPerms() {
 #
 checkDirWritable() {
   local exitonfailure=true
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "c" arg; do
+    case "$arg" in
+      c) exitonfailure=false;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -c)
@@ -599,6 +646,8 @@ checkDirWritable() {
     esac
     shift
   done
+fi
+
   if test -z "$1"; then
     TERMINATE_ERROR_MSG="Catastrophic error in checkDirWritable.  Directory not specified."
     exitOnError
@@ -991,6 +1040,20 @@ finish() {
   techo -2 "finish called with '$*'."
   local doQuit=true
   local subject=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "cs:" arg; do
+    case "$arg" in
+      c) doQuit=false;;
+      s) subject="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -c) doQuit=false;;
@@ -999,6 +1062,7 @@ finish() {
     esac
     shift
   done
+fi
 
 # Summarize (which constructs the email subject)
   techo -2 "Calling summarize."
@@ -1108,6 +1172,19 @@ getVersion() {
 
 # Get options
   local lastChangedArg=-c
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "l" arg; do
+    case "$arg" in
+      l) lastChangedArg= ;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -l)
@@ -1119,6 +1196,7 @@ getVersion() {
     esac
     shift
   done
+fi
 
 # Get subdir
   local origdir=`pwd -P`
@@ -1237,6 +1315,20 @@ isPatched() {
   local instdir="$BLDR_INSTALL_DIR"
   local checkempty=false
   local instsubdir=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "i:s:" arg; do
+    case "$arg" in
+      i) instdir="$OPTARG";;
+      s) instsubdir="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -i)
@@ -1253,6 +1345,8 @@ isPatched() {
     esac
     shift
   done
+fi
+
   local installation=$1
 
 # Determine subdir (actually link) from installation
@@ -1455,6 +1549,19 @@ instConfigScript() {
 areAllInstalled() {
 # Determine installation directory
   local instdir=$BLDR_INSTALL_DIR
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "i:" arg; do
+    case "$arg" in
+      i) instdir="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -i)
@@ -1467,6 +1574,8 @@ areAllInstalled() {
         ;;
     esac
   done
+fi
+
 # If no builds, just check short name
   if test -z "$2"; then
     if isInstalled -i $instdir $1; then
@@ -1852,7 +1961,22 @@ isCcCc4py() {
 # return whether added cc4py to the build
 #
 addCc4pyBuild() {
+
+# Defaults
   local forceadd=false
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "f" arg; do
+    case "$arg" in
+      f) forceadd=true;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -f)
@@ -1864,6 +1988,8 @@ addCc4pyBuild() {
         ;;
     esac
   done
+fi
+
 # Find builds
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
@@ -3723,24 +3849,22 @@ bilderConfig() {
   while getopts "b:B:cd:fgiI:ylm:snp:q:rt" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
-      B) buildsubdir="$OPTARG"
-         build_inplace=true
-         ;;
+      B) buildsubdir="$OPTARG"; build_inplace=true;;
       c) usecmake=true; cmval=cmake;;
       d) DEPS=$OPTARG;;
       f) forceconfig=true;;
       g) webdocs=true;;
       i) inplace=true;;
-      y) noprefix=true; inplace=true;;
       I) instdirs="$OPTARG";;
       l) rminstall=true;;
       m) configcmdin="$OPTARG";;
-      s) stripbuilddir=true;;
       n) noequals=true;;
       p) instsubdirval="$OPTARG";;
       q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;
       r) riverbank=true;;
+      s) stripbuilddir=true;;
       t) recordfailure=false;;
+      y) noprefix=true; inplace=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -3793,7 +3917,12 @@ bilderConfig() {
 # Set from default
   if test -z "$instdirval"; then
     techo -2 "instdirval = $instdirvar is empty in bilderConfig"
-    instdirval=$BLDR_INSTALL_DIR
+    # instdirval=$BLDR_INSTALL_DIR
+    case ${2} in
+      develdocs) instdirval=$DEVELDOCS_DIR;;
+      full | lite | url) instdirval=$USERDOCS_DIR;;
+      *) instdirval=$BLDR_INSTALL_DIR;;
+    esac
   fi
   eval $instdirvar=$instdirval
   techo "$instdirvar = $instdirval."
@@ -6742,14 +6871,28 @@ emailerror() {
 #
 emailSummary() {
 
-# Parse options
+# Defaults
   local subject=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "s:" arg; do
+    case "$arg" in
+      s) subject="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -s) subject="$2"; shift;;
     esac
     shift
   done
+fi
 
 # Always construct subject for email as it uses as a marker for finish of build
   subject=${subject:-"$EMAIL_SUBJECT"}
