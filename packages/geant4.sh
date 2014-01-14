@@ -76,7 +76,9 @@ testGeant4() {
 installGeant4() {
   bilderInstall -r geant4 ser geant4
     local GEANT4_HOME="$BLDR_INSTALL_DIR/geant4"
-  . $GEANT4_HOME/bin/geant4.sh
-  . $GEANT4_HOME/share/Geant4-9.6.2/geant4make/geant4make.sh
+# The following lines introduce new env vars such as
+# G4INSTALL, G4INCLUDE etc.  Not sure if we use them as they are no cmake.
+#  . $GEANT4_HOME/bin/geant4.sh
+#  . $GEANT4_HOME/share/Geant4-9.6.2/geant4make/geant4make.sh
 }
 
