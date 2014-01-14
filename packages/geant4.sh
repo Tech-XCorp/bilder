@@ -75,5 +75,8 @@ testGeant4() {
 
 installGeant4() {
   bilderInstall -r geant4 ser geant4
+    local GEANT4_HOME="$BLDR_INSTALL_DIR/geant4"
+  . $GEANT4_HOME/bin/geant4.sh
+  . $GEANT4_HOME/share/Geant4-9.6.2/geant4make/geant4make.sh
 }
 
