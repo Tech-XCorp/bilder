@@ -3059,7 +3059,7 @@ getPkg() {
       cat /tmp/tarballs$$.tmp 1>&2
     fi
     tarballbase=`tail -1 /tmp/tarballs$$.tmp`
-    rm /tmp/tarballs$$.tmp
+    # rm /tmp/tarballs$$.tmp
 
 # Determine the method if direct
     local DIRECT_GET=
@@ -3093,12 +3093,12 @@ getPkg() {
           numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
           # techo -2 "numtarballs = $numtarballs." 1>&2
           techo "numtarballs = $numtarballs." 1>&2
-          if test "$numtarballs" = 0; then
+          if test -z "$numtarballs" || test $numtarballs = 0; then
             TERMINATE_ERROR_MSG="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
-            rm /tmp/tarballs$$.tmp
+            # rm /tmp/tarballs$$.tmp
             terminate
           fi
-          if test "$numtarballs" -gt 1; then
+          if test $numtarballs -gt 1; then
             techo "WARNING: More than 1 tarball matches.  Taking last." 1>&2
             cat /tmp/tarballs$$.tmp 1>&2
           fi
