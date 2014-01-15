@@ -119,7 +119,7 @@ buildNumpy() {
       ;;
     Linux-*)
 	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_CC4PY_DIR}/lib"
-      NUMPY_ARGS="--fcompiler=gfortran"
+      NUMPY_ARGS="--fcompiler=${PYC_FC}"
       NUMPY_ENV="$DISTUTILS_ENV2"
       ;;
     *)
