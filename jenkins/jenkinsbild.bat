@@ -44,7 +44,7 @@ set JENKINS_WSPATH=%JENKINS_WSPATH:/=\%
 
 REM Jenkins xshell converts forward slashes in arguments to back slashes,
 REM but we need forward slashes so undo
-set BILDER_ARGS="%*"
+set BILDER_ARGS=%*
 set BILDER_ARGS=%BILDER_ARGS:\=/%
 ECHO jenkinsbild.bat: BILDER_ARGS = %BILDER_ARGS%.
 
