@@ -44,7 +44,8 @@ set JENKINS_WSPATH=%JENKINS_WSPATH:/=\%
 
 REM Jenkins xshell converts forward slashes in arguments to back slashes,
 REM but we need forward slashes so undo
-set BILDER_ARGS=%*:\=/%
+set BILDER_ARGS="%*"
+set BILDER_ARGS="%BILDER_ARGS:\=/%"
 
 REM If workspace path doesn't contain drive letter
 REM then we add the current drive letter to the path.
@@ -89,7 +90,8 @@ echo jenkinsbild.bat: CYGWINDIR = %CYGWINDIR%.  >> jenkinsbild.log
 del temp.txt
 set JBILDERR=0
 @ECHO on
-C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %BILDER_ARGS
+REM C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %*
+C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %BILDER_ARGS%
 @ECHO off
 if ERRORLEVEL 1 set JBILDERR=1
 
