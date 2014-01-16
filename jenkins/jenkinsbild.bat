@@ -91,8 +91,8 @@ echo jenkinsbild.bat: CYGWINDIR = %CYGWINDIR%.  >> jenkinsbild.log
 del temp.txt
 set JBILDERR=0
 @ECHO on
-C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %*
-REM C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %BILDER_ARGS%
+REM C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %*
+C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %BILDER_ARGS%
 @ECHO off
 if ERRORLEVEL 1 set JBILDERR=1
 
