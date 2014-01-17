@@ -3052,14 +3052,16 @@ getPkg() {
 # Look for the tarball to be already present.
     cd $pkgdir
     ls -1 ${1}.tar* ${1}.tgz 1>/tmp/tarballs$$.tmp 2>/dev/null
-    local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+    # local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+    local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed -e 's/^ *//' -e 's/ .*$//'`
+    numtarballs=${numtarballs:-"0"}
     techo "$numtarballs tarballs already present." 1>&2
     if test "$numtarballs" -gt 1; then
       techo "WARNING: More than 1 present tarball matches.  Taking last." 1>&2
       cat /tmp/tarballs$$.tmp 1>&2
     fi
     tarballbase=`tail -1 /tmp/tarballs$$.tmp`
-    # rm /tmp/tarballs$$.tmp
+    rm /tmp/tarballs$$.tmp
 
 # Determine the method if direct
     local DIRECT_GET=
@@ -3089,11 +3091,12 @@ getPkg() {
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
           bilderSvn up 1>/dev/null
-          bilderSvn ls | grep "^${1}"'\.t*' 1>/tmp/tarballs$$.tmp 2>/dev/null
-          numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+          bilderSvn ls | grep "^${1}"'\.t' 1>/tmp/tarballs$$.tmp 2>/dev/null
+          numtarballs=`wc -l /tmp/tarballs$$.tmp | sed -e 's/^ *//' -e 's/ .*$//'`
+          numtarballs=${numtarballs:-"0"}
           # techo -2 "numtarballs = $numtarballs." 1>&2
           techo "numtarballs = $numtarballs." 1>&2
-          if test -z "$numtarballs" || test $numtarballs = 0; then
+          if test $numtarballs = 0; then
             TERMINATE_ERROR_MSG="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
             # rm /tmp/tarballs$$.tmp
             terminate
