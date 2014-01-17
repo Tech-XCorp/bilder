@@ -44,6 +44,9 @@ if test -z "$MACHINE_FILE" && [[ `uname` =~ CYGWIN ]]; then
   MACHINE_FILE=cygwin.vs9
 fi
 
+# Set variables before sourcing machine file
+REPLACE_COMPILERS=${REPLACE_COMPILERS:-"false"}
+
 # Get machine specific variables
 if test -n "$CC"; then
   techo "WARNING: CC set to $CC before sourcing machine file"
