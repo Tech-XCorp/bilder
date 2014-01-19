@@ -6024,7 +6024,7 @@ bilderInstallTestedPkg() {
   if test -n "$tstsnm"; then
     tstnmarg="-n $tstsnm"
   else
-    techo "NOTE: [bilderInstallTestedPkg] no separate tests for $1."
+    techo -2 "NOTE: [bilderInstallTestedPkg] no separate tests for $1."
   fi
   local permsarg=
   if test -n "$perms"; then
