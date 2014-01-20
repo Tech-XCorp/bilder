@@ -5836,7 +5836,11 @@ EOF
               break
             fi
           done
-          installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+          if test -z "$installer"; then
+            techo "WARNING: No installer found starting with ${installerbase}- and ending with any of $endings."
+          else
+            installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+          fi
 # Ensure depot root directory exists
           if test -n "$INSTALLER_HOST"; then
             local subdir=$INSTALLER_ROOTDIR/$installersubdir
@@ -5865,9 +5869,9 @@ EOF
           else
             techo "For depot copy, target directory '${depotdir}' exists on host '${INSTALLER_HOST}'."
           fi
-          installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
-          installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
           if test -n "$installer"; then
+            installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
+            installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
             techo "$cmd"
             if $cmd 1>/dev/null 2>./error; then
