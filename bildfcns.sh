@@ -5045,15 +5045,11 @@ bilderRunTests() {
   else
     getVersion $tstsname  # Done here as build may not be called
   fi
-# If not testing, done.
-  # if ! $TESTING; then
-    # techo "Not testing $pkgname."
-    # return
-  # fi
 
-# Get the builds to wait on
+# Get the builds to test
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
+  techo "Collecting $pkgname builds, $buildsval."
   local testedBuilds=
 # Remove ignored builds
   for bld in `echo $buildsval | tr ',' ' '`; do
@@ -5062,7 +5058,6 @@ bilderRunTests() {
     fi
   done
   trimvar testedBuilds ','
-  techo "Collecting $pkgname builds, $buildsval."
 
 # Vars used for submitting results
   local cmvar=`genbashvar $pkgname`_CONFIG_METHOD
