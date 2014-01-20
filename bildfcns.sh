@@ -5972,6 +5972,9 @@ bilderInstallAll() {
 #
 # Named args (must come first):
 # -i ignore the tests of builds when calling install, comma-separated list
+# -g set the group to this after installing on the hosts matching what is
+#    specified by -h
+# -h list of hosts or domains, which if matched, get the group set
 # -m use the arg instead of make/nmake
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -p <perms>   Type of permissions to set (open or closed)
@@ -5989,6 +5992,8 @@ bilderInstallTestedPkg() {
 # Default option values
   local ignorebuilds=develdocs
   local tstsnm=
+  local grpnm=
+  local hostids=
   local installsubdir=
   local makerargs=
   local perms=
@@ -5998,8 +6003,10 @@ bilderInstallTestedPkg() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "i:m:n:p:rs:t" arg; do
+  while getopts "g:h:i:m:n:p:rs:t" arg; do
     case $arg in
+      g) grpnm="$OPTARG";;
+      h) hostids="$OPTARG";;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
       m) makerargs="-m $OPTARG";;
       n) tstsnm="$OPTARG";;
@@ -6010,6 +6017,11 @@ bilderInstallTestedPkg() {
     esac
   done
   shift $(($OPTIND - 1))
+
+# Warnings
+  if test -n "$grpnm" -o -n "$hostid"; then
+    techo "WARNING: -g and -h options currently ignored by bilderInstallTestedPkg."
+  fi
 
 # Determine args for shouldInstallTestedPkg
   if test -z "$tstnm"; then
