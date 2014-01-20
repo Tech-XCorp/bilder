@@ -122,7 +122,7 @@ buildNumpy() {
       # Handle the case where PYC_FC may not be in path
       NUMPY_ARGS="--fcompiler=`basename ${PYC_FC}`"
       local fcpath=`dirname ${PYC_FC}`
-      NUMPY_ENV="$DISTUTILS_ENV2 PATH=${fcpath}:${PATH}"
+      NUMPY_ENV="$DISTUTILS_ENV2 PATH=${PATH}:${fcpath}"
       ;;
     *)
       techo "WARNING: [numpy.sh] uname `uname` not recognized.  Not building."
