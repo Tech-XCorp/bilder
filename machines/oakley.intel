@@ -1,4 +1,6 @@
 #!/bin/bash
+. /usr/local/lmod/5.2.3/init/bash
+# . /usr/local/lmod/5.2.3/init/bash
 #
 # $Id: peregrine.intel 109 2013-03-01 09:10:58Z swsides $
 #
@@ -22,8 +24,7 @@ USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 # Module dependency
 #
 # module purge
-
-module unload mvapich2/1.7
+# module unload mvapich2/1.7
 module load intelmpi/4.0.3.008
 
 # module load epel
