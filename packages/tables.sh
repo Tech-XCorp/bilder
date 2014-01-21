@@ -187,6 +187,9 @@ echo "hdf5shlib=$hdf5shlib"
     fi
     if test `uname` = Darwin; then
       local extensions=`find $tablesinstdir -name '*Extension.so' -print`
+      if test -z "$extensions"; then
+        extensions=`find $tablesinstdir -name '*extension.so' -print`
+      fi
       for i in $extensions; do
         cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlink $i"
         techo "$cmd"
