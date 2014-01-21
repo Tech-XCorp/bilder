@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version
+# Version.  No current tarball, so always build from repo.
 #
 ######################################################################
 
@@ -17,7 +17,7 @@
 # will be used instead. If you want to use the repo, make sure you have
 # txbase an external.
 
-TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
+# TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
 
 ######################################################################
 #
