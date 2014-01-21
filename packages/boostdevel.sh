@@ -23,7 +23,8 @@ BOOSTDEVEL_BLDRVERSION_STD=1_54_0
 ######################################################################
 
 if test -z "$BOOSTDEVEL_DESIRED_BUILDS"; then
-  BOOSTDEVEL_DESIRED_BUILDS=ser,parsh
+#  BOOSTDEVEL_DESIRED_BUILDS=ser,parsh
+  BOOSTDEVEL_DESIRED_BUILDS=parsh
   # No need for shared library unless that is the library for Python
   #  if isCcCc4py; then
   #    BOOSTDEVEL_DESIRED_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS,parsh
@@ -37,7 +38,8 @@ BOOSTDEVEL_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS
 # It does not hurt to add deps that do not get built
 # (e.g., Python on Darwin and CYGWIN)
 # Only certain builds depend on Python
-BOOSTDEVEL_DEPS=Python,bzip2
+# BOOSTDEVEL_DEPS=Python,bzip2
+BOOSTDEVEL_DEPS=bzip2
 
 ######################################################################
 #
