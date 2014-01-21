@@ -4355,7 +4355,7 @@ bilderConfig() {
         finalcmd="$configexec $configargs $3 $srcarg"
         ;;
     esac
-    techo "final configure command is $finalcmd"
+    # techo "final configure command is $finalcmd"
 
 # Now add the environment variables
     if test -n "$5"; then
