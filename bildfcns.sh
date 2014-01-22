@@ -5368,6 +5368,9 @@ shouldInstallTestedPkg() {
       fi
       return 1
     else
+
+# This not needed, as results collect by instcmd below
+if false; then
 # If tests not run, do not install
       waitNamedTest $2
       tstspidvar=`genbashvar $2`_ALL_PID
@@ -5378,6 +5381,7 @@ shouldInstallTestedPkg() {
         tstsresval=99
         return $tstsresval
       fi
+fi
 
 # Determine results of installation/waitNamedTest
 # tests in order to collect result.
@@ -5415,7 +5419,6 @@ shouldInstallTestedPkg() {
     fi
 
   fi
-
 
 # Not testing
   techo "shouldInstallTestedPkg: Proceed with installation of $pkgname."
