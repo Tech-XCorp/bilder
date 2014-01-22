@@ -6958,6 +6958,7 @@ fi
 requestTermination() {
   techo "Termination requested." 1>&2
   techo "$TERMINATE_ERROR_MSG" 1>&2
+  EMAIL_SUBJECT="$TERMINATE_ERROR_MSG"
   TERMINATE_REQUESTED=true
 }
 
@@ -6966,7 +6967,7 @@ requestTermination() {
 #
 exitOnError() {
   techo "$TERMINATE_ERROR_MSG" 1>&2
-  exit 1
+  exit 3
 }
 
 #

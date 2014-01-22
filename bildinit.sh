@@ -12,7 +12,7 @@ START_DATE=`date '+%Y-%m-%d'`
 # Set trapping for killing of running builds
 unset PIDLIST
 # On trap, exit with untrapped error code or else get infinite loop
-trap 'echo trap caught; cleanup; exit 3' 1 2 15
+trap 'TERMINATE_REQUESTED=true TERMINATE_ERROR_MSG=Killed. cleanup; exit 3' 1 2 15
 trap -p >/tmp/traps$$.txt
 traps=`sed 's/trap --//' </tmp/traps$$.txt | tr -d '\n'`
 echo "Traps are $traps."
