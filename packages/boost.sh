@@ -29,11 +29,7 @@ BOOST_BLDRVERSION_EXP=1_55_0
 ######################################################################
 
 if test -z "$BOOST_DESIRED_BUILDS"; then
-  BOOST_DESIRED_BUILDS=ser
-# No need for shared library unless that is the library for Python
-  if isCcCc4py; then
-    BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sersh
-  fi
+  BOOST_DESIRED_BUILDS=ser,sersh
 fi
 computeBuilds boost
 addCc4pyBuild boost
