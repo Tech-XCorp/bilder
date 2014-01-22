@@ -3922,7 +3922,9 @@ bilderConfig() {
     # instdirval=$BLDR_INSTALL_DIR
     case ${2} in
       develdocs) instdirval=$DEVELDOCS_DIR;;
-      full | lite | url) instdirval=$USERDOCS_DIR;;
+      # full | lite | url) instdirval=$USERDOCS_DIR;;
+# Only the url build goes into USERDOCS_DIR, done for easy rsyncing.
+      url) instdirval=$USERDOCS_DIR;;
       *) instdirval=$BLDR_INSTALL_DIR;;
     esac
   fi
