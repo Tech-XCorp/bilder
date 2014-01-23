@@ -31,7 +31,7 @@ ROOT_DEPS=cmake
 
 buildRoot() {
   if bilderUnpack root; then
-    if bilderConfig -c root ser "-D GDML:BOOL=ON $CMAKE_SUPRA_SP_ARG"; then
+    if bilderConfig -c root ser "-Dgdml:BOOL=ON $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild root ser ""
     fi
   fi
