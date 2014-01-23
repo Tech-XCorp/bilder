@@ -12,8 +12,15 @@
 #
 ######################################################################
 
+# Fedora 20 has to have old automake
+if test -f /etc/redhat-release; then
+  fcnum=`sed -e 's/Fedora release *//' -e 's/ .*$//' </etc/redhat-release`
+  if test $fcnum -ge 20; then
+    AUTOMAKE_BLDRVERSION=${AUTOMAKE_BLDRVERSION:-"1.13.4"}
+  fi
+fi
 AUTOMAKE_BLDRVERSION_STD=${AUTOMAKE_BLDRVERSION_STD:-"1.14"}
-AUTOMAKE_BLDRVERSION_EXP=${AUTOMAKE_BLDRVERSION_EXP:-"1.14.1"}
+AUTOMAKE_BLDRVERSION_EXP=${AUTOMAKE_BLDRVERSION_EXP:-"1.13.4"}
 
 ######################################################################
 #

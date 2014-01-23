@@ -5084,16 +5084,25 @@ bilderRunTests() {
     techo -2 "$cmd"
     $cmd
     res=$?
-    if test "$res" != 0; then
+    # techo "waitAction returned $res."
+    if test -z "$res" -o "$res" = 99; then
+      techo "$pkgname-$bld not built."
+      # if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo "Continuing."
+        continue
+      # fi
+      # tbFailures="$tbFailures $bld"
+    elif test "$res" != 0; then
+      techo "$pkgname-$bld failed to build."
       tbFailures="$tbFailures $bld"
       continue
     fi
 # Determine whether this build is ignored
     local untestedbuild=false
-    if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)" || ! $hasbuildtests; then
+    if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)" || ! $hasbuildtests || ! $testingval; then
       untestedbuild=true
     fi
-    if $untestedbuild || ! $testingval; then
+    if $untestedbuild; then
 # Don't test if not testing or this build is ignored
 # Submitting even ignored builds
 # If want to call bilderRunTests more than once, will need
@@ -5157,14 +5166,13 @@ EOF
     fi
   done
   trimvar tbFailures ' '
-  if $hasbuildtests; then
-    techo "All build directory tests launched."
-  fi
 
 # Collect results of tests in build dirs
   local tstFailures=
   if $hasbuildtests && test -n "$builddirtests"; then
-    for bld in `echo $testedBuilds | tr ',' ' '`; do
+    techo "All build directory tests launched."
+    # for bld in `echo $testedBuilds | tr ',' ' '`; do
+    for bld in $builddirtests; do
 # Get individual build test results
       cmd="waitAction -t b $pkgname-$bld-test"
       techo -2 "$cmd"
@@ -5354,7 +5362,7 @@ shouldInstallTestedPkg() {
       if $installPkg; then
         techo "$tsttype succeeded or ignored for all $pkgname builds."
       else
-        techo "$tsttype failed for one or more $pkgname builds."
+        techo "$tsttype not done or failed for one or more $pkgname builds."
       fi
     else
       techo "$pkgname has no build tests."
@@ -5875,7 +5883,7 @@ EOF
             fi
           done
           if test -z "$installer"; then
-            techo "WARNING: No installer found starting with ${installerbase}- and ending with any of $endings."
+            : # techo "WARNING: No installer found starting with ${installerbase}- and ending with any of $endings."
           else
             installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
           fi
@@ -6123,7 +6131,7 @@ bilderInstallTestedPkg() {
       fi
       return 0
     else
-      techo "One or more $1 builds or tests failed.  Not installing."
+      techo "One or more $1 builds or tests failed or not done.  Not installing."
     fi
   fi
 
