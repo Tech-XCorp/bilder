@@ -4139,7 +4139,10 @@ bilderConfig() {
     TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
     terminate
   else
+    local configexecbase=`basename $configexec`
     configexec=`which "$configexec"`
+    local configexecdir=`dirname $configexec`
+    configexec="$configexecdir"/"$configexecbase"
   fi
   local cmvar=`genbashvar $1`_CONFIG_METHOD
   eval $cmvar=$cmval
@@ -4181,7 +4184,7 @@ bilderConfig() {
   cmd="cd $builddir"
   techo "$cmd"
   $cmd
-  techo -2 "After moving to builddir, builddir = $builddir."; exit
+  techo -2 "After moving to builddir, builddir = $builddir."
 
 #
 # Clean out any old build unless requested not to now that builddir
