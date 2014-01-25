@@ -24,7 +24,7 @@ fi
 
 if $BUILD_MPIS && test -z "$MPICH_BUILDS"; then
   if ! [[ `uname` =~ CYGWIN ]]; then
-    MPICH_BUILDS=${MPICH_BUILDS:-"static"}
+    MPICH_BUILDS=static
   fi
 fi
 MPICH_DEPS=libtool,automake
