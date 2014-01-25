@@ -91,7 +91,7 @@ buildBoost() {
   toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
-  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
+  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"
   local staticlinkargs="link=static"
   local sharedlinkargs="link=shared"
   local sermdlinkargs="link=static"  # Not yet used, but this should be right
