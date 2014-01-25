@@ -3721,14 +3721,8 @@ bilderPreconfig() {
   $cmd
 # Remove old configure files
 # JRC, 20130728: This is causing a problem with repos that have these added
-if false; then
-  cmd="rm -rf configure aclocal.m4 config.h.in"
-  techo "$cmd"
-  $cmd
-  cmd="find . -name Makefile.in -delete"
-  techo "$cmd"
-  $cmd
-fi
+  # rm -rf configure aclocal.m4 config.h.in
+  # find . -name Makefile.in -delete
 
 # Preconfigure as needed
   local preconfig_txt=$FQMAILHOST-$1-preconfig.txt
@@ -3953,64 +3947,66 @@ bilderConfig() {
 # Store result
   local dobuildvar=`genbashvar $1-$2`_DOBUILD
   eval $dobuildvar=$dobuildval
-  local builddirvar=`genbashvar $1-$2`_BUILD_DIR
 
-# If not installed, configure.  If successful, put install string into
+# If not building, return 99.
 # the config file.
-  if $dobuildval; then
+  if ! $dobuildval; then
+    techo "Not configuring since $1-$verval-$2 already installed in $instdirval, or $2 not in $buildsvar = $buildsval."
+    return 99
+  fi
 
 #
 # Determine the installation directory and subdirectory
 #
-    local instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
-    if test -z "$instsubdirval"; then
-      instsubdirval=`deref $instsubdirvar`
-    fi
+  local builddirvar=`genbashvar $1-$2`_BUILD_DIR
+  local instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
+  if test -z "$instsubdirval"; then
+    instsubdirval=`deref $instsubdirvar`
+  fi
 # Variable holding string naming this installation
-    if test -z "$instsubdirval"; then
-      if test -n "$4"; then
-        if ! $webdocs; then
-           # The default for installs when 4th argument is passed
-           instsubdirval=$4-$verval
-        else
-           instsubdirval=$4
-        fi
+  if test -z "$instsubdirval"; then
+    if test -n "$4"; then
+      if ! $webdocs; then
+         # The default for installs when 4th argument is passed
+         instsubdirval=$4-$verval
       else
-        instsubdirval=$1-$verval-$2
+         instsubdirval=$4
       fi
-    fi
-    eval $instsubdirvar=$instsubdirval
-# Do the installation
-    if test $instsubdirval != '-'; then
-      fullinstalldir=$instdirval/`deref $instsubdirvar`
     else
-      fullinstalldir=$instdirval
+      instsubdirval=$1-$verval-$2
     fi
-    techo -2 "Full installation directory is $fullinstalldir."
+  fi
+  eval $instsubdirvar=$instsubdirval
+# Do the installation
+  if test $instsubdirval != '-'; then
+    fullinstalldir=$instdirval/`deref $instsubdirvar`
+  else
+    fullinstalldir=$instdirval
+  fi
+  techo -2 "Full installation directory is $fullinstalldir."
 
 #
 # If unpacked, we know the build directory, up to a subdirectory
 # change for qmake.
 #
-    local unpackedvar=`genbashvar $1`_UNPACKED
-    local unpackedval=`deref $unpackedvar`
-    local builddir
-    if $riverbank; then
-      builddir=$BUILD_DIR/$1-$verval
-    elif test "$unpackedval" = true && test -n "$buildsubdir"; then
-      # This is for petsc where we configure inplace build build out-of-place
-      builddir=$BUILD_DIR/$1-$verval
-    elif test "$unpackedval" = true; then
-      builddir=$BUILD_DIR/$1-$verval/$2
-      cmd="mkdir -p $builddir"
-      techo "$cmd"
-      $cmd
-    else
-      unset builddir
-    fi
-    eval $builddirvar=$builddir
+  local unpackedvar=`genbashvar $1`_UNPACKED
+  local unpackedval=`deref $unpackedvar`
+  local builddir
+  if $riverbank; then
+    builddir=$BUILD_DIR/$1-$verval
+  elif test "$unpackedval" = true && test -n "$buildsubdir"; then
+    # This is for petsc where we configure inplace build build out-of-place
+    builddir=$BUILD_DIR/$1-$verval
+  elif test "$unpackedval" = true; then
+    builddir=$BUILD_DIR/$1-$verval/$2
+    cmd="mkdir -p $builddir"
+    techo "$cmd"
+    $cmd
+  else
+    unset builddir
+  fi
+  eval $builddirvar=$builddir
 
-    # echo "Before determining the configuration, builddir = $builddir, inplace = $inplace, forceqmake = $forceqmake."; exit
 # Determine the configuration command and any required args.
 # For qmake and jam, this determines the build directory.
 #
@@ -4018,390 +4014,383 @@ bilderConfig() {
 # configargs: the default args to the executable
 # cmval:      string describing the type of configuration (e.g., autotools)
 #
-    local configexec=
-    local configargs=
+  local configexec=
+  local configargs=
 # Work through the specified, mutually exclusive cases
-    if $forceqmake; then
+  if $forceqmake; then
 # qmake configure
-      configexec=qmake
-      cmval=qmake
+    configexec=qmake
+    cmval=qmake
 # Qt must be built in place, but other qmake packages may build out of place
-      if $inplace; then
-        if test -d $PROJECT_DIR/$1; then
+    if $inplace; then
+      if test -d $PROJECT_DIR/$1; then
 # From repo
-          builddir=`dirname $PROJECT_DIR/$1/$QMAKE_PRO_FILENAME`
-        else
+        builddir=`dirname $PROJECT_DIR/$1/$QMAKE_PRO_FILENAME`
+      else
 # From tarball
-          builddir=`dirname $builddir/$QMAKE_PRO_FILENAME`
-        fi
+        builddir=`dirname $builddir/$QMAKE_PRO_FILENAME`
       fi
+    fi
 # CMake has configure and CMakeLists but must be configured with configure,
 # so that has to go first.
 # Do not automatically add $CONFIG_SUPRA_SP_ARG, as does not always apply
-    elif $usecmake; then
+  elif $usecmake; then
 # cmake configure
-      configexec="$CMAKE"
-      cmval=cmake
-    elif $noprefix; then
-      configexec="$PROJECT_DIR/$1/configure"
-    elif $riverbank; then
+    configexec="$CMAKE"
+    cmval=cmake
+  elif $noprefix; then
+    configexec="$PROJECT_DIR/$1/configure"
+  elif $riverbank; then
 # riverbank configure
-      configexec=python
-      local pspdir=$PYTHON_SITEPKGSDIR
-      local cbindir=$CONTRIB_DIR/bin
-      if [[ `uname` =~ CYGWIN ]]; then
-        pspdir=`cygpath -aw $pspdir`
-        cbindir=`cygpath -aw $cbindir`
-      fi
-      configargs="configure.py --destdir='$pspdir' --bindir='$cbindir'"
-      cmval=riverbank
-    elif test -n "$configcmdin"; then
+    configexec=python
+    local pspdir=$PYTHON_SITEPKGSDIR
+    local cbindir=$CONTRIB_DIR/bin
+    if [[ `uname` =~ CYGWIN ]]; then
+      pspdir=`cygpath -aw $pspdir`
+      cbindir=`cygpath -aw $cbindir`
+    fi
+    configargs="configure.py --destdir='$pspdir' --bindir='$cbindir'"
+    cmval=riverbank
+  elif test -n "$configcmdin"; then
 # Custom configure executable
-      if test -f $builddir/$configcmdin; then
-        configexec="$builddir/$configcmdin"
-      elif test -f $builddir/../$configcmdin; then
-        configexec="$builddir/../$configcmdin"
-      fi
-      cmval='custom'
-    elif test -n "$builddir"; then
+    if test -f $builddir/$configcmdin; then
+      configexec="$builddir/$configcmdin"
+    elif test -f $builddir/../$configcmdin; then
+      configexec="$builddir/../$configcmdin"
+    fi
+    cmval='custom'
+  elif test -n "$builddir"; then
 # For all unpacked cases, the build directory is known.
-      if test -f $builddir/bootstrap.bat; then
+    if test -f $builddir/bootstrap.bat; then
 # Anything with jam was unpacked, so build directory is known.
-        case `uname` in
-          CYGWIN*)
-            configexec="$builddir/bootstrap.bat"
-            chmod u+x $configexec
-            ;;
-          *)
-            configexec="$builddir/bootstrap.sh"
-            configargs="-show-libraries"
-            ;;
-        esac
-        cmval=b2
-        inplace=true
+      case `uname` in
+        CYGWIN*)
+          configexec="$builddir/bootstrap.bat"
+          chmod u+x $configexec
+          ;;
+        *)
+          configexec="$builddir/bootstrap.sh"
+          configargs="-show-libraries"
+          ;;
+      esac
+      cmval=b2
+      inplace=true
 # Need only b2 to be created
-      elif test -f $builddir/../configure; then
+    elif test -f $builddir/../configure; then
 # Usual autotools out-of-place build
-        configexec="$builddir/../configure"
-        configargs="--prefix=$fullinstalldir"
-        cmval=autotools
-        # If configure is a python script like PETSc, then use the
-        # cygwin python.
-        if head -1 $configexec | egrep -q python; then
-          if test -n "$CYGWIN_PYTHON"; then
-            configexec="$CYGWIN_PYTHON $configexec"
-          fi
-        fi
-      elif test -f $builddir/configure; then
-# Possible in-place build, e.g., PETSc, doxygen
-        configexec="$builddir/configure"
-	cmval=autotools
-        #This signals PETSc, and on Windows we have issues
-        if test -n "$buildsubdir"; then
-          if test -n "$CYGWIN_PYTHON"; then
-		    cmval=petsc;
-          fi
-        fi
-        if $noequals; then
-          configargs="--prefix $fullinstalldir"
-        else
-          configargs="--prefix=$fullinstalldir"
-        fi
-      elif test -f $builddir/../CMakeLists.txt; then
-# CMake is always out of place
-        configexec="$CMAKE"
-        cmval=cmake
-      elif test -f $builddir/../src/CMakeLists.txt; then
-# CMake is always out of place
-        configexec="$CMAKE"
-        cmval=cmake
-      fi
-    elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
-# Repo, autotools
-      configexec="$PROJECT_DIR/$1/configure"
+      configexec="$builddir/../configure"
       configargs="--prefix=$fullinstalldir"
       cmval=autotools
-    elif test -f $PROJECT_DIR/$1/configure; then
-# Repo but not configure.ac: Most likely petsc
-      configexec="$PROJECT_DIR/$1/configure"
-      configargs="--prefix=$fullinstalldir"
-      cmval=petsc
-      # SEK: I'm not sure this will work on Windows
-      if ! test -d $BUILD_DIR/$1; then
-            ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
+# If configure is a python script like PETSc, then use the cygwin python.
+      if head -1 $configexec | egrep -q python; then
+        if test -n "$CYGWIN_PYTHON"; then
+          configexec="$CYGWIN_PYTHON $configexec"
+        fi
       fi
-    elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
-# Repo, CMake
+    elif test -f $builddir/configure; then
+# Possible in-place build, e.g., PETSc, doxygen
+      configexec="$builddir/configure"
+	cmval=autotools
+# This signals PETSc, and on Windows we have issues
+      if test -n "$buildsubdir"; then
+        if test -n "$CYGWIN_PYTHON"; then
+		    cmval=petsc;
+        fi
+      fi
+      if $noequals; then
+        configargs="--prefix $fullinstalldir"
+      else
+        configargs="--prefix=$fullinstalldir"
+      fi
+    elif test -f $builddir/../CMakeLists.txt; then
+# CMake is always out of place
+      configexec="$CMAKE"
+      cmval=cmake
+    elif test -f $builddir/../src/CMakeLists.txt; then
+# CMake is always out of place
       configexec="$CMAKE"
       cmval=cmake
     fi
-    if test -z "$configexec"; then
-      techo "No configure system found for $1-$2.  Assuming no need."
-      return 0
+  elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
+# Repo, autotools
+    configexec="$PROJECT_DIR/$1/configure"
+    configargs="--prefix=$fullinstalldir"
+    cmval=autotools
+  elif test -f $PROJECT_DIR/$1/configure; then
+# Repo but not configure.ac: Most likely petsc
+    configexec="$PROJECT_DIR/$1/configure"
+    configargs="--prefix=$fullinstalldir"
+    cmval=petsc
+    # SEK: I'm not sure this will work on Windows
+    if ! test -d $BUILD_DIR/$1; then
+          ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
     fi
+  elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+# Repo, CMake
+    configexec="$CMAKE"
+    cmval=cmake
+  fi
+  if test -z "$configexec"; then
+    techo "No configure system found for $1-$2.  Assuming no need."
+    return 0
+  fi
 # Validate presence of config command
-    if ! which "$configexec" 1>/dev/null 2>&1; then
-      TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
-      terminate
-    else
-      configexec=`which "$configexec"`
-    fi
-    local cmvar=`genbashvar $1`_CONFIG_METHOD
-    eval $cmvar=$cmval
-    techo "Configuration of type $cmval."
+  if ! which "$configexec" 1>/dev/null 2>&1; then
+    TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
+    terminate
+  else
+    configexec=`which "$configexec"`
+  fi
+  local cmvar=`genbashvar $1`_CONFIG_METHOD
+  eval $cmvar=$cmval
+  techo "Configuration of type $cmval."
 
 # Strip the builddir from configcmdin if -s and -m options specified
-    if test -n "$configcmdin" && $stripbuilddir; then
-      configexec="$configcmdin"
-    fi
-    if test "$cmval" = petsc; then
-      configexec="$CYGWIN_PYTHON '$configexec'"
-    fi
-    techo "Will configure with '$configexec'."
+  if test -n "$configcmdin" && $stripbuilddir; then
+    configexec="$configcmdin"
+  fi
+  if test "$cmval" = petsc; then
+    configexec="$CYGWIN_PYTHON '$configexec'"
+  fi
+  techo "Will configure with '$configexec'."
 
 #
 # Find the build directory if not yet known
 #
-    if test -z "$builddir"; then
+  if test -z "$builddir"; then
 # In place build with qmake
-      if $inplace && test -d $PROJECT_DIR/$1; then
+    if $inplace && test -d $PROJECT_DIR/$1; then
 # In place build from repo
-        builddir=$PROJECT_DIR/$1
+      builddir=$PROJECT_DIR/$1
 # For petsc tarballs, the configure is in place but the builds are
 # out-of-place
-      elif $inplace; then
-        local buildtopdir=`getBuildTopdir $1 $verval`
-        (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
-        techo "HERE where I belong"
-        local builddir=$buildtopdir
+    elif $inplace; then
+      local buildtopdir=`getBuildTopdir $1 $verval`
+      (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
+      techo "HERE where I belong"
+      local builddir=$buildtopdir
 # In all other cases, build under main dir in builds directory
-      else
-        local buildtopdir=`getBuildTopdir $1 $verval`
-        (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
-        local builddir=$buildtopdir/$2
-      fi
+    else
+      local buildtopdir=`getBuildTopdir $1 $verval`
+      (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
+      local builddir=$buildtopdir/$2
     fi
+  fi
 # Store build directory
-    eval $builddirvar=$builddir
-    cmd="cd $builddir"
-    techo "$cmd"
-    $cmd
-    # echo "After moving to builddir, builddir = $builddir."; exit
+  eval $builddirvar=$builddir
+  cmd="cd $builddir"
+  techo "$cmd"
+  $cmd
+  techo -2 "After moving to builddir, builddir = $builddir."; exit
 
 #
 # Clean out any old build unless requested not to now that builddir
 # has been created.
 #
-    unset cmd
-    if test $RM_BUILD; then
-      if test "$cmval" = cmake -a "$inplace" = false; then
-        cmd="rmall *"
-      elif $inplace; then
-        if test -f Makefile -a $1 != petsc -a $1 != petscdev -a $1 != slepc; then
-          local bildermake=${bildermake:-"`getMaker $cmval`"}
-          cmd="$bildermake distclean"
-        fi
-      elif $riverbank; then
-        unset cmd
-      else
-        cmd="rmall *"
+  unset cmd
+  if test $RM_BUILD; then
+    if test "$cmval" = cmake -a "$inplace" = false; then
+      cmd="rmall *"
+    elif $inplace; then
+      if test -f Makefile -a $1 != petsc -a $1 != petscdev -a $1 != slepc; then
+        local bildermake=${bildermake:-"`getMaker $cmval`"}
+        cmd="$bildermake distclean"
       fi
+    elif $riverbank; then
+      unset cmd
+    else
+      cmd="rmall *"
     fi
-    if test -n "$cmd"; then
-      if test `\ls | wc -l` -gt 0; then
-        chmod -R u+w *
-      fi
-      techo "$cmd" | tee distclean.out
-      if ! $cmd 2>&1 >>distclean.out; then
+  fi
+  if test -n "$cmd"; then
+    if test `\ls | wc -l` -gt 0; then
+      chmod -R u+w *
+    fi
+    techo "$cmd" | tee distclean.out
+    if ! $cmd 2>&1 >>distclean.out; then
 # For CYGWIN, may need to run twice
-        sleep 1
-        techo "$cmd" | tee -a distclean.out
-        $cmd 2>&1 >>distclean.out
-      fi
+      sleep 1
+      techo "$cmd" | tee -a distclean.out
+      $cmd 2>&1 >>distclean.out
     fi
+  fi
 
 #
 # Remove previous install if requested and installdir exists
 #
-    techo -2 "fullinstalldir = $fullinstalldir."
-    if test -d $fullinstalldir -a "$rminstall" = true; then
-      techo "removing fullinstalldir"
-      rmall $fullinstalldir
-    fi
+  techo -2 "fullinstalldir = $fullinstalldir."
+  if test -d $fullinstalldir -a "$rminstall" = true; then
+    techo "removing fullinstalldir"
+    rmall $fullinstalldir
+  fi
 
 # Location of source for cmake builds.
-    local srcarg=
+  local srcarg=
 # Add other, default args
-    case $cmval in
-      qmake)
-        # techo -2 "Using qmake to configure."
-        # eval $builddirvar=$builddir
-        local profilename=
-        if test -d $PROJECT_DIR/$1; then
-          profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
-        else
-          profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
-        fi
-        if [[ `uname` =~ CYGWIN ]]; then
-          profilename="$(cygpath -aw ${profilename})"
-        fi
-        configargs="${configargs} '${profilename}'"
-        ;;
-      cmake)
-        case `uname` in
-          CYGWIN*)
-            cmakeinstdir=`cygpath -am $fullinstalldir`
-            ;;
-          *)
-            cmakeinstdir="$fullinstalldir"
-            ;;
-        esac
+  case $cmval in
+    qmake)
+      local profilename=
+      if test -d $PROJECT_DIR/$1; then
+        profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
+      else
+        profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
+      fi
+      if [[ `uname` =~ CYGWIN ]]; then
+        profilename="$(cygpath -aw ${profilename})"
+      fi
+      configargs="${configargs} '${profilename}'"
+      ;;
+    cmake)
+      case `uname` in
+        CYGWIN*)
+          cmakeinstdir=`cygpath -am $fullinstalldir`
+          ;;
+        *)
+          cmakeinstdir="$fullinstalldir"
+          ;;
+      esac
 # Some options are always chosen
-        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
 	if test $VERBOSITY -ge 1; then
 	  configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
-        fi
-        if test -n "$SVN_BINDIR"; then
-          configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
-        fi
-        if test -n "$CTEST_DROP_SITE"; then
-          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-        fi
-        if test -n "$FQMAILHOST"; then
-          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
-        fi
-        if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
-          srcarg=$PROJECT_DIR/$1
-        elif test -f $builddir/../CMakeLists.txt; then
-          srcarg=`(cd $builddir/..; pwd -P)`
-        elif test -f $builddir/../src/CMakeLists.txt; then
-          srcarg=`(cd $builddir/../src; pwd -P)`
-        else
-          techo "cmake build, but no CMakeLists.txt.  Skipping this build."
-          return 1
-        fi
-        ;;
-      *)
-        techo -2 "Neither cmake nor qmake used to configure."
-        ;;
-    esac
-    techo -2 "Configuring with cmval = $cmval."
+      fi
+      if test -n "$SVN_BINDIR"; then
+        configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
+      fi
+      if test -n "$CTEST_DROP_SITE"; then
+        configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+      fi
+      if test -n "$FQMAILHOST"; then
+        configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
+      fi
+      if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+        srcarg=$PROJECT_DIR/$1
+      elif test -f $builddir/../CMakeLists.txt; then
+        srcarg=`(cd $builddir/..; pwd -P)`
+      elif test -f $builddir/../src/CMakeLists.txt; then
+        srcarg=`(cd $builddir/../src; pwd -P)`
+      else
+        techo "cmake build, but no CMakeLists.txt.  Skipping this build."
+        return 1
+      fi
+      ;;
+    *)
+      techo -2 "Neither cmake nor qmake used to configure."
+      ;;
+  esac
+  techo -2 "Configuring with cmval = $cmval."
 # Fix up srcarg for Windows
-    techo -2 "srcarg = $srcarg, uname = `uname`"
-    sleep 1 # Give cygwin time to catch up.
-    case `uname` in
-      CYGWIN*)
+  techo -2 "srcarg = $srcarg, uname = `uname`"
+  sleep 1 # Give cygwin time to catch up.
+  case `uname` in
+    CYGWIN*)
 # Add cygwin root on windows
-        if test -n "$srcarg"; then
-          if test -d "$srcarg" -a ! -h "$srcarg"; then
-            techo -2 "Directory, $srcarg, exists."
-          else
+      if test -n "$srcarg"; then
+        if test -d "$srcarg" -a ! -h "$srcarg"; then
+          techo -2 "Directory, $srcarg, exists."
+        else
 # Might not be a repo and have to add version
-            techo -2 "Directory, $srcarg, does not exist."
-            srcarg=${srcarg}-${verval}
-          fi
-          if test -n "$JENKINS_JOB_DIR"; then
-            techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
-            srcarg=`cygpath -m "$srcarg"`
-            cygprojdir=`cygpath -am $PROJECT_DIR`
-            cygjenkinsdir=`cygpath -m $JENKINS_JOB_DIR`
-            srcarg=`echo $srcarg | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
-          else
-            srcarg=`cygpath -am ${srcarg}`
-          fi
+          techo -2 "Directory, $srcarg, does not exist."
+          srcarg=${srcarg}-${verval}
         fi
-        ;;
-    esac
-    techo -2 "After Windows fix, srcarg = $srcarg"
+        if test -n "$JENKINS_JOB_DIR"; then
+          techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
+          srcarg=`cygpath -m "$srcarg"`
+          cygprojdir=`cygpath -am $PROJECT_DIR`
+          cygjenkinsdir=`cygpath -m $JENKINS_JOB_DIR`
+          srcarg=`echo $srcarg | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
+        else
+          srcarg=`cygpath -am ${srcarg}`
+        fi
+      fi
+      ;;
+  esac
+  techo -2 "After Windows fix, srcarg = $srcarg"
 
 # Ready to start configuring
-    local configure_txt=$FQMAILHOST-$1-$2-config.txt
-    techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
-    local finalcmd
-    case `uname` in
-      CYGWIN*)
-        case "$cmval" in
-          cmake)
-            if which jom 1>/dev/null 2>&1; then
-              finalcmd="'$configexec' $configargs -G 'NMake Makefiles JOM' $3 $srcarg"
-            else
-              finalcmd="'$configexec' $configargs -G 'NMake Makefiles' $3 $srcarg"
-            fi
-            ;;
-          autotools)
-            case $1 in
-              qt)  # QT is not autotools
-                local finalcmd="'$configexec' $configargs $3"
-                ;;
-              *)  # Actually, this decision should be made by the package
-                local finalcmd="'$configexec' $configargs $3"
-                ;;
-            esac
-            ;;
-          *)
-            local finalcmd="$configexec $configargs $3"
-            ;;
-        esac
-        ;;
-      MINGW*)
-        case "$configexec" in
-          cmake*)
-            local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $3 $srcarg"
-            ;;
-          *)
-            local finalcmd="'$configexec' $configargs $3 CC=gcc"
-            ;;
-        esac
-        ;;
-      *)
-        finalcmd="$configexec $configargs $3 $srcarg"
-        ;;
-    esac
-    # techo "final configure command is $finalcmd"
+  local configure_txt=$FQMAILHOST-$1-$2-config.txt
+  techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
+  local finalcmd
+  case `uname` in
+    CYGWIN*)
+      case "$cmval" in
+        cmake)
+          if which jom 1>/dev/null 2>&1; then
+            finalcmd="'$configexec' $configargs -G 'NMake Makefiles JOM' $3 $srcarg"
+          else
+            finalcmd="'$configexec' $configargs -G 'NMake Makefiles' $3 $srcarg"
+          fi
+          ;;
+        autotools)
+          case $1 in
+            qt)  # QT is not autotools
+              local finalcmd="'$configexec' $configargs $3"
+              ;;
+            *)  # Actually, this decision should be made by the package
+              local finalcmd="'$configexec' $configargs $3"
+              ;;
+          esac
+          ;;
+        *)
+          local finalcmd="$configexec $configargs $3"
+          ;;
+      esac
+      ;;
+    MINGW*)
+      case "$configexec" in
+        cmake*)
+          local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $3 $srcarg"
+          ;;
+        *)
+          local finalcmd="'$configexec' $configargs $3 CC=gcc"
+          ;;
+      esac
+      ;;
+    *)
+      finalcmd="$configexec $configargs $3 $srcarg"
+      ;;
+  esac
 
 # Now add the environment variables
-    if test -n "$5"; then
-      finalcmd="env $5 $finalcmd"
-    fi
+  if test -n "$5"; then
+    finalcmd="env $5 $finalcmd"
+  fi
 
 # Cannot remove the old install automatically, as many packages
 # like all the autotools packages, have to be installed in the
 # same directory.  Can be done optionally by bilderInstall using
 # the -r flag if needed and acceptable.
-    # rmall $fullinstalldir
+#
 # Store command
-    techo "$finalcmd" | tee -a $configure_txt
+  techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
-    mkConfigScript $FQMAILHOST $1 $2
-    # Also touch the build script file, so that CMake can find it
-    local buildscript=$1-$2-build.sh
-    touch $builddir/$buildscript
+  mkConfigScript $FQMAILHOST $1 $2
+  # Also touch the build script file, so that CMake can find it
+  local buildscript=$1-$2-build.sh
+  touch $builddir/$buildscript
 # Execute the command
-    eval "$finalcmd" 1>>$configure_txt 2>&1
-    RESULT=$?
+  eval "$finalcmd" 1>>$configure_txt 2>&1
+  RESULT=$?
+
 # Save the configuration command
-    if test $RESULT = 0; then
-      techo "Package $1-$verval-$2 configured at `date +%F-%T`." | tee -a $configure_txt
-      echo SUCCESS >>$configure_txt
-      configSuccesses="$configSuccesses $1-$2"
-    else
-      eval $dobuildvar=false
-      techo "Package $1-$verval-$2 failed to configure at `date +%F-%T`." | tee -a $configure_txt
-      echo FAILURE >>$configure_txt
-      if $recordfailure || ! $IGNORE_TEST_RESULTS; then
-        configFailures="$configFailures $1-$2"
-        anyFailures="$anyFailures $1-$2"
-      else
-        techo "bilderConfig not recording failures: recordfailure = $recordfailure."
-      fi
-    fi
-    if test -n "$BLDR_PROJECT_URL"; then
-      local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
-      techo "See $BLDR_PROJECT_URL/$subdir/$configure_txt."
-    fi
+  if test $RESULT = 0; then
+    techo "Package $1-$verval-$2 configured at `date +%F-%T`." | tee -a $configure_txt
+    echo SUCCESS >>$configure_txt
+    configSuccesses="$configSuccesses $1-$2"
   else
-    techo "Not configuring since $1-$verval-$2 already installed in $instdirval, or $2 not in $buildsvar = $buildsval."
-    RESULT=99
+    eval $dobuildvar=false
+    techo "Package $1-$verval-$2 failed to configure at `date +%F-%T`." | tee -a $configure_txt
+    echo FAILURE >>$configure_txt
+    if $recordfailure || ! $IGNORE_TEST_RESULTS; then
+      configFailures="$configFailures $1-$2"
+      anyFailures="$anyFailures $1-$2"
+    else
+      techo "bilderConfig not recording failures: recordfailure = $recordfailure."
+    fi
+  fi
+  if test -n "$BLDR_PROJECT_URL"; then
+    local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
+    techo "See $BLDR_PROJECT_URL/$subdir/$configure_txt."
   fi
 
 # Finally, if building in a separate place, need to fix that.
@@ -5123,11 +5112,14 @@ exit \$res
 EOF
         chmod a+x ${sub_fname}.sh
         techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
-        ./${sub_fname}.sh &> ${sub_fname}.txt &
-        sub_pid=$!
-        # Background the submission, we don't need to keep track of it at this
-        # point, since the build directory won't change
-        addActionToLists $pkgname-$bld-submit $sub_pid
+# From cperry: Background submission, we don't need to keep track of it at this
+# point, since the build directory won't change.
+# JRC: Undoing.  Adding action to list should be done only if one is
+# going to collect the action.  Otherwise it shows up as an incomplete
+# action upon erroring out.
+        ./${sub_fname}.sh &> ${sub_fname}.txt
+        # sub_pid=$!
+        # addActionToLists $pkgname-$bld-submit $sub_pid
       fi
       continue
     # elif $TESTING && $hasbuildtests; then
@@ -5203,11 +5195,14 @@ exit \$res
 EOF
         chmod a+x ${sub_fname}.sh
         techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
-        ./${sub_fname}.sh &> ${sub_fname}.txt &
-        sub_pid=$!
-        # Background the submission, we don't need to keep track of it at this
-        # point, since the build directory won't change
-        addActionToLists $pkgname-$bld-submit $sub_pid
+# cperry: Background the submission, we don't need to keep track of it at this
+# point, since the build directory won't change
+# JRC: Undoing.  Adding action to list should be done only if one is
+# going to collect the action.  Otherwise it shows up as an incomplete
+# action upon erroring out.
+        ./${sub_fname}.sh &> ${sub_fname}.txt
+        # sub_pid=$!
+        # addActionToLists $pkgname-$bld-submit $sub_pid
       fi
     done
   fi
@@ -5471,6 +5466,9 @@ recordInstallation() {
 # -a accept build was correct
 # -c directly copy build dir to install dir
 # -f force the installation
+# -g set the group to this after installing on the hosts matching what is
+#    specified by -h
+# -h list of hosts or domains, which if matched, get the group set
 # -m use the arg instead of make
 # -L do not create links
 # -n do not record the installation
