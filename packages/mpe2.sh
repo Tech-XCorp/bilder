@@ -23,7 +23,7 @@ fi
 ######################################################################
 
 if test -z "$MPE2_BUILDS"; then
-  if $BUILD_OPENMPI && ! [[ `uname` =~ CYGWIN ]]; then
+  if $BUILD_MPIS && ! [[ `uname` =~ CYGWIN ]]; then
     MPE2_BUILDS=nodl
   fi
 fi

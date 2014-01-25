@@ -135,7 +135,7 @@ processBilderArgs() {
     N) REPO_BUILD_TYPE=Release;;
     o) case `uname` in
 	 CYGWIN*) ;;
-	       *) BUILD_OPENMPI=true;;
+	       *) BUILD_MPIS=true;;
        esac;;
     O) BUILD_OPTIONAL=true;;
     p) SUPRA_SP=$OPTARG;;
@@ -185,7 +185,7 @@ setBilderOptions() {
   DOCS_BUILDS=
   BUILD_TARBALLS=true
   export BUILD_EXPERIMENTAL=false  # Needed by setinstald.sh
-  BUILD_OPENMPI=false
+  BUILD_MPIS=false
   BUILD_IF_NEWER_PKGFILE=true
   BUILD_OPTIONAL=false
   BUILD_INSTALLERS=false
