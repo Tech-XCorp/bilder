@@ -92,6 +92,7 @@ fi
 
 # Set BILDER_SVN before going further
 BILDER_SVN=${BILDER_SVN:-"`which svn`"}
+HAVE_BEN_BUILDS=${HAVE_BEN_BUILDS:-"false"}
 
 ######################################################################
 #
