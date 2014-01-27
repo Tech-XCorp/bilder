@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e6bdbde..adfce63 100644
+index e6bdbde..ff1ead4 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -384,7 +384,10 @@ endif(OCE_VISU_DEP)
@@ -37,3 +37,12 @@ index e6bdbde..adfce63 100644
  endif(OCE_VISU_DEP)
  
  if(OCE_VISUALISATION)
+@@ -832,7 +851,7 @@ endif(OCE_EXTRA_WARNINGS)
+ 
+ if(OCE_MULTITHREADED_BUILD)
+    if(MSVC)
+-      add_definitions("/MP")
++     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    endif()
+ endif()
+ 
