@@ -13,8 +13,14 @@
 # These contents are not sourced or changed on a file update, but
 # they are sourced for an actual build.
 
-# Make sure have installed:
-# sudo apt-get install gfortran mpich2 
+# Install the following software:
+# > sudo apt-get install mpich2 subversion gfortran g++ liblapack-dev 
+#     libblas-dev
+
+# For visit, use ubuntu libraries:
+# > sudo apt-get install flex bison libqt4-dev libxt-dev libxi-dev mesa-utils
+#     qt4-dev-tools qt4-doc autoconf libxt-dev libxrender-dev zlib1g-dev
+#     libjpeg8-dev libqt4-opengl-dev libxmu-dev libx11-dev freeglut3-dev
 
 # END KEEP THIS
 
@@ -372,6 +378,10 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 # GPULIB_BUILDS=${GPULIB_BUILDS:-""}
 # GPULIB_GPU_OTHER_ARGS=${GPULIB_GPU_OTHER_ARGS:-""}
 
+# GRIN_BLDRVERSION=${GRIN_BLDRVERSION:-""}
+# GRIN_BUILDS=${GRIN_BUILDS:-""}
+GRIN_SER_OTHER_ARGS=${GRIN_SER_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
+
 # GSL_BLDRVERSION=${GSL_BLDRVERSION:-""}
 # GSL_BUILDS=${GSL_BUILDS:-""}
 # GSL_SER_OTHER_ARGS=${GSL_SER_OTHER_ARGS:-""}
@@ -664,7 +674,7 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # PYSYNTHDIAG_BUILDS=${PYSYNTHDIAG_BUILDS:-""}
 # PYSYNTHDIAG_CC4PY_OTHER_ARGS=${PYSYNTHDIAG_CC4PY_OTHER_ARGS:-""}
 
-PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"2.7.3"}
+# PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-""}
 # PYTHON_BUILDS=${PYTHON_BUILDS:-""}
 # PYTHON_CC4PY_OTHER_ARGS=${PYTHON_CC4PY_OTHER_ARGS:-""}
 
@@ -693,7 +703,7 @@ PYTHON_BLDRVERSION=${PYTHON_BLDRVERSION:-"2.7.3"}
 # QSCINTILLA_SER_OTHER_ARGS=${QSCINTILLA_SER_OTHER_ARGS:-""}
 
 # QT_BLDRVERSION=${QT_BLDRVERSION:-""}
-# QT_BUILDS=${QT_BUILDS:-""}
+QT_BUILDS=${QT_BUILDS:-"NONE"}
 # QT_SER_OTHER_ARGS=${QT_SER_OTHER_ARGS:-""}
 
 # QT3D_BLDRVERSION=${QT3D_BLDRVERSION:-""}
