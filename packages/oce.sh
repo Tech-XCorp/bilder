@@ -106,7 +106,7 @@ fi
     CYGWIN*)
 # Below prevents /MP from being added as a compiler flag, which fails
 # because it is also passed to RC.exe.
-      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_MULTITHREADED_BUILD:BOOL=FALSE"
+      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_MULTITHREADED_BUILD:BOOL=FALSE"
       ;;
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
