@@ -84,8 +84,7 @@ BILDER OPTIONS
   -W <disable builds> Build without these packages (comma delimited list)
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
-  -y ................ Do not clean git and hg subrepos
-  -z ................ Do only a pull and not a clean from any git repo. 
+  -z ................ Do only a pull and not a clean from any git repo.
   -Z ................ Do not execute the definable bilderFinalAction.
   -2 ................ Use the second installation directory of the comma
                         delimited list.  Causes -FI options.
@@ -213,13 +212,14 @@ setBilderOptions() {
   SVNUP=false
   SVNUP_PKGS=true # Whether to svn up pkgs
   TESTING=false
+  TESTING_BUILDS=false
   USE_INTERNAL_TXPP=false
   export VERBOSITY=1
 
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:PrRs:StTuUv:VW:w:XyzZ2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:PrRs:StTuUv:VW:w:XzZ2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."
@@ -404,6 +404,7 @@ EOF
   fi
 
   if $TESTING; then
+    TESTING_BUILDS=true
     techo "Tests will be run.  You must have the results directories checked out for installation.  If a package does not install (due to failing tests) its dependents might not build."
   else
     techo "Tests will NOT be run."
