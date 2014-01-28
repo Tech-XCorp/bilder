@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
+# OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 
 ######################################################################
 #
@@ -20,15 +20,18 @@ OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
 #
 ######################################################################
 
+setOceGlobalVars() {
 # Only the python build needed.
-OCE_BUILD=$FORPYTHON_BUILD
-OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
-OCE_DEPS=freetype,cmake
-OCE_UMASK=002
-OCE_REPO_URL=git://github.com/tpaviot/oce.git
-OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
-OCE_REPO_TAG=OCE-0.14.1
-addtopathvar PATH $CONTRIB_DIR/oce/bin
+  OCE_BUILD=$FORPYTHON_BUILD
+  OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
+  OCE_DEPS=freetype,cmake
+  OCE_UMASK=002
+  OCE_REPO_URL=git://github.com/tpaviot/oce.git
+  OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
+  OCE_REPO_TAG=OCE-0.14.1
+  # addtopathvar PATH $CONTRIB_DIR/oce/bin
+}
+setOceGlobalVars
 
 ######################################################################
 #
@@ -87,59 +90,27 @@ buildOce() {
     source $BILDER_DIR/packages/freetype.sh
   fi
   local freetype_rootdir=`findFreetypeRootdir`
-# Find ftgl: NO LONGER NEEDED
-if false; then
-  local ftgl_rootdir=
-  if test -e $CONTRIB_DIR/ftgl-sersh; then
-    ftgl_rootdir=`(cd $CONTRIB_DIR/ftgl-sersh; pwd -P)`
-    if [[ `uname` =~ CYGWIN ]]; then
-      ftgl_rootdir=`cygpath -am $ftgl_rootdir`
-    fi
-  fi
-fi
+
 # Set other args, env
   local OCE_ENV=
   if test -n "$freetype_rootdir"; then
     OCE_ENV="FREETYPE_DIR=$freetype_rootdir"
   fi
+# Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
+  # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
   case `uname` in
-    CYGWIN*)
-# Below prevents /MP from being added as a compiler flag, which fails
-# because it is also passed to RC.exe.
-      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_MULTITHREADED_BUILD:BOOL=FALSE"
-      ;;
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I/opt/X11/include'"
-# Cannot disable X11 or will not build TKMeshVS, which is needed
-# for salomesh in freecad.
-if false; then
-      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
-fi
-      ;;
-    Linux)
-      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DRAW:BOOL=ON"
-      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_VISUALISATION:BOOL=ON"
-      # Need to enable x11, need libTKXDEIGES.so for txgml
-      #if test ! -e /usr/lib64/libXmu.so -a ! -e /usr/lib/libXmu.so; then
-      #  OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
-      #fi
       ;;
   esac
 
-# Add in ftgl location.  NO LONGER NEEDED.
-if false; then
-  if test -n "$ftgl_rootdir"; then
-    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DFTGL_ROOT_DIR:PATH=$ftgl_rootdir"
-  fi
-fi
-
-# OCE does not have all dependencies right, so needs nmake
+# OCE does not have all dependencies right on Windows, so needs nmake
   local buildargs=
   local makejargs=
   if [[ `uname` =~ CYGWIN ]]; then
-     buildargs="-m nmake"
+    buildargs="-m nmake"
   else
-     makejargs="$OCE_MAKEJ_ARGS"
+    makejargs="$OCE_MAKEJ_ARGS"
   fi
 
 # Configure and build
