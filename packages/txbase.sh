@@ -70,8 +70,10 @@ buildTxbase() {
 
 # Use make -j, always set up submitting
   local TXBASE_MAKE_ARGS=
+  local TXBASE_DEVELDOCS_MAKE_ARGS=apidocs-force
   if test -n "$TXBASE_CTEST_TARGET"; then
     TXBASE_MAKE_ARGS="$TXBASE_MAKE_ARGS ${TXBASE_CTEST_TARGET}Start ${TXBASE_CTEST_TARGET}Build"
+    TXBASE_DEVELDOCS_MAKE_ARGS="$TXBASE_MAKE_ARGS"
   fi
 
 # All builds
@@ -105,11 +107,7 @@ buildTxbase() {
     if [[ `uname` =~ CYGWIN ]]; then
       TXBASE_DEVELDOCS_MAKER_ARGS="-m nmake"
     fi
-    if test -n "$TXBASE_CTEST_TARGET"; then
-      bilderBuild $TXBASE_DEVELDOCS_MAKER_ARGS txbase develdocs "$TXBASE_MAKE_ARGS"
-    else
-      bilderBuild $TXBASE_DEVELDOCS_MAKER_ARGS txbase develdocs "apidocs-force"
-    fi
+    bilderBuild $TXBASE_DEVELDOCS_MAKER_ARGS txbase develdocs "$TXBASE_DEVELDOCS_MAKE_ARGS"
   fi
 
 }
