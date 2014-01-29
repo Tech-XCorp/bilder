@@ -38,14 +38,14 @@ GRAS_DEPS=geant4,pcre,xercesc
 ######################################################################
 
 buildGras() {
-  GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
-  GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
+  #GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
+  #GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
   G4INSTALL="$CONTRIB_DIR/geant4"
   GRAS_ENV="$GRAS_ENV G4INSTALL='$G4INSTALL'"
   export G4INSTALL
   source $G4INSTALL/bin/geant4.sh
   if bilderUnpack gras; then
-    if bilderConfig -c gras ser "-DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc' $CMAKE_SUPRA_SP_ARG"; then
+    if bilderConfig -c gras ser "-DGeant4_ROOT_DIR:PATH='$CONTRIB_DIR/geant4 -DXercesc_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc' $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild gras ser "" "$GRAS_ENV"
     fi
   fi
@@ -68,6 +68,6 @@ testGras() {
 ######################################################################
 
 installGras() {
-  bilderInstall gras ser
+  bilderInstall -r gras ser gras
 }
 
