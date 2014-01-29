@@ -2945,7 +2945,8 @@ findQt() {
 #
 computeMakeJ() {
   if test -n "$MAKEJ_TOTAL" -a -n "$2"; then
-    local numblds=`echo $2 | tr ',' ' ' | wc -w | sed 's/^ *//'`
+# Pull out develdocs builds, which need -j1
+    local numblds=`echo $2 | tr ',' ' ' | sed 's/develdocs//g' | wc -w | sed 's/^ *//'`
     local jval=`expr $MAKEJ_TOTAL / $numblds`
     if test -n "$jval"; then
 # Make sure jval is at least one.  (Is this needed with the below?)
