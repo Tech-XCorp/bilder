@@ -25,25 +25,28 @@
 #
 ######################################################################
 
-if test -z "$TXBASE_DESIRED_BUILDS"; then
-  TXBASE_DESIRED_BUILDS=ser,par,sersh
+setTxBaseGlobalVars() {
+  if test -z "$TXBASE_DESIRED_BUILDS"; then
+    TXBASE_DESIRED_BUILDS=ser,par,sersh
+    if [[ `uname` =~ CYGWIN ]]; then
+      TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
+    fi
+    if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
+      TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
+    fi
+  fi
+  computeBuilds txbase
+  addCc4pyBuild txbase
+  TXBASE_DEPS=hdf5,Python,openmpi,cmake
+  # On Windows, boost needed for some math functions
   if [[ `uname` =~ CYGWIN ]]; then
-    TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
+    TXBASE_DEPS=$TXBASE_DEPS,boost
   fi
-  if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
-    TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
-  fi
-fi
-computeBuilds txbase
-addCc4pyBuild txbase
-TXBASE_DEPS=hdf5,Python,openmpi,cmake
-# On Windows, boost needed for some math functions
-if [[ `uname` =~ CYGWIN ]]; then
-  TXBASE_DEPS=$TXBASE_DEPS,boost
-fi
-trimvar TXBASE_DEPS ','
-TXBASE_MASK=002
-TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
+  trimvar TXBASE_DEPS ','
+  TXBASE_MASK=002
+  $TESTING_BUILDS && TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
+}
+setTxBaseGlobalVars
 
 ######################################################################
 #
