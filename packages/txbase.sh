@@ -130,6 +130,6 @@ testTxbase() {
 
 installTxbase() {
   TXBASE_DEVELDOCS_INSTALL_TARGET=install-apidocs
-  bilderInstallTestedPkg -b txbase "" "-r -i ben -p open"
+  bilderInstallTestedPkg -b -i ben txbase "" "-r -p open"
 }
 

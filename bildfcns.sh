@@ -5680,7 +5680,7 @@ bilderInstall() {
 # Remove old installation if requested
     if $removesame; then
       if test -d $instdirval/$instsubdirval; then
-        # chmod -R u+w $instdirval/$instsubdirval
+        techo "Ensuring installation directory writable to be able to remove."
         cmd="find $instdirval/$instsubdirval -user $USER -exec chmod u+w  '{}' \;"
         techo "$cmd"
         eval "$cmd"
@@ -5768,48 +5768,45 @@ EOF
         closed) setClosedPerms $instdirval/$instsubdirval;;
       esac
 
-# Fix perms that libtool sometimes botches
-# subdir may not exist if installed at top
+# Fix perms according to umask.  Is this needed anymore?
       techo "Setting permissions according to umask."
-      # if test -d "$instdirval/$instsubdirval"; then
-        case $umaskval in
-          000? | 00? | ?)  # printing format can vary.
+      case $umaskval in
+        000? | 00? | ?)  # printing format can vary.
 # For case where directories end up not being owned by installer
-            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            ;;
-        esac
-        case $umaskval in
-          0002 | 002 | 2)
+          cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
+          techo "$cmd"
+          eval "$cmd"
+          ;;
+      esac
+      case $umaskval in
+        0002 | 002 | 2)
 # For case where directories end up not being owned by installer
-            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            ;;
-        esac
+          cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
+          techo "$cmd"
+          eval "$cmd"
+          ;;
+      esac
 # Fix group if requested
-        local grpset=false
-        if test -n "$hostids" -a -n "$grpnm"; then
-          local h=
-          for h in `echo $hostids | tr ',' ' '`; do
-            if [[ $FQMAILHOST =~ "$h$" ]]; then
-              techo "Setting group to $grpnm."
-              find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;
-              techo "$cmd"
-              eval "$cmd"
-              grpset=true
-              break
-            fi
-          done
-          if ! $grpset; then
-            techo "$FQMAILHOST not found in $hostids."
+      local grpset=false
+      if test -n "$hostids" -a -n "$grpnm"; then
+        local h=
+        for h in `echo $hostids | tr ',' ' '`; do
+          if [[ $FQMAILHOST =~ "$h$" ]]; then
+            techo "Setting group of $instdirval/$instsubdirval to $grpnm."
+            find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;
+            techo "$cmd"
+            eval "$cmd"
+            grpset=true
+            break
           fi
-        fi
+        done
         if ! $grpset; then
-          techo "Group was not changed."
+          techo "$FQMAILHOST not found in $hostids."
         fi
-      # fi
+      fi
+      if ! $grpset; then
+        techo "Group was not changed."
+      fi
 
 # Record installation in installation directory
       if $recordinstall; then
