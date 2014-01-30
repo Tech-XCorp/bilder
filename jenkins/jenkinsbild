@@ -286,7 +286,7 @@ case $STEP in
 # If wait period not specified, make it 7 days.
     if ! echo " $postopts" | grep ' -w'; then
 # Prepend postopts as may end with target
-      postopts="-w7 $postopts"
+      postopts="-w 7 $postopts"
     fi
     ;;
 
