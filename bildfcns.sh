@@ -5494,6 +5494,8 @@ bilderInstall() {
   local cpdir=false
   local doLinks=true
   local forceinstall=$FORCE_INSTALL
+  local grpnm=
+  local hostids=
   local installersubdir=
   local insttarg=
   local istest=false
@@ -5504,12 +5506,14 @@ bilderInstall() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ab:cfgLm:np:rs:tT:z" arg; do
+  while getopts "ab:cfg:h:Lm:np:rs:tT:z" arg; do
     case $arg in
       a) acceptbuild=true;;
       b) builddir="$OPTARG";;
       c) cpdir=true;;
       f) forceinstall=true;;
+      g) grpnm="$OPTARG";;
+      h) hostids="$OPTARG";;
       L) doLinks=false;;
       m) bildermake="$OPTARG";;
       n) recordinstall=false;;
@@ -5523,6 +5527,15 @@ bilderInstall() {
   done
   shift $(($OPTIND - 1))
   local envvars="$5"
+
+# Args for installation
+  if test -z "$grpnm" -a -n "$hostids"; then
+    techo "WARNING: [bilderInstallTestedPkg] grpnm not set but hostids set."
+  elif test -n "$grpnm" -a -z "$hostids"; then
+    techo "WARNING: [bilderInstallTestedPkg] grpnm set but hostids not set."
+  elif test -n "$grpnm" -a -n "$hostids"; then
+    techo "NOTE: [bilderInstallTestedPkg] will set group to $grpnm at $hostids."
+  fi
 
 # If there was a build, the builddir was set
   local builddirvar=`genbashvar $1-$2`_BUILD_DIR
@@ -5749,10 +5762,54 @@ EOF
       echo SUCCESS >>$install_txt
 
 # Set the permissions
+      techo "Setting permissions according to perms."
       case "$perms" in
           open) setOpenPerms $instdirval/$instsubdirval;;
         closed) setClosedPerms $instdirval/$instsubdirval;;
       esac
+
+# Fix perms that libtool sometimes botches
+# subdir may not exist if installed at top
+      techo "Setting permissions according to umask."
+      # if test -d "$instdirval/$instsubdirval"; then
+        case $umaskval in
+          000? | 00? | ?)  # printing format can vary.
+# For case where directories end up not being owned by installer
+            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
+            techo "$cmd"
+            eval "$cmd"
+            ;;
+        esac
+        case $umaskval in
+          0002 | 002 | 2)
+# For case where directories end up not being owned by installer
+            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
+            techo "$cmd"
+            eval "$cmd"
+            ;;
+        esac
+# Fix group if requested
+        local grpset=false
+        if test -n "$hostids" -a -n "$grpnm"; then
+          local h=
+          for h in `echo $hostids | tr ',' ' '`; do
+            if [[ $FQMAILHOST =~ "$h$" ]]; then
+              techo "Setting group to $grpnm."
+              find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;
+              techo "$cmd"
+              eval "$cmd"
+              grpset=true
+              break
+            fi
+          done
+          if ! $grpset; then
+            techo "$FQMAILHOST not found in $hostids."
+          fi
+        fi
+        if ! $grpset; then
+          techo "Group was not changed."
+        fi
+      # fi
 
 # Record installation in installation directory
       if $recordinstall; then
@@ -5785,24 +5842,6 @@ EOF
         fi
       else
         techo "Not making an installation link."
-      fi
-
-# Fix perms that libtool sometimes botches
-# subdir may not exist if installed at top
-      techo "Setting permissions according to umask."
-      if test -d "$instdirval/$instsubdirval"; then
-        case $umaskval in
-          000? | 00? | ?)  # printing format can vary.
-# For case where directories end up not being owned by installer
-            find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;
-            ;;
-        esac
-        case $umaskval in
-          0002 | 002 | 2)
-# For case where directories end up not being owned by installer
-            find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;
-            ;;
-        esac
       fi
 
 # If disable-shared, remove any .la files, as these can contain dependency
@@ -6021,19 +6060,12 @@ bilderInstallAll() {
 # Args:
 # 1: Name of tested package, e.g., vorpal
 # 2: Name of tests in methods, e.g., VpTests
+# 3: Args to used when calling bilderInstall
 #
 # Named args (must come first):
 # -b whether there are build tests
-# -g set the group to this after installing on the hosts matching what is
-#    specified by -h
-# -h list of hosts or domains, which if matched, get the group set
 # -i ignore the tests of builds when calling install, comma-separated list
-# -m use the arg instead of make/nmake
 # -n <tests>   Name of tests if not found from lower-casing $2
-# -p <perms>   Type of permissions to set (open or closed)
-# -r remove the old installation before installing anew
-# -s the name of the installer subdir at the depot, passed through to
-#    bilderInstall
 # -t do not install test pkg
 #
 # Return true if should be installed
@@ -6046,37 +6078,25 @@ bilderInstallTestedPkg() {
   local hasbuildtests=false
   local ignorebuilds=develdocs
   local tstsnm=
-  local grpnm=
-  local hostids=
   local installsubdir=
-  local makerargs=
-  local perms=
   local removePkg=false
   local removearg=
   local testinstall=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bg:h:i:m:n:p:rs:t" arg; do
+  while getopts "bi:n:t" arg; do
     case $arg in
       b) hasbuildtests=true;;
-      g) grpnm="$OPTARG";;
-      h) hostids="$OPTARG";;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
-      m) makerargs="-m $OPTARG";;
       n) tstsnm="$OPTARG";;
-      p) perms="$OPTARG";;
-      r) removePkg=true; removearg=-r;;
-      s) installsubdir="$OPTARG";;
       t) testinstall=true;;
     esac
   done
   shift $(($OPTIND - 1))
 
-# Warnings
-  if test -n "$grpnm" -o -n "$hostid"; then
-    techo "WARNING: -g and -h options currently ignored by bilderInstallTestedPkg."
-  fi
+# Args for calling bilderInstall
+  local installargs="$3"
 
 # Determine args for shouldInstallTestedPkg
   local sitpargs=
@@ -6103,16 +6123,6 @@ bilderInstallTestedPkg() {
   fi
   trimvar tstdblds ' '
 
-# Args for installation
-  local permsarg=
-  if test -n "$perms"; then
-    permsarg="-p $perms"
-  fi
-  local subdirarg=
-  if test -n "$installsubdir"; then
-    subdirarg="-s $installsubdir"
-  fi
-
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
   if test -n "$tstdblds"; then
@@ -6121,7 +6131,7 @@ bilderInstallTestedPkg() {
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
       for bld in $bldsval; do
-        cmd="bilderInstall $makerargs $removearg $permsarg $subdirarg $1 $bld"
+        cmd="bilderInstall $installargs $1 $bld"
         techo -2 "$cmd"
         $cmd
       done
