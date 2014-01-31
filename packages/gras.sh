@@ -38,8 +38,8 @@ GRAS_DEPS=geant4,pcre,xercesc
 ######################################################################
 
 buildGras() {
-  #GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
-  #GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
+  GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
+  GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
   G4INSTALL="$CONTRIB_DIR/geant4"
   GRAS_ENV="$GRAS_ENV G4INSTALL='$G4INSTALL'"
   export G4INSTALL
