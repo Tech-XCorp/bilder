@@ -66,25 +66,25 @@ case $UQMAILHOST in
     LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
-# Use gcc 4.6 as it is compatible with the cuda 5.0 sdk
+# Use gcc 4.7 as it is compatible with the cuda 5.5 sdk
 # System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/12.0.00/GNU/46/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/GNU/47/mc12/lib/libsci_gnu.a
     SYSTEM_BLAS_SERSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_SER_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_SERSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_BLAS_SER_LIB}
-    SYSTEM_BLAS_PAR_LIB=/opt/cray/libsci/12.0.00/GNU/46/interlagos/lib/libsci_gnu.a
+    SYSTEM_BLAS_PAR_LIB=/opt/cray/libsci/default/GNU/47/interlagos/lib/libsci_gnu.a
     SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_PAR_LIB}
     SYSTEM_LAPACK_PAR_LIB=${SYSTEM_BLAS_PAR_LIB}
     SYSTEM_LAPACK_BEN_LIB=${SYSTEM_BLAS_PAR_LIB}
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/gnu/46
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/gnu/46
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/1.8.9/gnu/47
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/1.8.9/gnu/47
     SYSTEM_HDF5_BEN_DIR=${SYSTEM_HDF5_PAR_DIR}
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/gnu/46
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/gnu/46
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/4.2.0/gnu/47
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/4.2.0/gnu/47
     SYSTEM_NETCDF_BEN_DIR=${SYSTEM_NETCDF_PAR_DIR}
 
 # use ben builds
