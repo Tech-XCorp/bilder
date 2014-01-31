@@ -92,7 +92,22 @@ fi
 
 # Set BILDER_SVN before going further
 BILDER_SVN=${BILDER_SVN:-"`which svn`"}
-HAVE_BEN_BUILDS=${HAVE_BEN_BUILDS:-"false"}
+# The BEN build is an additional build for back end nodes.
+# On BGP, the back end build uses a different, 32-bit serial
+#   compiler for serial packages like txphysics.  The parallel
+#   uses the (only) parallel (32-bit) compilers.
+# One systems with outboard Phi nodes, the ben build is an
+#   additional build using the extra parallel compilers, even
+#   on serial only packages, like txphysics.
+if test -z "$HAVE_BEN_BUILDS"; then
+  HAVE_BEN_BUILDS=false
+  if test "$CONFIG_COMPILERS_BEN" != "$CONFIG_COMPILERS_SER" -a "$CONFIG_COMPILERS_BEN" != "$CONFIG_COMPILERS_PAR"; then
+    HAVE_BEN_BUILDS=true
+  elif test "$CONFIG_COMPFLAGS_BEN" != "$CONFIG_COMPFLAGS_SER" -a
+      "$CONFIG_COMPFLAGS_BEN" != "$CONFIG_COMPFLAGS_PAR"; then
+    HAVE_BEN_BUILDS=true
+  fi
+fi
 
 ######################################################################
 #

@@ -2014,7 +2014,11 @@ fi
 }
 
 #
-# Add in ben build if not present and no par build.
+# Blue Gene Logic:
+#   Add in ben build if not present and no par build.
+# Phi logic:
+#   ben build is an additional par build.
+# Now using Phi logic
 #
 # Args:
 # 1: the package
@@ -2022,15 +2026,13 @@ fi
 # echoes the new builds
 #
 addBenBuild() {
-  if $HAVE_BEN_BUILDS && test "$CONFIG_COMPILERS_SER" != "$CONFIG_COMPILERS_BEN"; then
+  if $HAVE_BEN_BUILDS; then
     local buildsvar=`genbashvar $1`_BUILDS
     local buildsval=`deref $buildsvar`
     if test -n "$buildsval" -a "$buildsval" != NONE; then
       if ! echo $buildsval | egrep -q "(^|,)ben($|,)"; then
-        if ! echo $buildsval | egrep -q "(^|,)par($|,)"; then
-          buildsval=$buildsval,ben
-          eval $buildsvar=$buildsval
-        fi
+        buildsval=$buildsval,ben
+        eval $buildsvar=$buildsval
       fi
     fi
   fi
