@@ -5518,11 +5518,11 @@ bilderInstall() {
 
 # Args for installation
   if test -z "$grpnm" -a -n "$hostids"; then
-    techo "WARNING [bilderInstallTestedPkg]: grpnm not set but hostids set."
+    techo "WARNING [bilderInstall]: grpnm not set but hostids set."
   elif test -n "$grpnm" -a -z "$hostids"; then
-    techo "WARNING [bilderInstallTestedPkg]: grpnm set but hostids not set."
+    techo "WARNING [bilderInstall]: grpnm set but hostids not set."
   elif test -n "$grpnm" -a -n "$hostids"; then
-    techo "NOTE: [bilderInstallTestedPkg] will set group to $grpnm at $hostids."
+    techo -2 "NOTE: [bilderInstall] will set group to $grpnm at $hostids."
   fi
 
 # If there was a build, the builddir was set
@@ -5711,7 +5711,7 @@ bilderInstall() {
     local umaskvar=`genbashvar $1`_UMASK
     local umaskval=`deref $umaskvar`
     if test -z "$umaskval"; then
-      TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $umaskvar not set."
+      TERMINATE_ERROR_MSG="FATAL ERROR [bilderInstall]: $umaskvar not set."
       terminate
     fi
     local origumask=`umask`
@@ -5767,13 +5767,17 @@ EOF
           eval "$cmd"
           ;;
       esac
+
 # Fix group if requested
       local grpset=false
       if test -n "$hostids" -a -n "$grpnm"; then
         local h=
-        for h in `echo $hostids | tr ',' ' '`; do
-          if [[ $FQMAILHOST =~ "$h$" ]]; then
-            techo "Setting group of $instdirval/$instsubdirval to $grpnm."
+        local hs=`echo $hostids | tr ',' ' '`
+        for h in $hs; do
+          # if [[ $FQMAILHOST =~ "$h$" ]]; then
+# JRC: not understood how to match end of word in this syntax
+          if [[ $FQMAILHOST =~ "$h" ]]; then
+            techo "NOTE [bilderInstall]: Setting group of $instdirval/$instsubdirval to $grpnm."
             find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;
             techo "$cmd"
             eval "$cmd"
@@ -5782,11 +5786,11 @@ EOF
           fi
         done
         if ! $grpset; then
-          techo "$FQMAILHOST not found in $hostids."
+          techo "NOTE [bilderInstall]: $FQMAILHOST not found in $hostids."
         fi
       fi
       if ! $grpset; then
-        techo "Group was not changed."
+        techo "NOTE [bilderInstall]: Group was not changed."
       fi
 
 # Record installation in installation directory
@@ -5897,7 +5901,7 @@ EOF
             fi
             if test -n "$installer"; then
               sfx=`echo $ending | sed 's/^[^\.]*\.//'`
-              techo "NOTE: Installer = '${installer}'"
+              techo "NOTE [bilderInstall]: Installer = '${installer}'"
               break
             fi
           done
