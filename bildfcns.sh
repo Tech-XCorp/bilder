@@ -136,11 +136,11 @@ bilderSource() {
     if test $res = 0; then
       source $1
     else
-      techo "WARNING: Syntax error found in script: $1"
-      techo "WARNING: $cmd"
+      techo "WARNING [bilderSource]: Syntax error found in script: $1"
+      techo "WARNING [bilderSource]: $cmd"
     fi
   else
-    techo "WARNING: Bilder unable to find script, $1, to source."
+    techo "WARNING [bilderSource]: Bilder unable to find script, $1, to source."
   fi
 }
 
@@ -393,7 +393,7 @@ bilderSvnversion() {
         if node=`cygpath -aw "$1"`; then
           args="$args $node"
         else
-        techo "WARNING: cygpath did not work on $1." 1>&2
+        techo "WARNING [bilderSvnversion]: cygpath did not work on $1." 1>&2
           args="$args $1"
         fi
       else
@@ -649,8 +649,8 @@ if false; then
 fi
 
   if test -z "$1"; then
-    TERMINATE_ERROR_MSG="Catastrophic error in checkDirWritable.  Directory not specified."
-    exitOnError
+    TERMINATE_ERROR_MSG="FATAL ERROR [checkDirWritable]:  Directory not specified."
+    terminate
   fi
   local dir=$1
 
@@ -1184,20 +1184,6 @@ getVersion() {
   done
   shift $(($OPTIND - 1))
 
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -l)
-        lastChangedArg=
-        ;;
-      *)
-        break
-        ;;
-    esac
-    shift
-  done
-fi
-
 # Get subdir
   local origdir=`pwd -P`
   subdir=${2:-"."}
@@ -1217,7 +1203,7 @@ fi
   res=$?
   if test $res != 0; then
     eval ${vervar}=unknown
-    techo "WARNING: Directory $repodir does not exist.  Version is unknown.  Cannot configure."
+    techo "WARNING [getVersion]: Directory $repodir does not exist.  Version is unknown.  Cannot configure."
     return 1
   fi
 
@@ -1290,7 +1276,7 @@ fi
   eval ${vervar}=$rev
   techo "${vervar} = $rev."
   case $rev in
-    *:* | *M) techo "WARNING: $repodir is not clean.  ${vervar} = $rev.";;
+    *:* | *M) techo "WARNING [getVersion]: $repodir is not clean.  ${vervar} = $rev.";;
   esac
   # techo exit; exit
 
@@ -1862,7 +1848,7 @@ warnMissingPkgs() {
           pkg=`basename $i .h`-devel
           ;;
       esac
-      techo "WARNING: $i not found.  May need to install $pkg."
+      techo "WARNING [warnMissingPkgs]: $i not found.  May need to install $pkg."
     fi
   done
 
@@ -1883,13 +1869,13 @@ warnMissingPkgs() {
       fi
     done
     if ! $found; then
-      techo "WARNING: $lib.so not found."
+      techo "WARNING [warnMissingPkgs]: $lib.so not found."
       missingpkgs="$missingpkgs ${lib}-devel"
     fi
   done
   trimvar missingpkgs ' '
   if test -n "$missingpkgs"; then
-    techo "WARNING: May need to install $missingpkgs."
+    techo "WARNING [warnMissingPkgs]: May need to install $missingpkgs."
   fi
 
 }
@@ -2072,7 +2058,7 @@ getPkgRepos() {
       i=$i1
     done
     if test $NUM_PACKAGE_REPOS -eq 0; then
-      techo "WARNING: Found 0 package repos."
+      techo "WARNING [getPkgRepos]: Found 0 package repos."
     else
       techo "Found $NUM_PACKAGE_REPOS package repos:"
       local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
@@ -2083,7 +2069,7 @@ getPkgRepos() {
       done
     fi
   else
-    techo "WARNING: PACKAGE_REPOS_FILE undefined.  Not known where to get packages."
+    techo "WARNING [getPkgRepos]: PACKAGE_REPOS_FILE undefined.  Not known where to get packages."
     NUM_PACKAGE_REPOS=0
   fi
 
@@ -2734,7 +2720,7 @@ findBlasLapack() {
           eval $varname=$varval
           techo "$varname = $varval found."
         else
-          techo "WARNING: $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
+          techo "WARNING [findBlasLapack]: $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
         fi
       done
 # Nubeam needs these specified.
@@ -2929,7 +2915,7 @@ findQt() {
     esac
   fi
   if test -z "$QT_BINDIR"; then
-    techo "WARNING: Could not find Qt."
+    techo "WARNING [findQt]: Could not find Qt."
     return 1
   fi
   QMAKE=$QT_BINDIR/qmake
@@ -3041,7 +3027,7 @@ getPkg() {
 
 # Ensure have some repos
   if test $NUM_PACKAGE_REPOS = 0; then
-    TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  NUM_PACKAGE_REPOS = 0.  Must define package repos."
+    TERMINATE_ERROR_MSG="FATAL ERROR [getPkg]:  NUM_PACKAGE_REPOS = 0.  Must define package repos."
     terminate
   fi
 
@@ -3060,7 +3046,7 @@ getPkg() {
     numtarballs=${numtarballs:-"0"}
     techo -2 "$numtarballs tarballs already present." 1>&2
     if test "$numtarballs" -gt 1; then
-      techo "WARNING: More than 1 present tarball matches.  Taking last." 1>&2
+      techo "WARNING [getPkg]: More than 1 present tarball matches.  Taking last." 1>&2
       cat /tmp/tarballs$$.tmp 1>&2
     fi
     tarballbase=`tail -1 /tmp/tarballs$$.tmp`
@@ -3099,12 +3085,12 @@ getPkg() {
           numtarballs=${numtarballs:-"0"}
           techo -2 "Repo numtarballs = $numtarballs." 1>&2
           if test $numtarballs = 0; then
-            TERMINATE_ERROR_MSG="Catastrophic failure: [getPkg] no tarball in repo matches \"^${1}\"\'\\.t*\'."
+            TERMINATE_ERROR_MSG="FATAL ERROR [getPkg]: no tarball in repo matches \"^${1}\"\'\\.t*\'."
             # rm /tmp/tarballs$$.tmp
             terminate
           fi
           if test $numtarballs -gt 1; then
-            techo "WARNING: More than 1 tarball matches.  Taking last." 1>&2
+            techo "WARNING [getPkg]: More than 1 tarball matches.  Taking last." 1>&2
             cat /tmp/tarballs$$.tmp 1>&2
           fi
           tarballbase=`tail -1 /tmp/tarballs$$.tmp`
@@ -3193,7 +3179,7 @@ updateRepo() {
 
 # Make sure they have the executable
   if ! which $scmexec 1>/dev/null 2>&1; then
-    techo "WARNING: $scmexec is not in path.  Cannot get $pkg."
+    techo "WARNING [updateRepo]: $scmexec is not in path.  Cannot get $pkg."
     return 1
   fi
 
@@ -3630,11 +3616,11 @@ bilderPreconfig() {
     if declare -f bilderGetTestData 1>/dev/null 2>&1; then
       bilderGetTestData $1
     else
-      techo "WARNING: function bilderGetTestData not defined.  Requested by $1."
+      techo "WARNING [bilderPreconfig]: function bilderGetTestData not defined.  Requested by $1."
       if test -n "$BILDER_CONFDIR"; then
-        techo "WARNING: It should be defined in $BILDER_CONFDIR/bilderrc."
+        techo "WARNING [bilderPreconfig]: It should be defined in $BILDER_CONFDIR/bilderrc."
       else
-        techo "WARNING: Define BILDER_CONFDIR and then define bilderGetTestData in $BILDER_CONFDIR/bilderrc."
+        techo "WARNING [bilderPreconfig]: Define BILDER_CONFDIR and then define bilderGetTestData in $BILDER_CONFDIR/bilderrc."
       fi
     fi
   fi
@@ -4551,7 +4537,7 @@ bilderBuild() {
   ./$buildscript >>$build_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
-    techo "WARNING: pid not known.  Something bad happened."
+    techo "WARNING [bilderBuild]: pid not known."
     return 1
   fi
 # Record build
@@ -4725,7 +4711,7 @@ bilderTest() {
   ./$testscript >>$test_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
-    techo "WARNING: pid not known.  Something bad happened."
+    techo "WARNING [bilderTest]: pid not known.  Something bad happened."
     return 1
   fi
 # Record test
@@ -4897,7 +4883,7 @@ waitAction() {
         echo FAILURE >>$builddir/$build_txt
       fi
     else
-      techo "WARNING: waitAction cannot find $builddir/$build_txt to record result of $res."
+      techo "WARNING [waitAction]: cannot find $builddir/$build_txt to record result of $res."
     fi
 
 # Record failure if appropriate
@@ -4932,7 +4918,7 @@ waitAction() {
     fi
 
     if test -z "$res"; then
-      techo "WARNING: waitAction found no result for $1 PID=$pid."
+      techo "WARNING [waitAction]: no result for $1 PID=$pid."
       res=99
     fi
   fi
@@ -5532,9 +5518,9 @@ bilderInstall() {
 
 # Args for installation
   if test -z "$grpnm" -a -n "$hostids"; then
-    techo "WARNING: [bilderInstallTestedPkg] grpnm not set but hostids set."
+    techo "WARNING [bilderInstallTestedPkg]: grpnm not set but hostids set."
   elif test -n "$grpnm" -a -z "$hostids"; then
-    techo "WARNING: [bilderInstallTestedPkg] grpnm set but hostids not set."
+    techo "WARNING [bilderInstallTestedPkg]: grpnm set but hostids not set."
   elif test -n "$grpnm" -a -n "$hostids"; then
     techo "NOTE: [bilderInstallTestedPkg] will set group to $grpnm at $hostids."
   fi
@@ -5581,19 +5567,19 @@ bilderInstall() {
       *:*)
         doinstall=false
         RESULT=1
-        techo "WARNING: Not installing $1-$verval-$2 as version contains a colon, so not a pure svn version."
+        techo "WARNING [bilderInstall]: Not installing $1-$verval-$2 as version contains a colon, so not a pure svn version."
         builtNotInstalled="$builtNotInstalled $1-$2"
         ;;
       r[0-9][0-9]*-[0-9][0-9]*)
         doinstall=false
         RESULT=1
-        techo "WARNING: Not installing $1-$verval-$2 as version contains a dash, so not a pure svn version."
+        techo "WARNING [bilderInstall]: Not installing $1-$verval-$2 as version contains a dash, so not a pure svn version."
         builtNotInstalled="$builtNotInstalled $1-$2"
         ;;
       *M)
         doinstall=false
         RESULT=1
-        techo "WARNING: Not installing $1-$verval-$2 as version ends with M, so a modification to an svn version."
+        techo "WARNING [bilderInstall]: Not installing $1-$verval-$2 as version ends with M, so a modification to an svn version."
         builtNotInstalled="$builtNotInstalled $1-$2"
         ;;
       *)
@@ -5650,17 +5636,10 @@ bilderInstall() {
       res=$?
       return $res
     fi
-# Disable testing $instsubdirbase for '-' as autotools packages will not
-# install with this restriction.
-# However, there will be issues with using cleaninstalls.sh.
-# Uncomment code or remove completely when a better solution is found.
-#    if echo $instsubdirbase | grep -q -- -; then
-#      techo "WARNING: Installation subdirbase may not contain -.  Will not install."
-#      return 1
-#    fi
+
     techo "Installing $1-$verval-$2 into $instdirval/$instsubdirval at `date +%F-%T` from $builddir."
     if echo $instsubdirval | grep -q /; then
-      techo "WARNING: Installation subdir may not contain /.  Will not make links or shortcuts."
+      techo "WARNING [bilderInstall]: Installation subdir may not contain /.  Will not make links or shortcuts."
       doLinks=false
     fi
 # Set link name
@@ -5836,7 +5815,7 @@ EOF
             techo "Linking $instdirval/$instsubdirval to $instdirval/$linkname."
             mkLink $linkargs $instdirval $instsubdirval $linkname
           else
-            techo "WARNING: Not linking $instdirval/$instsubdirval to $instdirval/$linkname because $instdirval/$instsubdirval can not be found."
+            techo "WARNING [bilderInstall]: Not linking $instdirval/$instsubdirval to $instdirval/$linkname because $instdirval/$instsubdirval can not be found."
           fi
         fi
       else
@@ -5855,7 +5834,7 @@ EOF
           $cmd
         fi
       else
-        techo "WARNING: Configure script not found for package $1."
+        techo "WARNING [bilderInstall]: Configure script not found for package $1."
       fi
 
 # Remove old installations.
@@ -5946,9 +5925,9 @@ EOF
             $cmd 1>/dev/null 2>&1
             cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
             if ! $cmd 1>/dev/null 2>&1; then
-              techo "WARNING: For depot copy, failed to make target directory '${depotdir}' on host '${INSTALLER_HOST}'."
+              techo "WARNING [bilderInstall]: For depot copy, failed to make target directory '${depotdir}' on host '${INSTALLER_HOST}'."
               depotdir=$INSTALLER_ROOTDIR/$installersubdir
-              techo "WARNING: For depot copy, falling back to target directory '${depotdir}'."
+              techo "WARNING [bilderInstall]: For depot copy, falling back to target directory '${depotdir}'."
             else
               techo "For depot copy, made new target directory '${depotdir}' on host '${INSTALLER_HOST}."
             fi
@@ -5979,7 +5958,7 @@ EOF
                 eval $cmd
               fi
             else
-              techo "WARNING: '$cmd' failed: `cat error`"
+              techo "WARNING [bilderInstall]: '$cmd' failed: `cat error`"
               rm error
             fi
 
@@ -5994,7 +5973,7 @@ EOF
               if $copycmd 2>&1; then
                 techo -2 "Installer $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
               else
-                techo "WARNING: $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
+                techo "WARNING [bilderInstall]: $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
               fi
               if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
                 curdir=`pwd -P`
@@ -6010,7 +5989,7 @@ EOF
 # Warn user only if installer is not set and build is sersh were installer
 # is expected to be found.
             if test "$2" == sersh; then
-              techo "WARNING: $1 installer ($installer) not found."
+              techo "WARNING [bilderInstall]: $1 installer ($installer) not found."
             fi
           fi
         else
@@ -6860,7 +6839,7 @@ EOF
       if $cmd 2>&1; then
         destdirok=true
       else
-        techo "WARNING: Cannot Group write perms not set on ${ABSTRACT_HOST}:$abstractdir."
+        techo "WARNING [summarize]: Cannot Group write perms not set on ${ABSTRACT_HOST}:$abstractdir."
       fi
     else
 # Destination directory does not exist, so we create and ensure group write
@@ -6869,8 +6848,8 @@ EOF
         ssh $ABSTRACT_HOST chmod g=rwxs,o=rx $abstractdir
         destdirok=true
       else
-        techo "WARNING: Cannot create $abstractdir on $ABSTRACT_HOST."
-        techo "WARNING: $cmd"
+        techo "WARNING [summarize]: Cannot create $abstractdir on $ABSTRACT_HOST."
+        techo "WARNING [summarize]: $cmd"
       fi
     fi
 
@@ -6885,19 +6864,19 @@ EOF
         techo "Copy of abstract succeeded.  Making group writable."
         cmd="ssh $ABSTRACT_HOST chmod g=rw,o=r $abstractdest"
       else
-        techo "WARNING: Failed to copy ${ABSTRACT} to $ABSTRACT_HOST."
+        techo "WARNING [summarize]: Failed to copy ${ABSTRACT} to $ABSTRACT_HOST."
       fi
     else
-      techo "WARNING: Could not make $abstractdir on $ABSTRACT_HOST."
+      techo "WARNING [summarize]: Could not make $abstractdir on $ABSTRACT_HOST."
     fi
 
   else
     if ! $SEND_ABSTRACT; then
-      techo "WARNING: Not copying abstract as not requested."
+      techo "WARNING [summarize]: Not copying abstract as not requested."
     elif test -z "$ABSTRACT_HOST"; then
-      techo "WARNING: Not copying abstract as ABSTRACT_HOST is undefined."
+      techo "WARNING [summarize]: Not copying abstract as ABSTRACT_HOST is undefined."
     else
-      techo "WARNING: Not copying abstract as ABSTRACT_ROOTDIR is undefined."
+      techo "WARNING [summarize]: Not copying abstract as ABSTRACT_ROOTDIR is undefined."
     fi
   fi
 
@@ -7006,7 +6985,7 @@ getSphinxMathArg() {
     defineMathJaxLocCmake
   else
     # Need to define the common URL
-    echo "WARNING: MathJax location unknown."
+    echo "WARNING [getSphinxMathArg]: MathJax location unknown."
   fi
 }
 
@@ -7258,7 +7237,7 @@ buildChain() {
       $cmd
       techo "--------------------------------${dashend}"
     else
-      techo "WARNING: test method for $pkg not found."
+      techo "WARNING [buildChain]: test method for $pkg not found."
     fi
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
