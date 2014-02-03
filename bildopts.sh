@@ -73,6 +73,9 @@ BILDER OPTIONS
                         installation of that package.
   -R ................ Build RELEASE (i.e., licensed and signed when applicable)
                         version of executable.
+                         
+  -s ................ Rebuild packages if package script has been modified
+                        since last build.
   -S ................ Build static.
   -t ................ Run tests.
   -T ................ Set tests to run with internal preprocessor
@@ -141,6 +144,7 @@ processBilderArgs() {
     P) POST2DEPOT=false;;
     r) REMOVE_OLD=true;;
     R) CREATE_RELEASE=true;;
+    s) BUILD_IF_NEWER_PKGFILE=true;;
     S) SER_EXTRA_LDFLAGS="--static $SER_EXTRA_LDFLAGS"    # For serial builds
        PAR_EXTRA_LDFLAGS="--static $PAR_EXTRA_LDFLAGS";;  # For parallel builds;
     t) TESTING=true;;
@@ -185,7 +189,7 @@ setBilderOptions() {
   BUILD_TARBALLS=true
   export BUILD_EXPERIMENTAL=false  # Needed by setinstald.sh
   BUILD_MPIS=false
-  BUILD_IF_NEWER_PKGFILE=true
+  BUILD_IF_NEWER_PKGFILE=false
   BUILD_OPTIONAL=false
   BUILD_INSTALLERS=false
   REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
