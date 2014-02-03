@@ -29,7 +29,7 @@ GRAS_DEPS=geant4,pcre,xercesc
 #
 ######################################################################
 
-#addtopathvar PATH $CONTRIB_DIR/gras/bin
+addtopathvar PATH $CONTRIB_DIR/gras/bin
 
 ######################################################################
 #
@@ -41,11 +41,34 @@ buildGras() {
   GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
   GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
   G4INSTALL="$CONTRIB_DIR/geant4"
-  GRAS_ENV="$GRAS_ENV G4INSTALL='$G4INSTALL'"
   export G4INSTALL
   source $G4INSTALL/bin/geant4.sh
+
+  GRAS_ENV="$GRAS_ENV G4INSTALL='$G4INSTALL'"
+
+  local libpost=
+  local libpre=
+  case `uname` in
+    CYGWIN*)
+      libpost=lib
+      ;;
+    Darwin)
+      libpre=lib
+      libpost=dylib
+      ;;
+    Linux)
+      libpre=lib
+      libpost=so
+      ;;
+  esac
+
+
+  local xercescdir="${CONTRIB_DIR}/xercesc"
+
+  GRAS_ADDL_ARGS="${GRAS_ADDL_ARGS} -DXERCESC_INCLUDE_DIR:PATH='${xercesc}/include' -DXERCESC_LIBRARY:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DGeant4_DIR:PATH='$CONTRIB_DIR/geant4/lib/Geant4-9.6.2'"
+
   if bilderUnpack gras; then
-    if bilderConfig -c gras ser "-DGeant4_ROOT_DIR:PATH='$CONTRIB_DIR/geant4 -DXercesc_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc' $CMAKE_SUPRA_SP_ARG"; then
+    if bilderConfig -c gras ser "$GRAS_ADDL_ARGS $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild gras ser "" "$GRAS_ENV"
     fi
   fi
