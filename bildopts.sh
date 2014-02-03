@@ -144,7 +144,7 @@ processBilderArgs() {
     P) POST2DEPOT=false;;
     r) REMOVE_OLD=true;;
     R) CREATE_RELEASE=true;;
-    s) BUILD_IF_NEWER_PKGFILE=true;;
+    s) BUILD_IF_NEWER_PKGFILE=false;;
     S) SER_EXTRA_LDFLAGS="--static $SER_EXTRA_LDFLAGS"    # For serial builds
        PAR_EXTRA_LDFLAGS="--static $PAR_EXTRA_LDFLAGS";;  # For parallel builds;
     t) TESTING=true;;
@@ -189,7 +189,7 @@ setBilderOptions() {
   BUILD_TARBALLS=true
   export BUILD_EXPERIMENTAL=false  # Needed by setinstald.sh
   BUILD_MPIS=false
-  BUILD_IF_NEWER_PKGFILE=false
+  BUILD_IF_NEWER_PKGFILE=true
   BUILD_OPTIONAL=false
   BUILD_INSTALLERS=false
   REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
@@ -211,6 +211,7 @@ setBilderOptions() {
   DO_FINAL_ACTION=true
   CLEAN_GITHG_SUBREPOS=true
   POST2DEPOT=true
+  PACKAGE_SCRIPT_REBUILD=false
   REMOVE_OLD=false
   RM_BUILD=true
   SVNUP=false
