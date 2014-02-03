@@ -3788,6 +3788,7 @@ rminterlibdeps() {
 # -i configures in the source directory
 # -I use optarg for install directory
 # -l removes previous install if found
+# -m the eventually used "maker", e.g., make, nmake, jom
 # -n uses a space instead of an equals for the prefix command.
 # -s if specified with -m, strips off the builddir and uses only the command
 #    specified with -m option
@@ -3810,28 +3811,29 @@ bilderConfig() {
 # Default option values
   unset DEPS
   unset QMAKE_PRO_FILENAME
-  local instsubdirvalA=
+  local build_inplace=false
+  local buildsubdir=
+  local cmakebuildtype=
   local cmval=
   local configcmdin=
-  local stripbuilddir=false
   local forceconfig=false
-  local usecmake=false
   local forceqmake=false
   local inplace=false
-  local noprefix=false
   local instdirs=
+  local instsubdirvalA=
+  local maker=
   local noequals=false  # Do not use equals in prefix command
-  local webdocs=false  # By default, we do not build documentation for the web
+  local noprefix=false
+  local recordfailure=true
   local riverbank=false
   local rminstall=false
-  local recordfailure=true
-  local buildsubdir
-  local build_inplace=false
-  local cmakebuildtype
+  local stripbuilddir=false
+  local usecmake=false
+  local webdocs=false  # By default, we do not build documentation for the web
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cd:fgiI:ylm:snp:q:rt" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:snp:q:rt" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
@@ -3843,6 +3845,7 @@ bilderConfig() {
       i) inplace=true;;
       I) instdirs="$OPTARG";;
       l) rminstall=true;;
+      m) maker="$OPTARG";;
       n) noequals=true;;
       p) instsubdirval="$OPTARG";;
       q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;
@@ -4307,10 +4310,10 @@ bilderConfig() {
     CYGWIN*)
       case "$cmval" in
         cmake)
-          if which jom 1>/dev/null 2>&1; then
-            finalcmd="'$configexec' $configargs -G 'NMake Makefiles JOM' $3 $srcarg"
-          else
+          if ! which jom 1>/dev/null 2>&1 || test "$maker" = nmake; then
             finalcmd="'$configexec' $configargs -G 'NMake Makefiles' $3 $srcarg"
+          else
+            finalcmd="'$configexec' $configargs -G 'NMake Makefiles JOM' $3 $srcarg"
           fi
           ;;
         autotools)
