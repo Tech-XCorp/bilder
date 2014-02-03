@@ -3778,6 +3778,9 @@ rminterlibdeps() {
 #     actual build is out-of-place.  This is for legacy petsc builds
 #     of the petscrepo (yes, petsc is ridiculously complicated).
 # -c force use of cmake even when a configure is present
+# -C Use this command instead of autotool/cmake configure.  Looks in
+#    the build dir of the package/buildname and then in the package
+#    for the command.
 # -d <dependencies>
 # -f force regardless of dependencies
 # -g do not use version for installation dir when 4th arg is used
@@ -3786,9 +3789,6 @@ rminterlibdeps() {
 # -I use optarg for install directory
 # -l removes previous install if found
 # -n uses a space instead of an equals for the prefix command.
-# -m Use this command instead of autotool/cmake configure.  Looks in
-#    the build dir of the package/buildname and then in the package
-#    for the command.
 # -s if specified with -m, strips off the builddir and uses only the command
 #    specified with -m option
 # -p <specified prefix subdir>.  '-' means none.
@@ -3810,9 +3810,9 @@ bilderConfig() {
 # Default option values
   unset DEPS
   unset QMAKE_PRO_FILENAME
-  local instsubdirval
-  local cmval
-  local configcmdin
+  local instsubdirvalA=
+  local cmval=
+  local configcmdin=
   local stripbuilddir=false
   local forceconfig=false
   local usecmake=false
@@ -3836,13 +3836,13 @@ bilderConfig() {
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
       c) usecmake=true; cmval=cmake;;
+      C) configcmdin="$OPTARG";;
       d) DEPS=$OPTARG;;
       f) forceconfig=true;;
       g) webdocs=true;;
       i) inplace=true;;
       I) instdirs="$OPTARG";;
       l) rminstall=true;;
-      m) configcmdin="$OPTARG";;
       n) noequals=true;;
       p) instsubdirval="$OPTARG";;
       q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;

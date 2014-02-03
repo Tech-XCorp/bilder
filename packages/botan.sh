@@ -56,13 +56,13 @@ buildBotan() {
     techo -2 "instdirsersh = '$instdirsersh'."
 # This is probably not giving the /MT flags build, so will disable at the
 # builds definition.
-    if bilderConfig -s -i -m "./configure.py" botan ser "--prefix='${instdirser}' $BOTAN_CONFIG_SER_ARGS $BOTAN_SER_OTHER_ARGS"; then
+    if bilderConfig -s -i -C "./configure.py" botan ser "--prefix='${instdirser}' $BOTAN_CONFIG_SER_ARGS $BOTAN_SER_OTHER_ARGS"; then
       bilderBuild $BOTAN_MAKE_ARGS botan ser
     fi
-    if bilderConfig -s -i -m "./configure.py" botan sersh "--prefix='${instdirsersh}' $BOTAN_CONFIG_SERSH_ARGS $BOTAN_SERSH_OTHER_ARGS"; then
+    if bilderConfig -s -i -C "./configure.py" botan sersh "--prefix='${instdirsersh}' $BOTAN_CONFIG_SERSH_ARGS $BOTAN_SERSH_OTHER_ARGS"; then
       bilderBuild $BOTAN_MAKE_ARGS botan sersh
     fi
-    if bilderConfig -s -i -m "./configure.py" botan cc4py "--prefix='${instdircc4py}' $BOTAN_CONFIG_CC4PY_ARGS $BOTAN_CC4PY_OTHER_ARGS"; then
+    if bilderConfig -s -i -C "./configure.py" botan cc4py "--prefix='${instdircc4py}' $BOTAN_CONFIG_CC4PY_ARGS $BOTAN_CC4PY_OTHER_ARGS"; then
       bilderBuild $BOTAN_MAKE_ARGS botan cc4py
     fi
   fi

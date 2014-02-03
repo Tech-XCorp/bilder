@@ -11,26 +11,19 @@
 # Version
 #
 ######################################################################
-SPARSKIT_BLDRVERSION=${SPARSKIT_BLDRVERSION:-"2"}
 
+SPARSKIT_BLDRVERSION=${SPARSKIT_BLDRVERSION:-"2"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 if test -z "$SPARSKIT_BUILDS"; then
   SPARSKIT_BUILDS=ser
 fi
-
 SPARSKIT_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
 
 ######################################################################
 #
@@ -40,7 +33,7 @@ SPARSKIT_UMASK=002
 
 buildSparskit() {
   if bilderUnpack -i sparskit; then
-    if bilderConfig -m " " sparskit ser; then
+    if bilderConfig -C " " sparskit ser; then
       bilderBuild sparskit ser
     fi
   fi
