@@ -4310,11 +4310,26 @@ bilderConfig() {
     CYGWIN*)
       case "$cmval" in
         cmake)
-          if ! which jom 1>/dev/null 2>&1 || test "$maker" = nmake; then
-            finalcmd="'$configexec' $configargs -G 'NMake Makefiles' $3 $srcarg"
-          else
-            finalcmd="'$configexec' $configargs -G 'NMake Makefiles JOM' $3 $srcarg"
+          local generator=
+          case "$maker" in
+            nmake) generator="NMake Makefiles";;
+            jom) generator="NMake Makefiles JOM";;
+            make) generator="Unix Makefiles";;
+          esac
+          if test -z "$generator"; then
+            case "$2" in
+# Not sure all this really belongs here
+              develdocs | url | lite | full) generator="NMake Makefiles";;
+              *)
+                if which jom 1>/dev/null 2>&1; then
+                  generator="NMake Makefiles JOM"
+                else
+                  generator="NMake Makefiles"
+                fi
+                ;;
+            esac
           fi
+          finalcmd="'$configexec' $configargs -G '$generator' $3 $srcarg"
           ;;
         autotools)
           case $1 in
