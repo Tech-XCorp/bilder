@@ -33,7 +33,7 @@ case `uname` in
     ;;
 esac
 
-GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON  -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc'"
+GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc'"
 
 ######################################################################
 #
@@ -41,7 +41,8 @@ GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL
 #
 ######################################################################
 
-#addtopathvar PATH $CONTRIB_DIR/geant4/bin
+addtopathvar PATH $CONTRIB_DIR/geant4/bin
+
 
 ######################################################################
 #
@@ -80,5 +81,9 @@ installGeant4() {
 # G4INSTALL, G4INCLUDE etc.  Not sure if we use them as they are no cmake.
 #  . $GEANT4_HOME/bin/geant4.sh
 #  . $GEANT4_HOME/share/Geant4-9.6.2/geant4make/geant4make.sh
+   export G4LEDATA="$GEANT4_HOME/share/data"
+   export G4LEVELGAMMADATA="$GEANT4_HOME/share/data"
+,  export G4NEUTRONXSDATA="$GEANT4_HOME/share/data"
+   export G4SAIDXSDATA="$GEANT4_HOME/share/data"
 }
 
