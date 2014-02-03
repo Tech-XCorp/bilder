@@ -211,7 +211,6 @@ setBilderOptions() {
   DO_FINAL_ACTION=true
   CLEAN_GITHG_SUBREPOS=true
   POST2DEPOT=true
-  PACKAGE_SCRIPT_REBUILD=false
   REMOVE_OLD=false
   RM_BUILD=true
   SVNUP=false
