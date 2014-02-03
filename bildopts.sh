@@ -38,7 +38,7 @@ BILDER OPTIONS
   -c ................ Configure packages but don't build.
   -C ................ Create installers.
   -d ................ Create debug builds (limited package support).
-  -D <builds> ....... Default doc builds (userdocs and develdocs).
+  -D <builds> ....... Default doc builds (subset of url,lite,full,develdocs).
   -e <addr> ......... Email log to specified recipients.
   -E <env pairs> .... Comma-delimited list of environment var=value pair.
   -F ................ Force installation of packages that have local

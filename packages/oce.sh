@@ -105,17 +105,17 @@ buildOce() {
   esac
 
 # OCE does not have all dependencies right on Windows, so needs nmake
-  local buildargs=
+  local makerargs=
   local makejargs=
   if [[ `uname` =~ CYGWIN ]]; then
-    buildargs="-m nmake"
+    makerargs="-m nmake"
   else
     makejargs="$OCE_MAKEJ_ARGS"
   fi
 
 # Configure and build
-  if bilderConfig oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
-    bilderBuild $buildargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
+  if bilderConfig $makerargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
+    bilderBuild $makerargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
   fi
 
 }
