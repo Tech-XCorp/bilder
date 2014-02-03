@@ -3820,7 +3820,7 @@ bilderConfig() {
   local forceqmake=false
   local inplace=false
   local instdirs=
-  local instsubdirvalA=
+  local instsubdirval=
   local maker=
   local noequals=false  # Do not use equals in prefix command
   local noprefix=false
@@ -3857,6 +3857,8 @@ bilderConfig() {
   done
   shift $(($OPTIND - 1))
 
+  local pkg=$1
+  local bld=$2
   techo "Determining whether to configure $1-$2."
 
 # Get the version
@@ -3970,6 +3972,7 @@ bilderConfig() {
   fi
   eval $instsubdirvar=$instsubdirval
 # Do the installation
+  local fullinstalldir=
   if test $instsubdirval != '-'; then
     fullinstalldir=$instdirval/`deref $instsubdirvar`
   else
