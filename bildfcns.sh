@@ -688,6 +688,7 @@ fi
       chmod 2775 $dir/$j
     fi
   done
+
 # Determine writability
   if ! touch $dir/tmp$$; then
     techo "NOTE: Cannot write to $dir.  USER = $USER with groups = `groups`."
@@ -701,6 +702,13 @@ fi
     fi
   fi
   rm $dir/tmp$$
+
+# Check for unknown version installations
+  local unks=`(cd $dir; ls -d *unknown* 2>/dev/null)`
+  if test -n "$unks"; then
+    techo "WARNING [checkDirWritable]: Found unknown installations, $unks."
+  fi
+
 }
 
 #
