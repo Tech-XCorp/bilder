@@ -1926,9 +1926,11 @@ isCcGcc() {
 # Python modules.
 #
 isCcCc4py() {
-  if [[ `uname` =~ CYGWIN ]]; then
-    return 0 # All compilers appear to work
-  fi
+# JRC: vs10 does differ from vs9 in stdint
+  # if [[ `uname` =~ CYGWIN ]]; then
+# All compilers appear to work.
+    # return 0
+  # fi
   if test "$CC" = "$PYC_CC"; then
     return 0
   fi
