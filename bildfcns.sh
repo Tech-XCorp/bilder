@@ -1620,7 +1620,7 @@ shouldInstall() {
   done
   shift $(($OPTIND - 1))
 
-# The first instollation dir is where the package will be installed
+# The first installation dir is where the package will be installed
   local instdir=`echo $instdirs | sed 's/,.*$//'`
 # Dependencies are sought in all possible installdirs named above
 # plus the contrib dir.
