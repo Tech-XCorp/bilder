@@ -138,8 +138,8 @@ buildHdf5() {
 # Shared: For Linux, add origin to rpath, do not strip rpath
     local HDF5_SER_ADDL_ARGS=
     local HDF5_PAR_ADDL_ARGS=
-    local HDF5_SERSH_ADDL_ARGS=
-    local HDF5_PARSH_ADDL_ARGS=
+    local HDF5_SERSH_ADDL_ARGS="-DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
+    local HDF5_PARSH_ADDL_ARGS="-DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
     case `uname` in
       Linux)
         HDF5_SER_ADDL_ARGS="$HDF5_SER_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
