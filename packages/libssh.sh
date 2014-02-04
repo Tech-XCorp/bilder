@@ -63,6 +63,8 @@ buildLibssh() {
       ;;
   esac
 
+  LIBSSH_ALL_ADDL_ARGS="${LIBSSH_ALL_ADDL_ARGS} -DCMAKE_INSTALL_NAME_DIR:PATH='\${CMAKE_INSTALL_PREFIX}/lib'"
+
 # configure and launch builds
   if bilderConfig -c libssh ser "-DWITH_STATIC_LIB:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LIBSSH_ALL_ADDL_ARGS $LIBSSH_SER_OTHER_ARGS"; then
     bilderBuild $buildargs libssh ser
