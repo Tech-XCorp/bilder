@@ -64,6 +64,7 @@ buildOce() {
 # Get oce
   cd $PROJECT_DIR
   local OCE_ADDL_ARGS=
+  local OCE_INSTALL_DIR=
   if test -d oce; then
     getVersion oce
     local patchfile=$BILDER_DIR/patches/oce.patch
@@ -76,14 +77,15 @@ buildOce() {
     if ! bilderPreconfig oce; then
       return 1
     fi
-    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
+    OCE_INSTALL_DIR="$BLDR_INSTALL_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
     techo "NOTE: oce git repo found."
   else
     if ! bilderUnpack oce; then
       return 1
     fi
-    OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
+    OCE_INSTALL_DIR="$CONTRIB_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
   fi
+  OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$OCE_INSTALL_DIR -DCMAKE_INSTALL_NAME_DIR:PATH=$OCE_INSTALL_DIR/lib"
 
 # Find freetype
   if ! declare -f findFreetypeRootdir 1>/dev/null 2>&1; then
