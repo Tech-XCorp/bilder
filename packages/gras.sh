@@ -92,7 +92,8 @@ testGras() {
 
 installGras() {
   bilderInstall -r gras ser gras
-  local GRAS_HOME="$BLDR_INSTALL_DIR/geant4"
+  local GRAS_HOME="$BLDR_INSTALL_DIR/gras"
+  techo "GRAS_HOME = $GRAS_HOME"
   . $GRAS_HOME/bin/gras-env.sh
 }
 
