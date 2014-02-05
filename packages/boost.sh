@@ -138,10 +138,16 @@ fi
   fi
 
   if bilderConfig -i boost sersh; then
+    local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
 # In-place build, so done now
     cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
     techo "$cmd"
     eval "$cmd"
+# Change install_name for osx to be an absolute path
+# For more information, check out the following (this is already being done in macports & homebrew):
+# https://svn.boost.org/trac/boost/ticket/9141
+    sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" tools/build/v2/tools/darwin.jam
+
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
