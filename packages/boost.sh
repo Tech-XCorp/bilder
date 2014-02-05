@@ -78,12 +78,30 @@ buildBoost() {
     CYGWIN-*) ;;
     Darwin-12.*)
 # Clang works for g++ as well on Darwin-12
-      toolsetarg_ser="toolset=clang"
+      case $CXX in
+        *clang++ | *g++)
+          toolsetarg_ser="toolset=clang"
+          jamfile=tools/build/v2/tools/clang-darwin.jam
+          ;;
+        *icpc)
+          toolsetarg_ser="toolset=icpc"
+          jamfile=tools/build/v2/tools/icpc-darwin.jam
+          ;;
+      esac
       ;;
     Darwin-*)
       case $CXX in
-        *clang++) toolsetarg_ser="toolset=clang";;
-        *g++) ;;
+        *clang++)
+          toolsetarg_ser="toolset=clang"
+          jamfile=tools/build/v2/tools/clang-darwin.jam
+          ;;
+        *g++)
+          jamfile=tools/build/v2/tools/darwin.jam
+          ;;
+        *icpc)
+          toolsetarg_ser="toolset=icpc"
+          jamfile=tools/build/v2/tools/icpc-darwin.jam
+          ;;
       esac
       ;;
     Linux-*)
@@ -131,39 +149,35 @@ fi
 
   if bilderConfig -i boost ser; then
 # In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost sersh; then
     local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
 # In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
 # Change install_name for osx to be an absolute path
 # For more information, check out the following (this is already being done in macports & homebrew):
 # https://svn.boost.org/trac/boost/ticket/9141
-    sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" tools/build/v2/tools/darwin.jam tools/build/v2/tools/clang-darwin.jam
-
+    if test -n "$jamfile"; then
+# Escaping difficult here
+      # cmd="sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
+      # echo "$cmd"
+      # eval "$cmd"
+      techo "Setting install_name to ${BOOST_INSTALL_PREFIX}/lib in $jamfile."
+      sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
+    elif test `uname` = Darwin; then
+      techo "WARNING [boost.sh]: jamfile not known."
+    fi
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost cc4py; then
 # In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
     bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then
 # In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
     bilderBuild -m ./b2 boost ben "$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS stage"
   fi
 
