@@ -348,7 +348,12 @@ fixHdf5Libs() {
     ser | par | sermd ) fixHdf5StaticLibs $bld;;
     sersh | parsh | cc4py)
       case `uname` in
-        Darwin) fixHdf5Dylibs $bld;;
+        Darwin)
+# Are now trying a different strategy of allowing the dylibs to keep the
+# full path name, and then we will fix this up for VisIt post installation
+# and for the composers at packaging time.
+          # fixHdf5Dylibs $bld
+          ;;
       esac
       ;;
   esac
