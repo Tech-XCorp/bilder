@@ -149,17 +149,17 @@ fi
 
   if bilderConfig -i boost ser; then
 # In-place build, so patch now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # techo "$cmd"
+    # eval "$cmd"
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost sersh; then
 # In-place build, so patch now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # echo "$cmd"
+    # eval "$cmd"
 # Change install_name for osx to be an absolute path
 # For more information, see https://svn.boost.org/trac/boost/ticket/9141
 # (this is already being done in macports & homebrew):
@@ -175,17 +175,17 @@ fi
 
   if bilderConfig -i boost cc4py; then
 # In-place build, so patch now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # techo "$cmd"
+    # eval "$cmd"
     bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then
 # In-place build, so patch now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # techo "$cmd"
+    # eval "$cmd"
     bilderBuild -m ./b2 boost ben "$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS stage"
   fi
 
