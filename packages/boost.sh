@@ -148,21 +148,23 @@ if false; then
 fi
 
   if bilderConfig -i boost ser; then
-# In-place build, so done now
+# In-place build, so patch now
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost sersh; then
-    local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
-# In-place build, so done now
+# In-place build, so patch now
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
 # Change install_name for osx to be an absolute path
-# For more information, check out the following (this is already being done in macports & homebrew):
-# https://svn.boost.org/trac/boost/ticket/9141
+# For more information, see https://svn.boost.org/trac/boost/ticket/9141
+# (this is already being done in macports & homebrew):
+    local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
     if test -n "$jamfile"; then
-# Escaping difficult here
-      # cmd="sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
-      # echo "$cmd"
-      # eval "$cmd"
       techo "Setting install_name to ${BOOST_INSTALL_PREFIX}/lib in $jamfile."
       sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
     elif test `uname` = Darwin; then
@@ -172,12 +174,18 @@ fi
   fi
 
   if bilderConfig -i boost cc4py; then
-# In-place build, so done now
+# In-place build, so patch now
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
     bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then
-# In-place build, so done now
+# In-place build, so patch now
+    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    techo "$cmd"
+    eval "$cmd"
     bilderBuild -m ./b2 boost ben "$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS stage"
   fi
 
