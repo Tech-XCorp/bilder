@@ -4388,8 +4388,17 @@ bilderConfig() {
   techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
   mkConfigScript $FQMAILHOST $1 $2
+  # For packages like petsc where configure in place but build
+  # out-of-place is needed, we change definition of builddir here
+  if test -n "$buildsubdir"; then
+    if ! $build_inplace; then
+      (cd $builddir; mkdir -p $buildsubdir) 
+      builddir=$builddir/$buildsubdir
+      eval $builddirvar=$builddir
+    fi
+  fi
   # Also touch the build script file, so that CMake can find it
-  local buildscript=$1-$2-build.sh
+  local buildscript=$FQMAILHOST-$1-$2-build.sh
   touch $builddir/$buildscript
 # Execute the command
   eval "$finalcmd" 1>>$configure_txt 2>&1
@@ -4419,8 +4428,6 @@ bilderConfig() {
 # Finally, if building in a separate place, need to fix that.
   if test -n "$buildsubdir"; then
     if ! $build_inplace; then
-      builddir=$builddir/$buildsubdir
-      eval $builddirvar=$builddir
       cmd="cd $builddir"
       techo "$cmd"
       $cmd
