@@ -6720,6 +6720,7 @@ EOF
     statusfound="${statusfound} - failed installs"
   fi
   if test -n "$testFailures"; then
+    addHtmlLine 4 "Failed Tests: $testFailures" RED $ABSTRACT
     statusfound="${statusfound} - failed tests"
     for tfaildir in $testFailures; do
       local builddirvar=`genbashvar $tfaildir`_BUILD_DIR
