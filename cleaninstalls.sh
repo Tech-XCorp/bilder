@@ -19,6 +19,7 @@ Usage: $0 [options] <installdirs> to clean up <installdirs>:
   remove unfound installations from installations.txt
   optionally remove older installations
 OPTIONS:
+  -b   base directory under which to find contrib, volatile, and internal
   -d   Debug (echo commands without executing them)
   -h   Print this message
   -i   Treat this as an INSTALL_DIR and remove anything installed from
@@ -323,14 +324,16 @@ EOF
 
 }
 
+BASEDIR=
 DEBUG=false
 REMOVE_OLD=false
 REMOVE_BROKEN_LINKS=false
 REMOVE_CONTRIB_PKGS=false
 REMOVE_UNFOUND=false
 KEEP=10000
-while getopts "dhik:lrR" arg; do
+while getopts "b:dhik:lrR" arg; do
   case "$arg" in
+    b) BASEDIR=$OPTARG;;
     d) DEBUG=true;;
     h) usage;;
     i) REMOVE_CONTRIB_PKGS=true;;
@@ -342,8 +345,6 @@ while getopts "dhik:lrR" arg; do
   esac
 done
 shift $(($OPTIND - 1))
-
-echo "---------- cleaninstalls.sh will clean $* ----------"
 
 if $REMOVE_OLD; then
   $DEBUG &&  echo "Keeping $KEEP installations."
@@ -359,13 +360,35 @@ else
 fi
 $DEBUG && echo "TAC = $TAC."
 
-CLN_INSTALL_DIR=$1
-if test -z "$CLN_INSTALL_DIR"; then
-  echo Installation directory not specified.
+# Get all dirs
+if test -n "$BASEDIR"; then
+  dirs=`echo ${BASEDIR}/{contrib,volatile,internal}/{.,userdocs,develdocs}`
+fi
+dirs="$dirs $*"
+
+# Clean up dirnames
+cleandirs=
+for i in $dirs; do
+  if test -d $i; then
+    dir=`(cd $i; pwd -P)`
+    dir=`echo $dir | sed 's?//?/?g'`
+    cleandirs="$cleandirs $dir"
+  else
+    echo "$i not present.  Ignoring."
+  fi
+done
+
+if test -z "$cleandirs"; then
+  echo No specified installation directories are present.
   usage 1
 fi
+dirs=
 
-for dir in $*; do
-  cleanInstallDir $dir
+echo "---------- cleaninstalls.sh will clean $cleandirs  ----------"
+
+for dir in $cleandirs; do
+  cmd="cleanInstallDir $dir"
+  echo "$cmd"
+  $cmd
 done
 
