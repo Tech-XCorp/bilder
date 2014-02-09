@@ -246,7 +246,7 @@ buildQt() {
     else
 # Remove linked file if present
       if $QT_GXX_LINKED; then
-        rm ${CONTRIB_DIR}/bin/g++
+        rm -f ${CONTRIB_DIR}/bin/g++
       fi
     fi
   fi
@@ -268,84 +268,15 @@ testQt() {
 #
 ######################################################################
 
-postInstallQt() {
-
-# On Mac, we change the names of the library files
-# And their cross links
-# To remove references to the build directory
-# NOTE: The "stock" qt install uses unqualified paths for everything
-#       HOWEVER, this will not work for us, because we're not installing
-#       in the default Framework search path (/Library/Frameworks/)
-#       SO, we need to make the libraries point to each other using the
-#       full path of the installation.
-#       As a result, the installed copy of qt may NOT be moved
-    case `uname` in
-      Darwin)
-# Taken from build_visit
-        QtTopDir="${CONTRIB_DIR}/qt-${QT_BLDRVERSION}-$QT_BUILD"
-# TODO - this should really do a listing of the lib directory
-# instead of depending on a hard-coded list of libraries
-        QtFrameworks="QtAssistant QtCore QtGui QtHelp QtMultimedia QtNetwork QtOpenGL QtSql QtTest QtWebKit QtXml"
-        for QtFW in $QtFrameworks; do
-          filename="$QtTopDir/lib/${QtFW}.framework/${QtFW}"
-          debugFilename="${filename}_debug"
-          oldSOName=$(otool -D $filename | tail -n -1)
-          oldDebugSOName=$(otool -D $debugFilename | tail -n -1)
-          internalFWPath=$(echo $oldSOName | sed -e 's/.*\.framework\///')
-          internalDebugFWPath=$(echo $oldDebugSOName | sed -e 's/.*\.framework\///')
-# These are the original lines, which install a relative path
-          # newSOName="@executable_path/../lib/${QtFW}.framework/$internalFWPath"
-          # newDebugSOName="@executable_path/../lib/${QtFW}.framework/$internalDebugFWPath"
-# These are the "new" lines that install a path-less library name, and so
-# relies on DYLD_LIBRARY_PATH.
-          newSOName="${QtFW}.framework/$internalFWPath"
-	  newDebugSOName="${QtFW}.framework/$internalDebugFWPath"
-          install_name_tool -id $newSOName $filename
-          install_name_tool -id $newDebugSOName $debugFilename
-# This loop changes the name of THIS library in all the OTHER libraries
-          for otherQtFW in $QtFrameworks; do
-            install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}
-            install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}_debug
-# QtCLucene is not a framework, so it's a special case
-	    install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/libQtCLucene.dylib
-	    install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/libQtCLucene_debug.dylib
-          done
-        done
-
-# once more for QtCLucene
-        filenameROOT="${QtTopDir}/lib/libQtCLucene"
-        debugFilename="${filenameROOT}_debug.dylib"
-	filename="${filenameROOT}.dylib"
-	techo "filename is ${filename}"
-        oldSOName=$(otool -D $filename | tail -n -1)
-	techo "for QtCLucene, oldSOName is ${oldSOName}"
-        oldDebugSOName=$(otool -D $debugFilename | tail -n -1)
-        internalFWPath=$(echo $oldSOName | sed -e 's/.*\lib\///')
-	techo "for QtCLUcene,internalFWPath is ${internalFWPath}"
-        internalDebugFWPath=$(echo $oldDebugSOName | sed -e 's/.*\lib\///')
-# These are the new lines which install a no-path library name
-        newSOName="${internalFWPath}"
-        newDebugSOName="${internalDebugFWPath}"
-	techo "Calling install_name_tool -d ${newSOName} ${filename}"
-        install_name_tool -id $newSOName $filename
-        install_name_tool -id $newDebugSOName $debugFilename
-        for otherQtFW in $QtFrameworks; do
-	    techo "Calling install_name_tool ${oldSOName} ${newSOName} on file $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}"
-          install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}
-          install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}_debug
-        done
-        ;;
-
-    esac
-
-}
-
-# Fix up various problems with QT installations
+#
+# Fix up various problems (badl links) with QT installations
+# We used to change the installation names on qt like VisIt, but now
+# VisIt takes care of that in its build system.
 #
 fixQtInstall() {
 # Remove linked file if present
   if $QT_GXX_LINKED; then
-    rm ${CONTRIB_DIR}/bin/g++
+    rm -f ${CONTRIB_DIR}/bin/g++
   fi
 # Fix the bad node that Qt leaves behind on a Darwin installation.
 # (Seems not to do this on an overinstallation?)
@@ -366,10 +297,11 @@ fixQtInstall() {
       fi
       ;;
   esac
-# Set the perms to open for Qt.
-  setOpenPerms $CONTRIB_DIR/qt-$QT_BLDRVERSION-$QT_BUILD
 }
 
+#
+# Install Qt
+#
 installQt() {
 
   local qt_tried=false
@@ -377,7 +309,7 @@ installQt() {
   if test -n "$qtpid"; then
     qt_tried=true
   fi
-  if bilderInstall -r qt $QT_BUILD; then
+  if bilderInstall -r -p open qt $QT_BUILD; then
     fixQtInstall
     findQt
   elif $qt_tried; then
@@ -390,7 +322,7 @@ EOF
     cd $BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD
     make -i install 2>&1 | tee qt-install2.txt
     bilderBuild qt $QT_BUILD "$QT_MAKEJ_ARGS"
-    if bilderInstall -r qt $QT_BUILD; then
+    if bilderInstall -r -p open qt $QT_BUILD; then
       fixQtInstall
       findQt
     else
