@@ -3207,7 +3207,10 @@ updateRepo() {
     cd $pkg
     if $CLEAN_GITHG_SUBREPOS; then
       case $scmexec in
-        git) cmd="git reset --hard";;
+        git)
+          cmd="git reset --hard"
+          # cmd="git reset --hard origin/master" # Discards local commits
+          ;;
         hg) cmd="hg revert -aC";;
       esac
       techo "$cmd"
@@ -5816,11 +5819,13 @@ EOF
 # JRC: not understood how to match end of word in this syntax
           if [[ $FQMAILHOST =~ "$h" ]]; then
             techo "NOTE [bilderInstall]: Setting group of $instdirval/$instsubdirval to $grpnm."
-            find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;
+            cmd]"find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;"
             techo "$cmd"
             eval "$cmd"
             grpset=true
             break
+          else
+            techo "$h does not match $FQMAILHOST."
           fi
         done
         if ! $grpset; then
