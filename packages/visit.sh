@@ -333,7 +333,11 @@ fixCopiedHdf5() {
         return
       fi
       techo "Extracting compatibility name from $hdf5libname."
-      local hdf5shlink=`otool -D $hdf5libname | tail -1`
+      local hdf5shlinkfull=`otool -D $hdf5libname | tail -1`
+      hdf5shlink=`basename $hdf5shlinkfull`
+      if test $hdf5shlink != $hdf5shlinkfull; then
+        install_name_tool -id $hdf5shlink $hdf5libname
+      fi
       if test -f $instdir/$hdf5shlink; then
         techo "VisIt correctly created $instdir/$hdf5shlink link."
         return
