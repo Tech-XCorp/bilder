@@ -217,6 +217,7 @@ setBilderOptions() {
   SVNUP_PKGS=true # Whether to svn up pkgs
   TESTING=false
   TESTING_BUILDS=${TESTING_BUILDS:-"false"}
+  TESTING_DEVELDOCS=${TESTING_DEVELDOCS:-"false"}
   USE_INTERNAL_TXPP=false
   export VERBOSITY=1
 
