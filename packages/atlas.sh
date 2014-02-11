@@ -165,7 +165,8 @@ buildAtlas() {
       source $BILDER_DIR/packages/lapack.sh
     fi
     local lapack_tarfilebase=lapack-${LAPACK_BLDRVERSION}
-    local lapack_tarfile=`getPkg $lapack_tarfilebase`
+    getPkg $lapack_tarfilebase
+    local lapack_tarfile="$GETPKG_RETURN"
   fi
 
 # Lapack ser args
