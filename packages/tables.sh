@@ -167,7 +167,8 @@ installTables() {
         hdf5shdir=$HDF5_CC4PY_DIR/lib
         hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
 echo "hdf5shlib=$hdf5shlib"
-        hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
+        hdf5shname=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
+        hdf5shlink=`basename $hdf5shname`
         ;;
       Linux)
         hdf5shdir=$HDF5_CC4PY_DIR/lib
@@ -186,12 +187,15 @@ echo "hdf5shlib=$hdf5shlib"
       eval "$cmd"
     fi
     if test `uname` = Darwin; then
+      cmd="install_name_tool -id $hdf5shlink $tablesinstdir/$hdf5shlib"
+      techo "$cmd"
+      $cmd
       local extensions=`find $tablesinstdir -name '*Extension.so' -print`
       if test -z "$extensions"; then
         extensions=`find $tablesinstdir -name '*extension.so' -print`
       fi
       for i in $extensions; do
-        cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlib $i"
+        cmd="install_name_tool -change $hdf5shname @rpath/$hdf5shlink $i"
         techo "$cmd"
         $cmd
         cmd="install_name_tool -add_rpath @loader_path/ $i"
