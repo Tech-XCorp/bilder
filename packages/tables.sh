@@ -191,7 +191,7 @@ echo "hdf5shlib=$hdf5shlib"
         extensions=`find $tablesinstdir -name '*extension.so' -print`
       fi
       for i in $extensions; do
-        cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlink $i"
+        cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlib $i"
         techo "$cmd"
         $cmd
         cmd="install_name_tool -add_rpath @loader_path/ $i"
