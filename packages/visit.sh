@@ -280,6 +280,11 @@ testVisit() {
 
 ######################################################################
 #
+# Installation helpers
+#
+######################################################################
+
+#
 # Fix up hdf5 libraries that are copied
 #
 # Args
@@ -287,8 +292,6 @@ testVisit() {
 # 2: Root directory (unix/cygwin path) of hdf5 installation
 # 3: File for redirecting any extensive output
 #
-######################################################################
-
 fixCopiedHdf5() {
 
   local instdir=$1
