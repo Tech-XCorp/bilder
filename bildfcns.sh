@@ -5306,6 +5306,85 @@ waitNamedTest() {
 }
 
 #
+# Install and make relative a shared lib that might be missing
+# from an installation
+#
+# Args
+# 1: The name of the shared lib
+# 2: Where (unix/cygwin path) the libraries need to be installed
+# 3: Where (unix/cygwin path) one can find the libraries if not installed
+#
+installRelShlib() {
+
+# Get the args
+  local lib=$1
+  local instdir=$2
+  local fromdir=$3
+
+# See whether lib is installed, install if not.
+  local instlib=$instdir/$lib
+  if ! test -f $instlib; then
+    techo "WARNING: $instlib missing." 1>&2
+    local fromlib=$fromdir/$lib
+    if ! test -f $fromlib; then
+      techo "ERROR: $fromlib missing.  Cannot install." 1>&2
+      return
+    fi
+    cmd="/usr/bin/install -m 775 $fromdir/$lib $instdir"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
+# Find compatibility name for appropriate OSs, and set to base,
+# or return (Windows)
+  techo "Extracting compatibility name from $instlib."
+  local instlibname=
+  case `uname` in
+    CYGWIN*) return;;
+    Darwin) instlibname=`otool -D $instlib| tail -1`;;
+    Linux) instlibname=`objdump -p $instlib | grep SONAME | sed -e 's/ *SONAME *//'`
+  esac
+  local instliblink=`basename $instlibname`
+  if test `uname` = Darwin; then
+    cmd="install_name_tool -id $instliblink $instlib"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
+# Create link to compatibility name
+  if test -e $instdir/$instliblink; then
+    techo "$instdir/$instliblink already there."
+  else
+    techo "NOTE: $instliblink link absent in $instdir.  Creating."
+    cmd="(cd $instdir; ln -s $instlibname $instliblink)"
+    techo "$cmd"
+    eval "$cmd"
+    if test `uname` = Darwin; then
+      chmod -h 775 $instdir/$instliblink
+    fi
+  fi
+
+# Create link to base name
+  local instlibbase=`echo $instliblink | sed 's/\..*$//'`
+  case `uname` in
+    Darwin) instlibbase=${instlibbase}.dylib;;
+    Linux) instlibbase=${instlibbase}.so;;
+  esac
+  if test -e $instdir/$instlibbase; then
+    techo "$instdir/$instlibbase already there."
+  else
+    techo "NOTE: $instlibbase absent in $instdir.  Creating."
+    cmd="(cd $instdir; ln -s $instliblink $instlibbase)"
+    techo "$cmd"
+    eval "$cmd"
+    if test `uname` = Darwin; then
+      chmod -h 775 $instdir/$instlibbase
+    fi
+  fi
+
+}
+
+#
 # Determine whether a tested package should be installed
 #
 # Args:

@@ -166,9 +166,7 @@ installTables() {
       Darwin)
         hdf5shdir=$HDF5_CC4PY_DIR/lib
         hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
-echo "hdf5shlib=$hdf5shlib"
         hdf5shname=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
-        hdf5shlink=`basename $hdf5shname`
         ;;
       Linux)
         hdf5shdir=$HDF5_CC4PY_DIR/lib
@@ -176,20 +174,13 @@ echo "hdf5shlib=$hdf5shlib"
         ;;
     esac
 
+# Get shared lib installed and names changed inside it.
     local tablesinstdir=${PYTHON_SITEPKGSDIR}/tables
-    if ! test -f $tablesinstdir/$hdf5shlib; then
-      techo "$tablesinstdir/$hdf5shlib missing.  Will install."
-      /usr/bin/install -m 775 $hdf5shdir/$hdf5shlib $tablesinstdir
-    fi
-    if test -n "$hdf5shlink" -a "$hdf5shlink" != "$hdf5shlib"; then
-      cmd="(cd $tablesinstdir; ln -sf $hdf5shlib $hdf5shlink)"
-      techo "$cmd"
-      eval "$cmd"
-    fi
+    installRelShlib $hdf5shlib $tablesinstdir $hdf5shdir
+
+# Change names inside tables so's.
     if test `uname` = Darwin; then
-      cmd="install_name_tool -id $hdf5shlink $tablesinstdir/$hdf5shlib"
-      techo "$cmd"
-      $cmd
+      hdf5shlink=`basename $hdf5shname`
       local extensions=`find $tablesinstdir -name '*Extension.so' -print`
       if test -z "$extensions"; then
         extensions=`find $tablesinstdir -name '*extension.so' -print`
