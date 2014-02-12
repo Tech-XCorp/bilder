@@ -94,6 +94,13 @@ installGras() {
   bilderInstall -r gras ser gras
   local GRAS_HOME="$BLDR_INSTALL_DIR/gras"
   techo "GRAS_HOME = $GRAS_HOME"
+  export GEANT4_HOME="$CONTRIB_DIR/geant4"
+  export G4DATA="$GEANT4_HOME/share/Geant4-9.6.2/data"
+  export G4LEDATA="$G4DATA/G4EMLOW6.32"
+  export G4LEVELGAMMADATA="$G4DATA/PhotonEvaporation2.3"
+  export G4NEUTRONXSDATA="$G4DATA/G4NEUTRONXS1.2"
+  export G4SAIDXSDATA="$G4DATA/G4SAIDDATA1.1"
+
   . $GRAS_HOME/bin/gras-env.sh
 }
 
