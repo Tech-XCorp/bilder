@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for libxml2
+# Version and build information for libxlst
 #
 # $Id$
 #
@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-LIBXML2_BLDRVERSION=${LIBXML2_BLDRVERSION:-"2.7.8"}
+LIBXSLT_BLDRVERSION=${LIBXSLT_BLDRVERSION:-"1.1.28"}
 
 ######################################################################
 #
@@ -20,46 +20,48 @@ LIBXML2_BLDRVERSION=${LIBXML2_BLDRVERSION:-"2.7.8"}
 #
 ######################################################################
 
-LIBXML2_BUILDS=${LIBXML2_BUILDS:-"ser,sersh"}
-LIBXML2_DEPS=m4
+LIBXSLT_BUILDS=${LIBXSLT_BUILDS:-"sersh"}
+LIBXSLT_DEPS=m4
 
 ######################################################################
 #
-# Launch libxml2 builds.
+# Launch libxslt builds.
 #
 ######################################################################
 
-buildLibxml2() {
-  if bilderUnpack libxml2; then
-    if bilderConfig libxml2 ser "--enable-shared=no"; then
-      bilderBuild libxml2 ser
+buildLibxslt() {
+  if bilderUnpack libxslt; then
+    # libxslt needs shared libraries of libxml
+    LIBXML4LIBXSLT=${LIBXML4LIBXSLT:-"$CONTRIB_DIR/libxml2-sersh"}
+    if test -d "$LIBXML4LIBXSLT"; then
+      local libxmlflag="--with-libxml-prefix=$LIBXML4LIBXSLT"
+    else
+      techo "Not building libxslt because could not find libxml2"
+      return 1
     fi
-    if bilderConfig libxml2 sersh "--enable-shared=yes"; then
-      bilderBuild libxml2 sersh
+    if bilderConfig libxslt sersh $libxmlflag; then
+      bilderBuild libxslt sersh
     fi
   fi
 }
 
 ######################################################################
 #
-# Test libxml2
+# Test libxslt
 #
 ######################################################################
 
-testLibxml2() {
-  techo "Not testing libxml2."
+testLibxslt() {
+  techo "Not testing libxslt."
 }
 
 ######################################################################
 #
-# Install libxml2
+# Install libxslt
 #
 ######################################################################
 
-installLibxml2() {
-  bilderInstall libxml2 ser
-  bilderInstall libxml2 sersh
-
-  findContribPackage libxml2 libxml2 ser
+installLibxslt() {
+  bilderInstall libxslt sersh
 }
 
