@@ -38,8 +38,8 @@ addtopathvar PATH $CONTRIB_DIR/gras/bin
 ######################################################################
 
 buildGras() {
-  GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
-  GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
+  #GRAS_SER_INSTALL_DIR=$CONTRIB_DIR
+  #GRAS_SER_BUILD_DIR=$BUILD_DIR/gras-$GRAS_BLDRVERSION/ser
   G4INSTALL="$CONTRIB_DIR/geant4"
   export G4INSTALL
   source $G4INSTALL/bin/geant4.sh
@@ -65,7 +65,7 @@ buildGras() {
 
   local xercescdir="${CONTRIB_DIR}/xercesc"
 
-  GRAS_ADDL_ARGS="${GRAS_ADDL_ARGS} -DXERCESC_INCLUDE_DIR:PATH='${xercesc}/include' -DXERCESC_LIBRARY:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DGeant4_DIR:PATH='$CONTRIB_DIR/geant4/lib/Geant4-9.6.2'"
+  GRAS_ADDL_ARGS="${GRAS_ADDL_ARGS} -DXERCESC_INCLUDE_DIR:PATH='${xercesc}/include' -DXERCESC_LIBRARY:FILEPATH='${xercescdir}/lib/${libpre}xerces-c.$libpost' -DGeant4_DIR:PATH='$CONTRIB_DIR/geant4/lib/Geant4-9.6.2'"
 
   if bilderUnpack gras; then
     if bilderConfig -c gras ser "$GRAS_ADDL_ARGS $CMAKE_SUPRA_SP_ARG"; then
