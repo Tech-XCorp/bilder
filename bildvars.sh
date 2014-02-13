@@ -11,7 +11,8 @@
 
 ######################################################################
 #
-# If installer hosts set or testing set, always make packages
+# Posting to the depot means copying installers to a predetermined 
+# host. Thus there are some addition requirements for doing this.
 #
 ######################################################################
 
@@ -21,17 +22,14 @@ if $POST2DEPOT; then
     POST2DEPOT=false
     techo "Turning off post to depot: POST2DEPOT=$POST2DEPOT."
   fi
-fi
-
-# If testing or posting, force building packages
-if $TESTING || $POST2DEPOT; then
-  techo "Either testing or posting to depot, so building packages."
+  # One needs installers to post to depot, so ensure they are built
   BUILD_INSTALLERS=true
 fi
+
 if $BUILD_INSTALLERS; then
-  techo "Will build packages."
+  techo "Will build installers."
 else
-  techo "Will not build packages."
+  techo "Will not build installers."
 fi
 
 ######################################################################
