@@ -21,9 +21,10 @@ if $POST2DEPOT; then
     techo "No INSTALLER_HOST or INSTALLER_ROOTDIR specified."
     POST2DEPOT=false
     techo "Turning off post to depot: POST2DEPOT=$POST2DEPOT."
+  else
+    # One needs installers to post to depot, so ensure they are built
+    BUILD_INSTALLERS=true
   fi
-  # One needs installers to post to depot, so ensure they are built
-  BUILD_INSTALLERS=true
 fi
 
 if $BUILD_INSTALLERS; then
