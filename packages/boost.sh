@@ -71,11 +71,21 @@ buildBoost() {
 # Determine the toolset
   local toolsetarg_ser=
   local toolsetarg_cc4py=
+  local stdlibargs=
   case `uname`-`uname -r` in
     CYGWIN*-WOW64*)
       toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
       ;;
     CYGWIN-*) ;;
+    Darwin-13.*)
+      case $CXX in
+	*clang++)
+	  stdlibargs="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
+          toolsetarg_ser="toolset=clang"
+          jamfile=tools/build/v2/tools/clang-darwin.jam
+	  ;;
+      esac
+      ;;
     Darwin-12.*)
 # Clang works for g++ as well on Darwin-12
       case $CXX in
@@ -117,7 +127,7 @@ buildBoost() {
   toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
-  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"
+  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths ${stdlibargs}"
   local staticlinkargs="link=static"
   local sharedlinkargs="link=shared"
   local sermdlinkargs="link=static"  # Not yet used, but this should be right
