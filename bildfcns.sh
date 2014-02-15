@@ -5335,12 +5335,15 @@ installRelShlib() {
     eval "$cmd"
   fi
 
+# No more to do if Windows
+  if [[ `uname` =~ CYGWIN ]]; then
+    return
+  fi
+
 # Find compatibility name for appropriate OSs, and set to base,
-# or return (Windows)
   techo "Extracting compatibility name from $instlib."
   local instlibname=
   case `uname` in
-    CYGWIN*) return;;
     Darwin) instlibname=`otool -D $instlib| tail -1`;;
     Linux) instlibname=`objdump -p $instlib | grep SONAME | sed -e 's/ *SONAME *//'`
   esac
