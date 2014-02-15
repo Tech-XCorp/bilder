@@ -238,7 +238,7 @@ fixHdf5StaticLibs() {
       techo "$cmd"
       $cmd
     else
-      techo "NOTE [fixHdf5StaticLibs]: Library names correct."
+      techo "NOTE [fixHdf5StaticLibs]: Library, $i, has correct name."
     fi
   done
 
