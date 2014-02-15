@@ -27,6 +27,7 @@ OPTIONS:
   -k # Keep this number of recent directories (defaults to 10000)
   -l   Remove broken links
   -r   Remove old installations
+  -s   Suffix to add to installation directories (eg, vs9)
   -R   Remove from installations.txt any non present installation
 EOF
   exit $1
@@ -331,7 +332,7 @@ REMOVE_BROKEN_LINKS=false
 REMOVE_CONTRIB_PKGS=false
 REMOVE_UNFOUND=false
 KEEP=10000
-while getopts "b:dhik:lrR" arg; do
+while getopts "b:dhik:lrs:R" arg; do
   case "$arg" in
     b) BASEDIR=$OPTARG;;
     d) DEBUG=true;;
@@ -340,6 +341,7 @@ while getopts "b:dhik:lrR" arg; do
     k) KEEP=$OPTARG;;
     l) REMOVE_BROKEN_LINKS=true;;
     r) REMOVE_OLD=true;;
+    s) SUFFIX=$OPTARG;;
     R) REMOVE_UNFOUND=true;;
    \?) usage 1;;
   esac
@@ -362,7 +364,7 @@ $DEBUG && echo "TAC = $TAC."
 
 # Get all dirs
 if test -n "$BASEDIR"; then
-  dirs=`echo ${BASEDIR}/{contrib,volatile,internal}/{.,userdocs,develdocs}`
+  dirs=`echo ${BASEDIR}/{contrib${SUFFIX},volatile${SUFFIX},internal${SUFFIX}}/{.,userdocs,develdocs}`
 fi
 dirs="$dirs $*"
 
