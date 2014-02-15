@@ -5356,7 +5356,7 @@ installRelShlib() {
     techo "$instdir/$instliblink already there."
   else
     techo "NOTE: $instliblink link absent in $instdir.  Creating."
-    cmd="(cd $instdir; ln -s $instlibname $instliblink)"
+    cmd="(cd $instdir; ln -sf $lib $instliblink)"
     techo "$cmd"
     eval "$cmd"
     if test `uname` = Darwin; then
@@ -5374,7 +5374,7 @@ installRelShlib() {
     techo "$instdir/$instlibbase already there."
   else
     techo "NOTE: $instlibbase absent in $instdir.  Creating."
-    cmd="(cd $instdir; ln -s $instliblink $instlibbase)"
+    cmd="(cd $instdir; ln -sf $instliblink $instlibbase)"
     techo "$cmd"
     eval "$cmd"
     if test `uname` = Darwin; then
