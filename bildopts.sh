@@ -129,7 +129,7 @@ processBilderArgs() {
     I) IGNORE_TEST_RESULTS=true;;
     j) JMAKE=$OPTARG;;
     k) CONTRIB_DIR=$OPTARG;;
-    k) CLEAN_INSTALLS=true;;
+    K) CLEAN_INSTALLS=true;;
     l) MPI_LAUNCHER=$OPTARG;;
     L) BILDER_LOGDIR=$OPTARG;;
     m) export MACHINE_FILE=$OPTARG;;  # Give to subshells
@@ -197,6 +197,7 @@ setBilderOptions() {
   SEND_ABSTRACT=false
   CREATE_RELEASE=false
   CLEAN_INSTALLS=false
+  CLEAN_OPTS="-lrR -k2"
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
   FORCE_INSTALL=false
   FORCE_PYINSTALL=false
@@ -451,6 +452,13 @@ EOF
   checkDirWritable -c $CONTRIB_DIR
   CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
   export CONTRIB_DIR
+
+# Clean directories if requested
+  if $CLEAN_INSTALLS; then
+    for dir in $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR; do
+      $BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $dir
+    done
+  fi
 
 # Convert to cygwin as appropriate
   case `uname` in
