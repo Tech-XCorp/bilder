@@ -181,46 +181,48 @@ setBilderOptions() {
   BILDER_START=`date`
 
 # Universal defaults
-  BILDER_WAIT_DAYS=0
   BILDER_CTEST_TARGET=${BILDER_CTEST_TARGET:-"Experimental"}
+  BILDER_LOGDIR=
+  BILDER_WAIT_DAYS=0
   BUILD_DEBUG=false
   BUILD_DIR=$PROJECT_DIR/builds
-  DOCS_BUILDS=
-  BUILD_TARBALLS=true
-  export BUILD_EXPERIMENTAL=false  # Needed by setinstald.sh
-  BUILD_MPIS=false
+  BUILD_EXPERIMENTAL=false
   BUILD_IF_NEWER_PKGFILE=true
-  BUILD_OPTIONAL=false
   BUILD_INSTALLERS=false
-  REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
-  TARBALL_BUILD_TYPE=Release
-  SEND_ABSTRACT=false
-  CREATE_RELEASE=false
+  BUILD_MPIS=false
+  BUILD_OPTIONAL=false
+  BUILD_TARBALLS=true
+  CLEAN_GITHG_SUBREPOS=true
   CLEAN_INSTALLS=false
   CLEAN_OPTS="-lrR -k2"
+  CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
+  DOCS_BUILDS=
+  DO_FINAL_ACTION=true
   FORCE_INSTALL=false
   FORCE_PYINSTALL=false
   GFORTRAN_GOOD=false
-  JUST_GET_PACKAGES=false
   IGNORE_TEST_RESULTS=false
   INSTALL_VISIT=false
   IS_SECOND_INSTALL=false
-  BILDER_LOGDIR=
+  JUST_GET_PACKAGES=false
   MAX_THREADS=false
   NOBUILD=false
-  DO_FINAL_ACTION=true
-  CLEAN_GITHG_SUBREPOS=true
   POST2DEPOT=true
   REMOVE_OLD=false
+  REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
   RM_BUILD=true
+  SEND_ABSTRACT=false
   SVNUP=false
   SVNUP_PKGS=true # Whether to svn up pkgs
-  TESTING=false
+  TARBALL_BUILD_TYPE=Release
   TESTING_BUILDS=${TESTING_BUILDS:-"false"}
   TESTING_DEVELDOCS=${TESTING_DEVELDOCS:-"false"}
+  TESTING=false
   USE_INTERNAL_TXPP=false
-  export VERBOSITY=1
+  VERBOSITY=1
+  export BUILD_EXPERIMENTAL  # Needed by setinstald.sh
+  export VERBOSITY
 
 #######################################################
 
