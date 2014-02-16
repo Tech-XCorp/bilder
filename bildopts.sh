@@ -73,7 +73,6 @@ BILDER OPTIONS
                         installation of that package.
   -R ................ Build RELEASE (i.e., licensed and signed when applicable)
                         version of executable.
-                         
   -s ................ Rebuild packages if package script has been modified
                         since last build.
   -S ................ Build static.
@@ -288,6 +287,7 @@ EOF
   rotateFile $LOGFILE
   SUBJFILE=$BILDER_LOGDIR/${BILDER_NAME}.subj
   rotateFile $SUBJFILE
+  rotateFile $BILDER_LOGDIR/cleaninstalls.log
 
 # Record invocation line (now that log is correct)
   techo "Executing $BILDER_CMD in $PROJECT_DIR on `hostname` at $BILDER_START."
@@ -458,7 +458,9 @@ EOF
 # Clean directories if requested
   if $CLEAN_INSTALLS; then
     for dir in $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR; do
-      $BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $dir
+      cmd="$BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $dir 1>$BILDER_LOGDIR/cleaninstalls.log 2>&1"
+      techo "$cmd"
+      eval "$cmd"
     done
   fi
 
