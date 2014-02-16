@@ -659,14 +659,14 @@ checkDirWritable() {
 
 # Determine writability
   if ! touch $dir/tmp$$; then
-    techo "NOTE: Cannot write to $dir.  USER = $USER with groups = `groups`."
+    techo "ERROR: Cannot write to $dir.  USER = $USER with groups = `groups`."
     if $exitonfailure; then
       techo "Quitting."
       emailerror "Cannot write to $dir."
       if declare -f usage >/dev/null 2>&1; then
         usage 1
       fi
-      exit
+      terminate
     fi
   fi
   rm $dir/tmp$$
@@ -686,7 +686,12 @@ checkDirWritable() {
       subdirs="$subdirs lib"
     fi
     for j in $subdirs; do
-      if ! test -d $dir/$j; then
+      if test -d $dir/$j; then
+        if ! touch $dir/$j/tmp$$; then
+          techo "WARNING: Cannot write to $dir/$j.  USER = $USER, groups = `groups`."
+        fi
+        rm -f $dir/$j/tmp$$
+      else
         mkdir -p $dir/$j
         chmod 2775 $dir/$j
       fi
