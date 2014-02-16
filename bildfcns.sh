@@ -621,8 +621,8 @@ setClosedPerms() {
 # -c check and report, but do not exit
 #
 checkDirWritable() {
-  local exitonfailure=true
 
+  local exitonfailure=true
 # Parse options
 # This syntax is needed to keep parameters quoted
   set -- "$@"
@@ -633,20 +633,6 @@ checkDirWritable() {
     esac
   done
   shift $(($OPTIND - 1))
-
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -c)
-        exitonfailure=false
-        ;;
-      *)
-        break
-        ;;
-    esac
-    shift
-  done
-fi
 
   if test -z "$1"; then
     TERMINATE_ERROR_MSG="FATAL ERROR [checkDirWritable]:  Directory not specified."
@@ -671,24 +657,6 @@ fi
     fi
   fi
 
-# Set directory perms.  Must always do, as may have been created by
-# mkall-default.sh wrapper, which creates dir with wrong perms.
-# Errors (not owner) to /dev/null.
-  cmd="chmod 2775 $dir"
-  $cmd 2>/dev/null
-  local subdirs="bin include share"
-  if [[ `uname` =~ CYGWIN ]]; then
-    subdirs="bin include share Lib"
-  else
-    subdirs="bin include share lib"
-  fi
-  for j in bin include lib share; do
-    if ! test -d $dir/$j; then
-      mkdir -p $dir/$j
-      chmod 2775 $dir/$j
-    fi
-  done
-
 # Determine writability
   if ! touch $dir/tmp$$; then
     techo "NOTE: Cannot write to $dir.  USER = $USER with groups = `groups`."
@@ -703,10 +671,32 @@ fi
   fi
   rm $dir/tmp$$
 
+# Set directory perms.  Must always do, as may have been created by
+# mkall-default.sh wrapper, which creates dir with wrong perms.
+# Errors (not owner) to /dev/null.
+  cmd="chmod 2775 $dir"
+  $cmd 2>/dev/null
+
+# Create subdirs if an installation dir
+  if test $dir = $BLDR_INSTALL_DIR -o $dir = $CONTRIB_DIR; then
+    local subdirs="bin include share"
+    if [[ `uname` =~ CYGWIN ]]; then
+      subdirs="$subdirs Lib Scripts"
+    else
+      subdirs="$subdirs lib"
+    fi
+    for j in $subdirs; do
+      if ! test -d $dir/$j; then
+        mkdir -p $dir/$j
+        chmod 2775 $dir/$j
+      fi
+    done
+  fi
+
 # Check for unknown version installations
   local unks=`(cd $dir; ls -d *unknown* 2>/dev/null)`
   if test -n "$unks"; then
-    techo "WARNING [checkDirWritable]: Found unknown installations, $unks."
+    techo "WARNING [checkDirWritable]: Found unknown installations, $unks, in $dir."
   fi
 
 }
