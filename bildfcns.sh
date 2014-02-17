@@ -4142,9 +4142,9 @@ bilderConfig() {
     TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
     terminate
   else
-    local configexecbase=`basename $configexec`
+    local configexecbase=`basename "$configexec"`
     configexec=`which "$configexec"`
-    local configexecdir=`dirname $configexec`
+    local configexecdir=`dirname "$configexec"`
     configexec="$configexecdir"/"$configexecbase"
   fi
   local cmvar=`genbashvar $1`_CONFIG_METHOD
