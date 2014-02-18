@@ -3867,18 +3867,10 @@ bilderConfig() {
 
   local uname=`uname`
 
-# Determine from build type whether to configure as a Debug build.
-  local dbgflag
-  dbgflag=${2: -3}
-  if test "$dbgflag" == "dbg"; then
-    cmakebuildtype="Debug"
-  else
-# Otherwise grab the build type from environment.
-    case $verval in
-      r[0-9][0-9]*) cmakebuildtype=$REPO_BUILD_TYPE;;
-                 *) cmakebuildtype=$TARBALL_BUILD_TYPE;;
-    esac
-  fi
+  case $verval in
+    r[0-9][0-9]*) cmakebuildtype=$REPO_BUILD_TYPE;;
+               *) cmakebuildtype=$TARBALL_BUILD_TYPE;;
+  esac
 
 # Get dependencies if not specified with -d
   local depsvar=`genbashvar $1`_DEPS
