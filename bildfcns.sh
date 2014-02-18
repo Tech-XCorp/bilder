@@ -58,25 +58,10 @@ isBuildTime() {
   OPTIND=1
   while getopts "i:" arg; do
     case "$arg" in
-      s) ignorebuilds="$OPTARG";;
+      i) ignorebuilds="$OPTARG";;
     esac
   done
   shift $(($OPTIND - 1))
-
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -i)
-        ignorebuilds=$2
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-    shift
-  done
-fi
 
   techo -2 "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
   if test -z "$2"; then
