@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for libxml2
+# Version and build information for pyyaml
 #
 # $Id$
 #
@@ -12,54 +12,53 @@
 #
 ######################################################################
 
-LIBXML2_BLDRVERSION=${LIBXML2_BLDRVERSION:-"2.7.8"}
+PYYAML_BLDRVERSION_STD=${PYYAML_BLDRVERSION_STD:-"3.10.0"}
 
 ######################################################################
 #
-# Other values
+# Builds and deps
 #
 ######################################################################
 
-LIBXML2_BUILDS=${LIBXML2_BUILDS:-"ser,sersh"}
-LIBXML2_DEPS=m4
+PYYAML_BUILDS=${PYYAML_BUILDS:-"cc4py"}
+PYYAML_DEPS=yaml
 
 ######################################################################
 #
-# Launch libxml2 builds.
+# Launch pyyaml builds.
 #
 ######################################################################
 
-buildLibxml2() {
-  if bilderUnpack libxml2; then
-    if bilderConfig libxml2 ser "--enable-shared=no"; then
-      bilderBuild libxml2 ser
-    fi
-    if bilderConfig libxml2 sersh "--enable-shared=yes"; then
-      bilderBuild libxml2 sersh
-    fi
+buildPyyaml() {
+  if ! bilderUnpack pyyaml; then
+    return
   fi
+  bilderDuBuild pyyaml "$PYYAML_ARGS" "$PYYAML_ENV"
 }
 
 ######################################################################
 #
-# Test libxml2
+# Test pyyaml
 #
 ######################################################################
 
-testLibxml2() {
-  techo "Not testing libxml2."
+testPyyaml() {
+  techo "Not testing pyyaml."
 }
 
 ######################################################################
 #
-# Install libxml2
+# Install pyyaml
 #
 ######################################################################
 
-installLibxml2() {
-  bilderInstall libxml2 ser
-  bilderInstall libxml2 sersh
-
-  findContribPackage libxml2 libxml2 ser
+installPyyaml() {
+  case `uname` in
+    CYGWIN*)
+      bilderDuInstall -n pyyaml "$PYYAML_ARGS" "$PYYAML_ENV"
+      ;;
+    *)
+      bilderDuInstall -r pyyaml pyyaml "$PYYAML_ARGS" "$PYYAML_ENV"
+      ;;
+  esac
 }
-

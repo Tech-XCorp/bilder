@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id$
+# $Id: linux.intel 109 2013-03-01 09:10:58Z jrobcary $
 #
 # Define variables.
 # Do not override existing definitions.
@@ -10,18 +10,43 @@
 ######################################################################
 
 # KEEP THIS
-# These contents are not sourced or changed on a file update, but
-# they are sourced for an actual build.
+# For intel, must use intelf90 for F77
+if test -n "PETSC_MPIEXEC"; then
+  PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
+fi
+# This should be specialized to systems with static mvapich libs
+case $FQMAILHOST in
+  verus.colorado.edu)
+    FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
+    NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
+    TRILINOS_PAR_OTHER_ARGS=${TRILINOS_PAR_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DCMAKE_CROSSCOMPILING:BOOL=TRUE"}
+    ;;
+esac
 
-# Install the following software:
-# > sudo apt-get install mpich2 subversion gfortran g++ liblapack-dev 
-#     libblas-dev
-
-# For visit, use ubuntu libraries:
-# > sudo apt-get install flex bison libqt4-dev libxt-dev libxi-dev mesa-utils
-#     qt4-dev-tools qt4-doc autoconf libxt-dev libxrender-dev zlib1g-dev
-#     libjpeg8-dev libqt4-opengl-dev libxmu-dev libx11-dev freeglut3-dev
-
+##
+# source Intel compilervars.sh on Linux and Mac
+##
+INSTALL_DIR_SAV=$BLDR_INSTALL_DIR  # The Intel scripts muck with BLDR_INSTALL_DIR.
+pushd . >/dev/null
+ipath=`which ifort`
+cd `dirname $ipath`
+ipath=`basename $ipath`
+# Iterate down a (possible) chain of symlinks
+while [ -L "$ipath" ]
+do
+  ipath=`readlink $ipath`
+  cd `dirname $ipath`
+  ipath=`basename $ipath`
+done
+ipath=`pwd -P`
+ipath=`dirname $ipath`
+popd >/dev/null
+cmd="source $ipath/compilervars.sh intel64"
+echo "Sourcing compilervars script for Intel Compilers"
+echo $cmd
+$cmd
+INSTALL_DIR=$BLDR_INSTALL_DIR_SAV
+#PATH=${/opt/apps/intel13/impi/4.1.0.030/mic/bin:/opt/apps/intel/13/composer_xe_2013.2.146/bin/intel64_mic:-""}
 # END KEEP THIS
 
 # Serial compilers
@@ -31,38 +56,46 @@
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"gcc"}
-CXX=${CXX:-"g++"}
-FC=${FC:-"gfortran"}
-F77=${F77:-"gfortran"}
+CC=${CC:-"icc"}
+CXX=${CXX:-"icpc"}
+FC=${FC:-"ifort"}
+F77=${F77:-"ifort"}
 
 # Python builds -- much use gcc for consistency.
 PYC_CC=${PYC_CC:-"gcc"}
 PYC_CXX=${PYC_CXX:-"g++"}
-# PYC_FC=${PYC_FC:-""}
-# PYC_F77=${PYC_F77:-""}
+PYC_FC=${PYC_FC:-"gfortran"}
+PYC_F77=${PYC_F77:-"gfortran"}
 
 # Backend compilers:
-# BENCC=${BENCC:-""}
-# BENCXX=${BENCXX:-""}
-# BENFC=${BENFC:-""}
-# BENF77=${BENF77:-""}
+BENCC=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpicc
+#BENCC=${BENCC:-""}
+BENCXX=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpicxx
+#BENCXX=${BENCXX:-""}
+BENFC=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpiifort
+#BENFC=${BENFC:-""}
+BENF77=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpiifort
+#BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"mpicc"}
-MPICXX=${MPICXX:-"mpic++"}
-MPIFC=${MPIFC:-"mpif90"}
-MPIF77=${MPIF77:-"mpif77"}
+# MPICC=${MPICC:-""}
+# MPICXX=${MPICXX:-""}
+# MPIFC=${MPIFC:-""}
+MPIF77=${MPIF77:-"mpif90"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
 # pic flags are added later
 
 # Serial
-# CFLAGS=${CFLAGS:-""}
-# CXXFLAGS=${CXXFLAGS:-""}
-# FCFLAGS=${FCFLAGS:-""}
-# FFLAGS=${FFLAGS:-""}
+#CFLAGS=${CFLAGS:-"-mkl -mmic"}
+CFLAGS=${CFLAGS:-"-mkl"}
+#CXXFLAGS=${CXXFLAGS:-" -mkl -mmic"}
+CXXFLAGS=${CXXFLAGS:-"-mkl"}
+#FCFLAGS=${FCFLAGS:-"-mkl -mmic"}
+FCFLAGS=${FCFLAGS:-"-mkl"}
+#FFLAGS=${FFLAGS:-"-mkl -mmic"}
+FFLAGS=${FFLAGS:-"-mkl"}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -75,28 +108,34 @@ MPIF77=${MPIF77:-"mpif77"}
 # PYC_MODFLAGS=${PYC_MODFLAGS:-""}
 # PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-""}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
+LD_LIBRARY_PATH=${MIC_LD_LIBRARY_PATH:-""}
 
 # Parallel
-# MPI_CFLAGS=${MPI_CFLAGS:-""}
-# MPI_CXXFLAGS=${MPI_CXXFLAGS:-""}
-# MPI_FCFLAGS=${MPI_FCFLAGS:-""}
-# MPI_FFLAGS=${MPI_FFLAGS:-""}
+#MPI_CFLAGS=${MPI_CFLAGS:-"-mmic -mkl"}
+MPI_CFLAGS=${MPI_CFLAGS:-"-mkl"}
+#MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mmic -mkl"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mkl"}
+#MPI_FCFLAGS=${MPI_FCFLAGS:-"-mmic -mkl"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-mkl"}
+#MPI_FFLAGS=${MPI_FFLAGS:-"-mmic -mkl"}
+MPI_FFLAGS=${FFLAGS:-"-mkl"}
 
 # Linear algebra libraries:
 # All should be a full path to the library.
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/usr/lib/libblas.so"}
+# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
 # SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
-# SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-""}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
+SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
+# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
 # SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
-# SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
+SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
 
 # IO directories:
 # SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-""}
-# SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-""}
+SYSTEM_HDF5_BEN_DIR=/work/01059/tg803229/softwareMIC/hdf5-1.8.10-par
+SYSTEM_HDF5_PAR_DIR=/work/01059/tg803229/software/hdf5-1.8.10-par
 # SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-""}
 # SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-""}
 
@@ -147,8 +186,8 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 
 # BABEL_BLDRVERSION=${BABEL_BLDRVERSION:-""}
 # BABEL_BUILDS=${BABEL_BUILDS:-""}
-# BABEL_SHARED_OTHER_ARGS=${BABEL_SHARED_OTHER_ARGS:-""}
-# BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-""}
+BABEL_SHARED_OTHER_ARGS=${BABEL_SHARED_OTHER_ARGS:-"--with-F90-vendor=GNU"}
+BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU"}
 
 # BHSSOLVER_BLDRVERSION=${BHSSOLVER_BLDRVERSION:-""}
 # BHSSOLVER_BUILDS=${BHSSOLVER_BUILDS:-""}
@@ -160,7 +199,8 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 # BINUTILS_SER_OTHER_ARGS=${BINUTILS_SER_OTHER_ARGS:-""}
 
 # BOOST_BLDRVERSION=${BOOST_BLDRVERSION:-""}
-# BOOST_BUILDS=${BOOST_BUILDS:-""}
+BOOST_BUILDS=${BOOST_BUILDS:-"ben"}
+BOOST_BEN_OTHER_ARGS=${BOOST_BEN_OTHER_ARGS:-"toolset=intel --disable-icu --without-iostreams cflags='-mmic' cxxflags='-mmic' linkflags='-mmic'"}
 # BOOST_SER_OTHER_ARGS=${BOOST_SER_OTHER_ARGS:-""}
 
 # BOTAN_BLDRVERSION=${BOTAN_BLDRVERSION:-""}
@@ -256,7 +296,8 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 # DOCUTILS_CC4PY_OTHER_ARGS=${DOCUTILS_CC4PY_OTHER_ARGS:-""}
 
 # DOXYGEN_BLDRVERSION=${DOXYGEN_BLDRVERSION:-""}
-# DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-""}
+DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-"par,ben"}
+DOXYGEN_BEN_OTHER_ARGS=${DOXYGEN_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-mkl -mmic' -DCMAKE_C_FLAGS:STRING='-mmic -mkl' -DCMAKE_Fortran_FLAGS:STRING='-mmic -mkl'"}
 # DOXYGEN_SER_OTHER_ARGS=${DOXYGEN_SER_OTHER_ARGS:-""}
 
 # EIGEN3_BLDRVERSION=${EIGEN3_BLDRVERSION:-""}
@@ -275,7 +316,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 # FACETS_BLDRVERSION=${FACETS_BLDRVERSION:-""}
 # FACETS_BUILDS=${FACETS_BUILDS:-""}
 # FACETS_DEVELDOCS_OTHER_ARGS=${FACETS_DEVELDOCS_OTHER_ARGS:-""}
-# FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-""}
+FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
 # FACETS_PARTAU_OTHER_ARGS=${FACETS_PARTAU_OTHER_ARGS:-""}
 # FACETS_SER_OTHER_ARGS=${FACETS_SER_OTHER_ARGS:-""}
 
@@ -314,7 +355,7 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 
 # FMCFM_BLDRVERSION=${FMCFM_BLDRVERSION:-""}
 # FMCFM_BUILDS=${FMCFM_BUILDS:-""}
-# FMCFM_PAR_OTHER_ARGS=${FMCFM_PAR_OTHER_ARGS:-""}
+FMCFM_PAR_OTHER_ARGS=${FMCFM_PAR_OTHER_ARGS:-"LDFLAGS='-all-static'"}
 # FMCFM_SER_OTHER_ARGS=${FMCFM_SER_OTHER_ARGS:-""}
 
 # FMTESTS_BLDRVERSION=${FMTESTS_BLDRVERSION:-""}
@@ -378,10 +419,6 @@ SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/lib/liblapack.so"}
 # GPULIB_BUILDS=${GPULIB_BUILDS:-""}
 # GPULIB_GPU_OTHER_ARGS=${GPULIB_GPU_OTHER_ARGS:-""}
 
-# GRIN_BLDRVERSION=${GRIN_BLDRVERSION:-""}
-# GRIN_BUILDS=${GRIN_BUILDS:-""}
-GRIN_SER_OTHER_ARGS=${GRIN_SER_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-
 # GSL_BLDRVERSION=${GSL_BLDRVERSION:-""}
 # GSL_BUILDS=${GSL_BUILDS:-""}
 # GSL_SER_OTHER_ARGS=${GSL_SER_OTHER_ARGS:-""}
@@ -427,13 +464,18 @@ GRIN_SER_OTHER_ARGS=${GRIN_SER_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl
 # JSMATH_BUILDS=${JSMATH_BUILDS:-""}
 # JSMATH_CC4PY_OTHER_ARGS=${JSMATH_CC4PY_OTHER_ARGS:-""}
 
+NEFACE_BUILDS=${NEFACE_BUILDS:-"sersh,cc4py"}
+VSREADER_BUILDS=${VSREADER_BUILDS:-"sersh,cc4py"}
 # LAPACK_BLDRVERSION=${LAPACK_BLDRVERSION:-""}
-# LAPACK_BUILDS=${LAPACK_BUILDS:-""}
-# LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-""}
+LAPACK_BUILDS=${LAPACK_BUILDS:-"par,ben"}
+LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-mkl -mmic' -DCMAKE_C_FLAGS:STRING='-mkl -mmic' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic' -DCMAKE_CROSSCOMPILING:BOOL=TRUE"}
 # LAPACK_CC4PY_OTHER_ARGS=${LAPACK_CC4PY_OTHER_ARGS:-""}
 # LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-""}
 # LAPACK_SERSH_OTHER_ARGS=${LAPACK_SERSH_OTHER_ARGS:-""}
-
+VORPAL_BUILDS=${VORPAL_BUILDS:-"par,ben"}
+VORPAL_BEN_OTHER_ARGS=${VORPAL_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK -mkl -mmic' -DCMAKE_C_FLAGS:STRING='-mkl -mmic' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH='/home1/01059/tg803229/zlib-1.2.8/libz.so' -DZ_z_LIBRARY_DIR:PATH='/home1/01059/tg803229/zlib-1.2.8' -DBoost_ROOT_DIR:PATH='/work/01059/tg803229/software/boost-1_53_0-ben' -DTrilinos_ROOT_DIR:PATH='/work/01059/tg803229/software/trilinos-ben' -DTxBase_ROOT_DIR:PATH='/work/01059/tg803229/software/txbase-r1184-ben' -DTxPhysics_ROOT_DIR:PATH='/work/01059/tg803229/software/txphysics-ben'"}
+TXUTILS_BUILDS=${TXUTILS_BUILDS:-"ser,sersh,cc4py,par,ben"}
+TXUTILS_BEN_OTHER_ARGS=${TXUTILS_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_C_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH='/home1/01059/tg803229/zlib-1.2.8/libz.so' -DZ_z_LIBRARY_DIR:PATH='/home1/01059/tg803229/zlib-1.2.8' -DBoost_ROOT_DIR:PATH='/work/01059/tg803229/software/boost-1_53_0-ben' -DTrilinos_ROOT_DIR:PATH='/work/01059/tg803229/software/trilinos-ben' -DTxBase_ROOT_DIR:PATH='/work/01059/tg803229/software/txbase-r1184-ben' -DTxPhysics_ROOT_DIR:PATH='/work/01059/tg803229/software/txphysics-ben'"}
 # LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-""}
 # LIBPNG_BUILDS=${LIBPNG_BUILDS:-""}
 # LIBPNG_CC4PY_OTHER_ARGS=${LIBPNG_CC4PY_OTHER_ARGS:-""}
@@ -484,13 +526,13 @@ GRIN_SER_OTHER_ARGS=${GRIN_SER_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl
 # MERCURIAL_CC4PY_OTHER_ARGS=${MERCURIAL_CC4PY_OTHER_ARGS:-""}
 
 # MESA_BLDRVERSION=${MESA_BLDRVERSION:-""}
-# MESA_BUILDS=${MESA_BUILDS:-"NONE"}
+# MESA_BUILDS=${MESA_BUILDS:-""}
 # MESA_MGL_OTHER_ARGS=${MESA_MGL_OTHER_ARGS:-""}
 # MESA_OS_OTHER_ARGS=${MESA_OS_OTHER_ARGS:-""}
 
 # METATAU_BLDRVERSION=${METATAU_BLDRVERSION:-""}
 # METATAU_BUILDS=${METATAU_BUILDS:-""}
-METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=x86_64 -mpi -mpilib=/usr/lib/mpich2/lib -mpiinc=/usr/include/mpich2 -mpilibrary=-lmpich#-lmpl -pdt_c++=g++"}
+# METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-""}
 
 # METIS_BLDRVERSION=${METIS_BLDRVERSION:-""}
 # METIS_BUILDS=${METIS_BUILDS:-""}
@@ -531,7 +573,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=x86_64 -mpi -mpilib=/usr
 # NETCDF_BUILDS=${NETCDF_BUILDS:-""}
 # NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
 # NETCDF_CC4PY_OTHER_ARGS=${NETCDF_CC4PY_OTHER_ARGS:-""}
-NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-"--disable-utilities"}
+# NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-""}
 # NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-""}
 
 # NETLIB_LITE_BLDRVERSION=${NETLIB_LITE_BLDRVERSION:-""}
@@ -541,13 +583,13 @@ NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-"--disable-utilities"}
 
 # NIMDEVEL_BLDRVERSION=${NIMDEVEL_BLDRVERSION:-""}
 # NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-""}
-NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
-NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,--allow-multiple-definition'"}
+# NIMDEVEL_PAR_OTHER_ARGS=${NIMDEVEL_PAR_OTHER_ARGS:-""}
+# NIMDEVEL_PARDBG_OTHER_ARGS=${NIMDEVEL_PARDBG_OTHER_ARGS:-""}
+# NIMDEVEL_PARSURF_OTHER_ARGS=${NIMDEVEL_PARSURF_OTHER_ARGS:-""}
+# NIMDEVEL_PARTAU_OTHER_ARGS=${NIMDEVEL_PARTAU_OTHER_ARGS:-""}
+# NIMDEVEL_SER_OTHER_ARGS=${NIMDEVEL_SER_OTHER_ARGS:-""}
+# NIMDEVEL_SERDBG_OTHER_ARGS=${NIMDEVEL_SERDBG_OTHER_ARGS:-""}
+# NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-""}
 
 # NIMTESTS_BLDRVERSION=${NIMTESTS_BLDRVERSION:-""}
 # NIMTESTS_BUILDS=${NIMTESTS_BUILDS:-""}
@@ -602,8 +644,8 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # PCRE_SER_OTHER_ARGS=${PCRE_SER_OTHER_ARGS:-""}
 
 # PETSC_BLDRVERSION=${PETSC_BLDRVERSION:-""}
-# PETSC_BUILDS=${PETSC_BUILDS:-""}
-# PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-""}
+PETSC_BUILDS=${PETSC_BUILDS:-"ser,par"}
+PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-shared=0"}
 # PETSC_PARCPLX_OTHER_ARGS=${PETSC_PARCPLX_OTHER_ARGS:-""}
 # PETSC_PARCPLXDBG_OTHER_ARGS=${PETSC_PARCPLXDBG_OTHER_ARGS:-""}
 # PETSC_PARDBG_OTHER_ARGS=${PETSC_PARDBG_OTHER_ARGS:-""}
@@ -703,7 +745,7 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # QSCINTILLA_SER_OTHER_ARGS=${QSCINTILLA_SER_OTHER_ARGS:-""}
 
 # QT_BLDRVERSION=${QT_BLDRVERSION:-""}
-#QT_BUILDS=${QT_BUILDS:-"NONE"}
+# QT_BUILDS=${QT_BUILDS:-""}
 # QT_SER_OTHER_ARGS=${QT_SER_OTHER_ARGS:-""}
 
 # QT3D_BLDRVERSION=${QT3D_BLDRVERSION:-""}
@@ -810,16 +852,16 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # SUNDIALS_SER_OTHER_ARGS=${SUNDIALS_SER_OTHER_ARGS:-""}
 
 # SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-""}
-# SUPERLU_BUILDS=${SUPERLU_BUILDS:-""}
+SUPERLU_BUILDS=${SUPERLU_BUILDS:-"par,ben"}
 # SUPERLU_SER_OTHER_ARGS=${SUPERLU_SER_OTHER_ARGS:-""}
 # SUPERLU_SERSH_OTHER_ARGS=${SUPERLU_SERSH_OTHER_ARGS:-""}
-
-# SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-""}
-# SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-""}
-# SUPERLU_DIST_PAR_OTHER_ARGS=${SUPERLU_DIST_PAR_OTHER_ARGS:-""}
-# SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-""}
-# SUPERLU_DIST_PARCOMMSH_OTHER_ARGS=${SUPERLU_DIST_PARCOMMSH_OTHER_ARGS:-""}
-# SUPERLU_DIST_PARSH_OTHER_ARGS=${SUPERLU_DIST_PARSH_OTHER_ARGS:-""}
+SUPERLU_DIST_BEN_OTHER_ARGS=${SUPERLU_DIST_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-mkl -mmic' -DCMAKE_C_FLAGS:STRING='-mmic -mkl' -DCMAKE_Fortran_FLAGS:STRING='-mmic -mkl' -DSuperlu_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"}
+# SUPERLU_DIST_BEN_OTHER_ARGS=${SUPERLU_DIST_BEN_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
+# SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
+SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"par,parcomm,parcommsh,ben"}
+# SUPERLU_DIST_PAR_OTHER_ARGS=${SUPERLU_DIST_PAR_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
+# SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
+# SUPERLU_DIST_PARSH_OTHER_ARGS=${SUPERLU_DIST_PARSH_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
 
 # SWIG_BLDRVERSION=${SWIG_BLDRVERSION:-""}
 # SWIG_BUILDS=${SWIG_BUILDS:-""}
@@ -858,11 +900,14 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # TORNADO_BUILDS=${TORNADO_BUILDS:-""}
 # TORNADO_CC4PY_OTHER_ARGS=${TORNADO_CC4PY_OTHER_ARGS:-""}
 
+
+TRILINOS_BEN_OTHER_ARGS=${TRILINOS_BEN_OTHER_ARGS:-"-DCMAKE_CROSSCOMPILING:BOOL=TRUE -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON -DBLAS_INCLUDE_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic -DLAPACK_INCLUDE_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic -DBLAS_LIBRARY_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic -DLAPACK_LIBRARY_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic -DBLAS_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DLAPACK_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK -mkl -mmic' -DCMAKE_C_FLAGS:STRING='-mmic -mkl' -DCMAKE_Fortran_FLAGS:STRING='-mmic -mkl'"}
+TRILINOS_PAR_OTHER_ARGS=${TRILINOS_PAR_OTHER_ARGS:-"-DBLAS_INCLUDE_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic -DLAPACK_INCLUDE_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic -DBLAS_LIBRARY_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic -DLAPACK_LIBRARY_DIRS:PATH=/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic -DBLAS_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DLAPACK_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK'"}
 # TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-""}
-# TRILINOS_BUILDS=${TRILINOS_BUILDS:-""}
+TRILINOS_BUILDS=${TRILINOS_BUILDS:-"parcommsh,parcomm,ben"}
 # TRILINOS_PARBARE_OTHER_ARGS=${TRILINOS_PARBARE_OTHER_ARGS:-""}
 # TRILINOS_PARBARESH_OTHER_ARGS=${TRILINOS_PARBARESH_OTHER_ARGS:-""}
-# TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-""}
+# TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-"-DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"}
 # TRILINOS_PARCOMMSH_OTHER_ARGS=${TRILINOS_PARCOMMSH_OTHER_ARGS:-""}
 # TRILINOS_PARFULL_OTHER_ARGS=${TRILINOS_PARFULL_OTHER_ARGS:-""}
 # TRILINOS_PARFULLSH_OTHER_ARGS=${TRILINOS_PARFULLSH_OTHER_ARGS:-""}
@@ -886,11 +931,12 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # TVMET_SER_OTHER_ARGS=${TVMET_SER_OTHER_ARGS:-""}
 
 # TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-""}
-# TXBASE_BUILDS=${TXBASE_BUILDS:-""}
+TXBASE_BUILDS=${TXBASE_BUILDS:-"par,ben"}
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
-# TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
+TXBASE_BEN_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_C_FLAGS='-fPIC -mkl -mmic' -DCMAKE_Fortran_FLAGS='-fPIC -mmic -mkl' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH='/home1/01059/tg803229/zlib-1.2.8/libz.so' -DZ_z_LIBRARY_DIR:PATH='/home1/01059/tg803229/zlib-1.2.8' -DPython_VERSION='2.7' -DPython_LIBRARIES:PATH='/work/01059/tg803229/softwareMIC/python/lib' -DPython_INCLUDE_DIRS:PATH='/work/01059/tg803229/softwareMIC/python/include/python2.7' -DPYTHON:FILEPATH='/work/01059/tg803229/softwareMIC/python/bin/python' -DHdf5_ROOT_DIR='/work/01059/tg803229/softwareMIC/hdf5-1.8.10-par'"}
+# -DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'" }
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
-# TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-""}
+# TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DPython_VERSION='2.7' -DPython_LIBRARIES:PATH='/work/01059/tg803229/softwareMIC/python/lib' -DPython_INCLUDE_DIRS:PATH='/work/01059/tg803229/softwareMIC/python/include/python2.7' -DPYTHON:FILEPATH='/work/01059/tg803229/softwareMIC/python/bin/python'"}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
 
 # TXBTESTS_BLDRVERSION=${TXBTESTS_BLDRVERSION:-""}
@@ -903,8 +949,8 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # TXGEOM_SER_OTHER_ARGS=${TXGEOM_SER_OTHER_ARGS:-""}
 
 # TXPHYSICS_BLDRVERSION=${TXPHYSICS_BLDRVERSION:-""}
-# TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-""}
-# TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-""}
+TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"par,ben"}
+TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-mkl -mmic' -DCMAKE_C_FLAGS:STRING='-mmic -mkl' -DCMAKE_Fortran_FLAGS:STRING='-mmic -mkl'"}
 # TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-""}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
@@ -926,7 +972,7 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 # UETESTS_ALL_OTHER_ARGS=${UETESTS_ALL_OTHER_ARGS:-""}
 
 # VALGRIND_BLDRVERSION=${VALGRIND_BLDRVERSION:-""}
-# VALGRIND_BUILDS=${VALGRIND_BUILDS:-""}
+VALGRIND_BUILDS=${VALGRIND_BUILDS:-"NONE"}
 # VALGRIND_SER_OTHER_ARGS=${VALGRIND_SER_OTHER_ARGS:-""}
 
 # VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-""}
@@ -936,7 +982,7 @@ NIMDEVEL_SERSURF_OTHER_ARGS=${NIMDEVEL_SERSURF_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_F
 
 # VISIT_VTK_BLDRVERSION=${VISIT_VTK_BLDRVERSION:-""}
 # VISIT_VTK_BUILDS=${VISIT_VTK_BUILDS:-""}
-VISIT_VTK_SER_OTHER_ARGS=${VISIT_VTK_SER_OTHER_ARGS:-"-DVTK_USE_X:BOOL=ON"}
+# VISIT_VTK_SER_OTHER_ARGS=${VISIT_VTK_SER_OTHER_ARGS:-""}
 
 # VTK_BLDRVERSION=${VTK_BLDRVERSION:-""}
 # VTK_BUILDS=${VTK_BUILDS:-""}

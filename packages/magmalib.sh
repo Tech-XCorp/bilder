@@ -22,7 +22,9 @@ MAGMALIB_UMASK=002
 buildMagmalib() {
   techo ""
   if shouldInstall -i $CONTRIB_DIR magmalib-$MAGMALIB_BLDRVERSION gpu; then
-    local magmalibtarball=`getPkg "magmalib-$MAGMALIB_BLDRVERSION"`
+    # local magmalibtarball=`getPkg "magmalib-$MAGMALIB_BLDRVERSION"`
+    getPkg magmalib-$MAGMALIB_BLDRVERSION
+    local magmalibtarball="$GETPKG_RETURN"
     cmd="$TAR -C $CONTRIB_DIR -xzf $magmalibtarball"
     $cmd
     cmd="mkLink $CONTRIB_DIR magmalib-$MAGMALIB_BLDRVERSION magmalib"

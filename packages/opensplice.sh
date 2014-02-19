@@ -50,7 +50,7 @@ buildOpensplice() {
       Linux) export SPLICE_TARGET="x86_64.linux2.6-release";;  # NOTE: assumes there are system installs of jdk and zlib
       *)     export SPLICE_TARGET="x86.linux2.6-release";;     # NOTE: assumes there are system installs of jdk and zlib
     esac
-    if bilderConfig -m " " opensplice ser; then
+    if bilderConfig -C " " opensplice ser; then
       bilderBuild -k -m "source configure; make clean; make; make install" opensplice ser
       INSTALL_OPENSPLICE_FLAG=true
     fi

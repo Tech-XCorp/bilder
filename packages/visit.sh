@@ -280,6 +280,11 @@ testVisit() {
 
 ######################################################################
 #
+# Installation helpers
+#
+######################################################################
+
+#
 # Fix up hdf5 libraries that are copied
 #
 # Args
@@ -287,8 +292,6 @@ testVisit() {
 # 2: Root directory (unix/cygwin path) of hdf5 installation
 # 3: File for redirecting any extensive output
 #
-######################################################################
-
 fixCopiedHdf5() {
 
   local instdir=$1
@@ -324,45 +327,15 @@ fixCopiedHdf5() {
       eval "$cmd"
       ;;
 
-    Darwin)
-# If link to install name of hdf5 not installed, make link
-      local hdf5libbase=libhdf5.${HDF5_BLDRVERSION}.dylib
-      local hdf5libname=$instdir/$hdf5libbase
-      if ! test -f $hdf5libname; then
-        techo "ERROR: $hdf5libname missing."
-        return
+    Darwin | Linux)
+      if test `uname` = Darwin; then
+        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shlib=libhdf5.${HDF5_BLDRVERSION}.dylib
+      else
+        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shlib=libhdf5.so.${HDF5_BLDRVERSION}
       fi
-      techo "Extracting compatibility name from $hdf5libname."
-      local hdf5shlink=`otool -D $hdf5libname | tail -1`
-      if test -f $instdir/$hdf5shlink; then
-        techo "VisIt correctly created $instdir/$hdf5shlink link."
-        return
-      fi
-      techo "NOTE: $hdf5shlink link absent in $instdir.  Creating."
-      cmd="(cd $instdir; ln -s $hdf5libbase $hdf5shlink)"
-      techo "$cmd"
-      eval "$cmd"
-      ;;
-
-    Linux)
-# If link to soname of hdf5 not installed, make link
-# JRC: still necessary as of visit-r19672
-      local hdf5libbase=libhdf5.so.${HDF5_BLDRVERSION}
-      local hdf5libname=$instdir/$hdf5libbase
-      if ! test -f $hdf5libname; then
-        techo "ERROR: $hdf5libname missing."
-        return
-      fi
-      techo "Extracting soname from $hdf5libname."
-      local hdf5soname=`objdump -p $hdf5libname | grep SONAME | sed -e 's/ *SONAME *//'`
-      if test -f $instdir/$hdf5soname; then
-        techo "VisIt correctly created $instdir/$hdf5soname link."
-        return
-      fi
-      techo "NOTE: $hdf5soname link absent in $instdir.  Creating."
-      cmd="(cd $instdir; ln -s $hdf5libbase $hdf5soname)"
-      techo "$cmd"
-      eval "$cmd"
+      installRelShlib $hdf5shlib $instdir $hdf5shdir
       ;;
 
   esac

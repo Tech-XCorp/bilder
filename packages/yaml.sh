@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for libxml2
+# Version and build information for yaml library.
 #
 # $Id$
 #
@@ -12,54 +12,53 @@
 #
 ######################################################################
 
-LIBXML2_BLDRVERSION=${LIBXML2_BLDRVERSION:-"2.7.8"}
+YAML_BLDRVERSION=${YAML_BLDRVERSION:-"0.1.4"}
 
+# Built from package only
 ######################################################################
 #
 # Other values
 #
 ######################################################################
 
-LIBXML2_BUILDS=${LIBXML2_BUILDS:-"ser,sersh"}
-LIBXML2_DEPS=m4
+YAML_BUILDS=${YAML_BUILDS:-"ser"}
 
 ######################################################################
 #
-# Launch libxml2 builds.
+# Launch yaml builds.
 #
 ######################################################################
 
-buildLibxml2() {
-  if bilderUnpack libxml2; then
-    if bilderConfig libxml2 ser "--enable-shared=no"; then
-      bilderBuild libxml2 ser
-    fi
-    if bilderConfig libxml2 sersh "--enable-shared=yes"; then
-      bilderBuild libxml2 sersh
-    fi
+buildYaml() {
+  if bilderUnpack yaml; then
+    for bld in ${YAML_BUILDS}; do
+      if bilderConfig yaml $bld; then
+        bilderBuild yaml $bld
+      fi
+    done
   fi
 }
 
+
 ######################################################################
 #
-# Test libxml2
+# Test yaml
 #
 ######################################################################
 
-testLibxml2() {
-  techo "Not testing libxml2."
+testYaml() {
+  techo "Not testing yaml."
 }
 
 ######################################################################
 #
-# Install libxml2
+# Install yaml
 #
 ######################################################################
 
-installLibxml2() {
-  bilderInstall libxml2 ser
-  bilderInstall libxml2 sersh
-
-  findContribPackage libxml2 libxml2 ser
+installYaml() {
+  for bld in ${YAML_BUILDS}; do
+    bilderInstall yaml ${bld}
+  done
 }
 

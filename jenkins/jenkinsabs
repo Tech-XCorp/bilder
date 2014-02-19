@@ -175,7 +175,9 @@ for absdir in $absdirs; do
 # This find syntax not valid on Darwin.
   cmd="$cmdprefix find $topdir/$absdir -type f -cmin -${MINUTES}"
   lecho "$cmd"
-  $cmd | sed -e "s%/.*/%%" >abstracts.txt
+# Sort by date of abs, so if there are multiple ones we only get the
+# last one, which will be the freshest.
+  $cmd | sed -e "s%/.*/%%" | sort -t_ -k 3 > abstracts.txt
   lecho "<<< Analyzing $absdir Abstracts from $topdir >>>"
   absinfile=`cat abstracts.txt`
   lecho "Found abstracts.txt with contents: $absinfile"

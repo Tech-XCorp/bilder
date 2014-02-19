@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version
+# Version.  No current tarball, so always build from repo.
 #
 ######################################################################
 
@@ -17,7 +17,7 @@
 # will be used instead. If you want to use the repo, make sure you have
 # txbase an external.
 
-TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
+# TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
 
 ######################################################################
 #
@@ -25,25 +25,29 @@ TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
 #
 ######################################################################
 
-if test -z "$TXBASE_DESIRED_BUILDS"; then
-  TXBASE_DESIRED_BUILDS=ser,par,sersh
+setTxBaseGlobalVars() {
+  if test -z "$TXBASE_DESIRED_BUILDS"; then
+    TXBASE_DESIRED_BUILDS=ser,par,sersh
+    if [[ `uname` =~ CYGWIN ]]; then
+      TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
+    fi
+    if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
+      TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
+    fi
+  fi
+  computeBuilds txbase
+  addCc4pyBuild txbase
+  TXBASE_DEPS=hdf5,Python,openmpi,cmake
+  # On Windows, boost needed for some math functions
   if [[ `uname` =~ CYGWIN ]]; then
-    TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
+    TXBASE_DEPS=$TXBASE_DEPS,boost
   fi
-  if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
-    TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
-  fi
-fi
-computeBuilds txbase
-addCc4pyBuild txbase
-TXBASE_DEPS=hdf5,Python,openmpi,cmake
-# On Windows, boost needed for some math functions
-if [[ `uname` =~ CYGWIN ]]; then
-  TXBASE_DEPS=$TXBASE_DEPS,boost
-fi
-trimvar TXBASE_DEPS ','
-TXBASE_MASK=002
-TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
+  trimvar TXBASE_DEPS ','
+  TXBASE_MASK=002
+  TXBASE_TESTING=${TXBASE_TESTING:-"${TESTING_BUILDS}"}
+  $TXBASE_TESTING && TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
+}
+setTxBaseGlobalVars
 
 ######################################################################
 #
@@ -66,26 +70,36 @@ buildTxbase() {
   fi
 
 # Use make -j, always set up submitting
-  TXBASE_MAKE_ARGS="$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS ${TXBASE_CTEST_TARGET}Start ${TXBASE_CTEST_TARGET}Build"
+  local TXBASE_MAKE_ARGS=
+  local TXBASE_DEVELDOCS_MAKE_ARGS=apidocs-force
+  if test -n "$TXBASE_CTEST_TARGET"; then
+    TXBASE_MAKE_ARGS="$TXBASE_MAKE_ARGS ${TXBASE_CTEST_TARGET}Start ${TXBASE_CTEST_TARGET}Build"
+    TXBASE_DEVELDOCS_MAKE_ARGS="$TXBASE_MAKE_ARGS"
+  fi
+
+  # Force full link path
+  TXBASE_CC4PY_OTHER_ARGS="${TXBASE_CC4PY_OTHER_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+  TXBASE_SERSH_OTHER_ARGS="${TXBASE_SERSH_OTHER_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+  TXBASE_PARSH_OTHER_ARGS="${TXBASE_PARSH_OTHER_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
 
 # All builds
   if bilderConfig -c txbase ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS"; then
-    bilderBuild txbase ser "$TXBASE_MAKE_ARGS"
+    bilderBuild txbase ser "$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   fi
   if bilderConfig -c txbase sersh "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SERSH_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SERSH_OTHER_ARGS"; then
-    bilderBuild txbase sersh "$TXBASE_MAKE_ARGS"
+    bilderBuild txbase sersh "$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   fi
   if bilderConfig -c txbase cc4py "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_HDF5_CC4PY_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_CC4PY_OTHER_ARGS"; then
-    bilderBuild txbase cc4py "$TXBASE_MAKE_ARGS"
+    bilderBuild txbase cc4py "$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   fi
   if bilderConfig -c txbase sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS"; then
-    bilderBuild txbase sermd "$TXBASE_MAKE_ARGS"
+    bilderBuild txbase sermd "$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   fi
   if bilderConfig -c txbase par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_PAR_OTHER_ARGS"; then
-    bilderBuild txbase par "$TXBASE_MAKE_ARGS"
+    bilderBuild txbase par "$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   fi
   if bilderConfig -c txbase parsh "-DENABLE_PARALLEL:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_HDF5_PARSH_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_PARSH_OTHER_ARGS"; then
-    bilderBuild txbase parsh "$TXBASE_MAKE_ARGS"
+    bilderBuild txbase parsh "$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   fi
   if bilderConfig -c txbase ben "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $CMAKE_HDF5_BEN_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_BEN_OTHER_ARGS"; then
 # ben builds not tested
@@ -93,12 +107,13 @@ buildTxbase() {
   fi
 
 # Developer doxygen (develdocs) build
-  if bilderConfig -I $DEVELDOCS_DIR txbase develdocs "-DENABLE_DEVELDOCS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS" txbase; then
-    local DOX_MAKE_ARGS=
-    if [[ `uname` =~ CYGWIN ]]; then
-      DOX_MAKE_ARGS="-m nmake"
-    fi
-    bilderBuild $DOX_MAKE_ARGS txbase develdocs "apidocs-force"
+  local TXBASE_DEVELDOCS_MAKER_ARGS=
+  if [[ `uname` =~ CYGWIN ]]; then
+    TXBASE_DEVELDOCS_MAKER_ARGS="-m nmake"
+  fi
+  if bilderConfig -I $DEVELDOCS_DIR $TXBASE_DEVELDOCS_MAKER_ARGS txbase develdocs "-DCTEST_BUILD_TARGET:STRING=apidocs-force -DENABLE_DEVELDOCS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TXBASE_SER_OTHER_ARGS" txbase; then
+# develdocs requires nmake on cygwin, no j args
+    bilderBuild $TXBASE_DEVELDOCS_MAKER_ARGS txbase develdocs "$TXBASE_DEVELDOCS_MAKE_ARGS"
   fi
 
 }
@@ -121,6 +136,6 @@ testTxbase() {
 
 installTxbase() {
   TXBASE_DEVELDOCS_INSTALL_TARGET=install-apidocs
-  bilderInstallTestedPkg -r -i ben -p open txbase
+  bilderInstallTestedPkg -b -i ben txbase "" "-r -p open"
 }
 

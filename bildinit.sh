@@ -11,11 +11,14 @@ START_DATE=`date '+%Y-%m-%d'`
 
 # Set trapping for killing of running builds
 unset PIDLIST
-# trap 'cleanup; exit' 1 2 15
-# cleanup does the exit
-trap 'cleanup' 1 2 15
-# For signaling to quit after next installation.
-TERMINATE_REQUESTED=false
+# On trap, exit with untrapped error code or else get infinite loop
+trap 'TERMINATE_REQUESTED=true TERMINATE_ERROR_MSG=Killed. cleanup; exit 3' 1 2 15
+trap -p >/tmp/traps$$.txt
+traps=`sed 's/trap --//' </tmp/traps$$.txt | tr -d '\n'`
+echo "Traps are $traps."
+rm /tmp/traps$$.txt
+export TERMINATE_REQUESTED=false
+export TERMINATE_ERROR_MSG=
 
 # Remove old indicators, provide new
 rm -f $BILDER_LOGDIR/$BILDER_NAME.end
@@ -40,6 +43,9 @@ techo "uname = `uname -a`."
 if test -z "$MACHINE_FILE" && [[ `uname` =~ CYGWIN ]]; then
   MACHINE_FILE=cygwin.vs9
 fi
+
+# Set variables before sourcing machine file
+REPLACE_COMPILERS=${REPLACE_COMPILERS:-"false"}
 
 # Get machine specific variables
 if test -n "$CC"; then
@@ -86,6 +92,22 @@ fi
 
 # Set BILDER_SVN before going further
 BILDER_SVN=${BILDER_SVN:-"`which svn`"}
+# The BEN build is an additional build for back end nodes.
+# On BGP, the back end build uses a different, 32-bit serial
+#   compiler for serial packages like txphysics.  The parallel
+#   uses the (only) parallel (32-bit) compilers.
+# One systems with outboard Phi nodes, the ben build is an
+#   additional build using the extra parallel compilers, even
+#   on serial only packages, like txphysics.
+if test -z "$HAVE_BEN_BUILDS"; then
+  HAVE_BEN_BUILDS=false
+  if test "$CONFIG_COMPILERS_BEN" != "$CONFIG_COMPILERS_SER" -a "$CONFIG_COMPILERS_BEN" != "$CONFIG_COMPILERS_PAR"; then
+    HAVE_BEN_BUILDS=true
+  elif test "$CONFIG_COMPFLAGS_BEN" != "$CONFIG_COMPFLAGS_SER" -a \
+      "$CONFIG_COMPFLAGS_BEN" != "$CONFIG_COMPFLAGS_PAR"; then
+    HAVE_BEN_BUILDS=true
+  fi
+fi
 
 ######################################################################
 #

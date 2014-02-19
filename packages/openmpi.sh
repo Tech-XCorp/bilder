@@ -22,7 +22,7 @@ OPENMPI_BLDRVERSION_EXP=1.6.5
 ######################################################################
 
 if test -z "$OPENMPI_BUILDS"; then
-  if $BUILD_OPENMPI; then
+  if $BUILD_MPIS; then
     case `uname` in
       CYGWIN*)
         OPENMPI_BUILDS=nodl

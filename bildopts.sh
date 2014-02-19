@@ -38,7 +38,7 @@ BILDER OPTIONS
   -c ................ Configure packages but don't build.
   -C ................ Create installers.
   -d ................ Create debug builds (limited package support).
-  -D <builds> ....... Default doc builds (userdocs and develdocs).
+  -D <builds> ....... Default doc builds (subset of url,lite,full,develdocs).
   -e <addr> ......... Email log to specified recipients.
   -E <env pairs> .... Comma-delimited list of environment var=value pair.
   -F ................ Force installation of packages that have local
@@ -73,6 +73,8 @@ BILDER OPTIONS
                         installation of that package.
   -R ................ Build RELEASE (i.e., licensed and signed when applicable)
                         version of executable.
+  -s ................ Rebuild packages if package script has been modified
+                        since last build.
   -S ................ Build static.
   -t ................ Run tests.
   -T ................ Set tests to run with internal preprocessor
@@ -84,8 +86,7 @@ BILDER OPTIONS
   -W <disable builds> Build without these packages (comma delimited list)
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
-  -y ................ Do not clean git and hg subrepos
-  -z ................ Do only a pull and not a clean from any git repo. 
+  -z ................ Do only a pull and not a clean from any git repo.
   -Z ................ Do not execute the definable bilderFinalAction.
   -2 ................ Use the second installation directory of the comma
                         delimited list.  Causes -FI options.
@@ -127,7 +128,7 @@ processBilderArgs() {
     I) IGNORE_TEST_RESULTS=true;;
     j) JMAKE=$OPTARG;;
     k) CONTRIB_DIR=$OPTARG;;
-    k) CLEAN_INSTALLS=true;;
+    K) CLEAN_INSTALLS=true;;
     l) MPI_LAUNCHER=$OPTARG;;
     L) BILDER_LOGDIR=$OPTARG;;
     m) export MACHINE_FILE=$OPTARG;;  # Give to subshells
@@ -135,13 +136,14 @@ processBilderArgs() {
     N) REPO_BUILD_TYPE=Release;;
     o) case `uname` in
 	 CYGWIN*) ;;
-	       *) BUILD_OPENMPI=true;;
+	       *) BUILD_MPIS=true;;
        esac;;
     O) BUILD_OPTIONAL=true;;
     p) SUPRA_SP=$OPTARG;;
     P) POST2DEPOT=false;;
     r) REMOVE_OLD=true;;
     R) CREATE_RELEASE=true;;
+    s) BUILD_IF_NEWER_PKGFILE=false;;
     S) SER_EXTRA_LDFLAGS="--static $SER_EXTRA_LDFLAGS"    # For serial builds
        PAR_EXTRA_LDFLAGS="--static $PAR_EXTRA_LDFLAGS";;  # For parallel builds;
     t) TESTING=true;;
@@ -178,48 +180,53 @@ setBilderOptions() {
   BILDER_START=`date`
 
 # Universal defaults
+  BILDER_CTEST_TARGET=${BILDER_CTEST_TARGET:-"Experimental"}
+  BILDER_LOGDIR=
   BILDER_WAIT_DAYS=0
-  BILDER_CTEST_TARGET=Experimental
   BUILD_DEBUG=false
   BUILD_DIR=$PROJECT_DIR/builds
-  DOCS_BUILDS=
-  BUILD_TARBALLS=true
-  export BUILD_EXPERIMENTAL=false  # Needed by setinstald.sh
-  BUILD_OPENMPI=false
+  BUILD_EXPERIMENTAL=false
   BUILD_IF_NEWER_PKGFILE=true
-  BUILD_OPTIONAL=false
   BUILD_INSTALLERS=false
-  REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
-  TARBALL_BUILD_TYPE=Release
-  SEND_ABSTRACT=false
-  CREATE_RELEASE=false
+  BUILD_MPIS=false
+  BUILD_OPTIONAL=false
+  BUILD_TARBALLS=true
+  CLEAN_GITHG_SUBREPOS=true
   CLEAN_INSTALLS=false
+  CLEAN_OPTS="-lrR -k2"
+  CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
+  DOCS_BUILDS=
+  DO_FINAL_ACTION=true
   FORCE_INSTALL=false
   FORCE_PYINSTALL=false
   GFORTRAN_GOOD=false
-  JUST_GET_PACKAGES=false
   IGNORE_TEST_RESULTS=false
   INSTALL_VISIT=false
   IS_SECOND_INSTALL=false
-  BILDER_LOGDIR=
+  JUST_GET_PACKAGES=false
   MAX_THREADS=false
   NOBUILD=false
-  DO_FINAL_ACTION=true
-  CLEAN_GITHG_SUBREPOS=true
   POST2DEPOT=true
   REMOVE_OLD=false
+  REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
   RM_BUILD=true
+  SEND_ABSTRACT=false
   SVNUP=false
   SVNUP_PKGS=true # Whether to svn up pkgs
+  TARBALL_BUILD_TYPE=Release
+  TESTING_BUILDS=${TESTING_BUILDS:-"false"}
+  TESTING_DEVELDOCS=${TESTING_DEVELDOCS:-"false"}
   TESTING=false
   USE_INTERNAL_TXPP=false
-  export VERBOSITY=1
+  VERBOSITY=1
+  export BUILD_EXPERIMENTAL  # Needed by setinstald.sh
+  export VERBOSITY
 
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:PrRs:StTuUv:VW:w:XyzZ2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:PrRsStTuUv:VW:w:XzZ2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."
@@ -280,6 +287,7 @@ EOF
   rotateFile $LOGFILE
   SUBJFILE=$BILDER_LOGDIR/${BILDER_NAME}.subj
   rotateFile $SUBJFILE
+  rotateFile $BILDER_LOGDIR/cleaninstalls.log
 
 # Record invocation line (now that log is correct)
   techo "Executing $BILDER_CMD in $PROJECT_DIR on `hostname` at $BILDER_START."
@@ -404,6 +412,7 @@ EOF
   fi
 
   if $TESTING; then
+    TESTING_BUILDS=true
     techo "Tests will be run.  You must have the results directories checked out for installation.  If a package does not install (due to failing tests) its dependents might not build."
   else
     techo "Tests will NOT be run."
@@ -445,6 +454,15 @@ EOF
   checkDirWritable -c $CONTRIB_DIR
   CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
   export CONTRIB_DIR
+
+# Clean directories if requested
+  if $CLEAN_INSTALLS; then
+    for dir in $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR; do
+      cmd="$BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $dir 1>$BILDER_LOGDIR/cleaninstalls.log 2>&1"
+      techo "$cmd"
+      eval "$cmd"
+    done
+  fi
 
 # Convert to cygwin as appropriate
   case `uname` in

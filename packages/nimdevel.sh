@@ -163,7 +163,7 @@ testNimdevel() {
 ######################################################################
 
 installNimdevel() {
-  local NIMDEVEL_ALL_BUILDS="ser par serdbg pardbg partau sersurforig parsurforig"
+  local NIMDEVEL_ALL_BUILDS="ser par serdbg pardbg partau sersurf parsurf"
   for bld in $NIMDEVEL_ALL_BUILDS; do
     if bilderInstall $nimversion $bld; then
       local instdir=$BLDR_INSTALL_DIR/$nimversion-${NIMDEVEL_BLDRVERSION}-${bld}

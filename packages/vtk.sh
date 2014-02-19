@@ -14,9 +14,11 @@
 # Build info taken from
 # svn export svn export http://portal.nersc.gov/svn/visit/trunk/src/svn_bin/bv_support/bv_vtk.sh
 #
+# Now take directly from KitWare.  They finally name their tarballs correctly.
+#
 ######################################################################
 
-VTK_BLDRVERSION=${VTK_BLDRVERSION:-"5e3c539"}
+VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
 VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
 
 ######################################################################

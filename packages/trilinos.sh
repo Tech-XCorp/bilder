@@ -40,7 +40,7 @@ esac
 computeBuilds trilinos
 
 # Add in superlu all the time.  May be needed elsewhere
-TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,parmetis,hdf5,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
+TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,hdf5,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
 TRILINOS_UMASK=002
 
 ######################################################################

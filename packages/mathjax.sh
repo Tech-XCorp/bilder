@@ -43,11 +43,11 @@ copyMathjax() {
 # Set defaults for full version
   local idir=$BLDR_INSTALL_DIR
   local mjsub=userdocs/MathJax
-  mkdir -p $idir/userdocs && setOpenPerms $idir/userdocs
   if test "$1" == "lite"; then
     idir=$CONTRIB_DIR
     mjsub=MathJax-${MATHJAX_BLDRVERSION}-$bld
   fi
+  mkdir -p $idir/userdocs && setOpenPerms $idir/userdocs
   if shouldInstall -i $CONTRIB_DIR MathJax-${MATHJAX_BLDRVERSION} $bld; then
 # Try twice for cygwin
     cmd="rmall $idir/$mjsub"
@@ -90,6 +90,7 @@ copyMathjax() {
 ######################################################################
 
 buildMathjax() {
+
   if ! bilderUnpack MathJax; then
     return
   fi

@@ -48,19 +48,21 @@ isLaterByDays() {
 # -i Any builds to ignore
 #
 isBuildTime() {
+
+# Defaults
   local ignorebuilds=
-  while test -n "$1"; do
-    case "$1" in
-      -i)
-        ignorebuilds=$2
-        shift
-        ;;
-      *)
-        break
-        ;;
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "i:" arg; do
+    case "$arg" in
+      i) ignorebuilds="$OPTARG";;
     esac
-    shift
   done
+  shift $(($OPTIND - 1))
+
   techo -2 "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
   if test -z "$2"; then
     return 1
@@ -119,11 +121,11 @@ bilderSource() {
     if test $res = 0; then
       source $1
     else
-      techo "WARNING: Syntax error found in script: $1"
-      techo "WARNING: $cmd"
+      techo "WARNING [bilderSource]: Syntax error found in script: $1"
+      techo "WARNING [bilderSource]: $cmd"
     fi
   else
-    techo "WARNING: Bilder unable to find script, $1, to source."
+    techo "WARNING [bilderSource]: Bilder unable to find script, $1, to source."
   fi
 }
 
@@ -238,15 +240,32 @@ bilderSvn() {
   local redirecttoerr=false
   local echocmd=true
 
+# Parse options
+# This syntax is needed to keep parameters quoted
+if false; then
+  set -- "$@"
+  OPTIND=1
+  while getopts "qr2" arg; do
+    case "$arg" in
+      q) echocmd=false;;
+      r) redirecttoerr=true;;
+      2) usesecondauth=true;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+else
+
   while test -n "$1"; do
     case "$1" in
-      -2) usesecondauth=true;;
       -q) echocmd=false;;
       -r) redirecttoerr=true;;
+      -2) usesecondauth=true;;
       *)  break;;
     esac
     shift
   done
+fi
 
   local svncmd=$1
   shift
@@ -349,17 +368,17 @@ bilderSvnversion() {
   while test -n "$1"; do
 # Single quotes not working on cygwin, so removing
     if test $# -eq 1; then
-      techo -2 "Working on last arg, $1." 1>&2
+      techo -2 "bilderSvnversion: Working on last arg, $1." 1>&2
 # If using the windows client, convert path if not an option
       if [[ "$1" =~ ^- ]]; then
         techo -2 "Last arg, $1, is an option.  Adding to list." 1>&2
         args="$args $1"
       elif [[ "$svnver" =~ "Program Files" ]]; then
-        techo "Using windows: '$svnver'.  Will convert last arg, $1, using cygpath." 1>&2
+        techo "bilderSvnversion: windows: '$svnver'.  Will convert last arg, $1, using cygpath." 1>&2
         if node=`cygpath -aw "$1"`; then
           args="$args $node"
         else
-        techo "WARNING: cygpath did not work on $1." 1>&2
+        techo "WARNING [bilderSvnversion]: cygpath did not work on $1." 1>&2
           args="$args $1"
         fi
       else
@@ -587,21 +606,22 @@ setClosedPerms() {
 # -c check and report, but do not exit
 #
 checkDirWritable() {
+
   local exitonfailure=true
-  while test -n "$1"; do
-    case "$1" in
-      -c)
-        exitonfailure=false
-        ;;
-      *)
-        break
-        ;;
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "c" arg; do
+    case "$arg" in
+      c) exitonfailure=false;;
     esac
-    shift
   done
+  shift $(($OPTIND - 1))
+
   if test -z "$1"; then
-    TERMINATE_ERROR_MSG="Catastrophic error in checkDirWritable.  Directory not specified."
-    cleanup
+    TERMINATE_ERROR_MSG="FATAL ERROR [checkDirWritable]:  Directory not specified."
+    terminate
   fi
   local dir=$1
 
@@ -622,36 +642,53 @@ checkDirWritable() {
     fi
   fi
 
-# Set directory perms.  Must always do, as may have been created by
-# mkall-default.sh wrapper, which creates dir with wrong perms.
-# Errors (not owner) to /dev/null.
-  cmd="chmod 2775 $dir"
-  $cmd 2>/dev/null
-  local subdirs="bin include share"
-  if [[ `uname` =~ CYGWIN ]]; then
-    subdirs="bin include share Lib"
-  else
-    subdirs="bin include share lib"
-  fi
-  for j in bin include lib share; do
-    if ! test -d $dir/$j; then
-      mkdir -p $dir/$j
-      chmod 2775 $dir/$j
-    fi
-  done
 # Determine writability
   if ! touch $dir/tmp$$; then
-    techo "NOTE: Cannot write to $dir.  USER = $USER with groups = `groups`."
+    techo "ERROR: Cannot write to $dir.  USER = $USER with groups = `groups`."
     if $exitonfailure; then
       techo "Quitting."
       emailerror "Cannot write to $dir."
       if declare -f usage >/dev/null 2>&1; then
         usage 1
       fi
-      exit
+      terminate
     fi
   fi
   rm $dir/tmp$$
+
+# Set directory perms.  Must always do, as may have been created by
+# mkall-default.sh wrapper, which creates dir with wrong perms.
+# Errors (not owner) to /dev/null.
+  cmd="chmod 2775 $dir"
+  $cmd 2>/dev/null
+
+# Create subdirs if an installation dir
+  if test $dir = $BLDR_INSTALL_DIR -o $dir = $CONTRIB_DIR; then
+    local subdirs="bin include share"
+    if [[ `uname` =~ CYGWIN ]]; then
+      subdirs="$subdirs Lib Scripts"
+    else
+      subdirs="$subdirs lib"
+    fi
+    for j in $subdirs; do
+      if test -d $dir/$j; then
+        if ! touch $dir/$j/tmp$$; then
+          techo "WARNING: Cannot write to $dir/$j.  USER = $USER, groups = `groups`."
+        fi
+        rm -f $dir/$j/tmp$$
+      else
+        mkdir -p $dir/$j
+        chmod 2775 $dir/$j
+      fi
+    done
+  fi
+
+# Check for unknown version installations
+  local unks=`(cd $dir; ls -d *unknown* 2>/dev/null)`
+  if test -n "$unks"; then
+    techo "WARNING [checkDirWritable]: Found unknown installations, $unks, in $dir."
+  fi
+
 }
 
 #
@@ -991,6 +1028,20 @@ finish() {
   techo -2 "finish called with '$*'."
   local doQuit=true
   local subject=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "cs:" arg; do
+    case "$arg" in
+      c) doQuit=false;;
+      s) subject="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -c) doQuit=false;;
@@ -999,6 +1050,7 @@ finish() {
     esac
     shift
   done
+fi
 
 # Summarize (which constructs the email subject)
   techo -2 "Calling summarize."
@@ -1010,7 +1062,7 @@ finish() {
   cat $SUMMARY | tee $LOGFILE
   cat $LOGFILE.sav >> $LOGFILE
   techo
-  techo "$BILDER_NAME completed at `date`." | tee -a $BILDER_LOGDIR/timers.txt
+  techo "$BILDER_NAME completed at `date +%F-%T`." | tee -a $BILDER_LOGDIR/timers.txt
 
 # email
   subject=${subject:-"$EMAIL_SUBJECT"}
@@ -1047,10 +1099,10 @@ finish() {
       exitcode=0
     fi
     techo "$msg"
-    techo "finish is exiting."
-    cmd="exit $exitcode"
-    techo "$cmd"
     echo $exitcode >$BUILD_DIR/bilder.res
+    techo "finish is returning."
+    cmd="return $exitcode"
+    techo "$cmd"
     $cmd
   else
 # Rotate log and summary and restore original logfile if continuing
@@ -1058,6 +1110,22 @@ finish() {
     rotateFile $LOGFILE
     mv $LOGFILE.sav $LOGFILE
   fi
+}
+
+#
+# Cleanup builds
+#
+cleanup() {
+  techo "cleanup called for $BILDER_NAME.  Killing all pending builds." 1>&2
+  pidsKilled="$PIDLIST"
+  trimvar pidsKilled ' '
+  if test -n "$PIDLIST"; then
+    for PID in $PIDLIST; do
+      techo "kill $PID"
+      kill $PID 2>/dev/null
+    done
+  fi
+  finish "-" 3
 }
 
 #
@@ -1092,17 +1160,17 @@ getVersion() {
 
 # Get options
   local lastChangedArg=-c
-  while test -n "$1"; do
-    case "$1" in
-      -l)
-        lastChangedArg=
-        ;;
-      *)
-        break
-        ;;
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "l" arg; do
+    case "$arg" in
+      l) lastChangedArg= ;;
     esac
-    shift
   done
+  shift $(($OPTIND - 1))
 
 # Get subdir
   local origdir=`pwd -P`
@@ -1123,7 +1191,7 @@ getVersion() {
   res=$?
   if test $res != 0; then
     eval ${vervar}=unknown
-    techo "WARNING: Directory $repodir does not exist.  Version is unknown.  Cannot configure."
+    techo "WARNING [getVersion]: Directory $repodir does not exist.  Version is unknown.  Cannot configure."
     return 1
   fi
 
@@ -1133,7 +1201,7 @@ getVersion() {
   local branch=
   local hash=
   if test "$repotype" == "SVN"; then
-    techo -2 "Getting version of $repodir  at `date`."
+    techo -2 "Getting version of $repodir  at `date +%F-%T`."
     rev=`bilderSvnversion $lastChangedArg`
 
 # svnversion -c is likely to return a complex version such as 1535:2091 and
@@ -1150,7 +1218,7 @@ getVersion() {
     fi
 
     if test $subdir != "."; then
-      techo "Getting version of subdir, $subdir, at `date`."
+      techo "Getting version of subdir, $subdir, at `date +%F-%T`."
       local svntmp=`bilderSvnversion $subdir`
       rev="${rev}+${svntmp}"
     fi
@@ -1158,7 +1226,7 @@ getVersion() {
     rev="r"${rev}
 
   elif test "$repotype" == "GIT"; then
-    techo "Getting the current git branch name of $1 at `date`."
+    techo "Getting the current git branch name of $1 at `date +%F-%T`."
 # NB: For git, we are using the number of repository revisions as the version
 #     number. Depending on where you get your repository and how you have
 #     applied patches, I believe that your repo could get a different number
@@ -1175,7 +1243,7 @@ getVersion() {
     # rev=${rev}-${branch}
     rev=${branch}.r${rev}
   elif test "$repotype" == "HG"; then
-    techo "Getting the current version of $1 at `date`."
+    techo "Getting the current version of $1 at `date +%F-%T`."
     if ! rev=`hg id -n`; then
       techo "Hg failed.  In path?  Returning."
       cd $origdir
@@ -1196,7 +1264,7 @@ getVersion() {
   eval ${vervar}=$rev
   techo "${vervar} = $rev."
   case $rev in
-    *:* | *M) techo "WARNING: $repodir is not clean.  ${vervar} = $rev.";;
+    *:* | *M) techo "WARNING [getVersion]: $repodir is not clean.  ${vervar} = $rev.";;
   esac
   # techo exit; exit
 
@@ -1221,6 +1289,20 @@ isPatched() {
   local instdir="$BLDR_INSTALL_DIR"
   local checkempty=false
   local instsubdir=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "i:s:" arg; do
+    case "$arg" in
+      i) instdir="$OPTARG";;
+      s) instsubdir="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -i)
@@ -1237,6 +1319,8 @@ isPatched() {
     esac
     shift
   done
+fi
+
   local installation=$1
 
 # Determine subdir (actually link) from installation
@@ -1439,6 +1523,19 @@ instConfigScript() {
 areAllInstalled() {
 # Determine installation directory
   local instdir=$BLDR_INSTALL_DIR
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "i:" arg; do
+    case "$arg" in
+      i) instdir="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -i)
@@ -1451,6 +1548,8 @@ areAllInstalled() {
         ;;
     esac
   done
+fi
+
 # If no builds, just check short name
   if test -z "$2"; then
     if isInstalled -i $instdir $1; then
@@ -1501,7 +1600,7 @@ shouldInstall() {
   done
   shift $(($OPTIND - 1))
 
-# The first instollation dir is where the package will be installed
+# The first installation dir is where the package will be installed
   local instdir=`echo $instdirs | sed 's/,.*$//'`
 # Dependencies are sought in all possible installdirs named above
 # plus the contrib dir.
@@ -1737,7 +1836,7 @@ warnMissingPkgs() {
           pkg=`basename $i .h`-devel
           ;;
       esac
-      techo "WARNING: $i not found.  May need to install $pkg."
+      techo "WARNING [warnMissingPkgs]: $i not found.  May need to install $pkg."
     fi
   done
 
@@ -1758,13 +1857,13 @@ warnMissingPkgs() {
       fi
     done
     if ! $found; then
-      techo "WARNING: $lib.so not found."
+      techo "WARNING [warnMissingPkgs]: $lib.so not found."
       missingpkgs="$missingpkgs ${lib}-devel"
     fi
   done
   trimvar missingpkgs ' '
   if test -n "$missingpkgs"; then
-    techo "WARNING: May need to install $missingpkgs."
+    techo "WARNING [warnMissingPkgs]: May need to install $missingpkgs."
   fi
 
 }
@@ -1815,9 +1914,11 @@ isCcGcc() {
 # Python modules.
 #
 isCcCc4py() {
-  if [[ `uname` =~ CYGWIN ]]; then
-    return 0 # All compilers appear to work
-  fi
+# JRC: vs10 does differ from vs9 in stdint
+  # if [[ `uname` =~ CYGWIN ]]; then
+# All compilers appear to work.
+    # return 0
+  # fi
   if test "$CC" = "$PYC_CC"; then
     return 0
   fi
@@ -1836,7 +1937,22 @@ isCcCc4py() {
 # return whether added cc4py to the build
 #
 addCc4pyBuild() {
+
+# Defaults
   local forceadd=false
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "f" arg; do
+    case "$arg" in
+      f) forceadd=true;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -f)
@@ -1848,6 +1964,8 @@ addCc4pyBuild() {
         ;;
     esac
   done
+fi
+
 # Find builds
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
@@ -1872,7 +1990,11 @@ addCc4pyBuild() {
 }
 
 #
-# Add in ben build if not present and no par build.
+# Blue Gene Logic:
+#   Add in ben build if not present and no par build.
+# Phi logic:
+#   ben build is an additional par build.
+# Now using Phi logic
 #
 # Args:
 # 1: the package
@@ -1880,18 +2002,16 @@ addCc4pyBuild() {
 # echoes the new builds
 #
 addBenBuild() {
-  local buildsvar=`genbashvar $1`_BUILDS
-  local buildsval=`deref $buildsvar`
-  if test "$CONFIG_COMPILERS_SER" != "$CONFIG_COMPILERS_BEN"; then
+  if $HAVE_BEN_BUILDS; then
+    local buildsvar=`genbashvar $1`_BUILDS
+    local buildsval=`deref $buildsvar`
     if test -n "$buildsval" -a "$buildsval" != NONE; then
       if ! echo $buildsval | egrep -q "(^|,)ben($|,)"; then
-        if ! echo $buildsval | egrep -q "(^|,)par($|,)"; then
-          buildsval=$buildsval,ben
-        fi
+        buildsval=$buildsval,ben
+        eval $buildsvar=$buildsval
       fi
     fi
   fi
-  eval $buildsvar=$buildsval
 }
 
 #
@@ -1928,7 +2048,7 @@ getPkgRepos() {
       i=$i1
     done
     if test $NUM_PACKAGE_REPOS -eq 0; then
-      techo "WARNING: Found 0 package repos."
+      techo "WARNING [getPkgRepos]: Found 0 package repos."
     else
       techo "Found $NUM_PACKAGE_REPOS package repos:"
       local i=0; while test $i -lt $NUM_PACKAGE_REPOS; do
@@ -1939,7 +2059,7 @@ getPkgRepos() {
       done
     fi
   else
-    techo "WARNING: PACKAGE_REPOS_FILE undefined.  Not known where to get packages."
+    techo "WARNING [getPkgRepos]: PACKAGE_REPOS_FILE undefined.  Not known where to get packages."
     NUM_PACKAGE_REPOS=0
   fi
 
@@ -2590,7 +2710,7 @@ findBlasLapack() {
           eval $varname=$varval
           techo "$varname = $varval found."
         else
-          techo "WARNING: $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
+          techo "WARNING [findBlasLapack]: $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
         fi
       done
 # Nubeam needs these specified.
@@ -2785,7 +2905,7 @@ findQt() {
     esac
   fi
   if test -z "$QT_BINDIR"; then
-    techo "WARNING: Could not find Qt."
+    techo "WARNING [findQt]: Could not find Qt."
     return 1
   fi
   QMAKE=$QT_BINDIR/qmake
@@ -2803,7 +2923,8 @@ findQt() {
 #
 computeMakeJ() {
   if test -n "$MAKEJ_TOTAL" -a -n "$2"; then
-    local numblds=`echo $2 | tr ',' ' ' | wc -w | sed 's/^ *//'`
+# Pull out develdocs builds, which need -j1
+    local numblds=`echo $2 | tr ',' ' ' | sed 's/develdocs//g' | wc -w | sed 's/^ *//'`
     local jval=`expr $MAKEJ_TOTAL / $numblds`
     if test -n "$jval"; then
 # Make sure jval is at least one.  (Is this needed with the below?)
@@ -2890,14 +3011,14 @@ bilderCurlGet() {
 # Args:
 # 1: package base name
 #
-# return by echo the name of the package
+# Put tarball name into GETPKG_RETURN
 #
 getPkg() {
 
 # Ensure have some repos
   if test $NUM_PACKAGE_REPOS = 0; then
-    TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No package repos defined.  PACKAGE_REPOS_FILE needs to be defined."
-    cleanup
+    TERMINATE_ERROR_MSG="FATAL ERROR [getPkg]:  NUM_PACKAGE_REPOS = 0.  Must define package repos."
+    terminate
   fi
 
 # Search for the package in all repos with all suffixes
@@ -2907,8 +3028,19 @@ getPkg() {
     local pkgdir=${PACKAGE_REPO_DIRS[$i]}
     local sfx
 
-# Look for the tarball to be already present
-    tarballbase=`(cd $pkgdir; ls ${1}.* 2>/dev/null)`
+# Look for the tarball to be already present.
+    cd $pkgdir
+    ls -1 ${1}.tar* ${1}.tgz 1>/tmp/tarballs$$.tmp 2>/dev/null
+    # local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed 's/ .*$//'`
+    local numtarballs=`wc -l /tmp/tarballs$$.tmp | sed -e 's/^ *//' -e 's/ .*$//'`
+    numtarballs=${numtarballs:-"0"}
+    techo -2 "$numtarballs tarballs already present." 1>&2
+    if test "$numtarballs" -gt 1; then
+      techo "WARNING [getPkg]: More than 1 present tarball matches.  Taking last." 1>&2
+      cat /tmp/tarballs$$.tmp 1>&2
+    fi
+    tarballbase=`tail -1 /tmp/tarballs$$.tmp`
+    rm /tmp/tarballs$$.tmp
 
 # Determine the method if direct
     local DIRECT_GET=
@@ -2937,7 +3069,22 @@ getPkg() {
     if test -z "$tarballbase" -a $SVNUP_PKGS; then
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
-          tarballbase=`bilderSvn up 1>/dev/null; bilderSvn ls | grep "^${1}\."`
+          bilderSvn up 1>/dev/null
+          bilderSvn ls | grep "^${1}"'\.t' 1>/tmp/tarballs$$.tmp 2>/dev/null
+          numtarballs=`wc -l /tmp/tarballs$$.tmp | sed -e 's/^ *//' -e 's/ .*$//'`
+          numtarballs=${numtarballs:-"0"}
+          techo -2 "Repo numtarballs = $numtarballs." 1>&2
+          if test $numtarballs = 0; then
+            TERMINATE_ERROR_MSG="FATAL ERROR [getPkg]: no tarball in repo matches \"^${1}\"\'\\.t*\'."
+            # rm /tmp/tarballs$$.tmp
+            terminate
+          fi
+          if test $numtarballs -gt 1; then
+            techo "WARNING [getPkg]: More than 1 tarball matches.  Taking last." 1>&2
+            cat /tmp/tarballs$$.tmp 1>&2
+          fi
+          tarballbase=`tail -1 /tmp/tarballs$$.tmp`
+          rm /tmp/tarballs$$.tmp
           ;;
         direct)
           for sfx in $sfxs; do
@@ -2983,12 +3130,13 @@ getPkg() {
 # Not found
   if test -z "$tarball"; then
     TERMINATE_ERROR_MSG="Catastrophic error in getPkg.  No ${1} tarball of any compression appeared.  Network okay?"
-    cleanup
+    terminate
   fi
 
 # Found
   techo "Found $tarball." 1>&2
-  echo "$tarball"
+  # echo "$tarball"
+  GETPKG_RETURN="$tarball"
 
 }
 
@@ -3021,7 +3169,7 @@ updateRepo() {
 
 # Make sure they have the executable
   if ! which $scmexec 1>/dev/null 2>&1; then
-    techo "WARNING: $scmexec is not in path.  Cannot get $pkg."
+    techo "WARNING [updateRepo]: $scmexec is not in path.  Cannot get $pkg."
     return 1
   fi
 
@@ -3039,7 +3187,10 @@ updateRepo() {
     cd $pkg
     if $CLEAN_GITHG_SUBREPOS; then
       case $scmexec in
-        git) cmd="git reset --hard";;
+        git)
+          cmd="git reset --hard"
+          # cmd="git reset --hard origin/master" # Discards local commits
+          ;;
         hg) cmd="hg revert -aC";;
       esac
       techo "$cmd"
@@ -3231,7 +3382,13 @@ bilderUnpack() {
     techo -2 "inplace = $inplace"
     techo "Unpacking $1."
     techo "$vervar = $verval."
-    local tarball=`getPkg $1-$verval`
+    getPkg $1-$verval
+    local tarball="$GETPKG_RETURN"
+    if test -z "$tarball" || $TERMINATE_REQUESTED; then
+      TERMINATE_ERROR_MSG=${TERMINATE_ERROR_MSG:-"bilderUnpack: tarball did not show up."}
+      cleanup
+      exitOnError
+    fi
     techo -2 "tarball = $tarball."
     if $JUST_GET_PACKAGES; then
       return 1
@@ -3280,24 +3437,23 @@ bilderUnpack() {
         $cmd
         if test ! -f $tarball; then
           TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack.  Tarball $tarball did not show up."
-          cleanup
+          terminate
         fi
         cmd="$pretar $tarball | $TAR -xf -"
         techo "$cmd"
         $pretar $tarball | $TAR -xf -
         if test $? != 0 -o ${PIPESTATUS[0]} != 0; then
           TERMINATE_ERROR_MSG="Catastrophic error in bilderUnpack.  Unpacking failed."
-          cleanup
+          terminate
         fi
         cmd="mv $1-$verval $i"
         techo -2 "$cmd"
         if ! $cmd; then
-          techo "Catastrophic failure with mv in bilderUnpack."
           sleep 1
           techo -2 "$cmd"
           if ! $cmd; then
             TERMINATE_ERROR_MSG="Catastrophic failure with mv in bilderUnpack."
-            cleanup
+            terminate
           fi
         fi
         if test -n "$patchval"; then
@@ -3328,14 +3484,14 @@ bilderUnpack() {
       techo "Unpacking for all builds in $PWD."
       if test ! -f "$tarball"; then
         TERMINATE_ERROR_MSG="Catastrophic failure in bilderUnpack. Tarball, $tarball, did not show up."
-        cleanup
+        terminate
       fi
       cmd="$pretar $tarball | $TAR -xf -"
       techo "$cmd"
       eval "$cmd"
       if test $? != 0; then
         techo "Catastrophic error in bilderUnpack.  Unpacking failed."
-        cleanup
+        terminate
       fi
       if test -n "$patchval"; then
         techo "Patching $1."
@@ -3453,11 +3609,11 @@ bilderPreconfig() {
     if declare -f bilderGetTestData 1>/dev/null 2>&1; then
       bilderGetTestData $1
     else
-      techo "WARNING: function bilderGetTestData not defined.  Requested by $1."
+      techo "WARNING [bilderPreconfig]: function bilderGetTestData not defined.  Requested by $1."
       if test -n "$BILDER_CONFDIR"; then
-        techo "WARNING: It should be defined in $BILDER_CONFDIR/bilderrc."
+        techo "WARNING [bilderPreconfig]: It should be defined in $BILDER_CONFDIR/bilderrc."
       else
-        techo "WARNING: Define BILDER_CONFDIR and then define bilderGetTestData in $BILDER_CONFDIR/bilderrc."
+        techo "WARNING [bilderPreconfig]: Define BILDER_CONFDIR and then define bilderGetTestData in $BILDER_CONFDIR/bilderrc."
       fi
     fi
   fi
@@ -3547,14 +3703,8 @@ bilderPreconfig() {
   $cmd
 # Remove old configure files
 # JRC, 20130728: This is causing a problem with repos that have these added
-if false; then
-  cmd="rm -rf configure aclocal.m4 config.h.in"
-  techo "$cmd"
-  $cmd
-  cmd="find . -name Makefile.in -delete"
-  techo "$cmd"
-  $cmd
-fi
+  # rm -rf configure aclocal.m4 config.h.in
+  # find . -name Makefile.in -delete
 
 # Preconfigure as needed
   local preconfig_txt=$FQMAILHOST-$1-preconfig.txt
@@ -3621,6 +3771,9 @@ rminterlibdeps() {
 #     actual build is out-of-place.  This is for legacy petsc builds
 #     of the petscrepo (yes, petsc is ridiculously complicated).
 # -c force use of cmake even when a configure is present
+# -C Use this command instead of autotool/cmake configure.  Looks in
+#    the build dir of the package/buildname and then in the package
+#    for the command.
 # -d <dependencies>
 # -f force regardless of dependencies
 # -g do not use version for installation dir when 4th arg is used
@@ -3628,10 +3781,8 @@ rminterlibdeps() {
 # -i configures in the source directory
 # -I use optarg for install directory
 # -l removes previous install if found
+# -m the eventually used "maker", e.g., make, nmake, jom
 # -n uses a space instead of an equals for the prefix command.
-# -m Use this command instead of autotool/cmake configure.  Looks in
-#    the build dir of the package/buildname and then in the package
-#    for the command.
 # -s if specified with -m, strips off the builddir and uses only the command
 #    specified with -m option
 # -p <specified prefix subdir>.  '-' means none.
@@ -3653,52 +3804,54 @@ bilderConfig() {
 # Default option values
   unset DEPS
   unset QMAKE_PRO_FILENAME
-  local instsubdirval
-  local cmval
-  local configcmdin
-  local stripbuilddir=false
+  local build_inplace=false
+  local buildsubdir=
+  local cmakebuildtype=
+  local cmval=
+  local configcmdin=
   local forceconfig=false
-  local usecmake=false
   local forceqmake=false
   local inplace=false
-  local noprefix=false
   local instdirs=
+  local instsubdirval=
+  local maker=
   local noequals=false  # Do not use equals in prefix command
-  local webdocs=false  # By default, we do not build documentation for the web
+  local noprefix=false
+  local recordfailure=true
   local riverbank=false
   local rminstall=false
-  local recordfailure=true
-  local buildsubdir
-  local build_inplace=false
-  local cmakebuildtype
+  local stripbuilddir=false
+  local usecmake=false
+  local webdocs=false  # By default, we do not build documentation for the web
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cd:fgiI:ylm:snp:q:rt" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:snp:q:rt" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
-      B) buildsubdir="$OPTARG"
-         build_inplace=true
-         ;;
+      B) buildsubdir="$OPTARG"; build_inplace=true;;
       c) usecmake=true; cmval=cmake;;
+      C) configcmdin="$OPTARG";;
       d) DEPS=$OPTARG;;
       f) forceconfig=true;;
       g) webdocs=true;;
       i) inplace=true;;
-      y) noprefix=true; inplace=true;;
       I) instdirs="$OPTARG";;
       l) rminstall=true;;
-      m) configcmdin="$OPTARG";;
-      s) stripbuilddir=true;;
+      m) maker="$OPTARG";;
       n) noequals=true;;
       p) instsubdirval="$OPTARG";;
       q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;
       r) riverbank=true;;
+      s) stripbuilddir=true;;
       t) recordfailure=false;;
+      y) noprefix=true; inplace=true;;
     esac
   done
   shift $(($OPTIND - 1))
 
+  local pkg=$1
+  local bld=$2
   techo "Determining whether to configure $1-$2."
 
 # Get the version
@@ -3714,18 +3867,10 @@ bilderConfig() {
 
   local uname=`uname`
 
-# Determine from build type whether to configure as a Debug build.
-  local dbgflag
-  dbgflag=${2: -3}
-  if test "$dbgflag" == "dbg"; then
-    cmakebuildtype="Debug"
-  else
-# Otherwise grab the build type from environment.
-    case $verval in
-      r[0-9][0-9]*) cmakebuildtype=$REPO_BUILD_TYPE;;
-                 *) cmakebuildtype=$TARBALL_BUILD_TYPE;;
-    esac
-  fi
+  case $verval in
+    r[0-9][0-9]*) cmakebuildtype=$REPO_BUILD_TYPE;;
+               *) cmakebuildtype=$TARBALL_BUILD_TYPE;;
+  esac
 
 # Get dependencies if not specified with -d
   local depsvar=`genbashvar $1`_DEPS
@@ -3747,7 +3892,14 @@ bilderConfig() {
 # Set from default
   if test -z "$instdirval"; then
     techo -2 "instdirval = $instdirvar is empty in bilderConfig"
-    instdirval=$BLDR_INSTALL_DIR
+    # instdirval=$BLDR_INSTALL_DIR
+    case ${2} in
+      develdocs) instdirval=$DEVELDOCS_DIR;;
+      # full | lite | url) instdirval=$USERDOCS_DIR;;
+# Only the url build goes into USERDOCS_DIR, done for easy rsyncing.
+      url) instdirval=$USERDOCS_DIR;;
+      *) instdirval=$BLDR_INSTALL_DIR;;
+    esac
   fi
   eval $instdirvar=$instdirval
   techo "$instdirvar = $instdirval."
@@ -3774,64 +3926,67 @@ bilderConfig() {
 # Store result
   local dobuildvar=`genbashvar $1-$2`_DOBUILD
   eval $dobuildvar=$dobuildval
-  local builddirvar=`genbashvar $1-$2`_BUILD_DIR
 
-# If not installed, configure.  If successful, put install string into
+# If not building, return 99.
 # the config file.
-  if $dobuildval; then
+  if ! $dobuildval; then
+    techo "Not configuring since $1-$verval-$2 already installed in $instdirval, or $2 not in $buildsvar = $buildsval."
+    return 99
+  fi
 
 #
 # Determine the installation directory and subdirectory
 #
-    local instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
-    if test -z "$instsubdirval"; then
-      instsubdirval=`deref $instsubdirvar`
-    fi
+  local builddirvar=`genbashvar $1-$2`_BUILD_DIR
+  local instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
+  if test -z "$instsubdirval"; then
+    instsubdirval=`deref $instsubdirvar`
+  fi
 # Variable holding string naming this installation
-    if test -z "$instsubdirval"; then
-      if test -n "$4"; then
-        if ! $webdocs; then
-           # The default for installs when 4th argument is passed
-           instsubdirval=$4-$verval
-        else
-           instsubdirval=$4
-        fi
+  if test -z "$instsubdirval"; then
+    if test -n "$4"; then
+      if ! $webdocs; then
+         # The default for installs when 4th argument is passed
+         instsubdirval=$4-$verval
       else
-        instsubdirval=$1-$verval-$2
+         instsubdirval=$4
       fi
-    fi
-    eval $instsubdirvar=$instsubdirval
-# Do the installation
-    if test $instsubdirval != '-'; then
-      fullinstalldir=$instdirval/`deref $instsubdirvar`
     else
-      fullinstalldir=$instdirval
+      instsubdirval=$1-$verval-$2
     fi
-    techo -2 "Full installation directory is $fullinstalldir."
+  fi
+  eval $instsubdirvar=$instsubdirval
+# Do the installation
+  local fullinstalldir=
+  if test $instsubdirval != '-'; then
+    fullinstalldir=$instdirval/`deref $instsubdirvar`
+  else
+    fullinstalldir=$instdirval
+  fi
+  techo -2 "Full installation directory is $fullinstalldir."
 
 #
 # If unpacked, we know the build directory, up to a subdirectory
 # change for qmake.
 #
-    local unpackedvar=`genbashvar $1`_UNPACKED
-    local unpackedval=`deref $unpackedvar`
-    local builddir
-    if $riverbank; then
-      builddir=$BUILD_DIR/$1-$verval
-    elif test "$unpackedval" = true && test -n "$buildsubdir"; then
-      # This is for petsc where we configure inplace build build out-of-place
-      builddir=$BUILD_DIR/$1-$verval
-    elif test "$unpackedval" = true; then
-      builddir=$BUILD_DIR/$1-$verval/$2
-      cmd="mkdir -p $builddir"
-      techo "$cmd"
-      $cmd
-    else
-      unset builddir
-    fi
-    eval $builddirvar=$builddir
+  local unpackedvar=`genbashvar $1`_UNPACKED
+  local unpackedval=`deref $unpackedvar`
+  local builddir
+  if $riverbank; then
+    builddir=$BUILD_DIR/$1-$verval
+  elif test "$unpackedval" = true && test -n "$buildsubdir"; then
+    # This is for petsc where we configure inplace build build out-of-place
+    builddir=$BUILD_DIR/$1-$verval
+  elif test "$unpackedval" = true; then
+    builddir=$BUILD_DIR/$1-$verval/$2
+    cmd="mkdir -p $builddir"
+    techo "$cmd"
+    $cmd
+  else
+    unset builddir
+  fi
+  eval $builddirvar=$builddir
 
-    # echo "Before determining the configuration, builddir = $builddir, inplace = $inplace, forceqmake = $forceqmake."; exit
 # Determine the configuration command and any required args.
 # For qmake and jam, this determines the build directory.
 #
@@ -3839,397 +3994,415 @@ bilderConfig() {
 # configargs: the default args to the executable
 # cmval:      string describing the type of configuration (e.g., autotools)
 #
-    local configexec=
-    local configargs=
+  local configexec=
+  local configargs=
 # Work through the specified, mutually exclusive cases
-    if $forceqmake; then
+  if $forceqmake; then
 # qmake configure
-      configexec=qmake
-      cmval=qmake
+    configexec=qmake
+    cmval=qmake
 # Qt must be built in place, but other qmake packages may build out of place
-      if $inplace; then
-        if test -d $PROJECT_DIR/$1; then
+    if $inplace; then
+      if test -d $PROJECT_DIR/$1; then
 # From repo
-          builddir=`dirname $PROJECT_DIR/$1/$QMAKE_PRO_FILENAME`
-        else
+        builddir=`dirname $PROJECT_DIR/$1/$QMAKE_PRO_FILENAME`
+      else
 # From tarball
-          builddir=`dirname $builddir/$QMAKE_PRO_FILENAME`
-        fi
+        builddir=`dirname $builddir/$QMAKE_PRO_FILENAME`
       fi
+    fi
 # CMake has configure and CMakeLists but must be configured with configure,
 # so that has to go first.
 # Do not automatically add $CONFIG_SUPRA_SP_ARG, as does not always apply
-    elif $usecmake; then
+  elif $usecmake; then
 # cmake configure
-      configexec="$CMAKE"
-      cmval=cmake
-    elif $noprefix; then
-      configexec="$PROJECT_DIR/$1/configure"
-    elif $riverbank; then
+    configexec="$CMAKE"
+    cmval=cmake
+  elif $noprefix; then
+    configexec="$PROJECT_DIR/$1/configure"
+  elif $riverbank; then
 # riverbank configure
-      configexec=python
-      local pspdir=$PYTHON_SITEPKGSDIR
-      local cbindir=$CONTRIB_DIR/bin
-      if [[ `uname` =~ CYGWIN ]]; then
-        pspdir=`cygpath -aw $pspdir`
-        cbindir=`cygpath -aw $cbindir`
-      fi
-      configargs="configure.py --destdir='$pspdir' --bindir='$cbindir'"
-      cmval=riverbank
-    elif test -n "$configcmdin"; then
+    configexec=python
+    local pspdir=$PYTHON_SITEPKGSDIR
+    local cbindir=$CONTRIB_DIR/bin
+    if [[ `uname` =~ CYGWIN ]]; then
+      pspdir=`cygpath -aw $pspdir`
+      cbindir=`cygpath -aw $cbindir`
+    fi
+    configargs="configure.py --destdir='$pspdir' --bindir='$cbindir'"
+    cmval=riverbank
+  elif test -n "$configcmdin"; then
 # Custom configure executable
-      if test -f $builddir/$configcmdin; then
-        configexec="$builddir/$configcmdin"
-      elif test -f $builddir/../$configcmdin; then
-        configexec="$builddir/../$configcmdin"
-      fi
-      cmval='custom'
-    elif test -n "$builddir"; then
+    if test -f $builddir/$configcmdin; then
+      configexec="$builddir/$configcmdin"
+    elif test -f $builddir/../$configcmdin; then
+      configexec="$builddir/../$configcmdin"
+    fi
+    cmval='custom'
+  elif test -n "$builddir"; then
 # For all unpacked cases, the build directory is known.
-      if test -f $builddir/bootstrap.bat; then
+    if test -f $builddir/bootstrap.bat; then
 # Anything with jam was unpacked, so build directory is known.
-        case `uname` in
-          CYGWIN*)
-            configexec="$builddir/bootstrap.bat"
-            chmod u+x $configexec
-            ;;
-          *)
-            configexec="$builddir/bootstrap.sh"
-            configargs="-show-libraries"
-            ;;
-        esac
-        cmval=b2
-        inplace=true
+      case `uname` in
+        CYGWIN*)
+          configexec="$builddir/bootstrap.bat"
+          chmod u+x $configexec
+          ;;
+        *)
+          configexec="$builddir/bootstrap.sh"
+          configargs="-show-libraries"
+          ;;
+      esac
+      cmval=b2
+      inplace=true
 # Need only b2 to be created
-      elif test -f $builddir/../configure; then
+    elif test -f $builddir/../configure; then
 # Usual autotools out-of-place build
-        configexec="$builddir/../configure"
-        configargs="--prefix=$fullinstalldir"
-        cmval=autotools
-        # If configure is a python script like PETSc, then use the
-        # cygwin python.
-        if head -1 $configexec | egrep -q python; then
-          if test -n "$CYGWIN_PYTHON"; then
-            configexec="$CYGWIN_PYTHON $configexec"
-          fi
-        fi
-      elif test -f $builddir/configure; then
-# Possible in-place build, e.g., PETSc, doxygen
-        configexec="$builddir/configure"
-	cmval=autotools
-        #This signals PETSc, and on Windows we have issues
-        if test -n "$buildsubdir"; then
-          if test -n "$CYGWIN_PYTHON"; then
-		    cmval=petsc;
-          fi
-        fi
-        if $noequals; then
-          configargs="--prefix $fullinstalldir"
-        else
-          configargs="--prefix=$fullinstalldir"
-        fi
-      elif test -f $builddir/../CMakeLists.txt; then
-# CMake is always out of place
-        configexec="$CMAKE"
-        cmval=cmake
-      elif test -f $builddir/../src/CMakeLists.txt; then
-# CMake is always out of place
-        configexec="$CMAKE"
-        cmval=cmake
-      fi
-    elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
-# Repo, autotools
-      configexec="$PROJECT_DIR/$1/configure"
+      configexec="$builddir/../configure"
       configargs="--prefix=$fullinstalldir"
       cmval=autotools
-    elif test -f $PROJECT_DIR/$1/configure; then
-# Repo but not configure.ac: Most likely petsc
-      configexec="$PROJECT_DIR/$1/configure"
-      configargs="--prefix=$fullinstalldir"
-      cmval=petsc
-      # SEK: I'm not sure this will work on Windows
-      if ! test -d $BUILD_DIR/$1; then
-            ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
+# If configure is a python script like PETSc, then use the cygwin python.
+      if head -1 $configexec | egrep -q python; then
+        if test -n "$CYGWIN_PYTHON"; then
+          configexec="$CYGWIN_PYTHON $configexec"
+        fi
       fi
-    elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
-# Repo, CMake
+    elif test -f $builddir/configure; then
+# Possible in-place build, e.g., PETSc, doxygen
+      configexec="$builddir/configure"
+	cmval=autotools
+# This signals PETSc, and on Windows we have issues
+      if test -n "$buildsubdir"; then
+        if test -n "$CYGWIN_PYTHON"; then
+		    cmval=petsc;
+        fi
+      fi
+      if $noequals; then
+        configargs="--prefix $fullinstalldir"
+      else
+        configargs="--prefix=$fullinstalldir"
+      fi
+    elif test -f $builddir/../CMakeLists.txt; then
+# CMake is always out of place
+      configexec="$CMAKE"
+      cmval=cmake
+    elif test -f $builddir/../src/CMakeLists.txt; then
+# CMake is always out of place
       configexec="$CMAKE"
       cmval=cmake
     fi
-    if test -z "$configexec"; then
-      techo "No configure system found for $1-$2.  Assuming no need."
-      return 0
+  elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
+# Repo, autotools
+    configexec="$PROJECT_DIR/$1/configure"
+    configargs="--prefix=$fullinstalldir"
+    cmval=autotools
+  elif test -f $PROJECT_DIR/$1/configure; then
+# Repo but not configure.ac: Most likely petsc
+    configexec="$PROJECT_DIR/$1/configure"
+    configargs="--prefix=$fullinstalldir"
+    cmval=petsc
+    # SEK: I'm not sure this will work on Windows
+    if ! test -d $BUILD_DIR/$1; then
+          ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
     fi
+  elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+# Repo, CMake
+    configexec="$CMAKE"
+    cmval=cmake
+  fi
+  if test -z "$configexec"; then
+    techo "No configure system found for $1-$2.  Assuming no need."
+    return 0
+  fi
 # Validate presence of config command
-    if ! which "$configexec" 1>/dev/null 2>&1; then
-      TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
-      cleanup
-    else
-      configexec=`which "$configexec"`
-    fi
-    local cmvar=`genbashvar $1`_CONFIG_METHOD
-    eval $cmvar=$cmval
-    techo "Configuration of type $cmval."
+  if ! which "$configexec" 1>/dev/null 2>&1; then
+    TERMINATE_ERROR_MSG="Catastrophic failure in configuring $1-$2.  Unable to find $configexec.  PATH = $PATH."
+    terminate
+  else
+    local configexecbase=`basename "$configexec"`
+    configexec=`which "$configexec"`
+    local configexecdir=`dirname "$configexec"`
+    configexec="$configexecdir"/"$configexecbase"
+  fi
+  local cmvar=`genbashvar $1`_CONFIG_METHOD
+  eval $cmvar=$cmval
+  techo "Configuration of type $cmval."
 
 # Strip the builddir from configcmdin if -s and -m options specified
-    if test -n "$configcmdin" && $stripbuilddir; then
-      configexec="$configcmdin"
-    fi
-    if test "$cmval" = petsc; then
-      configexec="$CYGWIN_PYTHON '$configexec'"
-    fi
-    techo "Will configure with '$configexec'."
+  if test -n "$configcmdin" && $stripbuilddir; then
+    configexec="$configcmdin"
+  fi
+  if test "$cmval" = petsc; then
+    configexec="$CYGWIN_PYTHON '$configexec'"
+  fi
+  techo "Will configure with '$configexec'."
 
 #
 # Find the build directory if not yet known
 #
-    if test -z "$builddir"; then
+  if test -z "$builddir"; then
 # In place build with qmake
-      if $inplace && test -d $PROJECT_DIR/$1; then
+    if $inplace && test -d $PROJECT_DIR/$1; then
 # In place build from repo
-        builddir=$PROJECT_DIR/$1
+      builddir=$PROJECT_DIR/$1
 # For petsc tarballs, the configure is in place but the builds are
 # out-of-place
-      elif $inplace; then
-        local buildtopdir=`getBuildTopdir $1 $verval`
-        (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
-        techo "HERE where I belong"
-        local builddir=$buildtopdir
+    elif $inplace; then
+      local buildtopdir=`getBuildTopdir $1 $verval`
+      (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
+      techo "HERE where I belong"
+      local builddir=$buildtopdir
 # In all other cases, build under main dir in builds directory
-      else
-        local buildtopdir=`getBuildTopdir $1 $verval`
-        (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
-        local builddir=$buildtopdir/$2
-      fi
+    else
+      local buildtopdir=`getBuildTopdir $1 $verval`
+      (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
+      local builddir=$buildtopdir/$2
     fi
+  fi
 # Store build directory
-    eval $builddirvar=$builddir
-    cmd="cd $builddir"
-    techo "$cmd"
-    $cmd
-    # echo "After moving to builddir, builddir = $builddir."; exit
+  eval $builddirvar=$builddir
+  cmd="cd $builddir"
+  techo "$cmd"
+  $cmd
+  techo -2 "After moving to builddir, builddir = $builddir."
 
 #
 # Clean out any old build unless requested not to now that builddir
 # has been created.
 #
-    unset cmd
-    if test $RM_BUILD; then
-      if test "$cmval" = cmake -a "$inplace" = false; then
-        cmd="rmall *"
-      elif $inplace; then
-        if test -f Makefile -a $1 != petsc -a $1 != petscdev -a $1 != slepc; then
-          local bildermake=${bildermake:-"`getMaker $cmval`"}
-          cmd="$bildermake distclean"
-        fi
-      elif $riverbank; then
-        unset cmd
-      else
-        cmd="rmall *"
+  unset cmd
+  if test $RM_BUILD; then
+    if test "$cmval" = cmake -a "$inplace" = false; then
+      cmd="rmall *"
+    elif $inplace; then
+      if test -f Makefile -a $1 != petsc -a $1 != petscdev -a $1 != slepc; then
+        local bildermake=${bildermake:-"`getMaker $cmval`"}
+        cmd="$bildermake distclean"
       fi
+    elif $riverbank; then
+      unset cmd
+    else
+      cmd="rmall *"
     fi
-    if test -n "$cmd"; then
-      if test `\ls | wc -l` -gt 0; then
-        chmod -R u+w *
-      fi
-      techo "$cmd" | tee distclean.out
-      if ! $cmd 2>&1 >>distclean.out; then
+  fi
+  if test -n "$cmd"; then
+    if test `\ls | wc -l` -gt 0; then
+      chmod -R u+w *
+    fi
+    techo "$cmd" | tee distclean.out
+    if ! $cmd 2>&1 >>distclean.out; then
 # For CYGWIN, may need to run twice
-        sleep 1
-        techo "$cmd" | tee -a distclean.out
-        $cmd 2>&1 >>distclean.out
-      fi
+      sleep 1
+      techo "$cmd" | tee -a distclean.out
+      $cmd 2>&1 >>distclean.out
     fi
+  fi
 
 #
 # Remove previous install if requested and installdir exists
 #
-    techo -2 "fullinstalldir = $fullinstalldir."
-    if test -d $fullinstalldir -a "$rminstall" = true; then
-      techo "removing fullinstalldir"
-      rmall $fullinstalldir
-    fi
+  techo -2 "fullinstalldir = $fullinstalldir."
+  if test -d $fullinstalldir -a "$rminstall" = true; then
+    techo "removing fullinstalldir"
+    rmall $fullinstalldir
+  fi
 
 # Location of source for cmake builds.
-    local srcarg=
+  local srcarg=
 # Add other, default args
-    case $cmval in
-      qmake)
-        # techo -2 "Using qmake to configure."
-        # eval $builddirvar=$builddir
-        local profilename=
-        if test -d $PROJECT_DIR/$1; then
-          profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
-        else
-          profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
-        fi
-        if [[ `uname` =~ CYGWIN ]]; then
-          profilename="$(cygpath -aw ${profilename})"
-        fi
-        configargs="${configargs} '${profilename}'"
-        ;;
-      cmake)
-        case `uname` in
-          CYGWIN*)
-            cmakeinstdir=`cygpath -am $fullinstalldir`
-            ;;
-          *)
-            cmakeinstdir="$fullinstalldir"
-            ;;
-        esac
+  case $cmval in
+    qmake)
+      local profilename=
+      if test -d $PROJECT_DIR/$1; then
+        profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
+      else
+        profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
+      fi
+      if [[ `uname` =~ CYGWIN ]]; then
+        profilename="$(cygpath -aw ${profilename})"
+      fi
+      configargs="${configargs} '${profilename}'"
+      ;;
+    cmake)
+      case `uname` in
+        CYGWIN*)
+          cmakeinstdir=`cygpath -am $fullinstalldir`
+          ;;
+        *)
+          cmakeinstdir="$fullinstalldir"
+          ;;
+      esac
 # Some options are always chosen
-        configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
 	if test $VERBOSITY -ge 1; then
 	  configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
-        fi
-        if test -n "$SVN_BINDIR"; then
-          configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
-        fi
-        if test -n "$CTEST_DROP_SITE"; then
-          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-        fi
-        if test -n "$FQMAILHOST"; then
-          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
-        fi
-        if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
-          srcarg=$PROJECT_DIR/$1
-        elif test -f $builddir/../CMakeLists.txt; then
-          srcarg=`(cd $builddir/..; pwd -P)`
-        elif test -f $builddir/../src/CMakeLists.txt; then
-          srcarg=`(cd $builddir/../src; pwd -P)`
-        else
-          techo "cmake build, but no CMakeLists.txt.  Skipping this build."
-          return 1
-        fi
-        ;;
-      *)
-        techo -2 "NOTE: Neither cmake nor qmake used to configure."
-        ;;
-    esac
-    techo -2 "NOTE: Configuring with cmval = $cmval."
+      fi
+      if test -n "$SVN_BINDIR"; then
+        configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
+      fi
+      if test -n "$CTEST_DROP_SITE"; then
+        configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+      fi
+      if test -n "$FQMAILHOST"; then
+        configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
+      fi
+      if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+        srcarg=$PROJECT_DIR/$1
+      elif test -f $builddir/../CMakeLists.txt; then
+        srcarg=`(cd $builddir/..; pwd -P)`
+      elif test -f $builddir/../src/CMakeLists.txt; then
+        srcarg=`(cd $builddir/../src; pwd -P)`
+      else
+        techo "cmake build, but no CMakeLists.txt.  Skipping this build."
+        return 1
+      fi
+      ;;
+    *)
+      techo -2 "Neither cmake nor qmake used to configure."
+      ;;
+  esac
+  techo -2 "Configuring with cmval = $cmval."
 # Fix up srcarg for Windows
-    techo -2 "srcarg = $srcarg, uname = `uname`"
-    sleep 1 # Give cygwin time to catch up.
-    case `uname` in
-      CYGWIN*)
+  techo -2 "srcarg = $srcarg, uname = `uname`"
+  sleep 1 # Give cygwin time to catch up.
+  case `uname` in
+    CYGWIN*)
 # Add cygwin root on windows
-        if test -n "$srcarg"; then
-          if test -d "$srcarg" -a ! -h "$srcarg"; then
-            techo -2 "Directory, $srcarg, exists."
-          else
+      if test -n "$srcarg"; then
+        if test -d "$srcarg" -a ! -h "$srcarg"; then
+          techo -2 "Directory, $srcarg, exists."
+        else
 # Might not be a repo and have to add version
-            techo -2 "Directory, $srcarg, does not exist."
-            srcarg=${srcarg}-${verval}
-          fi
-          if test -n "$JENKINS_JOB_DIR"; then
-            techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
-            srcarg=`cygpath -m "$srcarg"`
-            cygprojdir=`cygpath -am $PROJECT_DIR`
-            cygjenkinsdir=`cygpath -m $JENKINS_JOB_DIR`
-            srcarg=`echo $srcarg | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
-          else
-            srcarg=`cygpath -am ${srcarg}`
-          fi
+          techo -2 "Directory, $srcarg, does not exist."
+          srcarg=${srcarg}-${verval}
         fi
-        ;;
-    esac
-    techo -2 "After Windows fix, srcarg = $srcarg"
+        if test -n "$JENKINS_JOB_DIR"; then
+          techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in cmake configure."
+          srcarg=`cygpath -m "$srcarg"`
+          cygprojdir=`cygpath -am $PROJECT_DIR`
+          cygjenkinsdir=`cygpath -m $JENKINS_JOB_DIR`
+          srcarg=`echo $srcarg | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
+        else
+          srcarg=`cygpath -am ${srcarg}`
+        fi
+      fi
+      ;;
+  esac
+  techo -2 "After Windows fix, srcarg = $srcarg"
 
 # Ready to start configuring
-    local configure_txt=$FQMAILHOST-$1-$2-config.txt
-    techo "Configuring $1-$2 in $PWD at `date`." | tee $configure_txt
-    local finalcmd
-    case `uname` in
-      CYGWIN*)
-        case "$cmval" in
-          cmake)
-            if which jom 1>/dev/null 2>&1; then
-              finalcmd="'$configexec' $configargs -G 'NMake Makefiles JOM' $3 $srcarg"
-            else
-              finalcmd="'$configexec' $configargs -G 'NMake Makefiles' $3 $srcarg"
-            fi
-            ;;
-          autotools)
-            case $1 in
-              qt)  # QT is not autotools
-                local finalcmd="'$configexec' $configargs $3"
-                ;;
-              *)  # Actually, this decision should be made by the package
-                local finalcmd="'$configexec' $configargs $3"
+  local configure_txt=$FQMAILHOST-$1-$2-config.txt
+  techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
+  local finalcmd
+  case `uname` in
+    CYGWIN*)
+      case "$cmval" in
+        cmake)
+          local generator=
+          case "$maker" in
+            nmake) generator="NMake Makefiles";;
+            jom) generator="NMake Makefiles JOM";;
+            make) generator="Unix Makefiles";;
+          esac
+          if test -z "$generator"; then
+            case "$2" in
+# Not sure all this really belongs here
+              develdocs | url | lite | full) generator="NMake Makefiles";;
+              *)
+                if which jom 1>/dev/null 2>&1; then
+                  generator="NMake Makefiles JOM"
+                else
+                  generator="NMake Makefiles"
+                fi
                 ;;
             esac
-            ;;
-          *)
-            local finalcmd="$configexec $configargs $3"
-            ;;
-        esac
-        ;;
-      MINGW*)
-        case "$configexec" in
-          cmake*)
-            local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $3 $srcarg"
-            ;;
-          *)
-            local finalcmd="'$configexec' $configargs $3 CC=gcc"
-            ;;
-        esac
-        ;;
-      *)
-        finalcmd="$configexec $configargs $3 $srcarg"
-        ;;
-    esac
-    techo "final configure command is $finalcmd"
+          fi
+          finalcmd="'$configexec' $configargs -G '$generator' $3 $srcarg"
+          ;;
+        autotools)
+          case $1 in
+            qt)  # QT is not autotools
+              local finalcmd="'$configexec' $configargs $3"
+              ;;
+            *)  # Actually, this decision should be made by the package
+              local finalcmd="'$configexec' $configargs $3"
+              ;;
+          esac
+          ;;
+        *)
+          local finalcmd="$configexec $configargs $3"
+          ;;
+      esac
+      ;;
+    MINGW*)
+      case "$configexec" in
+        cmake*)
+          local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $3 $srcarg"
+          ;;
+        *)
+          local finalcmd="'$configexec' $configargs $3 CC=gcc"
+          ;;
+      esac
+      ;;
+    *)
+      finalcmd="$configexec $configargs $3 $srcarg"
+      ;;
+  esac
 
 # Now add the environment variables
-    if test -n "$5"; then
-      finalcmd="env $5 $finalcmd"
-    fi
+  if test -n "$5"; then
+    finalcmd="env $5 $finalcmd"
+  fi
 
 # Cannot remove the old install automatically, as many packages
 # like all the autotools packages, have to be installed in the
 # same directory.  Can be done optionally by bilderInstall using
 # the -r flag if needed and acceptable.
-    # rmall $fullinstalldir
+#
 # Store command
-    techo "$finalcmd" | tee -a $configure_txt
+  techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
-    mkConfigScript $FQMAILHOST $1 $2
-    # Also touch the build script file, so that CMake can find it
-    local buildscript=$1-$2-build.sh
-    touch $builddir/$buildscript
+  mkConfigScript $FQMAILHOST $1 $2
+  # For packages like petsc where configure in place but build
+  # out-of-place is needed, we change definition of builddir here
+  if test -n "$buildsubdir"; then
+    if ! $build_inplace; then
+      (cd $builddir; mkdir -p $buildsubdir) 
+      builddir=$builddir/$buildsubdir
+      eval $builddirvar=$builddir
+    fi
+  fi
+  # Also touch the build script file, so that CMake can find it
+  local buildscript=$FQMAILHOST-$1-$2-build.sh
+  touch $builddir/$buildscript
 # Execute the command
-    eval "$finalcmd" 1>>$configure_txt 2>&1
-    RESULT=$?
+  eval "$finalcmd" 1>>$configure_txt 2>&1
+  RESULT=$?
+
 # Save the configuration command
-    if test $RESULT = 0; then
-      techo "Package $1-$verval-$2 configured at `date`." | tee -a $configure_txt
-      echo SUCCESS >>$configure_txt
-      configSuccesses="$configSuccesses $1-$2"
-    else
-      eval $dobuildvar=false
-      techo "Package $1-$verval-$2 failed to configure at `date`." | tee -a $configure_txt
-      echo FAILURE >>$configure_txt
-      if $recordfailure || ! $IGNORE_TEST_RESULTS; then
-        configFailures="$configFailures $1-$2"
-        anyFailures="$anyFailures $1-$2"
-      else
-        techo "bilderConfig not recording failures: recordfailure = $recordfailure."
-      fi
-    fi
-    if test -n "$BLDR_PROJECT_URL"; then
-      local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
-      techo "See $BLDR_PROJECT_URL/$subdir/$configure_txt."
-    fi
+  if test $RESULT = 0; then
+    techo "Package $1-$verval-$2 configured at `date +%F-%T`." | tee -a $configure_txt
+    echo SUCCESS >>$configure_txt
+    configSuccesses="$configSuccesses $1-$2"
   else
-    techo "Not configuring since $1-$verval-$2 already installed in $instdirval, or $2 not in $buildsvar = $buildsval."
-    RESULT=99
+    eval $dobuildvar=false
+    techo "Package $1-$verval-$2 failed to configure at `date +%F-%T`." | tee -a $configure_txt
+    echo FAILURE >>$configure_txt
+    if $recordfailure || ! $IGNORE_TEST_RESULTS; then
+      configFailures="$configFailures $1-$2"
+      anyFailures="$anyFailures $1-$2"
+    else
+      techo "bilderConfig not recording failures: recordfailure = $recordfailure."
+    fi
+  fi
+  if test -n "$BLDR_PROJECT_URL"; then
+    local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
+    techo "See $BLDR_PROJECT_URL/$subdir/$configure_txt."
   fi
 
 # Finally, if building in a separate place, need to fix that.
   if test -n "$buildsubdir"; then
     if ! $build_inplace; then
-      builddir=$builddir/$buildsubdir
-      eval $builddirvar=$builddir
       cmd="cd $builddir"
       techo "$cmd"
       $cmd
@@ -4254,7 +4427,7 @@ addActionToLists() {
   trimvar PIDLIST ' '
   actionsRunning="$actionsRunning $1"
   trimvar actionsRunning ' '
-  techo "Build $1 with $pidvarname = $pid launched at `date`."
+  techo "Build $1 with $pidvarname = $pid launched at `date +%F-%T`."
 }
 
 #
@@ -4333,7 +4506,7 @@ bilderBuild() {
   res=$?
   if test $res != 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in building $1-$2.  Cannot change directory to $builddir."
-    cleanup
+    terminate
   fi
 # This needs to match what waitAction uses
   local bilderaction_resfile=bilderbuild-$1-$2.res
@@ -4363,21 +4536,38 @@ bilderBuild() {
   if test -n "$envprefix"; then
     echo -n "$envprefix " | tee -a $buildscript
   fi
-  echo "$bildermake $buildargs" | tee -a $buildscript
-  echo 'res=$?' >>$buildscript
+
+# Since CTest builds do not properly indicate failure, we can modify the
+# build script to detect failure by looking for "Error(s) when building
+# project" in the output.
+
+  case "$buildargs" in
+    *Start*) cat <<_ | tee -a $buildscript
+$bildermake $buildargs 2>&1 | tee build$$.out
+res=0
+if grep 'Error(s) when building project' build$$.out >/dev/null; then
+  res=1
+fi
+rm -f build$$.out
+_
+            ;;
+         *) echo "$bildermake $buildargs" | tee -a $buildscript
+            echo 'res=$?' >>$buildscript
+            ;;
+  esac
   echo "echo Build of $1-$2 completed with result = "'$res.' >>$buildscript
   echo 'echo $res >'$bilderaction_resfile >>$buildscript
   echo 'exit $res' >>$buildscript
   chmod ug+x $buildscript
   local build_txt=$FQMAILHOST-$1-$2-build.txt
-  techo "Building $1-$2 in $PWD using $buildscript at `date`." | tee $build_txt
+  techo "Building $1-$2 in $PWD using $buildscript at `date +%F-%T`." | tee $build_txt
   techo "$buildscript" | tee -a $build_txt
   # cat $buildscript | tee -a $build_txt | tee -a $LOGFILE
   techo "$envprefix $bildermake $buildargs" | tee -a $build_txt
   ./$buildscript >>$build_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
-    techo "WARNING: pid not known.  Something bad happened."
+    techo "WARNING [bilderBuild]: pid not known."
     return 1
   fi
 # Record build
@@ -4516,7 +4706,7 @@ bilderTest() {
   res=$?
   if test $res != 0; then
     TERMINATE_ERROR_MSG="Catastrophic error in testing $1-$2.  Cannot change directory to $testdir."
-    cleanup
+    terminate
   fi
   # This needs to match what waitLocalTests uses
   local bildertest_resfile=bildertest-$1-$2.res
@@ -4544,14 +4734,14 @@ bilderTest() {
   echo 'exit $res' >>$testscript
   chmod ug+x $testscript
   local test_txt=$FQMAILHOST-$1-$2-test.txt
-  techo "testing $1-$2 in $PWD using $testscript at `date`." | tee $test_txt
+  techo "testing $1-$2 in $PWD using $testscript at `date +%F-%T`." | tee $test_txt
   techo "$testscript" | tee -a $test_txt
   # cat $testscript | tee -a $test_txt | tee -a $LOGFILE
   techo "$envprefix $bildermake $testargs" | tee -a $test_txt
   ./$testscript >>$test_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
-    techo "WARNING: pid not known.  Something bad happened."
+    techo "WARNING [bilderTest]: pid not known.  Something bad happened."
     return 1
   fi
 # Record test
@@ -4642,7 +4832,7 @@ waitAction() {
 # Wait on test and process according to result
 # To collect build, pid must be nonempty so that we know build was launched,
   if test -z "$pid"; then
-    techo -2 "Build for $1 not started."
+    techo -2 "Build for $1 not launched."
     res=99
   else
     techo "Waiting on process $pidvarname = $pid."
@@ -4650,7 +4840,7 @@ waitAction() {
     wait $pid
     res=$?
     eval $resvarname=$res
-    techo "Build $1 with $pidvarname = $pid concluded at `date` with result = $res."
+    techo "Build $1 with $pidvarname = $pid concluded at `date +%F-%T` with result = $res."
 
 # Remove from PIDLIST and actionsRunning
     PIDLIST=`echo $PIDLIST | sed -e "s/^$pid //" -e "s/ $pid$//" -e "s/ $pid / /" -e "s/^$pid$//"`
@@ -4690,7 +4880,7 @@ waitAction() {
       newres=`cat $builddir/$bilderaction_resfile`
       if test -z "$newres"; then
         TERMINATE_ERROR_MSG="Catastrophic failure in waitAction.  No result in $builddir/$bilderaction_resfile."
-        cleanup
+        terminate
       fi
 # Check for inconsistency of wait return value and build result and correct
       if test $res = $newres; then
@@ -4723,7 +4913,7 @@ waitAction() {
         echo FAILURE >>$builddir/$build_txt
       fi
     else
-      techo "WARNING: waitAction cannot find $builddir/$build_txt to record result of $res."
+      techo "WARNING [waitAction]: cannot find $builddir/$build_txt to record result of $res."
     fi
 
 # Record failure if appropriate
@@ -4758,7 +4948,7 @@ waitAction() {
     fi
 
     if test -z "$res"; then
-      techo "WARNING: waitAction found no result for $1 PID=$pid."
+      techo "WARNING [waitAction]: no result for $1 PID=$pid."
       res=99
     fi
   fi
@@ -4848,10 +5038,13 @@ bilderRunTests() {
 
 # Initial handling
   local pkgname=$1
-  if test -n "$ignoreBuilds"; then
-    techo -2 "bilderRunTests will not test the $pkgname builds, $ignoreBuilds."
+  if test $hasbuildtests; then
+    techo -2 "bilderRunTests will test $pkgname builds."
+    if test -n "$ignoreBuilds"; then
+      techo -2 "bilderRunTests will not test these $pkgname builds: $ignoreBuilds."
+    fi
   else
-    techo -2 "bilderRunTests will test all $pkgname builds."
+    techo -2 "bilderRunTests will test no $pkgname builds."
   fi
   local tstsname=`echo $2 | tr 'A-Z.-' 'a-z__'`
   local tststarget="$3"
@@ -4867,15 +5060,11 @@ bilderRunTests() {
   else
     getVersion $tstsname  # Done here as build may not be called
   fi
-# If not testing, done.
-  # if ! $TESTING; then
-    # techo "Not testing $pkgname."
-    # return
-  # fi
 
-# Get the builds to wait on
+# Get the builds to test
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
+  techo "Collecting $pkgname builds, $buildsval."
   local testedBuilds=
 # Remove ignored builds
   for bld in `echo $buildsval | tr ',' ' '`; do
@@ -4884,7 +5073,6 @@ bilderRunTests() {
     fi
   done
   trimvar testedBuilds ','
-  techo "Collecting $pkgname builds, $buildsval."
 
 # Vars used for submitting results
   local cmvar=`genbashvar $pkgname`_CONFIG_METHOD
@@ -4892,41 +5080,72 @@ bilderRunTests() {
   local maker=`getMaker $cmval`
   local targvar=`genbashvar $pkgname`_CTEST_TARGET
   local targval=`deref $targvar`
+# For selecting specific packages to test
+  local testingvar=`genbashvar $pkgname`_TESTING
+  local testingval=`deref $testingvar`
+  testingval=${testingval:-${TESTING}}
 
 # Wait on all builds, see if any tested build failed.
 # For those not failed, launch tests in build dir if asked.
   local tbFailures=
   local builddirtests=
   for bld in `echo $buildsval | tr ',' ' '`; do
+# Is there a problem that only some builds might be done at any run?
     cmd="waitAction $pkgname-$bld"
     techo -2 "$cmd"
     $cmd
     res=$?
-    if test $res != 0; then
+    # techo "waitAction returned $res."
+    if test -z "$res" -o "$res" = 99; then
+      techo "$pkgname-$bld not built."
+      # if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo "Continuing."
+        continue
+      # fi
+      # tbFailures="$tbFailures $bld"
+    elif test "$res" != 0; then
+      techo "$pkgname-$bld failed to build."
       tbFailures="$tbFailures $bld"
       continue
     fi
+# Determine whether this build is ignored
+    local untestedbuild=false
+    if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)" || ! $hasbuildtests || ! $testingval; then
+      untestedbuild=true
+    fi
+    if $untestedbuild; then
 # Don't test if not testing or this build is ignored
-    if ! $TESTING; then
-# TODO: figure out how to submit ignored builds, like develdocs
-      if ! echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo "Not testing $pkgname-$bld."
-        if $submitres && test "$cmval" = cmake -a -n "$targval"; then
-          techo "Submitting build results for $pkgname-$bld."
-          cd $BUILD_DIR/$pkgname/$bld
-          cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+# Submitting even ignored builds
+# If want to call bilderRunTests more than once, will need
+# a variable that holds builds to be collected and submitted.
+      techo "Not testing $pkgname-$bld."
+      if $submitres && test "$cmval" = cmake -a -n "$targval"; then
+        cd $BUILD_DIR/$pkgname/$bld
+        local sub_fname=$FQMAILHOST-$pkgname-$bld-submit
+        cat >${sub_fname}.sh <<EOF
 #!/bin/bash
 
 cmd="$maker -i ${targval}Submit"
 echo \$cmd
 \$cmd
+res=\$?
+echo \$res > bildersubmit-$1-$bld.res
+exit \$res
 EOF
-          chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
-          ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
-        fi
+        chmod a+x ${sub_fname}.sh
+        techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
+# From cperry: Background submission, we don't need to keep track of it at this
+# point, since the build directory won't change.
+# JRC: Undoing.  Adding action to list should be done only if one is
+# going to collect the action.  Otherwise it shows up as an incomplete
+# action upon erroring out.
+        ./${sub_fname}.sh &> ${sub_fname}.txt
+        # sub_pid=$!
+        # addActionToLists $pkgname-$bld-submit $sub_pid
       fi
       continue
-    elif $hasbuildtests; then
+    # elif $TESTING && $hasbuildtests; then
+    else
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
       local builddir=`deref $builddirvar`
@@ -4961,14 +5180,13 @@ EOF
     fi
   done
   trimvar tbFailures ' '
-  if $hasbuildtests; then
-    techo "All build directory tests launched."
-  fi
 
 # Collect results of tests in build dirs
   local tstFailures=
   if $hasbuildtests && test -n "$builddirtests"; then
-    for bld in `echo $testedBuilds | tr ',' ' '`; do
+    techo "All build directory tests launched."
+    # for bld in `echo $testedBuilds | tr ',' ' '`; do
+    for bld in $builddirtests; do
 # Get individual build test results
       cmd="waitAction -t b $pkgname-$bld-test"
       techo -2 "$cmd"
@@ -4984,18 +5202,29 @@ EOF
 # Set the tests as installed
 # Submit results
       if $submitres && test "$cmval" = cmake -a -n "$targval"; then
-        techo "Submitting test results for $pkgname-$bld."
         cd $BUILD_DIR/$pkgname/$bld
 # TODO: add memcheck target for automated/nightly builds
-        cat >$FQMAILHOST-$pkgname-$bld-submit.sh <<EOF
+        local sub_fname=$FQMAILHOST-$pkgname-$bld-submit
+        cat >${sub_fname}.sh <<EOF
 #!/bin/bash
 
 cmd="$maker -i ${targval}Coverage ${targval}Submit"
 echo \$cmd
 \$cmd
+res=\$?
+echo \$res > bildersubmit-$1-$bld.res
+exit \$res
 EOF
-        chmod a+x $FQMAILHOST-$pkgname-$bld-submit.sh
-        ./$FQMAILHOST-$pkgname-$bld-submit.sh 1>$FQMAILHOST-$pkgname-$bld-submit.txt 2>&1
+        chmod a+x ${sub_fname}.sh
+        techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
+# cperry: Background the submission, we don't need to keep track of it at this
+# point, since the build directory won't change
+# JRC: Undoing.  Adding action to list should be done only if one is
+# going to collect the action.  Otherwise it shows up as an incomplete
+# action upon erroring out.
+        ./${sub_fname}.sh &> ${sub_fname}.txt
+        # sub_pid=$!
+        # addActionToLists $pkgname-$bld-submit $sub_pid
       fi
     done
   fi
@@ -5017,7 +5246,7 @@ EOF
     techo "Not running $pkgname tests. One or more tested builds '$tbFailures' not built."
     return
   fi
-  if test ! $TESTING; then
+  if test ! $testingval; then
     techo "Not testing so not running $pkgname tests."
     return
   fi
@@ -5066,6 +5295,88 @@ waitNamedTest() {
 }
 
 #
+# Install and make relative a shared lib that might be missing
+# from an installation
+#
+# Args
+# 1: The name of the shared lib
+# 2: Where (unix/cygwin path) the libraries need to be installed
+# 3: Where (unix/cygwin path) one can find the libraries if not installed
+#
+installRelShlib() {
+
+# Get the args
+  local lib=$1
+  local instdir=$2
+  local fromdir=$3
+
+# See whether lib is installed, install if not.
+  local instlib=$instdir/$lib
+  if ! test -f $instlib; then
+    techo "WARNING: $instlib missing." 1>&2
+    local fromlib=$fromdir/$lib
+    if ! test -f $fromlib; then
+      techo "ERROR: $fromlib missing.  Cannot install." 1>&2
+      return
+    fi
+    cmd="/usr/bin/install -m 775 $fromdir/$lib $instdir"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
+# No more to do if Windows
+  if [[ `uname` =~ CYGWIN ]]; then
+    return
+  fi
+
+# Find compatibility name for appropriate OSs, and set to base,
+  techo "Extracting compatibility name from $instlib."
+  local instlibname=
+  case `uname` in
+    Darwin) instlibname=`otool -D $instlib| tail -1`;;
+    Linux) instlibname=`objdump -p $instlib | grep SONAME | sed -e 's/ *SONAME *//'`
+  esac
+  local instliblink=`basename $instlibname`
+  if test `uname` = Darwin; then
+    cmd="install_name_tool -id $instliblink $instlib"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
+# Create link to compatibility name
+  if test -e $instdir/$instliblink; then
+    techo "$instdir/$instliblink already there."
+  else
+    techo "NOTE: $instliblink link absent in $instdir.  Creating."
+    cmd="(cd $instdir; ln -sf $lib $instliblink)"
+    techo "$cmd"
+    eval "$cmd"
+    if test `uname` = Darwin; then
+      chmod -h 775 $instdir/$instliblink
+    fi
+  fi
+
+# Create link to base name
+  local instlibbase=`echo $instliblink | sed 's/\..*$//'`
+  case `uname` in
+    Darwin) instlibbase=${instlibbase}.dylib;;
+    Linux) instlibbase=${instlibbase}.so;;
+  esac
+  if test -e $instdir/$instlibbase; then
+    techo "$instdir/$instlibbase already there."
+  else
+    techo "NOTE: $instlibbase absent in $instdir.  Creating."
+    cmd="(cd $instdir; ln -sf $instliblink $instlibbase)"
+    techo "$cmd"
+    eval "$cmd"
+    if test `uname` = Darwin; then
+      chmod -h 775 $instdir/$instlibbase
+    fi
+  fi
+
+}
+
+#
 # Determine whether a tested package should be installed
 #
 # Args:
@@ -5075,6 +5386,7 @@ waitNamedTest() {
 #
 # Named args (must come first):
 # -b <builds>  Builds that could have been tested
+# -h           Whether builds have tests
 # -n <tests>   Name of tests if not found from lower-casing $2
 #
 # Return true if should be installed
@@ -5083,12 +5395,14 @@ shouldInstallTestedPkg() {
   techo -2 "shouldInstallTestedPkg called with args: '$*'."
 
 # Parse options
+  local hasbuildtests=false
   local tstsnm=
   set -- "$@"
   OPTIND=1
-  while getopts "b:n:" arg; do
+  while getopts "b:hn:" arg; do
     case $arg in
       b) builds="$OPTARG";;
+      h) hasbuildtests=true;;
       n) tstsnm="$OPTARG";;
     esac
   done
@@ -5098,33 +5412,56 @@ shouldInstallTestedPkg() {
   local pkgname=$1
   local tstsnm=${tstsnm:-"`echo $2 | tr 'A-Z' 'a-z'`"}
 
+# Some output
+  if $hasbuildtests; then
+    techo -2 "shouldInstallTestedPkg: $pkgname has build tests."
+  else
+    techo -2 "shouldInstallTestedPkg: $pkgname does not have build tests."
+  fi
+
 # Determine whether to install
   techo "Checking whether to install tested package $pkgname."
   local installPkg=true
   if $TESTING; then
 
-# Check the per-build tests, if any
+# Check the per-build builds or tests.
+    local tsttype=
+    if $hasbuildtests; then
+      tsttype=tests
+    else
+      tsttype=build
+    fi
     if test -n "$builds"; then
       for bld in $builds; do
-        local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
-        local tstsresval=`deref $tstsresvar`
-        # techo "$tstsresvar = $tstsresval."
-        # techo "IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS"
-        if $IGNORE_TEST_RESULTS; then
-          techo "Ignoring test result of $pkgname-$bld."
-        elif test -z "$tstsresval"; then
-          techo "Not installing as $pkgname-$bld-test not run, implying build failed."
-          installPkg=false
-        elif test "$tstsresval" != 0; then
-          # techo "IGNORE_TEST_RESULTS = $IGNORE_TEST_RESULTS"
-          techo "Not installing as $pkgname-$bld-test failed."
-          installPkg=false
+        local resval=
+        if $hasbuildtests; then
+          # waitAction -t $pkgname-$bld
+          local tstsresvar=`genbashvar $pkgname-$bld`_TEST_RES
+          resval=`deref $tstsresvar`
+        else
+          local bldresvar=`genbashvar $pkgname-$bld`_RES
+          resval=`deref $bldresvar`
+        fi
+        if test -z "$resval"; then
+          techo "shouldInstallTestedPkg: No result for $pkgname-$bld $tsttype."
+          if $IGNORE_TEST_RESULTS; then
+            techo "Ignoring $tsttype result of $pkgname-$bld in determining whether to install."
+          else
+            installPkg=false
+          fi
+        elif test "$resval" != 0; then
+          techo "shouldInstallTestedPkg: $pkgname-$bld $tsttype failed."
+          if $IGNORE_TEST_RESULTS; then
+            techo "Ignoring $tsttype result of $pkgname-$bld in determining whether to install."
+          else
+            installPkg=false
+          fi
         fi
       done
       if $installPkg; then
-        techo "All $pkgname build tests passed."
+        techo "$tsttype succeeded or ignored for all $pkgname builds."
       else
-        techo "One or more of $pkgname builds or build tests failed."
+        techo "$tsttype not done or failed for one or more $pkgname builds."
       fi
     else
       techo "$pkgname has no build tests."
@@ -5138,7 +5475,11 @@ shouldInstallTestedPkg() {
       fi
       return 1
     else
+
+# This not needed, as results collect by instcmd below
+if false; then
 # If tests not run, do not install
+      waitNamedTest $2
       tstspidvar=`genbashvar $2`_ALL_PID
       tstspidval=`deref $tstspidvar`
       local tstsresval=
@@ -5147,8 +5488,9 @@ shouldInstallTestedPkg() {
         tstsresval=99
         return $tstsresval
       fi
+fi
 
-# Determine results of installation/waitNamedTest.  Do before per-build
+# Determine results of installation/waitNamedTest
 # tests in order to collect result.
       local instcmd="install${2}"
       techo "$instcmd"
@@ -5163,14 +5505,18 @@ shouldInstallTestedPkg() {
         99)
 # If we got here, the tests were not run, but package was built.
           techo "Test $tstsnm not run."
-          if ! $IGNORE_TEST_RESULTS; then
-            techo "Not installing $pkgname."
+          if $IGNORE_TEST_RESULTS; then
+            techo "Ignoring failure for installation of $pkgname."
+          else
+            techo "Not installing ${pkgname} or its tests."
             return 99
           fi
           ;;
         *)
           techo "$tstsnm failed."
-          if ! $IGNORE_TEST_RESULTS; then
+          if $IGNORE_TEST_RESULTS; then
+            techo "Ignoring failure for installation of $pkgname."
+          else
             techo "Not installing ${pkgname} or its tests."
             return 1
           fi
@@ -5181,9 +5527,8 @@ shouldInstallTestedPkg() {
 
   fi
 
-
 # Not testing
-  techo "Not testing $pkgname."
+  techo "shouldInstallTestedPkg: Proceed with installation of $pkgname."
   return 0
 
 }
@@ -5225,6 +5570,9 @@ recordInstallation() {
 # -a accept build was correct
 # -c directly copy build dir to install dir
 # -f force the installation
+# -g set the group to this after installing on the hosts matching what is
+#    specified by -h
+# -h list of hosts or domains, which if matched, get the group set
 # -m use the arg instead of make
 # -L do not create links
 # -n do not record the installation
@@ -5246,6 +5594,8 @@ bilderInstall() {
   local cpdir=false
   local doLinks=true
   local forceinstall=$FORCE_INSTALL
+  local grpnm=
+  local hostids=
   local installersubdir=
   local insttarg=
   local istest=false
@@ -5256,12 +5606,14 @@ bilderInstall() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ab:cfgLm:np:rs:tT:z" arg; do
+  while getopts "ab:cfg:h:Lm:np:rs:tT:z" arg; do
     case $arg in
       a) acceptbuild=true;;
       b) builddir="$OPTARG";;
       c) cpdir=true;;
       f) forceinstall=true;;
+      g) grpnm="$OPTARG";;
+      h) hostids="$OPTARG";;
       L) doLinks=false;;
       m) bildermake="$OPTARG";;
       n) recordinstall=false;;
@@ -5275,6 +5627,15 @@ bilderInstall() {
   done
   shift $(($OPTIND - 1))
   local envvars="$5"
+
+# Args for installation
+  if test -z "$grpnm" -a -n "$hostids"; then
+    techo "WARNING [bilderInstall]: grpnm not set but hostids set."
+  elif test -n "$grpnm" -a -z "$hostids"; then
+    techo "WARNING [bilderInstall]: grpnm set but hostids not set."
+  elif test -n "$grpnm" -a -n "$hostids"; then
+    techo -2 "NOTE: [bilderInstall] will set group to $grpnm at $hostids."
+  fi
 
 # If there was a build, the builddir was set
   local builddirvar=`genbashvar $1-$2`_BUILD_DIR
@@ -5318,19 +5679,19 @@ bilderInstall() {
       *:*)
         doinstall=false
         RESULT=1
-        techo "WARNING: Not installing $1-$verval-$2 as version contains a colon, so not a pure svn version."
+        techo "WARNING [bilderInstall]: Not installing $1-$verval-$2 as version contains a colon, so not a pure svn version."
         builtNotInstalled="$builtNotInstalled $1-$2"
         ;;
       r[0-9][0-9]*-[0-9][0-9]*)
         doinstall=false
         RESULT=1
-        techo "WARNING: Not installing $1-$verval-$2 as version contains a dash, so not a pure svn version."
+        techo "WARNING [bilderInstall]: Not installing $1-$verval-$2 as version contains a dash, so not a pure svn version."
         builtNotInstalled="$builtNotInstalled $1-$2"
         ;;
       *M)
         doinstall=false
         RESULT=1
-        techo "WARNING: Not installing $1-$verval-$2 as version ends with M, so a modification to an svn version."
+        techo "WARNING [bilderInstall]: Not installing $1-$verval-$2 as version ends with M, so a modification to an svn version."
         builtNotInstalled="$builtNotInstalled $1-$2"
         ;;
       *)
@@ -5347,7 +5708,7 @@ bilderInstall() {
 # Validation
     if test -z "$builddir" || ! cd $builddir; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  builddir unknown or cannot cd to $builddir."
-      cleanup
+      terminate
     fi
 
 # Determine where it will be installed
@@ -5356,7 +5717,7 @@ bilderInstall() {
     local instdirval=`deref $instdirvar`
     if test -z "$instdirval"; then
       TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $instdirvar is empty."
-      cleanup
+      terminate
     fi
     instsubdirvar=`genbashvar $1-$2`_INSTALL_SUBDIR
     instsubdirval=`deref $instsubdirvar`
@@ -5387,17 +5748,10 @@ bilderInstall() {
       res=$?
       return $res
     fi
-# Disable testing $instsubdirbase for '-' as autotools packages will not
-# install with this restriction.
-# However, there will be issues with using cleaninstalls.sh.
-# Uncomment code or remove completely when a better solution is found.
-#    if echo $instsubdirbase | grep -q -- -; then
-#      techo "WARNING: Installation subdirbase may not contain -.  Will not install."
-#      return 1
-#    fi
-    techo "Installing $1-$verval-$2 into $instdirval/$instsubdirval at `date` from $builddir."
+
+    techo "Installing $1-$verval-$2 into $instdirval/$instsubdirval at `date +%F-%T` from $builddir."
     if echo $instsubdirval | grep -q /; then
-      techo "WARNING: Installation subdir may not contain /.  Will not make links or shortcuts."
+      techo "WARNING [bilderInstall]: Installation subdir may not contain /.  Will not make links or shortcuts."
       doLinks=false
     fi
 # Set link name
@@ -5419,7 +5773,7 @@ bilderInstall() {
 # Remove old installation if requested
     if $removesame; then
       if test -d $instdirval/$instsubdirval; then
-        # chmod -R u+w $instdirval/$instsubdirval
+        techo "Ensuring installation directory writable to be able to remove."
         cmd="find $instdirval/$instsubdirval -user $USER -exec chmod u+w  '{}' \;"
         techo "$cmd"
         eval "$cmd"
@@ -5469,8 +5823,8 @@ bilderInstall() {
     local umaskvar=`genbashvar $1`_UMASK
     local umaskval=`deref $umaskvar`
     if test -z "$umaskval"; then
-      TERMINATE_ERROR_MSG="Catastrophic error in bilderInstall.  $umaskvar not set."
-      cleanup
+      TERMINATE_ERROR_MSG="FATAL ERROR [bilderInstall]: $umaskvar not set."
+      terminate
     fi
     local origumask=`umask`
     umask $umaskval
@@ -5490,21 +5844,68 @@ EOF
     chmod ug+x $installscript
 # Use the installation script
     install_txt=$FQMAILHOST-$1-$2-install.txt
-    techo "Installing $1-$2 in $PWD using $installscript at `date`." | tee $install_txt
+    techo "Installing $1-$2 in $PWD using $installscript at `date +%F-%T`." | tee $install_txt
     techo "$installscript" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
     RESULT=$?
 
 # If installed, record
-    techo "Installation of $1-$verval-$2 concluded at `date` with result = $RESULT."
+    techo "Installation of $1-$verval-$2 concluded at `date +%F-%T` with result = $RESULT."
     if test $RESULT = 0; then
       echo SUCCESS >>$install_txt
 
 # Set the permissions
+      techo "Setting permissions according to perms."
       case "$perms" in
           open) setOpenPerms $instdirval/$instsubdirval;;
         closed) setClosedPerms $instdirval/$instsubdirval;;
       esac
+
+# Fix perms according to umask.  Is this needed anymore?
+      techo "Setting permissions according to umask."
+      case $umaskval in
+        000? | 00? | ?)  # printing format can vary.
+# For case where directories end up not being owned by installer
+          cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
+          techo "$cmd"
+          eval "$cmd"
+          ;;
+      esac
+      case $umaskval in
+        0002 | 002 | 2)
+# For case where directories end up not being owned by installer
+          cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
+          techo "$cmd"
+          eval "$cmd"
+          ;;
+      esac
+
+# Fix group if requested
+      local grpset=false
+      if test -n "$hostids" -a -n "$grpnm"; then
+        local h=
+        local hs=`echo $hostids | tr ',' ' '`
+        for h in $hs; do
+          # if [[ $FQMAILHOST =~ "$h$" ]]; then
+# JRC: not understood how to match end of word in this syntax
+          if [[ $FQMAILHOST =~ "$h" ]]; then
+            techo "NOTE [bilderInstall]: Setting group of $instdirval/$instsubdirval to $grpnm."
+            cmd]"find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;"
+            techo "$cmd"
+            eval "$cmd"
+            grpset=true
+            break
+          else
+            techo "$h does not match $FQMAILHOST."
+          fi
+        done
+        if ! $grpset; then
+          techo "NOTE [bilderInstall]: $FQMAILHOST not found in $hostids."
+        fi
+      fi
+      if ! $grpset; then
+        techo "NOTE [bilderInstall]: Group was not changed."
+      fi
 
 # Record installation in installation directory
       if $recordinstall; then
@@ -5532,29 +5933,11 @@ EOF
             techo "Linking $instdirval/$instsubdirval to $instdirval/$linkname."
             mkLink $linkargs $instdirval $instsubdirval $linkname
           else
-            techo "WARNING: Not linking $instdirval/$instsubdirval to $instdirval/$linkname because $instdirval/$instsubdirval can not be found."
+            techo "WARNING [bilderInstall]: Not linking $instdirval/$instsubdirval to $instdirval/$linkname because $instdirval/$instsubdirval can not be found."
           fi
         fi
       else
         techo "Not making an installation link."
-      fi
-
-# Fix perms that libtool sometimes botches
-# subdir may not exist if installed at top
-      techo "Setting permissions according to umask."
-      if test -d "$instdirval/$instsubdirval"; then
-        case $umaskval in
-          000? | 00? | ?)  # printing format can vary.
-# For case where directories end up not being owned by installer
-            find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;
-            ;;
-        esac
-        case $umaskval in
-          0002 | 002 | 2)
-# For case where directories end up not being owned by installer
-            find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;
-            ;;
-        esac
       fi
 
 # If disable-shared, remove any .la files, as these can contain dependency
@@ -5569,7 +5952,7 @@ EOF
           $cmd
         fi
       else
-        techo "WARNING: Configure script not found for package $1."
+        techo "WARNING [bilderInstall]: Configure script not found for package $1."
       fi
 
 # Remove old installations.
@@ -5632,11 +6015,15 @@ EOF
             fi
             if test -n "$installer"; then
               sfx=`echo $ending | sed 's/^[^\.]*\.//'`
-              techo "NOTE: Installer = '${installer}'"
+              techo "NOTE [bilderInstall]: Installer = '${installer}'"
               break
             fi
           done
-          installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+          if test -z "$installer"; then
+            : # techo "WARNING: No installer found starting with ${installerbase}- and ending with any of $endings."
+          else
+            installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+          fi
 # Ensure depot root directory exists
           if test -n "$INSTALLER_HOST"; then
             local subdir=$INSTALLER_ROOTDIR/$installersubdir
@@ -5656,18 +6043,18 @@ EOF
             $cmd 1>/dev/null 2>&1
             cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
             if ! $cmd 1>/dev/null 2>&1; then
-              techo "WARNING: For depot copy, failed to make target directory '${depotdir}' on host '${INSTALLER_HOST}'."
+              techo "WARNING [bilderInstall]: For depot copy, failed to make target directory '${depotdir}' on host '${INSTALLER_HOST}'."
               depotdir=$INSTALLER_ROOTDIR/$installersubdir
-              techo "WARNING: For depot copy, falling back to target directory '${depotdir}'."
+              techo "WARNING [bilderInstall]: For depot copy, falling back to target directory '${depotdir}'."
             else
               techo "For depot copy, made new target directory '${depotdir}' on host '${INSTALLER_HOST}."
             fi
           else
             techo "For depot copy, target directory '${depotdir}' exists on host '${INSTALLER_HOST}'."
           fi
-          installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
-          installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
           if test -n "$installer"; then
+            installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
+            installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
             techo "$cmd"
             if $cmd 1>/dev/null 2>./error; then
@@ -5689,7 +6076,7 @@ EOF
                 eval $cmd
               fi
             else
-              techo "WARNING: '$cmd' failed: `cat error`"
+              techo "WARNING [bilderInstall]: '$cmd' failed: `cat error`"
               rm error
             fi
 
@@ -5704,7 +6091,7 @@ EOF
               if $copycmd 2>&1; then
                 techo -2 "Installer $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
               else
-                techo "WARNING: $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
+                techo "WARNING [bilderInstall]: $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
               fi
               if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
                 curdir=`pwd -P`
@@ -5720,7 +6107,7 @@ EOF
 # Warn user only if installer is not set and build is sersh were installer
 # is expected to be found.
             if test "$2" == sersh; then
-              techo "WARNING: $1 installer ($installer) not found."
+              techo "WARNING [bilderInstall]: $1 installer ($installer) not found."
             fi
           fi
         else
@@ -5769,14 +6156,12 @@ bilderInstallAll() {
 # Args:
 # 1: Name of tested package, e.g., vorpal
 # 2: Name of tests in methods, e.g., VpTests
+# 3: Args to used when calling bilderInstall
 #
 # Named args (must come first):
+# -b whether there are build tests
 # -i ignore the tests of builds when calling install, comma-separated list
 # -n <tests>   Name of tests if not found from lower-casing $2
-# -p <perms>   Type of permissions to set (open or closed)
-# -r remove the old installation before installing anew
-# -s the name of the installer subdir at the depot, passed through to
-#    bilderInstall
 # -t do not install test pkg
 #
 # Return true if should be installed
@@ -5786,45 +6171,41 @@ bilderInstallTestedPkg() {
   techo -2 "bilderInstallTestedPkg called with args: '$*'."
 
 # Default option values
+  local hasbuildtests=false
   local ignorebuilds=develdocs
   local tstsnm=
-  local perms=
   local installsubdir=
-  local testinstall=false
   local removePkg=false
   local removearg=
+  local testinstall=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "i:n:p:rs:t" arg; do
+  while getopts "bi:n:t" arg; do
     case $arg in
+      b) hasbuildtests=true;;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
       n) tstsnm="$OPTARG";;
-      p) perms="$OPTARG";;
-      r) removePkg=true; removearg=-r;;
-      s) installsubdir="$OPTARG";;
       t) testinstall=true;;
     esac
   done
   shift $(($OPTIND - 1))
 
+# Args for calling bilderInstall
+  local installargs="$3"
+
 # Determine args for shouldInstallTestedPkg
+  local sitpargs=
+  if $hasbuildtests; then
+    sitpargs="-h"
+  fi
   if test -z "$tstnm"; then
     tstsnm=`echo $2 | tr 'A-Z' 'a-z'`
   fi
-  local tstnmarg=
   if test -n "$tstsnm"; then
-    tstnmarg="-n $tstsnm"
+    sitpargs="$sitpargs -n $tstsnm"
   else
-    techo "NOTE: [bilderInstallTestedPkg] no separate tests for $1."
-  fi
-  local permsarg=
-  if test -n "$perms"; then
-    permsarg="-p $perms"
-  fi
-  local subdirarg=
-  if test -n "$installsubdir"; then
-    subdirarg="-s $installsubdir"
+    techo -2 "NOTE: [bilderInstallTestedPkg] no named tests for $1."
   fi
 
 # Determine the full list of builds and the list after ignoring
@@ -5841,12 +6222,12 @@ bilderInstallTestedPkg() {
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
   if test -n "$tstdblds"; then
-    if shouldInstallTestedPkg -b "$tstdblds" $tstnmarg $1 $2; then
-      techo "All $1 builds and tests passed."
+    if shouldInstallTestedPkg -b "$tstdblds" $sitpargs $1 $2; then
+      techo "All $1 builds and tests passed or failures ignored."
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
       for bld in $bldsval; do
-        cmd="bilderInstall $removearg $permsarg $subdirarg $1 $bld"
+        cmd="bilderInstall $installargs $1 $bld"
         techo -2 "$cmd"
         $cmd
       done
@@ -5858,7 +6239,7 @@ bilderInstallTestedPkg() {
       fi
       return 0
     else
-      techo "One or more $1 builds or tests failed.  Not installing."
+      techo "One or more $1 builds or tests failed or not done.  Not installing."
     fi
   fi
 
@@ -5923,27 +6304,6 @@ bilderDuBuild() {
     buildargs=$2
   fi
 
-if false; then
-# Get desired version
-  local vervar=`genbashvar $1`_BLDRVERSION
-  local verval=`deref $vervar`
-# If not defined, look for standard and experimental versions
-  if test -z "$verval"; then
-    local vervar1=
-    if $BUILD_EXPERIMENTAL; then
-      vervar1=`genbashvar $1`_BLDRVERSION_EXP
-    else
-      vervar1=`genbashvar $1`_BLDRVERSION_STD
-    fi
-    verval=`deref $vervar1`
-    eval $vervar=$verval
-  fi
-  if test -z "$verval"; then
-    techo "$vervar not defined.  Cannot build."
-    return 1
-  fi
-fi
-
 # Determing the version
   computeVersion $1
   local vervar=`genbashvar $1`_BLDRVERSION
@@ -6002,7 +6362,7 @@ fi
     cd $BUILD_DIR/$1-${verval}
     if test $? != 0; then
       TERMINATE_ERROR_MSG="Catastrophic failure in bilderDuBuild.  Unable to cd to $BUILD_DIR/$1-${verval}."
-      cleanup
+      terminate
     fi
     local bilderaction_resfile=bilderbuild-$1-cc4py.res
     rm -f $bilderaction_resfile
@@ -6025,7 +6385,7 @@ echo \$res > $bilderaction_resfile
 exit \$res
 EOF
     chmod ug+x $buildscript
-    techo "Building $1-cc4py in $PWD using $buildscript at `date`." | tee -a $build_txt
+    techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
     techo "$cmd"
     techo ./$buildscript | tee -a $build_txt
     ./$buildscript >>$build_txt 2>&1 &
@@ -6159,7 +6519,7 @@ exit \$res
 EOF
     chmod ug+x $installscript
 # Use the installation script
-    techo "Installing $1-cc4py in $PWD using $installscript at `date`." | tee -a $install_txt
+    techo "Installing $1-cc4py in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
     techo "$cmd"
     techo ./$installscript | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
@@ -6436,6 +6796,7 @@ EOF
     statusfound="${statusfound} - failed installs"
   fi
   if test -n "$testFailures"; then
+    addHtmlLine 4 "Failed Tests: $testFailures" RED $ABSTRACT
     statusfound="${statusfound} - failed tests"
     for tfaildir in $testFailures; do
       local builddirvar=`genbashvar $tfaildir`_BUILD_DIR
@@ -6597,7 +6958,7 @@ EOF
       if $cmd 2>&1; then
         destdirok=true
       else
-        techo "WARNING: Cannot Group write perms not set on ${ABSTRACT_HOST}:$abstractdir."
+        techo "WARNING [summarize]: Cannot Group write perms not set on ${ABSTRACT_HOST}:$abstractdir."
       fi
     else
 # Destination directory does not exist, so we create and ensure group write
@@ -6606,8 +6967,8 @@ EOF
         ssh $ABSTRACT_HOST chmod g=rwxs,o=rx $abstractdir
         destdirok=true
       else
-        techo "WARNING: Cannot create $abstractdir on $ABSTRACT_HOST."
-        techo "WARNING: $cmd"
+        techo "WARNING [summarize]: Cannot create $abstractdir on $ABSTRACT_HOST."
+        techo "WARNING [summarize]: $cmd"
       fi
     fi
 
@@ -6622,27 +6983,27 @@ EOF
         techo "Copy of abstract succeeded.  Making group writable."
         cmd="ssh $ABSTRACT_HOST chmod g=rw,o=r $abstractdest"
       else
-        techo "WARNING: Failed to copy ${ABSTRACT} to $ABSTRACT_HOST."
+        techo "WARNING [summarize]: Failed to copy ${ABSTRACT} to $ABSTRACT_HOST."
       fi
     else
-      techo "WARNING: Could not make $abstractdir on $ABSTRACT_HOST."
+      techo "WARNING [summarize]: Could not make $abstractdir on $ABSTRACT_HOST."
     fi
 
   else
     if ! $SEND_ABSTRACT; then
-      techo "WARNING: Not copying abstract as not requested."
+      techo "WARNING [summarize]: Not copying abstract as not requested."
     elif test -z "$ABSTRACT_HOST"; then
-      techo "WARNING: Not copying abstract as ABSTRACT_HOST is undefined."
+      techo "WARNING [summarize]: Not copying abstract as ABSTRACT_HOST is undefined."
     else
-      techo "WARNING: Not copying abstract as ABSTRACT_ROOTDIR is undefined."
+      techo "WARNING [summarize]: Not copying abstract as ABSTRACT_ROOTDIR is undefined."
     fi
   fi
 
 # Determine whether quitting
   if test -n "$2"; then
-    echo "$BILDER_NAME completed at `date` with result = '$2'." >>$SUMMARY
+    echo "$BILDER_NAME completed at `date +%F-%T` with result = '$2'." >>$SUMMARY
   else
-    echo "$BILDER_NAME completed at `date`." >>$SUMMARY
+    echo "$BILDER_NAME completed at `date +%F-%T`." >>$SUMMARY
   fi
   echo "" >>$SUMMARY
   echo "END OF SUMMARY" >>$SUMMARY
@@ -6672,14 +7033,28 @@ emailerror() {
 #
 emailSummary() {
 
-# Parse options
+# Defaults
   local subject=
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  while getopts "s:" arg; do
+    case "$arg" in
+      s) subject="$OPTARG";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+if false; then
   while test -n "$1"; do
     case "$1" in
       -s) subject="$2"; shift;;
     esac
     shift
   done
+fi
 
 # Always construct subject for email as it uses as a marker for finish of build
   subject=${subject:-"$EMAIL_SUBJECT"}
@@ -6695,20 +7070,30 @@ emailSummary() {
 }
 
 #
-# Cleanup builds
+# Request termination at next opportunity
 #
-cleanup() {
-  techo "cleanup called for $BILDER_NAME.  Killing all pending builds."
+requestTermination() {
+  techo "Termination requested." 1>&2
+  techo "$TERMINATE_ERROR_MSG" 1>&2
+  EMAIL_SUBJECT="$TERMINATE_ERROR_MSG"
   TERMINATE_REQUESTED=true
-  pidsKilled="$PIDLIST"
-  trimvar pidsKilled ' '
-  if test -n "$PIDLIST"; then
-    for PID in $PIDLIST; do
-      techo "kill $PID"
-      kill $PID 2>/dev/null
-    done
-  fi
-  finish "-" 1
+}
+
+#
+# Exit
+#
+exitOnError() {
+  techo "$TERMINATE_ERROR_MSG" 1>&2
+  exit 3
+}
+
+#
+# Terminate (gracefully)
+#
+terminate() {
+  requestTermination
+  cleanup
+  exitOnError
 }
 
 #
@@ -6719,7 +7104,7 @@ getSphinxMathArg() {
     defineMathJaxLocCmake
   else
     # Need to define the common URL
-    echo "WARNING: MathJax location unknown."
+    echo "WARNING [getSphinxMathArg]: MathJax location unknown."
   fi
 }
 
@@ -6769,7 +7154,7 @@ getDeps() {
         TERMINATE_ERROR_MSG="Catastrophic error in getDeps.  Bilder package file, $pkgfile, not found."
 # Cannot use cleanup here, as the print gives the dependencies
         techo "$TERMINATE_ERROR_MSG" 1>&2
-        exit 1
+        exitOnError
       fi
       cmd="source $pkgfile"
       techo "$cmd" 1>&2
@@ -6858,7 +7243,7 @@ buildChain() {
   shift $(($OPTIND - 1))
 
 # Determine the packages to build
-  local buildpkgs=`echo $* | sed 's/ /,/g'`
+  local buildpkgs=`echo $* | sed -e 's/ /,/g' -e 's?/??g'`
   trimvar buildpkgs ','
   echo $buildpkgs >$PROJECT_DIR/lastbuildpkgs.txt
 
@@ -6936,7 +7321,7 @@ buildChain() {
       TERMINATE_ERROR_MSG="Catastrophic error in buildChain: Bilder package file, $pkgfile, not found."
 # Cannot use cleanup here, as the print gives the dependencies
       techo "$TERMINATE_ERROR_MSG" 1>&2
-      exit 1
+      exitOnError
     fi
 
 # Look for commands and execute
@@ -6945,7 +7330,7 @@ buildChain() {
       TERMINATE_ERROR_MSG="Catastrophic error in buildChain: build method for $pkg not found."
 # Cannot use cleanup here, as the print gives the dependencies
       techo "$TERMINATE_ERROR_MSG" 1>&2
-      exit 1
+      exitOnError
     else
       techo "Using package file: $pkgfile"
     fi
@@ -6954,7 +7339,7 @@ buildChain() {
       if ! $cmd2 1>&2; then
         techo "$cmd2" 1>&2
         TERMINATE_ERROR_MSG="Catastrophic error in buildChain: error in sourcing $pkgfile."
-        cleanup
+        exitOnError
       else
 # Determine the full list of builds
          local bldsvar=`genbashvar ${pkg}`_BUILDS
@@ -6971,12 +7356,12 @@ buildChain() {
       $cmd
       techo "--------------------------------${dashend}"
     else
-      techo "WARNING: test method for $pkg not found."
+      techo "WARNING [buildChain]: test method for $pkg not found."
     fi
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="Catastrophic error in buildChain: install method for $pkg not found."
-      cleanup
+      exitOnError
     fi
     techo "--------> Executing $cmd <--------"
     $cmd

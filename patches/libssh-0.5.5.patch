@@ -1,0 +1,16 @@
+diff -ruN libssh-0.5.5/examples/sample.c libssh-0.5.5-new/examples/sample.c
+--- libssh-0.5.5/examples/sample.c	2013-07-26 00:39:39.000000000 -0600
++++ libssh-0.5.5-new/examples/sample.c	2014-02-07 14:55:22.000000000 -0700
+@@ -94,12 +94,8 @@
+     "  -p port : connect to port\n"
+     "  -d : use DSS to verify host public key\n"
+     "  -r : use RSA to verify host public key\n"
+-#ifdef WITH_PCAP
+     "  -P file : create a pcap debugging file\n"
+-#endif
+-#ifndef _WIN32
+     "  -T proxycommand : command to execute as a socket proxy\n"
+-#endif
+     		,
+     ssh_version(0));
+     exit(0);

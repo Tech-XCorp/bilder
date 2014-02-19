@@ -47,6 +47,22 @@ buildTeaspink() {
   #DM 11/29/2012: Currently teaspink can't be built in parallel.
   TEASPINK_MAKEJ_ARGS=
 
+# Check if building documentation
+  case "$DOCS_BUILDS" in
+    "teaspinkdocs")
+      techo "Will build teaspink documentation."
+      TEASPINK_SER_OTHER_ARGS="${TEASPINK_SER_OTHER_ARGS} -DBUILD_TEASPINK_DOCS:BOOL=TRUE"
+      ;;
+    "")
+      techo "Not building teaspink documentation."
+      TEASPINK_SER_OTHER_ARGS="${TEASPINK_SER_OTHER_ARGS} -DBUILD_TEASPINK_DOCS:BOOL=FALSE"
+      ;;
+    *)
+      techo "Unrecognised argument for option '-D'."
+      techo "For teaspink documentation use '-D teaspinkdocs'."
+      ;;
+  esac
+
 # Regular build
   if test $res = 0; then
     if bilderConfig -c teaspink par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_PAR_OTHER_ARGS"; then

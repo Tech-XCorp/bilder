@@ -17,7 +17,7 @@ NUMEXPR_BLDRVERSION_EXP=${NUMEXPR_BLDRVERSION_EXP:-"2.2.2"}
 
 ######################################################################
 #
-# Builds and deps
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 

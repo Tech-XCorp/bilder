@@ -141,51 +141,52 @@ testTables() {
 
 installTables() {
 
-# Determine libraries, compatibility name/soname
-  local hdf5shlib=
-  local hdf5shlink=
-  local instopts=
+# Determine installation args
   case `uname` in
-    CYGWIN*)
-      hdf5shdir=$HDF5_CC4PY_DIR/bin
-      if echo $TABLES_ENV | grep HDF5_LIBNAMES_LACK_DLL; then
-        hdf5shlib=hdf5.dll
-      else
-        hdf5shlib=hdf5dll.dll
-      fi
-      instopts=-n
-      ;;
-    Darwin)
-      hdf5shdir=$HDF5_CC4PY_DIR/lib
-      hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
-echo "hdf5shlib=$hdf5shlib"
-      hdf5shlink=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
-      instopts="-r tables"
-      ;;
-    Linux)
-      hdf5shdir=$HDF5_CC4PY_DIR/lib
-      hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
-      # hdf5shlink=`objdump -p $hdf5shdir/$hdf5shlib | grep SONAME | sed 's/^.*SONAME *//'`
-      instopts="-r tables"
-      ;;
+    CYGWIN*) instopts=-n;;
+    *) instopts="-r tables";;
   esac
 
 # Install library if not present, make link if needed
   if bilderDuInstall $instopts tables "$TABLES_ARGS" "$TABLES_ENV"; then
+
+# Determine libraries, compatibility name/soname
+    local hdf5shlib=
+    local hdf5shlink=
+    local instopts=
+    case `uname` in
+      CYGWIN*)
+        hdf5shdir=$HDF5_CC4PY_DIR/bin
+        if echo $TABLES_ENV | grep HDF5_LIBNAMES_LACK_DLL; then
+          hdf5shlib=hdf5.dll
+        else
+          hdf5shlib=hdf5dll.dll
+        fi
+        ;;
+      Darwin)
+        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
+        hdf5shname=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
+        ;;
+      Linux)
+        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
+        ;;
+    esac
+
+# Get shared lib installed and names changed inside it.
     local tablesinstdir=${PYTHON_SITEPKGSDIR}/tables
-    if ! test -f $tablesinstdir/$hdf5shlib; then
-      techo "$tablesinstdir/$hdf5shlib missing.  Will install."
-      /usr/bin/install -m 775 $hdf5shdir/$hdf5shlib $tablesinstdir
-    fi
-    if test -n "$hdf5shlink" -a "$hdf5shlink" != "$hdf5shlib"; then
-      cmd="(cd $tablesinstdir; ln -sf $hdf5shlib $hdf5shlink)"
-      techo "$cmd"
-      eval "$cmd"
-    fi
+    installRelShlib $hdf5shlib $tablesinstdir $hdf5shdir
+
+# Change names inside tables so's.
     if test `uname` = Darwin; then
+      hdf5shlink=`basename $hdf5shname`
       local extensions=`find $tablesinstdir -name '*Extension.so' -print`
+      if test -z "$extensions"; then
+        extensions=`find $tablesinstdir -name '*extension.so' -print`
+      fi
       for i in $extensions; do
-        cmd="install_name_tool -change $hdf5shlink @rpath/$hdf5shlink $i"
+        cmd="install_name_tool -change $hdf5shname @rpath/$hdf5shlink $i"
         techo "$cmd"
         $cmd
         cmd="install_name_tool -add_rpath @loader_path/ $i"

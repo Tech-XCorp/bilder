@@ -33,7 +33,7 @@ case `uname` in
     ;;
 esac
 
-GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON  -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc'"
+GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc'"
 
 ######################################################################
 #
@@ -41,7 +41,8 @@ GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL
 #
 ######################################################################
 
-#addtopathvar PATH $CONTRIB_DIR/geant4/bin
+addtopathvar PATH $CONTRIB_DIR/geant4/bin
+
 
 ######################################################################
 #
@@ -75,5 +76,16 @@ testGeant4() {
 
 installGeant4() {
   bilderInstall -r geant4 ser geant4
+   local GEANT4_HOME="$BLDR_INSTALL_DIR/geant4"
+   export G4DATA="$GEANT4_HOME/share/Geant4-9.6.2/data"
+   export G4LEDATA="$G4DATA/G4EMLOW6.32"
+   export G4LEVELGAMMADATA="$G4DATA/PhotonEvaporation2.3"
+   export G4NEUTRONXSDATA="$G4DATA/G4NEUTRONXS1.2"
+   export G4SAIDXSDATA="$G4DATA/G4SAIDDATA1.1"
+
+# The following lines introduce new env vars such as
+# G4INSTALL, G4INCLUDE etc.  Not sure if we use them as they are no cmake.
+#  . $GEANT4_HOME/bin/geant4.sh
+#  . $GEANT4_HOME/share/Geant4-9.6.2/geant4make/geant4make.sh
 }
 

@@ -28,6 +28,8 @@ for i in /usr/lib64/libfreetype.so.6 /usr/lib64/libpng.so.0 /usr/lib64/libpng.so
   fi
 done
 cd -
+
+REPLACE_COMPILERS=true
 # These vary from cray to cray
 case $UQMAILHOST in
 

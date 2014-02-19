@@ -48,15 +48,18 @@ esac
 #
 ######################################################################
 
+setQtGlobalVars() {
 # Only the python build is needed
-case `uname`-`uname -r` in
-  Darwin-13.*) QT_BUILDS=NONE;; # Until 4.8.6 comes out.
-  *) QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"};;
-esac
-QT_BUILD=$FORPYTHON_BUILD
-QT_DEPS=bzip2
-QT_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/qt-$FORPYTHON_BUILD/bin
+  case `uname`-`uname -r` in
+    Darwin-13.*) QT_BUILDS=NONE;; # Until 4.8.6 comes out.
+    *) QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"};;
+  esac
+  QT_BUILD=$FORPYTHON_BUILD
+  QT_DEPS=bzip2
+  QT_UMASK=002
+  addtopathvar PATH $CONTRIB_DIR/qt-$FORPYTHON_BUILD/bin
+}
+setQtGlobalVars
 
 ######################################################################
 #
@@ -71,62 +74,64 @@ buildQt() {
   QT_GXX_LINKED=false
 
 # QT must be built in place
-  if bilderUnpack -i qt; then
+  if ! bilderUnpack -i qt; then
+    return
+  fi
 
 # Set the link as needed
-    case `uname` in
-      Linux | Darwin)
-        if test "$(basename $PYC_CXX)" != g++ -a ! -f ${CONTRIB_DIR}/bin/g++; then
-          QT_GXX_LINKED=true
-          mkdir -p ${CONTRIB_DIR}/bin
-          ln -s `which $PYC_CXX` ${CONTRIB_DIR}/bin/g++
-          addtopathvar PATH $CONTRIB_DIR/bin
-        fi
-        ;;
-    esac
+  case `uname` in
+    Linux | Darwin)
+      if test "$(basename $PYC_CXX)" != g++ -a ! -f ${CONTRIB_DIR}/bin/g++; then
+        QT_GXX_LINKED=true
+        mkdir -p ${CONTRIB_DIR}/bin
+        ln -s `which $PYC_CXX` ${CONTRIB_DIR}/bin/g++
+        addtopathvar PATH $CONTRIB_DIR/bin
+      fi
+      ;;
+  esac
 
 # Get variables.  Per platform.  Just do mac for now.
-    local QT_PLATFORM_ARGS=
-    local QT_ENV=
-    local QT_PHONON_ARGS=-phonon
-    case `uname` in
+  local QT_PLATFORM_ARGS=
+  local QT_ENV=
+  local QT_PHONON_ARGS=-phonon
+  case `uname` in
 
-      Darwin)
+    Darwin)
 # jpeg present, but qt cannot find headers
-        case `uname -r` in
-          13.*)
+      case `uname -r` in
+        13.*)
 # This will need to be clang
-            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
-            ;;
-          1[0-2].*)
-            case `uname -m` in
-              i386) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64";;
-              *)
-                QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
-                ;;
-            esac
-            ;;
-        esac
-        case $QT_BLDRVERSION in
-          5.*) ;;
-          *) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -cocoa";;
-        esac
-        ;;
+          QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
+          ;;
+        1[0-2].*)
+          case `uname -m` in
+            i386) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64";;
+            *)
+              QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
+              ;;
+          esac
+          ;;
+      esac
+      case $QT_BLDRVERSION in
+        5.*) ;;
+        *) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -cocoa";;
+      esac
+      ;;
 
-      Linux)
+    Linux)
 # Adding to the LD_RUN_PATH gets rpath set for the qt libs.
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
 # with a comma.
-        QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
-        case `uname -m` in
-          x86_64)
-            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++-64"
-            ;;
-          *)
-            QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++"
-            ;;
-        esac
+      QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
+      case `uname -m` in
+        x86_64)
+          QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++-64"
+          ;;
+        *)
+          QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++"
+          ;;
+      esac
 
 # Need the following for phonon (and for webkit):
 #   glib
@@ -138,118 +143,118 @@ buildQt() {
 # Look for that, and if present add the appropriate flags.
 # These should perhaps be Bilderized, but the resulting separate-dir
 # installation would make the qt flags a bit more complications
-        local extras_libdir=
-        if test -e $CONTRIB_DIR/extras/lib; then
-          extras_libdir=$CONTRIB_DIR/extras/lib
-        fi
-        if test -n "${extras_libdir}"; then
-          QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
-        fi
+      local extras_libdir=
+      if test -e $CONTRIB_DIR/extras/lib; then
+        extras_libdir=$CONTRIB_DIR/extras/lib
+      fi
+      if test -n "${extras_libdir}"; then
+        QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
+      fi
 
 # Add system include directories if present.  This should not be duplication,
 # as the above should be built only when these are not found.
 # The paths on redhat are:
 #  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
 #  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
-        local incdir=
-        local libdir=
+      local incdir=
+      local libdir=
 # qt will not compile with gstreamer-1.0, so specifically look for 0.10
-        for i in gstreamer-0.10 libxml2; do
+      for i in gstreamer-0.10 libxml2; do
 # Get the latest
-          incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
-          if test -z "$incdir"; then
-            incdir=`ls -1d $CONTRIB_DIR/extras/include/$i{,-*} 2>/dev/null | tail -1`
-          fi
-          if test -n "$incdir"; then
-            QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
-          else
-            techo "WARNING: [qt.sh] May need to install ${i}-devel."
-          fi
-# Looks like this is not used?
-          # if test -n "$libdir"; then
-            # QT_PHONON_ARGS="$QT_PHONON_ARGS -L$libdir"
-          # fi
-        done
-# glib a little special to deal with versions
-        incdir=`ls -1d /usr/include/glib-* 2>/dev/null | tail -1`
+        incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
+        if test -z "$incdir"; then
+          incdir=`ls -1d $CONTRIB_DIR/extras/include/$i{,-*} 2>/dev/null | tail -1`
+        fi
         if test -n "$incdir"; then
           QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
         else
-          techo "WARNING: [qt.sh] May need to install glib-devel."
+          techo "WARNING: [qt.sh] May need to install ${i}-devel."
         fi
+# Looks like this is not used?
+        # if test -n "$libdir"; then
+          # QT_PHONON_ARGS="$QT_PHONON_ARGS -L$libdir"
+        # fi
+      done
+# glib a little special to deal with versions
+      incdir=`ls -1d /usr/include/glib-* 2>/dev/null | tail -1`
+      if test -n "$incdir"; then
+        QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
+      else
+        techo "WARNING: [qt.sh] May need to install glib-devel."
+      fi
 # On different distros, this include directory can be in different places
-        local glibbn=`basename $incdir`
-        if test "i686" == `uname -m`; then
-          srchdirs="lib lib64 lib/x86_64-linux-gnu"
-        else
-          srchdirs="lib64 lib/x86_64-linux-gnu lib"
+      local glibbn=`basename $incdir`
+      if test "i686" == `uname -m`; then
+        srchdirs="lib lib64 lib/x86_64-linux-gnu"
+      else
+        srchdirs="lib64 lib/x86_64-linux-gnu lib"
+      fi
+      local glibincdir=
+      for l in $srchdirs; do
+        if test -d /usr/$l/$glibbn/include; then
+          glibincdir=/usr/$l/$glibbn/include
+          break
         fi
-        local glibincdir=
-        for l in $srchdirs; do
-          if test -d /usr/$l/$glibbn/include; then
-            glibincdir=/usr/$l/$glibbn/include
-            break
-          fi
-        done
-        if test -n "$glibincdir"; then
-          QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir"
-        else
-          techo "WARNING: [qt.sh] glib word-size include dir not found."
-          techo "WARNING: [qt.sh] May need to install glib-devel."
-        fi
-        local gstprobe=`find /usr/include -name gstappsrc.h`
-        if test -z "$gstprobe"; then
-          techo "WARNING: [qt.sh] May need to install gstreamer-plugins-base-devel."
-        fi
+      done
+      if test -n "$glibincdir"; then
+        QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir"
+      else
+        techo "WARNING: [qt.sh] glib word-size include dir not found."
+        techo "WARNING: [qt.sh] May need to install glib-devel."
+      fi
+      local gstprobe=`find /usr/include -name gstappsrc.h`
+      if test -z "$gstprobe"; then
+        techo "WARNING: [qt.sh] May need to install gstreamer-plugins-base-devel."
+      fi
 # Adjust for possible change to typedef in glib
-        if grep -q 'union *_GMutex' $incdir/glib/gthread.h; then
-          techo "Adjusting Qt for change in gthread.h."
-          local qtgtypedefs=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
-          cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qtgtypedefs"
-          techo "$cmd"
-          eval "$cmd"
-        fi
-        ;;
+      if grep -q 'union *_GMutex' $incdir/glib/gthread.h; then
+        techo "Adjusting Qt for change in gthread.h."
+        local qtgtypedefs=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
+        cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qtgtypedefs"
+        techo "$cmd"
+        eval "$cmd"
+      fi
+      ;;
 
-    esac
+  esac
 
 # PyQt will not build on Linux when Qt is built without phonon, so restoring.
 # Phonon is also required for WebKit, which the composers need.
 # On Linux, this requires glib-devel and gstreamer-plugins-base-devel
-    QT_WITH_PHONON=${QT_WITH_PHONON:-"true"}
-    if ! $QT_WITH_PHONON; then
-      techo "NOTE: Building Qt without phonon."
-      QT_PHONON_ARGS=-no-phonon
-    fi
+  QT_WITH_PHONON=${QT_WITH_PHONON:-"true"}
+  if ! $QT_WITH_PHONON; then
+    techo "NOTE: Building Qt without phonon."
+    QT_PHONON_ARGS=-no-phonon
+  fi
 
 # Version dependent args
 # qt-5 configures differently
 # make -j does not work with 4.8.4, apparently.
-    case $QT_BLDRVERSION in
-      5.*)
-        QT_VERSION_ARGS="-developer-build"
-        ;;
-      4.8.4)
-        QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
-        ;;
-      4.*)
-        QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
-        QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
-        ;;
-    esac
+  case $QT_BLDRVERSION in
+    5.*)
+      QT_VERSION_ARGS="-developer-build"
+      ;;
+    4.8.4)
+      QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
+      ;;
+    4.*)
+      QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
+      QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
+      ;;
+  esac
 
 # Restore dbus and xmlpatterns or get wrong one
-    local qtotherargs=`deref QT_${QT_BUILD}_OTHER_ARGS`
-    if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $qtotherargs" "" "$QT_ENV"; then
+  local qtotherargs=`deref QT_${QT_BUILD}_OTHER_ARGS`
+  if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $qtotherargs" "" "$QT_ENV"; then
 # Make clean seems to hang
-      bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
-    else
+    bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
+  else
 # Remove linked file if present
-      if $QT_GXX_LINKED; then
-        rm ${CONTRIB_DIR}/bin/g++
-      fi
+    if $QT_GXX_LINKED; then
+      rm -f ${CONTRIB_DIR}/bin/g++
     fi
   fi
+
 }
 
 ######################################################################
@@ -268,84 +273,15 @@ testQt() {
 #
 ######################################################################
 
-postInstallQt() {
-
-# On Mac, we change the names of the library files
-# And their cross links
-# To remove references to the build directory
-# NOTE: The "stock" qt install uses unqualified paths for everything
-#       HOWEVER, this will not work for us, because we're not installing
-#       in the default Framework search path (/Library/Frameworks/)
-#       SO, we need to make the libraries point to each other using the
-#       full path of the installation.
-#       As a result, the installed copy of qt may NOT be moved
-    case `uname` in
-      Darwin)
-# Taken from build_visit
-        QtTopDir="${CONTRIB_DIR}/qt-${QT_BLDRVERSION}-$QT_BUILD"
-# TODO - this should really do a listing of the lib directory
-# instead of depending on a hard-coded list of libraries
-        QtFrameworks="QtAssistant QtCore QtGui QtHelp QtMultimedia QtNetwork QtOpenGL QtSql QtTest QtWebKit QtXml"
-        for QtFW in $QtFrameworks; do
-          filename="$QtTopDir/lib/${QtFW}.framework/${QtFW}"
-          debugFilename="${filename}_debug"
-          oldSOName=$(otool -D $filename | tail -n -1)
-          oldDebugSOName=$(otool -D $debugFilename | tail -n -1)
-          internalFWPath=$(echo $oldSOName | sed -e 's/.*\.framework\///')
-          internalDebugFWPath=$(echo $oldDebugSOName | sed -e 's/.*\.framework\///')
-# These are the original lines, which install a relative path
-          # newSOName="@executable_path/../lib/${QtFW}.framework/$internalFWPath"
-          # newDebugSOName="@executable_path/../lib/${QtFW}.framework/$internalDebugFWPath"
-# These are the "new" lines that install a path-less library name, and so
-# relies on DYLD_LIBRARY_PATH.
-          newSOName="${QtFW}.framework/$internalFWPath"
-	  newDebugSOName="${QtFW}.framework/$internalDebugFWPath"
-          install_name_tool -id $newSOName $filename
-          install_name_tool -id $newDebugSOName $debugFilename
-# This loop changes the name of THIS library in all the OTHER libraries
-          for otherQtFW in $QtFrameworks; do
-            install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}
-            install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}_debug
-# QtCLucene is not a framework, so it's a special case
-	    install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/libQtCLucene.dylib
-	    install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/libQtCLucene_debug.dylib
-          done
-        done
-
-# once more for QtCLucene
-        filenameROOT="${QtTopDir}/lib/libQtCLucene"
-        debugFilename="${filenameROOT}_debug.dylib"
-	filename="${filenameROOT}.dylib"
-	techo "filename is ${filename}"
-        oldSOName=$(otool -D $filename | tail -n -1)
-	techo "for QtCLucene, oldSOName is ${oldSOName}"
-        oldDebugSOName=$(otool -D $debugFilename | tail -n -1)
-        internalFWPath=$(echo $oldSOName | sed -e 's/.*\lib\///')
-	techo "for QtCLUcene,internalFWPath is ${internalFWPath}"
-        internalDebugFWPath=$(echo $oldDebugSOName | sed -e 's/.*\lib\///')
-# These are the new lines which install a no-path library name
-        newSOName="${internalFWPath}"
-        newDebugSOName="${internalDebugFWPath}"
-	techo "Calling install_name_tool -d ${newSOName} ${filename}"
-        install_name_tool -id $newSOName $filename
-        install_name_tool -id $newDebugSOName $debugFilename
-        for otherQtFW in $QtFrameworks; do
-	    techo "Calling install_name_tool ${oldSOName} ${newSOName} on file $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}"
-          install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}
-          install_name_tool -change $oldSOName $newSOName $QtTopDir/lib/${otherQtFW}.framework/${otherQtFW}_debug
-        done
-        ;;
-
-    esac
-
-}
-
-# Fix up various problems with QT installations
+#
+# Fix up various problems (badl links) with QT installations
+# We used to change the installation names on qt like VisIt, but now
+# VisIt takes care of that in its build system.
 #
 fixQtInstall() {
 # Remove linked file if present
   if $QT_GXX_LINKED; then
-    rm ${CONTRIB_DIR}/bin/g++
+    rm -f ${CONTRIB_DIR}/bin/g++
   fi
 # Fix the bad node that Qt leaves behind on a Darwin installation.
 # (Seems not to do this on an overinstallation?)
@@ -366,10 +302,11 @@ fixQtInstall() {
       fi
       ;;
   esac
-# Set the perms to open for Qt.
-  setOpenPerms $CONTRIB_DIR/qt-$QT_BLDRVERSION-$QT_BUILD
 }
 
+#
+# Install Qt
+#
 installQt() {
 
   local qt_tried=false
@@ -377,7 +314,7 @@ installQt() {
   if test -n "$qtpid"; then
     qt_tried=true
   fi
-  if bilderInstall -r qt $QT_BUILD; then
+  if bilderInstall -r -p open qt $QT_BUILD; then
     fixQtInstall
     findQt
   elif $qt_tried; then
@@ -390,7 +327,7 @@ EOF
     cd $BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD
     make -i install 2>&1 | tee qt-install2.txt
     bilderBuild qt $QT_BUILD "$QT_MAKEJ_ARGS"
-    if bilderInstall -r qt $QT_BUILD; then
+    if bilderInstall -r -p open qt $QT_BUILD; then
       fixQtInstall
       findQt
     else

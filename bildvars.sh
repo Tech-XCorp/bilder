@@ -11,7 +11,8 @@
 
 ######################################################################
 #
-# If installer hosts set or testing set, always make packages
+# Posting to the depot means copying installers to a predetermined 
+# host. Thus there are some addition requirements for doing this.
 #
 ######################################################################
 
@@ -20,18 +21,16 @@ if $POST2DEPOT; then
     techo "No INSTALLER_HOST or INSTALLER_ROOTDIR specified."
     POST2DEPOT=false
     techo "Turning off post to depot: POST2DEPOT=$POST2DEPOT."
+  else
+    # One needs installers to post to depot, so ensure they are built
+    BUILD_INSTALLERS=true
   fi
 fi
 
-# If testing or posting, force building packages
-if $TESTING || $POST2DEPOT; then
-  techo "Either testing or posting to depot, so building packages."
-  BUILD_INSTALLERS=true
-fi
 if $BUILD_INSTALLERS; then
-  techo "Will build packages."
+  techo "Will build installers."
 else
-  techo "Will not build packages."
+  techo "Will not build installers."
 fi
 
 ######################################################################
@@ -174,32 +173,22 @@ case `uname` in
     if ! echo $PATH | egrep -q "(^|:)/usr/local/bin($|:)"; then
       PATH="$PATH":/usr/local/bin
     fi
+    PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
     case "$OSVER" in
       9.[4-8].*)
         READLINK=stat
         PYC_CC=${PYC_CC:-"gcc-4.0"}
         PYC_CXX=${PYC_CXX:-"g++-4.0"}
         PYC_LDSHARED=${PYC_LDSHARED:-"gcc-4.0"}
-        PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
       10.[0-4].*)
         READLINK=readlink
-        # PYC_MODFLAGS=${PYC_MODFLAGS:-"-bundle -undefined dynamic_lookup -arch i386 -arch x86_64"}
-# 16Jan2010: arch flags appear not to be needed on Darwin 10.5.0.
-# Needed on earlier 10.X?
-        PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup -arch i386 -arch x86_64"}
         ;;
       10.[5-9].*)
         READLINK=readlink
-# Scipy fails to build for later versions of 10.X if the -arch arguments are present.
-        PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
       11.* | 12.*)
         READLINK=readlink
-        # PYC_MODFLAGS=${PYC_MODFLAGS:-"-bundle -undefined dynamic_lookup"}
-# 20120329: -bundle seems to be wrong?
-# 20121108: but it was present in many packages without harm.
-        PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
         ;;
       1[3-9].*)
         CC=${CC:-"clang"}
@@ -208,11 +197,11 @@ case `uname` in
         F77=${F77:-"gfortran"}
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+        CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
         # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
-        PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libc++"
+        PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
         ;;
     esac
     QMAKE_PLATFORM_ARGS="-spec macx-g++ -r"
@@ -915,6 +904,7 @@ USING_BUILD_CHAIN=false
 
 techo -2 "Trimming and writing out all variables."
 hostvars="USER BLDRHOSTID FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
+instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CMAKE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
@@ -927,12 +917,12 @@ testvars="BILDER_CTEST_TARGET"
 qtvars="QMAKE_PLATFORM_ARGS QT_BINDIR"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
-instvars="INSTALLER_HOST INSTALLER_ROOTDIR"
+instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
 othervars="USE_ATLAS_CC4PY DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
 
 techo ""
 techo "Environment settings:"
-completevars="RUNNRSYSTEM $hostvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
+completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars BILDER_CHAIN $allvars $linalgargs $iovars $compvars $flagvars $envvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
   trimvar $i ' '
   printvar $i
@@ -944,9 +934,10 @@ env >$BUILD_DIR/bilderenv.txt
 # Various cleanups
 
 # Remove incorrect installations
-if isCcCc4py; then
-  rm -rf $BLDR_INSTALL_DIR/*-cc4py $CONTRIB_DIR/*-cc4py  # Should be sersh
-fi
+# if isCcCc4py; then
+  # rm -rf $BLDR_INSTALL_DIR/*-cc4py $BLDR_INSTALL_DIR/*-cc4py.lnk  # Should be sersh
+  # rm -rf $CONTRIB_DIR/*-cc4py $CONTRIB_DIR/*-cc4py.lnk  # Should be sersh
+# fi
 
 # techo "WARNING: Quitting at end of bildvars.sh."; exit
 

@@ -24,7 +24,7 @@ PSPLINE_BLDRVERSION=${PSPLINE_BLDRVERSION:-"1.1.1-r67+1118"}
 
 PSPLINE_BUILDS=${PSPLINE_BUILDS:-"ser,par"}
 addBenBuild pspline
-PSPLINE_DEPS=fciowrappers
+PSPLINE_DEPS=cmake,fciowrappers
 
 ######################################################################
 #

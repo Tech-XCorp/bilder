@@ -119,8 +119,10 @@ buildNumpy() {
       ;;
     Linux-*)
 	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_CC4PY_DIR}/lib"
-      NUMPY_ARGS="--fcompiler=gnu95"
-      NUMPY_ENV="$DISTUTILS_ENV2"
+      # Handle the case where PYC_FC may not be in path
+      NUMPY_ARGS="--fcompiler=`basename ${PYC_FC}`"
+      local fcpath=`dirname ${PYC_FC}`
+      NUMPY_ENV="$DISTUTILS_ENV2 PATH=${PATH}:${fcpath}"
       ;;
     *)
       techo "WARNING: [numpy.sh] uname `uname` not recognized.  Not building."

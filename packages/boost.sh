@@ -17,13 +17,18 @@
 ######################################################################
 
 # version 1_50_0 does not build with Intel compiler on windows (Pletzer)
-# 1_55_0 does not build with NO_COMPRESSION:
+# 1_55_0 must be patched to build with NO_COMPRESSION:
 #   https://svn.boost.org/trac/boost/ticket/9156
 BOOST_BLDRVERSION_STD=1_53_0
-case `uname`-`uname -r` in
-  Darwin-1[3-9].*) BOOST_BLDRVERSION_EXP=1_55_0;;
-  *) BOOST_BLDRVERSION_EXP=1_53_0;;
-esac
+
+# Boost 1_55_0 does not build using gcc 4.1.2, nor does it seem to build
+# on Lion and Snow Leopard.
+#
+# Ted will build gcc 4.2.4 on qalinux, and we'll perhaps install gcc on
+# the Macs (instead of LLVM), but for now we're sticking with boost 1_53_0.
+
+BOOST_BLDRVERSION_EXP=1_53_0
+#BOOST_BLDRVERSION_EXP=1_55_0
 
 ######################################################################
 #
@@ -32,11 +37,7 @@ esac
 ######################################################################
 
 if test -z "$BOOST_DESIRED_BUILDS"; then
-  BOOST_DESIRED_BUILDS=ser
-# No need for shared library unless that is the library for Python
-  if isCcCc4py; then
-    BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sersh
-  fi
+  BOOST_DESIRED_BUILDS=ser,sersh
 fi
 computeBuilds boost
 addCc4pyBuild boost
@@ -70,19 +71,47 @@ buildBoost() {
 # Determine the toolset
   local toolsetarg_ser=
   local toolsetarg_cc4py=
+  local stdlibargs=
   case `uname`-`uname -r` in
     CYGWIN*-WOW64*)
       toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
       ;;
     CYGWIN-*) ;;
+    Darwin-13.*)
+      case $CXX in
+	*clang++)
+	  stdlibargs="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
+          toolsetarg_ser="toolset=clang"
+          jamfile=tools/build/v2/tools/clang-darwin.jam
+	  ;;
+      esac
+      ;;
     Darwin-12.*)
 # Clang works for g++ as well on Darwin-12
-      toolsetarg_ser="toolset=clang"
+      case $CXX in
+        *clang++ | *g++)
+          toolsetarg_ser="toolset=clang"
+          jamfile=tools/build/v2/tools/clang-darwin.jam
+          ;;
+        *icpc)
+          toolsetarg_ser="toolset=icpc"
+          jamfile=tools/build/v2/tools/icpc-darwin.jam
+          ;;
+      esac
       ;;
     Darwin-*)
       case $CXX in
-        *clang++) toolsetarg_ser="toolset=clang";;
-        *g++) ;;
+        *clang++)
+          toolsetarg_ser="toolset=clang"
+          jamfile=tools/build/v2/tools/clang-darwin.jam
+          ;;
+        *g++)
+          jamfile=tools/build/v2/tools/darwin.jam
+          ;;
+        *icpc)
+          toolsetarg_ser="toolset=icpc"
+          jamfile=tools/build/v2/tools/icpc-darwin.jam
+          ;;
       esac
       ;;
     Linux-*)
@@ -98,7 +127,7 @@ buildBoost() {
   toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
-  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
+  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths ${stdlibargs}"
   local staticlinkargs="link=static"
   local sharedlinkargs="link=shared"
   local sermdlinkargs="link=static"  # Not yet used, but this should be right
@@ -129,34 +158,44 @@ if false; then
 fi
 
   if bilderConfig -i boost ser; then
-# In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+# In-place build, so patch now
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # techo "$cmd"
+    # eval "$cmd"
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost sersh; then
-# In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+# In-place build, so patch now
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # echo "$cmd"
+    # eval "$cmd"
+# Change install_name for osx to be an absolute path
+# For more information, see https://svn.boost.org/trac/boost/ticket/9141
+# (this is already being done in macports & homebrew):
+    local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
+    if test -n "$jamfile"; then
+      techo "Setting install_name to ${BOOST_INSTALL_PREFIX}/lib in $jamfile."
+      sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
+    elif test `uname` = Darwin; then
+      techo "WARNING [boost.sh]: jamfile not known."
+    fi
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost cc4py; then
-# In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+# In-place build, so patch now
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # techo "$cmd"
+    # eval "$cmd"
     bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then
-# In-place build, so done now
-    cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    techo "$cmd"
-    eval "$cmd"
+# In-place build, so patch now
+    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
+    # techo "$cmd"
+    # eval "$cmd"
     bilderBuild -m ./b2 boost ben "$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS stage"
   fi
 
