@@ -4560,7 +4560,7 @@ _
        ;;
   esac
 
-  cat <<_
+  cat <<_ | tee -a $buildscript
 echo Build of $1-$2 completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
