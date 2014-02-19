@@ -4536,8 +4536,25 @@ bilderBuild() {
   if test -n "$envprefix"; then
     echo -n "$envprefix " | tee -a $buildscript
   fi
-  echo "$bildermake $buildargs" | tee -a $buildscript
-  echo 'res=$?' >>$buildscript
+
+# Since CTest builds do not properly indicate failure, we can modify the
+# build script to detect failure by looking for "Error(s) when building
+# project" in the output.
+
+  case "$buildargs" in
+    *Start*) cat <<_ | tee -a $buildscript
+$bildermake $buildargs 2>&1 | tee build$$.out
+res=0
+if grep 'Error(s) when building project' build$$.out >/dev/null; then
+  res=1
+fi
+rm -f build$$.out
+_
+            ;;
+         *) echo "$bildermake $buildargs" | tee -a $buildscript
+            echo 'res=$?' >>$buildscript
+            ;;
+  esac
   echo "echo Build of $1-$2 completed with result = "'$res.' >>$buildscript
   echo 'echo $res >'$bilderaction_resfile >>$buildscript
   echo 'exit $res' >>$buildscript
