@@ -4542,7 +4542,8 @@ bilderBuild() {
 # project" in the output.
 
   case "$buildargs" in
-    *Start*) cat <<_ | tee -a $buildscript
+    NightlyStart|ExperimentalStart|ContinuousStart)
+       cat <<_ | tee -a $buildscript
 $bildermake $buildargs 2>&1 | tee build$$.out
 res=0
 if grep 'Error(s) when building project' build$$.out >/dev/null; then
@@ -4550,14 +4551,20 @@ if grep 'Error(s) when building project' build$$.out >/dev/null; then
 fi
 rm -f build$$.out
 _
-            ;;
-         *) echo "$bildermake $buildargs" | tee -a $buildscript
-            echo 'res=$?' >>$buildscript
-            ;;
+       ;;
+    *)
+       cat <<_ | tee -a $buildscript
+$bildermake $buildargs
+res=$?
+_
+       ;;
   esac
-  echo "echo Build of $1-$2 completed with result = "'$res.' >>$buildscript
-  echo 'echo $res >'$bilderaction_resfile >>$buildscript
-  echo 'exit $res' >>$buildscript
+
+  cat <<_
+echo Build of $1-$2 completed with result = \$res.
+echo \$res > $bilderaction_resfile
+exit \$res
+_
   chmod ug+x $buildscript
   local build_txt=$FQMAILHOST-$1-$2-build.txt
   techo "Building $1-$2 in $PWD using $buildscript at `date +%F-%T`." | tee $build_txt
@@ -5000,10 +5007,10 @@ getForceTests() {
 #
 # Args:
 # 1: package name (e.g., vorpal)
-# 2: suffix (e.g., VpTest) of the test methods.  bilderRun finds the test
+# 2: suffix (e.g., VpTests) of the test methods.  bilderRun finds the test
 #    package file by lower-casing this.  Then it runs the build method,
 #    e.g., buildVpTest to run the tests.
-# 3: (optional) args to make for testing. Default is tests
+# 3: (optional) args to make for testing. Default is 'test'.
 #
 # Named args (must come first)
 #
@@ -5048,7 +5055,7 @@ bilderRunTests() {
   fi
   local tstsname=`echo $2 | tr 'A-Z.-' 'a-z__'`
   local tststarget="$3"
-  tststarget=${tststarget:-"check"}
+  tststarget=${tststarget:-"test"}
 
 # In some cases, the tests are not in their own repo but are part of
 # a larger repo.  Assign the pkg version to the tests.
