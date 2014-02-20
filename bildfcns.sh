@@ -4534,16 +4534,21 @@ bilderBuild() {
   local buildscript=$FQMAILHOST-$1-$2-build.sh
   echo '#!/bin/bash' >$buildscript
   if test -n "$envprefix"; then
-    echo -n "$envprefix " | tee -a $buildscript
+# JRC: This perhaps complicated.  Different approach to capture full line.
+    # echo -n "$envprefix " | tee -a $buildscript
+    bildermake="$envprefix $bildermake"
   fi
 
 # Since CTest builds do not properly indicate failure, we can modify the
 # build script to detect failure by looking for "Error(s) when building
 # project" in the output.
-
+# JRC: no need for tee, as script retains commands.  Do want to see
+# the build command in the log.
   case "$buildargs" in
     NightlyStart|ExperimentalStart|ContinuousStart)
-       cat <<_ | tee -a $buildscript
+       # cat <<_ | tee -a $buildscript
+       cat <<_ >> $buildscript
+echo $bildermake $buildargs
 $bildermake $buildargs 2>&1 | tee build$$.out
 res=0
 if grep 'Error(s) when building project' build$$.out >/dev/null; then
@@ -4553,14 +4558,19 @@ rm -f build$$.out
 _
        ;;
     *)
-       cat <<_ | tee -a $buildscript
+       # cat <<_ | tee -a $buildscript
+       cat <<_ >> $buildscript
+echo $bildermake $buildargs
 $bildermake $buildargs
 res=$?
 _
        ;;
   esac
 
-  cat <<_ | tee -a $buildscript
+# Script puts results into res file in case script no longer a child process
+# by the time of collection.
+  # cat <<_ | tee -a $buildscript
+  cat <<_ >> $buildscript
 echo Build of $1-$2 completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
@@ -4568,9 +4578,11 @@ _
   chmod ug+x $buildscript
   local build_txt=$FQMAILHOST-$1-$2-build.txt
   techo "Building $1-$2 in $PWD using $buildscript at `date +%F-%T`." | tee $build_txt
+  techo "Build command:"
+  techo "$bildermake $buildargs"
   techo "$buildscript" | tee -a $build_txt
   # cat $buildscript | tee -a $build_txt | tee -a $LOGFILE
-  techo "$envprefix $bildermake $buildargs" | tee -a $build_txt
+# JRC: echo comes from script
   ./$buildscript >>$build_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
