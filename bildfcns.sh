@@ -5799,6 +5799,32 @@ bilderInstall() {
         cmd="rmall $instdirval/$instsubdirval"
         techo "$cmd"
         $cmd
+# Remove the link
+        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-//' -e 's/-ser$//'`
+        cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
+        techo "NOTE: not executing '$cmd'"
+        techo "$cmd"
+        # $cmd
+# Remove the link
+        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-//' -e 's/-ser$//'`
+        cmd="rmall $instdirval/$instsubdirlink"
+      fi
+    else
+      techo "Not removing old installation."
+    fi
+
+# Construct installation command
+    local cmvar=`genbashvar $1`_CONFIG_METHOD
+    local cmval=`deref $cmvar`
+    bildermake=${bildermake:-"`getMaker $cmval`"}
+    techo "Package $1 was configured with $cmval."
+    if test "$cmval" = cmake; then
+      envvars="$envvars CMAKE_INSTALL_ALWAYS=1"
+      trimvar envvars ' '
+    fi
+
+# Determine the installation target.  Defined, then to defaults per system.
+    local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
       fi
     else
       techo "Not removing old installation."
