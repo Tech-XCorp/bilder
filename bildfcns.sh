@@ -4367,7 +4367,7 @@ bilderConfig() {
   # out-of-place is needed, we change definition of builddir here
   if test -n "$buildsubdir"; then
     if ! $build_inplace; then
-      (cd $builddir; mkdir -p $buildsubdir) 
+      (cd $builddir; mkdir -p $buildsubdir)
       builddir=$builddir/$buildsubdir
       eval $builddirvar=$builddir
     fi
@@ -5799,6 +5799,12 @@ bilderInstall() {
         cmd="rmall $instdirval/$instsubdirval"
         techo "$cmd"
         $cmd
+# Remove the link
+        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-//' -e 's/-ser$//'`
+        cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
+        techo "NOTE: not executing '$cmd'"
+        techo "$cmd"
+        # $cmd
       fi
     else
       techo "Not removing old installation."
