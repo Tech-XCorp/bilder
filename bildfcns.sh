@@ -6240,7 +6240,7 @@ bilderInstallTestedPkg() {
         techo -2 "bilderInstallTestedPkg calling bilderInstall -t $tstsnm all."
         bilderInstall $removearg -t $tstsnm all
       else
-        techo -2 "bilderInstallTestedPkg not installing $tstsnam at request."
+        techo -2 "bilderInstallTestedPkg not installing $tstsnm at request."
       fi
       return 0
     else
