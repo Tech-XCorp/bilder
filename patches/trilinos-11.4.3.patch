@@ -12496,3 +12496,15 @@ diff -ruN trilinos-11.4.3-clean/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.o
 +#endif // HAVE_TEUCHOS_COMPLEX
 +
 +}
+diff -ruN trilinos-10.12.2/PackagesList.cmake trilinos-10.12.2-new/PackagesList.cmake
+--- trilinos-10.12.2/PackagesList.cmake 2013-11-04 12:29:58.000000000 -0700
++++ trilinos-10.12.2-new/PackagesList.cmake     2014-01-09 21:28:24.742011900 -0700
+@@ -184,8 +184,8 @@
+ PACKAGE_DISABLE_ON_PLATFORMS(TriKota Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Pamgen Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(STK Windows)
+-PACKAGE_DISABLE_ON_PLATFORMS(SEACAS Windows)
++#PACKAGE_DISABLE_ON_PLATFORMS(SEACAS Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Anasazi Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Zoltan Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Isorropia Windows)
