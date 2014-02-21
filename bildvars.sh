@@ -108,16 +108,16 @@ case `uname` in
     fi
     mylink=$(which link)
     if test "$mylink" = /usr/bin/link; then
-      techo "WARNING: Wrong link (/usr/bin/link) in path on cygwin."
-      techo "WARNING: Cannot build some packages."
-      techo "WARNING: 'which link' must return the link executable from Visual Studio."
+      techo "WARNING: [bildvars.sh] Wrong link (/usr/bin/link) in path on cygwin."
+      techo "WARNING: [bildvars.sh] Cannot build some packages."
+      techo "WARNING: [bildvars.sh] 'which link' must return the link executable from Visual Studio."
       return 1
     else
       techo "Correct link, $mylink, found."
     fi
     mysort=$(which sort)
     if test "$mysort" != /usr/bin/sort; then
-      techo "WARNING: Not using /usr/bin/sort from cygwin (found $mysort)."
+      techo "WARNING: [bildvars.sh] Not using /usr/bin/sort from cygwin (found $mysort)."
       return 1
     else
       techo "Correct sort, $mysort, found."
@@ -158,7 +158,7 @@ case `uname` in
   Darwin)
     ATLAS_BUILDS=NONE	# Since using framework Accelerate
     if test -n "$ARCHFLAGS"; then
-      techo "WARNING: ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
+      techo "WARNING: [bildvars.sh] ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
     fi
     ARCHIVER=ar
     SYSTEM_BLAS_SER_LIB="-framework Accelerate"
@@ -395,7 +395,7 @@ if test -n "$WAIT_PACKAGE"; then
     fi
   fi
 else
-  techo "WARNING: WAIT_PACKAGE not set in top bilder script."
+  techo "WARNING: [bildvars.sh] WAIT_PACKAGE not set in top bilder script."
 fi
 
 ######################################################################
@@ -939,5 +939,5 @@ env >$BUILD_DIR/bilderenv.txt
   # rm -rf $CONTRIB_DIR/*-cc4py $CONTRIB_DIR/*-cc4py.lnk  # Should be sersh
 # fi
 
-# techo "WARNING: Quitting at end of bildvars.sh."; exit
+# techo "WARNING: [bildvars.sh] Quitting at end of bildvars.sh."; exit
 

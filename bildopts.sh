@@ -101,7 +101,7 @@ EOF
 #
 processBilderArgs() {
   case "$1" in
-    a) echo "WARNING (Aug 19, 2012): -a no longer valid.  Will be removed Sep. 30, 2012.";;
+    a) echo "WARNING: [bildopts.sh] (Aug 19, 2012): -a no longer valid.  Will be removed Sep. 30, 2012.";;
     A) ADDL_SUPRA_SP=$OPTARG;;
     b) BUILD_DIR=$OPTARG;;
     B) FORCEBUILD_PKGS=${FORCEBUILD_PKGS},$OPTARG;;
@@ -294,7 +294,7 @@ EOF
   techo "PID = $$."
   techo "Logs will appear in $BILDER_LOGDIR."
   if test -d $BILDER_DIR/runr; then
-    techo "WARNING: Obsolete directory, $BILDER_DIR/runr, present.  Remove?"
+    techo "WARNING: [bildopts.sh] Obsolete directory, $BILDER_DIR/runr, present.  Remove?"
   fi
 
   SUMMARY=$BILDER_LOGDIR/${BILDER_NAME}-summary.txt
@@ -324,14 +324,14 @@ EOF
     */builds-i | */builds-v)
       for i in builds builds2 builds-volatile builds-internal buildsv buildsi; do
         if test -d $PROJECT_DIR/$i; then
-          techo "WARNING: Old build directory, $PROJECT_DIR/$i, found.  Remove?"
+          techo "WARNING: [bildopts.sh] Old build directory, $PROJECT_DIR/$i, found.  Remove?"
         fi
       done
       case `uname` in
         CYGWIN*)
           projname=`echo $BILDER_NAME | sed "s/mk//" | sed "s/all//"`
           if test -d /winsame/$USER/$projname/$i; then
-            techo "WARNING: Old build directory, /winsame/$USER/$projname/$i, found.  Remove?"
+            techo "WARNING: [bildopts.sh] Old build directory, /winsame/$USER/$projname/$i, found.  Remove?"
           fi
         ;;
       esac
@@ -363,11 +363,11 @@ EOF
   if diff fbd1.out fbd2.out; then
     techo "findProjectDir is consistent."
   else
-    techo "WARNING: Inconsistency between"
-    techo "WARNING:     findProjectDir in $BILDER_NAME.sh"
-    techo "WARNING:   and"
-    techo "WARNING:     bilder/findProjectDir.sh"
-    techo "WARNING: Please make these consistent."
+    techo "WARNING: [bildopts.sh] Inconsistency between"
+    techo "WARNING: [bildopts.sh]     findProjectDir in $BILDER_NAME.sh"
+    techo "WARNING: [bildopts.sh]   and"
+    techo "WARNING: [bildopts.sh]     bilder/findProjectDir.sh"
+    techo "WARNING: [bildopts.sh] Please make these consistent."
   fi
   rm -f fbd1.out fbd2.out
 

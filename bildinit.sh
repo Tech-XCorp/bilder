@@ -49,7 +49,7 @@ REPLACE_COMPILERS=${REPLACE_COMPILERS:-"false"}
 
 # Get machine specific variables
 if test -n "$CC"; then
-  techo "WARNING: CC set to $CC before sourcing machine file"
+  techo "WARNING: [bildinit.sh] CC set to $CC before sourcing machine file"
 fi
 techo "MACHINE_FILE = \"$MACHINE_FILE\".  FQMAILHOST = \"$FQMAILHOST\"."
 if test -n "$MACHINE_FILE"; then
@@ -70,9 +70,9 @@ if test -n "$MACHINE_FILE"; then
   fi
   if ! $mfilefound; then
     if test -n "$BILDER_CONFDIR"; then
-      techo "WARNING: $MACHINE_FILE not found in $BILDER_CONFDIR or $BILDER_DIR."
+      techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_CONFDIR or $BILDER_DIR."
     else
-      techo "WARNING: $MACHINE_FILE not found in $BILDER_DIR."
+      techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
     fi
   fi
 elif test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/machines/$FQMAILHOST; then
@@ -146,10 +146,10 @@ SVN_BLDRVERSION=`bilderSvn -q --version --quiet | tr -d '\r'`
 techo "Subversion version = $SVN_BLDRVERSION."
 case $SVN_BLDRVERSION in
   1.[8-9].*)
-    techo "WARNING: Subversion version $SVN_BLDRVERSION is too new to work with Jenkins.  Please have 1.6-7.x installed and fix your path."
+    techo "WARNING: [bildinit.sh] Subversion version $SVN_BLDRVERSION is too new to work with Jenkins.  Please have 1.6-7.x installed and fix your path."
     ;;
   1.[1-5].*)
-    techo "WARNING: Subversion version $SVN_BLDRVERSION is too old.  Lacks --trust-server-cert.  Please have 1.6-7.x installed and fix your path."
+    techo "WARNING: [bildinit.sh] Subversion version $SVN_BLDRVERSION is too old.  Lacks --trust-server-cert.  Please have 1.6-7.x installed and fix your path."
     ;;
 esac
 # techo exit; exit
@@ -157,7 +157,7 @@ esac
 # Get various URLs
 BILDER_URL=`bilderSvn info $BILDER_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_BRANCH=`echo $BILDER_URL | sed -e 's?^.*/bilder/code/??'`
-techo "NOTE: BILDER_BRANCH = $BILDER_BRANCH."
+techo "NOTE: [bildinit.sh] BILDER_BRANCH = $BILDER_BRANCH."
 BILDER_BRANCHSHORT=`echo $BILDER_BRANCH | sed -e 's?^.*/??'`
 BILDER_CONFDIR=${BILDER_CONFDIR:-"$BILDER_DIR/runnr"}
 techo "BILDER_CONFDIR = $BILDER_CONFDIR."
