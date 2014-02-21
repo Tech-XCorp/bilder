@@ -4546,7 +4546,6 @@ bilderBuild() {
 # the build command in the log.
   case "$buildargs" in
     NightlyStart|ExperimentalStart|ContinuousStart)
-       # cat <<_ | tee -a $buildscript
        cat <<_ >> $buildscript
 echo $bildermake $buildargs
 $bildermake $buildargs 2>&1 | tee build$$.out
@@ -4558,18 +4557,16 @@ rm -f build$$.out
 _
        ;;
     *)
-       # cat <<_ | tee -a $buildscript
        cat <<_ >> $buildscript
 echo $bildermake $buildargs
 $bildermake $buildargs
-res=$?
+res=\$?
 _
        ;;
   esac
 
 # Script puts results into res file in case script no longer a child process
 # by the time of collection.
-  # cat <<_ | tee -a $buildscript
   cat <<_ >> $buildscript
 echo Build of $1-$2 completed with result = \$res.
 echo \$res > $bilderaction_resfile
