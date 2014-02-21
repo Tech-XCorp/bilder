@@ -5335,7 +5335,7 @@ installRelShlib() {
       techo "ERROR: [$FUNCNAME] $fromlib missing. Cannot install."
       return
     fi
-    techo "NOTE: [$FUNCNAME] installing $fromdir/$lib into $instdir.."
+    techo "NOTE: [$FUNCNAME] installing $fromdir/$lib into $instdir."
     cmd="/usr/bin/install -m 775 $fromdir/$lib $instdir"
     techo "$cmd"
     eval "$cmd"
@@ -5927,7 +5927,7 @@ EOF
         fi
       fi
       if ! $grpset; then
-        techo "NOTE: [$FUNCNAME] Group was not changed."
+        techo "NOTE: [$FUNCNAME] Group of $instdirval/$instsubdirval was not changed."
       fi
 
 # Record installation in installation directory
