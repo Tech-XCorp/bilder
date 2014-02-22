@@ -5806,7 +5806,7 @@ bilderInstall() {
         techo "$cmd"
         $cmd
 # Remove the link
-        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-//' -e 's/-ser$//'`
+        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-/-/' -e 's/-ser$//'`
         cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
         techo "NOTE: [$FUNCNAME] not executing '$cmd'"
         techo "$cmd"
