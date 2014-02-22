@@ -5808,9 +5808,9 @@ bilderInstall() {
 # Remove the link
         local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-/-/' -e 's/-ser$//'`
         cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
-        techo "NOTE: [$FUNCNAME] not executing '$cmd'"
+        # techo "NOTE: [$FUNCNAME] not executing '$cmd'"
         techo "$cmd"
-        # $cmd
+        $cmd
       fi
     else
       techo "Not removing old installation."
