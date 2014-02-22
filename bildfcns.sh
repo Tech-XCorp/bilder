@@ -5646,12 +5646,20 @@ bilderInstall() {
   local envvars="$5"
 
 # Args for installation
+  local setGroup=false
   if test -z "$grpnm" -a -n "$hostids"; then
     techo "WARNING: [$FUNCNAME] Install requested to set group name for host, but no name given."
   elif test -n "$grpnm" -a -z "$hostids"; then
-    techo "WARNING: [$FUNCNAME] Install requested to set group name, but no host set."
+    techo "WARNING: [$FUNCNAME] Install requested to set group name, but no hostids given."
   elif test -n "$grpnm" -a -n "$hostids"; then
     techo -2 "NOTE: [$FUNCNAME] Install will set group to '$grpnm' on host '$hostids'."
+    local hs=`echo $hostids | tr ',' ' '`
+    for h in $hs; do
+      if [[ $FQMAILHOST =~ "$h" ]]; then
+        setGroup=true
+        break
+      fi
+    done
   fi
 
 # If there was a build, the builddir was set
@@ -5904,29 +5912,11 @@ EOF
       esac
 
 # Fix group if requested
-      local grpset=false
-      if test -n "$hostids" -a -n "$grpnm"; then
-        local h=
-        local hs=`echo $hostids | tr ',' ' '`
-        for h in $hs; do
-          # if [[ $FQMAILHOST =~ "$h$" ]]; then
-# JRC: not understood how to match end of word in this syntax
-          if [[ $FQMAILHOST =~ "$h" ]]; then
-            techo "NOTE: [$FUNCNAME] Setting group of $instdirval/$instsubdirval to $grpnm."
-            cmd]"find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            grpset=true
-            break
-          else
-            techo "$h does not match $FQMAILHOST."
-          fi
-        done
-        if ! $grpset; then
-          techo "NOTE: [$FUNCNAME] $FQMAILHOST not found in $hostids."
-        fi
-      fi
-      if ! $grpset; then
+      if $setGroup; then
+        techo "NOTE: [$FUNCNAME] Setting group of $instdirval/$instsubdirval to $grpnm."
+        cmd="find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;"
+        techo "$cmd"
+        eval "$cmd"
         techo "NOTE: [$FUNCNAME] Group of $instdirval/$instsubdirval was not changed."
       fi
 
