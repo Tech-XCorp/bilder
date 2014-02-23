@@ -1,0 +1,11 @@
+diff -ruN numpy-1.8.0/site.cfg.example numpy-1.8.0-new/site.cfg.example
+--- numpy-1.8.0/site.cfg.example	2013-10-30 12:31:41.000000000 -0600
++++ numpy-1.8.0-new/site.cfg.example	2014-02-23 15:33:29.409203000 -0700
+@@ -62,6 +62,7 @@
+ #[DEFAULT]
+ #library_dirs = /usr/local/lib
+ #include_dirs = /usr/local/include
++#libraries = lapack,blas
+ 
+ # Atlas
+ # -----
