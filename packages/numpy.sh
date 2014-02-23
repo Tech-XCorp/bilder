@@ -55,18 +55,39 @@ buildNumpy() {
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # LDFLAGS did not work.  Nor did -Xlinker.
       blasnames="blas, f2c, /NODEFAULTLIB:LIBCMT"
-      blaslapackdir="$CLAPACK_CMAKE_SER_DIR"
+      # if test -n "$CONTRIB_LAPACK_SERSH_DIR"; then
+        # blaslapackdir="$CONTRIB_LAPACK_SERSH_DIR"
+      # else
+        blaslapackdir="$CLAPACK_CMAKE_SER_DIR"
+      # fi
+      if test -n "$ATLAS_SER_DIR"; then
+        local atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      fi
+      blaslapacklibdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      if test -n "$PYC_FC"; then
+        local fdir=`cygpath -am "$PYC_FC"`
+        fdir=`dirname $fdir`
+        # echo "1: fdir = $fdir"
+        fdir=`cygpath -au $fdir`
+        # echo "2: fdir = $fdir"
+        fdir=`(cd $fdir/../lib; pwd -P)`
+        # echo "3: fdir = $fdir"
+        fdir=`cygpath -aw "$fdir" | sed 's/\\\\/\\\\\\\\/g'`
+        # echo "4: fdir = $fdir"
+      fi
       ;;
     CYGWIN*-*mingw*)
       lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blaslapackdir="$LAPACK_CC4PY_DIR"/
+      blaslapacklibdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       ;;
     Linux-*)
       lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
+      blaslapacklibdir="$LAPACK_CC4PY_DIR"/lib
       blaslapackdir="$LAPACK_CC4PY_DIR"/
       ;;
 # Assuming blas and lapack are in the same directory.
@@ -78,7 +99,10 @@ buildNumpy() {
   if test -n "$lapacknames"; then
     case $NUMPY_BLDRVERSION in
       1.8.*)
-        sed -e "s?^#include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^#library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s/^#\[DEFAULT/\[DEFAULT/" <site.cfg.example >numpy/distutils/site.cfg
+        sed -e "s?^#include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = $blaslapacklibdir,$fdir?" -e "s/^#\[DEFAULT/\[DEFAULT/" <site.cfg.example >numpy/distutils/site.cfg
+        if test -n "$atlasdir"; then
+          sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/?library_dirs = $atlasdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+        fi
         ;;
       *)
         sed -e "s?^include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
@@ -104,7 +128,7 @@ buildNumpy() {
 # the build and installation.
     CYGWIN*-*cl*)
       NUMPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-      local fcbase=`basename "$FC_PYC"`
+      local fcbase=`basename "$PYC_FC"`
       if `which "$fcbase" 1>/dev/null 2>&1`; then
         NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
       else
