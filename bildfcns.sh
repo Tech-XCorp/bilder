@@ -6394,6 +6394,8 @@ echo Build of $1-cc4py completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
 EOF
+    sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $buildscript
+    # rm ${buildscript}.bak
     chmod ug+x $buildscript
     techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
     techo "$cmd"
