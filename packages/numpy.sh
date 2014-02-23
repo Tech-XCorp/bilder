@@ -62,6 +62,7 @@ buildNumpy() {
       # fi
       if test -n "$ATLAS_SER_DIR"; then
         local atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
+        local atlaslibdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       fi
       blaslapacklibdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
@@ -101,7 +102,7 @@ buildNumpy() {
       1.8.*)
         sed -e "s?^#include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = $blaslapacklibdir,$fdir?" -e "s/^#\[DEFAULT/\[DEFAULT/" <site.cfg.example >numpy/distutils/site.cfg
         if test -n "$atlasdir"; then
-          sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/?library_dirs = $atlasdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+          sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = $atlaslibdir,$fdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
         fi
         ;;
       *)
