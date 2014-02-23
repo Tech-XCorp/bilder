@@ -73,8 +73,17 @@ buildNumpy() {
   esac
 
 # Create site.cfg
+# Format changed by 1.8.0.  Lines all begin with '#', and lapack_libs
+# and blas_libs no longer specified.  They come from the section by default?
   if test -n "$lapacknames"; then
-    sed -e "s?^include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+    case $NUMPY_BLDRVERSION in
+      1.8.*)
+        sed -e "s?^#include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^#library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s/^#\[DEFAULT/\[DEFAULT/" <site.cfg.example >numpy/distutils/site.cfg
+        ;;
+      *)
+        sed -e "s?^include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+        ;;
+    esac
   fi
 
 # Accumulate link flags for modules, and make ATLAS modifications.
@@ -95,6 +104,12 @@ buildNumpy() {
 # the build and installation.
     CYGWIN*-*cl*)
       NUMPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      local fcbase=`basename "$FC_PYC"`
+      if `which "$fcbase" 1>/dev/null 2>&1`; then
+        NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
+      else
+        techo "WARNING: [$FUNCNAME} $fcbase not found in path."
+      fi
       NUMPY_ENV="$DISTUTILS_ENV"
 # Not adding F90 to VS builds for now.
 # Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?
