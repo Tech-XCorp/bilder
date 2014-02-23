@@ -282,7 +282,7 @@ installAtlas() {
 
         CYGWIN*)
           local instlibdir=$CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-$bld/lib
-          for i in lapack cblas f77blas atlas; do
+          for i in lapack cblas f77blas atlas ptcblas ptf77blas; do
             if test -f $instlibdir/lib${i}.a; then
               cmd="mv $instlibdir/lib${i}.a $instlibdir/${i}.lib"
               techo "$cmd"
