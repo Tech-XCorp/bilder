@@ -33,11 +33,18 @@ NUMPY_DEPS=Python,atlas,clapack_cmake,lapack
 
 buildNumpy() {
 
+# Unpack if needs updating
   if ! bilderUnpack numpy; then
     return
   fi
-
   cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
+
+# numpy can be built with any of
+#   no linear algebra libraries
+#   clapack_cmake (no fortran need)
+#   netlib-lapack (fortran needed)
+#   atlas-clp (atlas built with clp, no fortran needed)
+#   atlas-ser (atlas built with netli-lapack, fortran needed)
 
 # Set the blas and lapack names for site.cfg.  Getting this done
 # here also fixes it for scipy, which relies on the distutils that
@@ -50,12 +57,12 @@ buildNumpy() {
       lapacknames="lapack"
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # LDFLAGS did not work.  Nor did -Xlinker.
-      blasnames="blas, f2c, /NODEFAULTLIB:LIBCMT"
-      # if test -n "$CONTRIB_LAPACK_SERSH_DIR"; then
-        # blaslapackdir="$CONTRIB_LAPACK_SERSH_DIR"
-      # else
-        blaslapackdir="$CLAPACK_CMAKE_SER_DIR"
-      # fi
+      blasnames="blas,f2c,/NODEFAULTLIB:LIBCMT"
+      if test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
+        blaslapackdir="$CONTRIB_LAPACK_SERMD_DIR"
+      else
+        blaslapackdir="$CLAPACK_CMAKE_SERMD_DIR"
+      fi
       if test -n "$ATLAS_SER_DIR"; then
         local atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
         local atlaslibdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
@@ -67,13 +74,9 @@ buildNumpy() {
       if test -n "$PYC_FC"; then
         local fdir=`cygpath -am "$PYC_FC"`
         fdir=`dirname $fdir`
-        # echo "1: fdir = $fdir"
         fdir=`cygpath -au $fdir`
-        # echo "2: fdir = $fdir"
         fdir=`(cd $fdir/../lib; pwd -P)`
-        # echo "3: fdir = $fdir"
         fdir=`cygpath -aw "$fdir" | sed 's/\\\\/\\\\\\\\/g'`
-        # echo "4: fdir = $fdir"
       fi
       ;;
     CYGWIN*-*mingw*)
