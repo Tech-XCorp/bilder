@@ -28,7 +28,7 @@ setLapackGlobalVars() {
 # We cannot rely on system builds, as they get the PIC flags wrong.
 # Need liblapack.a compiled with -fPIC so that we can get the shared
 # ATLAS library, which is needed for numpy.
-  if test -z "$LAPACK_BUILDS"; then
+  if $HAVE_SER_FORTRAN && test -z "$LAPACK_BUILDS"; then
     case `uname`-$CC in
       CYGWIN*-mingw*)
         LAPACK_BUILDS=ser,sersh,sermd
