@@ -208,7 +208,7 @@ buildAtlas() {
       ;;
   esac
 
-# ser build
+# ser build.  Has no /MT or /MD so good for shared or static on Windows.
   if bilderConfig atlas ser "$ATLAS_C_ARGS $ATLAS_F_ARGS $ATLAS_PTR_ARG $ATLAS_SER_LP_ARGS --shared $ATLAS_SER_OTHER_ARGS" "" "$ATLAS_SER_ENV"; then
 # Patch top Makefile for Darwin.
 # Should do this at unpacking time, but do not know which file.
