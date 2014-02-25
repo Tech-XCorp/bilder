@@ -25,6 +25,9 @@ setCLapackCmakeGlobalVars () {
 # E.g., for Windows, modify cygwin.vs.
   CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
   CLAPACK_CMAKE_DEPS=cmake
+  if test $CLAPACK_CMAKE_BUILDS != NONE; then
+    addCc4pyBuild clapack_lapack
+  fi
 }
 setCLapackCmakeGlobalVars
 

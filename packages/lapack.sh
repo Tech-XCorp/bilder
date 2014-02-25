@@ -82,15 +82,16 @@ buildLapack() {
   if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then
     bilderBuild $buildargs lapack ser
   fi
-
+  if bilderConfig lapack sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
+    bilderBuild $buildargs lapack sersh
+  fi
   if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
     bilderBuild $buildargs lapack sersh
   fi
   if bilderConfig lapack cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_CC4PY_OTHER_ARGS"; then
     bilderBuild $buildargs lapack cc4py
   fi
-
-  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
+  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $LAPACK_BEN_OTHER_ARGS"; then
     bilderBuild $buildargs lapack ben
   fi
 
@@ -117,7 +118,7 @@ testLapack() {
 
 installLapack() {
   local anyinstalled=false
-  for bld in ser cc4py ben sersh; do
+  for bld in ser sermd sersh cc4py ben; do
     if bilderInstall lapack $bld; then
       anyinstalled=true
       case `uname` in
