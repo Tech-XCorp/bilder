@@ -180,7 +180,8 @@ setBilderOptions() {
   BILDER_START=`date`
 
 # Universal defaults
-  BILDER_CTEST_TARGET=${BILDER_CTEST_TARGET:-"Experimental"}
+# Use - instead of :- to allow BILDER_CTEST_TARGET to be empty.
+  BILDER_CTEST_TARGET=${BILDER_CTEST_TARGET-"Experimental"} 
   BILDER_LOGDIR=
   BILDER_WAIT_DAYS=0
   BUILD_DEBUG=false
