@@ -1,0 +1,18 @@
+diff -ruN netcdf-4.3.1/CMakeLists.txt netcdf-4.3.1-patch/CMakeLists.txt
+--- netcdf-4.3.1/CMakeLists.txt	2013-12-20 13:01:44.000000000 -0700
++++ netcdf-4.3.1-patch/CMakeLists.txt	2014-02-25 10:42:40.000000000 -0700
+@@ -384,10 +384,10 @@
+ # Option to use Static Runtimes in MSVC
+ IF(MSVC)
+   OPTION(NC_USE_STATIC_CRT "Use static CRT Libraries ('\\MT')." OFF)
+-  IF(NC_USE_STATIC_CRT)
+-    SET(USE_STATIC_CRT ON)
+-    specify_static_crt_flag()
+-  ENDIF()
++  #IF(NC_USE_STATIC_CRT)
++  #  SET(USE_STATIC_CRT ON)
++  #  specify_static_crt_flag()
++  #ENDIF()
+ ENDIF()
+ 
+ # Option to build netCDF Version 2
