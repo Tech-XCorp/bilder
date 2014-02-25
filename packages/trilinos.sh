@@ -40,7 +40,10 @@ esac
 computeBuilds trilinos
 
 # Add in superlu all the time.  May be needed elsewhere
-TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,hdf5,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
+TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
+if echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
+   TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"
+fi
 TRILINOS_UMASK=002
 
 ######################################################################
