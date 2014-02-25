@@ -4453,7 +4453,7 @@ bilderBuild() {
   # techo "NOBUILD = $NOBUILD."
   if $NOBUILD; then
     techo "Not building $1-$2, as NOBUILD = $NOBUILD."
-    return 0
+    return 1
   fi
 
 # Default option values
