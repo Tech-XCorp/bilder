@@ -2561,7 +2561,7 @@ setDefaultPkgVars() {
 #   LINLIB_${BLD}_LIBS, the absolute paths to the libraries
 #   CMAKE_LINLIB_${BLD}_ARGS, the cmake args for finding those libraries
 #   CONFIG_LINLIB_${BLD}_ARGS, the autotools args for finding those libraries
-# where BLD = SER, CC4PY, BEN, and
+# where BLD = SER, SERMD for CLAPACK, CC4PY, BEN, and
 #   LAPACK_${BLD}_${VAR}
 #   BLAS_${BLD}_${VAR}
 # where VAR is one of DIR, LIBRARY_DIRS, LIBRARY_NAMES
@@ -2666,8 +2666,8 @@ findBlasLapack() {
   fi
 
 # Find clapack.  Use it if found and not defined.
-  findContribPackage clapack_cmake lapack ser cc4py ben
-  for BLD in SER SERSH CC4PY BEN; do
+  findContribPackage clapack_cmake lapack ser sermd cc4py ben
+  for BLD in SER SERMD SERSH CC4PY BEN; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveclp=`deref HAVE_CLAPACK_CMAKE_$BLD`
