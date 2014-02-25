@@ -164,7 +164,7 @@ buildNumpy() {
         NUMPY_ARGS="--fcompiler='gnu95' $NUMPY_ARGS"
         NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
       else
-        techo "WARNING: [$FUNCNAME} $fcbase not found in path."
+        techo "WARNING: [numpy.sh] $fcbase not found in path."
       fi
 # Not adding F90 to VS builds for now.
 # Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?
