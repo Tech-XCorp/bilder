@@ -25,6 +25,20 @@ computeVersion numpy
 setNumpyGlobalVars() {
   NUMPY_BUILDS=${NUMPY_BUILDS:-"cc4py"}
   NUMPY_DEPS=Python,atlas,clapack_cmake,lapack
+
+# On Windows numpy can be built with any of
+#   no linear algebra libraries
+#   clapack_cmake (no fortran need)
+#   netlib-lapack (fortran needed)
+#   atlas-clp (atlas built with clp, no fortran needed)
+#   atlas-ser (atlas built with netlib-lapack, fortran needed)
+# These flags determine how numpy is built, with or without fortran, atlas.
+# With neither fortran nor atlas, numpy builds, but scipy will not
+  NUMPY_WIN_USE_FORTRAN=false
+  NUMPY_WIN_USE_ATLAS=false
+# With fortran but not atlas, numpy not yet building.
+  # NUMPY_WIN_USE_FORTRAN=true
+  # NUMPY_WIN_USE_ATLAS=false
 }
 setNumpyGlobalVars
 
@@ -42,42 +56,36 @@ buildNumpy() {
   fi
   cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
 
-# numpy can be built with any of
-#   no linear algebra libraries
-#   clapack_cmake (no fortran need)
-#   netlib-lapack (fortran needed)
-#   atlas-clp (atlas built with clp, no fortran needed)
-#   atlas-ser (atlas built with netlib-lapack, fortran needed)
-
 # Set the blas and lapack names for site.cfg.  Getting this done
 # here also fixes it for scipy, which relies on the distutils that
 # gets installed with numpy.
   local lapacknames
   local blasnames
   local blaslapackdir
-  local NUMPY_USE_FORTRAN=false
-  local NUMPY_USE_ATLAS=false
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
       lapacknames=lapack
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # Worked with 1.6.x, but may not be working with 1.8.X
 # LDFLAGS did not work.  Nor did -Xlinker.
-      if $NUMPY_USE_FORTRAN && test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
+      if $NUMPY_WIN_USE_FORTRAN && test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
         blaslapackdir="$CONTRIB_LAPACK_SERMD_DIR"
         blasnames=blas
       else
         blaslapackdir="$CLAPACK_CMAKE_SERMD_DIR"
         blasnames=blas,f2c
       fi
-      if $NUMPY_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
-        local atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
-        local atlaslibdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-        local atlasincdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-      else
-        local atlasdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
-        local atlaslibdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-        local atlasincdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      local atlasdir=
+      local atlaslibdir=
+      local atlasincdir=
+      if $NUMPY_WIN_USE_ATLAS && $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
+        atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
+        atlaslibdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+        atlasincdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      elif $NUMPY_WIN_USE_ATLAS && test -n "$ATLAS_CLP_DIR"; then
+        atlasdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
+        atlaslibdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+        atlasincdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
       fi
       blaslapacklibdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       blaslapackincdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
@@ -148,15 +156,16 @@ buildNumpy() {
     CYGWIN*-*cl*)
       NUMPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
       local fcbase=`basename "$PYC_FC"`
-      if $NUMPY_USE_FORTRAN && `which "$fcbase" 1>/dev/null 2>&1`; then
+      NUMPY_ENV="$DISTUTILS_ENV"
+      if $NUMPY_WIN_USE_FORTRAN && `which "$fcbase" 1>/dev/null 2>&1`; then
         # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
 # The above specifcation fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
         NUMPY_ARGS="--fcompiler='gnu95' $NUMPY_ARGS"
+        NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
       else
         techo "WARNING: [$FUNCNAME} $fcbase not found in path."
       fi
-      NUMPY_ENV="$DISTUTILS_ENV F90='$fcbase'"
 # Not adding F90 to VS builds for now.
 # Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?
       ;;

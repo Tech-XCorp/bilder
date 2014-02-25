@@ -2640,12 +2640,12 @@ findBlasLapack() {
   done
 
 # Find the lapack in the contrib dir, but use it only if requested.
-  findContribPackage -p CONTRIB_ LAPACK lapack cc4py ben sersh ser
-  setDefaultPkgVars CONTRIB_LAPACK "SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars CONTRIB_LAPACK "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh cc4py ben
+  setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"false"}
   if $USE_CONTRIB_LAPACK; then
-    for BLD in SER SERSH CC4PY BEN; do
+    for BLD in SER SERMD SERSH CC4PY BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       local havecontlp=`deref HAVE_CONTRIB_LAPACK_$BLD`

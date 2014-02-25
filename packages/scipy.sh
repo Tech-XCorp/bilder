@@ -22,8 +22,11 @@ computeVersion scipy
 #
 ######################################################################
 
-SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
-SCIPY_DEPS=numpy,atlas
+setScipyGlobalVars() {
+  SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
+  SCIPY_DEPS=numpy,atlas
+}
+setScipyGlobalVars
 
 #####################################################################
 #
@@ -73,8 +76,20 @@ buildScipy() {
 # Get env and args
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      SCIPY_ARGS="--compiler=msvc --fcompiler=gfortran install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-       SCIPY_ENV="$DISTUTILS_ENV"
+      SCIPY_ARGS="--compiler=msvc --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      SCIPY_ENV="$DISTUTILS_ENV"
+# Scipy requires fortran
+      if test -z "$PYC_FC"; then
+        techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
+        return 1
+      fi
+      if ! $NUMPY_WIN_USE_FORTRAN; then
+        techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
+        return 1
+      fi
+      local fcbase=`basename "$PYC_FC"`
+      SCIPY_ARGS="--fcompiler=gnu95 $SCIPY_ARGS"
+      SCIPY_ENV="$SCIPY_ENV F90='$fcbase'"
 # Need to add LAPACK=<lapack_libdir> BLAS=<blas_libdir> as below.
       # if test -n "$ATLAS_CC4PY_LIBDIR"; then
         # SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
