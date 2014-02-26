@@ -31,9 +31,13 @@ setNumpyGlobalVars() {
 #   atlas-clp (atlas built with clp, no fortran needed)
 #   atlas-ser (atlas built with netlib-lapack, fortran needed)
 # These flags determine how numpy is built, with or without fortran, atlas.
-# With neither fortran nor atlas, numpy builds, but scipy will not
+# Without fortran, numpy builds, but scipy will not.
+# There seems to be a connection between the numpy and scipy builds,
+# with scipy using part of the numpy distutils.
+# On the web, there are various claims:
+# Python has to be 32bit: http://www.andrewsturges.com/2012/05/installing-numpy-for-python-3-in.html
+# Intel 64bit builds exist at http://www.lfd.uci.edu/~gohlke/pythonlibs/
   NUMPY_WIN_USE_FORTRAN=false
-  # NUMPY_USE_ATLAS=false
 # With fortran but not atlas, numpy not yet building.
   # NUMPY_WIN_USE_FORTRAN=$HAVE_SER_FORTRAN
   NUMPY_USE_ATLAS=false
@@ -63,37 +67,43 @@ buildNumpy() {
 # Set the blas and lapack names for site.cfg.  Getting this done
 # here also fixes it for scipy, which relies on the distutils that
 # gets installed with numpy.
-  local lapacknames
-  local blasnames
-  local blaslapackdir
+  local lapacknames=
+  local blasnames=
+# Assuming blas and lapack are in the same directory.
+  local blslpckdir=
   case `uname`-"$CC" in
+
     CYGWIN*-*cl*)
       lapacknames=lapack
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # Worked with 1.6.x, but may not be working with 1.8.X
 # LDFLAGS did not work.  Nor did -Xlinker.
+      blslpckdir=
+      local blslpcklibdir=
+      local blslpckincdir=
       if $NUMPY_WIN_USE_FORTRAN && test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
-        blaslapackdir="$CONTRIB_LAPACK_SERMD_DIR"
+        blslpckdir="$CONTRIB_LAPACK_SERMD_DIR"
         blasnames=blas
       else
-        blaslapackdir="$CLAPACK_CMAKE_SERMD_DIR"
+        blslpckdir="$CLAPACK_CMAKE_SERMD_DIR"
         blasnames=blas,f2c
       fi
+      blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+      blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       local atlasdir=
       local atlaslibdir=
       local atlasincdir=
-      if $NUMPY_USE_ATLAS && $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
-        atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
-        atlaslibdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-        atlasincdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-      elif $NUMPY_USE_ATLAS && test -n "$ATLAS_CLP_DIR"; then
-        atlasdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
-        atlaslibdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-        atlasincdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      if $NUMPY_USE_ATLAS; then
+        if $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
+          atlasdir="$ATLAS_SER_DIR"
+        elif test -n "$ATLAS_CLP_DIR"; then
+          atlasdir="$ATLAS_CLP_DIR"
+        fi
+        atlaslibdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+        atlasincdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+        atlasdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       fi
-      blaslapacklibdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-      blaslapackincdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-      blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       if test -n "$PYC_FC"; then
         local fdir=`cygpath -am "$PYC_FC"`
         fdir=`dirname $fdir`
@@ -102,22 +112,24 @@ buildNumpy() {
         fdir=`cygpath -aw "$fdir" | sed 's/\\\\/\\\\\\\\/g'`
       fi
       ;;
+
     CYGWIN*-*mingw*)
       lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blaslapackdir="$LAPACK_CC4PY_DIR"/
-      blaslapacklibdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-      blaslapackincdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-      blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      blslpckdir="$LAPACK_CC4PY_DIR"/
+      blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+      blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       ;;
+
     Linux-*)
       lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blaslapacklibdir="$LAPACK_CC4PY_DIR"/lib
-      blaslapackincdir="$LAPACK_CC4PY_DIR"/include
-      blaslapackdir="$LAPACK_CC4PY_DIR"/
+      blslpcklibdir="$LAPACK_CC4PY_DIR"/lib
+      blslpckincdir="$LAPACK_CC4PY_DIR"/include
+      blslpckdir="$LAPACK_CC4PY_DIR"/
       ;;
-# Assuming blas and lapack are in the same directory.
+
   esac
 
 # Create site.cfg
@@ -130,13 +142,13 @@ buildNumpy() {
   if test -n "$lapacknames"; then
     case $NUMPY_BLDRVERSION in
       1.8.*)
-        sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blaslapackincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blaslapacklibdir}${sep}$fdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+        sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$fdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
         if test -n "$atlasdir"; then
           sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$fdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
         fi
         ;;
       *)
-        sed -e "s?^include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+        sed -e "s?^include_dirs = /usr/local/?include_dirs = $blslpckdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blslpckdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
         ;;
     esac
   fi
