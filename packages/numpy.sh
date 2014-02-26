@@ -24,8 +24,6 @@ computeVersion numpy
 
 setNumpyGlobalVars() {
   NUMPY_BUILDS=${NUMPY_BUILDS:-"cc4py"}
-  NUMPY_DEPS=Python,atlas,clapack_cmake,lapack
-
 # On Windows numpy can be built with any of
 #   no linear algebra libraries
 #   clapack_cmake (no fortran need)
@@ -35,10 +33,16 @@ setNumpyGlobalVars() {
 # These flags determine how numpy is built, with or without fortran, atlas.
 # With neither fortran nor atlas, numpy builds, but scipy will not
   NUMPY_WIN_USE_FORTRAN=false
-  NUMPY_WIN_USE_ATLAS=false
+  # NUMPY_USE_ATLAS=false
 # With fortran but not atlas, numpy not yet building.
-  # NUMPY_WIN_USE_FORTRAN=true
-  # NUMPY_WIN_USE_ATLAS=false
+  # NUMPY_WIN_USE_FORTRAN=$HAVE_SER_FORTRAN
+  NUMPY_USE_ATLAS=false
+# Can now determine the deps
+  NUMPY_DEPS=Python
+  if $NUMPY_USE_ATLAS; then
+    NUMPY_DEPS=$NUMPY_DEPS,atlas
+  fi
+  NUMPY_DEPS=$NUMPY_DEPS,clapack_cmake,lapack
 }
 setNumpyGlobalVars
 
@@ -78,11 +82,11 @@ buildNumpy() {
       local atlasdir=
       local atlaslibdir=
       local atlasincdir=
-      if $NUMPY_WIN_USE_ATLAS && $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
+      if $NUMPY_USE_ATLAS && $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
         atlasdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
         atlaslibdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
         atlasincdir=`cygpath -aw $ATLAS_SER_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-      elif $NUMPY_WIN_USE_ATLAS && test -n "$ATLAS_CLP_DIR"; then
+      elif $NUMPY_USE_ATLAS && test -n "$ATLAS_CLP_DIR"; then
         atlasdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\
         atlaslibdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
         atlasincdir=`cygpath -aw $ATLAS_CLP_DIR | sed 's/\\\\/\\\\\\\\/g'`\\\\include
@@ -163,6 +167,7 @@ buildNumpy() {
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
         NUMPY_ARGS="--fcompiler='gnu95' $NUMPY_ARGS"
         NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
+        # NUMPY_ENV="PATH=$mingwdir:'$PATH'"
       else
         techo "WARNING: [numpy.sh] $fcbase not found in path."
       fi
