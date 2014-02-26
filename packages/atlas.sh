@@ -28,32 +28,36 @@ fi
 #
 ######################################################################
 
-# techo
-# techo "BUILD_OPTIONAL = $BUILD_OPTIONAL."
-# techo "ATLAS_BUILDS = $ATLAS_BUILDS."
-if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
-  case `uname` in
-    CYGWIN*)
-      # ATLAS_BUILDS=clp
-      if test -n "$FC"; then
-        ATLAS_BUILDS=ser
-      else
+setAtlasGlobalVars() {
+  if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
+    case `uname` in
+      CYGWIN*)
+        ATLAS_BUILDS=clp
+        if test -n "$FC"; then
+          ATLAS_BUILDS=${ATLAS_BUILDS},ser
+        else
+          : # ATLAS_BUILDS=NONE
+        fi
+        if ! isCcCc4py; then
+# Do this way, as ser contains sersh
+          ATLAS_BUILDS=${ATLAS_BUILDS},cc4py
+        fi
+        ;;
+      Darwin)
         ATLAS_BUILDS=NONE
-      fi
-      ;;
-    Darwin)
-      ATLAS_BUILDS=NONE
-      ;;
-    Linux)
-      ATLAS_BUILDS=ser,sersh
-      addCc4pyBuild atlas
-      addBenBuild atlas
-      ;;
-  esac
-fi
-trimvar ATLAS_BUILDS ','
-
-ATLAS_DEPS=lapack
+        ;;
+      Linux)
+        ATLAS_BUILDS=ser,sersh
+        addCc4pyBuild atlas
+        # addBenBuild atlas # Have no ben build
+        ;;
+    esac
+  fi
+  trimvar ATLAS_BUILDS ','
+# Atlas no longer depends on lapack or clapack, as it builds them
+  # ATLAS_DEPS=lapack
+}
+setAtlasGlobalVars
 
 ######################################################################
 #
@@ -167,13 +171,25 @@ buildAtlas() {
     local lapack_tarfilebase=lapack-${LAPACK_BLDRVERSION}
     getPkg $lapack_tarfilebase
     local lapack_tarfile="$GETPKG_RETURN"
+    if test -z ${CLAPACK_CMAKE_BLDRVERSION}; then
+      source $BILDER_DIR/packages/clapack_cmake.sh
+    fi
+    local clapack_tarfilebase=clapack_cmake-${CLAPACK_CMAKE_BLDRVERSION}
+    getPkg $clapack_tarfilebase
+    local clapack_tarfile="$GETPKG_RETURN"
   fi
 
 # Lapack ser args
-  for BLD in SER CC4PY CLP; do
+  for bld in `echo $ATLAS_BUILDS | tr ',' ' '`; do
     if grep -q with-netlib-lapack-tarfile $BUILD_DIR/atlas-$ATLAS_BLDRVERSION/configure; then
-      eval ATLAS_${BLD}_LP_ARGS="--with-netlib-lapack-tarfile='${lapack_tarfile}'"
+      local lpargsvar=`genbashvar ATLAS_${bld}`_LP_ARGS
+      if test $bld = clp; then
+        eval ${lpargsvar}="--with-netlib-lapack-tarfile='${clapack_tarfile}'"
+      else
+        eval ${lpargsvar}="--with-netlib-lapack-tarfile='${lapack_tarfile}'"
+      fi
     else
+# Below not fixed for CLP case
       local lapack_lib=`deref CONTRIB_LAPACK_${BLD}_LIB`
       if test -n "$lapack_lib"; then
         case `uname` in
@@ -184,6 +200,8 @@ buildAtlas() {
         eval ATLAS_${BLD}_LP_ARGS="--with-netlib-lapack='$lapack_lib'"
       fi
     fi
+    eval lpargsval=`deref ${lpargsvar}`
+    techo "${lpargsvar} = ${lpargsval}"
   done
 
 # Get load library path for ser build
