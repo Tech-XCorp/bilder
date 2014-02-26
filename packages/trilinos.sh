@@ -25,23 +25,26 @@ TRILINOS_BLDRVERSION_EXP=11.4.3
 #
 ######################################################################
 
+setTrilinosGlobalVars() {
 # Can add builds in package file only if no add builds defined.
-if test -z "$TRILINOS_DESIRED_BUILDS"; then
-  TRILINOS_DESIRED_BUILDS="serbare,parbare,sercomm,parcomm"
-  case `uname` in
-    CYGWIN* | Darwin) ;;
-    Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,sercommsh,parcommsh,serfull,parfull,serfullsh,parfullsh";;
-  esac
-fi
+  if test -z "$TRILINOS_DESIRED_BUILDS"; then
+    TRILINOS_DESIRED_BUILDS="serbare,parbare,sercomm,parcomm"
+    case `uname` in
+      CYGWIN* | Darwin) ;;
+      Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,sercommsh,parcommsh,serfull,parfull,serfullsh,parfullsh";;
+    esac
+  fi
 # Can remove builds based on OS here, as this decides what can build.
-case `uname` in
+  case `uname` in
     CYGWIN* | Darwin) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh;;
-esac
-computeBuilds trilinos
+  esac
+  computeBuilds trilinos
 
 # Add in superlu all the time.  May be needed elsewhere
-TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,hdf5,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
-TRILINOS_UMASK=002
+  TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,hdf5,boost,openmpi,superlu,swig,numpy,atlas,lapack,clapack_cmake"}
+  TRILINOS_UMASK=002
+}
+setTrilinosGlobalVars
 
 ######################################################################
 #
