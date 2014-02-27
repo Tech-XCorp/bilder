@@ -4545,7 +4545,7 @@ bilderBuild() {
 # JRC: no need for tee, as script retains commands.  Do want to see
 # the build command in the log.
   case "$buildargs" in
-    NightlyStart|ExperimentalStart|ContinuousStart)
+    NightlyStart*|ExperimentalStart*|ContinuousStart*)
        cat <<_ >> $buildscript
 echo $bildermake $buildargs
 $bildermake $buildargs 2>&1 | tee build$$.out
