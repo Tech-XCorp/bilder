@@ -215,11 +215,12 @@ buildAtlas() {
 
 # Atlas does not alway correctly detect 32 versus 64 bit
   case `uname`-`uname -m` in
-    CYGWIN*WOW64-*)
-      ATLAS_PTR_ARG="-b 64"
-      ;;
     CYGWIN*)
-      ATLAS_PTR_ARG="-b 32"
+      if $IS_64BIT; then
+        ATLAS_PTR_ARG="-b 64"
+      else
+        ATLAS_PTR_ARG="-b 32"
+      fi
       ;;
     Linux-i?86)
       ATLAS_PTR_ARG="-b 32"

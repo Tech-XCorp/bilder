@@ -136,11 +136,9 @@ buildBoost() {
     sharedlinkargs="runtime-link=shared $sharedlinkargs"
     sermdlinkargs="runtime-link=shared $sermdlinkargs"
   fi
-  case `uname` in
-    CYGWIN*-WOW64*)
-      BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
-      ;;
-  esac
+  if [[ `uname` =~ CYGWIN ]] && $IS_64BIT; then
+    BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
+  fi
 # Only the shared and cc4py build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags.  For simplicity, use for all.
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
