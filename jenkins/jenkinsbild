@@ -232,15 +232,12 @@ lecho "   BILDER_CTEST_TARGET = $BILDER_CTEST_TARGET"
 # Additional options for mkall-default.sh.
 #
 addlopts=
-if $USE_MINGW; then
-  case `uname` in
-    CYGWIN*WOW64*)
-      addlopts="-m cygwin.mingw64"
-      ;;
-    CYGWIN*)
-      addlopts="-m cygwin.mingw32"
-      ;;
-  esac
+if $USE_MINGW && [[ `uname` =~ CYGWIN ]]; then
+  if test `uname -m` = x86_64 || [[ `uname` =~ WOW ]]; then
+    addlopts="-m cygwin.mingw64"
+  else
+    addlopts="-m cygwin.mingw32"
+  fi
 fi
 
 #
