@@ -78,7 +78,6 @@ buildNumpy() {
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # Worked with 1.6.x, but may not be working with 1.8.X
 # LDFLAGS did not work.  Nor did -Xlinker.
-      blslpckdir=
       local blslpcklibdir=
       local blslpckincdir=
       if $NUMPY_WIN_USE_FORTRAN && test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
@@ -179,8 +178,6 @@ buildNumpy() {
 # The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
         NUMPY_ARGS="--fcompiler=mingw32 $NUMPY_ARGS"
-        # NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
-        # NUMPY_ENV="PATH=$mingwdir:'$PATH'"
       else
         techo "WARNING: [numpy.sh] $fcbase not found in path."
       fi
