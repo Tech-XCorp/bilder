@@ -6013,8 +6013,13 @@ EOF
           local ending=
           local OS=`uname`
           case $OS in
-            CYGWIN*WOW64*) endings="-Win64.exe -Win64-gpu.exe -win_x64.exe -win_x64.zip";;
-            CYGWIN*) endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip";;
+            CYGWIN*)
+              if $IS_64BIT; then
+                endings="-Win64.exe -Win64-gpu.exe -win_x64.exe -win_x64.zip"
+              else
+                endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip"
+              fi
+              ;;
             Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
             Linux) endings="-Linux64.tar.gz -Linux64-gpu.tar.gz -Linux32.tar.gz";;
           esac
