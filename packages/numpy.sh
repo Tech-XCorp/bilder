@@ -37,9 +37,9 @@ setNumpyGlobalVars() {
 # On the web, there are various claims:
 # Python has to be 32bit: http://www.andrewsturges.com/2012/05/installing-numpy-for-python-3-in.html
 # Intel 64bit builds exist at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-  NUMPY_WIN_USE_FORTRAN=false
+  # NUMPY_WIN_USE_FORTRAN=false
 # With fortran but not atlas, numpy not yet building.
-  # NUMPY_WIN_USE_FORTRAN=$HAVE_SER_FORTRAN
+  NUMPY_WIN_USE_FORTRAN=$HAVE_SER_FORTRAN
   NUMPY_USE_ATLAS=false
 # Can now determine the deps
   NUMPY_DEPS=Python
@@ -105,10 +105,8 @@ buildNumpy() {
         atlasdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       fi
       if test -n "$PYC_FC"; then
-        local fdir=`cygpath -am "$PYC_FC"`
+        local fdir=`$PYC_FC --print-file-name=libgfortran.a`
         fdir=`dirname $fdir`
-        fdir=`cygpath -au $fdir`
-        fdir=`(cd $fdir/../lib; pwd -P)`
         fdir=`cygpath -aw "$fdir" | sed 's/\\\\/\\\\\\\\/g'`
       fi
       ;;
@@ -137,7 +135,7 @@ buildNumpy() {
 # and blas_libs no longer specified.  They come from the section by default?
   local sep=':'
   if [[ `uname` =~ CYGWIN ]]; then
-    sep=';'
+    sep=','
   fi
   if test -n "$lapacknames"; then
     case $NUMPY_BLDRVERSION in
@@ -175,10 +173,10 @@ buildNumpy() {
       NUMPY_ENV="$DISTUTILS_ENV"
       if $NUMPY_WIN_USE_FORTRAN && `which "$fcbase" 1>/dev/null 2>&1`; then
         # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
-# The above specifcation fails with
+# The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
-        NUMPY_ARGS="--fcompiler='gnu95' $NUMPY_ARGS"
-        NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
+        NUMPY_ARGS="--fcompiler=mingw32 $NUMPY_ARGS"
+        # NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
         # NUMPY_ENV="PATH=$mingwdir:'$PATH'"
       else
         techo "WARNING: [numpy.sh] $fcbase not found in path."

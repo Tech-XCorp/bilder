@@ -16,11 +16,14 @@
 #
 # Fix path
 PATH=`echo $PATH | sed 's/contrib-vs[0-9]*/contrib-mingw64/g'`
-if test -x /MinGW64/bin/x86_64-w64-mingw32-gcc.exe; then
-  MinGW64_BINDIR=C:/MinGW64/bin
-else
+gccpath=`which x86_64-w64-mingw32-gcc.exe 2>/dev/null`
+if test -z "$gccpath"; then
   echo "Location of gcc unknown.  Quitting."; exit 1
 fi
+# Undo links
+gccpath=`cygpath -am $gccpath`
+gccbindir=`dirname $gccpath`
+MinGW64_BINDIR=$gccbindir
 # Must add mingw64 bindir to path for dlls
 PATH="$PATH:$MinGW64_BINDIR"
 # JRC 21Oct2010: Not needed?
