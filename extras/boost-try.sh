@@ -64,9 +64,9 @@ buildBoost() {
 # Process
   if bilderUnpack boost; then
     local BOOST_ALL_ADDL_ARGS="variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi"
-    case `uname` in
-      CYGWIN*-WOW64*) BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS";;
-    esac
+    if [[`uname` =~ CYGWIN]] && $IS_64BIT; then
+      BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
+    fi
 # Determine the compilers.  This set needs expansion!
     case "$CXX" in
       *pgiCC)
