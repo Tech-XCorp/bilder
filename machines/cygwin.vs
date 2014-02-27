@@ -14,13 +14,6 @@
 # Set defaults for when not run through Bilder
 VERBOSITY=${VERBOSITY:-"0"}
 
-# Determine whether we're on a 32-bit or 64-bit system
-if uname | grep -c 'WOW64' 1>/dev/null; then
-  IS_64BIT=true
-else
-  IS_64BIT=false
-fi
-
 # Do not build atlas by default on Windows.
 # Trilinos has problems, but numpy is building.
 BUILD_ATLAS=${BUILD_ATLAS:-"false"}

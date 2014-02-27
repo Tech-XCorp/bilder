@@ -285,14 +285,13 @@ runnrGetHostVars() {
   if test -z "$RUNNRSYSTEM"; then
     case `uname` in
       CYGWIN*)
-        case `uname -a` in
-          *WOW64*)
-            RUNNRSYSTEM=Win64
-            ;;
-          *)
-            RUNNRSYSTEM=Win32
-            ;;
-        esac
+        if test `uname -m` = x86_64 || [[ `uname` =~ WOW ]]; then
+          IS_64BIT=true
+          RUNNRSYSTEM=Win64
+        else
+          IS_64BIT=true
+          RUNNRSYSTEM=Win32
+        fi
         ;;
       Darwin)
         mach=`uname -m`
@@ -303,11 +302,17 @@ runnrGetHostVars() {
         esac
         rev=`uname -r | sed 's/\.[0-9]*$//'`
         RUNNRSYSTEM=Darwin_${rev}-${mach}
+        IS_64BIT=true
         ;;
       Linux)
 # Linux has processor in 'uname -r'
         # RUNNRSYSTEM=`uname`_`uname -r`-$ccbase
         mach=`uname -m`
+        if test $mach = x86_64; then
+          IS_64BIT=true
+        else
+          IS_64BIT=false
+        fi
 # Strip any machine off rev so not duplicated
         rev=`uname -r | sed "s/\.$mach//"`
 # Get only major-minor of rev
