@@ -13,7 +13,7 @@
 ######################################################################
 
 SCIPY_BLDRVERSION_STD=0.11.0
-SCIPY_BLDRVERSION_EXP=0.13.2
+SCIPY_BLDRVERSION_EXP=0.13.3
 computeVersion scipy
 
 ######################################################################
@@ -67,8 +67,8 @@ buildScipy() {
 # Accumulate linkflags for modules
   local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
-# Determine whether to use atlas
-  if $HAVE_ATLAS_ANY && $USE_ATLAS_CC4PY; then
+# Determine whether to use atlas.  SciPy must go with NumPy in all things.
+  if $NUMPY_USE_ATLAS; then
     techo "Building scipy with ATLAS."
     techo "ATLAS_CC4PY_DIR = $ATLAS_CC4PY_DIR,  ATLAS_CC4PY_LIBDIR = $ATLAS_CC4PY_LIBDIR."
   fi
@@ -76,8 +76,6 @@ buildScipy() {
 # Get env and args
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      SCIPY_ARGS="--compiler=msvc --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-      SCIPY_ENV="$DISTUTILS_ENV"
 # Scipy requires fortran
       if test -z "$PYC_FC"; then
         techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
@@ -87,15 +85,22 @@ buildScipy() {
         techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
         return 1
       fi
+# Determine basic args
+      SCIPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      SCIPY_ARGS="--fcompiler=mingw32 $SCIPY_ARGS"
+      if $NUMPY_USE_ATLAS; then
+        SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
+      else
+        local blslpcklibdir="$CONTRIB_LAPACK_SERMD_DIR"/lib
+        blslpcklibdir=`cygpath -aw $blslpcklibdir | sed 's/\\\\/\\\\\\\\/g'`
+        SCIPY_ENV="$DISTUTILS_ENV LAPACK='${blslpcklibdir}' BLAS='${blslpcklibdir}'"
+      fi
       local fcbase=`basename "$PYC_FC"`
-      SCIPY_ARGS="--fcompiler=gnu95 $SCIPY_ARGS"
-      SCIPY_ENV="$SCIPY_ENV F90='$fcbase'"
-# Need to add LAPACK=<lapack_libdir> BLAS=<blas_libdir> as below.
-      # if test -n "$ATLAS_CC4PY_LIBDIR"; then
-        # SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
-      # else
-        # SCIPY_ENV="$DISTUTILS_ENV LAPACK='C:\winsame\contrib-mingw\lapack-${LAPACK_BLDRVERSION}-ser\lib' BLAS='C:\winsame\contrib-mingw\lapack-${LAPACK_BLDRVERSION}-ser\lib'"
-      # fi
+      if ! which $fcbase 1>/dev/null 2>&1; then
+        techo "ERROR: [$FUNCNAME] Cannot build scipy, as $fcbase is not in PATH."
+        return
+      fi
+      NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
       ;;
     CYGWIN*-*mingw*)
 # Have to install with build to get both prefix and compiler correct.
