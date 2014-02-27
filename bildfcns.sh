@@ -6217,13 +6217,12 @@ bilderInstallTestedPkg() {
   if $hasbuildtests; then
     sitpargs="-h"
   fi
-  if test -z "$tstnm"; then
+  if test -z "$tstsnm"; then
     tstsnm=`echo $2 | tr 'A-Z' 'a-z'`
   fi
   if test -n "$tstsnm"; then
     sitpargs="$sitpargs -n $tstsnm"
-  else
-    techo -2 "NOTE: [$FUNCNAME] Install tested package has no named tests for $1."
+    techo -2 "Will check state of named tests $tstsnm for package $1."
   fi
 
 # Determine the full list of builds and the list after ignoring
