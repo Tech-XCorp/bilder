@@ -91,6 +91,12 @@ buildNumpy() {
       blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
       blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      local flibdir=
+      if test -n "$PYC_FC"; then
+        flibdir=`$PYC_FC --print-file-name=libgfortran.a`
+        flibdir=`dirname $flibdir`
+        flibdir=`cygpath -aw "$flibdir" | sed 's/\\\\/\\\\\\\\/g'`
+      fi
       local atlasdir=
       local atlaslibdir=
       local atlasincdir=
@@ -103,11 +109,6 @@ buildNumpy() {
         atlaslibdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
         atlasincdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
         atlasdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
-      fi
-      if test -n "$PYC_FC"; then
-        local fdir=`$PYC_FC --print-file-name=libgfortran.a`
-        fdir=`dirname $fdir`
-        fdir=`cygpath -aw "$fdir" | sed 's/\\\\/\\\\\\\\/g'`
       fi
       ;;
 
@@ -135,14 +136,16 @@ buildNumpy() {
 # and blas_libs no longer specified.  They come from the section by default?
   local sep=':'
   if [[ `uname` =~ CYGWIN ]]; then
+# Have verified that only the ',' works for the build of NumPy on CYGWIN.
+# But causes problems for SciPy?
     sep=','
   fi
   if test -n "$lapacknames"; then
     case $NUMPY_BLDRVERSION in
       1.8.*)
-        sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$fdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+        sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
         if test -n "$atlasdir"; then
-          sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$fdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+          sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
         fi
         ;;
       *)
