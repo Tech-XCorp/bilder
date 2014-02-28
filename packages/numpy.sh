@@ -41,6 +41,7 @@ setNumpyGlobalVars() {
 # With fortran but not atlas, numpy not yet building.
   NUMPY_WIN_USE_FORTRAN=$HAVE_SER_FORTRAN
   NUMPY_USE_ATLAS=false
+  NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}  # mingw32 is experimental
 # Can now determine the deps
   NUMPY_DEPS=Python
   if $NUMPY_USE_ATLAS; then
@@ -170,14 +171,14 @@ buildNumpy() {
 # build was successful.  Instead one must do any removal before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      NUMPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
       local fcbase=`basename "$PYC_FC"`
       NUMPY_ENV="$DISTUTILS_ENV"
       if $NUMPY_WIN_USE_FORTRAN && `which "$fcbase" 1>/dev/null 2>&1`; then
         # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
 # The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
-        NUMPY_ARGS="--fcompiler=mingw32 $NUMPY_ARGS"
+        NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
       else
         techo "WARNING: [numpy.sh] $fcbase not found in path."
       fi

@@ -86,8 +86,8 @@ buildScipy() {
         return 1
       fi
 # Determine basic args
-      SCIPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-      SCIPY_ARGS="--fcompiler=mingw32 $SCIPY_ARGS"
+      SCIPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      SCIPY_ARGS="--fcompiler=gnu95 $SCIPY_ARGS"
       if $NUMPY_USE_ATLAS; then
         SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
       else

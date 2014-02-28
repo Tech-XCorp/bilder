@@ -1,6 +1,61 @@
+diff -ruN numpy-1.8.0/numpy/distutils/fcompiler/gnu.py numpy-1.8.0-new/numpy/distutils/fcompiler/gnu.py
+--- numpy-1.8.0/numpy/distutils/fcompiler/gnu.py	2013-10-30 12:31:40.000000000 -0600
++++ numpy-1.8.0-new/numpy/distutils/fcompiler/gnu.py	2014-02-28 13:01:45.916408800 -0700
+@@ -302,9 +302,9 @@
+         opt = GnuFCompiler.get_library_dirs(self)
+         if sys.platform == 'win32':
+             c_compiler = self.c_compiler
+-            if c_compiler and c_compiler.compiler_type == "msvc":
+-                target = self.get_target()
+-                if target:
++            # if c_compiler and c_compiler.compiler_type == "msvc":
++            target = self.get_target()
++            if target:
+                     d = os.path.normpath(self.get_libgcc_dir())
+                     root = os.path.join(d, os.pardir, os.pardir, os.pardir, os.pardir)
+                     mingwdir = os.path.normpath(os.path.join(root, target, "lib"))
+@@ -318,19 +318,23 @@
+         if sys.platform == 'darwin':
+             opt.remove('cc_dynamic')
+         if sys.platform == 'win32':
++            if "gfortran" in opt:
++                i = opt.index("gfortran")
++                opt.insert(i+1, "quadmath")
+             c_compiler = self.c_compiler
+             if c_compiler and c_compiler.compiler_type == "msvc":
+                 if "gcc" in opt:
+                     i = opt.index("gcc")
+                     opt.insert(i+1, "mingwex")
+                     opt.insert(i+1, "mingw32")
++                    # opt.insert(i+1, "winpthread")
+             # XXX: fix this mess, does not work for mingw
+             if is_win64():
+                 c_compiler = self.c_compiler
+                 if c_compiler and c_compiler.compiler_type == "msvc":
+-                    return []
++                    pass # return []
+                 else:
+-                    raise NotImplementedError("Only MS compiler supported with gfortran on win64")
++                    pass # raise NotImplementedError("Only MS compiler supported with gfortran on win64")
+         return opt
+ 
+     def get_target(self):
+diff -ruN numpy-1.8.0/numpy/distutils/mingw32ccompiler.py numpy-1.8.0-new/numpy/distutils/mingw32ccompiler.py
+--- numpy-1.8.0/numpy/distutils/mingw32ccompiler.py	2013-10-30 12:31:40.000000000 -0600
++++ numpy-1.8.0-new/numpy/distutils/mingw32ccompiler.py	2014-02-28 13:01:14.887809900 -0700
+@@ -176,7 +176,8 @@
+              target_lang=None):
+         # Include the appropiate MSVC runtime library if Python was built
+         # with MSVC >= 7.0 (MinGW standard is msvcrt)
+-        runtime_library = msvc_runtime_library()
++        # runtime_library = msvc_runtime_library()
++        runtime_library = None
+         if runtime_library:
+             if not libraries:
+                 libraries = []
 diff -ruN numpy-1.8.0/site.cfg.example numpy-1.8.0-new/site.cfg.example
 --- numpy-1.8.0/site.cfg.example	2013-10-30 12:31:41.000000000 -0600
-+++ numpy-1.8.0-new/site.cfg.example	2014-02-23 15:33:29.409203000 -0700
++++ numpy-1.8.0-new/site.cfg.example	2014-02-28 13:00:38.508376700 -0700
 @@ -62,6 +62,7 @@
  #[DEFAULT]
  #library_dirs = /usr/local/lib
