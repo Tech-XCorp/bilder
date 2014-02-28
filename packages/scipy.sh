@@ -145,6 +145,21 @@ buildScipy() {
 # On hopper, cannot include LD_LIBRARY_PATH
   bilderDuBuild scipy "$SCIPY_ARGS" "$SCIPY_ENV"
 
+# On CYGWIN, build may have to be run twice
+  if [[ `uname` =~ CYGWIN ]] && ! waitAction -n scipy-cc4py; then
+    cd $BUILD_DIR/scipy-$SCIPY_BLDRVERSION
+    local buildscript=`ls *-build.sh`
+    if test -z "$buildscript"; then
+      techo "WARNING: [$FUNCNAME] SciPy build script not found."
+    else
+      techo "Re-executing $buildscript."
+      local build_txt=`basename $buildscript .sh`.txt
+      ./$buildscript >>$build_txt 2>&1 &
+      pid=$!
+      addActionToLists scipy-cc4py $pid
+    fi
+  fi
+
 }
 
 ######################################################################
