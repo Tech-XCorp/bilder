@@ -213,15 +213,15 @@ fi
 # Set the environments
 FULLPATH_VS9=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
 FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
-ENV_VS9="VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' PATH='$FULLPATH_VS9' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
+ENV_VS9="PATH='$MINGW64_BINDIR:$FULLPATH_VS9' VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
 # $TECHO "ENV_VS9 = \"$ENV_VS9\""
 FULLPATH_VS10=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS11:%:%"`
 FULLPATH_VS10=`echo $FULLPATH_VS10 | sed "s%:/cygdrive%:$PATH_VS10:/cygdrive%"`
-ENV_VS10="VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' PATH='$FULLPATH_VS10' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
+ENV_VS10="PATH='$MINGW64_BINDIR:$FULLPATH_VS10' VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
 # $TECHO "ENV_VS10 = \"$ENV_VS10\""
 FULLPATH_VS11=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%"`
 FULLPATH_VS11=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`
-ENV_VS11="VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' PATH='$FULLPATH_VS11' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
+ENV_VS11="PATH='$MINGW64_BINDIR:$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
 # $TECHO "ENV_VS11 = \"$ENV_VS11\""
 
 setVs9Vars() {

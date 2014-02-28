@@ -30,7 +30,7 @@ for dr in /TDM-GCC-64 /MinGW64; do
   fi
 done
 if test -n "$MINGW64_BINDIR"; then
-  techo "MinGW64 found: $MINGW64_BINDIR."
+  techo "MinGW64 found: MINGW64_BINDIR = $MINGW64_BINDIR."
 else
   techo "NOTE: MinGW64 not found.  ATLAS and SciPy require installation of MinGW64 per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
 fi
