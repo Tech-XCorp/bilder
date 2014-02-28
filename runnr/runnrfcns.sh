@@ -191,7 +191,8 @@ runnrGetHostVars() {
   if test -z "$RUNNRSYSTEM"; then
     case `uname` in
       CYGWIN*)
-        if test `uname -m` = x86_64 || [[ `uname` =~ WOW ]]; then
+        # if test `uname -m` = x86_64 || [[ `uname` =~ WOW ]]; then
+        if wmic os get osarchitecture | grep -q 64-bit; then
           IS_64BIT=true
           RUNNRSYSTEM=Win64
         else
