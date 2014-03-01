@@ -59,12 +59,17 @@ setNumpyGlobalVars
 
 buildNumpy() {
 
-# Unpack if needs updating
+# Unpack if needs building
   if ! bilderUnpack numpy; then
     return
   fi
-  cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
+# Scipy requires fortran
+  if test -z "$PYC_FC"; then
+    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
+  fi
 
+# Move to build directory
+  cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
 # Set the blas and lapack names for site.cfg.  Getting this done
 # here also fixes it for scipy, which relies on the distutils that
 # gets installed with numpy.
@@ -93,7 +98,7 @@ buildNumpy() {
       blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       local flibdir=
       if test -n "$PYC_FC"; then
-        flibdir=`$PYC_FC --print-file-name=libgfortran.a`
+        flibdir=`$PYC_FC -print-file-name=libgfortran.a`
         flibdir=`dirname $flibdir`
         flibdir=`cygpath -aw "$flibdir" | sed 's/\\\\/\\\\\\\\/g'`
       fi
@@ -172,15 +177,20 @@ buildNumpy() {
 # the build and installation.
     CYGWIN*-*cl*)
       NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-      local fcbase=`basename "$PYC_FC"`
       NUMPY_ENV="$DISTUTILS_ENV"
-      if $NUMPY_WIN_USE_FORTRAN && `which "$fcbase" 1>/dev/null 2>&1`; then
-        # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
+      if $NUMPY_WIN_USE_FORTRAN && test -n "$PYC_FC"; then
+        local fcbase=`basename "$PYC_FC"`
+        if which $fcbase 1>/dev/null 2>&1; then
+          # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
 # The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
-        NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
+          NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
+          NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
+        else
+          techo "WARNING: [$FUNCNAME] Not using fortran.  $fcbase not in path."
+        fi
       else
-        techo "WARNING: [numpy.sh] $fcbase not found in path."
+        techo "WARNING: [$FUNCNAME] Not using fortran.  PYC_FC = $PYC_FC.  NUMPY_WIN_USE_FORTRAN = $NUMPY_WIN_USE_FORTRAN."
       fi
 # Not adding F90 to VS builds for now.
 # Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?

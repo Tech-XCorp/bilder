@@ -36,8 +36,14 @@ setScipyGlobalVars
 
 buildScipy() {
 
+# Determine whether to unpack, whether there is a build
   if ! bilderUnpack scipy; then
     return
+  fi
+# Scipy requires fortran
+  if test -z "$PYC_FC"; then
+    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
+    return 1
   fi
 
   cd $BUILD_DIR/scipy-${SCIPY_BLDRVERSION}
@@ -76,11 +82,6 @@ buildScipy() {
 # Get env and args
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-# Scipy requires fortran
-      if test -z "$PYC_FC"; then
-        techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
-        return 1
-      fi
       if ! $NUMPY_WIN_USE_FORTRAN; then
         techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
         return 1
@@ -100,7 +101,6 @@ buildScipy() {
         techo "ERROR: [$FUNCNAME] Cannot build scipy, as $fcbase is not in PATH."
         return
       fi
-      NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
       ;;
     CYGWIN*-*mingw*)
 # Have to install with build to get both prefix and compiler correct.
