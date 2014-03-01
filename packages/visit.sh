@@ -23,19 +23,22 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 #
 ######################################################################
 
+setVisItGlobalVars() {
 # VisIt is built the way python is built.
-if test -z "$VISIT_DESIRED_BUILDS"; then
-  VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
-  if isCcCc4py; then
-    if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
-      VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+  if test -z "$VISIT_DESIRED_BUILDS"; then
+    VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
+    if isCcCc4py; then
+      if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
+        VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+      fi
     fi
   fi
-fi
-computeBuilds visit
-VISIT_SER_BUILD=$FORPYTHON_BUILD
-VISIT_DEPS=Imaging,hdf5,VTK,qt,cmake
-VISIT_UMASK=002
+  computeBuilds visit
+  VISIT_SER_BUILD=$FORPYTHON_BUILD
+  VISIT_DEPS=VTK,Imaging,numpy,Python,qt,hdf5,cmake
+  VISIT_UMASK=002
+}
+setVisItGlobalVars
 
 ######################################################################
 #
