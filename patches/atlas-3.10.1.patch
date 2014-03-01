@@ -1,0 +1,292 @@
+diff -ruN atlas-3.10.1/Make.top atlas-3.10.1-new/Make.top
+--- atlas-3.10.1/Make.top	2013-01-08 11:15:40.000000000 -0700
++++ atlas-3.10.1-new/Make.top	2014-03-01 09:28:09.865119200 -0700
+@@ -9,12 +9,12 @@
+ 	$(BZIP) error_$(ARCH).tar
+ 
+ leafstart:
+-	cd $(leaf) ; ln -s $(BLDdir)/Make.inc Make.inc
++	cd $(leaf) ; ls -sf $(BLDdir)/Make.inc Make.inc
+ 
+ build:
+ 	cd bin/ ; $(MAKE) xatlas_build
+ 	cd bin/ ; ./xatlas_build $(INSTFLAGS)
+-time: 
++time:
+ 	./xatlbench -dc $(BLDdir)/bin/INSTALL_LOG -dp $(BLDdir)/ARCHS/$(ARCH)
+ C_sanity_test:
+ 	@ echo "BUILDING C TESTERS ONLY (GET F77 FOR MORE COMPLETE TESTING):"
+@@ -89,7 +89,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_PT_PT \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_pt_pt.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_PT_PT
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_PT_PT
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(PTLAPACKlib)" \
+            BLASLIB="$(PTF77BLASlib) $(PTCBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_PT_PT/$(ARCH).out 2>&1
+@@ -104,7 +104,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_PT_AB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_pt_ab.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_PT_AB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_PT_AB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(PTLAPACKlib)" \
+            BLASLIB="$(F77BLASlib) $(CBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_PT_AB/$(ARCH).out 2>&1
+@@ -119,7 +119,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_PT_SB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_pt_sb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_PT_SB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_PT_SB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(PTLAPACKlib)" \
+            BLASLIB="$(BLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_PT_SB/$(ARCH).out 2>&1
+@@ -134,7 +134,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_PT_FB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_pt_fb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_PT_FB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_PT_FB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(PTLAPACKlib)" \
+            BLASLIB="$(FBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_PT_FB/$(ARCH).out 2>&1
+@@ -149,7 +149,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_AL_PT \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_al_pt.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_AL_PT
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_AL_PT
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(LAPACKlib)" \
+            BLASLIB="$(PTF77BLASlib) $(PTCBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_AL_PT/$(ARCH).out 2>&1
+@@ -164,7 +164,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_AL_AB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_al_ab.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_AL_AB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_AL_AB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(LAPACKlib)" \
+            BLASLIB="$(F77BLASlib) $(CBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_AL_AB/$(ARCH).out 2>&1
+@@ -179,7 +179,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_AL_SB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_al_sb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_AL_SB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_AL_SB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(LAPACKlib)" \
+            BLASLIB="$(BLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_AL_SB/$(ARCH).out 2>&1
+@@ -194,7 +194,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_AL_FB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_al_fb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_AL_FB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_AL_FB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(LAPACKlib)" \
+            BLASLIB="$(FBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_AL_FB/$(ARCH).out 2>&1
+@@ -209,7 +209,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_SL_PT \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_sl_pt.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_SL_PT
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_SL_PT
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(SLAPACKlib)" \
+            BLASLIB="$(PTF77BLASlib) $(PTCBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_SL_PT/$(ARCH).out 2>&1
+@@ -224,7 +224,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_SL_AB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_sl_ab.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_SL_AB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_SL_AB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(SLAPACKlib)" \
+            BLASLIB="$(F77BLASlib) $(CBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_SL_AB/$(ARCH).out 2>&1
+@@ -239,7 +239,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_SL_SB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_sl_sb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_SL_SB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_SL_SB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(SLAPACKlib)" \
+            BLASLIB="$(BLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_SL_SB/$(ARCH).out 2>&1
+@@ -254,7 +254,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_SL_FB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_sl_fb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_SL_FB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_SL_FB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(SLAPACKlib)" \
+            BLASLIB="$(FBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_SL_FB/$(ARCH).out 2>&1
+@@ -269,7 +269,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_FL_PT \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_fl_pt.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_FL_PT
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_FL_PT
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(FLAPACKlib)" \
+            BLASLIB="$(PTF77BLASlib) $(PTCBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_FL_PT/$(ARCH).out 2>&1
+@@ -284,7 +284,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_FL_AB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_fl_ab.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_FL_AB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_FL_AB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(FLAPACKlib)" \
+            BLASLIB="$(F77BLASlib) $(CBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_FL_AB/$(ARCH).out 2>&1
+@@ -299,7 +299,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_FL_SB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_fl_sb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_FL_SB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_FL_SB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(FLAPACKlib)" \
+            BLASLIB="$(BLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_FL_SB/$(ARCH).out 2>&1
+@@ -314,7 +314,7 @@
+ 	cd $(BINdir)/LAPACK_TEST ; make cleanup
+ 	- rm -rf $(BINdir)/LAPACK_TEST/LAOUT_FL_FB \
+                  $(BINdir)/LAPACK_TEST/SUMMARY_fl_fb.txt
+-	mkdir $(BINdir)/LAPACK_TEST/LAOUT_FL_FB
++	mkdir -p $(BINdir)/LAPACK_TEST/LAOUT_FL_FB
+ 	cd $(BINdir)/LAPACK_TEST ; make ATL_all LAPACKLIB="$(FLAPACKlib)" \
+            BLASLIB="$(FBLASlib) $(ATLASlib) $(LIBS)" \
+            | tee LAOUT_FL_FB/$(ARCH).out 2>&1
+@@ -325,7 +325,7 @@
+ 	if [ -d "$(BINdir)/AtlasTest/$(ARCH)" ]; then \
+            rm -rf $(BINdir)/AtlasTest/$(ARCH)/* ; \
+         else \
+-           mkdir $(BINdir)/AtlasTest/$(ARCH) ; \
++           mkdir -p $(BINdir)/AtlasTest/$(ARCH) ; \
+         fi
+ 	cd $(BINdir)/AtlasTest/$(ARCH) ; ../configure --atldir=$(BLDdir)
+ scope_full_results: force_build
+@@ -337,7 +337,7 @@
+ 	$(MAKE) -f Make.top $(BINdir)/AtlasTest/$(ARCH)
+ 	cd $(BINdir)/AtlasTest/$(ARCH) ; make | tee $(ARCH).out 2>&1
+ 	$(MAKE) -f Make.top scope_full_results
+-           
++
+ full_test_nh :$(BINdir)/AtlasTest
+ 	$(MAKE) -f Make.top $(BINdir)/AtlasTest/$(ARCH)
+ 	cd $(BINdir)/AtlasTest/$(ARCH) ; nohup make | tee $(ARCH).out 2>&1
+@@ -351,12 +351,12 @@
+ 	echo $(L1Size) > $(SYSdir)/res/L1CacheSize
+ 
+ results:
+-	mkdir results
+-	mkdir results/charts
+-	mkdir results/tvecs
+-	mkdir results/raw
++	mkdir -p results
++	mkdir -p results/charts
++	mkdir -p results/tvecs
++	mkdir -p results/raw
+ EXtest:
+-	mkdir EXtest
++	mkdir -p EXtest
+ startup : lib include results EXtest
+ 	$(MAKE) -f Make.top leafstart leaf=interfaces/lapack/C2F/src
+ 	$(MAKE) -f Make.top leafstart leaf=interfaces/lapack/F77/src
+@@ -404,36 +404,36 @@
+ 	$(MAKE) -f Make.top leafstart leaf=lib
+ 	$(MAKE) -f Make.top leafstart leaf=bin
+ 	cd src/threads ; touch atomic.inc
+-	cd src/blas/gemm ; mkdir KERNEL
+-	cd tune/blas/gemm ; mkdir KERNEL
+-	cd tune/blas/gemm ; mkdir res
+-	cd tune/blas/gemv ; mkdir res
+-	cd tune/blas/ger ; mkdir res
+-	cd tune/blas/level1 ; mkdir res
+-	cd tune/blas/level1 ; mkdir GEN
+-	cd tune/blas/level3 ; mkdir res
+-	cd tune/sysinfo ; mkdir res
+-	cd tune/lapack  ; mkdir res
+-	cd tune/threads ; mkdir res
+-	cd bin ; mkdir INSTALL_LOG
+-	cd tune/blas/gemv ; ln -s $(SRCdir)/tune/blas/gemv/MVTCASES MVTCASES
+-	cd tune/blas/gemv ; ln -s $(SRCdir)/tune/blas/gemv/MVNCASES MVNCASES
+-	cd tune/blas/ger ; ln -s $(SRCdir)/tune/blas/ger/R1CASES R1CASES
+-	cd tune/blas/ger ; ln -s $(SRCdir)/tune/blas/ger/R2CASES R2CASES
+-	cd tune/blas/gemv ; ln -s $(SRCdir)/tune/blas/gemv/CASES CASES
+-	cd tune/blas/gemm ; ln -s $(SRCdir)/tune/blas/gemm/CASES CASES
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/SWAP SWAP
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/SET SET
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/SCAL SCAL
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/ROT ROT
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/NRM2 NRM2
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/IAMAX IAMAX
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/DOT DOT
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/CPSC CPSC
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/COPY COPY
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/AXPY AXPY
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/AXPBY AXPBY
+-	cd tune/blas/level1 ; ln -s $(SRCdir)/tune/blas/level1/ASUM ASUM
++	cd src/blas/gemm ; mkdir -p KERNEL
++	cd tune/blas/gemm ; mkdir -p KERNEL
++	cd tune/blas/gemm ; mkdir -p res
++	cd tune/blas/gemv ; mkdir -p res
++	cd tune/blas/ger ; mkdir -p res
++	cd tune/blas/level1 ; mkdir -p res
++	cd tune/blas/level1 ; mkdir -p GEN
++	cd tune/blas/level3 ; mkdir -p res
++	cd tune/sysinfo ; mkdir -p res
++	cd tune/lapack  ; mkdir -p res
++	cd tune/threads ; mkdir -p res
++	cd bin ; mkdir -p INSTALL_LOG
++	cd tune/blas/gemv ; ls -sf $(SRCdir)/tune/blas/gemv/MVTCASES MVTCASES
++	cd tune/blas/gemv ; ls -sf $(SRCdir)/tune/blas/gemv/MVNCASES MVNCASES
++	cd tune/blas/ger ; ls -sf $(SRCdir)/tune/blas/ger/R1CASES R1CASES
++	cd tune/blas/ger ; ls -sf $(SRCdir)/tune/blas/ger/R2CASES R2CASES
++	cd tune/blas/gemv ; ls -sf $(SRCdir)/tune/blas/gemv/CASES CASES
++	cd tune/blas/gemm ; ls -sf $(SRCdir)/tune/blas/gemm/CASES CASES
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/SWAP SWAP
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/SET SET
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/SCAL SCAL
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/ROT ROT
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/NRM2 NRM2
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/IAMAX IAMAX
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/DOT DOT
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/CPSC CPSC
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/COPY COPY
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/AXPY AXPY
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/AXPBY AXPBY
++	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/ASUM ASUM
+ 	$(MAKE) -f Make.top refresh arch=$(arch)
+ 
+ refresh :
+@@ -590,10 +590,10 @@
+ 	cd bin ; rm -f *.grd
+ 
+ lib :
+-	mkdir lib
++	mkdir -p lib
+ 
+ include:
+-	mkdir include
++	mkdir -p include
+ 	touch include/atlas_ssyr2NX.h
+ 	touch include/atlas_ssyrNX.h
+ 	touch include/atlas_dsyr2NX.h
+@@ -659,11 +659,11 @@
+ 	cp $(LIBdir)/libcblas.a $(INSTdir)/.
+ 	cp $(LIBdir)/liblapack.a $(INSTdir)/.
+ 	chmod 0644 $(INSTdir)/libatlas.a  $(INSTdir)/liblapack.a \
+-                   $(INSTdir)/libcblas.a 
++                   $(INSTdir)/libcblas.a
+ 	- cp $(LIBdir)/libf77blas.a $(INSTdir)/.
+ 	- chmod 0644 $(INSTdir)/libf77blas.a
+ 	- cp $(LIBdir)/libptcblas.a $(INSTdir)/.
+-	- chmod 0644 $(INSTdir)/libptcblas.a 
++	- chmod 0644 $(INSTdir)/libptcblas.a
+ 	- cp $(LIBdir)/libptf77blas.a $(INSTdir)/.
+ 	- chmod 0644 $(INSTdir)/libptf77blas.a
+ 	- cp $(LIBdir)/libsatlas.dylib $(INSTdir)/.
