@@ -196,7 +196,7 @@ runnrGetHostVars() {
           IS_64BIT=true
           RUNNRSYSTEM=Win64
         else
-          IS_64BIT=true
+          IS_64BIT=false
           RUNNRSYSTEM=Win32
         fi
         ;;
