@@ -6402,8 +6402,8 @@ EOF
     # rm ${buildscript}.bak
     chmod ug+x $buildscript
     techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
-    techo "$cmd"
     techo ./$buildscript | tee -a $build_txt
+    techo "$cmd" | tee -a $build_txt
     ./$buildscript >>$build_txt 2>&1 &
     pid=$!
     if test -n "$BLDR_PROJECT_URL"; then
