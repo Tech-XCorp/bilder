@@ -6523,10 +6523,9 @@ bilderDuInstall() {
 
 # Create installation script, as gets env correct when there are spaces
     local installscript=$FQMAILHOST-$1-cc4py-install.sh
-    techo "Creating installation script, $installscript, for command, \"$cmd\", in directory `pwd -P`."
+    techo "Creating installation script, $installscript in directory `pwd -P`."
     cat >$installscript << EOF
 #!/bin/bash
-echo "$cmd"
 $cmd
 res=\$?
 echo Installation of $1-cc4py completed with result = \$res.
@@ -6534,10 +6533,11 @@ echo \$res >bilderinstall.res
 exit \$res
 EOF
     chmod ug+x $installscript
+    sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $installscript
 # Use the installation script
     techo "Installing $1-cc4py in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
-    techo "$cmd"
     techo ./$installscript | tee -a $install_txt
+    techo "$cmd" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
     RESULT=$?
   else
