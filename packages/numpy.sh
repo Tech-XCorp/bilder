@@ -39,7 +39,7 @@ setNumpyGlobalVars() {
 # Intel 64bit builds exist at http://www.lfd.uci.edu/~gohlke/pythonlibs/
   # NUMPY_WIN_USE_FORTRAN=false
 # With fortran but not atlas, numpy not yet building.
-  NUMPY_WIN_USE_FORTRAN=$HAVE_SER_FORTRAN
+  NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
   NUMPY_USE_ATLAS=false
   NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}  # mingw32 is experimental
 # Can now determine the deps
@@ -184,8 +184,10 @@ buildNumpy() {
 # The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
           NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
-          local ccbase=`echo $fcbase | sed 's/fortran/cc/g'`
-          NUMPY_ENV="$NUMPY_ENV CC='$ccbase' F90='$fcbase'"
+          NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
+# Below does not help.  NumPy always uses 'gcc', so one must separate by path.
+          # local ccbase=`echo $fcbase | sed 's/fortran/cc/g'`
+          # NUMPY_ENV="$NUMPY_ENV CC='$ccbase'"
         else
           techo "WARNING: [$FUNCNAME] Not using fortran.  $fcbase not in path."
         fi
