@@ -141,9 +141,8 @@ buildNumpy() {
 # and blas_libs no longer specified.  They come from the section by default?
   local sep=':'
   if [[ `uname` =~ CYGWIN ]]; then
-# Have verified that only the ',' works for the build of NumPy on CYGWIN.
-# But causes problems for SciPy?
-    sep=','
+# In spite of documentation, need semicolon, not comma.
+    sep=';'
   fi
   if test -n "$lapacknames"; then
     case $NUMPY_BLDRVERSION in
@@ -185,15 +184,14 @@ buildNumpy() {
 # The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
           NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
-          NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
+          local ccbase=`echo $fcbase | sed 's/fortran/cc/g'`
+          NUMPY_ENV="$NUMPY_ENV CC='$ccbase' F90='$fcbase'"
         else
           techo "WARNING: [$FUNCNAME] Not using fortran.  $fcbase not in path."
         fi
       else
         techo "WARNING: [$FUNCNAME] Not using fortran.  PYC_FC = $PYC_FC.  NUMPY_WIN_USE_FORTRAN = $NUMPY_WIN_USE_FORTRAN."
       fi
-# Not adding F90 to VS builds for now.
-# Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?
       ;;
     CYGWIN*-*w64-mingw*)
       NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
