@@ -35,45 +35,48 @@ else
   techo "NOTE: MinGW64 not found.  ATLAS and SciPy require installation of MinGW64 per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
 fi
 
-#
-# Atlas requires that the mingw compilers be linked into /usr/bin in Windows
-#
+# Find all the compilers if prefix known.
+if test -n "$MINGW64_BINDIR"; then
 
 # Find the prefix for the compilers.
-MINGW64_PREFIX=
-for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
-  if test -x /usr/bin/${pr}-gcc; then
-    MINGW64_PREFIX=$pr
-    break
-  fi
-done
-
-# Find all the compilers if prefix known.
-if test -n "$MINGW64_PREFIX"; then
-  techo "MinGW64 gcc found, prefix = $MINGW64_PREFIX."
-  for prog in gfortran ar ranlib; do
-    if ! test -e /usr/bin/${MINGW64_PREFIX}-${prog}.exe; then
-      techo "WARNING: ${MINGW64_PREFIX}-${prog}.exe not found."
-      if test -n "$MINGW64_BINDIR"; then
-        if test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe; then
-          techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
-        elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
-          techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
-        else
-          techo "NOTE: Cannot find MinGW64 installation of ${prog}."
-        fi
-      fi
+  MINGW64_PREFIX=
+  for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
+    if test -x ${MINGW64_BINDIR}/${pr}-gcc; then
+      MINGW64_PREFIX=$pr
+      break
     fi
   done
-else
-  techo "NOTE: mingw64 gcc not linked into /usr/bin."
+  techo "MINGW64_PREFIX = $MINGW64_PREFIX."
+
+# Find fortran compiler
+  if test -x ${MINGW64_BINDIR}/${MINGW64_PREFIX}-gfortran.exe; then
+    FC=${FC:-"${MINGW64_BINDIR}/${MINGW64_PREFIX}-gfortran.exe"}
+  fi
+
+# Atlas requires that the mingw compilers be linked into /usr/bin in Windows
+  if test -n "$MINGW64_PREFIX"; then
+    for prog in gfortran ar ranlib; do
+      if ! test -e /usr/bin/${MINGW64_PREFIX}-${prog}.exe; then
+        techo "WARNING: ${MINGW64_PREFIX}-${prog}.exe not found."
+        if test -n "$MINGW64_BINDIR"; then
+          if test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe; then
+            techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+          elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
+            techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+          else
+            techo "NOTE: Cannot find MinGW64 installation of ${prog}."
+          fi
+        fi
+      fi
+    done
+
+  else
+    techo "NOTE: mingw64 gcc not linked into /usr/bin."
+  fi
+
 fi
 
 # Set the fortran compiler
-FC=
-if test -x /usr/bin/${MINGW64_PREFIX}-gfortran.exe; then
-  FC=/usr/bin/${MINGW64_PREFIX}-gfortran.exe
-fi
 if test -n "$FC"; then
   # techo "Found FC = $FC."
   FC=`cygpath -am $FC`

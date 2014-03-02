@@ -97,7 +97,7 @@ buildScipy() {
         SCIPY_ENV="$DISTUTILS_ENV LAPACK='${blslpcklibdir}' BLAS='${blslpcklibdir}'"
       fi
       local fcbase=`basename "$PYC_FC"`
-      if ! which $fcbase 1>/dev/null 2>&1; then
+      if ! eval "$SCIPY_ENV" which $fcbase 1>/dev/null 2>&1; then
         techo "ERROR: [$FUNCNAME] Cannot build scipy, as $fcbase is not in PATH."
         return
       fi
@@ -126,7 +126,7 @@ buildScipy() {
 	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
       ;;
     *)
-      techo "WARNING: [scipy.sh] uname `uname` not recognized.  Not building."
+      techo "WARNING: [$FUNCNAME] uname `uname` not recognized.  Not building."
       return
       ;;
   esac
