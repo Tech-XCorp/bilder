@@ -5917,6 +5917,7 @@ EOF
         cmd="find $instdirval/$instsubdirval -user $USER -exec chgrp $grpnm '{}' \;"
         techo "$cmd"
         eval "$cmd"
+      else
         techo "NOTE: [$FUNCNAME] Group of $instdirval/$instsubdirval was not changed."
       fi
 
