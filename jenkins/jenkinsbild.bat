@@ -82,7 +82,7 @@ cd %JOB_LINK%
 ECHO jenkinsbild.bat: Working in %CD%.
 ECHO jenkinsbild.bat: Working in %CD%. >> jenkinsbild.log
 
-REM Find cygwindir
+REM Find cygwinbasedir
 set CYGWINBASEDIR=C:\cygwin64
 if exist %CYGWINBASEDIR% goto cygwinbasedir64
   set CYGWINBASEDIR=C:\cygwin

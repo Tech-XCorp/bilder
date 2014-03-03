@@ -10,14 +10,20 @@ rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 ECHO jenkinsabs: windows batch script starting up in %CD% with arguments, %*.
 ECHO jenkinsabs.bat starting up in %CD% with arguments, %*. >> jenkinsabs.log
 
-C:\CYGWIN\bin\cygpath %CD% >temp.txt
-set /p CYGWINDIR= < temp.txt
+REM Find cygwinbasedir
+set CYGWINBASEDIR=C:\cygwin64
+if exist %CYGWINBASEDIR% goto cygwinbasedir64
+  set CYGWINBASEDIR=C:\cygwin
+:cygwinbasedir64
+
+%CYGWINBASEDIR%\bin\cygpath %CD% >temp.txt
+set /p CYGWINPROJDIR= < temp.txt
 del temp.txt
-rem ECHO CYGWINDIR= %CYGWINDIR%.
+rem ECHO CYGWINPROJDIR= %CYGWINPROJDIR%.
 rem ECHO 2= %2
 set JENKINSABSERROR=0
 @ECHO on
-C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsabs %*
+%CYGWINBASEDIR%\bin\bash --login %CYGWINPROJDIR%/bilder/jenkins/jenkinsabs %*
 @ECHO off
 if ERRORLEVEL 1 set JENKINSABSERROR=1
 
