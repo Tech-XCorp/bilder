@@ -82,17 +82,22 @@ cd %JOB_LINK%
 ECHO jenkinsbild.bat: Working in %CD%.
 ECHO jenkinsbild.bat: Working in %CD%. >> jenkinsbild.log
 
+REM Find cygwindir
+set CYGWINBASEDIR=C:\cygwin64
+if exist %CYGWINBASEDIR% goto cygwinbasedir64
+  set CYGWINBASEDIR=C:\cygwin
+:cygwinbasedir64
 
-C:\CYGWIN\bin\cygpath %CD% >temp.txt
-REM C:\CYGWIN\bin\cygpath %JOB_LINK% >temp.txt
-set /p CYGWINDIR= < temp.txt
-echo jenkinsbild.bat: CYGWINDIR = %CYGWINDIR%.
-echo jenkinsbild.bat: CYGWINDIR = %CYGWINDIR%.  >> jenkinsbild.log
+%CYGWINBASEDIR%\bin\cygpath %CD% >temp.txt
+REM %CYGWINBASEDIR%\bin\cygpath %JOB_LINK% >temp.txt
+set /p CYGWINPROJDIR= < temp.txt
+echo jenkinsbild.bat: CYGWINPROJDIR = %CYGWINPROJDIR%.
+echo jenkinsbild.bat: CYGWINPROJDIR = %CYGWINPROJDIR%.  >> jenkinsbild.log
 del temp.txt
 set JBILDERR=0
 @ECHO on
-REM C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %*
-C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsbild %BILDER_ARGS%
+REM %CYGWINBASEDIR%\bin\bash --login %CYGWINPROJDIR%/bilder/jenkins/jenkinsbild %*
+%CYGWINBASEDIR%\bin\bash --login %CYGWINPROJDIR%/bilder/jenkins/jenkinsbild %BILDER_ARGS%
 @ECHO off
 if ERRORLEVEL 1 set JBILDERR=1
 
