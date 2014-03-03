@@ -48,30 +48,28 @@ if test -n "$MINGW64_BINDIR"; then
   done
   techo "MINGW64_PREFIX = $MINGW64_PREFIX."
 
-# Find fortran compiler
-  if test -x ${MINGW64_BINDIR}/${MINGW64_PREFIX}-gfortran.exe; then
-    FC=${FC:-"${MINGW64_BINDIR}/${MINGW64_PREFIX}-gfortran.exe"}
-  fi
-
-# Atlas requires that the mingw compilers be linked into /usr/bin in Windows
   if test -n "$MINGW64_PREFIX"; then
+
+# Find fortran compiler
+    if test -x ${MINGW64_BINDIR}/${MINGW64_PREFIX}-gfortran.exe; then
+      FC=${FC:-"${MINGW64_BINDIR}/${MINGW64_PREFIX}-gfortran.exe"}
+    fi
+
+# Atlas requires that the mingw compilers be linked into /usr/bin
+# on Windows
     for prog in gfortran ar ranlib; do
       if ! test -e /usr/bin/${MINGW64_PREFIX}-${prog}.exe; then
-        techo "WARNING: ${MINGW64_PREFIX}-${prog}.exe not found."
-        if test -n "$MINGW64_BINDIR"; then
-          if test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe; then
-            techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
-          elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
-            techo "WARNING: Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
-          else
-            techo "NOTE: Cannot find MinGW64 installation of ${prog}."
-          fi
+        techo "WARNING: [cygwin.vs] ${MINGW64_PREFIX}-${prog}.exe not found."
+        if test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe; then
+          techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+        elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
+          techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+        else
+          techo "NOTE: Cannot find MinGW64 installation of ${prog}."
         fi
       fi
     done
 
-  else
-    techo "NOTE: mingw64 gcc not linked into /usr/bin."
   fi
 
 fi
