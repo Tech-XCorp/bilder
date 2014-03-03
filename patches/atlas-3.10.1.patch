@@ -1,12 +1,130 @@
-diff -ruN atlas-3.10.1/Make.top atlas-3.10.1-new/Make.top
+diff -ruN atlas-3.10.1/CONFIG/src/atlconf_misc.c atlas-3.10-new/CONFIG/src/atlconf_misc.c
+--- atlas-3.10.1/CONFIG/src/atlconf_misc.c	2013-01-08 11:15:42.000000000 -0700
++++ atlas-3.10-new/CONFIG/src/atlconf_misc.c	2014-03-03 15:40:18.749258400 -0700
+@@ -710,6 +710,18 @@
+ 	 p[1] = ' ';
+ 	 p += 2;
+       }
++      else if (path[i] == '(')
++      {
++         *p = '\\';
++         p[1] = '(';
++         p += 2;
++      }
++      else if (path[i] == ')')
++      {
++         *p = '\\';
++         p[1] = ')';
++         p += 2;
++      }
+       else
+          *p++ = path[i];
+    }
+diff -ruN atlas-3.10.1/CONFIG/src/Makefile atlas-3.10-new/CONFIG/src/Makefile
+--- atlas-3.10.1/CONFIG/src/Makefile	2013-01-08 11:15:42.000000000 -0700
++++ atlas-3.10-new/CONFIG/src/Makefile	2014-03-03 15:40:18.749258400 -0700
+@@ -434,31 +434,31 @@
+ DoNothing:
+ 
+ make_subdirs:
+-	mkdir src bin tune interfaces
+-	cd src ; mkdir testing auxil blas lapack pthreads threads
++	mkdir -p src bin tune interfaces
++	cd src ; mkdir -p testing auxil blas lapack pthreads threads
+ 	cd src/blas ; \
+-           mkdir f77reference reference gemv ger gemm kbmm \
++           mkdir -p f77reference reference gemv ger gemm kbmm \
+                  level1 level2 level3 pklevel3
+-	cd src/blas/reference ; mkdir level1 level2 level3
+-	cd src/blas/level2 ; mkdir kernel
+-	cd src/blas/pklevel3 ; mkdir gpmm sprk
+-	cd src/blas/level3 ; mkdir rblas kernel
+-	cd src/pthreads ; mkdir blas misc
+-	cd src/pthreads/blas ; mkdir level1 level2 level3
+-	cd src/threads ; mkdir blas lapack
+-	cd src/threads/blas ; mkdir level3 level2
+-	cd tune ; mkdir blas sysinfo lapack threads
+-	cd tune/blas ; mkdir gemm gemv ger level1 level3
+-	cd interfaces ; mkdir blas lapack
+-	cd interfaces/lapack ; mkdir C F77
+-	cd interfaces/lapack/C ; mkdir src testing
+-	cd interfaces/lapack/F77 ; mkdir src testing
+-	cd interfaces/blas ; mkdir C F77
+-	cd interfaces/blas/C ; mkdir src testing
+-	cd interfaces/blas/F77 ; mkdir src testing
+-	cd interfaces/lapack ; mkdir C2F
+-	cd interfaces/lapack/C2F ; mkdir src
+-	mkdir ARCHS
++	cd src/blas/reference ; mkdir -p level1 level2 level3
++	cd src/blas/level2 ; mkdir -p kernel
++	cd src/blas/pklevel3 ; mkdir -p gpmm sprk
++	cd src/blas/level3 ; mkdir -p rblas kernel
++	cd src/pthreads ; mkdir -p blas misc
++	cd src/pthreads/blas ; mkdir -p level1 level2 level3
++	cd src/threads ; mkdir -p blas lapack
++	cd src/threads/blas ; mkdir -p level3 level2
++	cd tune ; mkdir -p blas sysinfo lapack threads
++	cd tune/blas ; mkdir -p gemm gemv ger level1 level3
++	cd interfaces ; mkdir -p blas lapack
++	cd interfaces/lapack ; mkdir -p C F77
++	cd interfaces/lapack/C ; mkdir -p src testing
++	cd interfaces/lapack/F77 ; mkdir -p src testing
++	cd interfaces/blas ; mkdir -p C F77
++	cd interfaces/blas/C ; mkdir -p src testing
++	cd interfaces/blas/F77 ; mkdir -p src testing
++	cd interfaces/lapack ; mkdir -p C2F
++	cd interfaces/lapack/C2F ; mkdir -p src
++	mkdir -p ARCHS
+ 
+ #
+ # Simple test returns error if directory doesn't exist
+diff -ruN atlas-3.10.1/CONFIG/src/probe_comp.c atlas-3.10-new/CONFIG/src/probe_comp.c
+--- atlas-3.10.1/CONFIG/src/probe_comp.c	2013-01-08 11:15:42.000000000 -0700
++++ atlas-3.10-new/CONFIG/src/probe_comp.c	2014-03-03 15:37:29.037561300 -0700
+@@ -1293,6 +1293,7 @@
+       ln = CheckStrLen(ln, &lnlen, i);
+       sprintf(ln, "find %s -maxdepth 1 -name '*gcc*' -exec ./xisgcc '{}' \\;",
+               sp);
++      fprintf(stderr, "Executing: %s", ln);
+       free(sp);
+       fp = atlsys(NULL, ln, verb, 1);
+       if (fp)
+@@ -1391,6 +1392,7 @@
+       ln = CheckStrLen(ln, &lnlen, i);
+       sprintf(ln,
+          "find %s -maxdepth 1 -name '*gfortran*' -exec ./xisgcc '{}' \\;", sp);
++      printf("Executing: %s", ln);
+       gccs = GetLinesFromFile(atlsys(NULL, ln, verb, 1), gccs);
+       i = SelectBestGcc(verb, targ, cmaj, cmin, gccs);
+       if (i > 1)
+@@ -1448,8 +1450,8 @@
+    {
+       i = 64 + strlen(sp);
+       ln = CheckStrLen(ln, &lnlen, i);
+-      sprintf(ln,
+-         "find %s -maxdepth 1 -name '*gfortran*' -exec ./xisgcc '{}' \\;", sp);
++      sprintf(ln, "find %s -maxdepth 1 -name '*gfortran*' -exec ./xisgcc '{}' \\;", sp);
++      fprintf(stderr, "Executing: %s", ln);
+       free(sp);
+       gccs = GetLinesFromFile(atlsys(NULL, ln, verb, 1), gccs);
+       i = SelectBestGcc(verb, targ, cmaj, cmin, gccs);
+@@ -1549,6 +1551,7 @@
+       i = 64 + lcmp + strlen(sp);
+       ln = CheckStrLen(ln, &lnlen, i);
+       sprintf(ln, "find %s -maxdepth 1 -name '%s'", sp, comp);
++      fprintf(stderr, "Executing: %s", ln);
+       free(sp);
+       gccs = GetLinesFromFile(atlsys(NULL, ln, verb, 1), gccs);
+       free(ln);
+diff -ruN atlas-3.10.1/Make.top atlas-3.10-new/Make.top
 --- atlas-3.10.1/Make.top	2013-01-08 11:15:40.000000000 -0700
-+++ atlas-3.10.1-new/Make.top	2014-03-01 09:28:09.865119200 -0700
++++ atlas-3.10-new/Make.top	2014-03-03 15:40:18.759258500 -0700
 @@ -9,12 +9,12 @@
  	$(BZIP) error_$(ARCH).tar
  
  leafstart:
 -	cd $(leaf) ; ln -s $(BLDdir)/Make.inc Make.inc
-+	cd $(leaf) ; ls -sf $(BLDdir)/Make.inc Make.inc
++	cd $(leaf) ; ln -sf $(BLDdir)/Make.inc Make.inc
  
  build:
  	cd bin/ ; $(MAKE) xatlas_build
@@ -242,24 +360,24 @@ diff -ruN atlas-3.10.1/Make.top atlas-3.10.1-new/Make.top
 +	cd tune/lapack  ; mkdir -p res
 +	cd tune/threads ; mkdir -p res
 +	cd bin ; mkdir -p INSTALL_LOG
-+	cd tune/blas/gemv ; ls -sf $(SRCdir)/tune/blas/gemv/MVTCASES MVTCASES
-+	cd tune/blas/gemv ; ls -sf $(SRCdir)/tune/blas/gemv/MVNCASES MVNCASES
-+	cd tune/blas/ger ; ls -sf $(SRCdir)/tune/blas/ger/R1CASES R1CASES
-+	cd tune/blas/ger ; ls -sf $(SRCdir)/tune/blas/ger/R2CASES R2CASES
-+	cd tune/blas/gemv ; ls -sf $(SRCdir)/tune/blas/gemv/CASES CASES
-+	cd tune/blas/gemm ; ls -sf $(SRCdir)/tune/blas/gemm/CASES CASES
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/SWAP SWAP
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/SET SET
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/SCAL SCAL
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/ROT ROT
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/NRM2 NRM2
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/IAMAX IAMAX
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/DOT DOT
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/CPSC CPSC
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/COPY COPY
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/AXPY AXPY
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/AXPBY AXPBY
-+	cd tune/blas/level1 ; ls -sf $(SRCdir)/tune/blas/level1/ASUM ASUM
++	cd tune/blas/gemv ; ln -sf $(SRCdir)/tune/blas/gemv/MVTCASES MVTCASES
++	cd tune/blas/gemv ; ln -sf $(SRCdir)/tune/blas/gemv/MVNCASES MVNCASES
++	cd tune/blas/ger ; ln -sf $(SRCdir)/tune/blas/ger/R1CASES R1CASES
++	cd tune/blas/ger ; ln -sf $(SRCdir)/tune/blas/ger/R2CASES R2CASES
++	cd tune/blas/gemv ; ln -sf $(SRCdir)/tune/blas/gemv/CASES CASES
++	cd tune/blas/gemm ; ln -sf $(SRCdir)/tune/blas/gemm/CASES CASES
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/SWAP SWAP
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/SET SET
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/SCAL SCAL
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/ROT ROT
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/NRM2 NRM2
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/IAMAX IAMAX
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/DOT DOT
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/CPSC CPSC
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/COPY COPY
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/AXPY AXPY
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/AXPBY AXPBY
++	cd tune/blas/level1 ; ln -sf $(SRCdir)/tune/blas/level1/ASUM ASUM
  	$(MAKE) -f Make.top refresh arch=$(arch)
  
  refresh :

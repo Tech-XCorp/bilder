@@ -32,7 +32,6 @@ setAtlasGlobalVars() {
   if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
     case `uname` in
       CYGWIN*)
-        ATLAS_BUILDS=clp
         if test -n "$FC"; then
           ATLAS_BUILDS=${ATLAS_BUILDS},ser
         else
@@ -42,6 +41,7 @@ setAtlasGlobalVars() {
 # Do this way, as ser contains sersh
           ATLAS_BUILDS=${ATLAS_BUILDS},cc4py
         fi
+        ATLAS_BUILDS=${ATLAS_BUILDS},clp
         ;;
       Darwin)
         ATLAS_BUILDS=NONE
@@ -118,6 +118,11 @@ buildAtlas() {
       ;;
   esac
 
+# Atlas environment
+  if test -n "$NOPAREN_PATH"; then
+    ATLAS_ENV="PATH='$NOPAREN_PATH'"
+  fi
+
 #
 # --cc=<C compiler> : compiler to compile configure probes
 # --cflags='<flags>' : flags for above
@@ -130,7 +135,7 @@ buildAtlas() {
     ATLAS_CC=`cygpath -u "$CC"`
   fi
   case "$CC" in
-    cl | */cl) ATLAS_C_ARGS="--cc=/usr/bin/gcc";;
+    cl | */cl) ;;
     *mingw*) ATLAS_C_ARGS="--cc=/usr/bin/gcc -C ic '$ATLAS_CC'";;
     *)
       ATLAS_C_ARGS="--cflags='-fPIC -O3' -C ic '$CC'"
@@ -213,6 +218,9 @@ buildAtlas() {
       ;;
   esac
 
+# Do for one case
+  ATLAS_CLP_ENV="$ATLAS_ENV $ATLAS_CLP_ENV"
+
 # Atlas does not alway correctly detect 32 versus 64 bit
   case `uname`-`uname -m` in
     CYGWIN*)
@@ -247,18 +255,18 @@ buildAtlas() {
 # cc4py build
 #
 # Find the python build of lapack
-  if bilderConfig atlas cc4py "-C ic '$PYC_CC' -F ic '$PYC_CFLAGS -O3' -C if '$PYC_F77' -F if '$PYC_FFLAGS -O3' -Fa alg -fPIC --shared $ATLAS_PTR_ARG $ATLAS_CC4PY_LP_ARGS $ATLAS_CC4PY_OTHER_ARGS"; then
+  if bilderConfig atlas cc4py "-C ic '$PYC_CC' -F ic '$PYC_CFLAGS -O3' -C if '$PYC_F77' -F if '$PYC_FFLAGS -O3' -Fa alg -fPIC --shared $ATLAS_PTR_ARG $ATLAS_CC4PY_LP_ARGS $ATLAS_CC4PY_OTHER_ARGS" "" "$ATLAS_CC4PY_ENV"; then
 # Patch top Makefile for Darwin.
 # Should do this at unpacking time, but do not know which file.
     if test -f ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/cc4py/Makefile; then
       cd  ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/cc4py
       sed -i.bak 's/rm *-f/rm -rf --/' Makefile
     fi
-    bilderBuild atlas cc4py
+    bilderBuild atlas cc4py "" "$ATLAS_CC4PY_ENV"
   fi
 
 # clapack build
-  if bilderConfig atlas clp "$ATLAS_C_ARGS --nof77 $ATLAS_PTR_ARG $ATLAS_CLP_LP_ARGS $ATLAS_CLP_OTHER_ARGS"; then
+  if bilderConfig atlas clp "$ATLAS_C_ARGS --nof77 $ATLAS_PTR_ARG $ATLAS_CLP_LP_ARGS $ATLAS_CLP_OTHER_ARGS" "" "$ATLAS_CLP_ENV"; then
 # Patch top Makefile for Darwin.  Should do this at unpacking time.
     # techo "WARNING: Quitting after configure atlas."; exit 1
     if test -f ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/clp/Makefile; then
@@ -267,7 +275,7 @@ buildAtlas() {
 # Should do this at unpacking time, but do not know which file.
       sed -i.bak 's/rm *-f/rm -rf --/' Makefile
     fi
-    if bilderBuild atlas clp; then
+    if bilderBuild atlas clp "" "$ATLAS_CLP_ENV"; then
 # Fix any build problems
       fixRestartAtlasBuild clp
     fi
