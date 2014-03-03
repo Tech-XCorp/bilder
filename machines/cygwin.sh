@@ -24,7 +24,7 @@ else
   TECHO=techo
 fi
 
-# $TECHO "Sourcing cygwin.sh, PATH = $PATH"
+# $TECHO "NOTE: [cygwin.sh] Sourcing cygwin.sh, PATH = $PATH"
 $TECHO "VISUALSTUDIO_VERSION = '$VISUALSTUDIO_VERSION'"
 
 IS_64_BIT=false
@@ -70,7 +70,7 @@ if echo $PATH | grep -qi '/cygdrive/c/Windows/System32:'; then
   PATH="$PATH:/cygdrive/c/Windows/System32"
 fi
 
-# Add python to front of path.  This may create two copies of 
+# Add python to front of path.  This may create two copies of
 # the python directory in the path, but that's ok. In a fresh
 # cygwin shell /usr/bin/python will be found, which is needed
 # for Petsc.  However, if this file is sourced we will find
@@ -123,7 +123,7 @@ if echo ${PATH}: | grep -qi '/cygdrive/c/Python2'; then
     PATH="$PATH_SAV"
   fi
 fi
-techo -2 "After /usr/bin move, PATH = $PATH."
+techo "After /usr/bin move, PATH = $PATH."
 
 # Determine the paths needed by Visual Studio
 #
@@ -187,6 +187,8 @@ EOF
   eval PATH_VS${vsver}="\"$PATH_CYG\""
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
 }
+
+# techo "Before IS_64_BIT."; exit
 
 if $IS_64_BIT; then
   getVsPaths 9
@@ -289,6 +291,7 @@ setVs11Vars() {
   $TECHO "setVs11Vars... LIBPATH = $LIBPATH"
 }
 
+# techo "Before hasvisstudio"; exit
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
 if test -n "$hasvisstudio"; then
   $TECHO "Found a Visual Studio in your path.  Not adding."
@@ -330,3 +333,15 @@ else
       ;;
   esac
 fi
+# techo "Finished setting paths."
+# techo "PATH = $PATH"
+
+# Determine a path variable for atlas.  Must remove dirs with parens
+# after changing program files (x86)
+if test -d /ProgramFilesX86; then
+  NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
+  techo "NOPAREN_PATH = $NOPAREN_PATH"
+else
+  techo "WARNING: [cygwin.sh] /ProgramFilesX86 not found.  Cannot set NOPAREN_PATH."
+fi
+
