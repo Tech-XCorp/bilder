@@ -1,6 +1,32 @@
+diff -ruN cmake-2.8.9/Modules/FindCUDA.cmake cmake-2.8.9-new/Modules/FindCUDA.cmake
+--- cmake-2.8.9/Modules/FindCUDA.cmake	2012-08-09 12:15:19.000000000 -0600
++++ cmake-2.8.9-new/Modules/FindCUDA.cmake	2014-03-04 11:01:06.589539080 -0700
+@@ -769,6 +769,7 @@
+         arg STREQUAL "EXCLUDE_FROM_ALL" OR
+         arg STREQUAL "STATIC" OR
+         arg STREQUAL "SHARED" OR
++        arg STREQUAL "OBJECT" OR
+         arg STREQUAL "MODULE"
+         )
+       list(APPEND ${_cmake_options} ${arg})
+@@ -1234,9 +1235,11 @@
+     ${_sources}
+     )
+ 
+-  target_link_libraries(${cuda_target}
+-    ${CUDA_LIBRARIES}
+-    )
++  if (not ${_cmake_options} STREQUAL "OBJECT")
++    target_link_libraries(${cuda_target}
++      ${CUDA_LIBRARIES}
++      )
++  endif()
+ 
+   # We need to set the linker language based on what the expected generated file
+   # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
 diff -ruN cmake-2.8.9/Modules/FindFreetype.cmake cmake-2.8.9-new/Modules/FindFreetype.cmake
 --- cmake-2.8.9/Modules/FindFreetype.cmake	2012-08-09 12:15:19.000000000 -0600
-+++ cmake-2.8.9-new/Modules/FindFreetype.cmake	2013-04-27 08:12:52.302491300 -0600
++++ cmake-2.8.9-new/Modules/FindFreetype.cmake	2014-03-04 10:56:37.958364166 -0700
 @@ -44,7 +44,7 @@
  # everything still works.
  FIND_PATH(FREETYPE_INCLUDE_DIR_ft2build ft2build.h
@@ -12,7 +38,7 @@ diff -ruN cmake-2.8.9/Modules/FindFreetype.cmake cmake-2.8.9-new/Modules/FindFre
    /usr/local/X11/include
 diff -ruN cmake-2.8.9/Modules/FindSubversion.cmake cmake-2.8.9-new/Modules/FindSubversion.cmake
 --- cmake-2.8.9/Modules/FindSubversion.cmake	2012-08-09 12:15:19.000000000 -0600
-+++ cmake-2.8.9-new/Modules/FindSubversion.cmake	2013-04-27 08:12:24.488551700 -0600
++++ cmake-2.8.9-new/Modules/FindSubversion.cmake	2014-03-04 10:56:37.971349286 -0700
 @@ -73,11 +73,14 @@
      SET(_Subversion_SAVED_LC_ALL "$ENV{LC_ALL}")
      SET(ENV{LC_ALL} C)
@@ -32,7 +58,7 @@ diff -ruN cmake-2.8.9/Modules/FindSubversion.cmake cmake-2.8.9-new/Modules/FindS
        MESSAGE(SEND_ERROR "Command \"${Subversion_SVN_EXECUTABLE} info ${dir}\" failed with output:\n${Subversion_svn_info_error}")
 diff -ruN cmake-2.8.9/Modules/Platform/Linux-Intel.cmake cmake-2.8.9-new/Modules/Platform/Linux-Intel.cmake
 --- cmake-2.8.9/Modules/Platform/Linux-Intel.cmake	2012-08-09 12:15:19.000000000 -0600
-+++ cmake-2.8.9-new/Modules/Platform/Linux-Intel.cmake	2013-04-27 08:10:33.357910100 -0600
++++ cmake-2.8.9-new/Modules/Platform/Linux-Intel.cmake	2014-03-04 10:56:37.979516818 -0700
 @@ -38,7 +38,9 @@
  
    # We pass this for historical reasons.  Projects may have
