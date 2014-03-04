@@ -339,10 +339,20 @@ fi
 # Determine a path variable for atlas by removing dirs with parens.
 # On 64 bit, ensure path to ProgramFiles (x86) has been mounted without parens.
 if $IS_64_BIT; then
-  if test -d /ProgramFilesX86 ; then
-    NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
+  pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
+  if test -z "$pfsubdirs"; then
+    techo "NOTE: [cygwin.sh] Microsoft Visual Studio not found under /ProgramFilesX86. Will try mounting.  Change /etc/fstab to make this permanent."
+    mkdir -p /ProgramFilesX86
+    umount /ProgramFilesX86
+    cmd="mount 'C:/Program Files (x86)' /ProgramFilesX86"
+    techo "NOTE: [cygwin.sh] Executing $cmd"
+    eval "$cmd"
+  fi
+  pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
+  if test -z "$pfsubdirs"; then
+    techo "WARNING: [cygwin.sh] /ProgramFilesX86/Microsoft Visual Studio not found on Win64.  Cannot set NOPAREN_PATH."
   else
-    techo "WARNING: [cygwin.sh] /ProgramFilesX86 not found on Win64.  Cannot set NOPAREN_PATH."
+    NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
   fi
 else
   NOPAREN_PATH=`echo $PATH | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
