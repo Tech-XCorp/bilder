@@ -336,12 +336,16 @@ fi
 # techo "Finished setting paths."
 # techo "PATH = $PATH"
 
-# Determine a path variable for atlas.  Must remove dirs with parens
-# after changing program files (x86)
-if test -d /ProgramFilesX86; then
-  NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
-  techo "NOPAREN_PATH = $NOPAREN_PATH"
+# Determine a path variable for atlas by removing dirs with parens.
+# On 64 bit, ensure path to ProgramFiles (x86) has been mounted without parens.
+if $IS_64_BIT; then
+  if test -d /ProgramFilesX86 ; then
+    NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
+  else
+    techo "WARNING: [cygwin.sh] /ProgramFilesX86 not found on Win64.  Cannot set NOPAREN_PATH."
+  fi
 else
-  techo "WARNING: [cygwin.sh] /ProgramFilesX86 not found.  Cannot set NOPAREN_PATH."
+  NOPAREN_PATH=`echo $PATH | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
 fi
+techo "NOPAREN_PATH = $NOPAREN_PATH"
 
