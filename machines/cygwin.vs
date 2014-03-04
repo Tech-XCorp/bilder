@@ -57,13 +57,14 @@ if test -n "$MINGW64_BINDIR"; then
 
 # Atlas requires that the mingw compilers be linked into /usr/bin
 # on Windows
-    for prog in gfortran ar ranlib; do
+    # for prog in gcc gfortran ar ranlib; do
+    for prog in gcc gfortran; do
       if ! test -e /usr/bin/${MINGW64_PREFIX}-${prog}.exe; then
         techo "WARNING: [cygwin.vs] ${MINGW64_PREFIX}-${prog}.exe not found."
         if test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe; then
           techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
-        elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
-          techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
+        # elif test -n $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe; then
+          # techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW64_BINDIR/${MINGW64_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW64_PREFIX}-${prog}.exe'."
         else
           techo "NOTE: Cannot find MinGW64 installation of ${prog}."
         fi
