@@ -16,7 +16,7 @@ diff -ruN cmake-2.8.9/Modules/FindCUDA.cmake cmake-2.8.9-new/Modules/FindCUDA.cm
 -  target_link_libraries(${cuda_target}
 -    ${CUDA_LIBRARIES}
 -    )
-+  if (not ${_cmake_options} STREQUAL "OBJECT")
++  if(NOT "${_cmake_options}" STREQUAL "OBJECT")
 +    target_link_libraries(${cuda_target}
 +      ${CUDA_LIBRARIES}
 +      )
