@@ -133,20 +133,22 @@ buildAtlas() {
   local ATLAS_CC="$CC"
   if [[ `uname` =~ CYGWIN ]]; then
     ATLAS_CC=`cygpath -u "$CC"`
+    ATLAS_SER_O3_FLAG=-O3
   fi
   case "$CC" in
-    cl | */cl) ;;
-    *mingw*) ATLAS_C_ARGS="--cc=/usr/bin/gcc -C ic '$ATLAS_CC'";;
+    cl | */cl) ATLAS_C_ARGS="--cc=/usr/bin/gcc --cflags='-O3' -C ic '$ATLAS_CC'";;
+    *mingw*) ATLAS_C_ARGS="--cc=/usr/bin/gcc --cflags='-O3' -C ic '$ATLAS_CC'";;
     *)
-      ATLAS_C_ARGS="--cflags='-fPIC -O3' -C ic '$CC'"
+      ATLAS_C_ARGS="--cflags='-O3' -C ic '$CC'" # Use -fPIC on Linux?
 # CFLAGS assumed to contain PIC_FLAG as needed.
-      local ATLAS_CFLAGS="$CFLAGS $O3_FLAG"
-      trimvar ATLAS_CFLAGS ' '
-      if test -n "$ATLAS_CFLAGS"; then
-        ATLAS_C_ARGS="$ATLAS_C_ARGS -F ic '$ATLAS_CFLAGS'"
-      fi
       ;;
   esac
+# For clp build
+  local ATLAS_CFLAGS="$CFLAGS $O3_FLAG"
+  trimvar ATLAS_CFLAGS ' '
+  if test -n "$ATLAS_CFLAGS"; then
+    ATLAS_C_ARGS="$ATLAS_C_ARGS -F ic '$ATLAS_CFLAGS'"
+  fi
 
 # Fortran args
   local ATLAS_F_ARGS
@@ -155,10 +157,19 @@ buildAtlas() {
     local ATLAS_FC="$FC"
     if [[ `uname` =~ CYGWIN ]]; then
       ATLAS_FC=`cygpath -u "$ATLAS_FC"`
+      ATLAS_SER_CC=`echo "$ATLAS_FC" | sed 's/gfortran/gcc/g'`
+    else
+      ATLAS_SER_CC=$CC
+    fi
+    ATLAS_SER_C_ARGS="-C ic '$ATLAS_SER_CC'"
+    local ATLAS_SER_CFLAGS="$CFLAGS $ATLAS_SER_O3_FLAG"
+    trimvar ATLAS_SER_CFLAGS ' '
+    if test -n "$ATLAS_SER_CFLAGS"; then
+      ATLAS_SER_C_ARGS="$ATLAS_SER_C_ARGS -F ic '$ATLAS_SER_CFLAGS'"
     fi
     ATLAS_F_ARGS="-C if '$ATLAS_FC'"
 # FFLAGS assumed to contain PIC_FLAG as needed.
-    local ATLAS_FFLAGS="$FFLAGS $O3_FLAG"
+    local ATLAS_FFLAGS="$FFLAGS $ATLAS_SER_O3_FLAG"
     case $FC in
       xlf* | */xlf*) ATLAS_FFLAGS="$ATLAS_FFLAGS -qfixed=132";;
     esac
@@ -220,6 +231,7 @@ buildAtlas() {
 
 # Do for one case
   ATLAS_CLP_ENV="$ATLAS_ENV $ATLAS_CLP_ENV"
+  ATLAS_SER_ENV="$ATLAS_ENV $ATLAS_SER_ENV"
 
 # Atlas does not alway correctly detect 32 versus 64 bit
   case `uname`-`uname -m` in
@@ -236,14 +248,8 @@ buildAtlas() {
   esac
 
 # ser build.  Has no /MT or /MD so good for shared or static on Windows.
-  if bilderConfig atlas ser "$ATLAS_C_ARGS $ATLAS_F_ARGS $ATLAS_PTR_ARG $ATLAS_SER_LP_ARGS --shared $ATLAS_SER_OTHER_ARGS" "" "$ATLAS_SER_ENV"; then
-# Patch top Makefile for Darwin.
-# Should do this at unpacking time, but do not know which file.
-    if test -f ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/ser/Makefile; then
-      cd ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/ser
-# patch Makefile for Darwin
-      sed -i.bak 's/rm *-f/rm -rf --/' Makefile
-    fi
+  if bilderConfig atlas ser "$ATLAS_SER_C_ARGS $ATLAS_F_ARGS $ATLAS_PTR_ARG $ATLAS_SER_LP_ARGS --shared $ATLAS_SER_OTHER_ARGS" "" "$ATLAS_SER_ENV"; then
+    # techo "WARNING: Quitting after configuring atlas for ser build."; exit 1
     if bilderBuild atlas ser "" "$ATLAS_SER_ENV"; then
 # Fix any build problems
       : # fixRestartAtlasBuild ser
@@ -256,25 +262,13 @@ buildAtlas() {
 #
 # Find the python build of lapack
   if bilderConfig atlas cc4py "-C ic '$PYC_CC' -F ic '$PYC_CFLAGS -O3' -C if '$PYC_F77' -F if '$PYC_FFLAGS -O3' -Fa alg -fPIC --shared $ATLAS_PTR_ARG $ATLAS_CC4PY_LP_ARGS $ATLAS_CC4PY_OTHER_ARGS" "" "$ATLAS_CC4PY_ENV"; then
-# Patch top Makefile for Darwin.
-# Should do this at unpacking time, but do not know which file.
-    if test -f ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/cc4py/Makefile; then
-      cd  ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/cc4py
-      sed -i.bak 's/rm *-f/rm -rf --/' Makefile
-    fi
     bilderBuild atlas cc4py "" "$ATLAS_CC4PY_ENV"
   fi
 
 # clapack build
   if bilderConfig atlas clp "$ATLAS_C_ARGS --nof77 $ATLAS_PTR_ARG $ATLAS_CLP_LP_ARGS $ATLAS_CLP_OTHER_ARGS" "" "$ATLAS_CLP_ENV"; then
 # Patch top Makefile for Darwin.  Should do this at unpacking time.
-    # techo "WARNING: Quitting after configure atlas."; exit 1
-    if test -f ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/clp/Makefile; then
-      cd ${BUILD_DIR}/atlas-${ATLAS_BLDRVERSION}/clp
-# Patch top Makefile for Darwin.
-# Should do this at unpacking time, but do not know which file.
-      sed -i.bak 's/rm *-f/rm -rf --/' Makefile
-    fi
+    # techo "WARNING: Quitting after configuring atlas for clp build."; exit 1
     if bilderBuild atlas clp "" "$ATLAS_CLP_ENV"; then
 # Fix any build problems
       fixRestartAtlasBuild clp
