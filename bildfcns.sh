@@ -5647,12 +5647,14 @@ bilderInstall() {
 
 # Args for installation
   local setGroup=false
+  local printSetGroup=false # Whether to print group setting actions
   if test -z "$grpnm" -a -n "$hostids"; then
     techo "WARNING: [$FUNCNAME] Install requested to set group name for host, but no name given."
   elif test -n "$grpnm" -a -z "$hostids"; then
     techo "WARNING: [$FUNCNAME] Install requested to set group name, but no hostids given."
   elif test -n "$grpnm" -a -n "$hostids"; then
     techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm' on host '$hostids'."
+    printSetGroup=true
     local hs=`echo $hostids | tr ',' ' '`
     for h in $hs; do
       if [[ $FQMAILHOST =~ "$h" ]]; then
@@ -5918,7 +5920,7 @@ EOF
         techo "$cmd"
         eval "$cmd"
       else
-        techo "NOTE: [$FUNCNAME] Group of $instdirval/$instsubdirval was not changed."
+        $printSetGroup && echo "NOTE: [$FUNCNAME] Group of $instdirval/$instsubdirval was not changed."
       fi
 
 # Record installation in installation directory
