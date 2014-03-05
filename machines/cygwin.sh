@@ -27,32 +27,18 @@ fi
 # $TECHO "NOTE: [cygwin.sh] Sourcing cygwin.sh, PATH = $PATH"
 $TECHO "VISUALSTUDIO_VERSION = '$VISUALSTUDIO_VERSION'"
 
+# Determine pointer size, location of visual studio
 IS_64_BIT=false
-
-# Visual Studio is a 32 bit application, so installed in
-# MINGW_BINDIR for gfortran
-case `uname` in
-  CYGWIN*64)
-    IS_64_BIT=true
-    programfiles='Program Files (x86)'
-    MINGW_BINDIR=`which mingw64-gfortran 2>/dev/null`
-    ;;
-  CYGWIN*)
-    # if setup-x86_64.exe is used, uname is CYGWIN_NT-6.1,
-    # and uname -m is x86_64
-    if [ "`uname -m`" == "x86_64" ]; then
-      IS_64_BIT=true
-      programfiles='Program Files (x86)'
-      MINGW_BINDIR=`which mingw64-gfortran 2>/dev/null`
-    else
-      MINGW_BINDIR=`which mingw32-gfortran 2>/dev/null`
-      programfiles='Program Files'
-    fi
-    ;;
-esac
-if test -n "$MINGW_BINDIR"; then
-  MINGW_BINDIR=`dirname $MINGW_BINDIR`
+if wmic os get osarchitecture | grep -q 64-bit; then
+  IS_64_BIT=true
+  programfiles='Program Files (x86)'
+else
+  programfiles='Program Files'
 fi
+
+# We determine location of MINGW64 in cygwin.vs, which sources this,
+# so just use that.
+MINGW_BINDIR=${MINGW64_BINDIR}
 
 # Java puts these system directories at the beginning of the PATH,
 # so they are picked up by the Jenkins slave. These directories

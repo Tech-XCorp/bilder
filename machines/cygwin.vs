@@ -22,9 +22,9 @@ BUILD_ATLAS=${BUILD_ATLAS:-"false"}
 # Find mingw
 #
 MINGW64_BINDIR=
-for dr in /TDM-GCC-64 /MinGW64; do
+for dr in /TDM-GCC-64 /MinGW64 /TDM-GCC-32; do
   bd=`ls -1d $dr/bin $dr/*/bin 2>/dev/null | tail -1`
-  if test -n ${bd}; then
+  if test -n "${bd}"; then
     MINGW64_BINDIR=${bd}
     break
   fi
@@ -40,7 +40,7 @@ if test -n "$MINGW64_BINDIR"; then
 
 # Find the prefix for the compilers.
   MINGW64_PREFIX=
-  for pr in x86_64-w64-mingw32 i686-w64-mingw32; do
+  for pr in x86_64-w64-mingw32 i686-w64-mingw32 mingw32; do
     if test -x ${MINGW64_BINDIR}/${pr}-gcc; then
       MINGW64_PREFIX=$pr
       break
