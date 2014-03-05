@@ -144,18 +144,14 @@ buildNumpy() {
 # In spite of documentation, need semicolon, not comma.
     sep=';'
   fi
-  if test -n "$lapacknames"; then
-    case $NUMPY_BLDRVERSION in
-      1.8.*)
-        sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
-        if test -n "$atlasdir"; then
-          sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
-        fi
-        ;;
-      *)
-        sed -e "s?^include_dirs = /usr/local/?include_dirs = $blslpckdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blslpckdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
-        ;;
-    esac
+# If lapack libs are defined, even clapack, numpy will search for
+# a fortran and use it.  If it is going to find cygwin's fortran,
+# prevent this by not defining the blas and lapack libraries
+  if test -n "$lapacknames" && $NUMPY_WIN_USE_FORTRAN; then
+    sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+    if test -n "$atlasdir"; then
+      sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+    fi
   fi
 
 # Accumulate link flags for modules, and make ATLAS modifications.
