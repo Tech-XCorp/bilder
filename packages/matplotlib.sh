@@ -13,7 +13,9 @@
 ######################################################################
 
 MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.1.0"}
-MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.3.1"}
+# 1.3.1 Doesn't build on Mac/Windows. Downgrading for now.
+#MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.3.1"}
+MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.1.0"}
 
 ######################################################################
 #
