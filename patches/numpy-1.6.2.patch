@@ -1,29 +1,59 @@
-diff -ruN numpy-1.6.1/site.cfg.example numpy-1.6.1-new/site.cfg.example
---- numpy-1.6.1/site.cfg.example	2011-03-10 21:56:16.000000000 -0800
-+++ numpy-1.6.1-new/site.cfg.example	2012-06-23 15:56:18.000000000 -0700
-@@ -59,9 +59,9 @@
- # This is a good place to add general library and include directories like
- # /usr/local/{lib,include}
- #
--#[DEFAULT]
--#library_dirs = /usr/local/lib
--#include_dirs = /usr/local/include
-+[DEFAULT]
-+library_dirs = /usr/local/lib
-+include_dirs = /usr/local/include
+diff -ruN numpy-1.6.2/numpy/distutils/fcompiler/gnu.py numpy-1.6.2-new/numpy/distutils/fcompiler/gnu.py
+--- numpy-1.6.2/numpy/distutils/fcompiler/gnu.py	2011-09-13 14:39:16.000000000 -0600
++++ numpy-1.6.2-new/numpy/distutils/fcompiler/gnu.py	2014-03-05 04:13:21.295837500 -0700
+@@ -300,9 +300,9 @@
+         opt = GnuFCompiler.get_library_dirs(self)
+         if sys.platform == 'win32':
+             c_compiler = self.c_compiler
+-            if c_compiler and c_compiler.compiler_type == "msvc":
+-                target = self.get_target()
+-                if target:
++            # if c_compiler and c_compiler.compiler_type == "msvc":
++            target = self.get_target()
++            if target:
+                     d = os.path.normpath(self.get_libgcc_dir())
+                     root = os.path.join(d, os.pardir, os.pardir, os.pardir, os.pardir)
+                     mingwdir = os.path.normpath(os.path.join(root, target, "lib"))
+@@ -316,6 +316,9 @@
+         if sys.platform == 'darwin':
+             opt.remove('cc_dynamic')
+         if sys.platform == 'win32':
++            if "gfortran" in opt:
++                i = opt.index("gfortran")
++                opt.insert(i+1, "quadmath")
+             c_compiler = self.c_compiler
+             if c_compiler and c_compiler.compiler_type == "msvc":
+                 if "gcc" in opt:
+@@ -326,7 +329,7 @@
+             if is_win64():
+                 c_compiler = self.c_compiler
+                 if c_compiler and c_compiler.compiler_type == "msvc":
+-                    return []
++                    pass # return []
+                 else:
+                     raise NotImplementedError("Only MS compiler supported with gfortran on win64")
+         return opt
+diff -ruN numpy-1.6.2/numpy/distutils/mingw32ccompiler.py numpy-1.6.2-new/numpy/distutils/mingw32ccompiler.py
+--- numpy-1.6.2/numpy/distutils/mingw32ccompiler.py	2012-05-19 07:51:55.000000000 -0600
++++ numpy-1.6.2-new/numpy/distutils/mingw32ccompiler.py	2014-03-05 04:14:30.774784700 -0700
+@@ -165,7 +165,8 @@
+              target_lang=None):
+         # Include the appropiate MSVC runtime library if Python was built
+         # with MSVC >= 7.0 (MinGW standard is msvcrt)
+-        runtime_library = msvc_runtime_library()
++        # runtime_library = msvc_runtime_library()
++        runtime_library = None
+         if runtime_library:
+             if not libraries:
+                 libraries = []
+diff -ruN numpy-1.6.2/site.cfg.example numpy-1.6.2-new/site.cfg.example
+--- numpy-1.6.2/site.cfg.example	2012-03-25 08:05:48.000000000 -0600
++++ numpy-1.6.2-new/site.cfg.example	2014-03-05 04:10:16.855395300 -0700
+@@ -62,6 +62,7 @@
+ #[DEFAULT]
+ #library_dirs = /usr/local/lib
+ #include_dirs = /usr/local/include
++#libraries = lapack,blas
  
  # Optimized BLAS and LAPACK
  # -------------------------
-@@ -90,6 +90,12 @@
- #[lapack_opt]
- #libraries = lapack, ptf77blas, ptcblas, atlas
- 
-+# JRC, 20120623: Regardless of what is said above, the below is what works.
-+[blas]
-+blas_libs = blas
-+
-+[lapack]
-+lapack_libs = lapack
- 
- # UMFPACK
- # -------
