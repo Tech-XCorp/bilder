@@ -58,14 +58,20 @@ set JENKINS_JOB_DIR=%JOB_LINK%
 cd %JOB_LINK%
 LECHO Working in %CD%.
 
-C:\CYGWIN\bin\cygpath %CD% >temp.txt
-REM C:\CYGWIN\bin\cygpath %JOB_LINK% >temp.txt
-set /p CYGWINDIR= < temp.txt
-LECHO CYGWINDIR = %CYGWINDIR%.
+REM Find cygwinbasedir
+set CYGWINBASEDIR=C:\cygwin64
+if exist %CYGWINBASEDIR% goto cygwinbasedir64
+  set CYGWINBASEDIR=C:\cygwin
+:cygwinbasedir64
+
+%CYGWINBASEDIR%\bin\cygpath %CD% >temp.txt
+REM %CYGWINBASEDIR%\bin\cygpath %JOB_LINK% >temp.txt
+set /p CYGWINPROJDIR= < temp.txt
+LECHO CYGWINPROJDIR = %CYGWINPROJDIR%.
 del temp.txt
 set JBILDERR=0
 @echo on
-C:\CYGWIN\bin\bash --login %CYGWINDIR%/bilder/jenkins/jenkinsrun %*
+%CYGWINBASEDIR%\bin\bash --login %CYGWINPROJDIR%/bilder/jenkins/jenkinsrun %*
 @echo off
 if ERRORLEVEL 1 set JBILDERR=1
 
