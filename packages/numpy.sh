@@ -39,13 +39,14 @@ setNumpyGlobalVars() {
 # Intel 64bit builds exist at http://www.lfd.uci.edu/~gohlke/pythonlibs/
   # NUMPY_WIN_USE_FORTRAN=false
 # With fortran but not atlas, numpy not yet building.
-  if $IS_64_BIT; then
+  if $IS_64_BIT && $BUILD_EXPERIMENTAL; then
     NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
   else
     NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
   fi
   NUMPY_USE_ATLAS=${NUMPY_USE_ATLAS:-"false"}
-  NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}  # mingw32 is experimental
 # Can now determine the deps
   NUMPY_DEPS=Python
   if $NUMPY_USE_ATLAS; then
