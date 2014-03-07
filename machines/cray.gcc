@@ -96,7 +96,29 @@ case $UQMAILHOST in
     CMAKE_HDF5_BEN_DIR_ARG="-DHdf5_ROOT_DIR:PATH=${SYSTEM_HDF5_BEN_DIR}"
     ;;
 
+  copper*)
+
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+# System linear algebra, note interlagos for Copper.
+    SYSTEM_BLAS_SER_LIB="/opt/xt-libsci/default/gnu/46/interlagos/lib/libsci_gnu.a /opt/xt-libsci/default/gnu/46/interlagos/lib/libsci_gnu_mp.a"
+    SYSTEM_BLAS_CC4PY_LIB="$SYSTEM_BLAS_SER_LIB"
+    SYSTEM_LAPACK_SER_LIB="$SYSTEM_BLAS_SER_LIB"
+    SYSTEM_LAPACK_CC4PY_LIB=/opt/xt-libsci/default/gnu/46/interlagos/lib/libsci_gnu.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/46
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/46
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/46
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/46
+
+# trilinos builds
+    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
+    ;;
+
 esac
+
 # END KEEP THIS
 
 # Serial compilers
