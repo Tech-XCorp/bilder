@@ -37,9 +37,13 @@ for f in $dfiles; do
   dos2unix $f
 done
 
-# Apply the patch
+# Apply the patch, relative location or absolute
 cd $dir
-cmd="patch -p1 <../$1"
+if echo $1 | grep -q "^/"; then
+  cmd="patch -p1 <$1"
+else
+  cmd="patch -p1 <../$1"
+fi
 echo "$cmd"
 eval "$cmd"
 
