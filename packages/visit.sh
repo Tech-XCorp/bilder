@@ -116,7 +116,7 @@ buildVisit() {
 # Patch visit
 # Generate the patch via svn diff visit >numpkgs/visit-${branch}-${lbl}.patch
     if test -n "$VISIT_PATCH" -a -f "$VISIT_PATCH"; then
-      cmd="(cd $PROJECT_DIR; patch -p0 <$VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
+      cmd="(cd $PROJECT_DIR; $BILDER_DIR/patch.sh $VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
       techo "$cmd"
       eval "$cmd"
       techo "VisIt patched. Results in $BUILD_DIR/visit-patch.txt."
@@ -160,9 +160,6 @@ buildVisit() {
       VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
       local VISIT_LD_RUN_PATH=$PYC_LD_RUN_PATH:$LD_RUN_PATH
       VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
-      # if test -d $CONTRIB_DIR/mesa/lib; then
-        # VISIT_MESA_DIR=$CONTRIB_DIR/mesa
-      # fi
       ;;
   esac
 
