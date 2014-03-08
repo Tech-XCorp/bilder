@@ -26,16 +26,18 @@ dir=`echo $files | sed -e "s?/.*??"`
 echo "Patching files, "$files" in directory, $dir."
 
 # Determine dos subset and convert those to unix
-dfiles=
-for f in $files; do
-  if file $f | grep -q ' CRLF '; then
-    dfiles="$dfiles $f"
-  fi
-done
-echo "DOS files are" $dfiles
-for f in $dfiles; do
-  dos2unix $f
-done
+dosfiles=
+if [[ `uname` =~ CYGWIN ]]; then
+  for f in $files; do
+    if file $f | grep -q ' CRLF '; then
+      dosfiles="$dosfiles $f"
+    fi
+  done
+  echo "DOS files are" $dosfiles
+  for f in $dosfiles; do
+    dos2unix $f
+  done
+fi
 
 # Apply the patch, relative location or absolute
 cd $dir
@@ -46,10 +48,12 @@ else
 fi
 echo "$cmd"
 eval "$cmd"
+cd ..
 
 # Convert originally dos files back to dos
-cd ..
-for f in $dfiles; do
-  unix2dos $f
-done
+if [[ `uname` =~ CYGWIN ]]; then
+  for f in $dosfiles; do
+    unix2dos $f
+  done
+fi
 
