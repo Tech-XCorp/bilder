@@ -1632,7 +1632,7 @@ shouldInstall() {
     elif test -f $BILDER_DIR/packages/${lcproj}.sh; then
       currentPkgScriptDir=$BILDER_DIR/packages
     fi
-    currentPkgScriptRev=`svn info $currentPkgScriptDir/${lcproj}.sh |\
+    currentPkgScriptRev=`bilderSvn info $currentPkgScriptDir/${lcproj}.sh |\
         grep 'Last Changed Rev:' | sed 's/.* //'`
     if test -z "$currentPkgScriptRev"; then
       currentPkgScriptRev=`sed -n '/$Id/p' < $currentPkgScriptDir/${lcproj}.sh |  cut -f 4 -d ' '`
