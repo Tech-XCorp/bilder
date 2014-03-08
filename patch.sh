@@ -6,10 +6,26 @@
 # Applies the patch
 # Converts the previously dos files back to DOS
 
+usage() {
+  cat <<EOF
+  Usage: patch.sh patchfile
+    To be run at level that patch was created.
+EOF
+}
+
+# Validate input
+if test -z "$1"; then
+  echo "patchfile missing."
+  usage
+  exit 1
+fi
+
+# Find files to be patched
 files=`grep ^Index $1 | sed 's/^Index: *//'`
-echo "Files are" $files
 dir=`echo $files | sed -e "s?/.*??"`
-echo "Directory is" $dir
+echo "Patching files, "$files" in directory, $dir."
+
+# Determine dos subset and convert those to unix
 dfiles=
 for f in $files; do
   if file $f | grep -q ' CRLF '; then
@@ -20,10 +36,14 @@ echo "DOS files are" $dfiles
 for f in $dfiles; do
   dos2unix $f
 done
+
+# Apply the patch
 cd $dir
 cmd="patch -p1 <../$1"
 echo "$cmd"
-eval $cmd
+eval "$cmd"
+
+# Convert originally dos files back to dos
 cd ..
 for f in $dfiles; do
   unix2dos $f
