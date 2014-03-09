@@ -391,7 +391,8 @@ if test -n "$WAIT_PACKAGE"; then
       subj="Not installing: ${WAIT_PACKAGE} installed in the last $BILDER_WAIT_DAYS days."
       techo "$subj"
       unset EMAIL   # Disable emailing
-      finish -s "$subj" -n
+      finish -s "$subj"
+      exit 0
     fi
   fi
 else

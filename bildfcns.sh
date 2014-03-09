@@ -1041,17 +1041,6 @@ finish() {
   done
   shift $(($OPTIND - 1))
 
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -c) doQuit=false;;
-      -s) subject="$2"; shift;;
-       *) break;;
-    esac
-    shift
-  done
-fi
-
 # Summarize (which constructs the email subject)
   techo -2 "Calling summarize."
   summarize $1 $2
