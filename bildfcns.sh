@@ -7242,9 +7242,9 @@ buildChain() {
 # Trying to trace down a de-installation of numpy
   local pkgline=`grep ^numpy- $CONTRIB_DIR/installations.txt | tail -1`
   if test -n "$pkgline"; then
-    techo "NOTE: [$FUNCNAME] Found $pkgline."
+    techo "NOTE: [${FUNCNAME}-begin] Found $pkgline."
   else
-    techo "NOTE: [$FUNCNAME] numpy not found in installatinos.txt."
+    techo "NOTE: [${FUNCNAME}-begin] numpy not found in installatinos.txt."
   fi
 
 # Get options
@@ -7383,6 +7383,14 @@ buildChain() {
     $cmd
     techo "-----------------------------------${dashend}"
   done
+
+# Trying to trace down a de-installation of numpy
+  local pkgline=`grep ^numpy- $CONTRIB_DIR/installations.txt | tail -1`
+  if test -n "$pkgline"; then
+    techo "NOTE: [${FUNCNAME}-end] Found $pkgline."
+  else
+    techo "NOTE: [${FUNCNAME}-end] numpy not found in installatinos.txt."
+  fi
 
 }
 
