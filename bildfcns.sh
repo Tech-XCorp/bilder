@@ -6621,7 +6621,7 @@ EOF
             techo "$cmd"
             $cmd
           else
-            techo "Command, $cmd, failed."
+            techo "Command, $cmd, failed.  USER = $USER."
           fi
         fi
       else
