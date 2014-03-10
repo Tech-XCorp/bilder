@@ -24,7 +24,14 @@ MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.3.1"}
 if test -z "$MATPLOTLIB_BUILDS"; then
   MATPLOTLIB_BUILDS=cc4py
 fi
-MATPLOTLIB_DEPS=numpy,Python,libpng,freetype,pyqt
+MATPLOTLIB_DEPS=numpy,Python,libpng,freetype
+case `uname` in
+  Darwin)
+    ;;
+  *)
+    MATPLOTLIB_DEPS=${MATPLOTLIB_DEPS},pyqt
+    ;;
+esac
 
 ######################################################################
 #

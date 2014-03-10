@@ -1,0 +1,167 @@
+## ######################################################################
+##
+## File:    hpc.mil
+##
+## Purpose: Helper functions for setting variables and queues by domain
+##
+## Version: $Id: $
+##
+## /* vim: set filetype=sh : */
+##
+## ######################################################################
+
+#
+# Adjust the auxiliary names:
+#   MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR, FQMAILHOST, BLDRHOSTID
+#
+runnrSetNamesByDomain() {
+
+# Hosts for which FQMAILHOST is not obvious.  Also ensure that an
+# install host name is set for all cases.
+  case $UQHOSTNAME in
+    copper*)
+      FQMAILHOST=copper.ors.hpc.mil
+      ;;
+  esac
+
+}
+runnrSetNamesByDomain
+
+cat >/dev/null <<EOF  ## (Block comment)
+MODULES AT DOD HPC SYSTEMS
+
+This is an incomplete list of modules that have to be loaded
+on the machines that use modules.
+
+COPPER:
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.6
+  2) eswrap/1.0.15
+  3) xtpe-network-gemini
+  4) PrgEnv-gnu/4.0.46
+  5) xt-mpich2/5.4.5
+  6) atp/1.4.4
+  7) xt-asyncpe/5.10
+  8) xe-sysroot/4.0.46
+  9) xpmem/0.1-2.0400.31280.3.1.gem
+ 10) gni-headers/2.1-1.0400.4351.3.1.gem
+ 11) dmapp/3.2.1-1.0400.4255.2.159.gem
+ 12) pmi/3.0.1-1.0000.8917.33.1.gem
+ 13) ugni/2.3-1.0400.4374.4.88.gem
+ 14) udreg/2.3.1-1.0400.4264.3.1.gem
+ 15) xt-libsci/11.0.06
+ 16) gcc/4.6.3
+ 17) xtpe-interlagos
+ 18) pbs/12.1.0.131281
+ 19) java/jdk1.7.0_03
+ 20) subversion/1.6.2
+
+EOF
+
+#
+# Determine RUNNR_QTARGET, RUNNR_QUEUE, RUNNR_ACCOUNT, RUNNR_PPN
+#
+runnrSetQInfoByDomain() {
+  RUNNR_QTARGET=${RUNNR_QTARGET:-"headnode"}
+  local fqdn
+  if ! fqdn=`hostname -f 2>/dev/null`; then
+    fqdn=`hostname`
+  fi
+  RUNNR_QUEUE=${RUNNR_QUEUE:-"standard"}
+  RUNNR_NCPUSVAR=mppwidth
+}
+runnrSetQInfoByDomain
+
+#
+# Set default options.  This has to be called after option parsing.
+# Should set
+#  CONTRIB_ROOTDIR    The root directory for common installations of tarballs
+#  INSTALL_ROOTDIR    The root directory for common installations of repos
+#  USERINST_ROOTDIR   The root directory for user installations (same for
+#                     tarballs and repos)
+#  INSTALL_SUBDIR_SFX Added to subdir (software, contrib, volatile, internal)
+#                     to complete the installation dir
+#  BUILD_ROOTDIR      Where builds are to take place
+#  BILDER_ADDL_ARGS   Any additional args to pass to Bilder
+#  MACHINEFILE        The machine file to use
+#
+setBilderHostVars() {
+
+#
+# Preliminary variables
+#   Determine the compiler and version for machinefile and namespacing
+#
+  # echo "setBilderHostVars entered."
+  local compkey=`modulecmd bash list -t 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
+  # echo compkey = $compkey
+  if test -z "$compkey"; then
+    local comp=
+    for comp in pgi gcc gnu; do
+      compkey=`module list -t 2>&1 | grep ^$comp | sed -e 's?/.*$??'`
+      if test -n "$compkey"; then
+        break
+      fi
+    done
+  fi
+  if test -z "$compkey"; then
+    echo "Cannot determine the compkey.  Quitting."
+    exit 1
+  fi
+  # echo "compkey = $compkey."
+  # Cray doesn't have a straightforward listing so put in a temporary
+  # compkey so that the version works and then reset
+  case $compkey in
+    gnu)   compkey=gcc;;
+    path*) compkey=path;;
+    cray*) compkey=PrgEnv-cray;;
+  esac
+  local compver=`modulecmd bash list -t 2>&1 | grep ^$compkey | sed -e 's?^.*/??'`
+  if test -z "$compver"; then
+    compver=`module list -t 2>&1 | grep ^$compkey | sed -e 's?^.*/??'`
+  fi
+  if test "$compkey" = "PrgEnv-cray"; then
+    compkey="cray"
+  fi
+  echo compkey = $compkey
+  # echo compver = $compver
+  # echo exit; exit
+  local majorminor=`echo $compver | sed -e "s/\(^[^\.]*\.[^\.]*\).*/\1/"`
+  compver=$majorminor
+  echo compver = $compver
+  # echo "Quitting in nersc.gov."; exit
+
+# Set the installation and project subdirs
+  INSTALL_SUBDIR_SFX="-$compkey-$compver"
+  PROJECT_INSTALL_SUBDIR=${PROJECT_INSTALL_SUBDIR:-"$PROJECT_INSTSUBDIR"}
+  if test -z "$PROJECT_INSTALL_SUBDIR"; then
+    echo "PROJECT_INSTALL_SUBDIR not defined in hpc.mil.  Quitting."
+    exit 1
+  fi
+  INSTALL_ROOTDIR=${PROJECTS_HOME}/techx/$PROJECT_INSTALL_SUBDIR
+  local machinedir=$UQMAILHOST
+  # PROJECT_CONTRIB_SUBDIR=${PROJECT_CONTRIB_SUBDIR:-"$PROJECT_INSTALL_SUBDIR"}
+  if test -z "$PROJECT_CONTRIB_SUBDIR"; then
+    echo "PROJECT_CONTRIB_SUBDIR not defined in nersc.gov.  Quitting."
+    exit 1
+  fi
+  CONTRIB_ROOTDIR=${PROJECTS_HOME}/techx/$PROJECT_CONTRIB_SUBDIR
+  USERINST_ROOTDIR=$INSTALL_ROOTDIR/$USER/$machinedir
+  INSTALL_ROOTDIR=$INSTALL_ROOTDIR/$machinedir
+  CONTRIB_ROOTDIR=$CONTRIB_ROOTDIR/$machinedir
+
+# Set the build directory
+  if test -n "$WORKDIR"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$WORKDIR/builds-${UQMAILHOST}-$compkey"}
+  fi
+
+# Add to BILDER_ARGS
+  BILDER_ADDL_ARGS="-j4"
+
+# Set machine file and any other env vars
+  case $machinedir in
+    copper)
+      MACHINEFILE=${MACHINEFILE:-"cray.$compkey"}
+      ;;
+  esac
+
+}

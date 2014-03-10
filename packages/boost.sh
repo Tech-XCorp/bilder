@@ -32,19 +32,22 @@ BOOST_BLDRVERSION_EXP=1_53_0
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-if test -z "$BOOST_DESIRED_BUILDS"; then
-  BOOST_DESIRED_BUILDS=ser,sersh
-fi
-computeBuilds boost
-addCc4pyBuild boost
+setBoostGlobalVars() {
+  if test -z "$BOOST_DESIRED_BUILDS"; then
+    BOOST_DESIRED_BUILDS=ser,sersh
+  fi
+  computeBuilds boost
+  addCc4pyBuild boost
 # It does not hurt to add deps that do not get built
-# (e.g., Python on Darwin and CYGWIN)
-# Only certain builds depend on Python
-BOOST_DEPS=Python,bzip2
+# (e.g., Python on Darwin and CYGWIN).
+# Only certain builds depend on Python.
+  BOOST_DEPS=Python,bzip2
+}
+setBoostGlobalVars
 
 ######################################################################
 #
@@ -54,18 +57,14 @@ BOOST_DEPS=Python,bzip2
 
 buildBoost() {
 
-# Look for needed packages
-  case `uname` in
-    Linux)
-      if ! test -f /usr/include/bzlib.h; then
-        techo "WARNING: May need to install bzip2-devel."
-      fi
-      ;;
-  esac
-
 # Process
   if ! bilderUnpack -i boost; then
     return
+  fi
+
+# Look for needed packages
+  if test `uname` = Linux && ! test -f /usr/include/bzlib.h; then
+    techo "WARNING: [$FUNCNAME] May need to install bzip2-devel."
   fi
 
 # Determine the toolset
@@ -73,10 +72,11 @@ buildBoost() {
   local toolsetarg_cc4py=
   local stdlibargs=
   case `uname`-`uname -r` in
-    CYGWIN*-WOW64*)
-      toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+    CYGWIN*)
+      if $IS_64BIT; then
+        toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+      fi
       ;;
-    CYGWIN-*) ;;
     Darwin-13.*)
       case $CXX in
 	*clang++)
@@ -135,14 +135,12 @@ buildBoost() {
     staticlinkargs="runtime-link=static $staticlinkargs"
     sharedlinkargs="runtime-link=shared $sharedlinkargs"
     sermdlinkargs="runtime-link=shared $sermdlinkargs"
-  fi
-  case `uname` in
-    CYGWIN*-WOW64*)
+    if $IS_64BIT; then
       BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
-      ;;
-  esac
+    fi
+  fi
 # Only the shared and cc4py build boost python, as shared libs required.
-# runtime-link=static gives the /MT flags.  For simplicity, use for all.
+# runtime-link=static gives the /MT flags, which does not work with python.
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
   BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
@@ -158,18 +156,11 @@ if false; then
 fi
 
   if bilderConfig -i boost ser; then
-# In-place build, so patch now
-    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    # techo "$cmd"
-    # eval "$cmd"
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost sersh; then
 # In-place build, so patch now
-    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    # echo "$cmd"
-    # eval "$cmd"
 # Change install_name for osx to be an absolute path
 # For more information, see https://svn.boost.org/trac/boost/ticket/9141
 # (this is already being done in macports & homebrew):
@@ -178,24 +169,16 @@ fi
       techo "Setting install_name to ${BOOST_INSTALL_PREFIX}/lib in $jamfile."
       sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
     elif test `uname` = Darwin; then
-      techo "WARNING [boost.sh]: jamfile not known."
+      techo "WARNING: [$FUNCNAME] jamfile not known."
     fi
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost cc4py; then
-# In-place build, so patch now
-    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    # techo "$cmd"
-    # eval "$cmd"
     bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then
-# In-place build, so patch now
-    # cmd="sed -i.bak 's?// \(#define BOOST_ALL_NO_LIB\)?\1?' boost/config/user.hpp"
-    # techo "$cmd"
-    # eval "$cmd"
     bilderBuild -m ./b2 boost ben "$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS stage"
   fi
 

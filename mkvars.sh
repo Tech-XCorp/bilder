@@ -288,7 +288,7 @@ for pkgdir in $pkgdirs; do
 
 # Loop over the builds to add other args
     if test -z "$builds"; then
-      echo "# WARNING: No builds specified for package, $pkg." 1>&2
+      echo "# WARNING: [mkvars.sh] No builds specified for package, $pkg." 1>&2
     else
 # Builds looks good, so output
       echo

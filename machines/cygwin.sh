@@ -24,34 +24,16 @@ else
   TECHO=techo
 fi
 
-# $TECHO "Sourcing cygwin.sh, PATH = $PATH"
+# $TECHO "NOTE: [cygwin.sh] Sourcing cygwin.sh, PATH = $PATH"
 $TECHO "VISUALSTUDIO_VERSION = '$VISUALSTUDIO_VERSION'"
 
+# Determine pointer size, location of visual studio
 IS_64_BIT=false
-
-# Visual Studio is a 32 bit application, so installed in
-# MINGW_BINDIR for gfortran
-case `uname` in
-  CYGWIN*64)
-    IS_64_BIT=true
-    programfiles='Program Files (x86)'
-    MINGW_BINDIR=`which mingw64-gfortran 2>/dev/null`
-    ;;
-  CYGWIN*)
-    # if setup-x86_64.exe is used, uname is CYGWIN_NT-6.1,
-    # and uname -m is x86_64
-    if [ "`uname -m`" == "x86_64" ]; then
-      IS_64_BIT=true
-      programfiles='Program Files (x86)'
-      MINGW_BINDIR=`which mingw64-gfortran 2>/dev/null`
-    else
-      MINGW_BINDIR=`which mingw32-gfortran 2>/dev/null`
-      programfiles='Program Files'
-    fi
-    ;;
-esac
-if test -n "$MINGW_BINDIR"; then
-  MINGW_BINDIR=`dirname $MINGW_BINDIR`
+if wmic os get osarchitecture | grep -q 64-bit; then
+  IS_64_BIT=true
+  programfiles='Program Files (x86)'
+else
+  programfiles='Program Files'
 fi
 
 # Java puts these system directories at the beginning of the PATH,
@@ -70,7 +52,7 @@ if echo $PATH | grep -qi '/cygdrive/c/Windows/System32:'; then
   PATH="$PATH:/cygdrive/c/Windows/System32"
 fi
 
-# Add python to front of path.  This may create two copies of 
+# Add python to front of path.  This may create two copies of
 # the python directory in the path, but that's ok. In a fresh
 # cygwin shell /usr/bin/python will be found, which is needed
 # for Petsc.  However, if this file is sourced we will find
@@ -123,7 +105,7 @@ if echo ${PATH}: | grep -qi '/cygdrive/c/Python2'; then
     PATH="$PATH_SAV"
   fi
 fi
-techo -2 "After /usr/bin move, PATH = $PATH."
+techo "After /usr/bin move, PATH = $PATH."
 
 # Determine the paths needed by Visual Studio
 #
@@ -188,6 +170,8 @@ EOF
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
 }
 
+# techo "Before IS_64_BIT."; exit
+
 if $IS_64_BIT; then
   getVsPaths 9
   getVsPaths 10
@@ -213,15 +197,15 @@ fi
 # Set the environments
 FULLPATH_VS9=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
 FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
-ENV_VS9="VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' PATH='$FULLPATH_VS9' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
+ENV_VS9="PATH='$MINGW_BINDIR:$FULLPATH_VS9' VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
 # $TECHO "ENV_VS9 = \"$ENV_VS9\""
 FULLPATH_VS10=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS11:%:%"`
 FULLPATH_VS10=`echo $FULLPATH_VS10 | sed "s%:/cygdrive%:$PATH_VS10:/cygdrive%"`
-ENV_VS10="VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' PATH='$FULLPATH_VS10' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
+ENV_VS10="PATH='$MINGW_BINDIR:$FULLPATH_VS10' VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
 # $TECHO "ENV_VS10 = \"$ENV_VS10\""
 FULLPATH_VS11=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%"`
 FULLPATH_VS11=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`
-ENV_VS11="VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' PATH='$FULLPATH_VS11' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
+ENV_VS11="PATH='$MINGW_BINDIR:$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
 # $TECHO "ENV_VS11 = \"$ENV_VS11\""
 
 setVs9Vars() {
@@ -289,6 +273,7 @@ setVs11Vars() {
   $TECHO "setVs11Vars... LIBPATH = $LIBPATH"
 }
 
+# techo "Before hasvisstudio"; exit
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
 if test -n "$hasvisstudio"; then
   $TECHO "Found a Visual Studio in your path.  Not adding."
@@ -330,3 +315,29 @@ else
       ;;
   esac
 fi
+# techo "Finished setting paths."
+# techo "PATH = $PATH"
+
+# Determine a path variable for atlas by removing dirs with parens.
+# On 64 bit, ensure path to ProgramFiles (x86) has been mounted without parens.
+if $IS_64_BIT; then
+  pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
+  if test -z "$pfsubdirs"; then
+    techo "NOTE: [cygwin.sh] Microsoft Visual Studio not found under /ProgramFilesX86. Will try mounting.  Change /etc/fstab to make this permanent."
+    mkdir -p /ProgramFilesX86
+    umount /ProgramFilesX86
+    cmd="mount 'C:/Program Files (x86)' /ProgramFilesX86"
+    techo "NOTE: [cygwin.sh] Executing $cmd"
+    eval "$cmd"
+  fi
+  pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
+  if test -z "$pfsubdirs"; then
+    techo "WARNING: [cygwin.sh] /ProgramFilesX86/Microsoft Visual Studio not found on Win64.  Cannot set NOPAREN_PATH."
+  else
+    NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
+  fi
+else
+  NOPAREN_PATH=`echo $PATH | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
+fi
+techo "NOPAREN_PATH = $NOPAREN_PATH"
+

@@ -95,7 +95,7 @@ buildTables() {
       TABLES_ENV="$DISTUTILS_NOLV_ENV"
       ;;
     *)
-      techo "WARNING: [tables.sh] uname `uname` not recognized.  Not building."
+      techo "WARNING: [$FUNCNAME] uname `uname` not recognized.  Not building."
       return
       ;;
   esac

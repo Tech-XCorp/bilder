@@ -69,7 +69,7 @@ buildTxbase() {
     fi
   fi
 
-# Use make -j, always set up submitting
+# Make targets set according to testing
   local TXBASE_MAKE_ARGS=
   local TXBASE_DEVELDOCS_MAKE_ARGS=apidocs-force
   if test -n "$TXBASE_CTEST_TARGET"; then
@@ -77,7 +77,7 @@ buildTxbase() {
     TXBASE_DEVELDOCS_MAKE_ARGS="$TXBASE_MAKE_ARGS"
   fi
 
-  # Force full link path
+# Force full link path
   TXBASE_CC4PY_OTHER_ARGS="${TXBASE_CC4PY_OTHER_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
   TXBASE_SERSH_OTHER_ARGS="${TXBASE_SERSH_OTHER_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
   TXBASE_PARSH_OTHER_ARGS="${TXBASE_PARSH_OTHER_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"

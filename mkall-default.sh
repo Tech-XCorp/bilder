@@ -291,7 +291,7 @@ fi
 # Trim spaces
 # echo "SCRIPT_ADDL_ARGS = $SCRIPT_ADDL_ARGS."
 SCRIPT_ADDL_ARGS=`echo -- $SCRIPT_ADDL_ARGS | sed "s?--??" `
-# techo "WARNING: Quitting after arg parsing."; exit
+# techo "WARNING: [mkall-default.sh] Quitting after arg parsing."; exit
 
 #------------------------------------------------------
 # Define the variables above for the various platforms

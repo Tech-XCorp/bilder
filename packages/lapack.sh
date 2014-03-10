@@ -24,32 +24,35 @@ computeVersion lapack
 #
 ######################################################################
 
+setLapackGlobalVars() {
 # We cannot rely on system builds, as they get the PIC flags wrong.
 # Need liblapack.a compiled with -fPIC so that we can get the shared
 # ATLAS library, which is needed for numpy.
-if test -z "$LAPACK_BUILDS"; then
-  case `uname`-$CC in
-    CYGWIN*-mingw*)
-      LAPACK_BUILDS=ser,sersh
-      addCc4pyBuild lapack
-      ;;
-    CYGWIN*) # If this works, consolidate with above
-      LAPACK_BUILDS=ser,sersh
-      addCc4pyBuild lapack
-      ;;
-    Darwin-*) # Darwin has -framework Accelerate
-      LAPACK_BUILDS=NONE
-      ;;
-    Linux-*)
-      LAPACK_BUILDS=ser,sersh
-      addCc4pyBuild lapack
-      addBenBuild lapack
-      ;;
-  esac
-fi
-trimvar LAPACK_BUILDS ','
-LAPACK_DEPS=cmake
-LAPACK_UMASK=002
+  if $HAVE_SER_FORTRAN && test -z "$LAPACK_BUILDS"; then
+    case `uname`-$CC in
+      CYGWIN*-mingw*)
+        LAPACK_BUILDS=ser,sersh,sermd
+        addCc4pyBuild lapack
+        ;;
+      CYGWIN*) # If this works, consolidate with above
+        LAPACK_BUILDS=ser,sersh,sermd
+        addCc4pyBuild lapack
+        ;;
+      Darwin-*) # Darwin has -framework Accelerate
+        LAPACK_BUILDS=NONE
+        ;;
+      Linux-*)
+        LAPACK_BUILDS=ser,sersh
+        addCc4pyBuild lapack
+        addBenBuild lapack
+        ;;
+    esac
+  fi
+  trimvar LAPACK_BUILDS ','
+  LAPACK_DEPS=cmake
+  LAPACK_UMASK=002
+}
+setLapackGlobalVars
 
 ######################################################################
 #
@@ -82,15 +85,16 @@ buildLapack() {
   if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then
     bilderBuild $buildargs lapack ser
   fi
-
+  if bilderConfig lapack sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERMD_OTHER_ARGS"; then
+    bilderBuild $buildargs lapack sermd
+  fi
   if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
     bilderBuild $buildargs lapack sersh
   fi
   if bilderConfig lapack cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_CC4PY_OTHER_ARGS"; then
     bilderBuild $buildargs lapack cc4py
   fi
-
-  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $ALL_BEN_CMAKE_FLAGS $LAPACK_BEN_OTHER_ARGS"; then
+  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $LAPACK_BEN_OTHER_ARGS"; then
     bilderBuild $buildargs lapack ben
   fi
 
@@ -117,7 +121,7 @@ testLapack() {
 
 installLapack() {
   local anyinstalled=false
-  for bld in ser cc4py ben sersh; do
+  for bld in ser sermd sersh cc4py ben; do
     if bilderInstall lapack $bld; then
       anyinstalled=true
       case `uname` in

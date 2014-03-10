@@ -11,7 +11,7 @@
 ######################################################################
 
 if test -z "$USER"; then
-  echo -n "WARNING: USER is unknown."
+  echo -n "WARNING: [bildall.sh] USER is unknown."
   if test -n "$LOGNAME"; then
     echo "  Setting to LOGNAME = $LOGNAME."
     export USER=$LOGNAME
@@ -30,7 +30,7 @@ fi
 # Store executable, top directory
 me=$0
 if test -z "$PROJECT_DIR"; then
-  echo "WARNING: PROJECT_DIR not defined. Assuming current."
+  echo "WARNING: [bildall.sh] PROJECT_DIR not defined. Assuming current."
   PROJECT_DIR=$PWD
 fi
 PROJECT_DIR=`(cd $PROJECT_DIR; pwd -P)`

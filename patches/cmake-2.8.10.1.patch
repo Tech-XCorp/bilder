@@ -1,6 +1,32 @@
+diff -ruN cmake-2.8.10.1/Modules/FindCUDA.cmake cmake-2.8.10.1-new/Modules/FindCUDA.cmake
+--- cmake-2.8.10.1/Modules/FindCUDA.cmake	2012-11-06 12:41:36.000000000 -0700
++++ cmake-2.8.10.1-new/Modules/FindCUDA.cmake	2014-03-04 11:04:35.637784010 -0700
+@@ -784,6 +784,7 @@
+         arg STREQUAL "EXCLUDE_FROM_ALL" OR
+         arg STREQUAL "STATIC" OR
+         arg STREQUAL "SHARED" OR
++        arg STREQUAL "OBJECT" OR
+         arg STREQUAL "MODULE"
+         )
+       list(APPEND ${_cmake_options} ${arg})
+@@ -1268,9 +1269,11 @@
+     ${_sources}
+     )
+ 
+-  target_link_libraries(${cuda_target}
+-    ${CUDA_LIBRARIES}
+-    )
++  if(NOT "${_cmake_options}" STREQUAL "OBJECT")
++    target_link_libraries(${cuda_target}
++      ${CUDA_LIBRARIES}
++      )
++  endif()
+ 
+   # We need to set the linker language based on what the expected generated file
+   # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
 diff -ruN cmake-2.8.10.1/Modules/Platform/Linux-Intel.cmake cmake-2.8.10.1-new/Modules/Platform/Linux-Intel.cmake
 --- cmake-2.8.10.1/Modules/Platform/Linux-Intel.cmake	2012-11-06 12:41:36.000000000 -0700
-+++ cmake-2.8.10.1-new/Modules/Platform/Linux-Intel.cmake	2013-03-05 07:52:50.253351318 -0700
++++ cmake-2.8.10.1-new/Modules/Platform/Linux-Intel.cmake	2014-03-04 11:04:03.644365985 -0700
 @@ -38,7 +38,9 @@
  
    # We pass this for historical reasons.  Projects may have

@@ -187,6 +187,63 @@ runnrGetHostVars() {
     $runnrdebug && echo "WARNING: $runrdir (obsolete) should be removed"'!'
   fi
 
+# Set variables associated with system: RUNNRSYSTEM and IS_64BIT
+  if test -z "$RUNNRSYSTEM"; then
+    case `uname` in
+      CYGWIN*)
+        # if test `uname -m` = x86_64 || [[ `uname` =~ WOW ]]; then
+        if wmic os get osarchitecture | grep -q 64-bit; then
+          IS_64BIT=true
+          RUNNRSYSTEM=Win64
+        else
+          IS_64BIT=false
+          RUNNRSYSTEM=Win32
+        fi
+        ;;
+      Darwin)
+        mach=`uname -m`
+        IS_64BIT=true
+        case $mach in
+          "Power Macintosh")
+            mach=ppc
+            ;;
+        esac
+        rev=`uname -r | sed 's/\.[0-9]*$//'`
+        RUNNRSYSTEM=Darwin_${rev}-${mach}
+        ;;
+      Linux)
+# Linux has processor in 'uname -r'
+        # RUNNRSYSTEM=`uname`_`uname -r`-$ccbase
+        mach=`uname -m`
+        if test $mach = x86_64; then
+          IS_64BIT=true
+        else
+          IS_64BIT=false
+        fi
+# Strip any machine off rev so not duplicated
+        rev=`uname -r | sed "s/\.$mach//"`
+# Get only major-minor of rev
+        local majmindist=`echo $rev | sed 's/^\([0-9]*\.[0-9]\).*$/\1/'`
+        local contains=false
+        for pd in el fc; do
+          if [[ $rev =~ \.${pd}[0-9] ]]; then
+            # echo $rev contains $pd
+            contains=true
+            break
+          fi
+        done
+        if $contains; then
+          local dist=`echo $rev | sed "s/^.*\.\(${pd}[0-9]\)/\1/"`
+          majmindist=${majmindist}.${dist}
+        fi
+        RUNNRSYSTEM=Linux_${majmindist}-${mach}
+        ;;
+      *)
+        echo "WARNING: RUNNRSYSTEM not known."
+        ;;
+    esac
+  fi
+
 # Look for anything in the configuration directory
   if test -n "$BILDER_CONFDIR" -a -f "$BILDER_CONFDIR/bilderrc"; then
     cmd="source $BILDER_CONFDIR/bilderrc"
@@ -280,56 +337,6 @@ runnrGetHostVars() {
   BLDRHOSTID=${BLDRHOSTID:-"$FQMAILHOST"}
   if test -z "$UQMAILHOST"; then
     UQMAILHOST=`echo $FQMAILHOST |  sed 's/\..*//'`
-  fi
-
-  if test -z "$RUNNRSYSTEM"; then
-    case `uname` in
-      CYGWIN*)
-        case `uname -a` in
-          *WOW64*)
-            RUNNRSYSTEM=Win64
-            ;;
-          *)
-            RUNNRSYSTEM=Win32
-            ;;
-        esac
-        ;;
-      Darwin)
-        mach=`uname -m`
-        case $mach in
-          "Power Macintosh")
-            mach=ppc
-            ;;
-        esac
-        rev=`uname -r | sed 's/\.[0-9]*$//'`
-        RUNNRSYSTEM=Darwin_${rev}-${mach}
-        ;;
-      Linux)
-# Linux has processor in 'uname -r'
-        # RUNNRSYSTEM=`uname`_`uname -r`-$ccbase
-        mach=`uname -m`
-# Strip any machine off rev so not duplicated
-        rev=`uname -r | sed "s/\.$mach//"`
-# Get only major-minor of rev
-        local majmindist=`echo $rev | sed 's/^\([0-9]*\.[0-9]\).*$/\1/'`
-        local contains=false
-        for pd in el fc; do
-          if [[ $rev =~ \.${pd}[0-9] ]]; then
-            # echo $rev contains $pd
-            contains=true
-            break
-          fi
-        done
-        if $contains; then
-          local dist=`echo $rev | sed "s/^.*\.\(${pd}[0-9]\)/\1/"`
-          majmindist=${majmindist}.${dist}
-        fi
-        RUNNRSYSTEM=Linux_${majmindist}-${mach}
-        ;;
-      *)
-        echo "WARNING: RUNNRSYSTEM not known."
-        ;;
-    esac
   fi
 
 # Select mailing program

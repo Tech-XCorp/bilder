@@ -202,7 +202,7 @@ EOF
         pkgfile=`(shopt -s nocaseglob; \ls $bldrdir/../*/packages/${pkg}.sh* 2>/dev/null)`
       fi
       if test -z "$pkgfile"; then
-        echo "WARNING: Package file for ${pkg}.sh not found. Will keep installation."
+        echo "WARNING: [cleaninstalls.sh] Package file for ${pkg}.sh not found. Will keep installation."
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue
       fi
@@ -213,7 +213,7 @@ EOF
           echo "$pkg installation has no version.  Will try lower case."
           ver=`python -c "import $pkglc; print ${pkglc}.__version__" 2>/dev/null`
           if test -z "$ver"; then
-            echo "WARNING: $pkglc installation has no version.  Keeping record."
+            echo "WARNING: [cleaninstalls.sh] $pkglc installation has no version.  Keeping record."
             echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             continue
           fi
@@ -222,7 +222,7 @@ EOF
         echo "$pkg-$ver is installed.  Found record for $pv."
         case $pkg in
           setuptools)
-            echo "WARNING: $pkglc has conflicting version.  Keeping record because matplotlib installs older version of setuptools."
+            echo "WARNING: [cleaninstalls.sh] $pkglc has conflicting version.  Keeping record because matplotlib installs older version of setuptools."
             echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             ;;
           *)

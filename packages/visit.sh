@@ -23,19 +23,22 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 #
 ######################################################################
 
+setVisItGlobalVars() {
 # VisIt is built the way python is built.
-if test -z "$VISIT_DESIRED_BUILDS"; then
-  VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
-  if isCcCc4py; then
-    if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
-      VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+  if test -z "$VISIT_DESIRED_BUILDS"; then
+    VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
+    if isCcCc4py; then
+      if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
+        VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
+      fi
     fi
   fi
-fi
-computeBuilds visit
-VISIT_SER_BUILD=$FORPYTHON_BUILD
-VISIT_DEPS=Imaging,hdf5,VTK,qt,cmake
-VISIT_UMASK=002
+  computeBuilds visit
+  VISIT_SER_BUILD=$FORPYTHON_BUILD
+  VISIT_DEPS=VTK,Imaging,numpy,Python,qt,hdf5,cmake
+  VISIT_UMASK=002
+}
+setVisItGlobalVars
 
 ######################################################################
 #
@@ -113,7 +116,7 @@ buildVisit() {
 # Patch visit
 # Generate the patch via svn diff visit >numpkgs/visit-${branch}-${lbl}.patch
     if test -n "$VISIT_PATCH" -a -f "$VISIT_PATCH"; then
-      cmd="(cd $PROJECT_DIR; patch -p0 <$VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
+      cmd="(cd $PROJECT_DIR; $BILDER_DIR/patch.sh $VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
       techo "$cmd"
       eval "$cmd"
       techo "VisIt patched. Results in $BUILD_DIR/visit-patch.txt."
@@ -157,9 +160,6 @@ buildVisit() {
       VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
       local VISIT_LD_RUN_PATH=$PYC_LD_RUN_PATH:$LD_RUN_PATH
       VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
-      # if test -d $CONTRIB_DIR/mesa/lib; then
-        # VISIT_MESA_DIR=$CONTRIB_DIR/mesa
-      # fi
       ;;
   esac
 

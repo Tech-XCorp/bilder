@@ -22,8 +22,40 @@ computeVersion numpy
 #
 ######################################################################
 
-NUMPY_BUILDS=${NUMPY_BUILDS:-"cc4py"}
-NUMPY_DEPS=Python,atlas,clapack_cmake,lapack
+setNumpyGlobalVars() {
+  NUMPY_BUILDS=${NUMPY_BUILDS:-"cc4py"}
+# On Windows numpy can be built with any of
+#   no linear algebra libraries
+#   clapack_cmake (no fortran need)
+#   netlib-lapack (fortran needed)
+#   atlas-clp (atlas built with clp, no fortran needed)
+#   atlas-ser (atlas built with netlib-lapack, fortran needed)
+# These flags determine how numpy is built, with or without fortran, atlas.
+# Without fortran, numpy builds, but scipy will not.
+# There seems to be a connection between the numpy and scipy builds,
+# with scipy using part of the numpy distutils.
+# On the web, there are various claims:
+# Python has to be 32bit: http://www.andrewsturges.com/2012/05/installing-numpy-for-python-3-in.html
+# Intel 64bit builds exist at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+  # NUMPY_WIN_USE_FORTRAN=false
+# With fortran but not atlas, numpy not yet building.
+  # if $IS_64_BIT && $BUILD_EXPERIMENTAL; then
+  if $BUILD_EXPERIMENTAL; then
+    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
+  else
+    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
+  fi
+  NUMPY_USE_ATLAS=${NUMPY_USE_ATLAS:-"false"}
+# Can now determine the deps
+  NUMPY_DEPS=Python
+  if $NUMPY_USE_ATLAS; then
+    NUMPY_DEPS=$NUMPY_DEPS,atlas
+  fi
+  NUMPY_DEPS=$NUMPY_DEPS,clapack_cmake,lapack
+}
+setNumpyGlobalVars
 
 ######################################################################
 #
@@ -33,48 +65,99 @@ NUMPY_DEPS=Python,atlas,clapack_cmake,lapack
 
 buildNumpy() {
 
+# Unpack if needs building
   if ! bilderUnpack numpy; then
     return
   fi
+# Scipy requires fortran
+  if test -z "$PYC_FC"; then
+    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
+  fi
 
+# Move to build directory
   cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
-
-# For windows-ser, since F90 = C:\MinGW\bin\mingw32-gfortran.exe,
-# cp /MinGW/lib/libmingw32.a build/temp.win32-2.6/Release/mingw32.lib
-# cp /MinGW/lib/libmingwex.a build/temp.win32-2.6/Release/mingwex.lib
-
 # Set the blas and lapack names for site.cfg.  Getting this done
 # here also fixes it for scipy, which relies on the distutils that
 # gets installed with numpy.
-  local lapacknames
-  local blasnames
-  local blaslapackdir
+  local lapacknames=
+  local blasnames=
+# Assuming blas and lapack are in the same directory.
+  local blslpckdir=
   case `uname`-"$CC" in
+
     CYGWIN*-*cl*)
-      lapacknames="lapack"
+      lapacknames=lapack
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
+# Worked with 1.6.x, but may not be working with 1.8.X
 # LDFLAGS did not work.  Nor did -Xlinker.
-      blasnames="blas, f2c, /NODEFAULTLIB:LIBCMT"
-      blaslapackdir="$CLAPACK_CMAKE_SER_DIR"
-      blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      local blslpcklibdir=
+      local blslpckincdir=
+      if $NUMPY_WIN_USE_FORTRAN && test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
+        blslpckdir="$CONTRIB_LAPACK_SERMD_DIR"
+        blasnames=blas
+      else
+        blslpckdir="$CLAPACK_CMAKE_SERMD_DIR"
+        blasnames=blas,f2c
+      fi
+      blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+      blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      local flibdir=
+      if test -n "$PYC_FC"; then
+        flibdir=`$PYC_FC -print-file-name=libgfortran.a`
+        flibdir=`dirname $flibdir`
+        flibdir=`cygpath -aw "$flibdir" | sed 's/\\\\/\\\\\\\\/g'`
+      fi
+      local atlasdir=
+      local atlaslibdir=
+      local atlasincdir=
+      if $NUMPY_USE_ATLAS; then
+        if $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
+          atlasdir="$ATLAS_SER_DIR"
+        elif test -n "$ATLAS_CLP_DIR"; then
+          atlasdir="$ATLAS_CLP_DIR"
+        fi
+        atlaslibdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+        atlasincdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+        atlasdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      fi
       ;;
+
     CYGWIN*-*mingw*)
       lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blaslapackdir="$LAPACK_CC4PY_DIR"/
-      blaslapackdir=`cygpath -aw $blaslapackdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
+      blslpckdir="$LAPACK_CC4PY_DIR"/
+      blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
+      blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
+      blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       ;;
+
     Linux-*)
       lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blaslapackdir="$LAPACK_CC4PY_DIR"/
+      blslpcklibdir="$LAPACK_CC4PY_DIR"/lib
+      blslpckincdir="$LAPACK_CC4PY_DIR"/include
+      blslpckdir="$LAPACK_CC4PY_DIR"/
       ;;
-# Assuming blas and lapack are in the same directory.
+
   esac
 
 # Create site.cfg
-  if test -n "$lapacknames"; then
-    sed -e "s?^include_dirs = /usr/local/?include_dirs = $blaslapackdir?" -e "s?^library_dirs = /usr/local/?library_dirs = $blaslapackdir?" -e "s?^lapack_libs = lapack?lapack_libs = $lapacknames?" -e "s?^blas_libs = blas?blas_libs = $blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+# Format changed by 1.8.0.  Lines all begin with '#', and lapack_libs
+# and blas_libs no longer specified.  They come from the section by default?
+  local sep=':'
+  if [[ `uname` =~ CYGWIN ]]; then
+# In spite of documentation, need semicolon, not comma.
+    sep=';'
+  fi
+# If lapack libs are defined, even clapack, numpy will search for
+# a fortran and use it.  If it is going to find cygwin's fortran,
+# prevent this by not defining the blas and lapack libraries
+  if test -n "$lapacknames" && $NUMPY_WIN_USE_FORTRAN; then
+    sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+    if test -n "$atlasdir"; then
+      sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+    fi
   fi
 
 # Accumulate link flags for modules, and make ATLAS modifications.
@@ -94,10 +177,25 @@ buildNumpy() {
 # build was successful.  Instead one must do any removal before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      NUMPY_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
       NUMPY_ENV="$DISTUTILS_ENV"
-# Not adding F90 to VS builds for now.
-# Need to add F90='C:\MinGW\bin\mingw32-gfortran.exe' if using lapack-ser?
+      if $NUMPY_WIN_USE_FORTRAN && test -n "$PYC_FC"; then
+        local fcbase=`basename "$PYC_FC"`
+        if which $fcbase 1>/dev/null 2>&1; then
+          # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
+# The above specification fails with
+# don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
+          NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
+          NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
+# Below does not help.  NumPy always uses 'gcc', so one must separate by path.
+          # local ccbase=`echo $fcbase | sed 's/fortran/cc/g'`
+          # NUMPY_ENV="$NUMPY_ENV CC='$ccbase'"
+        else
+          techo "WARNING: [$FUNCNAME] Not using fortran.  $fcbase not in path."
+        fi
+      else
+        techo "WARNING: [$FUNCNAME] Not using fortran.  PYC_FC = $PYC_FC.  NUMPY_WIN_USE_FORTRAN = $NUMPY_WIN_USE_FORTRAN."
+      fi
       ;;
     CYGWIN*-*w64-mingw*)
       NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"

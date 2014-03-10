@@ -33,7 +33,7 @@ SUPERLU_DIST_UMASK=002
 
 # Add parmetis if there are only standard builds and no commercial builds
 if !(grep -q comm <<<$SUPERLU_DIST_BUILDS); then
-  $SUPERLU_DIST_DEPS=$SUPERLU_DIST_DEPS,parmetis
+  SUPERLU_DIST_DEPS=$SUPERLU_DIST_DEPS,parmetis
 fi
 
 ######################################################################

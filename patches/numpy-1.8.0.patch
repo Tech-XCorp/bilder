@@ -1,0 +1,101 @@
+diff -ruN numpy-1.8.0/numpy/distutils/fcompiler/gnu.py numpy-1.8.0-new/numpy/distutils/fcompiler/gnu.py
+--- numpy-1.8.0/numpy/distutils/fcompiler/gnu.py	2013-10-30 12:31:40.000000000 -0600
++++ numpy-1.8.0-new/numpy/distutils/fcompiler/gnu.py	2014-03-07 09:32:10.271586700 -0700
+@@ -41,8 +41,14 @@
+         m = re.match(r'GNU Fortran\s+95.*?([0-9-.]+)', version_string)
+         if m:
+             return ('gfortran', m.group(1))
+-        m = re.match(r'GNU Fortran.*?\-?([0-9-.]+)', version_string)
++# Below searches for first number, but this fails for tdm, which inserts
++# (tdm-2) into the version string, so pull that out first.
++        newvs = re.sub(r'\(tdm-2\)', '', version_string)
++        # sys.stderr.write("newvs = '" + newvs + "'\n")
++        # m = re.match(r'GNU Fortran.*?\-?([0-9-.]+)', version_string)
++        m = re.match(r'GNU Fortran.*?\-?([0-9-.]+)', newvs)
+         if m:
++            # sys.stderr.write("Third match = '" + `m.group(1)` + "'\n")
+             v = m.group(1)
+             if v.startswith('0') or v.startswith('2') or v.startswith('3'):
+                 # the '0' is for early g77's
+@@ -51,6 +57,7 @@
+                 # at some point in the 4.x series, the ' 95' was dropped
+                 # from the version string
+                 return ('gfortran', v)
++        sys.stderr.write("No match found in version string 'newvs'.\n")
+ 
+     def version_match(self, version_string):
+         v = self.gnu_version_match(version_string)
+@@ -302,9 +309,9 @@
+         opt = GnuFCompiler.get_library_dirs(self)
+         if sys.platform == 'win32':
+             c_compiler = self.c_compiler
+-            if c_compiler and c_compiler.compiler_type == "msvc":
+-                target = self.get_target()
+-                if target:
++            # if c_compiler and c_compiler.compiler_type == "msvc":
++            target = self.get_target()
++            if target:
+                     d = os.path.normpath(self.get_libgcc_dir())
+                     root = os.path.join(d, os.pardir, os.pardir, os.pardir, os.pardir)
+                     mingwdir = os.path.normpath(os.path.join(root, target, "lib"))
+@@ -318,19 +325,23 @@
+         if sys.platform == 'darwin':
+             opt.remove('cc_dynamic')
+         if sys.platform == 'win32':
++            if "gfortran" in opt:
++                i = opt.index("gfortran")
++                opt.insert(i+1, "quadmath")
+             c_compiler = self.c_compiler
+             if c_compiler and c_compiler.compiler_type == "msvc":
+                 if "gcc" in opt:
+                     i = opt.index("gcc")
+                     opt.insert(i+1, "mingwex")
+                     opt.insert(i+1, "mingw32")
++                    # opt.insert(i+1, "winpthread")
+             # XXX: fix this mess, does not work for mingw
+             if is_win64():
+                 c_compiler = self.c_compiler
+                 if c_compiler and c_compiler.compiler_type == "msvc":
+-                    return []
++                    pass # return []
+                 else:
+-                    raise NotImplementedError("Only MS compiler supported with gfortran on win64")
++                    pass # raise NotImplementedError("Only MS compiler supported with gfortran on win64")
+         return opt
+ 
+     def get_target(self):
+diff -ruN numpy-1.8.0/numpy/distutils/mingw32ccompiler.py numpy-1.8.0-new/numpy/distutils/mingw32ccompiler.py
+--- numpy-1.8.0/numpy/distutils/mingw32ccompiler.py	2013-10-30 12:31:40.000000000 -0600
++++ numpy-1.8.0-new/numpy/distutils/mingw32ccompiler.py	2014-03-07 09:32:42.906849900 -0700
+@@ -95,7 +95,9 @@
+         msvcr_dbg_success = build_msvcr_library(debug=True)
+         if msvcr_success or msvcr_dbg_success:
+             # add preprocessor statement for using customized msvcr lib
+-            self.define_macro('NPY_MINGW_USE_CUSTOM_MSVCR')
++            # on 64-bit only.  Otherwise mingw32 fails on 32 bit.
++            if get_build_architecture() == 'AMD64':
++              self.define_macro('NPY_MINGW_USE_CUSTOM_MSVCR')
+ 
+         # Define the MSVC version as hint for MinGW
+         msvcr_version = '0x%03i0' % int(msvc_runtime_library().lstrip('msvcr'))
+@@ -176,7 +178,8 @@
+              target_lang=None):
+         # Include the appropiate MSVC runtime library if Python was built
+         # with MSVC >= 7.0 (MinGW standard is msvcrt)
+-        runtime_library = msvc_runtime_library()
++        # runtime_library = msvc_runtime_library()
++        runtime_library = None
+         if runtime_library:
+             if not libraries:
+                 libraries = []
+diff -ruN numpy-1.8.0/site.cfg.example numpy-1.8.0-new/site.cfg.example
+--- numpy-1.8.0/site.cfg.example	2013-10-30 12:31:41.000000000 -0600
++++ numpy-1.8.0-new/site.cfg.example	2014-03-07 09:30:46.979258300 -0700
+@@ -62,6 +62,7 @@
+ #[DEFAULT]
+ #library_dirs = /usr/local/lib
+ #include_dirs = /usr/local/include
++#libraries = lapack,blas
+ 
+ # Atlas
+ # -----

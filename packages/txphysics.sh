@@ -80,8 +80,7 @@ testTxphysics() {
 # Not doing much here, as neither testing builds nor submitting, but
 # ready for when txphysics is ready by uncommenting upper line and
 # removing lower.
-  # bilderRunTests -bs -i ben txbase "" "${TXPHYSICS_CTEST_TARGET}Test"
-  bilderRunTests -i ben txbase "" "${TXPHYSICS_CTEST_TARGET}Test"
+  bilderRunTests -i ben txphysics "" "${TXPHYSICS_CTEST_TARGET}Test"
 }
 
 ######################################################################

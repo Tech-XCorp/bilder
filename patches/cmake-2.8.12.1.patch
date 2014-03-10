@@ -1,0 +1,26 @@
+diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindCUDA.cmake
+--- cmake-2.8.12.1/Modules/FindCUDA.cmake	2013-11-05 12:07:22.000000000 -0700
++++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2014-03-04 11:09:29.541942297 -0700
+@@ -852,6 +852,7 @@
+         arg STREQUAL "EXCLUDE_FROM_ALL" OR
+         arg STREQUAL "STATIC" OR
+         arg STREQUAL "SHARED" OR
++        arg STREQUAL "OBJECT" OR
+         arg STREQUAL "MODULE"
+         )
+       list(APPEND ${_cmake_options} ${arg})
+@@ -1449,9 +1450,11 @@
+   # variable will have been defined.
+   CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS("${link_file}" ${cuda_target} "${_options}" "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
+ 
+-  target_link_libraries(${cuda_target}
+-    ${CUDA_LIBRARIES}
+-    )
++  if(NOT "${_cmake_options}" STREQUAL "OBJECT")
++    target_link_libraries(${cuda_target}
++      ${CUDA_LIBRARIES}
++      )
++  endif()
+ 
+   # We need to set the linker language based on what the expected generated file
+   # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
