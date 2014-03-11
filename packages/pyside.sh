@@ -20,12 +20,14 @@ PYSIDE_BLDRVERSION=${PYSIDE_BLDRVERSION:-"qt4.8+1.1.2"}
 #
 ######################################################################
 
+setPysideGlobalVars() {
 # Only the python build needed.
-PYSIDE_BUILD=$FORPYTHON_BUILD
-PYSIDE_BUILDS=${PYSIDE_BUILDS:-"$FORPYTHON_BUILD"}
-PYSIDE_DEPS=qt,shiboken
-PYSIDE_UMASK=002
-# addtopathvar PATH $CONTRIB_DIR/pyside/bin
+  PYSIDE_BUILD=$FORPYTHON_BUILD
+  PYSIDE_BUILDS=${PYSIDE_BUILDS:-"$FORPYTHON_BUILD"}
+  PYSIDE_DEPS=shiboken,qt
+  PYSIDE_UMASK=002
+}
+setPysideGlobalVars
 
 ######################################################################
 #
