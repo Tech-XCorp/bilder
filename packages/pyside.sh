@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-PYSIDE_BLDRVERSION=${PYSIDE_BLDRVERSION:-"qt4.8+1.1.2"}
+PYSIDE_BLDRVERSION=${PYSIDE_BLDRVERSION:-"qt4.8+1.2.1"}
 
 ######################################################################
 #
@@ -20,12 +20,14 @@ PYSIDE_BLDRVERSION=${PYSIDE_BLDRVERSION:-"qt4.8+1.1.2"}
 #
 ######################################################################
 
+setPysideGlobalVars() {
 # Only the python build needed.
-PYSIDE_BUILD=$FORPYTHON_BUILD
-PYSIDE_BUILDS=${PYSIDE_BUILDS:-"$FORPYTHON_BUILD"}
-PYSIDE_DEPS=qt,shiboken
-PYSIDE_UMASK=002
-# addtopathvar PATH $CONTRIB_DIR/pyside/bin
+  PYSIDE_BUILD=$FORPYTHON_BUILD
+  PYSIDE_BUILDS=${PYSIDE_BUILDS:-"$FORPYTHON_BUILD"}
+  PYSIDE_DEPS=shiboken,qt
+  PYSIDE_UMASK=002
+}
+setPysideGlobalVars
 
 ######################################################################
 #
@@ -47,7 +49,7 @@ buildPyside() {
   else
      makejargs="$PYSIDE_MAKEJ_ARGS"
   fi
-  PYSIDE_ADDL_ARGS="-DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I$CONTRIB_DIR/qt-${QT_BLDRVERSION}-sersh/include' -DQT_HEADERS_DIR:PATH=$CONTRIB_DIR/qt-${QT_BLDRVERSION}-sersh/include"
+  PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$NATIVE_PYTHON_SITEPKGSDIR' -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I$CONTRIB_DIR/qt-${QT_BLDRVERSION}-sersh/include' -DQT_HEADERS_DIR:PATH=$CONTRIB_DIR/qt-${QT_BLDRVERSION}-sersh/include"
   if ! [[ `uname` =~ CYGIN ]]; then
     PYSIDE_ENV="PATH=$CONTRIB_DIR/qt-${QT_BLDRVERSION}-sersh/bin:$PATH"
   fi

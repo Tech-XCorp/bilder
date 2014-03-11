@@ -12,25 +12,20 @@
 #
 ######################################################################
 
-SHIBOKEN_BLDRVERSION=${SHIBOKEN_BLDRVERSION:-"1.1.2"}
+SHIBOKEN_BLDRVERSION=${SHIBOKEN_BLDRVERSION:-"1.2.1"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-SHIBOKEN_BUILDS=ser
-SHIBOKEN_DEPS=cmake,bzip2
-SHIBOKEN_UMASK=002
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-# addtopathvar PATH $CONTRIB_DIR/shiboken/bin
+setShibokenGlobalVars() {
+  SHIBOKEN_BUILDS=ser
+  SHIBOKEN_DEPS=cmake,bzip2
+  SHIBOKEN_UMASK=002
+}
+setShibokenGlobalVars
 
 ######################################################################
 #
@@ -39,11 +34,17 @@ SHIBOKEN_UMASK=002
 ######################################################################
 
 buildShiboken() {
-  if bilderUnpack shiboken; then
-    if bilderConfig shiboken ser; then
-      bilderBuild shiboken ser
-    fi
+
+# Get version, see about installing
+  if ! bilderUnpack shiboken; then
+    return
   fi
+
+# configure and install
+  if bilderConfig shiboken ser; then
+    bilderBuild shiboken ser
+  fi
+
 }
 
 ######################################################################
@@ -64,7 +65,7 @@ testShiboken() {
 
 installShiboken() {
   if bilderInstall shiboken ser; then
-    ln -sf $CONTRIB_DIR/shiboken-ser/bin/shiboken $CONTRIB_DIR/bin/shiboken
+    ln -sf $CONTRIB_DIR/shiboken/bin/shiboken $CONTRIB_DIR/bin/shiboken
   fi
 }
 

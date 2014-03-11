@@ -26,7 +26,7 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 # Only the python build needed.
 FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
 FREECAD_BUILD=$FORPYTHON_BUILD
-FREECAD_DEPS=soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
+FREECAD_DEPS=pyside,shiboken,soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
 FREECAD_UMASK=002
 FREECAD_REPO_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
 FREECAD_UPSTREAM_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
@@ -144,7 +144,8 @@ buildFreecad() {
       coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost'"
     fi
   fi
-  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}'"
+  # FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}' -DSITE_PACKAGE:PATH='$NATIVE_PYTHON_SITEPKGSDIR' -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION"
+  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}' -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION"
 
 # Previously used
 #  -DOCC_LIBRARY_DIR='${ocerootdir}/lib'
