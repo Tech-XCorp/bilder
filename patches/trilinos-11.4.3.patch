@@ -1,6 +1,6 @@
-diff -ruN trilinos-11.4.3/PackagesList.cmake trilinos-11.4.3-patch/PackagesList.cmake
+diff -ruN trilinos-11.4.3/PackagesList.cmake trilinos-11.4.3-patched/PackagesList.cmake
 --- trilinos-11.4.3/PackagesList.cmake	2013-11-21 13:13:01.000000000 -0700
-+++ trilinos-11.4.3-patch/PackagesList.cmake	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/PackagesList.cmake	2014-03-11 12:51:18.000000000 -0600
 @@ -190,7 +190,7 @@
  PACKAGE_DISABLE_ON_PLATFORMS(TriKota Windows)
  PACKAGE_DISABLE_ON_PLATFORMS(Pamgen Windows)
@@ -10,9 +10,9 @@ diff -ruN trilinos-11.4.3/PackagesList.cmake trilinos-11.4.3-patch/PackagesList.
  PACKAGE_DISABLE_ON_PLATFORMS(Anasazi Windows)
  PACKAGE_DISABLE_ON_PLATFORMS(Zoltan Windows)
  PACKAGE_DISABLE_ON_PLATFORMS(Isorropia Windows)
-diff -ruN trilinos-11.4.3/PackagesList.cmake.orig trilinos-11.4.3-patch/PackagesList.cmake.orig
+diff -ruN trilinos-11.4.3/PackagesList.cmake.orig trilinos-11.4.3-patched/PackagesList.cmake.orig
 --- trilinos-11.4.3/PackagesList.cmake.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/PackagesList.cmake.orig	2013-11-21 13:13:01.000000000 -0700
++++ trilinos-11.4.3-patched/PackagesList.cmake.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,201 @@
 +# @HEADER
 +# ************************************************************************
@@ -215,9 +215,9 @@ diff -ruN trilinos-11.4.3/PackagesList.cmake.orig trilinos-11.4.3-patch/Packages
 +PACKAGE_DISABLE_ON_PLATFORMS(Trios Windows)
 +PACKAGE_DISABLE_ON_PLATFORMS(Xpetra Windows)
 +PACKAGE_DISABLE_ON_PLATFORMS(Panzer Windows)
-diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt trilinos-11.4.3-patch/packages/amesos/CMakeLists.txt
+diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt trilinos-11.4.3-patched/packages/amesos/CMakeLists.txt
 --- trilinos-11.4.3/packages/amesos/CMakeLists.txt	2013-11-21 13:13:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/amesos/CMakeLists.txt	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/amesos/CMakeLists.txt	2014-03-11 12:51:18.000000000 -0600
 @@ -12,10 +12,15 @@
  # B) Set up package-specific options
  #
@@ -237,9 +237,9 @@ diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt trilinos-11.4.3-patch/p
  
  # if using parallel MUMPS, must also link in scalapack and BLACS
  
-diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt.rej trilinos-11.4.3-patch/packages/amesos/CMakeLists.txt.rej
+diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt.rej trilinos-11.4.3-patched/packages/amesos/CMakeLists.txt.rej
 --- trilinos-11.4.3/packages/amesos/CMakeLists.txt.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/amesos/CMakeLists.txt.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/amesos/CMakeLists.txt.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,21 @@
 +--- packages/amesos/CMakeLists.txt	2013-11-04 12:26:37.000000000 -0700
 ++++ packages/amesos/CMakeLists.txt	2014-01-09 21:22:55.685993200 -0700
@@ -262,9 +262,9 @@ diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt.rej trilinos-11.4.3-pat
 + 
 + # if using parallel MUMPS, must also link in scalapack and BLACS
 + 
-diff -ruN trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.orig trilinos-11.4.3-patch/packages/amesos/src/Amesos_Superludist.h.orig
+diff -ruN trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.orig trilinos-11.4.3-patched/packages/amesos/src/Amesos_Superludist.h.orig
 --- trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/amesos/src/Amesos_Superludist.h.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/amesos/src/Amesos_Superludist.h.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,221 @@
 +// @HEADER
 +// ***********************************************************************
@@ -487,9 +487,9 @@ diff -ruN trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.orig trilinos
 + 
 +};  // End of  class Amesos_Superludist  
 +#endif /* AMESOS_SUPERLUDIST_H */
-diff -ruN trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.rej trilinos-11.4.3-patch/packages/amesos/src/Amesos_Superludist.h.rej
+diff -ruN trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.rej trilinos-11.4.3-patched/packages/amesos/src/Amesos_Superludist.h.rej
 --- trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/amesos/src/Amesos_Superludist.h.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/amesos/src/Amesos_Superludist.h.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,13 @@
 +--- packages/amesos/src/Amesos_Superludist.h	2013-11-04 12:26:38.000000000 -0700
 ++++ packages/amesos/src/Amesos_Superludist.h	2014-01-09 21:22:56.185199600 -0700
@@ -504,9 +504,9 @@ diff -ruN trilinos-11.4.3/packages/amesos/src/Amesos_Superludist.h.rej trilinos-
 +   //@}
 + 
 +   int SetParameters( Teuchos::ParameterList &ParameterList ) ;
-diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp trilinos-11.4.3-patch/packages/ifpack/src/Ifpack_ICT.cpp
+diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp trilinos-11.4.3-patched/packages/ifpack/src/Ifpack_ICT.cpp
 --- trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp	2013-11-21 13:11:43.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ifpack/src/Ifpack_ICT.cpp	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ifpack/src/Ifpack_ICT.cpp	2014-03-11 12:51:18.000000000 -0600
 @@ -40,6 +40,7 @@
  //@HEADER
  */
@@ -515,9 +515,9 @@ diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp trilinos-11.4.3-pat
  #include "Ifpack_ConfigDefs.h"
  #include "Ifpack_Preconditioner.h"
  #include "Ifpack_ICT.h"
-diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.orig trilinos-11.4.3-patch/packages/ifpack/src/Ifpack_ICT.cpp.orig
+diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.orig trilinos-11.4.3-patched/packages/ifpack/src/Ifpack_ICT.cpp.orig
 --- trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ifpack/src/Ifpack_ICT.cpp.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ifpack/src/Ifpack_ICT.cpp.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,529 @@
 +/*@HEADER
 +// ***********************************************************************
@@ -1048,9 +1048,9 @@ diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.orig trilinos-11.4.
 +  
 +  return(os);
 +}
-diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.rej trilinos-11.4.3-patch/packages/ifpack/src/Ifpack_ICT.cpp.rej
+diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.rej trilinos-11.4.3-patched/packages/ifpack/src/Ifpack_ICT.cpp.rej
 --- trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ifpack/src/Ifpack_ICT.cpp.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ifpack/src/Ifpack_ICT.cpp.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,11 @@
 +--- packages/ifpack/src/Ifpack_ICT.cpp	2013-11-04 12:26:55.000000000 -0700
 ++++ packages/ifpack/src/Ifpack_ICT.cpp	2014-01-09 21:23:16.605861400 -0700
@@ -1063,9 +1063,9 @@ diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp.rej trilinos-11.4.3
 +       cutoff = AbsRow[LOF];
 +     }
 + 
-diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_MultiVector.h
+diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_MultiVector.h
 --- trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h	2013-11-21 13:12:27.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_MultiVector.h	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_MultiVector.h	2014-03-11 12:51:18.000000000 -0600
 @@ -15,6 +15,7 @@
  /* person and disclaimer.                                               */        
  /* ******************************************************************** */
@@ -1074,9 +1074,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h trilinos-11.
  //#include "ml_lapack.h"
  #include "MLAPI_Error.h"
  #include "MLAPI_BaseObject.h"
-diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej
+diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej
 --- trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,10 @@
 +--- packages/ml/src/MLAPI/MLAPI_MultiVector.h	2013-11-04 12:27:10.000000000 -0700
 ++++ packages/ml/src/MLAPI/MLAPI_MultiVector.h	2014-01-09 21:23:38.477341800 -0700
@@ -1088,9 +1088,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h.rej trilinos
 + //#include "ml_lapack.h"
 + #include "MLAPI_Error.h"
 + #include "MLAPI_BaseObject.h"
-diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
 --- trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2013-11-21 13:12:27.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-03-11 12:51:18.000000000 -0600
 @@ -13,8 +13,10 @@
  #endif
  #include "MLAPI_Error.h"
@@ -1116,9 +1116,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.
  #else
          sleep(1);
  #endif
-diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej
+diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej
 --- trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,27 @@
 +--- packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2013-11-04 12:27:10.000000000 -0700
 ++++ packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-01-09 21:23:38.508542200 -0700
@@ -1147,9 +1147,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp.rej trilinos
 + #else
 +         sleep(1);
 + #endif
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.4.3-patch/packages/ml/src/Utils/ml_epetra_utils.cpp
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.4.3-patched/packages/ml/src/Utils/ml_epetra_utils.cpp
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp	2013-11-21 13:12:26.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-03-11 12:51:18.000000000 -0600
 @@ -40,8 +40,10 @@
  #include "Teuchos_Array.hpp"
  #include "Teuchos_ParameterList.hpp"
@@ -1186,9 +1186,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.
  #else
      sleep(1);
  #endif
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.orig trilinos-11.4.3-patch/packages/ml/src/Utils/ml_epetra_utils.cpp.orig
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.orig trilinos-11.4.3-patched/packages/ml/src/Utils/ml_epetra_utils.cpp.orig
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_epetra_utils.cpp.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_epetra_utils.cpp.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,3790 @@
 +/* ******************************************************************** */
 +/* See the file COPYRIGHT for a complete copyright notice, contact      */
@@ -4980,9 +4980,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.orig trilino
 +  int ML_EPETRA_EMPTY;
 +
 +#endif /*ifdef ML_WITH_EPETRA*/
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.rej trilinos-11.4.3-patch/packages/ml/src/Utils/ml_epetra_utils.cpp.rej
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.rej trilinos-11.4.3-patched/packages/ml/src/Utils/ml_epetra_utils.cpp.rej
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_epetra_utils.cpp.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_epetra_utils.cpp.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,38 @@
 +--- packages/ml/src/Utils/ml_epetra_utils.cpp	2013-11-04 12:27:10.000000000 -0700
 ++++ packages/ml/src/Utils/ml_epetra_utils.cpp	2014-01-09 21:23:38.695744600 -0700
@@ -5022,9 +5022,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp.rej trilinos
 + #else
 +     sleep(1);
 + #endif
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.c
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.c
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c	2013-11-21 13:12:26.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.c	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.c	2014-03-11 12:51:18.000000000 -0600
 @@ -1956,13 +1956,15 @@
        if (i == mypid) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
@@ -5042,9 +5042,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c trilinos-11.4.3-patch
          Sleep(1);
  #else
          sleep(1);
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.orig trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.c.orig
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.orig trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.c.orig
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.c.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.c.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,2675 @@
 +/* the file COPYRIGHT for a complete copyright notice, contact      */
 +/* person and disclaimer.                                               */        
@@ -7721,9 +7721,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.orig trilinos-11.4.3-
 +  }
 +  return 0;
 +}
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.rej trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.c.rej
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.rej trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.c.rej
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.c.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.c.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,19 @@
 +--- packages/ml/src/Utils/ml_utils.c	2013-11-04 12:27:11.000000000 -0700
 ++++ packages/ml/src/Utils/ml_utils.c	2014-01-09 21:23:38.851746600 -0700
@@ -7744,9 +7744,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c.rej trilinos-11.4.3-p
 +         Sleep(1);
 + #else
 +         sleep(1);
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.orig trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.h.orig
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.orig trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.h.orig
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.h.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.h.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,250 @@
 +/* ******************************************************************** */
 +/* See the file COPYRIGHT for a complete copyright notice, contact      */
@@ -7998,9 +7998,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.orig trilinos-11.4.3-
 +
 +#endif
 +
-diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.rej trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.h.rej
+diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.rej trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.h.rej
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.rej	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/ml/src/Utils/ml_utils.h.rej	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/ml/src/Utils/ml_utils.h.rej	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,12 @@
 +--- packages/ml/src/Utils/ml_utils.h	2013-11-04 12:27:11.000000000 -0700
 ++++ packages/ml/src/Utils/ml_utils.h	2014-01-09 21:23:38.867346800 -0700
@@ -8014,9 +8014,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.h.rej trilinos-11.4.3-p
 + #include <unistd.h>
 + #endif
 + 
-diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.4.3-patch/packages/seacas/libraries/exodus/cbind/include/exodusII.h
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2013-11-21 13:12:15.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-03-11 12:51:18.000000000 -0600
 @@ -51,7 +51,12 @@
  
  #include <stddef.h>
@@ -8031,9 +8031,9 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusI
  
  #ifndef NC_INT64
  #error "NetCDF version 4.1.2 or later is required."
-diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig trilinos-11.4.3-patch/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/include/exodusII.h.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,1983 @@
 +/*
 + * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
@@ -10018,9 +10018,9 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusI
 +
 +#endif
 +
-diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h trilinos-11.4.3-patch/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h	2013-11-21 13:12:15.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h	2014-03-11 12:51:18.000000000 -0600
 @@ -42,7 +42,12 @@
  #define EXODUS_II_INT_HDR
  
@@ -10035,9 +10035,45 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusI
  
  #ifndef __APPLE__
  #if defined __STDC__ || defined __cplusplus
-diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt trilinos-11.4.3-patch/packages/seacas/libraries/nemesis/CMakeLists.txt
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c
+--- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c	2013-11-21 13:12:13.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c	2014-03-11 12:55:22.000000000 -0600
+@@ -52,7 +52,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <stdint.h>
++//#include <stdint.h>
+ 
+ #include <netcdf.h>
+ 
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c
+--- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c	2013-11-21 13:12:13.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c	2014-03-11 12:55:48.000000000 -0600
+@@ -55,7 +55,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <stdint.h>
++//#include <stdint.h>
+ 
+ #include <string.h>
+ #include <math.h>
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
+--- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2013-11-21 13:12:14.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-03-11 12:56:12.000000000 -0600
+@@ -60,7 +60,7 @@
+ /*****************************************************************************/
+ 
+ #include <stdio.h>
+-#include <stdint.h>
++//#include <stdint.h>
+ 
+ #include <netcdf.h>
+ 
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt trilinos-11.4.3-patched/packages/seacas/libraries/nemesis/CMakeLists.txt
 --- trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt	2013-11-21 13:12:10.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/seacas/libraries/nemesis/CMakeLists.txt	2014-02-24 11:02:24.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/nemesis/CMakeLists.txt	2014-03-11 12:51:18.000000000 -0600
 @@ -42,10 +42,12 @@
    )
  ENDIF()
@@ -10055,9 +10091,26 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt trili
  
  TRIBITS_SUBPACKAGE_POSTPROCESS()
  
-diff -ruN trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp trilinos-11.4.3-patch/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp
+diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trilinos-11.4.3-patched/packages/seacas/libraries/nemesis/ne_nemesisI.h
+--- trilinos-11.4.3/packages/seacas/libraries/nemesis/ne_nemesisI.h	2013-11-21 13:12:10.000000000 -0700
++++ trilinos-11.4.3-patched/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-03-11 12:54:22.000000000 -0600
+@@ -46,7 +46,12 @@
+ #endif
+ 
+ #ifndef EXODUS_II_HDR
+-#include <stdint.h>
++#ifdef WIN32
++  typedef __int64 int64_t;
++  #define PRId64 "%ld"
++#else
++  #include <stdint.h>
++#endif
+   /** Specifies that this argument is the id of an entity: element block, nodeset, sideset, ... */
+   typedef int64_t ex_entity_id;
+   
+diff -ruN trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp trilinos-11.4.3-patched/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp
 --- trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp	2013-11-21 13:11:07.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp	2014-03-11 12:51:18.000000000 -0600
 @@ -484,6 +484,12 @@
    : public DirectSerializationTraits<Ordinal, ptrdiff_t>
  {};
@@ -10071,9 +10124,9 @@ diff -ruN trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.
  #endif // HAVE_TEUCHOS_LONG_LONG_INT
  
  } // namespace Teuchos
-diff -ruN trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig trilinos-11.4.3-patch/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig
+diff -ruN trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig trilinos-11.4.3-patched/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig
 --- trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/teuchos/comm/src/Teuchos_SerializationTraits.hpp.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,491 @@
 +// @HEADER
 +// ***********************************************************************
@@ -10566,9 +10619,9 @@ diff -ruN trilinos-11.4.3/packages/teuchos/comm/src/Teuchos_SerializationTraits.
 +} // namespace Teuchos
 +
 +#endif // TEUCHOS_SERIALIZATION_TRAITS_HPP
-diff -ruN trilinos-11.4.3/packages/teuchos/core/src/Teuchos_Array.hpp.orig trilinos-11.4.3-patch/packages/teuchos/core/src/Teuchos_Array.hpp.orig
+diff -ruN trilinos-11.4.3/packages/teuchos/core/src/Teuchos_Array.hpp.orig trilinos-11.4.3-patched/packages/teuchos/core/src/Teuchos_Array.hpp.orig
 --- trilinos-11.4.3/packages/teuchos/core/src/Teuchos_Array.hpp.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/teuchos/core/src/Teuchos_Array.hpp.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/teuchos/core/src/Teuchos_Array.hpp.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,1616 @@
 +// @HEADER
 +// ***********************************************************************
@@ -12186,9 +12239,9 @@ diff -ruN trilinos-11.4.3/packages/teuchos/core/src/Teuchos_Array.hpp.orig trili
 +
 +
 +#endif // TEUCHOS_ARRAY_H
-diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.4.3-patch/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
+diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.4.3-patched/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
 --- trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2013-11-21 13:11:09.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-03-11 12:51:18.000000000 -0600
 @@ -111,7 +111,8 @@
  
  //Explicitly instantiating these templates for windows due to an issue with
@@ -12199,9 +12252,9 @@ diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilino
  #  ifdef HAVE_TEUCHOS_COMPLEX
       template BLAS<long int, std::complex<float> >;
       template BLAS<long int, std::complex<double> >;
-diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig trilinos-11.4.3-patch/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig
+diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig trilinos-11.4.3-patched/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig
 --- trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig	1969-12-31 17:00:00.000000000 -0700
-+++ trilinos-11.4.3-patch/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig	2014-02-24 11:00:11.000000000 -0700
++++ trilinos-11.4.3-patched/packages/teuchos/numerics/src/Teuchos_BLAS.cpp.orig	2014-03-11 12:51:18.000000000 -0600
 @@ -0,0 +1,530 @@
 +// @HEADER
 +// ***********************************************************************
