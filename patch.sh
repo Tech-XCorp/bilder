@@ -22,8 +22,16 @@ fi
 
 # Find files to be patched
 files=`grep ^Index $1 | sed 's/^Index: *//'`
+if test -z "$files"; then
+  echo "ERROR: Could not determine files from patch.  Is this and svn repo?"
+  exit 1
+fi
 dir=`echo $files | sed -e "s?/.*??"`
 echo "Patching files, "$files" in directory, $dir."
+if test -z "$dir"; then
+  echo "ERROR: Directory did not parse."
+  exit 1
+fi
 
 # Determine dos subset and convert those to unix
 dosfiles=
