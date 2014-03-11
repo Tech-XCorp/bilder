@@ -3064,7 +3064,7 @@ getPkg() {
           numtarballs=${numtarballs:-"0"}
           techo -2 "Repo numtarballs = $numtarballs." 1>&2
           if test $numtarballs = 0; then
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] No tarball in repo matches \"^${1}\"\'\\.t*\'."
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] No tarball in repo ($pkgdir) matches \"^${1}\"\'\\.t*\'."
             # rm /tmp/tarballs$$.tmp
             terminate
           fi
