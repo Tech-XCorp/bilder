@@ -70,14 +70,9 @@ buildOce() {
     local patchfile=$BILDER_DIR/patches/oce.patch
     if test -e $patchfile; then
       OCE_PATCH=$patchfile
-      cmd="(cd $PROJECT_DIR/oce; $BILDER_DIR/patch.sh $patchfile > $BUILD_DIR/oce-patch.txt 2>&1)"
+      cmd="(cd $PROJECT_DIR/oce; patch -N -p1 <$patchfile)"
       techo "$cmd"
       eval "$cmd"
-      techo "OCE patched. Results in $BUILD_DIR/oce-patch.txt."
-      if grep -qi fail $BUILD_DIR/oce-patch.txt; then
-        grep -i fail $BUILD_DIR/oce-patch.txt | sed 's/^/WARNING: /' >$BUILD_DIR/oce-patch.fail
-        cat $BUILD_DIR/oce-patch.fail | tee -a $LOGFILE
-      fi
     fi
     if ! bilderPreconfig oce; then
       return 1
