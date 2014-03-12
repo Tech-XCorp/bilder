@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"0.6c11"}
+SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"2.0.2"}
 SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"2.0.2"}
 
 ######################################################################

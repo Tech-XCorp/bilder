@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-LIBSSH_BLDRVERSION_STD=${LIBSSH_BLDRVERSION:-"0.5.4"}
+LIBSSH_BLDRVERSION_STD=${LIBSSH_BLDRVERSION:-"0.5.5"}
 LIBSSH_BLDRVERSION_EXP=${LIBSSH_BLDRVERSION:-"0.5.5"}
 
 ######################################################################

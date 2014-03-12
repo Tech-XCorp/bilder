@@ -15,44 +15,27 @@
 ######################################################################
 
 case `uname` in
-
   CYGWIN*)
-# hdf5-1.8.[567] causes a crash at first dump in parallel on 32-bit systems.
-# 1.8.8 does work in parallel on win32,4.
 # If you upgrade to a newer version of hdf5, first check a parallel run on
 # 32-bit Windows and be sure it does not crash.
     if [[ "$CC" =~ mingw ]]; then
       HDF5_BLDRVERSION_STD=1.8.10
     else
-      HDF5_BLDRVERSION_STD=1.8.9
+      HDF5_BLDRVERSION_STD=1.8.12
     fi
-# 1.8.10 fails to build on Windows-cl.
     ;;
-
-# Failure of 1.8.8 on Lion and Snow Leopard confirmed.
-# h5diff 1.8.8 and 1.8.9 seg fault on Lion consistently.
-# binaries built separately (see below for 'binaries' build)
-# With cmake.2.8.9 and Xcode 3.2.6 hdf5-1.8.9 works on Snowleopard
-# h5diff 1.8.9 built with autotools does not seg fault on lion
-# but we have seen incorrect results from it.  So, sticking with 1.8.7.
-#
-# Further, 1.8.10 continues to segfault on Lion (using cmake build).
 
   Darwin)
     case `uname -r` in
-      13.*)   HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
-      10.8.*) HDF5_BLDRVERSION_STD=1.8.10;;	# Snow Leopard
-           *) HDF5_BLDRVERSION_STD=1.8.7;;	# Lion, Mountain Lion, etc.
+      13.*) HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
+         *) HDF5_BLDRVERSION_STD=1.8.12;;	# Everything else
     esac
     ;;
 
-  Linux) HDF5_BLDRVERSION_STD=1.8.10;;
-
+  Linux) HDF5_BLDRVERSION_STD=1.8.12;;
 esac
-HDF5_BLDRVERSION_EXP=1.8.12
 
-# If no experimental version alredy set, experimental = standard
-HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-$HDF5_BLDRVERSION_STD}
+HDF5_BLDRVERSION_EXP=1.8.12
 
 ######################################################################
 #

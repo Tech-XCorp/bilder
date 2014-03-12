@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-SCIPY_BLDRVERSION_STD=0.11.0
+SCIPY_BLDRVERSION_STD=0.13.3
 SCIPY_BLDRVERSION_EXP=0.13.3
 computeVersion scipy
 
