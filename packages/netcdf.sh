@@ -40,9 +40,11 @@ buildNetcdf() {
 # Now updates on file change
   # check netcdf
   local HDF5_DIR="${MIXED_CONTRIB_DIR}/hdf5-${HDF5_BLDRVERSION}-ser"
-  local NETCDF_OTHER_ARGS="-DBUILD_SHARED_LIBS:BOOL=OFF  -DENABLE_DAP:BOOL=OFF -DBUILD_UTILITIES:BOOL=OFF -DENABLE_NETCDF_4:BOOL=OFF"
+  local NETCDF_OTHER_ARGS="-DNC_USE_STATIC_CRT:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=OFF  -DENABLE_DAP:BOOL=OFF -DBUILD_UTILITIES:BOOL=OFF -DENABLE_NETCDF_4:BOOL=OFF"
+# Something screws up the netcdf flags. We have to specify /MT manually.
+# This will have to be done for all other builds as well.
   case `uname` in
-    CYGWIN*) NETCDF_OTHER_ARGS="${NETCDF_OTHER_ARGS} -DENABLE_NETCDF_4:BOOL=OFF";;
+    CYGWIN*) NETCDF_OTHER_ARGS="${NETCDF_OTHER_ARGS} -DCMAKE_C_FLAGS_RELEASE:STRING='/MT /O2 /Ob2 /D NDEBUG'";;
   esac
   if bilderUnpack netcdf; then
     if bilderConfig -c netcdf ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG ${NETCDF_OTHER_ARGS}"; then
