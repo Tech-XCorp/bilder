@@ -1388,6 +1388,23 @@ fi
 }
 
 #
+# Determine whether any build is installed.
+#
+# Args:
+# 1: Name of package
+# 2: Installation directory
+# 3: Additional note
+#
+printInstallationStatus() {
+  local pkgline=`grep ^${1}- $2/installations.txt | tail -1`
+  if test -n "$pkgline"; then
+    techo "NOTE: [${FUNCNAME}-$3] Found $pkgline in $2/installations.txt."
+  else
+    techo "NOTE: [${FUNCNAME}-$3] $1 not found in $2/installations.txt."
+  fi
+}
+
+#
 # Determine whether one build is installed.
 #
 # Args:
@@ -3064,7 +3081,7 @@ getPkg() {
           numtarballs=${numtarballs:-"0"}
           techo -2 "Repo numtarballs = $numtarballs." 1>&2
           if test $numtarballs = 0; then
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] No tarball in repo matches \"^${1}\"\'\\.t*\'."
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] No tarball in repo ($pkgdir) matches \"^${1}\"\'\\.t*\'."
             # rm /tmp/tarballs$$.tmp
             terminate
           fi
@@ -7245,12 +7262,7 @@ getDeps() {
 buildChain() {
 
 # Trying to trace down a de-installation of numpy
-  local pkgline=`grep ^numpy- $CONTRIB_DIR/installations.txt | tail -1`
-  if test -n "$pkgline"; then
-    techo "NOTE: [${FUNCNAME}-begin] Found $pkgline in $CONTRIB_DIR/installations.txt."
-  else
-    techo "NOTE: [${FUNCNAME}-begin] numpy not found in $CONTRIB_DIR/installations.txt."
-  fi
+  # printInstallationStatus numpy $CONTRIB_DIR buildChain-begin
 
 # Get options
   local analyzeonly=false
@@ -7390,12 +7402,7 @@ buildChain() {
   done
 
 # Trying to trace down a de-installation of numpy
-  local pkgline=`grep ^numpy- $CONTRIB_DIR/installations.txt | tail -1`
-  if test -n "$pkgline"; then
-    techo "NOTE: [${FUNCNAME}-end] Found $pkgline in $CONTRIB_DIR/installations.txt."
-  else
-    techo "NOTE: [${FUNCNAME}-end] numpy not found in $CONTRIB_DIR/installations.txt."
-  fi
+  # printInstallationStatus numpy $CONTRIB_DIR buildChain-end
 
 }
 
