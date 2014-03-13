@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.0.1"}
+FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
 FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.5.2"}
 
 ######################################################################
@@ -47,7 +47,7 @@ findFreetypeRootdir() {
   fi
 # OSX puts freetype under the X11 location, which may be in more than one place.
   if test -z "$ftdir"; then
-    for dir in /opt/homebrew /opt/X11 /usr/X11R6 /usr; do
+    for dir in /opt/X11 /usr/X11R6 /usr /opt/homebrew /opt/local; do
       if test -d $dir/include/freetype2; then
         ftdir=$dir
         break

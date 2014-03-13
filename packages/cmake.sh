@@ -12,19 +12,8 @@
 #
 ######################################################################
 
-case `uname` in
-# fortran binding issues with 2.8.10.1 on windows
-  CYGWIN*) CMAKE_BLDRVERSION_STD=2.8.9;;
-  Darwin)
-    case `uname -r` in
-      13.0.*) CMAKE_BLDRVERSION_STD=2.8.12.1;; # Mavericks requires 2.8.12.1
-      *) CMAKE_BLDRVERSION_STD=2.8.10.1;; # other Mac OS X versions
-    esac
-    ;;
-  *) CMAKE_BLDRVERSION_STD=2.8.10.1;;
-esac
+CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"2.8.12.1"}
 CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
-
 
 ######################################################################
 #
@@ -147,7 +136,6 @@ buildCmake() {
       techo "Quitting."; cleanup
     fi
   fi
-
 }
 
 ######################################################################
@@ -218,6 +206,5 @@ installCmake() {
 
 # Recompute cmake
   CMAKE=`which cmake`
-
 }
 

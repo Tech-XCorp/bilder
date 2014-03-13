@@ -17,7 +17,7 @@
 #
 ######################################################################
 
-SPHINX_BLDRVERSION_STD=${SPHINX_BLDRVERSION_STD="1.1.3"}
+SPHINX_BLDRVERSION_STD=${SPHINX_BLDRVERSION_STD="1.3a0"}
 SPHINX_BLDRVERSION_EXP=${SPHINX_BLDRVERSION_EXP="1.3a0"}
 
 ######################################################################

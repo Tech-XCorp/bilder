@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-NUMEXPR_BLDRVERSION_STD=${NUMEXPR_BLDRVERSION_STD:-"1.4.2"}
+NUMEXPR_BLDRVERSION_STD=${NUMEXPR_BLDRVERSION_STD:-"2.2.2"}
 NUMEXPR_BLDRVERSION_EXP=${NUMEXPR_BLDRVERSION_EXP:-"2.2.2"}
 
 ######################################################################
