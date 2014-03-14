@@ -47,21 +47,19 @@ getQt3d() {
   if ! which git 1>/dev/null 2>&1; then
     echo "WARNING: git not in path.  Cannot get qt3d."
   fi
+# If no source directory, then clone repo and make directory
   if ! test -d qt3d; then
     cmd="git clone git://gitorious.org/qt/qt3d.git qt3d"
     echo $cmd
     $cmd
-    cmd="cd qt3d"
-    echo $cmd
-    $cmd
-    cmd="git checkout --track -b qt4 origin/qt4"
-    echo $cmd
-    $cmd
-  else
-    cmd="cd qt3d"
-    echo $cmd
-    $cmd
-  fi
+  fi 
+# Ensure that we are in the right branch and do pull
+  cmd="cd qt3d"
+  echo $cmd
+  $cmd
+  cmd="git checkout --track -b qt4 origin/qt4"
+  echo $cmd
+  $cmd
   cmd="git pull"
   echo $cmd
   $cmd
