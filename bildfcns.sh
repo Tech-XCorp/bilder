@@ -5131,16 +5131,21 @@ bilderRunTests() {
       continue
     fi
 # Determine whether this build is ignored
-    local untestedbuild=false
-    if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)" || ! $hasbuildtests || ! $testingval; then
-      untestedbuild=true
+    local untestedBuildReason=
+    if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+      untestedBuildReason="it is in the list of ignored builds"
+    elif ! $hasbuildtests; then
+      untestedBuildReason="it has no per-build tests"
+    elif ! $testingval; then
+      untestedBuildReason="testing is turned off"
     fi
-    if $untestedbuild; then
-# Don't test if not testing or this build is ignored
-# Submitting even ignored builds
+
+    if test -n "$untestedBuildReason"; then
+# Don't test if not testing or this build is ignored.
+# Submitting to CDash dashboard even builds which are ignored.
 # If want to call bilderRunTests more than once, will need
 # a variable that holds builds to be collected and submitted.
-      techo "Not testing $pkgname-$bld."
+      techo "Not testing $pkgname-$bld, because $untestedBuildReason."
       if $submitres && test "$cmval" = cmake -a -n "$targval"; then
         cd $BUILD_DIR/$pkgname/$bld
         local sub_fname=$FQMAILHOST-$pkgname-$bld-submit
