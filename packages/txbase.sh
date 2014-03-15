@@ -38,7 +38,7 @@ setTxBaseGlobalVars() {
   computeBuilds txbase
   addCc4pyBuild txbase
   TXBASE_DEPS=hdf5,Python,openmpi,cmake
-  # On Windows, boost needed for some math functions
+# On Windows, boost needed for some math functions
   if [[ `uname` =~ CYGWIN ]]; then
     TXBASE_DEPS=$TXBASE_DEPS,boost
   fi
