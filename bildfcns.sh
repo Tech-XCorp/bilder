@@ -3189,8 +3189,8 @@ updateRepo() {
 
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
-# Get clean version of repo
     cd $pkg
+# Clean repo if requested
     if $CLEAN_GITHG_SUBREPOS; then
       case $scmexec in
         git)
@@ -3202,6 +3202,7 @@ updateRepo() {
       techo "$cmd"
       eval "$cmd"
     fi
+# Update repo if requested
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git) cmd="git pull";;
@@ -3209,35 +3210,34 @@ updateRepo() {
       esac
       techo "$cmd"
       eval "$cmd"
-# If not doing experimental build, move to any given tag
-      cmd=:
-      if ! $BUILD_EXPERIMENTAL; then
-        local tagvar=`genbashvar $1`_REPO_TAG
-        local tagval=`deref $tagvar`
-        if test -n "$tagval"; then
-          case $scmexec in
-            git) cmd="git checkout $tagval";;
-            hg) cmd="hg update -C $tagval";;
-          esac
-        fi
-      else
-# Otherwise make sure one is on master/default.
-        case $scmexec in
-          git) cmd="git checkout master";;
-          hg) cmd="hg update -C default";;
-        esac
-      fi
-      techo "$cmd"
-      eval "$cmd"
     fi
-    cd $PROJECT_DIR
   else
     techo "$PWD/$pkg/.$scmexec does not exist.  No $scmexec checkout of $pkg."
     if test -d $pkg; then rm -rf $pkg.sav; mv $pkg $pkg.sav; fi
     cmd="$scmexec clone $pkgurl $pkg"
     techo "$cmd"
     $cmd
+    cd $pkg
   fi
+
+# Move to standard or experimental tag
+  cmd=:
+  local tagvar=
+  if $BUILD_EXPERIMENTAL; then
+    tagvar=`genbashvar $1`_REPO_TAG_EXP
+  else
+    tagvar=`genbashvar $1`_REPO_TAG_STD
+  fi
+  local tagval=`deref $tagvar`
+  case $scmexec in
+    git) tagval=${tagval:-"master"}; cmd="git checkout $tagval";;
+    hg) tagval=${tagval:-"default"}; cmd="hg update -C $tagval";;
+  esac
+  techo "$cmd"
+  eval "$cmd"
+
+# Return to project dir
+  cd $PROJECT_DIR
 
 }
 

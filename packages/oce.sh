@@ -28,7 +28,8 @@ setOceGlobalVars() {
   OCE_UMASK=002
   OCE_REPO_URL=git://github.com/tpaviot/oce.git
   OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
-  OCE_REPO_TAG=OCE-0.14.1
+  OCE_REPO_TAG_STD=OCE-0.14.1
+  OCE_REPO_TAG_EXP=master
   # addtopathvar PATH $CONTRIB_DIR/oce/bin
 }
 setOceGlobalVars
@@ -40,21 +41,12 @@ setOceGlobalVars
 ######################################################################
 
 #
-# Get oce using git.
-# This gives a version that does not build on Windows.
-#
-getOce() {
-  techo "Updating oce from the repo."
-  updateRepo oce
-}
-
-#
 # Build OCE
 #
 buildOce() {
 
 # Get oce from repo
-  (cd $PROJECT_DIR; getOce)
+  updateRepo oce
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/oce; then
@@ -67,7 +59,12 @@ buildOce() {
   local OCE_INSTALL_DIR=
   if test -d oce; then
     getVersion oce
-    local patchfile=$BILDER_DIR/patches/oce.patch
+    local patchfile=
+    if $BUILD_EXPERIMENTAL; then
+      patchfile=$BILDER_DIR/patches/oce-exp.patch
+    else
+      patchfile=$BILDER_DIR/patches/oce-${OCE_BLDRVERSION}.patch
+    fi
     if test -e $patchfile; then
       OCE_PATCH=$patchfile
       cmd="(cd $PROJECT_DIR/oce; patch -N -p1 <$patchfile)"
@@ -117,6 +114,7 @@ buildOce() {
 
 # Configure and build
   if bilderConfig $makerargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
+    exit
     bilderBuild $makerargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
   fi
 
