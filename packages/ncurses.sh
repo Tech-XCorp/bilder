@@ -13,41 +13,45 @@
 ######################################################################
 
 NCURSES_BLDRVERSION=${NCURSES_BLDRVERSION:-"5.9"}
-NCURSES_BUILDS=${NCURSES_BUILDS:-"cc4py"}
-NCURSES_DEPS=
 
 ######################################################################
 #
-# We only need ncurses and readline for Darwin: Windows doesn't work 
-#  and it's standard on linux
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
-case `uname` in
-  CYGWIN*)
-	  unset NCURSES_BUILDS
-	  ;;
-  Linux)
-	  unset NCURSES_BUILDS
-    ;;
-esac
+
+setNcursesGlobalVars() {
+# We need ncurses for old Darwin only
+  if [[ `uname` =~ Darwin ]]; then
+    local dver=`uname -r | sed -e 's/\..*$//'`
+    if test $dver -lt 11; then
+      NCURSES_BUILDS=${NCURSES_BUILDS:-"$FORPYTHON_BUILD"}
+    fi
+  fi
+  NCURSES_BUILD=$FORPYTHON_BUILD
+  NCURSES_DEPS=
+}
+setNcursesGlobalVars
 
 ######################################################################
 #
-# Launch R builds.
+# Launch ncurses builds
 #
 ######################################################################
 
 buildNcurses() {
-  if bilderUnpack ncurses; then
-    if bilderConfig ncurses ser "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $NCURSES_CONFIG_LDFLAGS"; then
-      bilderBuild ncurses ser
-    fi
+  if ! bilderUnpack ncurses; then
+    return 1
+  fi
+  local ncursesotherargs=`deref NCURSES_${NCURSES_BUILD}_OTHER_ARGS`
+  if bilderConfig ncurses ${NCURSES_BUILD} "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ncursesotherargs"; then
+    bilderBuild ncurses ${NCURSES_BUILD}
   fi
 }
 
 ######################################################################
 #
-# Test 0mq
+# Test ncurses
 #
 ######################################################################
 
@@ -57,12 +61,11 @@ testNcurses() {
 
 ######################################################################
 #
-# Install R
+# Install
 #
 ######################################################################
 
 installNcurses() {
-# Ignore installation errors.  R tries to set perms of /contrib/bin.
-  bilderInstall ncurses ser "" ""
+  bilderInstall ncurses ${NCURSES_BUILD}
 }
 

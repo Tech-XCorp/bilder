@@ -27,7 +27,7 @@ setZeromqGlobalVars() {
   ZEROMQ_DEPS=
   ZEROMQ_UMASK=002
 }
-getZeromqGlobalVars
+setZeromqGlobalVars
 
 ######################################################################
 #

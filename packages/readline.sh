@@ -13,41 +13,44 @@
 ######################################################################
 
 READLINE_BLDRVERSION=${READLINE_BLDRVERSION:-"6.2"}
-READLINE_BUILDS=${READLINE_BUILDS:-"cc4py"}
-READLINE_DEPS=ncurses
 
 ######################################################################
 #
-# We only need ncurses and readline for Darwin: Windows doesn't work 
-#  and it's standard on linux
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
-case `uname` in
-  CYGWIN*)
-	  unset READLINE_BUILDS
-	  ;;
-  Linux)
-	  unset READLINE_BUILDS
-    ;;
-esac
+
+setReadlineGlobalVars() {
+# We need readlin for old Darwin only
+  if [[ `uname` =~ Darwin ]]; then
+    local dver=`uname -r | sed -e 's/\..*$//'`
+    if test $dver -lt 11; then
+      READLINE_BUILDS=${READLINE_BUILDS:-"$FORPYTHON_BUILD"}
+    fi
+  fi
+  READLINE_BUILD=$FORPYTHON_BUILD
+  READLINE_DEPS=ncurses
+}
+setReadlineGlobalVars
 
 ######################################################################
 #
-# Launch R builds.
+# Launch readline builds.
 #
 ######################################################################
 
 buildReadline() {
-  if bilderUnpack readline; then
-    if bilderConfig readline ser "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $READLINE_CONFIG_LDFLAGS"; then
-      bilderBuild readline ser
-    fi
+  if ! bilderUnpack readline; then
+    return 1
+  fi
+  if bilderConfig readline $READLINE_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $READLINE_CONFIG_LDFLAGS"; then
+    bilderBuild readline $READLINE_BUILD
   fi
 }
 
 ######################################################################
 #
-# Test 0mq
+# Test readline
 #
 ######################################################################
 
@@ -57,12 +60,11 @@ testReadline() {
 
 ######################################################################
 #
-# Install R
+# Install readline
 #
 ######################################################################
 
 installReadline() {
-# Ignore installation errors.  R tries to set perms of /contrib/bin.
-  bilderInstall readline ser "" ""
+  bilderInstall readline $READLINE_BUILD
 }
 
