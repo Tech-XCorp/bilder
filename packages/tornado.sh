@@ -36,7 +36,7 @@ setTornadoGlobalVars
 ######################################################################
 
 buildTornado() {
-  if bilderUnpack tornado; then
+  if ! bilderUnpack tornado; then
     return 1
   fi
 # Build away
