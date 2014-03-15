@@ -323,7 +323,7 @@ fi
 if $IS_64_BIT; then
   pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
   if test -z "$pfsubdirs"; then
-    techo "NOTE: [cygwin.sh] Microsoft Visual Studio not found under /ProgramFilesX86. Will try mounting.  Change /etc/fstab to make this permanent."
+    techo "WARNING: [cygwin.sh] Microsoft Visual Studio not found under /ProgramFilesX86. Will try mounting.  Change /etc/fstab to make this permanent."
     mkdir -p /ProgramFilesX86
     umount /ProgramFilesX86
     cmd="mount 'C:/Program Files (x86)' /ProgramFilesX86"
