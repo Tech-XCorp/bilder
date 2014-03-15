@@ -20,19 +20,18 @@
 #
 ######################################################################
 
+setQt3dGlobalVars() {
 # Qt is built $QT3D_BUILD if this is the python build, otherwise it is cc4py
-if test -z "$QT3D_DESIRED_BUILDS"; then
-  if isCcCc4py; then
-    QT3D_DESIRED_BUILDS=sersh
-    QT3D_BUILD=sersh
-  else
-    QT3D_DESIRED_BUILDS=cc4py
-    QT3D_BUILD=cc4py
-  fi
-fi
-computeBuilds qt3d
-QT3D_DEPS=qt
-QT3D_UMASK=002
+  QT3D_BUILD=$FORPYTHON_BUILD
+  QT3D_BUILDS=${QT3D_BUILDS:-"$FORPYTHON_BUILD"}
+  QT3D_DEPS=qt
+  QT3D_UMASK=002
+  QT3D_REPO_URL=git://gitorious.org/qt/qt3d.git
+  QT3D_UPSTREAM_URL=git://gitorious.org/qt/qt3d.git
+  QT3D_REPO_TAG_STD=qt4
+  QT3D_REPO_TAG_EXP=qt4  # The only choice
+}
+setQt3dGlobalVars
 
 ######################################################################
 #
@@ -41,38 +40,12 @@ QT3D_UMASK=002
 ######################################################################
 
 #
-# Get qt3d using git
-#
-getQt3d() {
-  if ! which git 1>/dev/null 2>&1; then
-    echo "WARNING: git not in path.  Cannot get qt3d."
-  fi
-# If no source directory, then clone repo and make directory
-  if ! test -d qt3d; then
-    cmd="git clone git://gitorious.org/qt/qt3d.git qt3d"
-    echo $cmd
-    $cmd
-  fi 
-# Ensure that we are in the right branch and do pull
-  cmd="cd qt3d"
-  echo $cmd
-  $cmd
-  cmd="git checkout --track -b qt4 origin/qt4"
-  echo $cmd
-  $cmd
-  cmd="git pull"
-  echo $cmd
-  $cmd
-  cd -
-}
-
-#
 # Build
 #
 buildQt3d() {
 
 # Try to get qt3d from repo
-  (cd $PROJECT_DIR; getQt3d)
+  updateRepo qt3d
 
 # If no subdir, done
   if ! test -d $PROJECT_DIR/qt3d; then
@@ -81,21 +54,22 @@ buildQt3d() {
 
 # Get version and proceed
   getVersion qt3d
+  if ! bilderPreconfig qt3d; then
+    return 1
+  fi
 
 # This is installed into qmake, which is in the contrib dir
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
 # Configure and build
-  if bilderPreconfig qt3d; then
-    if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
-      local QT3D_PLATFORM_BUILD_ARGS=
-      case `uname`-`uname -r` in
-        Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
-        CYGWIN*)     QT3D_PLATFORM_BUILD_ARGS="CXX=$(basename "${CXX}")";;
-        *)           QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
-      esac
+  if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
+    local QT3D_PLATFORM_BUILD_ARGS=
+    case `uname`-`uname -r` in
+      Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
+      CYGWIN*)     QT3D_PLATFORM_BUILD_ARGS="CXX=$(basename "${CXX}")";;
+      *)           QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
+    esac
 # During testing, do not "make clean".
-      bilderBuild -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
-    fi
+    bilderBuild -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
   fi
 }
 
@@ -116,19 +90,19 @@ testQt3d() {
 ######################################################################
 
 installQt3d() {
-# JRC 20130320: Qt3d is installed from just make on Linux.
-  # if bilderInstall -L qt3d $QT3D_BUILD; then
+# JRC 20130320: Qt3d is installed from just "make all".
   if bilderInstall -L -T all qt3d $QT3D_BUILD; then
     case `uname` in
       Darwin)
         local qtdir=$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$QT3D_BUILD
         for i in Qt3D Qt3DQuick; do
-          mkdir -p ${qtdir}/include/$i
-          cp ${qtdir}/lib/${i}.framework/Headers/* ${qtdir}/include/$i/
+          if ! test -d ${qtdir}/include/$i; then
+            mkdir -p ${qtdir}/include/$i
+            cp ${qtdir}/lib/${i}.framework/Headers/* ${qtdir}/include/$i/
+          fi
         done
         ;;
     esac
   fi
-  # techo "WARNING: Quitting at end of installQt3d."; cleanup
 }
 
