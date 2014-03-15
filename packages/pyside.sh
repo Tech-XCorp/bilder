@@ -12,7 +12,9 @@
 #
 ######################################################################
 
-PYSIDE_BLDRVERSION=${PYSIDE_BLDRVERSION:-"qt4.8+1.2.1"}
+# Neither of these works on mtnlion
+PYSIDE_BLDRVERSION_STD=${PYSIDE_BLDRVERSION_STD:-"qt4.8+1.2.0"}
+PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"qt4.8+1.2.1"}
 
 ######################################################################
 #
