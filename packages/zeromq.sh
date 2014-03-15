@@ -22,7 +22,9 @@ ZEROMQ_BLDRVERSION=${ZEROMQ_BLDRVERSION_EXP:-"4.0.3"}
 ######################################################################
 
 setZeromqGlobalVars() {
-  ZEROMQ_BUILDS=${ZEROMQ_BUILDS:-"$FORPYTHON_BUILD"}
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    ZEROMQ_BUILDS=${ZEROMQ_BUILDS:-"$FORPYTHON_BUILD"}
+  fi
   ZEROMQ_BUILD=$FORPYTHON_BUILD
   ZEROMQ_DEPS=
   ZEROMQ_UMASK=002

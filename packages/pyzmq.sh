@@ -22,7 +22,9 @@ PYZMQ_BLDRVERSION_EXP=${PYZMQ_BLDRVERSION_EXP:-"14.1.0"}
 ######################################################################
 
 setPyzmqGlobalVars() {
-  PYZMQ_BUILDS=${PYZMQ_BUILDS:-"cc4py"}
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    PYZMQ_BUILDS=${PYZMQ_BUILDS:-"cc4py"}
+  fi
 # setuptools gets site-packages correct
   PYZMQ_DEPS=setuptools,Python,zeromq,Cython
   PYZMQ_UMASK=002
