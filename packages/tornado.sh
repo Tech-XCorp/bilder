@@ -12,7 +12,9 @@
 #
 ######################################################################
 
-TORNADO_BLDRVERSION=${TORNADO_BLDRVERSION:-"2.1.1"}
+# TORNADO_BLDRVERSION_STD=${TORNADO_BLDRVERSION_STD:-"2.1.1"}
+TORNADO_BLDRVERSION_STD=${TORNADO_BLDRVERSION_STD:-"3.2"}
+TORNADO_BLDRVERSION_EXP=${TORNADO_BLDRVERSION_EXP:-"3.2"}
 
 ######################################################################
 #
@@ -20,10 +22,12 @@ TORNADO_BLDRVERSION=${TORNADO_BLDRVERSION:-"2.1.1"}
 #
 ######################################################################
 
-TORNADO_BUILDS=${TORNADO_BUILDS:-"cc4py"}
-# setuptools gets site-packages correct
-TORNADO_DEPS=setuptools,Python
-TORNADO_UMASK=002
+setTornadoGlobalVars() {
+  TORNADO_BUILDS=${TORNADO_BUILDS:-"cc4py"}
+  TORNADO_DEPS=setuptools,Python
+  TORNADO_UMASK=002
+}
+setTornadoGlobalVars
 
 #####################################################################
 #
@@ -33,11 +37,12 @@ TORNADO_UMASK=002
 
 buildTornado() {
   if bilderUnpack tornado; then
-# Build away
-    TORNADO_ENV="$DISTUTILS_ENV"
-    techo -2 TORNADO_ENV = $TORNADO_ENV
-    bilderDuBuild tornado "" "$TORNADO_ENV"
+    return 1
   fi
+# Build away
+  TORNADO_ENV="$DISTUTILS_ENV"
+  techo -2 TORNADO_ENV = $TORNADO_ENV
+  bilderDuBuild tornado "" "$TORNADO_ENV"
 }
 
 ######################################################################
@@ -57,7 +62,6 @@ testTornado() {
 ######################################################################
 
 installTornado() {
-# 20121202: There is only one lib dir.  No lib64 now.
   bilderDuInstall -r tornado tornado "" "$TORNADO_ENV"
 }
 

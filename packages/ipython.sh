@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-IPYTHON_BLDRVERSION_STD=${IPYTHON_BLDRVERSION_STD:-"0.12"}
-IPYTHON_BLDRVERSION_EXP=${IPYTHON_BLDRVERSION_EXP:-"1.1.0"}
+IPYTHON_BLDRVERSION_STD=${IPYTHON_BLDRVERSION_STD:-"1.1.0"}
+IPYTHON_BLDRVERSION_EXP=${IPYTHON_BLDRVERSION_EXP:-"1.2.1"}
 
 ######################################################################
 #
@@ -21,18 +21,18 @@ IPYTHON_BLDRVERSION_EXP=${IPYTHON_BLDRVERSION_EXP:-"1.1.0"}
 #
 ######################################################################
 
-IPYTHON_BUILDS=${IPYTHON_BUILDS:-"cc4py"}
-IPYTHON_DEPS=Python,tornado,pyzmq,zeromq,pyreadline,readline,ncurses,matplotlib
-case `uname` in
-  Darwin)
-    ;;
-  *)
-    IPYTHON_DEPS=${IPYTHON_DEPS},pyqt
-    ;;
-esac
-IPYTHON_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/bin
-addtopathvar PATH $BLDR_INSTALL_DIR/bin
+setIpythonGlobalVars() {
+  IPYTHON_BUILDS=${IPYTHON_BUILDS:-"cc4py"}
+  IPYTHON_DEPS=Python,tornado,pyzmq,zeromq,pyreadline,readline,ncurses,matplotlib
+  case `uname` in
+    Darwin) ;;
+    *) IPYTHON_DEPS=${IPYTHON_DEPS},pyqt ;;
+  esac
+  IPYTHON_UMASK=002
+  addtopathvar PATH $CONTRIB_DIR/bin
+  addtopathvar PATH $BLDR_INSTALL_DIR/bin
+}
+setIpythonGlobalVars
 
 #####################################################################
 #
