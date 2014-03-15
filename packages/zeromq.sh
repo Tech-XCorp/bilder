@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Version and build information for ZeroMQ
+# http://zeromq.org/intro:get-the-software
 #
 # $Id$
 #
@@ -20,14 +21,13 @@ ZEROMQ_BLDRVERSION=${ZEROMQ_BLDRVERSION_EXP:-"4.0.3"}
 #
 ######################################################################
 
-if test -z "$ZEROMQ_BUILDS"; then
-  if ! [[ `uname` =~ CYGWIN ]]; then
-    ZEROMQ_BUILDS=$FORPYTHON_BUILD
-  fi
-fi
-ZEROMQ_BUILD=$FORPYTHON_BUILD
-ZEROMQ_DEPS=
-ZEROMQ_UMASK=002
+setZeromqGlobalVars() {
+  ZEROMQ_BUILDS=${ZEROMQ_BUILDS:-"$FORPYTHON_BUILD"}
+  ZEROMQ_BUILD=$FORPYTHON_BUILD
+  ZEROMQ_DEPS=
+  ZEROMQ_UMASK=002
+}
+getZeromqGlobalVars
 
 ######################################################################
 #
@@ -36,10 +36,12 @@ ZEROMQ_UMASK=002
 ######################################################################
 
 buildZeromq() {
-  if bilderUnpack zeromq; then
-    if bilderConfig zeromq $ZEROMQ_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ZEROMQ_CONFIG_LDFLAGS"; then
-      bilderBuild zeromq $ZEROMQ_BUILD
-    fi
+  if ! bilderUnpack zeromq; then
+    return 1
+  fi
+  local zmqotherargs=`deref ZEROMQ_${ZEROMQ_BUILD}_OTHER_ARGS`
+  if bilderConfig zeromq $ZEROMQ_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $zmqotherargs"; then
+    bilderBuild zeromq $ZEROMQ_BUILD
   fi
 }
 

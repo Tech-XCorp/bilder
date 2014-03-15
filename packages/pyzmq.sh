@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-PYZMQ_BLDRVERSION_STD=${PYZMQ_BLDRVERSION_STD:-"63d88b0"}
-PYZMQ_BLDRVERSION_EXP=${PYZMQ_BLDRVERSION_EXP:-"13.0.0"}
+PYZMQ_BLDRVERSION_STD=${PYZMQ_BLDRVERSION_STD:-"13.0.0"}
+PYZMQ_BLDRVERSION_EXP=${PYZMQ_BLDRVERSION_EXP:-"14.1.0"}
 
 ######################################################################
 #
@@ -21,14 +21,13 @@ PYZMQ_BLDRVERSION_EXP=${PYZMQ_BLDRVERSION_EXP:-"13.0.0"}
 #
 ######################################################################
 
-if test -z "$PYZMQ_BUILDS"; then
-  if ! [[ `uname` =~ CYGWIN ]]; then
-    PYZMQ_BUILDS="cc4py"
-  fi
-fi
+setPyzmqGlobalVars() {
+  PYZMQ_BUILDS=${PYZMQ_BUILDS:-"cc4py"}
 # setuptools gets site-packages correct
-PYZMQ_DEPS=setuptools,Python,zeromq,Cython
-PYZMQ_UMASK=002
+  PYZMQ_DEPS=setuptools,Python,zeromq,Cython
+  PYZMQ_UMASK=002
+}
+setPyzmqGlobalVars
 
 #####################################################################
 #
