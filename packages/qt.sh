@@ -27,19 +27,16 @@
 #
 # Version
 #
+# Putting the version information into qtversions.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.
+#
 ######################################################################
 
-case `uname`-`uname -r` in
-  Darwin-13.*)
-# 4.8.4 and 4.8.5 do not build on Mavericks
-# 4.8.6 snapshot below.
-    QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.6-20140310-510"}
-    ;;
-  *)
-    QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.5"}
-    ;;
-esac
-QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.6-20140310-510"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/qtversions.sh
 
 ######################################################################
 #
@@ -245,6 +242,7 @@ buildQt() {
 # Restore dbus and xmlpatterns or get wrong one
   local qtotherargs=`deref QT_${QT_BUILD}_OTHER_ARGS`
   if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $qtotherargs" "" "$QT_ENV"; then
+    exit
 # Make clean seems to hang
     bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
   else
