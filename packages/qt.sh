@@ -46,10 +46,7 @@ source $mydir/qtversions.sh
 
 setQtGlobalVars() {
 # Only the python build is needed
-  case `uname`-`uname -r` in
-    Darwin-13.*) QT_BUILDS=NONE;; # Until 4.8.6 comes out.
-    *) QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"};;
-  esac
+  QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
   QT_BUILD=$FORPYTHON_BUILD
   QT_DEPS=bzip2
   QT_UMASK=002
