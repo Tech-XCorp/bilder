@@ -12,8 +12,18 @@
 #
 ######################################################################
 
-NUMPY_BLDRVERSION_STD=1.8.0
+# numpy 1.8.0 broken on Windows. testVsHdf5.py exits with a code of 127
+# after calls to numpy. (Actually, the script exits with a 127, and when
+# we placed exit(0) calls in various places we found that the problematic
+# code is the calls to numpy.
+
+case `uname` in
+  CYGWIN*) NUMPY_BLDRVERSION_STD=1.6.2;;
+        *) NUMPY_BLDRVERSION_STD=1.8.0;;
+esac
+
 NUMPY_BLDRVERSION_EXP=1.8.0
+
 computeVersion numpy
 
 ######################################################################
