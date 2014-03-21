@@ -12,16 +12,7 @@
 #
 ######################################################################
 
-# numpy 1.8.0 broken on Windows. testVsHdf5.py exits with a code of 127
-# after calls to numpy. (Actually, the script exits with a 127, and when
-# we placed exit(0) calls in various places we found that the problematic
-# code is the calls to numpy.
-
-case `uname` in
-  CYGWIN*) NUMPY_BLDRVERSION_STD=1.6.2;;
-        *) NUMPY_BLDRVERSION_STD=1.8.0;;
-esac
-
+NUMPY_BLDRVERSION_STD=1.8.0
 NUMPY_BLDRVERSION_EXP=1.8.0
 
 computeVersion numpy
@@ -50,7 +41,20 @@ setNumpyGlobalVars() {
   # NUMPY_WIN_USE_FORTRAN=false
 # With fortran but not atlas, numpy not yet building.
   # if $IS_64_BIT && $BUILD_EXPERIMENTAL; then
-  NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
+
+# numpy 1.8.0 built with Fortran is broken on Windows. testVsHdf5.py exits
+# with a code of 127 after calls to numpy. (Actually, the script exits with
+# a 127, and when we placed exit(0) calls in various places we found that
+# the problematic code is the calls to numpy.
+
+  if $BUILD_EXPERIMENTAL; then
+    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
+  else
+    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
+  fi
+
   if $NUMPY_WIN_USE_FORTRAN; then
     NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
   fi
