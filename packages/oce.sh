@@ -45,8 +45,9 @@ setOceGlobalVars
 #
 buildOce() {
 
-# Get oce from repo
+# Get oce from repo and remove any detritus
   updateRepo oce
+  rm -f $PROJECT_DIR/oce/CMakeLists.txt.{orig,rej}
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/oce; then
