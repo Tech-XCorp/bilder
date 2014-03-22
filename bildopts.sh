@@ -459,12 +459,9 @@ EOF
 # Clean directories if requested
   if $CLEAN_INSTALLS; then
     rotateFile $BILDER_LOGDIR/cleaninstalls.log
-    echo >$BILDER_LOGDIR/cleaninstalls.log
-    for dir in $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR; do
-      cmd="$BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $dir 1>>$BILDER_LOGDIR/cleaninstalls.log 2>&1"
-      techo "$cmd"
-      eval "$cmd"
-    done
+    cmd="$BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR 1>$BILDER_LOGDIR/cleaninstalls.log 2>&1"
+    techo "$cmd"
+    eval "$cmd"
   fi
 
 # Convert to cygwin as appropriate
