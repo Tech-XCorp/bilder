@@ -25,17 +25,21 @@ fi
 #
 ######################################################################
 
+setSoQtGlobalVars() {
 # SoQt is installed with Coin, so it is built the way Coin is built.
-if test -z "$SOQT_BUILDS"; then
-  SOQT_BUILDS=${FORPYTHON_BUILD}
-  if [[ `uname` =~ CYGWIN ]]; then
-    SOQT_BUILDS=${SOQT_BUILDS},${FORPYTHON_BUILD}dbg
+  if test -z "$SOQT_BUILDS"; then
+    SOQT_BUILDS=${FORPYTHON_BUILD}
+    if [[ `uname` =~ CYGWIN ]]; then
+      SOQT_BUILDS=${SOQT_BUILDS},${FORPYTHON_BUILD}dbg
+    fi
   fi
-fi
-SOQT_DEPS=coin,qt
-SOQT_UMASK=002
-SOQT_REPO_URL=https://bitbucket.org/Coin3D/soqt
-SOQT_UPSTREAM_URL=https://bitbucket.org/Coin3D/soqt
+# Repo and tarball have different capitalization
+  SOQT_DEPS=coin,Coin,qt
+  SOQT_UMASK=002
+  SOQT_REPO_URL=https://bitbucket.org/Coin3D/soqt
+  SOQT_UPSTREAM_URL=https://bitbucket.org/Coin3D/soqt
+}
+setSoQtGlobalVars
 
 ######################################################################
 #

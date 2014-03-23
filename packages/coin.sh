@@ -43,8 +43,11 @@ setCoinGlobalVars() {
   COIN_UMASK=002
   COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
   COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
-# addtopathvar PATH $CONTRIB_DIR/coin/bin
+# Needed to configure soqt
+  addtopathvar PATH $CONTRIB_DIR/coin-sersh/bin
+  addtopathvar PATH $CONTRIB_DIR/Coin-sersh/bin
 }
+setCoinGlobalVars
 
 ######################################################################
 #
