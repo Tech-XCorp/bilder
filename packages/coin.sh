@@ -31,18 +31,20 @@ fi
 #
 ######################################################################
 
+setCoinGlobalVars() {
 # Only python builds needed.
-if test -z "$COIN_BUILDS"; then
-  COIN_BUILDS=${FORPYTHON_BUILD}
-  if [[ `uname` =~ CYGWIN ]]; then
-    COIN_BUILDS=${COIN_BUILDS},${FORPYTHON_BUILD}dbg
+  if test -z "$COIN_BUILDS"; then
+    COIN_BUILDS=${FORPYTHON_BUILD}
+    if [[ `uname` =~ CYGWIN ]]; then
+      COIN_BUILDS=${COIN_BUILDS},${FORPYTHON_BUILD}dbg
+    fi
   fi
-fi
-COIN_DEPS=qt
-COIN_UMASK=002
-COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
-COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
+  COIN_DEPS=qt
+  COIN_UMASK=002
+  COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
+  COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
 # addtopathvar PATH $CONTRIB_DIR/coin/bin
+}
 
 ######################################################################
 #
