@@ -14,8 +14,8 @@
 
 # Neither of these works on mtnlion
 PYSIDE_BLDRVERSION_STD=${PYSIDE_BLDRVERSION_STD:-"1.1.2"}
-# PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"qt4.8+1.2.1"}
-PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"1.1.2"}
+PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"qt4.8+1.2.1"}
+# PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"1.1.2"}
 computeVersion pyside
 
 ######################################################################
@@ -29,9 +29,9 @@ setPysideGlobalVars() {
   PYSIDE_BUILD=$FORPYTHON_BUILD
   PYSIDE_BUILDS=${PYSIDE_BUILDS:-"$FORPYTHON_BUILD"}
   PYSIDE_USE_DISTUTILS=false
-  case $PYSIDE_BLDR_VERSION in
+  case $PYSIDE_BLDRVERSION in
     1.1.*) PYSIDE_USE_DISTUTILS=true;;
-    qt4.8+1.2*) PYSIDE_DEPS=shiboken;;
+    *) PYSIDE_DEPS=shiboken;;
   esac
   PYSIDE_DEPS=${PYSIDE_DEPS},qt
   trimvar PYSIDE_DEPS ,
