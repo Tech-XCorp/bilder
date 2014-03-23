@@ -13,8 +13,9 @@
 ######################################################################
 
 # Neither of these works on mtnlion
-SHIBOKEN_BLDRVERSION_STD=${SHIBOKEN_BLDRVERSION_STD:-"1.2.0"}
+SHIBOKEN_BLDRVERSION_STD=${SHIBOKEN_BLDRVERSION_STD:-"1.2.1"}
 SHIBOKEN_BLDRVERSION_EXP=${SHIBOKEN_BLDRVERSION_EXP:-"1.2.1"}
+computeVersion shiboken
 
 ######################################################################
 #
