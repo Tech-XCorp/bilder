@@ -85,7 +85,7 @@ fi
 echo "Sourcing $BILDER_DIR/bildopts.sh."
 source $BILDER_DIR/bildopts.sh
 # Trying to determine when numpy gets uninstalled
-printInstallationStatus numpy $CONTRIB_DIR post-bildopts
+# printInstallationStatus numpy $CONTRIB_DIR post-bildopts
 
 # Common initializations
 echo "Sourcing $BILDER_DIR/bildinit.sh."
