@@ -184,11 +184,10 @@ EOF
       pkg=`echo $inst | sed 's/-.*$//'`
       echo "Package is $pkg."
       build=`echo $inst | sed 's/^.*-//'`
-      echo "Build is $build."
+      echo "Build in installations.txt is $build."
       ver=`echo $inst | sed -e "s/${pkg}-//" -e "s/-${build}\$//"`
-      echo "Version is $ver."
+      echo "Version in installations.txt is $ver."
       pkglc=`echo $pkg | tr 'A-Z' 'a-z'`
-      echo "Bilder file is ${pkglc}.sh."
       pkgfile=
 # Add * to end of file name to invoke globbing
       if test -n "$BILDER_CONFDIR"; then
@@ -206,27 +205,29 @@ EOF
         echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
         continue
       fi
+      echo "Bilder package file is ${pkgfile}."
+      pver=
       if pkgline=`grep -q bilderDu $pkgfile`; then
         echo "$pkg is a python package."
-        ver=`python -c "import $pkg; print $pkg.__version__" 2>/dev/null`
-        if test -z "$ver"; then
+        pver=`python -c "import $pkg; print $pkg.__version__" 2>/dev/null`
+        if test -z "$pver"; then
           echo "$pkg installation has no version.  Will try lower case."
-          ver=`python -c "import $pkglc; print ${pkglc}.__version__" 2>/dev/null`
-          if test -z "$ver"; then
+          pver=`python -c "import $pkglc; print ${pkglc}.__version__" 2>/dev/null`
+          if test -z "$pver"; then
             echo "WARNING: [cleaninstalls.sh] $pkglc installation has no version.  Keeping record."
             echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             continue
           fi
         fi
         pv=`echo $LINE | sed 's/-cc4py.*$//'`
-        echo "$pkg-$ver is installed.  Found record for $pv."
+        echo "Found record for $pv in installations.txt."
         case $pkg in
           setuptools)
             echo "WARNING: [cleaninstalls.sh] $pkglc has conflicting version.  Keeping record because matplotlib installs older version of setuptools."
             echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             ;;
           *)
-            if test "$pv" = ${pkg}-$ver; then
+            if test "$pv" = ${pkg}-$pver; then
               echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             else
               echo "${pv} is not installed.  Removing record."
