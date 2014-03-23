@@ -458,12 +458,12 @@ EOF
 
 # Clean directories if requested
   if $CLEAN_INSTALLS; then
-    # printInstallationStatus numpy $CONTRIB_DIR pre-cleaninstalls
+    printInstallationStatus numpy $CONTRIB_DIR pre-cleaninstalls
     rotateFile $BILDER_LOGDIR/cleaninstalls.log
     cmd="$BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR 1>$BILDER_LOGDIR/cleaninstalls.log 2>&1"
     techo "$cmd"
     eval "$cmd"
-    # printInstallationStatus numpy $CONTRIB_DIR post-cleaninstalls
+    printInstallationStatus numpy $CONTRIB_DIR post-cleaninstalls
   fi
 
 # Convert to cygwin as appropriate
