@@ -56,9 +56,14 @@ buildPyside() {
     return 1
   fi
 
+  PYSIDE_QTDIR=`(cd $QT_BINDIR/..; pwd -P)`
+  if [[ `uname` =~ CYGWIN ]]; then
+    PYSIDE_QTDIR=`cygpath -aw $PYSIDE_QTDIR`
+  fi
   if $PYSIDE_USE_DISTUTILS; then
 
-    bilderDuBuild pyside "" "$DISTUTILS_ENV"
+    PYSIDE_ENV="QTDIR='$PYSIDE_QTDIR' $DISTUTILS_ENV"
+    bilderDuBuild pyside "" "$PYSIDE_ENV"
 
   else
 
@@ -70,13 +75,13 @@ buildPyside() {
     else
        makejargs="$PYSIDE_MAKEJ_ARGS"
     fi
-    PYSIDE_QTDIR=`(cd $QT_BINDIR/..; pwd -P)`
+    # PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$MIXED_PYTHON_SITEPKGSDIR' -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I${PYSIDE_QTDIR}/include' -DQT_HEADERS_DIR:PATH=${PYSIDE_QTDIR}/include"
     PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$MIXED_PYTHON_SITEPKGSDIR' -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I${PYSIDE_QTDIR}/include' -DQT_HEADERS_DIR:PATH=${PYSIDE_QTDIR}/include"
     if test -d $CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser; then
       PYSIDE_ADDL_ARGS="$PYSIDE_ADDL_ARGS -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION"
     fi
     if ! [[ `uname` =~ CYGIN ]]; then
-      PYSIDE_ENV="PATH=$QT_BINDIR:$PATH"
+      PYSIDE_ENV="PATH=$QT_BINDIR:$PATH QTDIR='$PYSIDE_QTDIR'"
     fi
 
 # Configure and build
@@ -106,7 +111,7 @@ testPyside() {
 
 installPyside() {
   if $PYSIDE_USE_DISTUTILS; then
-    bilderDuInstall pyside "-" "$DISTUTILS_ENV"
+    bilderDuInstall pyside "-" "$PYSIDE_ENV"
   else
     local subdir=`echo $PYTHON_SITEPKGSDIR | sed -d "s?^${CONTRIB_DIR}/??"`/PySide
     local subdirvar=`genbashvar pyside-${PYSIDE_BUILD}`_INSTALL_SUBDIR
