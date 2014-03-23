@@ -14,9 +14,12 @@
 
 # Neither of these works on mtnlion
 PYSIDE_BLDRVERSION_STD=${PYSIDE_BLDRVERSION_STD:-"1.1.2"}
-# The versions with qt in the name use cmake and need the separate
-# shiboken build.  These are crashing on OS X.
+# The versions with qt in the name use cmake, need a separate shiboken build,
+# and are from http://download.qt-project.org/official_releases/pyside/
+# These are crashing on OS X.
 # PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"qt4.8+1.2.1"}
+# The versions without qt in the name use distutils and come from
+# https://pypi.python.org/pypi/PySide
 PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"1.2.1"}
 computeVersion pyside
 
