@@ -142,10 +142,12 @@ if ! $NO_PYTHON; then
     CYGWIN*)
       PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/Lib/site-packages
       NATIVE_PYTHON_SITEPKGSDIR=`cygpath -aw ${PYTHON_SITEPKGSDIR}`
+      MIXED_PYTHON_SITEPKGSDIR=`cygpath -am ${PYTHON_SITEPKGSDIR}`
       ;;
     Darwin | Linux)
       PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/lib/${PYTHON_VERDIR}/site-packages
       NATIVE_PYTHON_SITEPKGSDIR=${PYTHON_SITEPKGSDIR}
+      MIXED_PYTHON_SITEPKGSDIR=${PYTHON_SITEPKGSDIR}
       ;;
   esac
 # Add site-packages to front of path.

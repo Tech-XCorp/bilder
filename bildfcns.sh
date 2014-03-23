@@ -5906,23 +5906,25 @@ EOF
       esac
 
 # Fix perms according to umask.  Is this needed anymore?
-      techo "Setting permissions according to umask."
-      case $umaskval in
-        000? | 00? | ?)  # printing format can vary.
-# For case where directories end up not being owned by installer
-          cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
-          techo "$cmd"
-          eval "$cmd"
-          ;;
-      esac
-      case $umaskval in
-        0002 | 002 | 2)
-# For case where directories end up not being owned by installer
-          cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
-          techo "$cmd"
-          eval "$cmd"
-          ;;
-      esac
+      if test -d $instdirval/$instsubdirval; then
+        techo "Setting permissions according to umask."
+        case $umaskval in
+          000? | 00? | ?)  # printing format can vary.
+  # For case where directories end up not being owned by installer
+            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
+            techo "$cmd"
+            eval "$cmd"
+            ;;
+        esac
+        case $umaskval in
+          0002 | 002 | 2)
+  # For case where directories end up not being owned by installer
+            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
+            techo "$cmd"
+            eval "$cmd"
+            ;;
+        esac
+      fi
 
 # Fix group if requested
       if $setGroup; then
