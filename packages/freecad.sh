@@ -23,15 +23,18 @@ FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
 #
 ######################################################################
 
+setFreecadGlobalVars() {
 # Only the python build needed.
-FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
-FREECAD_BUILD=$FORPYTHON_BUILD
-FREECAD_DEPS=pyside,shiboken,soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
-FREECAD_UMASK=002
-FREECAD_REPO_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
-FREECAD_UPSTREAM_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
-FREECAD_WEBSITE_URL=http://www.freecadweb.org/
+  FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
+  FREECAD_BUILD=$FORPYTHON_BUILD
+  FREECAD_DEPS=pyside,shiboken,soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
+  FREECAD_UMASK=002
+  FREECAD_REPO_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
+  FREECAD_UPSTREAM_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
+  FREECAD_WEBSITE_URL=http://www.freecadweb.org/
 addtopathvar PATH $CONTRIB_DIR/freecad/bin
+}
+setFreecadGlobalVars
 
 ######################################################################
 #
@@ -144,18 +147,19 @@ buildFreecad() {
       coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost'"
     fi
   fi
-  # FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}' -DSITE_PACKAGE:PATH='$NATIVE_PYTHON_SITEPKGSDIR' -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION"
-  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}' -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION"
-
-# Previously used
-#  -DOCC_LIBRARY_DIR='${ocerootdir}/lib'
-# -DF2C_LIBRARIES:FILEPATH='${CONTRIB_DIR}/f2c-${F2C_BLDRVERSION}-ser/lib/libf2c.a'  ???
+  local pysidever=`echo $PYSIDE_BLDRVERSION | sed 's/qt4.8\+//'`
+  FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}' -DShiboken_DIR:PATH='$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION' -DPySide_DIR:PATH='$CONTRIB_DIR/pyside-$PYSIDE_BLDRVERSION-sersh/lib/cmake/PySide-$pysidever'"
 
 # Configure and build
   if bilderConfig -c freecad $FREECAD_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $FREECAD_ADDL_ARGS $FREECAD_OTHER_ARGS"; then
-# Parallel builds failing
-    # bilderBuild freecad $FREECAD_BUILD "$FREECAD_MAKEJ_ARGS $FREECAD_ENV"
-    bilderBuild freecad $FREECAD_BUILD "$FREECAD_ENV"
+    local buildargs=
+    local makejargs=
+    if [[ `uname` =~ CYGWIN ]]; then
+      buildargs="-m nmake"
+    else
+      makejargs="$PYSIDE_MAKEJ_ARGS"
+    fi
+    bilderBuild $buildargs freecad $FREECAD_BUILD "$makejargs" "$FREECAD_ENV"
   fi
 
 }
