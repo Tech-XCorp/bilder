@@ -17,10 +17,10 @@ PYSIDE_BLDRVERSION_STD=${PYSIDE_BLDRVERSION_STD:-"1.1.2"}
 # The versions with qt in the name use cmake, need a separate shiboken build,
 # and are from http://download.qt-project.org/official_releases/pyside/
 # These are crashing on OS X.
-# PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"qt4.8+1.2.1"}
+PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"qt4.8+1.2.1"}
 # The versions without qt in the name use distutils and come from
 # https://pypi.python.org/pypi/PySide
-PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"1.2.1"}
+# PYSIDE_BLDRVERSION_EXP=${PYSIDE_BLDRVERSION_EXP:-"1.2.1"}
 computeVersion pyside
 
 ######################################################################
@@ -67,25 +67,23 @@ buildPyside() {
 
   else
 
-# PYSIDE does not have all dependencies right, so needs nmake
-    local buildargs=
-    local makejargs=
-    if [[ `uname` =~ CYGWIN ]]; then
-       buildargs="-m nmake"
-    else
-       makejargs="$PYSIDE_MAKEJ_ARGS"
-    fi
-    # PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$MIXED_PYTHON_SITEPKGSDIR' -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I${PYSIDE_QTDIR}/include' -DQT_HEADERS_DIR:PATH=${PYSIDE_QTDIR}/include"
-    PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$MIXED_PYTHON_SITEPKGSDIR' -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I${PYSIDE_QTDIR}/include' -DQT_HEADERS_DIR:PATH=${PYSIDE_QTDIR}/include"
+    # PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$MIXED_PYTHON_SITEPKGSDIR' -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS -I${PYSIDE_QTDIR}/include' -DALTERNATIVE_QT_INCLUDE_DIR='${PYSIDE_QTDIR}/include'"
+    PYSIDE_ADDL_ARGS="-DSITE_PACKAGE:PATH='$MIXED_PYTHON_SITEPKGSDIR' -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS' -DALTERNATIVE_QT_INCLUDE_DIR='${PYSIDE_QTDIR}/include'"
     if test -d $CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser; then
-      PYSIDE_ADDL_ARGS="$PYSIDE_ADDL_ARGS -DShiboken_DIR:PATH=$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION"
+      PYSIDE_ADDL_ARGS="$PYSIDE_ADDL_ARGS -DShiboken_DIR:PATH='$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION'"
     fi
-    if ! [[ `uname` =~ CYGIN ]]; then
-      PYSIDE_ENV="PATH=$QT_BINDIR:$PATH QTDIR='$PYSIDE_QTDIR'"
-    fi
+    PYSIDE_ENV="QTDIR='$PYSIDE_QTDIR' PATH='$QT_BINDIR:$PATH'"
 
 # Configure and build
-    if bilderConfig -p - pyside $PYSIDE_BUILD "$CMAKE_COMPILERS_PYC $PYSIDE_ADDL_ARGS $PYSIDE_OTHER_ARGS" "" "$PYSIDE_ENV"; then
+    if bilderConfig pyside $PYSIDE_BUILD "$CMAKE_COMPILERS_PYC $PYSIDE_ADDL_ARGS $PYSIDE_OTHER_ARGS" "" "$PYSIDE_ENV"; then
+# pyside needs nmake on cygwin?
+      local buildargs=
+      local makejargs=
+      if [[ `uname` =~ CYGWIN ]]; then
+        buildargs="-m nmake"
+      else
+        makejargs="$PYSIDE_MAKEJ_ARGS"
+      fi
       bilderBuild $buildargs pyside $PYSIDE_BUILD "$makejargs" "$PYSIDE_ENV"
     fi
 
@@ -113,9 +111,6 @@ installPyside() {
   if $PYSIDE_USE_DISTUTILS; then
     bilderDuInstall pyside "-" "$PYSIDE_ENV"
   else
-    local subdir=`echo $PYTHON_SITEPKGSDIR | sed -d "s?^${CONTRIB_DIR}/??"`/PySide
-    local subdirvar=`genbashvar pyside-${PYSIDE_BUILD}`_INSTALL_SUBDIR
-    eval $subdirvar=$subdir
     bilderInstallAll pyside
   fi
 }
