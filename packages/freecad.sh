@@ -147,7 +147,7 @@ buildFreecad() {
       coinlibs="-DCOIN3D_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}Coin.$libpost' -DSOQT_LIBRARY:FILEPATH='${coin3ddir}/lib/${libpre}SoQt.$libpost'"
     fi
   fi
-  local pysidever=`echo $PYSIDE_BLDRVERSION | sed 's/qt4.8\+//'`
+  local pysidever=`echo $PYSIDE_BLDRVERSION | sed 's/qt4.8+//'`
   FREECAD_ADDL_ARGS="${FREECAD_ADDL_ARGS} -DXERCESC_LIBRARIES:FILEPATH='${xercescdir}/lib/${libpre}xerces-c-3.1.$libpost' -DCOIN3D_INCLUDE_DIR:PATH='${coin3ddir}/include' $coinlibs -DOCE_DIR='${ocedevdir}' -DShiboken_DIR:PATH='$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION' -DPySide_DIR:PATH='$CONTRIB_DIR/pyside-$PYSIDE_BLDRVERSION-sersh/lib/cmake/PySide-$pysidever'"
 
 # Configure and build
