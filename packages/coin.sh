@@ -18,7 +18,7 @@
 
 # Build from tarball
 COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
-COIN_USE_REPO=false
+COIN_USE_REPO=true
 if $COIN_USE_REPO; then
   COIN_NAME=coin
 else
@@ -41,8 +41,10 @@ setCoinGlobalVars() {
   fi
   COIN_DEPS=qt
   COIN_UMASK=002
-  COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
-  COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
+  # COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
+  # COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
+  COIN_REPO_URL=https://bitbucket.org/cbuehler/coin
+  COIN_UPSTREAM_URL=https://bitbucket.org/cbuehler/coin
 # Needed to configure soqt
   addtopathvar PATH $CONTRIB_DIR/coin-sersh/bin
   addtopathvar PATH $CONTRIB_DIR/Coin-sersh/bin
@@ -80,7 +82,8 @@ buildCoin() {
 
 # Get version and preconfig
     getVersion coin
-    if ! bilderPreconfig -p : coin; then
+    # if ! bilderPreconfig -p : coin; then
+    if ! bilderPreconfig -c coin; then
       return 1
     fi
 
@@ -93,18 +96,19 @@ buildCoin() {
 
   fi
 
+if false; then
   local COIN_ADDL_ARGS=
   local BASE_CC=`basename "$CC"`
   local BASE_CXX=`basename "$CXX"`
   local COIN_COMPILERS=
   case `uname` in
     CYGWIN*)
-      COIN_ADDL_ARGS="$COIN_ADDL_ARGS --with-msvcrt=/md"
-      COIN_DBG_ADDL_ARGS="$COIN_DBG_ADDL_ARGS --with-msvcrt=/mdd"
+      # COIN_ADDL_ARGS="$COIN_ADDL_ARGS --with-msvcrt=/md"
+      # COIN_DBG_ADDL_ARGS="$COIN_DBG_ADDL_ARGS --with-msvcrt=/mdd"
       COIN_COMPILERS="CC='' CXX=''"
       ;;
     Darwin)
-      COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework"
+      # COIN_ADDL_ARGS="$COIN_ADDL_ARGS --without-framework"
       COIN_COMPILERS="CC='$BASE_CC' CXX='$BASE_CXX'"
       ;;
     *)
@@ -119,14 +123,18 @@ buildCoin() {
   fi
   trimvar COIN_CFLAGS ' '
   trimvar COIN_CXXFLAGS ' '
+fi
 
-  if bilderConfig $COIN_NAME $FORPYTHON_BUILD "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
-    bilderBuild -m make $COIN_NAME $FORPYTHON_BUILD "" "$COIN_COMPILERS"
+  local otherargs=`deref COIN_${FORPYTHON_BUILD}_OTHER_ARGS`
+  if bilderConfig -c $COIN_NAME $FORPYTHON_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $COIN_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS"; then
+    bilderBuild $COIN_NAME $FORPYTHON_BUILD
   fi
 
+if false; then
   if bilderConfig $COIN_NAME ${FORPYTHON_BUILD}dbg "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_DBG_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_COMPILERS"; then
     bilderBuild -m make $COIN_NAME ${FORPYTHON_BUILD}dbg "" "$COIN_COMPILERS"
   fi
+fi
 
 }
 
@@ -148,7 +156,8 @@ testCoin() {
 
 installCoin() {
   for bld in `echo $COIN_BUILDS | tr ',' ' '`; do
-    bilderInstall -m make -r $COIN_NAME $bld
+    # bilderInstall -m make -r $COIN_NAME $bld
+    bilderInstall -r $COIN_NAME $bld
   done
 }
 
