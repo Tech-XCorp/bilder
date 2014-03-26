@@ -60,7 +60,7 @@ setHdf5GlobalVars() {
   fi
   computeBuilds hdf5
   addCc4pyBuild hdf5
-  HDF5_DEPS=openmpi,zlib,cmake,bzip2
+  HDF5_DEPS=cmake,openmpi,zlib,cmake,bzip2
   HDF5_UMASK=002
   addtopathvar PATH $CONTRIB_DIR/hdf5/bin
 }
