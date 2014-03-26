@@ -56,13 +56,20 @@ buildPyside() {
     return 1
   fi
 
+# General variabls
   PYSIDE_QTDIR=`(cd $QT_BINDIR/..; pwd -P)`
   if [[ `uname` =~ CYGWIN ]]; then
     PYSIDE_QTDIR=`cygpath -aw $PYSIDE_QTDIR`
   fi
+  local PYSIDE_ENV="QTDIR='$PYSIDE_QTDIR'"
+  if [[ `uname` =~ Linux ]]; then
+    PYSIDE_ENV="$PYSIDE_ENV LD_LIBRARY_PATH='$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$FORPYTHON_BUILD/lib:$LD_LIBRARY_PATH'"
+  fi
+
+# Distutils build
   if $PYSIDE_USE_DISTUTILS; then
 
-    PYSIDE_ENV="QTDIR='$PYSIDE_QTDIR' $DISTUTILS_ENV"
+    PYSIDE_ENV="$PYSIDE_ENV $DISTUTILS_ENV"
     bilderDuBuild pyside "" "$PYSIDE_ENV"
 
   else
@@ -72,7 +79,7 @@ buildPyside() {
     if test -d $CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser; then
       PYSIDE_ADDL_ARGS="$PYSIDE_ADDL_ARGS -DShiboken_DIR:PATH='$CONTRIB_DIR/shiboken-$SHIBOKEN_BLDRVERSION-ser/lib/cmake/Shiboken-$SHIBOKEN_BLDRVERSION'"
     fi
-    PYSIDE_ENV="QTDIR='$PYSIDE_QTDIR' PATH='$QT_BINDIR:$PATH'"
+    PYSIDE_ENV="$PYSIDE_ENV PATH='$QT_BINDIR:$PATH'"
 
 # Configure and build
     if bilderConfig pyside $PYSIDE_BUILD "$CMAKE_COMPILERS_PYC $PYSIDE_ADDL_ARGS $PYSIDE_OTHER_ARGS" "" "$PYSIDE_ENV"; then
