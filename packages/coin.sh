@@ -87,6 +87,14 @@ buildCoin() {
 
 # Get version and preconfig
     getVersion coin
+# Patch if present
+    local patchfile=$BILDER_DIR/patches/coin.patch
+    if test -e $patchfile; then
+      COIN_PATCH="$patchfile"
+      cmd="(cd $PROJECT_DIR/coin; patch -p1 <$patchfile)"
+      techo "$cmd"
+      eval "$cmd"
+    fi
 # If not using cmake, do not preconfig
     COIN_PRECONFIG_ARGS=${COIN_CMAKE_ARGS:-"-p :"}
     if ! bilderPreconfig $COIN_PRECONFIG_ARGS coin; then
