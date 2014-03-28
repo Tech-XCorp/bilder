@@ -6036,7 +6036,7 @@ EOF
                 endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip"
               fi
               ;;
-            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
+            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
             Linux) endings="-Linux64.tar.gz -Linux64-gpu.tar.gz -Linux32.tar.gz";;
           esac
           local sfx=
