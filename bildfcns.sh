@@ -175,6 +175,7 @@ printvar() {
 mkLink() {
   local shortcut
   local unix
+  local linkres
   case `uname` in
     CYGWIN*)
       shortcut=true
@@ -194,6 +195,10 @@ mkLink() {
     cmd="(cd $1; rmall ${topFolder}.lnk ${3}.lnk; mkshortcut -n ${3}.lnk $2)"
     techo "$cmd"
     eval "$cmd"
+    linkres=$?
+    if test $linkres != 0; then
+      techo "WARNING: Failed to make shortcut ${3}.lnk in directory '$1'."
+    fi
   fi
   if $unix; then
     techo "(cd $1; rmall $3; ln -s $2 $3)"
