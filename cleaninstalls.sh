@@ -111,6 +111,7 @@ cleanInstallDir() {
 
 # Removing tarball packages.  Do as subshell so as not to change
 # nocaseglob in this shell.
+visit-r23049-sersh cary visitall 2014-03-22-15:51:45 bilder-r1098
   if $REMOVE_CONTRIB_PKGS; then
     cd $CLN_INSTALL_DIR
   cat >rmtarballs.sh <<EOF
@@ -180,13 +181,16 @@ EOF
 # export PYTHONPATH=$PYINSTDIR
     cat $CLN_INSTALL_DIR/installations.txt | while read LINE; do
       inst=`echo $LINE | sed 's/ .*$//'`
-      echo "Installation is $inst."
+      echo "$inst is in installations.txt."
       pkg=`echo $inst | sed 's/-.*$//'`
       echo "Package is $pkg."
       build=`echo $inst | sed 's/^.*-//'`
       echo "Build in installations.txt is $build."
       ver=`echo $inst | sed -e "s/${pkg}-//" -e "s/-${build}\$//"`
       echo "Version in installations.txt is $ver."
+      echo "$pkg-$ver is in installations.txt"
+      pv=`echo $LINE | sed 's/-cc4py.*$//'`
+      echo "Found record for $pv in installations.txt."
       pkglc=`echo $pkg | tr 'A-Z' 'a-z'`
       pkgfile=
 # Add * to end of file name to invoke globbing
@@ -219,8 +223,7 @@ EOF
             continue
           fi
         fi
-        pv=`echo $LINE | sed 's/-cc4py.*$//'`
-        echo "Found record for $pv in installations.txt."
+        echo "${pkg}-$pver is actually installed."
         case $pkg in
           setuptools)
             echo "WARNING: [cleaninstalls.sh] $pkglc has conflicting version.  Keeping record because matplotlib installs older version of setuptools."
