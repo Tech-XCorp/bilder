@@ -22,7 +22,7 @@
 
 # Build from tarball
 COIN_BLDRVERSION=${COIN_BLDRVERSION:-"3.1.3"}
-COIN_USE_REPO=true
+COIN_USE_REPO=false
 if $COIN_USE_REPO; then
   COIN_NAME=coin
 else
@@ -51,8 +51,11 @@ setCoinGlobalVars() {
   # COIN_UPSTREAM_URL=https://bitbucket.org/cbuehler/coin
   # COIN_CMAKE_ARG=-c # Goes with above repo only.
 # Needed to configure soqt
-  addtopathvar PATH $CONTRIB_DIR/coin-sersh/bin
-  addtopathvar PATH $CONTRIB_DIR/Coin-sersh/bin
+  if $COIN_USE_REPO; then
+    addtopathvar PATH $BLDR_INSTALL_DIR/coin-${FORPYTHON_BUILD}/bin
+  else
+    addtopathvar PATH $CONTRIB_DIR/Coin-${FORPYTHON_BUILD}/bin
+  fi
 }
 setCoinGlobalVars
 
@@ -73,6 +76,11 @@ getCoin() {
 buildCoin() {
 
   if $COIN_USE_REPO; then
+
+# Remove other coin
+    rm -rf $CONTRIB_DIR/{Coin,SoQt}-*
+    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR Coin,${FORPYTHON_BUILD}
+    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR SoQt,${FORPYTHON_BUILD}
 
 # Try to get coin from repo
     if ! (cd $PROJECT_DIR; getCoin); then
@@ -102,6 +110,11 @@ buildCoin() {
     fi
 
   else
+
+# Remove other coin, soqt
+    rm -rf $BLDR_INSTALL_DIR/{coin,soqt}-*
+    $BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR coin,${FORPYTHON_BUILD}
+    $BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR soqt,${FORPYTHON_BUILD}
 
 # Build from tarball
     if ! bilderUnpack Coin; then
