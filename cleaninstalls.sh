@@ -213,10 +213,10 @@ EOF
       pver=
       if pkgline=`grep -q bilderDu $pkgfile`; then
         echo "$pkg is a python package."
-        pver=`python -c "import $pkg; print $pkg.__version__" 2>/dev/null`
+        pver=`python -c 'import $pkg; print $pkg.__version__' 2>/dev/null | tr -d '\r'`
         if test -z "$pver"; then
           echo "$pkg installation has no version.  Will try lower case."
-          pver=`python -c "import $pkglc; print ${pkglc}.__version__" 2>/dev/null`
+          pver=`python -c 'import $pkglc; print ${pkglc}.__version__' 2>/dev/null | tr -d '\r'`
           if test -z "$pver"; then
             echo "WARNING: [cleaninstalls.sh] $pkglc installation has no version.  Keeping record."
             echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
