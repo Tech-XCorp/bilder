@@ -60,7 +60,22 @@ buildPlasma_state() {
     esac
 
 # Use compiler wrappers for actual make
-    local PS_MAKE_COMPILERS_SER="CC='\$(abs_top_builddir)/txutils/cc' CXX='\$(abs_top_builddir)/txutils/cxx' FC='\$(abs_top_builddir)/txutils/f90' F77='\$(abs_top_builddir)/txutils/f77'"
+# Looks like this was for building on LCFs but as of Mar 29 2014 the compiler 
+# wrappers no longer exist (?) Pletzer. 
+    local PS_MAKE_COMPILERS_SER=""
+    if test -f '\$abs_top_builddir)/txutils/cc'; then
+       PS_MAKE_COMPILERS_SER="CC='\$(abs_top_builddir)/txutils/cc'"
+    fi
+    if test -f '\$(abs_top_builddir)/txutils/cxx'; then
+       PS_MAKE_COMPILERS_SER="$PS_MAKE_COMPILERS_SER CXX='\$(abs_top_builddir)/txutils/cxx'"
+    fi
+    if test -f '\$(abs_top_builddir)/txutils/f90'; then
+       PS_MAKE_COMPILERS_SER="$PS_MAKE_COMPILERS_SER FC='\$(abs_top_builddir)/txutils/f90'"
+    fi
+    if test -f '\$(abs_top_builddir)/txutils/f77'; then
+       PS_MAKE_COMPILERS_SER="$PS_MAKE_COMPILERS_SER F77='\$(abs_top_builddir)/txutils/f77'"
+    fi
+
     local PS_MAKE_COMPILERS_BEN="CC='\$(abs_top_builddir)/txutils/cc' CXX='\$(abs_top_builddir)/txutils/cxx' FC='\$(abs_top_builddir)/txutils/f90' F77='\$(abs_top_builddir)/txutils/f77'"
 
 # Build everything
