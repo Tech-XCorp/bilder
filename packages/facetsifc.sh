@@ -70,5 +70,6 @@ testFacetsifc() {
 
 installFacetsifc() {
   bilderInstall facetsifc ser facetsifc
+  bilderInstall facetsifc par facetsifc
 }
 
