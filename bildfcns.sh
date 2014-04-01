@@ -1231,7 +1231,7 @@ getVersion() {
       return 1
     fi
     branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
-    if [[ "$branch" =~ "no branch" ]]; then
+    if [[ "$branch" =~ "no branch" || "$branch" =~ "Detached" ]]; then
       branch=`git describe --tags`
     fi
     # rev=${rev}-${branch}
