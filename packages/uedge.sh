@@ -91,17 +91,17 @@ bilderBuild uedge partau "$UEDGE_BUILD_ARGS"
 
     if bilderConfig uedge par "$CONFIG_COMPILERS_PAR $UEDGE_COMPFLAGS_PAR --enable-parallel $CPP_BABEL_ARG $CONFIG_LDFLAGS $UEDGE_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
       rm -f $BUILD_DIR/uedge/par/compfailures.txt	# File for debugging
-      bilderBuild uedge par "$UEDGE_BUILD_ARGS FC=$BUILD_DIR/uedge/par/txutils/f90"
+      bilderBuild uedge par "$UEDGE_BUILD_ARGS"
     fi
 
     if bilderConfig uedge ser "$CONFIG_COMPILERS_SER $CPP_BABEL_ARG FFLAGS='$FFLAGS' $CONFIG_LDFLAGS $UEDGE_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
       rm -f $BUILD_DIR/uedge/ser/compfailures.txt
-      bilderBuild uedge ser "$UEDGE_BUILD_ARGS FC=$BUILD_DIR/uedge/ser/txutils/f90"
+      bilderBuild uedge ser "$UEDGE_BUILD_ARGS"
     fi
 
     if bilderConfig uedge nopetsc "--disable-petsc $CONFIG_COMPILERS_SER $CPP_BABEL_ARG FFLAGS='$FFLAGS' $CONFIG_LDFLAGS $UEDGE_NOPETSC_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
       rm -f $BUILD_DIR/uedge/nopetsc/compfailures.txt
-      bilderBuild uedge nopetsc "$UEDGE_BUILD_ARGS FC=$BUILD_DIR/uedge/nopetsc/txutils/f90"
+      bilderBuild uedge nopetsc "$UEDGE_BUILD_ARGS"
     fi
 
   fi
