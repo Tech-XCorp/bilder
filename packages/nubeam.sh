@@ -46,7 +46,7 @@ buildNubeam() {
     fi
     if bilderConfig nubeam ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $NUBEAM_CONF_FFLAGS --disable-mdsplus $CONFIG_LINLIB_SER_ARGS $NUBEAM_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
       rm -f $BUILD_DIR/nubeam/ser/compfailures.txt
-      bilderBuild nubeam ser "FC=$BUILD_DIR/nubeam/ser/txutils/f90"
+      bilderBuild nubeam ser
     fi
   fi
 }
