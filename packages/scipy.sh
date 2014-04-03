@@ -23,7 +23,11 @@ computeVersion scipy
 ######################################################################
 
 setScipyGlobalVars() {
-  SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
+  if [[ `uname` =~ "CYGWIN" && ! $BUILD_EXPERIMENTAL ]]; then
+    SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
+  else
+    SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
+  fi
   SCIPY_DEPS=numpy,atlas
 }
 setScipyGlobalVars
