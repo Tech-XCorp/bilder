@@ -4883,9 +4883,15 @@ waitAction() {
     local builddir=`deref $builddirvar`
     if test -z "$builddir"; then
       local pkgname=`sed 's/-.*//' <<< $1`
+      local bld=`sed "s/^$pkgname-//" <<< $1`
       local vervar=`genbashvar $pkgname`_BLDRVERSION
       local verval=`deref $vervar`
-      if test -d $BUILD_DIR/$1-$verval; then
+# Try various possible build directories
+      if test -d $BUILD_DIR/$pkgname/$bld; then
+        builddir=$BUILD_DIR/$pkgname/$bld
+      elif test -d $BUILD_DIR/$pkgname-$verval/$bld; then
+        builddir=$BUILD_DIR/$pkgname-$verval/$bld
+      elif test -d $BUILD_DIR/$1-$verval; then
         builddir=$BUILD_DIR/$1-$verval
       fi
     fi
@@ -4918,7 +4924,7 @@ waitAction() {
         eval $resvarname=$res
       fi
     else
-      techo "Directory $builddirvar is empty, so cannot check $bilderaction_resfile."
+      techo "WARNING: [$FUNCNAME] Directory $builddirvar is empty, so cannot check $bilderaction_resfile."
     fi
 
 # Record SUCCESS only first time we have waited.
