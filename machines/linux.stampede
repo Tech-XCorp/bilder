@@ -23,6 +23,39 @@ case $FQMAILHOST in
     ;;
 esac
 
+case $UQMAILHOST in
+
+  stampede*)
+    
+    SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
+    SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
+    SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
+    SYSTEM_BLAS_BEN_INC=${SYSTEM_BLAS_BEN_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic"}
+    SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
+    SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
+    SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
+    SYSTEM_LAPACK_BEN_INC=${SYSTEM_LAPACK_BEN_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic"}
+    SYSTEM_PYTHON_BEN_LIB=${SYSTEM_PYTHON_BEN_LIB:-"/work/01059/tg803229/softwareMIC/python/lib/libpython2.7.so"}
+    SYSTEM_PYTHON_BEN_INC=${SYSTEM_PYTHON_BEN_INC:-"/work/01059/tg803229/softwareMIC/python/include/python2.7"}
+    SYSTEM_PYTHON_BEN_EXE=${SYSTEM_PYTHON_BEN_EXE:-"/work/01059/tg803229/softwareMIC/python/bin/python"}
+    SYSTEM_ZLIB_BEN_DIR=${SYSTEM_ZLIB_BEN_DIR:-"/home1/01059/tg803229/zlib-1.2.8"}
+    SYSTEM_ZLIB_BEN_LIB=${SYSTEM_ZLIB_BEN_LIB:-"/home1/01059/tg803229/zlib-1.2.8/libz.so"}
+    SYSTEM_HDF5_BEN_DIR=${SYSTEM_HDF5_BEN_DIR:-"/work/01059/tg803229/softwareMIC/hdf5-1.8.10-par"}
+    SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/work/01059/tg803229/software/hdf5-1.8.10-par"}
+
+# Backend compilers:
+    BENCC=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpicc
+    BENCXX=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpicxx
+    BENFC=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpiifort
+    BENF77=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpiifort
+
+# Parallel compilers:
+    MPICC=${MPICC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicc"}
+    MPICXX=${MPICXX:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicxx"}
+    MPIFC=${MPIFC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
+    MPIF77=${MPIF77:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
+    
+esac
 ##
 # source Intel compilervars.sh on Linux and Mac
 ##
@@ -68,20 +101,16 @@ PYC_FC=${PYC_FC:-"gfortran"}
 PYC_F77=${PYC_F77:-"gfortran"}
 
 # Backend compilers:
-BENCC=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpicc
 #BENCC=${BENCC:-""}
-BENCXX=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpicxx
 #BENCXX=${BENCXX:-""}
-BENFC=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpiifort
 #BENFC=${BENFC:-""}
-BENF77=/opt/apps/intel13/impi/4.1.0.030/mic/bin/mpiifort
 #BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicc"}
-MPICXX=${MPICXX:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicxx"}
-MPIFC=${MPIFC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
-MPIF77=${MPIF77:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
+#MPICC=${MPICC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicc"}
+#MPICXX=${MPICXX:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicxx"}
+#MPIFC=${MPIFC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
+#MPIF77=${MPIF77:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
@@ -117,26 +146,26 @@ MPI_FFLAGS=${FFLAGS:-"-mkl"}
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
+#SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
+#SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
 # SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
-SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
-SYSTEM_BLAS_BEN_INC=${SYSTEM_BLAS_BEN_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic"}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
-SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
+#SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
+#SYSTEM_BLAS_BEN_INC=${SYSTEM_BLAS_BEN_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic"}
+#SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
+#SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
 # SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
-SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
-SYSTEM_LAPACK_BEN_INC=${SYSTEM_LAPACK_BEN_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic"}
-SYSTEM_PYTHON_BEN_LIB=${SYSTEM_PYTHON_BEN_LIB:-"/work/01059/tg803229/softwareMIC/python/lib/libpython2.7.so"}
-SYSTEM_PYTHON_BEN_INC=${SYSTEM_PYTHON_BEN_INC:-"/work/01059/tg803229/softwareMIC/python/include/python2.7"}
-SYSTEM_PYTHON_BEN_EXE=${SYSTEM_PYTHON_BEN_EXE:-"/work/01059/tg803229/softwareMIC/python/bin/python"}
-SYSTEM_ZLIB_BEN_DIR=${SYSTEM_ZLIB_BEN_DIR:-"/home1/01059/tg803229/zlib-1.2.8"}
-SYSTEM_ZLIB_BEN_LIB=${SYSTEM_ZLIB_BEN:-"/home1/01059/tg803229/zlib-1.2.8/libz.so"}
+#SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
+#SYSTEM_LAPACK_BEN_INC=${SYSTEM_LAPACK_BEN_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/mic"}
+#SYSTEM_PYTHON_BEN_LIB=${SYSTEM_PYTHON_BEN_LIB:-"/work/01059/tg803229/softwareMIC/python/lib/libpython2.7.so"}
+#SYSTEM_PYTHON_BEN_INC=${SYSTEM_PYTHON_BEN_INC:-"/work/01059/tg803229/softwareMIC/python/include/python2.7"}
+#SYSTEM_PYTHON_BEN_EXE=${SYSTEM_PYTHON_BEN_EXE:-"/work/01059/tg803229/softwareMIC/python/bin/python"}
+#SYSTEM_ZLIB_BEN_DIR=${SYSTEM_ZLIB_BEN_DIR:-"/home1/01059/tg803229/zlib-1.2.8"}
+#SYSTEM_ZLIB_BEN_LIB=${SYSTEM_ZLIB_BEN:-"/home1/01059/tg803229/zlib-1.2.8/libz.so"}
 
 # IO directories:
 # SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-""}
-SYSTEM_HDF5_BEN_DIR=/work/01059/tg803229/softwareMIC/hdf5-1.8.10-par
-SYSTEM_HDF5_PAR_DIR=/work/01059/tg803229/software/hdf5-1.8.10-par
+#SYSTEM_HDF5_BEN_DIR=/work/01059/tg803229/softwareMIC/hdf5-1.8.10-par
+#SYSTEM_HDF5_PAR_DIR=/work/01059/tg803229/software/hdf5-1.8.10-par
 # SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-""}
 # SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-""}
 
@@ -474,11 +503,11 @@ LAPACK_BEN_OTHER_ARGS=${LAPACK_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-mkl -
 # LAPACK_SER_OTHER_ARGS=${LAPACK_SER_OTHER_ARGS:-""}
 # LAPACK_SERSH_OTHER_ARGS=${LAPACK_SERSH_OTHER_ARGS:-""}
 VORPAL_BUILDS=${VORPAL_BUILDS:-"par,ben"}
-VORPAL_BEN_OTHER_ARGS=${VORPAL_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK -mkl -mmic -fPIC' -DCMAKE_C_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH=${SYSTEM_ZLIB_BEN_LIB} -DZ_z_LIBRARY_DIR:PATH=${SYSTEM_ZLIB_BEN_DIR} -DENABLE_PARALLEL:BOOL=TRUE -DPython_LIBRARIES:PATH=${SYSTEM_PYTHON_BEN_LIB} -DPython_INCLUDE_DIRS:PATH=${SYSTEM_PYTHON_BEN_INC} -DPYTHON:FILEPATH=${SYSTEM_PYTHON_BEN_EXE} -DHdf5_ROOT_DIR=${SYSTEM_HDF5_PAR_DIR}"}
+VORPAL_BEN_OTHER_ARGS=${VORPAL_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK -mkl -mmic -fPIC' -DCMAKE_C_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH=${SYSTEM_ZLIB_BEN_LIB} -DZ_z_LIBRARY_DIR:PATH=${SYSTEM_ZLIB_BEN_DIR} -DENABLE_PARALLEL:BOOL=TRUE -DPython_LIBRARIES:PATH=${SYSTEM_PYTHON_BEN_LIB} -DPython_INCLUDE_DIRS:PATH=${SYSTEM_PYTHON_BEN_INC} -DPYTHON:FILEPATH=${SYSTEM_PYTHON_BEN_EXE} -DHdf5_ROOT_DIR=${SYSTEM_HDF5_BEN_DIR}"}
 VORPAL_PAR_OTHER_ARGS=${VORPAL_PAR_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK -mkl -fPIC'"}
 # VORPAL_OTHER_ARGS=${VORPAL_OTHER_ARGS:-"-DTrilinos_ROOT_DIR:PATH='/work/01059/tg803229/software/trilinos' -DTxUtils_ROOT_DIR:PATH='/work/01059/tg803229/software/txutils'"}
 TXUTILS_BUILDS=${TXUTILS_BUILDS:-"ser,sersh,cc4py,par,ben"}
-TXUTILS_BEN_OTHER_ARGS=${TXUTILS_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_C_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH=${SYSTEM_ZLIB_BEN_LIB} -DZ_z_LIBRARY_DIR:PATH=${SYSTEM_ZLIB_BEN_DIR} -DHdf5_ROOT_DIR=${SYSTEM_HDF5_PAR_DIR}"}
+TXUTILS_BEN_OTHER_ARGS=${TXUTILS_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_C_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_Fortran_FLAGS:STRING='-mkl -mmic' -DCMAKE_FC_FLAGS:STRING='-mkl -mmic' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH=${SYSTEM_ZLIB_BEN_LIB} -DZ_z_LIBRARY_DIR:PATH=${SYSTEM_ZLIB_BEN_DIR} -DHdf5_ROOT_DIR=${SYSTEM_HDF5_BEN_DIR}"}
 # LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-""}
 # LIBPNG_BUILDS=${LIBPNG_BUILDS:-""}
 # LIBPNG_CC4PY_OTHER_ARGS=${LIBPNG_CC4PY_OTHER_ARGS:-""}
@@ -861,9 +890,6 @@ SUPERLU_BUILDS=${SUPERLU_BUILDS:-"par,ben"}
 SUPERLU_DIST_BEN_OTHER_ARGS=${SUPERLU_DIST_BEN_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-mkl -mmic -fPIC' -DCMAKE_C_FLAGS:STRING='-mmic -mkl -fPIC' -DCMAKE_Fortran_FLAGS:STRING='-mmic -mkl -fPIC' -DSuperlu_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"}
 # SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
 SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"par,parcomm,parcommsh,ben"}
-# SUPERLU_DIST_PAR_OTHER_ARGS=${SUPERLU_DIST_PAR_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
-# SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
-# SUPERLU_DIST_PARSH_OTHER_ARGS=${SUPERLU_DIST_PARSH_OTHER_ARGS:-"-DMPI_LIBRARY_DIRS:PATH='/usr/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib' -DMPI_LIBRARIES='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.so;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_STLIBS='/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigc4.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigf.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpi.a;/opt/apps/intel13/impi/4.1.0.030/mic/lib/libmpigi.a;/usr/lib64/librt.so;/usr/lib64/libpthread.so' -DMPI_INCLUDE_DIRS='/opt/apps/intel13/impi/4.1.0.030/mic/include'"}
 
 # SWIG_BLDRVERSION=${SWIG_BLDRVERSION:-""}
 # SWIG_BUILDS=${SWIG_BUILDS:-""}
@@ -935,7 +961,7 @@ TRILINOS_PARCOMMSH_OTHER_ARGS=${TRILINOS_PARCOMMSH_OTHER_ARGS:-"-DBLAS_INCLUDE_D
 # TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-""}
 TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,sersh,cc4py,par,ben"}
 # TXBASE_CC4PY_OTHER_ARGS=${TXBASE_CC4PY_OTHER_ARGS:-""}
-TXBASE_BEN_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_C_FLAGS='-fPIC -mkl -mmic' -DCMAKE_Fortran_FLAGS='-fPIC -mmic -mkl' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH=${SYSTEM_ZLIB_BEN_LIB} -DZ_z_LIBRARY_DIR:PATH=${SYSTEM_ZLIB_BEN_DIR} -DPython_VERSION='2.7' -DPython_LIBRARIES:PATH=${SYSTEM_PYTHON_BEN_LIB} -DPython_INCLUDE_DIRS:PATH=${SYSTEM_PYTHON_BEN_INC} -DPYTHON:FILEPATH=${SYSTEM_PYTHON_BEN_EXE} -DHdf5_ROOT_DIR=${SYSTEM_HDF5_BEN_DIR}"}
+TXBASE_BEN_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-"-DCMAKE_CXX_FLAGS:STRING='-fPIC -mkl -mmic' -DCMAKE_C_FLAGS='-fPIC -mkl -mmic' -DCMAKE_Fortran_FLAGS='-fPIC -mmic -mkl' -DCMAKE_CROSSCOMPILING:BOOL=TRUE -DZ_z_LIBRARY:FILEPATH=${SYSTEM_ZLIB_BEN_LIB} -DZ_z_LIBRARY_DIR:PATH=${SYSTEM_ZLIB_BEN_DIR} -DPython_LIBRARIES:PATH=${SYSTEM_PYTHON_BEN_LIB} -DPython_INCLUDE_DIRS:PATH=${SYSTEM_PYTHON_BEN_INC} -DPYTHON:FILEPATH=${SYSTEM_PYTHON_BEN_EXE} -DHdf5_ROOT_DIR=${SYSTEM_HDF5_BEN_DIR}"}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
 # TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DPython_VERSION='2.7' -DPython_LIBRARIES:PATH='/work/01059/tg803229/softwareMIC/python/lib' -DPython_INCLUDE_DIRS:PATH='/work/01059/tg803229/softwareMIC/python/include/python2.7' -DPYTHON:FILEPATH='/work/01059/tg803229/softwareMIC/python/bin/python'"}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
