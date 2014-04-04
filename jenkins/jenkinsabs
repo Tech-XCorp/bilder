@@ -14,16 +14,19 @@ usage() {
   cat >&2 <<EOF
 Usage: $0 [options] dir
 GENERAL OPTIONS
-  -e <email> ... where to send the results to
-  -E <env pairs> comma separated list of environment variables and values,
-                 e.g., FOO=f,BAR=b
-  -h             print this help output
-  -H <hours> ... abstracts must have been created in this number of recent hours
-  -m <machine> . machine containing the abstracts
-  -s <script> .. file to source, either absolute or relative from working
-                 directory.  This file could contain email for projects.
-  -t ........... when set, this is a super directory and abstracts
-                 should be obtained for all subdirectories
+  -a <abstract dirs> comma separated list of abstract directories.  Sets -t.
+                     If not set, but -t is, then find by listing.
+  -e <email> ....... where to send the results to
+  -E <env pairs> ... comma separated list of environment variables and values,
+                     e.g., FOO=f,BAR=b
+  -h ............... print this help output
+  -H <hours> ....... abstracts must have been created in this number of
+                     recent hours
+  -m <machine> ..... machine containing the abstracts
+  -s <script> ...... file to source, either absolute or relative from working
+                     directory.  This file could contain email for projects.
+  -t ............... when set, this is a super directory and abstracts
+                     should be obtained for all subdirectories
 EOF
   exit $1
 }
@@ -40,9 +43,10 @@ istopdir=false
 args="$*"
 EXTRA_ENV=
 HOURS=20
-while getopts "e:E:hH:m:s:t" arg; do
+while getopts "a:e:E:hH:m:s:t" arg; do
   case "$arg" in
 # Use dir, not root dir, as this is particular to a build
+    a) absdirs="$OPTARG"; istopdir=true;;
     e) EMAIL=$OPTARG;;
     E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
     h) usage 0;;
@@ -155,7 +159,9 @@ if test -n "$ABSTRACTHOST"; then
   cmdprefix="ssh $ABSTRACTHOST"
 fi
 if $istopdir; then
-  absdirs=`$cmdprefix ls -tr $jabsdir | tr '\n' ' '`
+  if test -z "$absdirs"; then
+    absdirs=`$cmdprefix ls -tr $jabsdir | tr '\n' ' '`
+  fi
   topdir=$jabsdir
 else
   absdirs=`basename $jabsdir`
