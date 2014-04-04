@@ -255,18 +255,20 @@ for absdir in $absdirs; do
     echo "No abstracts found in last $HOURS hours.<br>" >>allabs-${absdir}.html
   fi
   echo "</html>" >>allabs-${absdir}.html
+# If ! -a/-t passed, then we grep for failures and exit accordingly.
   if ! $istopdir; then
     if grep -iq fail allabs-${absdir}.html; then
       res=1
       echo "FAILURES FOUND FOR ${absdir}."
     fi
-  fi
-
-# Email this file to the specified email address.  Assuming sendmail exists.
-  if test -n "$projemail"; then
-    cmd="sendmail -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
-    lecho "$cmd"
-    eval "$cmd"
+  else
+# -a/-t passed, so email this file to the specified email address.
+# Assuming sendmail exists.
+    if test -n "$projemail"; then
+      cmd="sendmail -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
+      lecho "$cmd"
+      eval "$cmd"
+    fi
   fi
   # rm allabs-${absdir}.html
   lecho "<<< --------------- >>>"
