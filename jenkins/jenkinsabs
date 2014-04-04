@@ -168,7 +168,7 @@ lecho " "
 
 # Loop over all the abstract dirs, analyze and email
 
-lecho "Looking in $topdir for abstracts in subdirectories: $absdirs." 
+lecho "Looking in $topdir for abstracts in subdirectories: $absdirs."
 MINUTES=`expr $HOURS \* 60`
 for absdir in $absdirs; do
 # Do find to get abstracts in last number of hours.
@@ -222,7 +222,7 @@ for absdir in $absdirs; do
 # Get these abstracts into a file
   rm -rf allabs-${absdir}.html
 # Create local date stamp
-  datestamp=`date +%F`  
+  datestamp=`date +%F`
   lecho "Created datestamp for email subject: $datestamp"
 # Create basename directory for subject
   topdirsubj=`basename $topdir`
@@ -249,6 +249,12 @@ for absdir in $absdirs; do
     echo "No abstracts found in last $HOURS hours.<br>" >>allabs-${absdir}.html
   fi
   echo "</html>" >>allabs-${absdir}.html
+  if ! $istopdir; then
+    if grep -iq fail allabs-${absdir}.html; then
+      res=1
+      echo "FAILURES FOUND FOR ${absdir}."
+    fi
+  fi
 
 # Email this file to the specified email address.  Assuming sendmail exists.
   if test -n "$projemail"; then
@@ -256,7 +262,7 @@ for absdir in $absdirs; do
     lecho "$cmd"
     eval "$cmd"
   fi
-  rm allabs-${absdir}.html
+  # rm allabs-${absdir}.html
   lecho "<<< --------------- >>>"
 done
 
