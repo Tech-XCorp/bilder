@@ -46,7 +46,7 @@ HOURS=20
 while getopts "a:e:E:hH:m:s:t" arg; do
   case "$arg" in
 # Use dir, not root dir, as this is particular to a build
-    a) absdirs="$OPTARG"; istopdir=true;;
+    a) absdirs=`sed "s/,/ /g" <<< $OPTARG`; istopdir=true;;
     e) EMAIL=$OPTARG;;
     E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
     h) usage 0;;
