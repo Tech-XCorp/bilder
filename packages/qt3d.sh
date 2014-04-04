@@ -61,7 +61,15 @@ buildQt3d() {
 # This is installed into qmake, which is in the contrib dir
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
 # Configure and build
-  if bilderConfig -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
+
+  local makerargs=
+  case `uname` in
+    CYGWIN*) case `uname -m` in
+               i686) makerargs="-m nmake";;
+             esac;;
+  esac
+
+  if bilderConfig $makerargs -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
     local QT3D_PLATFORM_BUILD_ARGS=
     case `uname`-`uname -r` in
       Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
@@ -69,7 +77,7 @@ buildQt3d() {
       *)           QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
     esac
 # During testing, do not "make clean".
-    bilderBuild -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
+    bilderBuild $makerargs -k qt3d $QT3D_BUILD "all docs $QT3D_PLATFORM_BUILD_ARGS"
   fi
 }
 
