@@ -245,7 +245,7 @@ for absdir in $absdirs; do
       else
         cmd="cp ${topdir}/$absdir/$i tempabs.html"
       fi
-      if grep -iq fail ${i}; then
+      if grep -iq fail tempabs.html; then
         res=1
         echo "FAILURES FOUND IN ${i}."
       fi
