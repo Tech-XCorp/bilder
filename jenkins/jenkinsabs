@@ -245,12 +245,12 @@ for absdir in $absdirs; do
       else
         cmd="cp ${topdir}/$absdir/$i tempabs.html"
       fi
+      lecho "Adding $i to email."
+      $cmd
       if grep -iq fail tempabs.html; then
         res=1
         echo "FAILURES FOUND IN ${i}."
       fi
-      lecho "Adding $i to email."
-      $cmd
       cat tempabs.html >>allabs-${absdir}.html
       rm tempabs.html
       echo '<br>' >>allabs-${absdir}.html
