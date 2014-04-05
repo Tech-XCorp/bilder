@@ -226,7 +226,7 @@ for absdir in $absdirs; do
   lecho "Project email is $projemail."
 
 # Get these abstracts into a file
-  rm -rf allabs-${absdir}.html
+  rm -rf allabs-${absdir}.html *-abstract.html
 # Create local date stamp
   datestamp=`date +%F`
   lecho "Created datestamp for email subject: $datestamp"
@@ -241,18 +241,18 @@ for absdir in $absdirs; do
   if test -n "$abs2get"; then
     for i in $abs2get; do
       if test -n "${ABSTRACTHOST}"; then
-        cmd="scp ${ABSTRACTHOST}:${topdir}/$absdir/$i tempabs.html"
+        cmd="scp ${ABSTRACTHOST}:${topdir}/$absdir/$i $i"
       else
-        cmd="cp ${topdir}/$absdir/$i tempabs.html"
+        cmd="cp ${topdir}/$absdir/$i $i"
       fi
       lecho "Adding $i to email."
       $cmd
-      if grep -iq fail tempabs.html; then
+      if grep -iq fail $i; then
         res=1
         echo "FAILURES FOUND IN ${i}."
       fi
-      cat tempabs.html >>allabs-${absdir}.html
-      rm tempabs.html
+      cat $i >>allabs-${absdir}.html
+      # rm tempabs.html
       echo '<br>' >>allabs-${absdir}.html
     done
   else
