@@ -245,6 +245,10 @@ for absdir in $absdirs; do
       else
         cmd="cp ${topdir}/$absdir/$i tempabs.html"
       fi
+      if grep -iq fail ${i}; then
+        res=1
+        echo "FAILURES FOUND IN ${i}."
+      fi
       lecho "Adding $i to email."
       $cmd
       cat tempabs.html >>allabs-${absdir}.html
@@ -256,12 +260,13 @@ for absdir in $absdirs; do
   fi
   echo "</html>" >>allabs-${absdir}.html
 # If ! -a/-t passed, then we grep for failures and exit accordingly.
-  if ! $istopdir; then
-    if grep -iq fail allabs-${absdir}.html; then
-      res=1
-      echo "FAILURES FOUND FOR ${absdir}."
-    fi
-  else
+  # if ! $istopdir; then
+    # if grep -iq fail allabs-${absdir}.html; then
+      # res=1
+      # echo "FAILURES FOUND FOR ${absdir}."
+    # fi
+  # else
+  if $istopdir; then
 # -a/-t passed, so email this file to the specified email address.
 # Assuming sendmail exists.
     if test -n "$projemail"; then
