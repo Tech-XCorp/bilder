@@ -23,7 +23,7 @@ computeVersion scipy
 ######################################################################
 
 setScipyGlobalVars() {
-  if [[ `uname` =~ "CYGWIN" && ! $NUMPY_WIN_USE_FORTRAN ]]; then
+  if [[ `uname` =~ "CYGWIN" ]] && ! $NUMPY_WIN_USE_FORTRAN; then
     SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
   else
     SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
