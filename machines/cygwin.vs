@@ -91,9 +91,6 @@ if test -n "$FC"; then
 else
   HAVE_SER_FORTRAN=false
 fi
-if $IS_64_BIT && $HAVE_SER_FORTRAN; then
-  SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
-fi
 
 # cygwin.vs{9,10} should define PROJECT_DIR, and we
 # can go ahead and finish out cygwin defs.
