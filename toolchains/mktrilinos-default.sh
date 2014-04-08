@@ -15,3 +15,4 @@ source $mydir/bilder/mkall-default.sh
 
 # Build the package
 runBilderCmd facets
+

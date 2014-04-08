@@ -31,12 +31,11 @@ BILDER_PACKAGE=${BILDER_PACKAGE:-"cmdline"}
 # Hack so that bildfcns will not crap out looking for $VERBOSITY.
 VERBOSITY=0
 
-while getopts "b:i:hl:rX" arg; do
+while getopts "b:i:hrX" arg; do
   case "$arg" in
     b) BILDER_PACKAGE=$OPTARG;;
     i) PKG_INSTALL_DIR=$OPTARG;;
     h) usage 0;;
-    l) LOGFILE=$OPTARG;;
     r) REMOVE=true;;
     X) BUILD_EXPERIMENTAL=true;;
   esac

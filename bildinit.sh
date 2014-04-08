@@ -165,11 +165,17 @@ BILDERCONF_VERSION=`bilderSvnversion $BILDER_CONFDIR`
 techo "BILDERCONF_VERSION = $BILDERCONF_VERSION."
 
 # Determine the name of this package
-if test -z "$BILDER_PACKAGE"; then
-  BILDER_PACKAGE=`bilderSvn info $PROJECT_DIR | grep '^Repository Root' | sed -e 's?^.*/??'`
+if test -n "$BILDER_PACKAGE"; then
+  techo "WARNING: BILDER_PACKAGE defined to be $BILDER_PACKAGE.  Will not be used."
 fi
-techo "BILDER_PACKAGE = $BILDER_PACKAGE."
-export BILDER_PACKAGE
+PROJECT_URL=`bilderSvn info $PROJECT_DIR | grep ^URL: | sed -e 's/^URL: *//'`
+if test -z "$BILDER_PROJECT"; then
+# Must allow for projects in a larger repo, like visitall
+  BILDER_PROJECT=`echo $PROJECT_URL | sed -e 's?/trunk??' -e 's?/branches/.*$??' -e 's?/tags/.*$??' -e 's?^.*/??'`
+fi
+techo "BILDER_PROJECT = $BILDER_PROJECT."
+export BILDER_PROJECT
+PROJECT_BRANCH=`echo $PROJECT_URL | sed -e "s?^.*/$BILDER_PROJECT/??"`
 
 # Clean out old build files
 if false; then
