@@ -49,8 +49,7 @@ findBilderTopdir() {
 #
 BILDER_NAME=mktrilinos		# Set since program name different under PBS
 findBilderTopdir
-BILDER_PACKAGE=trilinos
-BILDER_DASHBOARD_URL=https://orbiter.txcorp.com/BilderDashboard/facets
+BILDER_PROJECT=trilinos
 
 # Source bilder stuff
 source $BILDER_DIR/bildall.sh

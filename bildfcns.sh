@@ -868,18 +868,18 @@ createConfigFiles() {
 
 # Create setup scripts
   cd $PROJECT_DIR
-  rm -f $BUILD_DIR/${BILDER_PACKAGE}.sh
+  rm -f $BUILD_DIR/${BILDER_PROJECT}.sh
   case `uname` in
     CYGWIN*) sep=';';;
     *) sep=':';;
   esac
 # Path always uses colon
   trimvar BILDER_PATH ':'
-  cat <<EOF >$BUILD_DIR/${BILDER_PACKAGE}.sh
+  cat <<EOF >$BUILD_DIR/${BILDER_PROJECT}.sh
 #!/bin/bash
 EOF
   if test -n "$BILDER_PATH"; then
-    cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.sh
+    cat <<EOF >>$BUILD_DIR/${BILDER_PROJECT}.sh
 export PATH="${BILDER_PATH}:\$PATH"
 EOF
   fi
@@ -889,14 +889,14 @@ EOF
     local bpval=`deref $bpvar`
     trimvar bpval "${sep}"
     if test -n "$bpval"; then
-      cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.sh
+      cat <<EOF >>$BUILD_DIR/${BILDER_PROJECT}.sh
 export $i="${bpval}${sep}\$$i"
 EOF
     fi
   done
 
   if $havepymodule; then
-    cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.sh
+    cat <<EOF >>$BUILD_DIR/${BILDER_PROJECT}.sh
 # Load python modules
 module unload python 2>/dev/null
 module load $pymodule
@@ -905,17 +905,17 @@ EOF
   fi
 
 # Allow local modifications to be saved
-  if test -e $instdir/${BILDER_PACKAGE}.sh; then
-    sed -n  '/^#SAVE/,$p' <$instdir/${BILDER_PACKAGE}.sh >>$BUILD_DIR/${BILDER_PACKAGE}.sh
+  if test -e $instdir/${BILDER_PROJECT}.sh; then
+    sed -n  '/^#SAVE/,$p' <$instdir/${BILDER_PROJECT}.sh >>$BUILD_DIR/${BILDER_PROJECT}.sh
   fi
 
-  rm -f $BUILD_DIR/${BILDER_PACKAGE}.csh
-  cat <<EOF >$BUILD_DIR/${BILDER_PACKAGE}.csh
+  rm -f $BUILD_DIR/${BILDER_PROJECT}.csh
+  cat <<EOF >$BUILD_DIR/${BILDER_PROJECT}.csh
 #!/bin/csh
 EOF
   if test -n "$BILDER_PATH"; then
     local cshpaths=`echo $BILDER_PATH | tr ':' ' '`
-    cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.csh
+    cat <<EOF >>$BUILD_DIR/${BILDER_PROJECT}.csh
 set path = ( $cshpaths \$path )
 EOF
   fi
@@ -924,7 +924,7 @@ EOF
     local bpval=`deref $bpvar`
     trimvar bpval "${sep}"
     if test -n "$bpval"; then
-      cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.csh
+      cat <<EOF >>$BUILD_DIR/${BILDER_PROJECT}.csh
 if (\${?$i}) then
   setenv $i "${bpval}${sep}\${$i}"
 else
@@ -935,7 +935,7 @@ EOF
   done
 
   if $havepymodule; then
-    cat <<EOF >>$BUILD_DIR/${BILDER_PACKAGE}.csh
+    cat <<EOF >>$BUILD_DIR/${BILDER_PROJECT}.csh
 # Load python modules
 module unload python 2>/dev/null
 module load $mdlcmd
@@ -944,8 +944,8 @@ EOF
   fi
 
 # Allow local modifications to be saved
-  if test -e $instdir/${BILDER_PACKAGE}.csh; then
-    sed -n  '/^#SAVE/,$p' < $instdir/${BILDER_PACKAGE}.csh >> $BUILD_DIR/${BILDER_PACKAGE}.csh
+  if test -e $instdir/${BILDER_PROJECT}.csh; then
+    sed -n  '/^#SAVE/,$p' < $instdir/${BILDER_PROJECT}.csh >> $BUILD_DIR/${BILDER_PROJECT}.csh
   fi
 
 }
@@ -965,7 +965,7 @@ installConfigFiles() {
   fi
 
 # Install the setup scripts
-  cmd="/usr/bin/install -m 775 $BUILD_DIR/${BILDER_PACKAGE}.csh $BUILD_DIR/${BILDER_PACKAGE}.sh $instdir"
+  cmd="/usr/bin/install -m 775 $BUILD_DIR/${BILDER_PROJECT}.csh $BUILD_DIR/${BILDER_PROJECT}.sh $instdir"
   techo "$cmd"
   $cmd
 
@@ -1006,10 +1006,10 @@ printEnvMods() {
 
 # Notify
   echo "Bourne shell users can"
-  echo '  '"source $instdir/${BILDER_PACKAGE}.sh"
+  echo '  '"source $instdir/${BILDER_PROJECT}.sh"
   echo "to pick up needed settings"
   echo "C shell users can"
-  echo '  '"source $instdir/${BILDER_PACKAGE}.csh"
+  echo '  '"source $instdir/${BILDER_PROJECT}.csh"
   echo "to pick up these settings"
   echo ""
   echo "These source commands can be placed at the end of the appropriate"
@@ -5588,7 +5588,7 @@ recordInstallation() {
   if test -z "$pkgScriptVerVal"; then
     : # Get version
   fi
-  local proj=${BILDER_PACKAGE:-"unknown"}
+  local proj=${BILDER_PROJECT:-"unknown"}
   local record="$installstrval $USER $proj `date +%F-%T` bilder-r$pkgScriptVerVal"
   techo "Recording installation, '$record' in $1/installations.txt."
   echo "$record" >> $1/installations.txt
@@ -6780,7 +6780,11 @@ EOF
   elif test -n "${anyFailures}${testFailures}"; then
     EMAIL_SUBJECT1=
     if test -z "${configFailures}${buildFailures}${installFailures}"; then
-      EMAIL_SUBJECT1="Successes - Builds: $buildSuccesses - Installations: $installations.  "
+      EMAIL_SUBJECT1="Successes - Builds: $buildSuccesses - Installations: $installations"
+      if test -n "$testSuccesses"; then
+        EMAIL_SUBJECT1="$EMAIL_SUBJECT1 - Tests: $testSuccesses"
+      fi
+      EMAIL_SUBJECT1="$EMAIL_SUBJECT1.  "
     fi
     EMAIL_SUBJECT="${EMAIL_SUBJECT}FAILED"
     if test -n "$configFailures"; then
@@ -6939,9 +6943,10 @@ BLDRHOSTID:   $BLDRHOSTID
 RUNNRSYSTEM:  $RUNNRSYSTEM
 BILDER_CHAIN: $BILDER_CHAIN
 ORBITER_NAME: $ORBITER_NAME
-BILDER_PACKAGE: $BILDER_PACKAGE
-BILDER_VERSION: $BILDER_VERSION
+BILDER_PROJECT: $BILDER_PROJECT
+PROJECT_URL:    $PROJECT_URL
 BILDER_URL:     $BILDER_URL
+BILDER_VERSION: $BILDER_VERSION
 BILDERCONF_VERSION: $BILDERCONF_VERSION
 BILDER_WAIT_LAST_INSTALL: $BILDER_WAIT_LAST_INSTALL
 Top directory:      $PROJECT_DIR
@@ -6985,8 +6990,8 @@ EOF
     techo
     techo "  Bilder sending abstract to host $ABSTRACT_HOST."
     techo "======================================"
-    techo "Abstracts will appear in $ABSTRACT_HOST:$ABSTRACT_ROOTDIR/$BILDER_PACKAGE." | tee -a $SUMMARY
-    local abstractdir=$ABSTRACT_ROOTDIR/$BILDER_PACKAGE
+    techo "Abstracts will appear in $ABSTRACT_HOST:$ABSTRACT_ROOTDIR/$BILDER_PROJECT." | tee -a $SUMMARY
+    local abstractdir=$ABSTRACT_ROOTDIR/$BILDER_PROJECT
 
 # Check destination directory to copy abstract to
     local destdirok=false
@@ -7019,7 +7024,7 @@ EOF
 # Create name such that alphabetical listing will have correct grouping
 # I *need* underscores to separate fields
      local abstractdest=${FQMAILHOST}_`basename $BUILD_DIR`_${timestamp}-abstract.html
-      abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PACKAGE/$abstractdest
+      abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
       cmd="scp -q ${ABSTRACT} $ABSTRACT_HOST:${abstractdest}"
       techo "$cmd"
       if $cmd 2>&1; then

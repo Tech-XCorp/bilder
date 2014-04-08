@@ -35,7 +35,7 @@ buildOpensplice() {
   INSTALL_OPENSPLICE_FLAG=false
   if bilderUnpack -i opensplice; then
     case `uname` in
-      CYGWIN*) 
+      CYGWIN*)
         local  LINUX_PROGRAMFILES="$(cygpath "${PROGRAMFILES}")" # convert windows style "Program Files" path to linux style
 
         export SPLICE_TARGET="x86.win32-release"
@@ -83,7 +83,7 @@ installOpensplice() {
     local verval=`deref ${vervar}`
     local instsubdirvar=`genbashvar opensplice-ser`_INSTALL_SUBDIR
     local instsubdirval=`deref ${instsubdirvar}`
- 
+
     local OpenSplice_SER_DIR_NAME="opensplice-${OPENSPLICE_BLDRVERSION}-ser"
     local OpenSplice_BASE_DIR_NAME="x86_64.linux2.6"
     local releaseFileName="release.com"
@@ -130,19 +130,19 @@ installOpensplice() {
       return 1
     fi
     techo "${OpenSplice_SER_DIR_NAME} was built."
- 
-    #
-    # If here, ready to install.  Determine whether to do so.
-    #
+
+#
+# If here, ready to install.  Determine whether to do so.
+#
     techo "Proceeding to install."
-    # Validation
+# Validation
     if test -z "${builddir}"; then
       techo "Catastrophic error.  builddir unknown or cannot cd to ${builddir}."
       exit 1
     fi
     techo "Installing ${OpenSplice_SER_DIR_NAME} into ${instdirval} at `date` from ${builddir}."
 
-    # Set umask, install, restore umask
+# Set umask, install, restore umask
     local umaskvar=`genbashvar opensplice`_UMASK
     local umaskval=`deref ${umaskvar}`
     if test -z "$umaskval"; then
@@ -163,7 +163,7 @@ installOpensplice() {
     techo "${cmd}" | tee install.out
     ${cmd} 1>>install.out 2>&1
     RESULT=$?
-    # If installed, record
+# If installed, record
     techo "Installation of ${OpenSplice_SER_DIR_NAME} concluded at `date` with result = ${RESULT}."
     if test $RESULT = 0; then
       if ! ${CygwinFlag}; then
@@ -172,25 +172,25 @@ installOpensplice() {
         echo "${cmd}" | tee install.out
         eval ${cmd}
 
-        # Source the release.com file, so the opensplice env vars are
-        # available for other packages that need it
+# Source the release.com file, so the opensplice env vars are
+# available for other packages that need it
         techo "Sourcing ${releaseFileName} to set the opensplice enironment variables" | tee install.out
         cmd="source ${instdirval}/${OpenSplice_SER_DIR_NAME}/HDE/${OpenSplice_BASE_DIR_NAME}/${releaseFileName}"
       fi
 
       echo SUCCESS >>install.out
 
-      # Record installation in installation directory
+# Record installation in installation directory
       techo "Recording installation of ${OpenSplice_SER_DIR_NAME}."
-      cmd="${PROJECT_DIR}/bilder/setinstald.sh -b ${BILDER_PACKAGE} -i ${CONTRIB_DIR} opensplice,ser"
+      cmd="${PROJECT_DIR}/bilder/setinstald.sh -b ${BILDER_PROJECT} -i ${CONTRIB_DIR} opensplice,ser"
       techo "${cmd}"
       $cmd
 
-      # Link to common name
+# Link to common name
       local linkname
       linkname=opensplice
       if test -n "${linkname}" -a ${instsubdirval} != '-'; then
-        # Do not try to link if install directory does not exist
+# Do not try to link if install directory does not exist
         local subdir
         subdir="${OpenSplice_SER_DIR_NAME}/HDE/${OpenSplice_BASE_DIR_NAME}"
         if test -d "${instdirval}/${instsubdirval}"; then

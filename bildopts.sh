@@ -46,7 +46,7 @@ BILDER OPTIONS
   -g ................ Allow use of gfortran with version <4.3
   -G ................ Just get packages.  Do not configure or build anything.
   -h ................ Print this message.
-  -H ................ Send the \$BILDER_PACKAGE-abstract.html file
+  -H ................ Send the \$BILDER_PROJECT-abstract.html file
                       to the abstract host if defined.
   -i <install_dir> .. Set comma delimited list of installation directories
                         for code in subdirs, expected to be svn repos; install
