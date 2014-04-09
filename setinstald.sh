@@ -26,14 +26,14 @@ EOF
 unset PKG_INSTALL_DIR
 REMOVE=false
 BUILD_EXPERIMENTAL=${BUILD_EXPERIMENTAL:-"false"}
-BILDER_PACKAGE=${BILDER_PACKAGE:-"cmdline"}
+BILDER_PROJECT=${BILDER_PROJECT:-"cmdline"}
 
 # Hack so that bildfcns will not crap out looking for $VERBOSITY.
 VERBOSITY=0
 
 while getopts "b:i:hrX" arg; do
   case "$arg" in
-    b) BILDER_PACKAGE=$OPTARG;;
+    b) BILDER_PROJECT=$OPTARG;;
     i) PKG_INSTALL_DIR=$OPTARG;;
     h) usage 0;;
     r) REMOVE=true;;
@@ -117,7 +117,7 @@ techo "$vervar = $verval."
 # Determine the version variable name
 installstrval=${package}-${verval}-${build}
 pkgScriptRev=`svn info $PKG_FILE | grep 'Last Changed Rev:' | sed 's/.* //'`
-fullstrval="$installstrval $USER $BILDER_PACKAGE `date +%F-%T` bilder-r$pkgScriptRev"
+fullstrval="$installstrval $USER $BILDER_PROJECT `date +%F-%T` bilder-r$pkgScriptRev"
 
 # Put string into file
 if $REMOVE; then
