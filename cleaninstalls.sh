@@ -111,7 +111,6 @@ cleanInstallDir() {
 
 # Removing tarball packages.  Do as subshell so as not to change
 # nocaseglob in this shell.
-visit-r23049-sersh cary visitall 2014-03-22-15:51:45 bilder-r1098
   if $REMOVE_CONTRIB_PKGS; then
     cd $CLN_INSTALL_DIR
   cat >rmtarballs.sh <<EOF
