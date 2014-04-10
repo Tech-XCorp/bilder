@@ -49,14 +49,14 @@ setNumpyGlobalVars() {
 
   if $BUILD_EXPERIMENTAL; then
     NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
-    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
   else
     NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
-    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
   fi
 
   if $NUMPY_WIN_USE_FORTRAN; then
     NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
+  else
+    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
   fi
   NUMPY_USE_ATLAS=${NUMPY_USE_ATLAS:-"false"}
 # Can now determine the deps
