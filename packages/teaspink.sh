@@ -25,7 +25,7 @@ if test -z "$TEASPINK_BUILDS"; then
 fi
 
 # Deps include autotools for configuring packages
-TEASPINK_DEPS=gsl,fftw,libxml2,pcre,gperf,xercesc,muparser,autotools,cmake
+TEASPINK_DEPS=hdf5,gsl,fftw,libxml2,pcre,gperf,xercesc,muparser,autotools,cmake
 
 ######################################################################
 #
