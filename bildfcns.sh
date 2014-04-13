@@ -6297,6 +6297,7 @@ bilderInstallTestedPkg() {
 # 1: package name
 # 2: configuration arguments except for prefix
 # 3: Environment under which to run setup.py
+# 4: Any args to go between setup.py and build
 #
 # Named args (must come first):
 # -d <dependencies>
@@ -6416,7 +6417,7 @@ bilderDuBuild() {
       buildargs="$2"
     fi
     local buildscript=$FQMAILHOST-$1-cc4py-build.sh
-    cmd="env $3 python setup.py build $buildargs"
+    cmd="env $3 python setup.py $4 build $buildargs"
     cat >$buildscript <<EOF
 #!/bin/bash
 $cmd
