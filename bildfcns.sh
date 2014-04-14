@@ -3080,14 +3080,18 @@ getPkg() {
     if test -z "$tarballbase" -a $SVNUP_PKGS; then
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
-          bilderSvn up 1>/dev/null
-          bilderSvn ls | grep "^${1}"'\.t' 1>/tmp/tarballs$$.tmp 2>/dev/null
-          numtarballs=`wc -l /tmp/tarballs$$.tmp | sed -e 's/^ *//' -e 's/ .*$//'`
-          numtarballs=${numtarballs:-"0"}
-          techo -2 "Repo numtarballs = $numtarballs." 1>&2
-          if test $numtarballs = 0; then
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] No tarball in repo ($pkgdir) matches \"^${1}\"\'\\.t*\'."
-            # rm /tmp/tarballs$$.tmp
+          numtarballs=0
+          if bilderSvn up 1>/dev/null; then
+            bilderSvn ls | grep "^${1}"'\.t' 1>/tmp/tarballs$$.tmp 2>/dev/null
+            numtarballs=`wc -l /tmp/tarballs$$.tmp | sed -e 's/^ *//' -e 's/ .*$//'`
+            techo -2 "Repo numtarballs = $numtarballs." 1>&2
+            if test $numtarballs = 0; then
+              TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] No tarball in repo ($pkgdir) matches \"^${1}\"\'\\.t*\'."
+              rm -f /tmp/tarballs$$.tmp
+              terminate
+            fi
+          else
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir).  Remove?"
             terminate
           fi
           if test $numtarballs -gt 1; then
