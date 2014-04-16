@@ -3176,7 +3176,7 @@ updateRepo() {
   local scmexec=$2
   if test -z "$scmexec"; then
     case $pkgurl in
-      git*) scmexec=git;;
+      git* | *.git) scmexec=git;;
       *) scmexec=hg;;
     esac
   fi
@@ -3191,7 +3191,8 @@ updateRepo() {
 # In case run outside bilder, get project directory
   if test -z "$PROJECT_DIR"; then
     local bldrdir=`dirname $BASH_SOURCE`
-    bldrdir=`dirname $bldrdir`
+    bldrdir=`(cd $bldrdir; pwd -P)`
+    # bldrdir=`dirname $bldrdir`
     PROJECT_DIR=`dirname $bldrdir`
   fi
   cd $PROJECT_DIR
