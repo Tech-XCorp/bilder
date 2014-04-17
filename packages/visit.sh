@@ -259,7 +259,7 @@ buildVisit() {
       done
       techo -2 "MPI_LIBDIR = $MPI_LIBDIR."
       if test -z "$MPI_LIBDIR"; then
-        techo "WARNING: Cannot find the mpi library directory, so linking may fail."
+        techo "WARNING: [$FUNCNAME] Cannot find the mpi library directory, so linking may fail."
       fi
     fi
 # Visit uses serial hdf5 even in parallel.
@@ -456,13 +456,8 @@ installVisit() {
       fi
 
 # Fix installation libraries
-# Fix hdf5
-      local hdf5dirs=
-      if [[ $bld =~ ^ser ]]; then
-        hdf5dirs="hdf5-cc4py hdf5-sersh hdf5"
-      else
-        hdf5dirs="hdf5-parsh"
-      fi
+# Even parallel visit uses serial hdf5
+      local hdf5dirs="hdf5-cc4py hdf5-sersh hdf5"
       local hdf5rootdir=
       for hdf5dir in $hdf5dirs; do
         if test -d $CONTRIB_DIR/$hdf5dir/lib; then
@@ -470,13 +465,14 @@ installVisit() {
           break
         fi
       done
-      if test -z $hdf5rootdir; then
-        techo "WARNING: Shared hdf5 libs not found for build, $bld!"
-      elif [[ `uname` =~ CYGWIN ]]; then
+      if test -z "$hdf5rootdir"; then
+        techo "WARNING: [$FUNCNAME] Shared hdf5 libs not found for build, $bld!"
+      fi
+      if [[ `uname` =~ CYGWIN ]]; then
 # Installation directly into root dir.  Have to look for hdf5 at top.
-        fixCopiedHdf5 $visittopdir $hdf5rootdir $installfixfile
+        fixCopiedHdf5 $visittopdir "$hdf5rootdir" $installfixfile
       else
-        fixCopiedHdf5 $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib $hdf5rootdir/lib $installfixfile
+        fixCopiedHdf5 $visittopdir/$VISIT_DISTVERSION/$VISIT_ARCH/lib "$hdf5rootdir/lib" $installfixfile
       fi
 
 # Look for stdc++
