@@ -5351,12 +5351,16 @@ installRelShlib() {
 # Get the args
   local lib=$1
   local instdir=$2
-  local fromdir=$3
+  local fromdir="$3"
 
 # See whether lib is installed, install if not.
   local instlib=$instdir/$lib
   if ! test -f $instlib; then
     techo "NOTE: [$FUNCNAME] $instlib missing.  Will install if found."
+    if test -z "$fromdir"; then
+      techo "ERROR: [$FUNCNAME] fromdir empty. Cannot install."
+      return
+    fi
     local fromlib=$fromdir/$lib
     if ! test -f $fromlib; then
       techo "ERROR: [$FUNCNAME] $fromlib missing. Cannot install."
