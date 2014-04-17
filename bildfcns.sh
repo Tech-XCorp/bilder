@@ -7049,11 +7049,11 @@ EOF
 
   else
     if ! $SEND_ABSTRACT; then
-      techo "Not copying abstract as not requested."
+      techo "WARNING: [$FUNCNAME] Not sending abstract as not requested."
     elif test -z "$ABSTRACT_HOST"; then
-      techo "WARNING: [$FUNCNAME] Not copying abstract as ABSTRACT_HOST is undefined."
+      techo "WARNING: [$FUNCNAME] Not sending abstract as ABSTRACT_HOST is undefined."
     else
-      techo "WARNING: [$FUNCNAME] Not copying abstract as ABSTRACT_ROOTDIR is undefined."
+      techo "WARNING: [$FUNCNAME] Not sending abstract as ABSTRACT_ROOTDIR is undefined."
     fi
   fi
 
