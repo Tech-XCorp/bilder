@@ -5680,9 +5680,9 @@ bilderInstall() {
   local setGroup=false
   local printSetGroup=false # Whether to print group setting actions
   if test -z "$grpnm" -a -n "$hostids"; then
-    techo "WARNING: [$FUNCNAME] Install requested to set group name for host, but no name given."
+    techo "WARNING: [$FUNCNAME] Install requested to set group name for $1-$2, but no group name given."
   elif test -n "$grpnm" -a -z "$hostids"; then
-    techo "WARNING: [$FUNCNAME] Install requested to set group name, but no hostids given."
+    techo "WARNING: [$FUNCNAME] Install requested to set group name for $1-$2, but no hostids given."
   elif test -n "$grpnm" -a -n "$hostids"; then
     techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm' on host '$hostids'."
     printSetGroup=true
