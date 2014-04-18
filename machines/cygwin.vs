@@ -18,6 +18,14 @@ VERBOSITY=${VERBOSITY:-"0"}
 # Trilinos has problems, but numpy is building.
 BUILD_ATLAS=${BUILD_ATLAS:-"false"}
 
+if ! declare -f deref 1>/dev/null 2>&1; then
+  TECHO=echo
+  TECHO2=echo
+else
+  TECHO=techo
+  TECHO2=techo -2
+fi
+
 #
 # Find mingw
 #
@@ -30,9 +38,9 @@ for dr in /TDM-GCC-64 /MinGW64 /TDM-GCC-32; do
   fi
 done
 if test -n "$MINGW_BINDIR"; then
-  techo "MinGW found: MINGW_BINDIR = $MINGW_BINDIR."
+  $TECHO "MinGW found: MINGW_BINDIR = $MINGW_BINDIR."
 else
-  techo "NOTE: MinGW not found.  ATLAS and SciPy require installation of MinGW per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
+  $TECHO "NOTE: MinGW not found.  ATLAS and SciPy require installation of MinGW per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
 fi
 
 # Find all the compilers if prefix known.
@@ -46,7 +54,7 @@ if test -n "$MINGW_BINDIR"; then
       break
     fi
   done
-  techo "MINGW_PREFIX = $MINGW_PREFIX."
+  $TECHO "MINGW_PREFIX = $MINGW_PREFIX."
 
   if test -n "$MINGW_PREFIX"; then
 
@@ -60,13 +68,11 @@ if test -n "$MINGW_BINDIR"; then
     # for prog in gcc gfortran ar ranlib; do
     for prog in gcc gfortran; do
       if ! test -e /usr/bin/${MINGW_PREFIX}-${prog}.exe; then
-        techo "WARNING: [cygwin.vs] ${MINGW_PREFIX}-${prog}.exe not found."
+        $TECHO "WARNING: [cygwin.vs] ${MINGW_PREFIX}-${prog}.exe not found."
         if test -n $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe; then
-          techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe /usr/bin/${MINGW_PREFIX}-${prog}.exe'."
-        # elif test -n $MINGW_BINDIR/${MINGW_PREFIX}-gcc-${prog}.exe; then
-          # techo "WARNING: [cygwin.vs] Execute 'ln -s $MINGW_BINDIR/${MINGW_PREFIX}-gcc-${prog}.exe /usr/bin/${MINGW_PREFIX}-${prog}.exe'."
+          $TECHO "WARNING: [cygwin.vs] Execute 'ln -s $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe /usr/bin/${MINGW_PREFIX}-${prog}.exe'."
         else
-          techo "NOTE: Cannot find MinGW installation of ${prog}."
+          $TECHO "NOTE: Cannot find MinGW installation of ${prog}."
         fi
       fi
     done
@@ -77,9 +83,7 @@ fi
 
 # Set the fortran compiler
 if test -n "$FC"; then
-  # techo "Found FC = $FC."
   FC=`cygpath -am $FC`
-  # techo "Converted FC = $FC."
   F77="$FC"
   PYC_FC="$FC"
   PYC_F77="$FC"

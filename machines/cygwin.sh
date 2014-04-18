@@ -20,8 +20,10 @@ if ! declare -f deref 1>/dev/null 2>&1; then
   runnrdir=`dirname $BASH_SOURCE`/../runnr
   runnrdir=`(cd $runnrdir; pwd -P)`
   TECHO=echo
+  TECHO2=echo
 else
   TECHO=techo
+  TECHO2=techo -2
 fi
 
 # $TECHO "NOTE: [cygwin.sh] Sourcing cygwin.sh, PATH = $PATH"
@@ -79,7 +81,8 @@ fi
 # the correct subversion is unchanged.  Otherwise, svnversion looks modified.
 # Restoring for now.  What we need to figure out is why the qar machines
 # do not have the correct paths.
-techo -2 "Before /usr/bin move, PATH = $PATH."
+$TECHO2 "Before /usr/bin move, PATH = $PATH."
+
 if echo ${PATH}: | grep -qi '/cygdrive/c/Python2'; then
 # Find locations to be moved
   if echo $PATH | grep -q :/usr/bin:/bin: ; then
@@ -105,7 +108,7 @@ if echo ${PATH}: | grep -qi '/cygdrive/c/Python2'; then
     PATH="$PATH_SAV"
   fi
 fi
-techo "After /usr/bin move, PATH = $PATH."
+$TECHO2 "After /usr/bin move, PATH = $PATH."
 
 # Determine the paths needed by Visual Studio
 #
@@ -169,8 +172,6 @@ EOF
   eval PATH_VS${vsver}="\"$PATH_CYG\""
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
 }
-
-# techo "Before IS_64_BIT."; exit
 
 if $IS_64_BIT; then
   getVsPaths 9
@@ -273,7 +274,6 @@ setVs11Vars() {
   $TECHO "setVs11Vars... LIBPATH = $LIBPATH"
 }
 
-# techo "Before hasvisstudio"; exit
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
 if test -n "$hasvisstudio"; then
   $TECHO "Found a Visual Studio in your path.  Not adding."
@@ -315,29 +315,27 @@ else
       ;;
   esac
 fi
-# techo "Finished setting paths."
-# techo "PATH = $PATH"
 
 # Determine a path variable for atlas by removing dirs with parens.
 # On 64 bit, ensure path to ProgramFiles (x86) has been mounted without parens.
 if $IS_64_BIT; then
   pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
   if test -z "$pfsubdirs"; then
-    techo "WARNING: [cygwin.sh] Microsoft Visual Studio not found under /ProgramFilesX86. Will try mounting.  Change /etc/fstab to make this permanent."
+    $TECHO "WARNING: [cygwin.sh] Microsoft Visual Studio not found under /ProgramFilesX86. Will try mounting.  Change /etc/fstab to make this permanent."
     mkdir -p /ProgramFilesX86
     umount /ProgramFilesX86
     cmd="mount 'C:/Program Files (x86)' /ProgramFilesX86"
-    techo "NOTE: [cygwin.sh] Executing $cmd"
+    $TECHO "NOTE: [cygwin.sh] Executing $cmd"
     eval "$cmd"
   fi
   pfsubdirs=`ls "/ProgramFilesX86/Microsoft Visual Studio"* 2>/dev/null`
   if test -z "$pfsubdirs"; then
-    techo "WARNING: [cygwin.sh] /ProgramFilesX86/Microsoft Visual Studio not found on Win64.  Cannot set NOPAREN_PATH."
+    $TECHO "WARNING: [cygwin.sh] /ProgramFilesX86/Microsoft Visual Studio not found on Win64.  Cannot set NOPAREN_PATH."
   else
     NOPAREN_PATH=`echo $PATH | sed -e 's/Program Files (x86)/ProgramFilesX86/g' | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
   fi
 else
   NOPAREN_PATH=`echo $PATH | tr ':' '\n' | sed '/(/d' | tr '\n' ':'`
 fi
-techo "NOPAREN_PATH = $NOPAREN_PATH"
+$TECHO "NOPAREN_PATH = $NOPAREN_PATH"
 
