@@ -88,8 +88,6 @@ BILDER OPTIONS
   -X ................ Build experimental (new) versions of packages.
   -z ................ Do only a pull and not a clean from any git repo.
   -Z ................ Do not execute the definable bilderFinalAction.
-  -2 ................ Use the second installation directory of the comma
-                        delimited list.  Causes -FI options.
 EOF
 
   if declare -f extrausage > /dev/null; then extrausage; fi
@@ -157,7 +155,8 @@ processBilderArgs() {
     X) BUILD_EXPERIMENTAL=true;;
     z) CLEAN_GITHG_SUBREPOS=false;;
     Z) DO_FINAL_ACTION=false;;
-    2) IS_SECOND_INSTALL=true;;
+    2) techo "WARNING: -2 option will be removed Oct. 18, 2014. Use -FI instead."
+       IS_SECOND_INSTALL=true;;
    \?) bilderUsage 1;;
     *)  # To take care of any extra args
       if test -n "$OPTARG"; then

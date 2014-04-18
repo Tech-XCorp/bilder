@@ -104,7 +104,7 @@ setBilderDirsVars() {
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/internal${INSTALL_SUBDIR_SFX}
     else
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/volatile${INSTALL_SUBDIR_SFX}
-      SCRIPT_ADDL_ARGS="-rI $SCRIPT_ADDL_ARGS"
+      SCRIPT_ADDL_ARGS="-r $SCRIPT_ADDL_ARGS"
     fi
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
   fi

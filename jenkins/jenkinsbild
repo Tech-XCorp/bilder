@@ -17,11 +17,11 @@ GENERAL OPTIONS
   -E <env pairs> .... comma separated list of environment variables and values,
                       e.g., FOO=f,BAR=b
   -h ................ Print this and exit
+  -i ................ Install even when tests fail (ignore test results)
   -m ................ Use minggw on cygwin
   -n ................ Do not add tests
   -p ................ Print the command only.
   -s <step> ......... Sets which build step: 1 = internal, 2 = volatile.
-  -2 ................ Sets build step to 2.
   -f ................ Force build step 2 to execute independent of the
                       results of step 1.  Tests will execute unless -n
                       specified.
@@ -42,16 +42,20 @@ EXTRA_ENV=
 USE_MINGW=false
 PRINT_ONLY=false
 FORCESTEP2=false
+IGNORE_TEST_RESULTS=false
 STEP=1
-while getopts "d:E:hmnps:2f" arg; do
+
+while getopts "d:E:himnps:2f" arg; do
   case "$arg" in
     E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
     h) usage; exit;;
+    i) IGNORE_TEST_RESULTS=true;;
     m) USE_MINGW=true;;
     n) ADD_TESTS=false;;
     p) PRINT_ONLY=true;;
     s) STEP=$OPTARG;;
-    2) STEP=2;;
+    2) STEP=2
+       techo "WARNING: jenkinsbild arg -2 is the same as -s 2 and will be deprecated on Oct. 18, 2014";;
     f) FORCESTEP2=true;;
   esac
 done
@@ -253,12 +257,15 @@ else
   postopts=
 fi
 
+if $IGNORE_TEST_RESULTS; then
+  postopts="-I $postopts"
+fi
+
 # Use internal/volatile build directory naming
 case $STEP in
   1) preopts="$preopts -b builds-i";;
   2) preopts="$preopts -b builds-v";;
 esac
-
 
 #
 # If using old internal/volatile projects, locate subject in another directory
@@ -290,7 +297,6 @@ case $STEP in
 
   2)
 # Prepend postopts as may end with target
-    postopts="-2 $postopts"
     if $FORCESTEP2; then
       lecho "Forcing step 2 (-f). Ignoring results of first run. "
     else
