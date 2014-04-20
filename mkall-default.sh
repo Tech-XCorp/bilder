@@ -54,6 +54,7 @@ WRAPPER OPTIONS
                       If relative, add this to the computed root.
   -R <subdir> ....... Install both repo and tarball packages into
                         /internal/<subdir>. This used for releases builds.
+  -s                  Installation suffix directory after all done.
   -t ................ Pass the -t flag to the  mk script (turn on testing)
   -v <file> ......... File containing a list (without commas) of declared
                         environment variables to be passed to mk*.sh script
@@ -119,14 +120,9 @@ processArg() {
     n) USE_NOHUP=true;;
     p) PRINTONLY=true;;
     q) QUEUE_TIME=$OPTARG;;
-    r)
-      if [[ $OPTARG =~ "^/" ]]; then
-        ROOTDIR_CVI=$OPTARG  # New root dir for installation
-      else
-        ROOTDIR_REL=$OPTARG  # Subdir to add onto computed root dir
-      fi
-      ;;
+    r) ROOTDIR_CVI=$OPTARG;;
     R) FIXED_INSTALL_SUBDIR=$OPTARG;;
+    s) INST_SUBDIR=$OPTARG;;
     t) EXTRA_ARGS="$EXTRA_ARGS -t";;
     v) ENV_VARS_FILE="$OPTARG";;
     w) BILDER_NOBUILD_FILE="$OPTARG";;
@@ -143,10 +139,10 @@ COMMON_INSTALL=false
 EXTRA_ARG_FILE=".extra_args"
 INSTDIR_IS_INTERNAL=false
 INSTALL_IN_HOME=false
+INST_SUBDIR=
 unset MKJMAX
 PRINTONLY=false
-ROOTDIR_CVI=  # Absolute root dir for installation
-ROOTDIR_REL=  # Relative additional dir for installation
+ROOTDIR_CVI=
 QUEUE_TIME=
 USE_NOHUP=false
 USE_COMMON_INSTDIRS=true
@@ -158,7 +154,7 @@ if test -f $HOME/.bilderrc; then
 fi
 
 # Process all the args
-args="b:cCE:f:F:gH:hiIj:km:npq:r:R:tv:w:X-"
+args="b:cCE:f:F:gH:hiIj:km:npq:r:R:s:tv:w:X-"
 if test -n $extraargs; then
   args=${args}${extraargs}
 fi
@@ -303,11 +299,6 @@ SCRIPT_ADDL_ARGS=`echo -- $SCRIPT_ADDL_ARGS | sed "s?--??" `
 #   CONTRIB_ROOTDIR, CONTRIB_SUBDIR
 #------------------------------------------------------
 
-if test -n "$ROOTDIR_CVI"; then
-  export INSTALL_ROOTDIR=$ROOTDIR_CVI
-  export CONTRIB_ROOTDIR=$ROOTDIR_CVI
-  export USERINST_ROOTDIR=$ROOTDIR_CVI
-fi
 source $BILDER_DIR/defaultsfcns.sh
 if test -n "$QUEUE_TIME"; then
   FORCE_NO_QUEUE=${FORCE_NO_QUEUE:-"false"}

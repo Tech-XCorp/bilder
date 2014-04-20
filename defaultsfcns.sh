@@ -67,6 +67,13 @@ setBilderDirsVars() {
 #------------------
 
   USERINST_ROOTDIR=${USERINST_ROOTDIR:-"$JENKINS_FSROOT"}
+  if test -n "$ROOTDIR_CVI"; then
+    if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+      USERINST_ROOTDIR=$ROOTDIR_CVI
+    else
+      USERINST_ROOTDIR=$USERINST_ROOTDIR/$ROOTDIR_CVI
+    fi
+  fi
 
 #------------------
 # Contrib/tarball location
@@ -77,6 +84,13 @@ setBilderDirsVars() {
       CONTRIB_DIR=$CONTRIB_ROOTDIR/$ROOTDIR_REL
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}/$ROOTDIR_REL
+    fi
+    if test -n "$ROOTDIR_CVI"; then
+      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+        CONTRIB_DIR=$ROOTDIR_CVI
+      else
+        CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
+      fi
     fi
     # echo "USE_COMMON_INSTDIRS = $USE_COMMON_INSTDIRS."
     if $USE_COMMON_INSTDIRS; then
@@ -97,6 +111,13 @@ setBilderDirsVars() {
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}/$ROOTDIR_REL
     fi
+    if test -n "$ROOTDIR_CVI"; then
+      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+        BLDR_INSTALL_DIR=$ROOTDIR_CVI
+      else
+        BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
+      fi
+    fi
     # echo "USE_COMMON_INSTDIRS = $USE_COMMON_INSTDIRS."
     if $USE_COMMON_INSTDIRS; then
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/software${INSTALL_SUBDIR_SFX}
@@ -107,6 +128,11 @@ setBilderDirsVars() {
       SCRIPT_ADDL_ARGS="-r $SCRIPT_ADDL_ARGS"
     fi
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
+  fi
+
+  if test -n "$INST_SUBDIR"; then
+    CONTRIB_DIR=$CONTRIB_DIR/$INST_SUBDIR
+    BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$INST_SUBDIR
   fi
 
 }
