@@ -17,7 +17,6 @@ GENERAL OPTIONS
   -E <env pairs> .... comma separated list of environment variables and values,
                       e.g., FOO=f,BAR=b
   -h ................ Print this and exit
-  -i ................ Install even when tests fail (ignore test results)
   -m ................ Use minggw on cygwin
   -n ................ Do not add tests
   -p ................ Print the command only.
@@ -42,14 +41,12 @@ EXTRA_ENV=
 USE_MINGW=false
 PRINT_ONLY=false
 FORCESTEP2=false
-IGNORE_TEST_RESULTS=false
 STEP=1
 
-while getopts "d:E:himnps:2f" arg; do
+while getopts "d:E:hmnps:2f" arg; do
   case "$arg" in
     E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
     h) usage; exit;;
-    i) IGNORE_TEST_RESULTS=true;;
     m) USE_MINGW=true;;
     n) ADD_TESTS=false;;
     p) PRINT_ONLY=true;;
@@ -255,10 +252,6 @@ if echo $begopts | grep -- -- 1>/dev/null 2>&1; then
 else
   preopts="$begopts"
   postopts=
-fi
-
-if $IGNORE_TEST_RESULTS; then
-  postopts="-I $postopts"
 fi
 
 # Use internal/volatile build directory naming
