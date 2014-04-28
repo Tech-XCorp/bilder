@@ -23,7 +23,7 @@ if ! declare -f deref 1>/dev/null 2>&1; then
   TECHO2=echo
 else
   TECHO=techo
-  TECHO2=techo -2
+  TECHO2="techo -2"
 fi
 
 # $TECHO "NOTE: [cygwin.sh] Sourcing cygwin.sh, PATH = $PATH"
