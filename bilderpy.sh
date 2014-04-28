@@ -141,7 +141,7 @@ if ! $NO_PYTHON; then
   case `uname` in
     CYGWIN*)
       PYTHON_SITEPKGSDIR=${CONTRIB_DIR}/Lib/site-packages
-      NATIVE_PYTHON_SITEPKGSDIR=`cygpath -aw ${PYTHON_SITEPKGSDIR}`
+      NATIVE_PYTHON_SITEPKGSDIR=`cygpath -aw ${PYTHON_SITEPKGSDIR} | sed 's/\\\\/\\\\\\\\/g'`
       MIXED_PYTHON_SITEPKGSDIR=`cygpath -am ${PYTHON_SITEPKGSDIR}`
       ;;
     Darwin | Linux)
@@ -152,11 +152,9 @@ if ! $NO_PYTHON; then
   esac
 # Add site-packages to front of path.
 # If path already added, remove so as not to mix versions.
-  if test -n "$BILDER_PYTHONPATH"; then
-    PYTHONPATH=`echo $PYTHONPATH | sed -e "s/^$BILDER_PYTHONPATH//"`
-  fi
+  echo "NATIVE_PYTHON_SITEPKGSDIR = $NATIVE_PYTHON_SITEPKGSDIR"
   unset BILDER_PYTHONPATH
-  addtopathvar PYTHONPATH "$NATIVE_PYTHON_SITEPKGSDIR"
+  addtopathvar PYTHONPATH "$PYTHON_SITEPKGSDIR"
   case `uname` in
     CYGWIN*)
       trimvar PYTHONPATH ';'
@@ -165,11 +163,9 @@ if ! $NO_PYTHON; then
       trimvar PYTHONPATH ':'
       ;;
   esac
-  techo "PYTHONPATH = $PYTHONPATH"
   export PYTHONPATH
 fi
 FORPYTHON_BUILD=`getPythonBuild`
-# techo "Quitting in bilderpy after setting PYTHONPATH."; exit
 
 ######################################################################
 #
@@ -205,7 +201,7 @@ done
 
 completevars="PYTHON MIXED_PYTHON PYTHON_SITEPKGSDIR NATIVE_PYTHON_SITEPKGSDIR PYTHONPATH PYTHON_BLDRVERSION PYTHON_MAJMIN PYTHON_DIR PYTHON_INCDIR PYTHON_TOPLIBDIR PYTHON_LIBDIR PYTHON_LIBSUBDIR PYTHON_LIB PYTHON_LLIB PYTHON_SHLIB PYTHON_LIB_LIBDIR FORPYTHON_BUILD"
 for i in $completevars; do
-  val=`deref $i`
+  val=`derefpath $i`
   if test -n "$val"; then
     if ! [[ `uname` =~ CYGWIN ]]; then
       if cd $val 2>/dev/null; then

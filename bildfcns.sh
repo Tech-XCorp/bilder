@@ -153,7 +153,8 @@ esac
 # 1: the name of the variable
 #
 printvar() {
-  val=`deref $1`
+# Assume backslashes are literal
+  val=`derefpath $1`
   if test -n "$val"; then
     techo "Variable $1 = \"$val\"."
   else
@@ -794,19 +795,20 @@ addVals() {
 addtopathvar() {
 # Determine the separator
   local sep=":"
-  local addpathcand=$2
+  local addpathcand="$2"
+  local addpath=
 # Find absolute, resolved path, if it exists
   case `uname`-$1 in
     *-PATH)  # cygwin converts PATH and uses colon
-      addpath=`(cd $addpathcand 2>/dev/null; pwd -P)`
+      addpath=`(cd "$addpathcand" 2>/dev/null; pwd -P)`
       ;;
     CYGWIN*)
       sep=";"
-      addpath=`cygpath -aw $addpathcand`
+      addpath=`cygpath -aw "$addpathcand" | sed 's?\\\\?\\\\\\\\\\\\\\\\?g'`
       ;;
   esac
 # Fallback to given
-  addpath=${addpathcand:-"$addpath"}
+  addpath=${addpath:-"$addpathcand"}
 # Remove from path if already present, so added to front
   local pathval=`deref $1 | sed "s?$addpath??g"`
   local bildersaveval=`deref BILDER_ADDED_${1} | sed "s?$addpath??g"`
@@ -825,8 +827,8 @@ addtopathvar() {
   eval trimvar BILDER_ADDED_${1} "'${sep}'"
   eval trimvar $bpvar "'${sep}'"
 # Print results
-  pathval=`deref $1`
-  bpval=`deref $bpvar`
+  pathval=`derefpath $1`
+  bpval=`derefpath $bpvar`
   techo -2 "Variable $bpvar = $bpval, $1 = $pathval (addtopathvar)"
 }
 

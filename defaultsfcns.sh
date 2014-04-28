@@ -107,6 +107,11 @@ fi
 #------------------
 
   if test -z "$BLDR_INSTALL_DIR"; then
+    if $COMMON_CONTRIB; then
+      BLDR_INSTALL_DIR=$INSTALL_ROOTDIR
+    else
+      BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
+    fi
     if test -n "$ROOTDIR_CVI"; then
       if [[ $ROOTDIR_CVI =~ ^/ ]]; then
         BLDR_INSTALL_DIR=$ROOTDIR_CVI

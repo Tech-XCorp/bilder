@@ -160,7 +160,7 @@ EOF
   local PATHNEWM=`echo "$PATHNEW" | sed -e 's?\\\\?/?g'`
   local PATH_VAL=`echo "$PATHNEWM" | sed -e "s?$PATHOLDM??g"`
 
-# Convert the paths to cygwin
+# Convert paths to cygwin
   rm -f $workdir/path_${vsver}.txt
   echo "$PATH_VAL" | tr ';' '\n' | sed '/^$/d' | while read line; do
     cygpath -au "$line": >> $workdir/path_${vsver}.txt
@@ -171,6 +171,10 @@ EOF
   rm -f $workdir/path_${vsver}.txt
   eval PATH_VS${vsver}="\"$PATH_CYG\""
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
+# Double slashes on other paths
+  eval INCLUDE_VS${vsver}=`derefpath INCLUDE_VS${vsver}`
+  eval LIB_VS${vsver}=`derefpath LIB_VS${vsver}`
+  eval LIBPATH_VS${vsver}=`derefpath LIBPATH_VS${vsver}`
 }
 
 if $IS_64_BIT; then
@@ -243,9 +247,9 @@ setVs10Vars() {
   fi
 # Add new
   PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS10:/cygdrive%"`:$MINGW_BINDIR
-  export INCLUDE="$INCLUDE_VS10"
-  export LIB="$LIB_VS10"
-  export LIBPATH="$LIBPATH_VS10"
+  export INCLUDE=`echo "$INCLUDE_VS10" | sed -e 's/\\\\/\\\\\\\\/g'`
+  export LIB=`echo "$LIB_VS10" | sed -e 's/\\\\/\\\\\\\\/g'`
+  export LIBPATH=`echo "$LIBPATH_VS10" | sed -e 's/\\\\/\\\\\\\\/g'`
   $TECHO "setVs10Vars... Adding Visual Studio 10 variables to environment."
   $TECHO "setVs10Vars... PATH = $PATH"
   $TECHO "setVs10Vars... INCLUDE = $INCLUDE"
@@ -264,9 +268,9 @@ setVs11Vars() {
   fi
 # Add new
   PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`:$MINGW_BINDIR
-  export INCLUDE="$INCLUDE_VS11"
-  export LIB="$LIB_VS11"
-  export LIBPATH="$LIBPATH_VS11"
+  export INCLUDE=`echo "$INCLUDE_VS11" | sed -e 's/\\\\/\\\\\\\\/g'`
+  export LIB=`echo "$LIB_VS11" | sed -e 's/\\\\/\\\\\\\\/g'`
+  export LIBPATH=`echo "$LIBPATH_VS11" | sed -e 's/\\\\/\\\\\\\\/g'`
   $TECHO "setVs11Vars... Adding Visual Studio 11 variables to environment."
   $TECHO "setVs11Vars... PATH = $PATH"
   $TECHO "setVs11Vars... INCLUDE = $INCLUDE"

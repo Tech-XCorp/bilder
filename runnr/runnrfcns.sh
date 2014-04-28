@@ -9,13 +9,36 @@
 ## ######################################################################
 
 #
-# Find the value of the variable whose name is in a variable
+# Find the value of a variable whose name is in a variable
 #
 # Args:
-# 1: the name of the variable desired
+# 1: the name of the variable
 #
 deref() {
   eval echo $`echo $1`
+}
+
+#
+# Find the value of a path variable whose name is in a variable.
+# Backslashes doubled so they will not combine to create escaped
+# characters.
+#
+# Args:
+# 1: the name of the variable
+#
+ derefpath() {
+   echo `deref $1 | sed 's?\\\\?\\\\\\\\?g'`
+ }
+
+#
+# Double the backslashes in a value so they will not combine to
+# create escaped characters.
+#
+# Args:
+# 1: holds the value
+#
+dblslash() {
+  echo `echo "$1" | sed 's?\\\\?\\\\\\\\?g'`
 }
 
 #
@@ -73,9 +96,9 @@ techo() {
 # Print
   if test $VERBOSITY -ge $pverbosity; then
     if test -n "$LOGFILE"; then
-      printf -- "${1}${eol}" | tee -a $LOGFILE
+      printf -- "`dblslash "$1"`${eol}" | tee -a $LOGFILE
     else
-      printf -- "${1}${eol}"
+      printf -- "`dblslash "$1"`${eol}"
     fi
   fi
 }
