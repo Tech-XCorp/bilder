@@ -92,6 +92,12 @@ fi
 
 # Set BILDER_SVN before going further
 BILDER_SVN=${BILDER_SVN:-"`which svn`"}
+if test -z "$BILDER_SVN"; then
+  TERMINATE_ERROR_MSG="ERROR: [bildinit.sh] svn not found."
+  cleanup
+fi
+export BILDER_SVN # Needed for setinstald.sh
+
 # The BEN build is an additional build for back end nodes.
 # On BGP, the back end build uses a different, 32-bit serial
 #   compiler for serial packages like txphysics.  The parallel
