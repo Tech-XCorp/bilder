@@ -27,7 +27,8 @@ deref() {
 # 1: the name of the variable
 #
  derefpath() {
-   echo `deref $1 | sed 's?\\\\?\\\\\\\\?g'`
+   local res=`deref $1 | sed 's?\\\\?\\\\\\\\?g'`
+   echo "$res"
  }
 
 #
