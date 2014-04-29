@@ -3058,7 +3058,7 @@ getPkg() {
 # Determine the method if direct
     local DIRECT_GET=
     if $SVNUP_PKGS; then
-      techo -n "Getting packages in $pkgdir with" 1>&2
+      techo -n "Getting packages in $pkgdir with " 1>&2
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
           techo " svn." 1>&2
@@ -3068,10 +3068,14 @@ getPkg() {
             DIRECT_CHECK="bilderWgetCheck"
             DIRECT_GET="wget -N -nv"
             techo " wget." 1>&2
-          else
+          elif which curl 1>/dev/null 2>&1; then
             DIRECT_CHECK="bilderCurlCheck"
             DIRECT_GET="bilderCurlGet"
             techo " curl." 1>&2
+          else
+            techo " NONE." 1>&2
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Neither wget nor curl found."
+            terminate
           fi
           ;;
       esac
