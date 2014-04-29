@@ -43,7 +43,7 @@ buildCLapack_CMake() {
     return
   fi
 
-  local CLAPACK_BUILD_ARGS="-m nmake"
+  local CLAPACK_BUILD_ARGS=
   if [[ `uname` =~ CYGWIN ]]; then
     CLAPACK_BUILD_ARGS="-m nmake"
   fi
