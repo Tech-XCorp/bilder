@@ -32,6 +32,11 @@ setNumpyGlobalVars() {
 #   atlas-clp (atlas built with clp, no fortran needed)
 #   atlas-ser (atlas built with netlib-lapack, fortran needed)
 # These flags determine how numpy is built, with or without fortran, atlas.
+
+# There is also a move to using OpenBLAS
+#  http://numpy-discussion.10968.n7.nabble.com/Default-builds-of-OpenBLAS-development-branch-are-now-fork-safe-td36523.html
+# due to the slowness of compiling atlas.
+
 # Without fortran, numpy builds, but scipy will not.
 # There is a connection between the numpy and scipy builds,
 # with scipy using part of the numpy distutils.
@@ -43,9 +48,10 @@ setNumpyGlobalVars() {
 #   http://mail.scipy.org/pipermail/numpy-discussion/2013-November/068266.html
 #
 # Our build of numpy 1.8.0 with mingw-w64 is broken on Windows. testVsHdf5.py
-# exits # with a code of 127 after calls to numpy. (Actually, the script exits
-# with # a 127, and when we placed exit(0) calls in various places we found that
-# the problematic code is the calls to numpy.
+# exits with a code of 127 after calls to numpy. (Actually, the script exits
+# with a 127, and when we placed exit(0) calls in various places we found that
+# the problematic code is the calls to numpy.  One could call os._exit(0)
+# to avoid the error code, but we do not understand why it is being set.
 
 # So for now, the default is not to use fortran. Further it is forced off
 # off if there is no fortran compiler.

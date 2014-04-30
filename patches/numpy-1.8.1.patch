@@ -1,93 +1,210 @@
-diff -ruN numpy-1.8.0/numpy/core/src/multiarray/multiarraymodule.c numpy-1.8.0-new/numpy/core/src/multiarray/multiarraymodule.c
---- numpy-1.8.0/numpy/core/src/multiarray/multiarraymodule.c	2013-10-30 12:32:51.000000000 -0600
-+++ numpy-1.8.0-new/numpy/core/src/multiarray/multiarraymodule.c	2014-04-06 03:16:55.515248900 -0600
-@@ -3978,7 +3978,8 @@
-         goto err;
-     }
+diff -ruN numpy-1.8.1/numpy/core/src/multiarray/multiarraymodule.c numpy-1.8.1-new/numpy/core/src/multiarray/multiarraymodule.c
+--- numpy-1.8.1/numpy/core/src/multiarray/multiarraymodule.c	2014-03-25 13:43:24.000000000 -0600
++++ numpy-1.8.1-new/numpy/core/src/multiarray/multiarraymodule.c	2014-04-30 04:00:34.000000000 -0600
+@@ -3994,10 +3994,7 @@
  
--#if defined(MS_WIN64) && defined(__GNUC__)
-+#if 0
-+/* #if defined(MS_WIN64) && defined(__GNUC__) */
+ #if defined(MS_WIN64) && defined(__GNUC__)
    PyErr_WarnEx(PyExc_Warning,
-         "Numpy built with MINGW-W64 on Windows 64 bits is experimental, " \
-         "and only available for \n" \
-diff -ruN numpy-1.8.0/numpy/distutils/fcompiler/gnu.py numpy-1.8.0-new/numpy/distutils/fcompiler/gnu.py
---- numpy-1.8.0/numpy/distutils/fcompiler/gnu.py	2013-10-30 12:31:40.000000000 -0600
-+++ numpy-1.8.0-new/numpy/distutils/fcompiler/gnu.py	2014-04-06 03:15:40.597963900 -0600
-@@ -51,6 +57,7 @@
-                 # at some point in the 4.x series, the ' 95' was dropped
-                 # from the version string
-                 return ('gfortran', v)
-+        sys.stderr.write("No match found in version string 'newvs'.\n")
+-        "Numpy built with MINGW-W64 on Windows 64 bits is experimental, " \
+-        "and only available for \n" \
+-        "testing. You are advised not to use it for production. \n\n" \
+-        "CRASHES ARE TO BE EXPECTED - PLEASE REPORT THEM TO NUMPY DEVELOPERS",
++        "Numpy 64bit experimental build with Mingw-w64 and OpenBlas. Use with care.",
+         1);
+ #endif
  
-     def version_match(self, version_string):
-         v = self.gnu_version_match(version_string)
-@@ -302,9 +309,9 @@
-         opt = GnuFCompiler.get_library_dirs(self)
-         if sys.platform == 'win32':
-             c_compiler = self.c_compiler
--            if c_compiler and c_compiler.compiler_type == "msvc":
--                target = self.get_target()
--                if target:
-+            # if c_compiler and c_compiler.compiler_type == "msvc":
-+            target = self.get_target()
-+            if target:
-                     d = os.path.normpath(self.get_libgcc_dir())
-                     root = os.path.join(d, os.pardir, os.pardir, os.pardir, os.pardir)
-                     mingwdir = os.path.normpath(os.path.join(root, target, "lib"))
-@@ -318,19 +325,23 @@
-         if sys.platform == 'darwin':
-             opt.remove('cc_dynamic')
-         if sys.platform == 'win32':
-+            if "gfortran" in opt:
-+                i = opt.index("gfortran")
-+                opt.insert(i+1, "quadmath")
-             c_compiler = self.c_compiler
-             if c_compiler and c_compiler.compiler_type == "msvc":
-                 if "gcc" in opt:
+diff -ruN numpy-1.8.1/numpy/core/src/private/npy_config.h numpy-1.8.1-new/numpy/core/src/private/npy_config.h
+--- numpy-1.8.1/numpy/core/src/private/npy_config.h	2014-03-25 13:43:23.000000000 -0600
++++ numpy-1.8.1-new/numpy/core/src/private/npy_config.h	2014-04-30 04:00:34.000000000 -0600
+@@ -4,8 +4,11 @@
+ #include "config.h"
+ #include "numpy/numpyconfig.h"
+ 
++/* include this to have __MINGW64_VERSION_MAJOR defined in case of mingw-w64 */
++#include <stdlib.h>
++
+ /* Disable broken MS math functions */
+-#if defined(_MSC_VER) || defined(__MINGW32_VERSION)
++#if (defined(_MSC_VER) || defined(__MINGW32_VERSION)) && !defined(__MINGW64_VERSION_MAJOR)
+ #undef HAVE_ATAN2
+ #undef HAVE_HYPOT
+ #endif
+diff -ruN numpy-1.8.1/numpy/distutils/fcompiler/gnu.py numpy-1.8.1-new/numpy/distutils/fcompiler/gnu.py
+--- numpy-1.8.1/numpy/distutils/fcompiler/gnu.py	2014-03-25 13:43:23.000000000 -0600
++++ numpy-1.8.1-new/numpy/distutils/fcompiler/gnu.py	2014-04-30 04:03:30.000000000 -0600
+@@ -21,6 +21,8 @@
+ # XXX: handle cross compilation
+ def is_win64():
+     return sys.platform == "win32" and platform.architecture()[0] == "64bit"
++def is_win32():
++    return sys.platform == "win32" and platform.architecture()[0] == "32bit"
+ 
+ if is_win64():
+     #_EXTRAFLAGS = ["-fno-leading-underscore"]
+@@ -35,6 +37,8 @@
+ 
+     def gnu_version_match(self, version_string):
+         """Handle the different versions of GNU fortran compilers"""
++        if 'MinGW-W64' in version_string:
++            return ('gfortran', version_string.split('\n')[0].split(' ')[-1].strip())
+         m = re.search(r'GNU Fortran', version_string)
+         if not m:
+             return None
+@@ -129,7 +133,7 @@
+ 
+             opt.extend(['-undefined', 'dynamic_lookup', '-bundle'])
+         else:
+-            opt.append("-shared")
++            opt.append("-shared -Wl,-gc-sections -Wl,-s")
+         if sys.platform.startswith('sunos'):
+             # SunOS often has dynamically loaded symbols defined in the
+             # static library libg2c.a  The linker doesn't like this.  To
+@@ -199,8 +203,16 @@
+             # With this compiler version building Fortran BLAS/LAPACK
+             # with -O3 caused failures in lib.lapack heevr,syevr tests.
+             opt = ['-O2']
++        elif v and v>='4.6.0':
++            if is_win32():
++                # -mincoming-stack-boundary=2
++                # this is due to to 16 byte stack alignment since GCC 4.6
++                # the 32 bit Windows ABI defines 4 bytes stack alignment
++                opt = ['-O2 -mtune=i686 -mfpmath=sse,387 -mincoming-stack-boundary=2']
++            else:
++                opt = ['-O2 -msse -msse2']
+         else:
+-            opt = ['-O3']
++            opt = ['-O2']
+         opt.append('-funroll-loops')
+         return opt
+ 
+@@ -324,13 +336,11 @@
                      i = opt.index("gcc")
                      opt.insert(i+1, "mingwex")
                      opt.insert(i+1, "mingw32")
-+                    # opt.insert(i+1, "winpthread")
-             # XXX: fix this mess, does not work for mingw
+-            # XXX: fix this mess, does not work for mingw
++            # return opt in case of MinGW-W64
              if is_win64():
                  c_compiler = self.c_compiler
                  if c_compiler and c_compiler.compiler_type == "msvc":
--                    return []
-+                    pass # return []
-                 else:
+                     return []
+-                else:
 -                    raise NotImplementedError("Only MS compiler supported with gfortran on win64")
-+                    pass # raise NotImplementedError("Only MS compiler supported with gfortran on win64")
          return opt
  
      def get_target(self):
-diff -ruN numpy-1.8.0/numpy/distutils/mingw32ccompiler.py numpy-1.8.0-new/numpy/distutils/mingw32ccompiler.py
---- numpy-1.8.0/numpy/distutils/mingw32ccompiler.py	2013-10-30 12:31:40.000000000 -0600
-+++ numpy-1.8.0-new/numpy/distutils/mingw32ccompiler.py	2014-04-06 03:15:40.600964100 -0600
-@@ -95,7 +95,9 @@
-         msvcr_dbg_success = build_msvcr_library(debug=True)
-         if msvcr_success or msvcr_dbg_success:
-             # add preprocessor statement for using customized msvcr lib
+@@ -344,10 +354,7 @@
+         return ""
+ 
+     def get_flags_opt(self):
+-        if is_win64():
+-            return ['-O0']
+-        else:
+-            return GnuFCompiler.get_flags_opt(self)
++        return GnuFCompiler.get_flags_opt(self)
+ 
+ def _can_target(cmd, arch):
+     """Return true is the command supports the -arch flag for the given
+@@ -373,9 +380,13 @@
+     from distutils import log
+     log.set_verbosity(2)
+ 
+-    compiler = GnuFCompiler()
+-    compiler.customize()
+-    print(compiler.get_version())
++    try:
++        compiler = GnuFCompiler()
++        compiler.customize()
++        print(compiler.get_version())
++    except Exception:
++        msg = get_exception()
++        print(msg)
+ 
+     try:
+         compiler = Gnu95FCompiler()
+diff -ruN numpy-1.8.1/numpy/distutils/mingw32ccompiler.py numpy-1.8.1-new/numpy/distutils/mingw32ccompiler.py
+--- numpy-1.8.1/numpy/distutils/mingw32ccompiler.py	2014-03-25 13:43:23.000000000 -0600
++++ numpy-1.8.1-new/numpy/distutils/mingw32ccompiler.py	2014-04-30 04:00:34.000000000 -0600
+@@ -85,17 +85,25 @@
+         elif self.linker_dll == 'gcc':
+             self.linker = 'g++'
+ 
+-        # **changes: eric jones 4/11/01
+-        # 1. Check for import library on Windows.  Build if it doesn't exist.
+-
+-        build_import_library()
+-
+         # Check for custom msvc runtime library on Windows. Build if it doesn't exist.
+-        msvcr_success = build_msvcr_library()
+-        msvcr_dbg_success = build_msvcr_library(debug=True)
+-        if msvcr_success or msvcr_dbg_success:
+-            # add preprocessor statement for using customized msvcr lib
 -            self.define_macro('NPY_MINGW_USE_CUSTOM_MSVCR')
-+            # on 64-bit only.  Otherwise mingw32 fails on 32 bit.
-+            if get_build_architecture() == 'AMD64':
-+              self.define_macro('NPY_MINGW_USE_CUSTOM_MSVCR')
++        p = subprocess.Popen(['gcc', '--version'], shell=True,
++                             stdout=subprocess.PIPE)
++        out_string = p.stdout.read()
++        p.stdout.close()
++
++        if 'MinGW-W64' not in out_string:
++            # In case of compiling with MinGW-W64 generate a python import library manually with
++            # gendef and dlltool and use MinGW-W64 provided msvc runtime import libraries.
++
++            # **changes: eric jones 4/11/01
++            # 1. Check for import library on Windows.  Build if it doesn't exist.
++            build_import_library()
++
++            msvcr_success = build_msvcr_library()
++            msvcr_dbg_success = build_msvcr_library(debug=True)
++            if msvcr_success or msvcr_dbg_success:
++                # add preprocessor statement for using customized msvcr lib
++                self.define_macro('NPY_MINGW_USE_CUSTOM_MSVCR')
  
          # Define the MSVC version as hint for MinGW
          msvcr_version = '0x%03i0' % int(msvc_runtime_library().lstrip('msvcr'))
-@@ -176,7 +178,8 @@
-              target_lang=None):
-         # Include the appropiate MSVC runtime library if Python was built
-         # with MSVC >= 7.0 (MinGW standard is msvcrt)
--        runtime_library = msvc_runtime_library()
-+        # runtime_library = msvc_runtime_library()
-+        runtime_library = None
-         if runtime_library:
-             if not libraries:
-                 libraries = []
-diff -ruN numpy-1.8.0/site.cfg.example numpy-1.8.0-new/site.cfg.example
---- numpy-1.8.0/site.cfg.example	2013-10-30 12:31:41.000000000 -0600
-+++ numpy-1.8.0-new/site.cfg.example	2014-04-06 03:15:40.602964200 -0600
+@@ -124,10 +132,10 @@
+             else:
+                 # gcc-4 series releases do not support -mno-cygwin option
+                 self.set_executables(
+-                    compiler='gcc -g -DDEBUG -DMS_WIN64 -O0 -Wall',
+-                    compiler_so='gcc -g -DDEBUG -DMS_WIN64 -O0 -Wall -Wstrict-prototypes',
+-                    linker_exe='gcc -g',
+-                    linker_so='gcc -g -shared')
++                    compiler='gcc -DMS_WIN64 -O2 -msse -msse2 -Wall',
++                    compiler_so='gcc -DMS_WIN64 -O2 -msse -msse2 -Wall -Wstrict-prototypes',
++                    linker_exe='gcc',
++                    linker_so='gcc -shared -Wl,-gc-sections -Wl,-s')
+         else:
+             if self.gcc_version <= "3.0.0":
+                 self.set_executables(compiler='gcc -mno-cygwin -O2 -w',
+@@ -142,10 +150,11 @@
+                                      linker_so='g++ -mno-cygwin -shared')
+             else:
+                 # gcc-4 series releases do not support -mno-cygwin option
+-                self.set_executables(compiler='gcc -O2 -Wall',
+-                                     compiler_so='gcc -O2 -Wall -Wstrict-prototypes',
++                # i686 build needs '-mincoming-stack-boundary=2' due to ABI incompatibility to Win32 ABI
++                self.set_executables(compiler='gcc -O2 -mtune=i686 -mfpmath=sse,387 -mincoming-stack-boundary=2 -Wall',
++                                     compiler_so='gcc -O2 -mtune=i686 -mfpmath=sse,387 -mincoming-stack-boundary=2 -Wall -Wstrict-prototypes',
+                                      linker_exe='g++ ',
+-                                     linker_so='g++ -shared')
++                                     linker_so='g++ -shared -Wl,-gc-sections -Wl,-s')
+         # added for python2.3 support
+         # we can't pass it through set_executables because pre 2.2 would fail
+         self.compiler_cxx = ['g++']
+diff -ruN numpy-1.8.1/numpy/lib/tests/test_function_base.py numpy-1.8.1-new/numpy/lib/tests/test_function_base.py
+--- numpy-1.8.1/numpy/lib/tests/test_function_base.py	2014-03-25 13:43:24.000000000 -0600
++++ numpy-1.8.1-new/numpy/lib/tests/test_function_base.py	2014-04-30 04:00:34.000000000 -0600
+@@ -551,7 +551,7 @@
+         args = np.array([0, 0.5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
+         r1 = f(args)
+         r2 = np.cos(args)
+-        assert_array_equal(r1, r2)
++        assert_array_almost_equal(r1, r2)
+ 
+     def test_keywords(self):
+         import math
+diff -ruN numpy-1.8.1/site.cfg.example numpy-1.8.1-new/site.cfg.example
+--- numpy-1.8.1/site.cfg.example	2014-03-25 13:43:23.000000000 -0600
++++ numpy-1.8.1-new/site.cfg.example	2014-04-30 04:05:13.000000000 -0600
 @@ -62,6 +62,7 @@
  #[DEFAULT]
  #library_dirs = /usr/local/lib
