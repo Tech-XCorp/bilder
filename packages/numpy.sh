@@ -13,7 +13,7 @@
 ######################################################################
 
 NUMPY_BLDRVERSION_STD=1.8.0
-NUMPY_BLDRVERSION_EXP=1.8.0
+NUMPY_BLDRVERSION_EXP=1.8.1
 
 computeVersion numpy
 
@@ -33,33 +33,34 @@ setNumpyGlobalVars() {
 #   atlas-ser (atlas built with netlib-lapack, fortran needed)
 # These flags determine how numpy is built, with or without fortran, atlas.
 # Without fortran, numpy builds, but scipy will not.
-# There seems to be a connection between the numpy and scipy builds,
+# There is a connection between the numpy and scipy builds,
 # with scipy using part of the numpy distutils.
 # On the web, there are various claims:
-# Python has to be 32bit: http://www.andrewsturges.com/2012/05/installing-numpy-for-python-3-in.html
-# Intel 64bit builds exist at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-  # NUMPY_WIN_USE_FORTRAN=false
-# With fortran but not atlas, numpy not yet building.
-  # if $IS_64_BIT && $BUILD_EXPERIMENTAL; then
-
-# numpy 1.8.0 built with Fortran is broken on Windows. testVsHdf5.py exits
-# with a code of 127 after calls to numpy. (Actually, the script exits with
-# a 127, and when we placed exit(0) calls in various places we found that
+# Python has to be 32bit:
+#   http://www.andrewsturges.com/2012/05/installing-numpy-for-python-3-in.html
+# Numpy builds static with mingw-w64:
+#   https://code.google.com/p/mingw-w64-static/
+#   http://mail.scipy.org/pipermail/numpy-discussion/2013-November/068266.html
+#
+# Our build of numpy 1.8.0 with mingw-w64 is broken on Windows. testVsHdf5.py
+# exits # with a code of 127 after calls to numpy. (Actually, the script exits
+# with # a 127, and when we placed exit(0) calls in various places we found that
 # the problematic code is the calls to numpy.
 
-  if $BUILD_EXPERIMENTAL; then
-    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"$HAVE_SER_FORTRAN"}
-  else
-    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
+# So for now, the default is not to use fortran. Further it is forced off
+# off if there is no fortran compiler.
+  NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
+  if ! $HAVE_SER_FORTRAN; then
+    NUMPY_WIN_USE_FORTRAN=false
   fi
-
+# But if using fortran, must use mingw toolset
   if $NUMPY_WIN_USE_FORTRAN; then
     NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
   else
     NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
   fi
   NUMPY_USE_ATLAS=${NUMPY_USE_ATLAS:-"false"}
-# Can now determine the deps
+# The deps, atlas
   NUMPY_DEPS=Python
   if $NUMPY_USE_ATLAS; then
     NUMPY_DEPS=$NUMPY_DEPS,atlas
