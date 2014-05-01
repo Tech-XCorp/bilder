@@ -669,7 +669,7 @@ checkDirWritable() {
   $cmd 2>/dev/null
 
 # Create subdirs if an installation dir
-  if test $dir = $BLDR_INSTALL_DIR -o $dir = $CONTRIB_DIR; then
+  if test "$dir" = "$BLDR_INSTALL_DIR" -o "$dir" = "$CONTRIB_DIR"; then
     local subdirs="bin include share"
     if [[ `uname` =~ CYGWIN ]]; then
       subdirs="$subdirs Lib Scripts"
