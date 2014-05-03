@@ -21,7 +21,7 @@ MOAB_BLDRVERSION=${MOAB_BLDRVERSION:-"4.7.0pre"}
 ######################################################################
 
 MOAB_BUILDS=${MOAB_BUILDS:-"ser"}
-MOAB_DEPS=cgma
+MOAB_DEPS=cgm
 MOAB_UMASK=002
 
 # addtopathvar PATH $CONTRIB_DIR/moab/bin
