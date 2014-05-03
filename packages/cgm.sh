@@ -28,7 +28,7 @@ setCgmGlobalVars() {
   CGM_UMASK=002
   CGM_REPO_URL=https://bitbucket.org/fathomteam/cgm.git
   CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
-  # CGM_REPO_TAG_STD=OCE-0.14.1
+  # CGM_REPO_TAG_STD=CGM-0.14.1
   CGM_REPO_TAG_EXP=master
   # addtopathvar PATH $CONTRIB_DIR/cgm/bin
 }
@@ -41,13 +41,13 @@ setCgmGlobalVars
 ######################################################################
 
 #
-# Build OCE
+# Build CGM
 #
 buildCgm() {
 
 # Get cgm from repo and remove any detritus
   updateRepo cgm
-  rm -f $PROJECT_DIR/cgm/CMakeLists.txt.{orig,rej}
+  # rm -f $PROJECT_DIR/cgm/CMakeLists.txt.{orig,rej}
 
 # If no subdir, done.
   if ! test -d $PROJECT_DIR/cgm; then
@@ -83,7 +83,6 @@ buildCgm() {
     fi
     CGM_INSTALL_DIR="$CONTRIB_DIR/cgm-$CGM_BLDRVERSION-$CGM_BUILD"
   fi
-  CGM_ADDL_ARGS="-DCGM_INSTALL_PREFIX:PATH=$CGM_INSTALL_DIR -DCMAKE_INSTALL_NAME_DIR:PATH=$CGM_INSTALL_DIR/lib -DCGM_MULTITHREADED_BUILD:BOOL=FALSE"
 
 # Find freetype
   if ! declare -f findFreetypeRootdir 1>/dev/null 2>&1; then
@@ -92,19 +91,24 @@ buildCgm() {
   local freetype_rootdir=`findFreetypeRootdir`
 
 # Set other args, env
+  local CGM_ADDL_ARGS=
+  local ocedir=
+  if ocedir=`(cd $BLDR_INSTALL_DIR/oce-sersh; pwd-P)`; then
+    :
+  elif ocedir=`(cd $BLDR_INSTALL_DIR/oce-sersh; pwd-P)`; then
+    :
+  fi
+  if test -n "$ocedir"; then
+    CGM_ADDL_ARGS="$CGM_ADDL_ARGS --with-occ=$ocedir"
+  fi
   local CGM_ENV=
+if false; then
   if test -n "$freetype_rootdir"; then
     CGM_ENV="FREETYPE_DIR=$freetype_rootdir"
   fi
-# Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
-  # CGM_ADDL_ARGS="$CGM_ADDL_ARGS -DCGM_DISABLE_X11:BOOL=TRUE"
-  case `uname` in
-    Darwin)
-      CGM_ADDL_ARGS="$CGM_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
-      ;;
-  esac
+fi
 
-# OCE does not have all dependencies right on Windows, so needs nmake
+# When not all dependencies right on Windows, need nmake
   local makerargs=
   local makejargs=
   if [[ `uname` =~ CYGWIN ]]; then
@@ -114,7 +118,8 @@ buildCgm() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs cgm $CGM_BUILD "-DCGM_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
+  # if bilderConfig $makerargs cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
+  if bilderConfig $makerargs cgm $CGM_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $CGM_BUILD "$makejargs" "$CGM_ENV"
   fi
 
