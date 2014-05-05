@@ -12,7 +12,14 @@
 #
 ######################################################################
 
-# CGM_BLDRVERSION=${CGM_BLDRVERSION:-"0.10.1-r747"}
+setCgmVersion() {
+  # CGM_BLDRVERSION=${CGM_BLDRVERSION:-"0.10.1-r747"}
+  CGM_REPO_URL=https://bitbucket.org/fathomteam/cgm.git
+  CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
+  CGM_REPO_TAG_STD=master
+  CGM_REPO_TAG_EXP=master
+}
+setCgmVersion
 
 ######################################################################
 #
@@ -26,11 +33,6 @@ setCgmGlobalVars() {
   CGM_BUILDS=${CGM_BUILDS:-"$FORPYTHON_BUILD"}
   CGM_DEPS=oce,cmake
   CGM_UMASK=002
-  CGM_REPO_URL=https://bitbucket.org/fathomteam/cgm.git
-  CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
-  # CGM_REPO_TAG_STD=CGM-0.14.1
-  CGM_REPO_TAG_EXP=master
-  # addtopathvar PATH $CONTRIB_DIR/cgm/bin
 }
 setCgmGlobalVars
 
