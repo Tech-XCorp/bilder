@@ -72,7 +72,7 @@ buildCgm() {
       techo "$cmd"
       eval "$cmd"
     fi
-    if ! bilderPreconfig cgm; then
+    if ! bilderPreconfig -c cgm; then
       return 1
     fi
     CGM_INSTALL_DIR="$BLDR_INSTALL_DIR/cgm-$CGM_BLDRVERSION-$CGM_BUILD"
@@ -84,29 +84,38 @@ buildCgm() {
     CGM_INSTALL_DIR="$CONTRIB_DIR/cgm-$CGM_BLDRVERSION-$CGM_BUILD"
   fi
 
-# Find freetype
-  if ! declare -f findFreetypeRootdir 1>/dev/null 2>&1; then
-    source $BILDER_DIR/packages/freetype.sh
-  fi
-  local freetype_rootdir=`findFreetypeRootdir`
-
 # Set other args, env
   local CGM_ADDL_ARGS=
   local ocedir=
-  if ocedir=`(cd $BLDR_INSTALL_DIR/oce-sersh; pwd-P)`; then
-    :
-  elif ocedir=`(cd $BLDR_INSTALL_DIR/oce-sersh; pwd-P)`; then
-    :
+  for dir in $BLDR_INSTALL_DIR/oce-sersh $CONTRIB_DIR/oce-sersh; do
+    if ocerootdir=`(cd $dir; pwd -P)`; then
+      break
+    fi
+  done
+  local ocedevdir=
+  if test -n "$ocerootdir"; then
+    case `uname` in
+      CYGWIN*)
+        ocedevdir=${ocerootdir}/cmake
+        ;;
+      Darwin)
+        ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev 2>/dev/null | tail -1`/Resources
+        if test -z "$ocedevdir"; then
+          ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev 2>/dev/null | tail -1`/Resources
+        fi
+        ;;
+      Linux)
+        ocedevdir=`ls -d ${ocerootdir}/lib/oce-*-dev 2>/dev/null | tail -1`
+        if test -z "$ocedevdir"; then
+          ocedevdir=`ls -d ${ocerootdir}/lib/oce-* 2>/dev/null | tail -1`
+        fi
+        ;;
+    esac
   fi
-  if test -n "$ocedir"; then
-    CGM_ADDL_ARGS="$CGM_ADDL_ARGS --with-occ=$ocedir"
+  if test -n "$ocedevdir"; then
+    CGM_ADDL_ARGS="$CGM_ADDL_ARGS -DOCE_DIR:PATH=$ocedevdir"
   fi
   local CGM_ENV=
-if false; then
-  if test -n "$freetype_rootdir"; then
-    CGM_ENV="FREETYPE_DIR=$freetype_rootdir"
-  fi
-fi
 
 # When not all dependencies right on Windows, need nmake
   local makerargs=
@@ -118,8 +127,7 @@ fi
   fi
 
 # Configure and build
-  # if bilderConfig $makerargs cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
-  if bilderConfig $makerargs cgm $CGM_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
+  if bilderConfig $makerargs -c cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $CGM_BUILD "$makejargs" "$CGM_ENV"
   fi
 
