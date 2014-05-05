@@ -10,9 +10,22 @@
 #
 # Version
 #
+# Putting the version information into qtversions.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.
+#
 ######################################################################
 
-# OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
+getOceVersion() {
+  # OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
+  OCE_REPO_URL=git://github.com/tpaviot/oce.git
+  OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
+  OCE_REPO_TAG_STD=OCE-0.14.1
+  OCE_REPO_TAG_EXP=master
+}
+getOceVersion
 
 ######################################################################
 #
@@ -26,11 +39,6 @@ setOceGlobalVars() {
   OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
   OCE_DEPS=freetype,cmake
   OCE_UMASK=002
-  OCE_REPO_URL=git://github.com/tpaviot/oce.git
-  OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
-  OCE_REPO_TAG_STD=OCE-0.14.1
-  OCE_REPO_TAG_EXP=master
-  # addtopathvar PATH $CONTRIB_DIR/oce/bin
 }
 setOceGlobalVars
 
