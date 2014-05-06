@@ -88,36 +88,11 @@ buildCgm() {
 
 # Set other args, env
   local CGM_ADDL_ARGS=
-  local ocedir=
-  for dir in $BLDR_INSTALL_DIR/oce-sersh $CONTRIB_DIR/oce-sersh; do
-    if ocerootdir=`(cd $dir; pwd -P)`; then
-      break
-    fi
-  done
-  local ocedevdir=
-  if test -n "$ocerootdir"; then
-    case `uname` in
-      CYGWIN*)
-        ocedevdir=${ocerootdir}/cmake
-        ;;
-      Darwin)
-        ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev 2>/dev/null | tail -1`/Resources
-        if test -z "$ocedevdir"; then
-          ocedevdir=`ls -d ${ocerootdir}/OCE.framework/Versions/*-dev 2>/dev/null | tail -1`/Resources
-        fi
-        ;;
-      Linux)
-        ocedevdir=`ls -d ${ocerootdir}/lib/oce-*-dev 2>/dev/null | tail -1`
-        if test -z "$ocedevdir"; then
-          ocedevdir=`ls -d ${ocerootdir}/lib/oce-* 2>/dev/null | tail -1`
-        fi
-        ;;
-    esac
+  local ocecmakedir=`findOceCmakeDir`
+  if test -n "$ocecmakedir"; then
+    techo -2 "ocecmakedir = $ocecmakedir."
+    CGM_ADDL_ARGS="$CGM_ADDL_ARGS -DOCE_DIR:PATH=$ocecmakedir"
   fi
-  if test -n "$ocedevdir"; then
-    CGM_ADDL_ARGS="$CGM_ADDL_ARGS -DOCE_DIR:PATH=$ocedevdir"
-  fi
-  local CGM_ENV=
 
 # When not all dependencies right on Windows, need nmake
   local makerargs=
