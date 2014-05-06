@@ -46,12 +46,6 @@ buildMoab() {
 # Get moab from repo and remove any detritus
   updateRepo moab
 
-# Determine whether to use cmake
-  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
-  if $MOAB_USE_CMAKE; then
-    MOAB_CMAKE_ARG=-c
-  fi
-
 # Preconfig or unpack
   if test -d $PROJECT_DIR/moab; then
     getVersion moab
@@ -64,28 +58,26 @@ buildMoab() {
     fi
   fi
 
-# Seek oce in one of many places
-  local MOAB_OCE_DIR
-  for i in volatile internal contrib; do
-    if test -e /$i/oce; then
-      MOAB_OCE_DIR=`(cd /$i/oce; pwd -P)`
-      break
-    fi
-  done
+# Set other args, env
+  local MOAB_ADDL_ARGS=
+  local ocecmakedir=`findOceCmakeDir`
+  if test -n "$ocecmakedir"; then
+    techo -2 "ocecmakedir = $ocecmakedir."
+    MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DOCE_DIR:PATH=$ocecmakedir"
+  fi
 
-# Set moab configure args
-  if $MOAB_USE_CMAKE; then
-    MOAB_ALL_ADDL_ARGS=
+# When not all dependencies right on Windows, need nmake
+  local makerargs=
+  local makejargs=
+  if [[ `uname` =~ CYGWIN ]]; then
+    makerargs="-m nmake"
   else
-    MOAB_ALL_ADDL_ARGS="--without-cubit"
-    if test -n "$MOAB_OCE_DIR"; then
-      MOAB_ALL_ADDL_ARGS="$MOAB_ALL_ADDL_ARGS --with-occ=$MOAB_OCE_DIR"
-    fi
+    makejargs="$MOAB_MAKEJ_ARGS"
   fi
 
 # Configure and build
-  if bilderConfig $MOAB_CMAKE_ARG moab $MOAB_BUILD; then
-    bilderBuild moab $MOAB_BUILD
+  if bilderConfig $makerargs -c moab $MOAB_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $MOAB_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab $MOAB_BUILD "$makejargs" "$MOAB_ENV"
   fi
 
 }
