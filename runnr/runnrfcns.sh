@@ -26,10 +26,10 @@ deref() {
 # Args:
 # 1: the name of the variable
 #
- derefpath() {
-   local res=`deref $1 | sed 's?\\\\?\\\\\\\\?g'`
-   echo "$res"
- }
+derefpath() {
+  local res=`deref $1 | sed 's?\\\\?\\\\\\\\?g'`
+  echo "$res"
+}
 
 #
 # Double the backslashes in a value so they will not combine to
