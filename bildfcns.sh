@@ -3203,6 +3203,16 @@ updateRepo() {
   fi
   cd $PROJECT_DIR
 
+# Find tag value
+  cmd=:
+  local tagvar=
+  if $BUILD_EXPERIMENTAL; then
+    tagvar=`genbashvar $1`_REPO_TAG_EXP
+  else
+    tagvar=`genbashvar $1`_REPO_TAG_STD
+  fi
+  local tagval=`deref $tagvar`
+
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
     cd $pkg
@@ -3221,7 +3231,7 @@ updateRepo() {
 # Update repo if requested
     if $SVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
-        git) cmd="git pull";;
+        git) cmd="git pull origin $tagval";;
         hg) cmd="hg pull; hg update";;
       esac
       techo "$cmd"
@@ -3236,15 +3246,7 @@ updateRepo() {
     cd $pkg
   fi
 
-# Move to standard or experimental tag
-  cmd=:
-  local tagvar=
-  if $BUILD_EXPERIMENTAL; then
-    tagvar=`genbashvar $1`_REPO_TAG_EXP
-  else
-    tagvar=`genbashvar $1`_REPO_TAG_STD
-  fi
-  local tagval=`deref $tagvar`
+# Make sure on tag
   case $scmexec in
     git) tagval=${tagval:-"master"}; cmd="git checkout $tagval";;
     hg) tagval=${tagval:-"default"}; cmd="hg update -C $tagval";;
