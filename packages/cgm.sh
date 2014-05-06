@@ -13,8 +13,7 @@
 ######################################################################
 
 setCgmVersion() {
-  # CGM_BLDRVERSION=${CGM_BLDRVERSION:-"0.10.1-r747"}
-  CGM_REPO_URL=https://bitbucket.org/fathomteam/cgm.git
+  CGM_REPO_URL=https://bitbucket.org/jrobcary/cgm.git
   CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
   CGM_REPO_TAG_STD=master
   CGM_REPO_TAG_EXP=master
