@@ -178,7 +178,7 @@ findOceCmakeDir() {
     Linux)
       for dir in ${ocerootdir}/lib/{oce-$ocever,oce-${ocever}-dev,oce-*}; do
         if test -d $dir; then
-          ocecmakedir=$dir/Resources
+          ocecmakedir=$dir
           break
         fi
       done
