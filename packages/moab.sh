@@ -61,8 +61,18 @@ buildMoab() {
   local MOAB_ADDL_ARGS=
   local ocecmakedir=`findOceCmakeDir`
   if test -n "$ocecmakedir"; then
+    if [[ `uname` =~ CYGWIN ]]; then
+      ocecmakedir=`cygpath -m "$ocecmakedir"`
+    fi
     techo -2 "ocecmakedir = $ocecmakedir."
     MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DOCE_DIR:PATH=$ocecmakedir"
+  fi
+  local netcdfrootdir=$CONTRIB_DIR/netcdf-${NETCDF_BLDRVERSION}-$FORPYTHON_BUILD
+  if test -d "$netcdfrootdir"; then
+    if [[ `uname` =~ CYGWIN ]]; then
+      netcdfrootdir=`cygpath -m "$netcdfrootdir"`
+    fi
+    MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DNetCDF_PREFIX:PATH=$netcdfrootdir -DMOAB_USE_NETCDF:BOOL=ON"
   fi
 
 # When not all dependencies right on Windows, need nmake
@@ -75,7 +85,8 @@ buildMoab() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs -c moab $MOAB_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $MOAB_OTHER_ARGS" "" "$MOAB_ENV"; then
+  local otherargs=`deref MOAB_${FORPYTHON_BUILD}_OTHER_ARGS`
+  if bilderConfig $makerargs -c moab $MOAB_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $MOAB_BUILD "$makejargs" "$MOAB_ENV"
   fi
 
