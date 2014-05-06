@@ -13,8 +13,7 @@
 ######################################################################
 
 setMoabVersion() {
-  # MOAB_BLDRVERSION=${MOAB_BLDRVERSION:-"4.7.0pre"}
-  MOAB_REPO_URL=https://bitbucket.org/fathomteam/moab.git
+  MOAB_REPO_URL=https://bitbucket.org/jrobcary/moab.git
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_REPO_TAG_STD=master
   MOAB_REPO_TAG_EXP=master
@@ -30,7 +29,7 @@ setMoabVersion
 setMoabGlobalVars() {
   MOAB_BUILD=$FORPYTHON_BUILD
   MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
-  MOAB_DEPS=cgm
+  MOAB_DEPS=cgm,netcdf
   MOAB_UMASK=002
 }
 setMoabGlobalVars
