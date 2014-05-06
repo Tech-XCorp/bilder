@@ -48,7 +48,7 @@ buildMoab() {
 # Preconfig or unpack
   if test -d $PROJECT_DIR/moab; then
     getVersion moab
-    if ! bilderPreconfig $MOAB_CMAKE_ARG moab; then
+    if ! bilderPreconfig -c moab; then
       return 1
     fi
   else
