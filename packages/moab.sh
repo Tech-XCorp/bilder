@@ -12,7 +12,14 @@
 #
 ######################################################################
 
-MOAB_BLDRVERSION=${MOAB_BLDRVERSION:-"4.7.0pre"}
+setMoabVersion() {
+  # MOAB_BLDRVERSION=${MOAB_BLDRVERSION:-"4.7.0pre"}
+  MOAB_REPO_URL=https://bitbucket.org/fathomteam/moab.git
+  MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
+  MOAB_REPO_TAG_STD=master
+  MOAB_REPO_TAG_EXP=master
+}
+setMoabVersion
 
 ######################################################################
 #
@@ -20,11 +27,13 @@ MOAB_BLDRVERSION=${MOAB_BLDRVERSION:-"4.7.0pre"}
 #
 ######################################################################
 
-MOAB_BUILDS=${MOAB_BUILDS:-"ser"}
-MOAB_DEPS=cgm
-MOAB_UMASK=002
-
-# addtopathvar PATH $CONTRIB_DIR/moab/bin
+setMoabGlobalVars() {
+  MOAB_BUILD=$FORPYTHON_BUILD
+  MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
+  MOAB_DEPS=cgm
+  MOAB_UMASK=002
+}
+setMoabGlobalVars
 
 ######################################################################
 #
@@ -34,8 +43,11 @@ MOAB_UMASK=002
 
 buildMoab() {
 
+# Get moab from repo and remove any detritus
+  updateRepo moab
+
 # Determine whether to use cmake
-  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
+  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
   if $MOAB_USE_CMAKE; then
     MOAB_CMAKE_ARG=-c
   fi
@@ -72,8 +84,8 @@ buildMoab() {
   fi
 
 # Configure and build
-  if bilderConfig $MOAB_CMAKE_ARG moab ser; then
-    bilderBuild moab ser
+  if bilderConfig $MOAB_CMAKE_ARG moab $MOAB_BUILD; then
+    bilderBuild moab $MOAB_BUILD
   fi
 
 }
@@ -95,8 +107,6 @@ testMoab() {
 ######################################################################
 
 installMoab() {
-  if bilderInstall moab ser; then
-    : # Fix rpaths, library references here.
-  fi
+  bilderInstallAll moab
 }
 
