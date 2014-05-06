@@ -16,14 +16,19 @@
 ######################################################################
 
 # Need to get runnrfcns if not known
-if ! declare -f deref 1>/dev/null 2>&1; then
+if ! declare -f derefpath 1>/dev/null 2>&1; then
   runnrdir=`dirname $BASH_SOURCE`/../runnr
-  runnrdir=`(cd $runnrdir; pwd -P)`
-  TECHO=echo
-  TECHO2=echo
-else
+  if test -d $runnrdir; then
+    runnrdir=`(cd $runnrdir; pwd -P)`
+    source $runnrdir/runnrfcns.sh
+  fi
+fi
+if declare -f techo 1>/dev/null 2>&1; then
   TECHO=techo
   TECHO2="techo -2"
+else
+  TECHO=echo
+  TECHO2=echo
 fi
 
 # $TECHO "NOTE: [cygwin.sh] Sourcing cygwin.sh, PATH = $PATH"
@@ -172,9 +177,12 @@ EOF
   eval PATH_VS${vsver}="\"$PATH_CYG\""
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
 # Double slashes on other paths
-  eval INCLUDE_VS${vsver}=`derefpath INCLUDE_VS${vsver}`
-  eval LIB_VS${vsver}=`derefpath LIB_VS${vsver}`
-  eval LIBPATH_VS${vsver}=`derefpath LIBPATH_VS${vsver}`
+  local tmp=`derefpath INCLUDE_VS${vsver}`
+  eval INCLUDE_VS${vsver}="\"$tmp\""
+  tmp=`derefpath LIB_VS${vsver}`
+  eval LIB_VS${vsver}="\"$tmp\""
+  tmp=`derefpath LIBPATH_VS${vsver}`
+  eval LIBPATH_VS${vsver}="\"$tmp\""
 }
 
 if $IS_64_BIT; then

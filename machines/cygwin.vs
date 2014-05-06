@@ -18,12 +18,22 @@ VERBOSITY=${VERBOSITY:-"0"}
 # Trilinos has problems, but numpy is building.
 BUILD_ATLAS=${BUILD_ATLAS:-"false"}
 
-if ! declare -f deref 1>/dev/null 2>&1; then
-  TECHO=echo
-  TECHO2=echo
-else
+# Need to get runnrfcns if derefpath not known.
+if ! declare -f derefpath 1>/dev/null 2>&1; then
+  runnrdir=`dirname $BASH_SOURCE`/../runnr
+  if test -d $runnrdir; then
+    runnrdir=`(cd $runnrdir; pwd -P)`
+    source $runnrdir/runnrfcns.sh
+  else
+    echo "ERROR: $runnrdir not found."
+  fi
+fi
+if declare -f techo 1>/dev/null 2>&1; then
   TECHO=techo
   TECHO2="techo -2"
+else
+  TECHO=echo
+  TECHO2=echo
 fi
 
 #
