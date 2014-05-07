@@ -51,7 +51,12 @@ buildNetcdf() {
 
   case `uname` in
     CYGWIN*)
+# JRC: netcdf-4 is disabled because of all the complications of finding
+# hdf5-config.cmake, and then the fact that it has errors concerning the
+# hdf5 library names (libhdf5.lib or hdf5.lib) which vary with version.
       NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+# JRC: verified that -DNC_USE_STATIC_CRT:BOOL=ON is not enough.
+# Below needed for 4.3.2.
       NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_C_FLAGS_RELEASE:STRING='/MT /O2 /Ob2 /D NDEBUG'"
       ;;
     *)
