@@ -62,7 +62,9 @@ buildNetcdf() {
       ;;
     *)
       NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
-      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS}"
+# On Linux netcdf 4.3.1 does not get the order of hdf5 libraries correct for ser
+      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+# On Linux netcdf 4.3.1 does not find the hdf5 libraries correct for sersh
       NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
       ;;
   esac
