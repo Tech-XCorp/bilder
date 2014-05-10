@@ -22,17 +22,18 @@ getOceVersion
 ######################################################################
 
 # Find the directory containing the OCE cmake files
-findOceCmakeDir() {
-  local CGM_ADDL_ARGS=
-  local ocerootdir=
-  for dir in $BLDR_INSTALL_DIR/oce-sersh $CONTRIB_DIR/oce-sersh; do
-    if ocerootdir=`(cd $dir; pwd -P) 2>/dev/null`; then
-      break
-    fi
-  done
+findOce() {
+
+# Look for Oce in the contrib directory
+  findPackage Oce TKMath cc4py sersh
+# Pick from non-empty of OCE_CC4PY_DIR OCE_SERSH_DIR
+  local ocerootdir=$OCE_CC4PY_DIR
+  ocerootdir=${ocedir:-"$OCE_SERSH_DIR"}
   if test -z "$ocerootdir"; then
     return
   fi
+
+# Determine where the cmake config files are
   ocever=`basename $ocerootdir | sed -e 's/^oce-//' -e 's/^OCE-//' -e "s/-$OCE_BUILD$//"`
   techo "Found OCE of version $ocever." 1>&2
   local ocecmakedir=
@@ -57,7 +58,15 @@ findOceCmakeDir() {
       done
       ;;
   esac
-  techo -2 "ocecmakedir =  $ocecmakedir." 1>&2
-  echo "$ocecmakedir"
+  if test -z "$ocecmakedir"; then
+    return
+  fi
+
+# Set additional variables
+  OCE_CC4PY_CMAKE_DIR="$ocecmakedir"
+  OCE_CC4PY_CMAKE_DIR_ARG="-DOCE_DIR:PATH='$ocecmakedir'"
+  printvar OCE_CC4PY_CMAKE_DIR
+  printvar OCE_CC4PY_CMAKE_DIR_ARG
+
 }
 

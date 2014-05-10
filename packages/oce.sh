@@ -141,5 +141,6 @@ testOce() {
 
 installOce() {
   bilderInstallAll oce
+  findOce
 }
 
