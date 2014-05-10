@@ -54,18 +54,20 @@ buildNetcdf() {
 # JRC: netcdf-4 is disabled because of all the complications of finding
 # hdf5-config.cmake, and then the fact that it has errors concerning the
 # hdf5 library names (libhdf5.lib or hdf5.lib) which vary with version.
-      NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+      # NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
 # JRC: verified that -DNC_USE_STATIC_CRT:BOOL=ON is not enough.
 # Below needed for 4.3.2.
-      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_C_FLAGS_RELEASE:STRING='/MT /O2 /Ob2 /D NDEBUG'"
-      NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS}"
+      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_C_FLAGS_RELEASE:STRING='/MT /O2 /Ob2 /D NDEBUG' -DENABLE_NETCDF_4:BOOL=OFF"
+      NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
       ;;
     *)
       NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
 # On Linux netcdf 4.3.1 does not get the order of hdf5 libraries correct for ser
-      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+      # NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SER_CMAKE_DIR'"
 # On Linux netcdf 4.3.1 does not find the hdf5 libraries correct for sersh
-      NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+      # NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+      NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SERSH_CMAKE_DIR'"
       ;;
   esac
 
