@@ -29,7 +29,7 @@ setNetcdfGlobalVars() {
     fi
     addCc4pyBuild netcdf
   fi
-  NETCDF_DEPS="cmake,hdf5"
+  NETCDF_DEPS="hdf5,cmake"
   NETCDF_UMASK=002
 }
 setNetcdfGlobalVars

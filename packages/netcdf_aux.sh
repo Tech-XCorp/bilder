@@ -19,11 +19,39 @@ getNetcdfVersion
 # Find netcdf
 #
 findNetcdf() {
-  findContribPackage netcdf netcdf ser par
+
+# Find installation directories
+  findContribPackage Netcdf netcdf ser
+  local builds="ser par"
   case `uname` in
-    CYGWIN*) echo "Not finding cc4py netcdf on CYGWIN";;
-    *) findContribPackage netcdf netcdf cc4py;;
+    CYGWIN*)
+      findContribPackage Netcdf netcdf sermd sersh cc4py
+      builds="$builds sermd sersh cc4py"
+      ;;
+    *)
+      findContribPackage Netcdf netcdf sersh cc4py
+      builds="$builds sersh cc4py"
+      ;;
   esac
-  findCc4pyDir netcdf
+  findCc4pyDir Netcdf
+
+# Find cmake configuration directories
+  for bld in $builds; do
+    local blddirvar=`genbashvar NETCDF_${bld}`_DIR
+    local blddir=`deref $blddirvar`
+    if test -d "$blddir"; then
+      local dir=$blddir/share/cmake
+      if [[ `uname` =~ CYGWIN ]]; then
+        dir=`cygpath -am $dir`
+      fi
+      local varname=`genbashvar NETCDF_${bld}`_CMAKE_DIR
+      eval $varname=$dir
+      printvar $varname
+      varname=`genbashvar NETCDF_${bld}`_CMAKE_DIR_ARG
+      eval $varname="\"-DNetcdf_DIR:PATH='$dir'\""
+      printvar $varname
+    fi
+  done
+
 }
 

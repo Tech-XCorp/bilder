@@ -46,6 +46,8 @@ getHdf5Version
 ######################################################################
 
 findHdf5() {
+
+# Find installation directories
   local builds="ser par"
   findContribPackage Hdf5 hdf5 ser par
   case `uname` in
@@ -59,6 +61,8 @@ findHdf5() {
       ;;
   esac
   findCc4pyDir Hdf5
+
+# Find cmake configuration directories
   for bld in $builds; do
     local blddirvar=`genbashvar HDF5_${bld}`_DIR
     local blddir=`deref $blddirvar`
@@ -80,5 +84,6 @@ findHdf5() {
       done
     fi
   done
+
 }
 
