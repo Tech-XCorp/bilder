@@ -86,12 +86,7 @@ buildCgm() {
   fi
 
 # Set other args, env
-  local CGM_ADDL_ARGS=
-  local ocecmakedir=`findOceCmakeDir`
-  if test -n "$ocecmakedir"; then
-    techo -2 "ocecmakedir = $ocecmakedir."
-    CGM_ADDL_ARGS="$CGM_ADDL_ARGS -DOCE_DIR:PATH=$ocecmakedir"
-  fi
+  local CGM_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
 
 # When not all dependencies right on Windows, need nmake
   local makerargs=

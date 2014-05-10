@@ -58,15 +58,7 @@ buildMoab() {
   fi
 
 # Set other args, env
-  local MOAB_ADDL_ARGS=
-  local ocecmakedir=`findOceCmakeDir`
-  if test -n "$ocecmakedir"; then
-    if [[ `uname` =~ CYGWIN ]]; then
-      ocecmakedir=`cygpath -m "$ocecmakedir"`
-    fi
-    techo -2 "ocecmakedir = $ocecmakedir."
-    MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DOCE_DIR:PATH=$ocecmakedir"
-  fi
+  local MOAB_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
   local netcdfrootdir=$CONTRIB_DIR/netcdf-${NETCDF_BLDRVERSION}-$FORPYTHON_BUILD
   if test -d "$netcdfrootdir"; then
     if [[ `uname` =~ CYGWIN ]]; then
