@@ -10,16 +10,17 @@
 #
 # Version
 #
-# Putting the version information into qtversions.sh eliminates the
+# Putting the version information into qt_aux.sh eliminates the
 # rebuild when one changes that file.  Of course, if the actual version
 # changes, or this file changes, there will be a rebuild.  But with
 # this one can change the experimental version without causing a rebuild
-# in a non-experimental Bilder run.
+# in a non-experimental Bilder run.  One can also change any auxiliary
+# functions without sparking a build.
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/oceversions.sh
+source $mydir/oce_aux.sh
 
 ######################################################################
 #
