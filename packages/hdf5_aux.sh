@@ -46,15 +46,39 @@ getHdf5Version
 ######################################################################
 
 findHdf5() {
+  local builds="ser par"
   findContribPackage Hdf5 hdf5 ser par
   case `uname` in
     CYGWIN*)
+      builds="$builds sersh parsh sermd cc4py"
       findContribPackage Hdf5 hdf5dll sersh parsh sermd cc4py
       ;;
     *)
+      builds="$builds sersh parsh cc4py"
       findContribPackage Hdf5 hdf5 sersh parsh cc4py
       ;;
   esac
   findCc4pyDir Hdf5
+  for bld in $builds; do
+    local blddirvar=`genbashvar HDF5_${bld}`_DIR
+    local blddir=`deref $blddirvar`
+    if test -d "$blddir"; then
+      for subdir in share/cmake/hdf5 share/cmake/hdf5-${HDF5_BLDRVERSION} lib/cmake/hdf5-${HDF5_BLDRVERSION}; do
+        if test -d $blddir/$subdir; then
+          local dir=$blddir/$subdir
+          if [[ `uname` =~ CYGWIN ]]; then
+            dir=`cygpath -am $dir`
+          fi
+          local varname=`genbashvar HDF5_${bld}`_CMAKE_DIR
+          eval $varname=$dir
+          printvar $varname
+          varname=`genbashvar HDF5_${bld}`_CMAKE_DIR_ARG
+          eval $varname="\"-DHdf5_DIR:PATH='$dir'\""
+          printvar $varname
+          break
+        fi
+      done
+    fi
+  done
 }
 
