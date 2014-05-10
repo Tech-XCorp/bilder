@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 # Version and build information for vtk
+# Build info taken from
+# svn export svn export http://portal.nersc.gov/svn/visit/trunk/src/svn_bin/bv_support/bv_vtk.sh
 #
 # $Id$
 #
@@ -8,17 +10,19 @@
 
 ######################################################################
 #
-# Version.
-# Build info taken from
-# svn export svn export http://portal.nersc.gov/svn/visit/trunk/src/svn_bin/bv_support/bv_vtk.sh
+# Version
+#
+# Putting the version information into vtk_aux.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.  One can also change any auxiliary
+# functions without sparking a build.
 #
 ######################################################################
 
-getVtkVersion() {
-  VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
-  VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
-}
-getVtkVersion
+mydir=`dirname $BASH_SOURCE`
+source $mydir/vtk_aux.sh
 
 ######################################################################
 #
@@ -198,12 +202,8 @@ testVtk() {
 
 installVtk() {
   if bilderInstall $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"; then
-    case `uname` in
-      Linux)
-        # runnrExec "rm -f $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
-        # runnrExec "ln -s $CONTRIB_DIR/mesa-$MESA_BLDRVERSION-mgl/include/GL $CONTRIB_DIR/$VTK_NAME-$VTK_BLDRVERSION-$VTK_BUILD/include/MangleMesaInclude"
-        ;;
-    esac
+    :
   fi
+  findVtk
 }
 

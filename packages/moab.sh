@@ -29,7 +29,7 @@ setMoabVersion
 setMoabGlobalVars() {
   MOAB_BUILD=$FORPYTHON_BUILD
   MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
-  MOAB_DEPS=cgm,netcdf
+  MOAB_DEPS=vtk,cgm,netcdf
   MOAB_UMASK=002
 }
 setMoabGlobalVars
