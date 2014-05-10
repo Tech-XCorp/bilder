@@ -9,17 +9,16 @@
 ######################################################################
 #
 # Version.
-# This is directly from the VisIt repo at
-# svn export https://portal.nersc.gov/svn/visit/trunk/third_party/VTK-5e3c539.tar.gz
 # Build info taken from
 # svn export svn export http://portal.nersc.gov/svn/visit/trunk/src/svn_bin/bv_support/bv_vtk.sh
 #
-# Now take directly from KitWare.  They finally name their tarballs correctly.
-#
 ######################################################################
 
-VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
-VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
+getVtkVersion() {
+  VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
+  VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
+}
+getVtkVersion
 
 ######################################################################
 #
@@ -27,9 +26,12 @@ VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
 #
 ######################################################################
 
-VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
-VTK_BUILD=$FORPYTHON_BUILD
-VTK_DEPS=cmake
+setVtkGlobalVars() {
+  VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
+  VTK_BUILD=$FORPYTHON_BUILD
+  VTK_DEPS=cmake
+}
+setVtkGlobalVars
 
 ######################################################################
 #
