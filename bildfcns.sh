@@ -2360,19 +2360,20 @@ findLibraries() {
 }
 
 #
-# Find a package that may be in the contrib dir, reset vars as appropriate,
+# Find a package that under some directory, reset vars as appropriate,
 # but if found as a SYSTEM_ variable, use that.
 #
 # Args:
-# 1: The name of the package
-#    (appropriately capitalized, pkgnamelc be a package.sh bilder script)
-# 2: Library name to look for
-# 3: different builds to look for
+# 1:  The name of the package
+#     (appropriately capitalized, pkgnamelc be a package.sh bilder script)
+# 2:  Library name to look for
+# 3:  The directory to look in
+# 4-: The different builds to look for
 #
 # Named args (must come first):
 # -p Variable name prefix
 #
-findContribPackage() {
+findPackage() {
 
   local nameprefix=
 # Parse options
@@ -2393,8 +2394,10 @@ findContribPackage() {
     shift
     local PKG_LIBNAME=$1
     shift
+    local INSTDIR=$1
+    shift
   else
-    techo "[findContribPackage] usage: findContribPackage pkgname BUILDS"
+    techo "[$FUNCNAME] usage: $FUNCNAME pkgname libname instdir BUILDS"
   fi
   local pkgnameprefix=${nameprefix}${pkgnameuc}
   while test -n "$1"; do
@@ -2426,10 +2429,10 @@ findContribPackage() {
     if test -z "$adirval"; then
       case $bld in
         ser)
-          adirval=${CONTRIB_DIR}/${pkgnamelc}
+          adirval=${INSTDIR}/${pkgnamelc}
           ;;
         *)
-          adirval=${CONTRIB_DIR}/${pkgnamelc}-$bld
+          adirval=${INSTDIR}/${pkgnamelc}-$bld
           ;;
       esac
     fi
@@ -2523,6 +2526,37 @@ findContribPackage() {
 
   done
 
+}
+
+#
+# Find a package that may be in the contrib dir, reset vars as appropriate,
+# but if found as a SYSTEM_ variable, use that.
+#
+# Args:
+# 1: The name of the package
+#    (appropriately capitalized, pkgnamelc to be a package.sh bilder script)
+# 2: Library name to look for
+# 3: different builds to look for
+#
+# Named args (must come first):
+# -p Variable name prefix
+#
+findContribPackage() {
+  local preargs=
+# Parse options
+  set -- "$@"
+  OPTIND=1
+  while getopts "p:" arg; do
+    case $arg in
+      p) preargs="$preargs -p $2";;
+    esac
+  done
+  shift $(($OPTIND - 1))
+  local pkgname=$1
+  shift
+  local libname=$1
+  shift
+  findPackage $preargs $1 $2 $CONTRIB_DIR $*
 }
 
 #
