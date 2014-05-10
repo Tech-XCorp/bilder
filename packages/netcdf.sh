@@ -114,5 +114,6 @@ testNetcdf() {
 #
 installNetcdf() {
   bilderInstallAll netcdf
+  findNetcdf
 }
 
