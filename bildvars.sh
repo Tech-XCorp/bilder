@@ -140,15 +140,6 @@ case `uname` in
         techo -2 "REPO_NODEFLIB_FLAGS = $REPO_NODEFLIB_FLAGS"
         TARBALL_NODEFLIB_FLAGS=`deref CMAKE_NODEFLIB_FLAGS_$TARBALL_BUILD_TYPE_UC`
         techo -2 "TARBALL_NODEFLIB_FLAGS = $TARBALL_NODEFLIB_FLAGS"
-# Make sure qmakespec is specified
-        if test -z "${QMAKESPECARG}"; then
-          case ${VISUALSTUDIO_VERSION} in
-            9)  QMAKESPECARG="-spec win32-msvc2008";;
-            10) QMAKESPECARG="-spec win32-msvc2010";;
-            11) QMAKESPECARG="-spec win32-msvc2012";;
-          esac
-        fi
-        QMAKE_PLATFORM_ARGS="${QMAKESPECARG}"
         ;;
       *mingw32*)
         ;;
@@ -204,7 +195,6 @@ case `uname` in
         PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
         ;;
     esac
-    QMAKE_PLATFORM_ARGS="-spec macx-g++ -r"
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}	# For 10.5 and higher
     SHOBJEXT=.dylib
     SHOBJFLAGS=${SHOBJFLAGS:-"-dynamic -flat_namespace -undefined suppress"}
@@ -235,7 +225,6 @@ case `uname` in
     esac
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-shared"}
     USE_ATLAS_CC4PY=true
-    QMAKE_PLATFORM_ARGS="-spec linux-g++ -r"
     READLINK=readlink
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}
     SHOBJEXT=.so
@@ -915,7 +904,6 @@ flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_C
 envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS BOOST_INCDIR_ARG"
 testvars="BILDER_CTEST_TARGET"
-qtvars="QMAKE_PLATFORM_ARGS QTDIR QT_BINDIR"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"

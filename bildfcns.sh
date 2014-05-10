@@ -2405,7 +2405,7 @@ findPackage() {
     shift
   done
   trimvar targetBlds ' '
-  techo "Seeking $pkgnamelc with builds $targetBlds as system definition or in contrib dir."
+  techo "Seeking $pkgnamelc with builds $targetBlds as system definition or in $INSTDIR."
 
 # For each build, find the specified library
   local BLD
@@ -2556,7 +2556,7 @@ findContribPackage() {
   shift
   local libname=$1
   shift
-  findPackage $preargs $1 $2 $CONTRIB_DIR $*
+  findPackage $preargs $pkgname $libname $CONTRIB_DIR $*
 }
 
 #
@@ -2900,65 +2900,6 @@ findCc4pyDir() {
   eval CMAKE_${pkgnameuc}_CC4PY_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
   techo "CMAKE_${pkgnameuc}_CC4PY_DIR_ARG = `deref CMAKE_${pkgnameuc}_CC4PY_DIR_ARG`."
 
-}
-
-#
-# Find the QT packages
-#
-findQt() {
-# First try to find Qt in the contrib directory
-  local libname=
-  if [[ `uname` =~ CYGWIN ]]; then
-    libname=QtCore4
-  else
-    libname=QtCore
-  fi
-  findContribPackage qt $libname cc4py
-  if test -z "$QT_CC4PY_DIR"; then
-    findContribPackage qt $libname sersh
-    if test -z "$QT_SERSH_DIR"; then
-      findContribPackage qt $libname ser
-    fi
-  fi
-  local qtdir=$QT_CC4PY_DIR
-  qtdir=${qtdir:-"$QT_SERSH_DIR"}
-  qtdir=${qtdir:-"$QT_SER_DIR"}
-  if test -n "$qtdir"; then
-    QT_BINDIR=$qtdir/bin
-    QMAKE=$qtdir/qmake
-    techo "Qt found in $CONTRIB_DIR.  Using QT_BINDIR = $QT_BINDIR."
-    addtopathvar PATH $QT_BINDIR
-    techo "$QT_BINDIR added to path."
-    return 0
-  fi
-  techo "Qt not found in $CONTRIB_DIR."
-# Next try to find qmake in one's path
-  QMAKE=`which qmake 2>/dev/null`
-  if test -n "$QMAKE"; then
-    QT_BINDIR=`dirname $QMAKE`
-    techo "qmake found in PATH.  Using QT_BINDIR = $QT_BINDIR."
-    return 0
-  fi
-  techo "qmake not in path."
-  if test -z "$QT_BINDIR"; then
-    case `uname` in
-      CYGWIN*)
-        techo "Searching Windows installation directories."
-        QT_BVER=`ls /cygdrive/c/Qt | grep "^4" | tail -1`
-        if test -n "$QT_BVER"; then
-          QT_BINDIR=/cygdrive/c/Qt/$QT_BVER/bin
-        fi
-        ;;
-    esac
-  fi
-  if test -z "$QT_BINDIR"; then
-    techo "WARNING: [$FUNCNAME] Could not find Qt."
-    return 1
-  fi
-  QMAKE=$QT_BINDIR/qmake
-  techo "QT_BINDIR = $QT_BINDIR."
-  addtopathvar PATH $QT_BINDIR
-  return 0
 }
 
 #

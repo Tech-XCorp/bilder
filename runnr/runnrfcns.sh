@@ -96,10 +96,12 @@ techo() {
   shift $(($OPTIND - 1))
 # Print
   if test $VERBOSITY -ge $pverbosity; then
+    local val=`dblslash "$1"`
+    val="${val}${eol}"
     if test -n "$LOGFILE"; then
-      printf -- "`dblslash "$1"`${eol}" | tee -a $LOGFILE
+      printf -- "${val}" | tee -a $LOGFILE
     else
-      printf -- "`dblslash "$1"`${eol}"
+      printf -- "${val}"
     fi
   fi
 }
