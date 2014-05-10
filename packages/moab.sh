@@ -64,7 +64,7 @@ buildMoab() {
     if [[ `uname` =~ CYGWIN ]]; then
       netcdfrootdir=`cygpath -m "$netcdfrootdir"`
     fi
-    MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DNetCDF_PREFIX:PATH=$netcdfrootdir -DMOAB_USE_NETCDF:BOOL=ON"
+    MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DNetCDF_PREFIX:PATH=$netcdfrootdir -DMOAB_USE_NETCDF:BOOL=ON -DNETCDF_DIR:PATH='$NETCDF_CC4PY_CMAKE_DIR'"
   fi
 
 # When not all dependencies right on Windows, need nmake
