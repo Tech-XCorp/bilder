@@ -32,6 +32,7 @@ getQtVersion
 # Find the QT packages
 #
 findQt() {
+
 # First try to find Qt in the contrib directory
   local libname=
   if [[ `uname` =~ CYGWIN ]]; then
@@ -39,11 +40,11 @@ findQt() {
   else
     libname=QtCore
   fi
-  findContribPackage qt $libname cc4py
+  findContribPackage Qt $libname cc4py
   if test -z "$QT_CC4PY_DIR"; then
-    findContribPackage qt $libname sersh
+    findContribPackage Qt $libname sersh
     if test -z "$QT_SERSH_DIR"; then
-      findContribPackage qt $libname ser
+      findContribPackage Qt $libname ser
     fi
   fi
   local qtdir=$QT_CC4PY_DIR
@@ -57,6 +58,7 @@ findQt() {
     techo "$QT_BINDIR added to path."
     return 0
   fi
+
   techo "Qt not found in $CONTRIB_DIR."
 # Next try to find qmake in one's path
   QMAKE=`which qmake 2>/dev/null`
