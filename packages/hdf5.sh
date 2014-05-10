@@ -10,32 +10,19 @@
 
 ######################################################################
 #
-# Version:
+# Version
+#
+# Putting the version information into hdf5_aux.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.  One can also change any auxiliary
+# functions without sparking a build.
 #
 ######################################################################
 
-case `uname` in
-  CYGWIN*)
-# If you upgrade to a newer version of hdf5, first check a parallel run on
-# 32-bit Windows and be sure it does not crash.
-    if [[ "$CC" =~ mingw ]]; then
-      HDF5_BLDRVERSION_STD=1.8.10
-    else
-      HDF5_BLDRVERSION_STD=1.8.12
-    fi
-    ;;
-
-  Darwin)
-    case `uname -r` in
-      13.*) HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
-         *) HDF5_BLDRVERSION_STD=1.8.12;;	# Everything else
-    esac
-    ;;
-
-  Linux) HDF5_BLDRVERSION_STD=1.8.12;;
-esac
-
-HDF5_BLDRVERSION_EXP=1.8.12
+mydir=`dirname $BASH_SOURCE`
+source $mydir/hdf5_aux.sh
 
 ######################################################################
 #
@@ -279,18 +266,7 @@ installHdf5() {
     fi
   done
 
-# Then refind hdf5
-  if $hdf5installed; then
-    findContribPackage Hdf5 hdf5 ser par
-    case `uname` in
-      CYGWIN*)
-        findContribPackage Hdf5 hdf5dll sersh parsh sermd cc4py
-        ;;
-      *)
-        findContribPackage Hdf5 hdf5 sersh parsh cc4py
-        ;;
-    esac
-    findCc4pyDir Hdf5
-  fi
+# Find hdf5
+  findHdf5
 
 }
