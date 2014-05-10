@@ -11,7 +11,7 @@
 
 ######################################################################
 #
-# Posting to the depot means copying installers to a predetermined 
+# Posting to the depot means copying installers to a predetermined
 # host. Thus there are some addition requirements for doing this.
 #
 ######################################################################
@@ -833,18 +833,6 @@ case `uname` in
     ;;
 esac
 findCc4pyDir netcdf
-
-######################################################################
-#
-# Find the Qt libraries.
-#
-# Start by looking for qmake in one's path.
-# If that fails, then look in the contrib dir.
-# If that fails, then look for Windows installations.
-#
-######################################################################
-
-findQt
 
 ######################################################################
 #
