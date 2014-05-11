@@ -3782,13 +3782,14 @@ rminterlibdeps() {
 # -l removes previous install if found
 # -m the eventually used "maker", e.g., make, nmake, jom
 # -n uses a space instead of an equals for the prefix command.
-# -s if specified with -m, strips off the builddir and uses only the command
-#    specified with -m option
 # -p <specified prefix subdir>.  '-' means none.
 # -q <name of .pro file> path (relative to src directory) and
 #    name of .pro file to run qmake on
 # -r uses riverbank procedure (for sip and PyQt): python configure.py
+# -s if specified with -m, strips off the builddir and uses only the command
+#    specified with -m option
 # -t do not record failure if $IGNORE_TEST_RESULTS is true
+# -T top of sourcedir for configuring
 # -y do not use --prefix in configure command at all
 #
 # Returns
@@ -3820,12 +3821,13 @@ bilderConfig() {
   local riverbank=false
   local rminstall=false
   local stripbuilddir=false
+  local srcsubdir=
   local usecmake=false
   local webdocs=false  # By default, we do not build documentation for the web
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cC:d:fgiI:ylm:snp:q:rt" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:np:q:rstT:" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
@@ -3844,6 +3846,7 @@ bilderConfig() {
       r) riverbank=true;;
       s) stripbuilddir=true;;
       t) recordfailure=false;;
+      T) srcsubdir="$OPTARG";;
       y) noprefix=true; inplace=true;;
     esac
   done
@@ -4018,7 +4021,7 @@ bilderConfig() {
     configexec="$CMAKE"
     cmval=cmake
   elif $noprefix; then
-    configexec="$PROJECT_DIR/$1/configure"
+    configexec="$PROJECT_DIR/$1/$srcsubdir/configure"
   elif $riverbank; then
 # riverbank configure
     configexec=python
@@ -4081,7 +4084,7 @@ bilderConfig() {
       else
         configargs="--prefix=$fullinstalldir"
       fi
-    elif test -f $builddir/../CMakeLists.txt; then
+    elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
 # CMake is always out of place
       configexec="$CMAKE"
       cmval=cmake
@@ -4092,19 +4095,19 @@ bilderConfig() {
     fi
   elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
 # Repo, autotools
-    configexec="$PROJECT_DIR/$1/configure"
+    configexec="$PROJECT_DIR/$1/$srcsubdir/configure"
     configargs="--prefix=$fullinstalldir"
     cmval=autotools
-  elif test -f $PROJECT_DIR/$1/configure; then
+  elif test -f $PROJECT_DIR/$1/$srcsubdir/configure; then
 # Repo but not configure.ac: Most likely petsc
     configexec="$PROJECT_DIR/$1/configure"
     configargs="--prefix=$fullinstalldir"
     cmval=petsc
     # SEK: I'm not sure this will work on Windows
     if ! test -d $BUILD_DIR/$1; then
-          ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
+      ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
     fi
-  elif test -f $PROJECT_DIR/$1/CMakeLists.txt; then
+  elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
     configexec="$CMAKE"
     cmval=cmake
@@ -4233,8 +4236,8 @@ bilderConfig() {
       esac
 # Some options are always chosen
       configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
-	if test $VERBOSITY -ge 1; then
-	  configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
+      if test $VERBOSITY -ge 1; then
+        configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
       fi
       if test -n "$SVN_BINDIR"; then
         configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
@@ -4245,10 +4248,10 @@ bilderConfig() {
       if test -n "$FQMAILHOST"; then
         configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
       fi
-      if test -f $PROJECT_DIR/$1/CMakeLists.txt; then
-        srcarg=$PROJECT_DIR/$1
-      elif test -f $builddir/../CMakeLists.txt; then
-        srcarg=`(cd $builddir/..; pwd -P)`
+      if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
+        srcarg=$PROJECT_DIR/$1/$srcsubdir
+      elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
+        srcarg=`(cd $builddir/../$srcsubdir; pwd -P)`
       elif test -f $builddir/../src/CMakeLists.txt; then
         srcarg=`(cd $builddir/../src; pwd -P)`
       else

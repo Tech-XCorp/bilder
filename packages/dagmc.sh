@@ -32,7 +32,7 @@ setDagMcGlobalVars() {
 # Only the python build needed.
   DAGMC_BUILD=$FORPYTHON_BUILD
   DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD"}
-  DAGMC_DEPS=moab
+  DAGMC_DEPS=geant4,moab
   DAGMC_UMASK=002
 }
 setDagMcGlobalVars
@@ -54,13 +54,14 @@ buildDagMc() {
 
 # Get dagmc
   cd $PROJECT_DIR
-  local DAGMC_ADDL_ARGS=
-  local DAGMC_INSTALL_DIR=
   if ! test -d dagmc; then
     techo "ERROR: [$FUNCNAME] dagmc not found."
     return
   fi
   getVersion dagmc
+
+# Get other args
+  local DAGMC_ADDL_ARGS="-DGEANT_DIR:PATH='$GEANT4_CC4PY_DIR' -DMOAB_DIR='$MOAB_CC4PY_DIR'"
 
 # If not all dependencies right on Windows, need nmake
   local makerargs=
@@ -72,7 +73,7 @@ buildDagMc() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs dagmc $DAGMC_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
+  if bilderConfig $makerargs -T Geant4/dagsolid dagmc $DAGMC_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc $DAGMC_BUILD "$makejargs" "$DAGMC_ENV"
   fi
 
