@@ -154,14 +154,11 @@ if ! $NO_PYTHON; then
 # If path already added, remove so as not to mix versions.
   echo "NATIVE_PYTHON_SITEPKGSDIR = $NATIVE_PYTHON_SITEPKGSDIR"
   unset BILDER_PYTHONPATH
+# Below ensures the final sourced file is correct
   addtopathvar PYTHONPATH "$PYTHON_SITEPKGSDIR"
   case `uname` in
-    CYGWIN*)
-      trimvar PYTHONPATH ';'
-      ;;
-    *)
-      trimvar PYTHONPATH ':'
-      ;;
+    CYGWIN*) trimvar PYTHONPATH ';' ;;
+    *) trimvar PYTHONPATH ':' ;;
   esac
   export PYTHONPATH
 fi
