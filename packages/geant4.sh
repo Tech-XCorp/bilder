@@ -22,7 +22,7 @@ GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
 
 setGeant4GlobalVars() {
   GEANT4_BUILDS=${GEANT4_BUILDS:-"ser"}
-  GEANT4_DEPS=cmake,pcre,xercesc
+  GEANT4_DEPS=qt,pcre,xercesc,cmake
   case `uname` in
     CYGWIN*) ;;
     Darwin) ;;

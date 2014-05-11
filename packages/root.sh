@@ -20,8 +20,11 @@ ROOT_BLDRVERSION=${ROOT_BLDRVERSION:-"5.34.14"}
 #
 ######################################################################
 
-ROOT_BUILDS=${ROOT_BUILDS:-"ser"}
-ROOT_DEPS=cmake
+setRootGlobalVars() {
+  ROOT_BUILDS=${ROOT_BUILDS:-"ser"}
+  ROOT_DEPS=cmake
+}
+setRootGlobalVars
 
 ######################################################################
 #

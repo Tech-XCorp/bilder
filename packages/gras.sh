@@ -16,20 +16,16 @@ GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-03-r1561"}
 
 ######################################################################
 #
-# Other values
+# Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-GRAS_BUILDS=${GRAS_BUILDS:-"ser"}
-GRAS_DEPS=geant4,pcre,xercesc
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/gras/bin
+setGrasGlobalVars() {
+  GRAS_BUILDS=${GRAS_BUILDS:-"ser"}
+  GRAS_DEPS=geant4
+  addtopathvar PATH $CONTRIB_DIR/gras/bin
+}
+setGrasGlobalVars
 
 ######################################################################
 #
