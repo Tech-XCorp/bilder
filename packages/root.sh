@@ -21,7 +21,7 @@ ROOT_BLDRVERSION=${ROOT_BLDRVERSION:-"5.34.14"}
 ######################################################################
 
 setRootGlobalVars() {
-  ROOT_BUILDS=${ROOT_BUILDS:-"ser"}
+  ROOT_BUILDS=${ROOT_BUILDS:-"sersh"}
   ROOT_DEPS=cmake
 }
 setRootGlobalVars
@@ -33,11 +33,11 @@ setRootGlobalVars
 ######################################################################
 
 buildRoot() {
-  if ! bilderUnpack root; then
+  if ! bilderUnpack -c root; then
     return
   fi
-  if bilderConfig -c root ser "-Dgdml:BOOL=ON"; then
-    bilderBuild root ser "" "$ROOT_MAKEJ_ARGS"
+  if bilderConfig -c root sersh "-Dgdml:BOOL=ON"; then
+    bilderBuild root sersh "$ROOT_MAKEJ_ARGS"
   fi
 }
 
@@ -58,6 +58,6 @@ testRoot() {
 ######################################################################
 
 installRoot() {
-  bilderInstall root ser
+  bilderInstall root sersh
 }
 
