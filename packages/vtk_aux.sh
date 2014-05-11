@@ -25,7 +25,9 @@ getVtkVersion
 ######################################################################
 
 findVtk() {
-  findContribPackage VTK vtk sersh cc4py
+  local majmin=`echo $VTK_BLDRVERSION | sed 's/\.[0-9]*$//'`
+  techo -2 "Looking for vtkCommonCore-${majmin}."
+  findContribPackage VTK vtkCommonCore-${majmin} sersh cc4py
   findCc4pyDir VTK
 }
 

@@ -70,7 +70,12 @@ buildMoab() {
   if $MOAB_USE_CMAKE; then
     MOAB_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
   else
-    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR' --with-vtk='$VTK_CC4PY_DIR' --with-cgm='$CGM_CC4PY_DIR'"
+    # MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR' --with-vtk='$VTK_CC4PY_DIR' --with-cgm='$CGM_CC4PY_DIR'"
+# moab cannot use recent vtk
+# With cgm:
+# checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
+# configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
+    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
   fi
 
 if false; then
