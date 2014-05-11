@@ -70,8 +70,9 @@ buildMoab() {
   if $MOAB_USE_CMAKE; then
     MOAB_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
   else
-    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR' --with-vtk= --with-cgm="
+    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR' --with-vtk='$VTK_CC4PY_DIR' --with-cgm='$CGM_CC4PY_DIR'"
   fi
+
 if false; then
   local netcdfrootdir=$CONTRIB_DIR/netcdf-${NETCDF_BLDRVERSION}-$FORPYTHON_BUILD
   if test -d "$netcdfrootdir"; then
@@ -101,7 +102,7 @@ fi
   if $MOAB_USE_CMAKE; then
     MOAB_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
   else
-    :
+    MOAB_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
   fi
   if bilderConfig $makerargs $moabcmakearg moab $MOAB_BUILD "$MOAB_CONFIG_ARGS" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $MOAB_BUILD "$makejargs" "$MOAB_ENV"

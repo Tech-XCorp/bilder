@@ -10,7 +10,7 @@
 #
 # Version
 #
-# Putting the version information into qt_aux.sh eliminates the
+# Putting the version information into oce_aux.sh eliminates the
 # rebuild when one changes that file.  Of course, if the actual version
 # changes, or this file changes, there will be a rebuild.  But with
 # this one can change the experimental version without causing a rebuild

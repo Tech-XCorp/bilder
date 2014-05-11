@@ -25,7 +25,7 @@ getVtkVersion
 ######################################################################
 
 findVtk() {
-  :
+  findContribPackage VTK vtk sersh cc4py
+  findCc4pyDir VTK
 }
-findVtk
 

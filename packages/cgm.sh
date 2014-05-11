@@ -10,15 +10,17 @@
 #
 # Version
 #
+# Putting the version information into oce_aux.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.  One can also change any auxiliary
+# functions without sparking a build.
+#
 ######################################################################
 
-setCgmVersion() {
-  CGM_REPO_URL=https://bitbucket.org/cadg4/cgm.git
-  CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
-  CGM_REPO_TAG_STD=master
-  CGM_REPO_TAG_EXP=master
-}
-setCgmVersion
+mydir=`dirname $BASH_SOURCE`
+source $mydir/cgm_aux.sh
 
 ######################################################################
 #
@@ -122,5 +124,6 @@ testCgm() {
 
 installCgm() {
   bilderInstallAll cgm
+  findCgm
 }
 

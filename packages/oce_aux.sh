@@ -26,9 +26,10 @@ findOce() {
 
 # Look for Oce in the contrib directory
   findPackage Oce TKMath "$BLDR_INSTALL_DIR" cc4py sersh
-# Pick from non-empty of OCE_CC4PY_DIR OCE_SERSH_DIR
+  findCc4pyDir Oce
+
+# Set root dir
   local ocerootdir=$OCE_CC4PY_DIR
-  ocerootdir=${ocedir:-"$OCE_SERSH_DIR"}
   if test -z "$ocerootdir"; then
     return
   fi
@@ -36,7 +37,6 @@ findOce() {
   if [[ `uname` =~ CYGWIN ]]; then
     ocerootdir=`cygpath -au $ocerootdir`
   fi
-
 # Determine where the cmake config files are
   ocever=`basename $ocerootdir | sed -e 's/^oce-//' -e 's/^OCE-//' -e "s/-$OCE_BUILD$//"`
   techo "Found OCE of version $ocever." 1>&2
