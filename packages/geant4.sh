@@ -8,11 +8,12 @@
 
 ######################################################################
 #
-# Version
+# Version and finding.
 #
 ######################################################################
 
-GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/geant4_aux.sh
 
 ######################################################################
 #
@@ -21,16 +22,9 @@ GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
 ######################################################################
 
 setGeant4GlobalVars() {
-  GEANT4_BUILDS=${GEANT4_BUILDS:-"ser"}
+  GEANT4_BUILDS=${GEANT4_BUILDS:-"sersh"}
   GEANT4_DEPS=qt,pcre,xercesc,cmake
-  case `uname` in
-    CYGWIN*) ;;
-    Darwin) ;;
-    Linux)
-      GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF"
-      ;;
-  esac
-  addtopathvar PATH $CONTRIB_DIR/geant4/bin
+  addtopathvar PATH $CONTRIB_DIR/geant4-sersh/bin
 }
 setGeant4GlobalVars
 
@@ -41,11 +35,16 @@ setGeant4GlobalVars
 ######################################################################
 
 buildGeant4() {
-  if bilderUnpack geant4; then
-    GEANT4_ARGS="${GEANT4_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc'"
-    if bilderConfig -c geant4 ser "$GEANT4_ARGS $CMAKE_SUPRA_SP_ARG"; then
-      bilderBuild geant4 ser ""
-    fi
+  if ! bilderUnpack geant4; then
+    return
+  fi
+  local GEANT4_CONFIG_ARGS=
+  GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-sersh'"
+  case `uname` in
+    Linux) GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF";;
+  esac
+  if bilderConfig -c geant4 sersh "$GEANT4_CONFIG_ARGS"; then
+    bilderBuild geant4 sersh "$GEANT4_MAKEJ_ARGS"
   fi
 }
 
@@ -66,16 +65,7 @@ testGeant4() {
 ######################################################################
 
 installGeant4() {
-  bilderInstall -r geant4 ser geant4
-  local GEANT4_HOME="$BLDR_INSTALL_DIR/geant4"
-  export G4DATA="$GEANT4_HOME/share/Geant4-9.6.2/data"
-  export G4LEDATA="$G4DATA/G4EMLOW6.32"
-  export G4LEVELGAMMADATA="$G4DATA/PhotonEvaporation2.3"
-  export G4NEUTRONXSDATA="$G4DATA/G4NEUTRONXS1.2"
-  export G4SAIDXSDATA="$G4DATA/G4SAIDDATA1.1"
-# The following lines introduce new env vars such as
-# G4INSTALL, G4INCLUDE etc.  Not sure if we use them as they are no cmake.
-#  . $GEANT4_HOME/bin/geant4.sh
-#  . $GEANT4_HOME/share/Geant4-9.6.2/geant4make/geant4make.sh
+  bilderInstall geant4 sersh
+  findGeant4
 }
 

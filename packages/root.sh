@@ -33,10 +33,11 @@ setRootGlobalVars
 ######################################################################
 
 buildRoot() {
-  if bilderUnpack root; then
-    if bilderConfig -c root ser "-Dgdml:BOOL=ON $CMAKE_SUPRA_SP_ARG"; then
-      bilderBuild root ser ""
-    fi
+  if ! bilderUnpack root; then
+    return
+  fi
+  if bilderConfig -c root ser "-Dgdml:BOOL=ON"; then
+    bilderBuild root ser "" "$ROOT_MAKEJ_ARGS"
   fi
 }
 
@@ -57,6 +58,6 @@ testRoot() {
 ######################################################################
 
 installRoot() {
-  bilderInstall -r root ser root
+  bilderInstall root ser
 }
 
