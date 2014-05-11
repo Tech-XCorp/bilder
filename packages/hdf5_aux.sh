@@ -53,7 +53,11 @@ findHdf5() {
   case `uname` in
     CYGWIN*)
       builds="$builds sersh parsh sermd cc4py"
-      findContribPackage Hdf5 hdf5dll sersh parsh sermd cc4py
+      findContribPackage Hdf5 hdf5 sermd
+      case $HDF5_BLDRVERSION in
+        1.8.[0-9]) findContribPackage Hdf5 hdf5dll sersh parsh cc4py;;
+        *) findContribPackage Hdf5 hdf5 sersh parsh cc4py;;
+      esac
       ;;
     *)
       builds="$builds sersh parsh cc4py"
