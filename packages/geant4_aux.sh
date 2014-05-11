@@ -17,7 +17,7 @@ getGeant4Version
 #
 ######################################################################
 
-# Find the directory containing the OCE cmake files
+# Set variables to help find geant4
 findGeant4() {
 
 # Look for Geant4 in the contrib directory
