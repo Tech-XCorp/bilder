@@ -28,8 +28,8 @@ setQt3dGlobalVars() {
   QT3D_UMASK=002
   QT3D_REPO_URL=git://gitorious.org/qt/qt3d.git
   QT3D_UPSTREAM_URL=git://gitorious.org/qt/qt3d.git
-  QT3D_REPO_TAG_STD=qt4
-  QT3D_REPO_TAG_EXP=qt4  # The only choice
+  QT3D_REPO_BRANCH_STD=qt4
+  QT3D_REPO_BRANCH_EXP=qt4  # The only choice
 }
 setQt3dGlobalVars
 

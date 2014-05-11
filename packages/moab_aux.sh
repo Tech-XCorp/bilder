@@ -15,8 +15,8 @@
 setMoabVersion() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
-  MOAB_REPO_TAG_STD=master
-  MOAB_REPO_TAG_EXP=master
+  MOAB_REPO_BRANCH_STD=master
+  MOAB_REPO_BRANCH_EXP=master
 }
 setMoabVersion
 

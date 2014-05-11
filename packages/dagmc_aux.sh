@@ -9,8 +9,8 @@
 getDagMcVersion() {
   DAGMC_REPO_URL=https://github.com/makeclean/DAGMC.git
   DAGMC_UPSTREAM_URL=https://github.com/makeclean/DAGMC.git
-  # DAGMC_REPO_TAG_STD=
-  # DAGMC_REPO_TAG_EXP=
+  DAGMC_REPO_BRANCH_STD=develop
+  DAGMC_REPO_BRANCH_EXP=develop
 }
 getDagMcVersion
 
