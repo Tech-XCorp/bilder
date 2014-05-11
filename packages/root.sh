@@ -34,7 +34,7 @@ setRootGlobalVars
 ######################################################################
 
 buildRoot() {
-  if ! bilderUnpack -c root; then
+  if ! bilderUnpack root; then
     return
   fi
   if bilderConfig -c root $ROOT_BUILD "-Dgdml:BOOL=ON"; then
