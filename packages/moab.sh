@@ -10,15 +10,17 @@
 #
 # Version
 #
+# Putting the version information into moab_aux.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.  One can also change any auxiliary
+# functions without sparking a build.
+#
 ######################################################################
 
-setMoabVersion() {
-  MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
-  MOAB_REPO_TAG_STD=master
-  MOAB_REPO_TAG_EXP=master
-}
-setMoabVersion
+mydir=`dirname $BASH_SOURCE`
+source $mydir/moab_aux.sh
 
 ######################################################################
 #
@@ -133,5 +135,6 @@ testMoab() {
 
 installMoab() {
   bilderInstallAll moab
+  findMoab
 }
 

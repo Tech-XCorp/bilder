@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version information for cgm
+# Version information for moab
 #
 # $Id$
 #
@@ -12,23 +12,23 @@
 #
 ######################################################################
 
-setCgmVersion() {
-  CGM_REPO_URL=https://bitbucket.org/cadg4/cgm.git
-  CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
-  CGM_REPO_TAG_STD=master
-  CGM_REPO_TAG_EXP=master
+setMoabVersion() {
+  MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
+  MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
+  MOAB_REPO_TAG_STD=master
+  MOAB_REPO_TAG_EXP=master
 }
-setCgmVersion
+setMoabVersion
 
 ######################################################################
 #
-# Find cgm
+# Find moab
 #
 ######################################################################
 
 # Find the directory containing the OCE cmake files
-findCgm() {
-  findPackage Cgm cubit_facet "$BLDR_INSTALL_DIR" cc4py sersh
-  findCc4pyDir Cgm
+findMoab() {
+  findPackage Moab MOAB "$BLDR_INSTALL_DIR" sersh cc4py
+  findCc4pyDir Moab
 }
 
