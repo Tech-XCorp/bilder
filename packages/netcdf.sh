@@ -66,12 +66,16 @@ buildNetcdf() {
       NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SERSH_CMAKE_DIR'"
       ;;
     Linux)
-# On Linux netcdf 4.3.1 does not get the order of hdf5 libraries correct for ser
-      if $BUILD_EXPERIMENTAL; then
-        NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SER_CMAKE_DIR'"
-      else
-        NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
-      fi
+# On Linux netcdf 4.3.[0-2] does not get the order of hdf5 libraries correct
+# for ser.  Will have to check new versions as they come along.
+      case $NETCDF_BLDRVERSION in
+        3.* | 4.3.[0-2])
+          NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
+          ;;
+        *)
+          NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SER_CMAKE_DIR'"
+          ;;
+      esac
       NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SERSH_CMAKE_DIR'"
       ;;
   esac
