@@ -65,9 +65,9 @@ buildGras() {
   esac
   local xercescdir="${CONTRIB_DIR}/xercesc-sersh"
 
-  GRAS_ADDL_ARGS="${GRAS_ADDL_ARGS} -DXERCESC_INCLUDE_DIR:PATH='${xercescdir}/include' -DXERCESC_LIBRARY:FILEPATH='${xercescdir}/lib/${libpre}xerces-c.$libpost' -DGeant4_DIR:PATH='$CONTRIB_DIR/geant4/lib/Geant4-9.6.2' -DGRAS_INSTALL_PREFIX:PATH='$CONTRIB_DIR/gras'"
+  GRAS_CONFIG_ARGS="${GRAS_CONFIG_ARGS} -DXERCESC_INCLUDE_DIR:PATH='${xercescdir}/include' -DXERCESC_LIBRARY:FILEPATH='${xercescdir}/lib/${libpre}xerces-c.$libpost' -DGeant4_DIR:PATH='$GEANT4_SERSH_CMAKE_DIR' -DGRAS_INSTALL_PREFIX:PATH='$CONTRIB_DIR/gras-${GRAS_BLDRVERSION}-sersh'"
 
-  if bilderConfig -c gras sersh "$GRAS_ADDL_ARGS $CMAKE_SUPRA_SP_ARG"; then
+  if bilderConfig -c gras sersh "$GRAS_CONFIG_ARGS"; then
     bilderBuild gras sersh "" "$GRAS_ENV"
   fi
 }
