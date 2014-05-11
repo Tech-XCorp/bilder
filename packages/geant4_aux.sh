@@ -7,7 +7,8 @@
 ######################################################################
 
 getGeant4Version() {
-  GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
+  # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
+  GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
 }
 getGeant4Version
 

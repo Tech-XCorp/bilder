@@ -21,7 +21,8 @@ ROOT_BLDRVERSION=${ROOT_BLDRVERSION:-"5.34.14"}
 ######################################################################
 
 setRootGlobalVars() {
-  ROOT_BUILDS=${ROOT_BUILDS:-"sersh"}
+  ROOT_BUILD=${ROOT_BUILDS:-"$FORPYTHON_BUILD"}
+  ROOT_BUILDS=${ROOT_BUILDS:-"$FORPYTHON_BUILD"}
   ROOT_DEPS=cmake
 }
 setRootGlobalVars
@@ -36,8 +37,8 @@ buildRoot() {
   if ! bilderUnpack -c root; then
     return
   fi
-  if bilderConfig -c root sersh "-Dgdml:BOOL=ON"; then
-    bilderBuild root sersh "$ROOT_MAKEJ_ARGS"
+  if bilderConfig -c root $ROOT_BUILD "-Dgdml:BOOL=ON"; then
+    bilderBuild root $ROOT_BUILD "$ROOT_MAKEJ_ARGS"
   fi
 }
 
@@ -58,6 +59,6 @@ testRoot() {
 ######################################################################
 
 installRoot() {
-  bilderInstall root sersh
+  bilderInstallAll root
 }
 

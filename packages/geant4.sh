@@ -22,9 +22,9 @@ source $mydir/geant4_aux.sh
 ######################################################################
 
 setGeant4GlobalVars() {
-  GEANT4_BUILDS=${GEANT4_BUILDS:-"sersh"}
+  GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_BUILD"}
   GEANT4_DEPS=qt,pcre,xercesc,cmake
-  addtopathvar PATH $CONTRIB_DIR/geant4-sersh/bin
+  addtopathvar PATH $CONTRIB_DIR/geant4-$FORPYTHON_BUILD/bin
 }
 setGeant4GlobalVars
 
@@ -39,12 +39,12 @@ buildGeant4() {
     return
   fi
   local GEANT4_CONFIG_ARGS=
-  GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-sersh'"
+  GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_QT:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-$FORPYTHON_BUILD'"
   case `uname` in
     Linux) GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF";;
   esac
-  if bilderConfig -c geant4 sersh "$GEANT4_CONFIG_ARGS"; then
-    bilderBuild geant4 sersh "$GEANT4_MAKEJ_ARGS"
+  if bilderConfig -c geant4 $FORPYTHON_BUILD "$GEANT4_CONFIG_ARGS"; then
+    bilderBuild geant4 $FORPYTHON_BUILD "$GEANT4_MAKEJ_ARGS"
   fi
 }
 
@@ -65,7 +65,7 @@ testGeant4() {
 ######################################################################
 
 installGeant4() {
-  bilderInstall geant4 sersh
+  bilderInstallAll geant4
   findGeant4
 }
 
