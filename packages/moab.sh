@@ -79,20 +79,10 @@ buildMoab() {
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
     MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
   fi
-
-if false; then
-  local netcdfrootdir=$CONTRIB_DIR/netcdf-${NETCDF_BLDRVERSION}-$FORPYTHON_BUILD
-  if test -d "$netcdfrootdir"; then
-    if [[ `uname` =~ CYGWIN ]]; then
-      netcdfrootdir=`cygpath -m "$netcdfrootdir"`
-    fi
-    if $MOAB_USE_CMAKE; then
-      MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS -DNetCDF_PREFIX:PATH=$netcdfrootdir -DMOAB_USE_NETCDF:BOOL=ON -DNETCDF_DIR:PATH='$NETCDF_CC4PY_CMAKE_DIR'"
-    else
-      :
-    fi
+  local MOAB_ENV=
+  if [[ `uname` =~ Linux ]]; then
+    MOAB_ENV="$MOAB_ENV LD_RUN_PATH='$HDF5_CC4PY_DIR/lib'"
   fi
-fi
 
 # When not all dependencies right on Windows, need nmake
   local makerargs=
