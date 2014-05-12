@@ -60,9 +60,6 @@ buildDagMc() {
   fi
   getVersion dagmc
 
-# Get other args
-  local DAGMC_ADDL_ARGS="-DGEANT_DIR:PATH='$GEANT4_CC4PY_DIR' -DMOAB_DIR='$MOAB_CC4PY_DIR'"
-
 # If not all dependencies right on Windows, need nmake
   local makerargs=
   local makejargs=
@@ -73,7 +70,7 @@ buildDagMc() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs -T Geant4/dagsolid dagmc $DAGMC_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
+  if bilderConfig $makerargs dagmc $DAGMC_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc $DAGMC_BUILD "$makejargs" "$DAGMC_ENV"
   fi
 
