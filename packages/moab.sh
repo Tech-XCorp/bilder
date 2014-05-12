@@ -77,7 +77,7 @@ buildMoab() {
 # With cgm:
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
-    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
+    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR' LDFLAGS=-Wl,-rpath,'$HDF5_CC4PY_DIR/lib':'$NETCDF_CC4PY_DIR'"
   fi
   local MOAB_ENV=
   if [[ `uname` =~ Linux ]]; then
