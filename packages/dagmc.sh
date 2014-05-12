@@ -70,7 +70,7 @@ buildDagMc() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs dagmc $DAGMC_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
+  if bilderConfig $makerargs dagmc $DAGMC_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc $DAGMC_BUILD "$makejargs" "$DAGMC_ENV"
   fi
 
