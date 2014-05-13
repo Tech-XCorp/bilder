@@ -24,7 +24,7 @@ getOceVersion
 # Find the directory containing the OCE cmake files
 findOce() {
 
-# Look for Oce in the contrib directory
+# Look for Oce in the install directory
   findPackage Oce TKMath "$BLDR_INSTALL_DIR" cc4py sersh
   findCc4pyDir Oce
 

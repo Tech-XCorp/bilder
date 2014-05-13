@@ -12,53 +12,8 @@
 #
 ######################################################################
 
-FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
-FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.5.2"}
-
-######################################################################
-#
-# Find freetype.
-#
-# Named args (must come first):
-# -s  Look in system directories only
-#
-######################################################################
-
-findFreetypeRootdir() {
-# Parse options
-  set -- "$@"
-  OPTIND=1
-  local SYSTEM_ONLY=false
-  while getopts "s" arg; do
-    case $arg in
-      s) SYSTEM_ONLY=true;;
-    esac
-  done
-  shift $(($OPTIND - 1))
-# Look for freetype in contrib
-  if ! $SYSTEM_ONLY; then
-    local ftdir=
-    for bld in sersh sermd; do
-      if test -e $CONTRIB_DIR/freetype-$bld; then
-        ftdir=`(cd $CONTRIB_DIR/freetype-$bld; pwd -P)`
-        break
-      fi
-    done
-  fi
-# OSX puts freetype under the X11 location, which may be in more than one place.
-  if test -z "$ftdir"; then
-    for dir in /opt/X11 /usr/X11R6 /usr /opt/homebrew /opt/local; do
-      if test -d $dir/include/freetype2; then
-        ftdir=$dir
-        break
-      fi
-    done
-  fi
-  if test -n "$ftdir" && [[ `uname` =~ CYGWIN ]]; then
-    ftdir=`cygpath -am $ftdir`
-  fi
-  echo $ftdir
-}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/freetype_aux.sh
 
 ######################################################################
 #
@@ -66,26 +21,32 @@ findFreetypeRootdir() {
 #
 ######################################################################
 
+setFreetypeGlobalVars() {
 # freetype generally needed on windows
-case `uname` in
-  CYGWIN*) FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"};;
-  Darwin | Linux)
-# Build on Linux or Darwin only if not found in system
-    ftdir=`findFreetypeRootdir -s`
-    if test -z "$ftdir"; then
-      techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
+  case `uname` in
+    CYGWIN*)
+      findFreetype
       FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-    else
-      techo "System freetype found, ftdir = $ftdir, will not build."
-    fi
-    ;;
-esac
-computeBuilds freetype
-if test -n "$FREETYPE_BUILDS"; then
-  addCc4pyBuild freetype
-fi
-FREETYPE_DEPS=
-FREETYPE_UMASK=002
+      ;;
+    Darwin | Linux)
+# Build on Linux or Darwin only if not found in system
+      findFreetype -s
+      if test -z "$FREETYPE_CC4PY_DIR"; then
+        techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
+        FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+      else
+        techo "System freetype found in $FREETYPE_CC4PY_DIR, will not build."
+      fi
+      ;;
+  esac
+  computeBuilds freetype
+  if test -n "$FREETYPE_BUILDS"; then
+    addCc4pyBuild freetype
+  fi
+  FREETYPE_DEPS=
+  FREETYPE_UMASK=002
+}
+setFreetypeGlobalVars
 
 ######################################################################
 #
@@ -161,7 +122,9 @@ installFreetype() {
       esac
     fi
   done
-  # techo "Quitting at end of freetype.sh."; exit
+
+# Find freetype
+  findFreetype
 
 }
 
