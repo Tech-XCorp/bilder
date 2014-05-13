@@ -89,15 +89,15 @@ buildOce() {
   OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$OCE_INSTALL_DIR -DCMAKE_INSTALL_NAME_DIR:PATH=$OCE_INSTALL_DIR/lib -DOCE_MULTITHREADED_BUILD:BOOL=FALSE"
 
 # Find freetype
-  if ! declare -f findFreetypeRootdir 1>/dev/null 2>&1; then
-    source $BILDER_DIR/packages/freetype.sh
+  if test -z "$FREETYPE_CC4PY_DIR"; then
+    source $BILDER_DIR/packages/freetype_aux.sh
+    findFreetype
   fi
-  local freetype_rootdir=`findFreetypeRootdir`
 
 # Set other args, env
   local OCE_ENV=
-  if test -n "$freetype_rootdir"; then
-    OCE_ENV="FREETYPE_DIR=$freetype_rootdir"
+  if test -n "$FREETYPE_CC4PY_DIR"; then
+    OCE_ENV="FREETYPE_DIR=$FREETYPE_CC4PY_DIR"
   fi
 # Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
