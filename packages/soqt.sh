@@ -34,7 +34,7 @@ setSoQtGlobalVars() {
       SOQT_BUILDS=${SOQT_BUILDS},${FORPYTHON_BUILD}dbg
     fi
   fi
-  SOQT_DEPS=coin,qt
+  SOQT_DEPS=coin
   SOQT_UMASK=002
   SOQT_REPO_URL=https://bitbucket.org/Coin3D/soqt
   SOQT_UPSTREAM_URL=https://bitbucket.org/Coin3D/soqt

@@ -7,7 +7,7 @@
 ######################################################################
 
 SWIMGUI_BUILDS=${SWIMGUI_BUILDS:-"ser"}
-SWIMGUI_DEPS=composertoolkit,qt
+SWIMGUI_DEPS=composertoolkit
 SWIMGUI_UMASK=002
 
 ######################################################################

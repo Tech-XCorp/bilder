@@ -28,7 +28,7 @@ fi
 # Pivy is installed with Coin, so it is built the way Coin is built
 PIVY_BUILDS=${PIVY_BUILDS:-"$FORPYTHON_BUILD"}
 PIVY_BUILD=${PIVY_BUILD:-"$FORPYTHON_BUILD"}
-PIVY_DEPS=coin,qt
+PIVY_DEPS=coin
 PIVY_UMASK=002
 PIVY_REPO_URL=https://bitbucket.org/Coin3D/pivy
 PIVY_UPSTREAM_URL=https://bitbucket.org/Coin3D/pivy
