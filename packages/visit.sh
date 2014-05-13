@@ -167,10 +167,8 @@ buildVisit() {
 # VisIt needs to find hdf5 netcdf Python Qt VTK
 #
 # Set unix style directories
-  VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
-  local VISIT_NETCDF_DIR=
-  VISIT_NETCDF_DIR="$NETCDF_CC4PY_DIR"
-  fi
+  local VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
+  local VISIT_NETCDF_DIR="$NETCDF_CC4PY_DIR"
   local VISIT_PYTHON_DIR="$PYTHON_DIR"
 # Find Vtk
   local VISIT_VTK_DIR=$CONTRIB_DIR/VTK-$FORPYTHON_BUILD
