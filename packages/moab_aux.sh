@@ -31,9 +31,3 @@ findMoab() {
   findCc4pyDir Moab
 }
 
-#
-# Find Moab at time of sourcing, as installMoab may be called
-# if builds disabled
-#
-findMoab
-

@@ -55,9 +55,3 @@ findNetcdf() {
 
 }
 
-#
-# Find Netcdf at time of sourcing, as installNetcdf may be called
-# if builds disabled
-#
-findNetcdf
-

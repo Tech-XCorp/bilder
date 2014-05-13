@@ -31,9 +31,3 @@ findGras() {
 
 }
 
-#
-# Find Gras at time of sourcing, as installGras may be called
-# if builds disabled
-#
-findGras
-

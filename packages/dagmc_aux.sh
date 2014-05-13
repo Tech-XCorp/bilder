@@ -27,9 +27,3 @@ findDagMc() {
   findCc4pyDir DagMc
 }
 
-#
-# Find DagMc at time of sourcing, as installDagMc may be called
-# if builds disabled
-#
-findDagMc
-

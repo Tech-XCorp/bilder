@@ -91,9 +91,3 @@ findHdf5() {
 
 }
 
-#
-# Find Hdf5 at time of sourcing, as installHdf5 may be called
-# if builds disabled
-#
-findHdf5
-

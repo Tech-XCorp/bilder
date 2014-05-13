@@ -65,12 +65,6 @@ findFreetype() {
   printvar CONFIG_FREETYPE_CC4PY_DIR_ARG
 }
 
-#
-# Finding Freetype at time of sourcing not needed as done when setting
-# global vars.
-#
-# findFreetype
-
 ######################################################################
 #
 # Find freetype root directory.  Deprecated.

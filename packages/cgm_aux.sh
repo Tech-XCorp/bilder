@@ -32,9 +32,3 @@ findCgm() {
   findCc4pyDir Cgm
 }
 
-#
-# Find Cgm at time of sourcing, as installCgm not be called
-# if builds disabled
-#
-findCgm
-
