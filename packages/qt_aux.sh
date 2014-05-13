@@ -93,3 +93,8 @@ findQt() {
   return 0
 }
 
+#
+# Find Qt at time of sourcing, as installQt may not be called
+#
+findQt
+
