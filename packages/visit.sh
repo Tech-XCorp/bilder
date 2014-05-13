@@ -175,7 +175,7 @@ buildVisit() {
   techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 # Get mixed (CYGWIN) or native (OTHER) paths.
 # VISIT_PYTHON_DIR is already mixed.
-  if test -z $QT_BINDIR"; then
+  if test -z "$QT_BINDIR"; then
     source $BILDER_DIR/packages/qt_aux.sh
     findQt
   fi
@@ -379,7 +379,7 @@ installVisit() {
           techo "VisIt correctly created $visittopdir/current link."
         else
           techo "NOTE: current link absent in $visittopdir.  Creating." | tee -a $installfixfile
-          cmd="(cd $visittopdir; ln -s $VISIT_DISTVERSION current)"
+          # cmd="(cd $visittopdir; ln -s $VISIT_DISTVERSION current)"
           techo "$cmd" >>$installfixfile
           eval "$cmd"
         fi
