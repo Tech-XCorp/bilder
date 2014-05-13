@@ -40,20 +40,18 @@ findQt() {
   else
     libname=QtCore
   fi
-  findContribPackage Qt $libname cc4py
+  findContribPackage Qt $libname cc4py sersh
+  findCc4pyDir Qt
   if test -z "$QT_CC4PY_DIR"; then
-    findContribPackage Qt $libname sersh
-    if test -z "$QT_SERSH_DIR"; then
-      findContribPackage Qt $libname ser
-    fi
+    findContribPackage Qt $libname ser
   fi
   local qtdir=$QT_CC4PY_DIR
-  qtdir=${qtdir:-"$QT_SERSH_DIR"}
   qtdir=${qtdir:-"$QT_SER_DIR"}
   if test -n "$qtdir"; then
     QT_BINDIR=$qtdir/bin
     QMAKE=$qtdir/qmake
-    techo "Qt found in $CONTRIB_DIR.  Using QT_BINDIR = $QT_BINDIR."
+    techo "Qt found in $CONTRIB_DIR."
+    printvar QT_BINDIR
     addtopathvar PATH $QT_BINDIR
     techo "$QT_BINDIR added to path."
     return 0
