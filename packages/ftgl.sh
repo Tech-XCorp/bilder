@@ -40,23 +40,19 @@ buildFtgl() {
   case `uname` in
     CYGWIN*) ftconfigtype=-c
   esac
-# Find freetype
-  local freetype_rootdir=`findFreetypeRootdir`
-  if test -z "$freetype_rootdir"; then
-    techo "WARNING: [ftgl.sh] Could not find freetype."
-  fi
-  techo "freetype_rootdir = $freetype_rootdir."
 # Set options
   local ftconfigargs=
   local ftconfigenv=
   if test -z "$ftconfigtype"; then
     ftconfigargs="--enable-shared --without-x"
-    if test -n "$freetype_rootdir"; then
-      ftconfigargs="$ftconfigargs --with-ft-prefix=$freetype_rootdir"
+    if test -n "$FREETYPE_CC4PY_DIR"; then
+      ftconfigargs="$ftconfigargs --with-ft-prefix=$FREETYPE_CC4PY_DIR"
     fi
   else
     ftconfigargs="-DBUILD_SHARED_LIBS:BOOL=TRUE"
-    ftconfigenv="FREETYPE_DIR=$freetype_rootdir"
+    if test -n "$FREETYPE_CC4PY_DIR"; then
+      ftconfigenv="FREETYPE_DIR=$FREETYPE_CC4PY_DIR"
+    fi
   fi
   if bilderConfig $ftconfigtype ftgl $FORPYTHON_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
     bilderBuild ftgl $FORPYTHON_BUILD "" "ECHO=echo"
