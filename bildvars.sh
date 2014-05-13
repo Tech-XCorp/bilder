@@ -485,6 +485,7 @@ if $HAVE_SER_FORTRAN; then
       case "$gfortranversion" in
         4.[3-9].*)
           GFORTRAN_GOOD=true
+          techo "gfortran is of sufficiently high version."
           ;;
         *)
           techo "gfortran not of sufficiently high version."
@@ -517,10 +518,6 @@ if test `uname` = Linux; then
     LD_RUN_ARG="-e '$LD_RUN_VAR'"
   fi
 fi
-# Below works on benten
-PYC_BLDRVERSION=`$PYC_CC --version 2>&1 | head -1 | sed -e 's/^.* //'`
-# Below works on octet
-PYC_BLDRVERSION=`$PYC_CC --version 2>&1 | head -1 | sed -e 's/^.*CC) *//' -e 's/ .*$//'`
 
 ######################################################################
 #
