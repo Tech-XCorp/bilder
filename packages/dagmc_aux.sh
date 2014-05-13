@@ -22,10 +22,14 @@ getDagMcVersion
 
 # Compute vars that help to find dagmc
 findDagMc() {
-
 # Look for DagMc in the contrib directory
-  findPackage DagMc TKMath "$BLDR_INSTALL_DIR" cc4py sersh
+  findPackage DagMc dagsolid "$BLDR_INSTALL_DIR" cc4py sersh
   findCc4pyDir DagMc
-
 }
+
+#
+# Find DagMc at time of sourcing, as installDagMc may be called
+# if builds disabled
+#
+findDagMc
 

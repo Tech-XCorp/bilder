@@ -77,3 +77,9 @@ findOce() {
 
 }
 
+#
+# Find Oce at time of sourcing, as installOce may be called
+# if builds disabled
+#
+findOce
+

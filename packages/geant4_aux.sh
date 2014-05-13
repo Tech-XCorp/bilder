@@ -47,3 +47,9 @@ findGeant4() {
 
 }
 
+#
+# Find Geant4 at time of sourcing, as installGeant4 may be called
+# if builds disabled
+#
+findGeant4
+

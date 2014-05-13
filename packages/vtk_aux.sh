@@ -31,3 +31,9 @@ findVtk() {
   findCc4pyDir VTK
 }
 
+#
+# Find Vtk at time of sourcing, as installVtk may be called
+# if builds disabled
+#
+findVtk
+

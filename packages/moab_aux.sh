@@ -26,9 +26,14 @@ setMoabVersion
 #
 ######################################################################
 
-# Find the directory containing the OCE cmake files
 findMoab() {
   findPackage Moab MOAB "$BLDR_INSTALL_DIR" sersh cc4py
   findCc4pyDir Moab
 }
+
+#
+# Find Moab at time of sourcing, as installMoab may be called
+# if builds disabled
+#
+findMoab
 
