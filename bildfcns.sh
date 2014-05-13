@@ -2475,8 +2475,8 @@ findPackage() {
       eval ${pkgnameprefix}_${BLD}_LIBDIR=$alibdirval
       eval $alibvar=$alibval
       techo "Package ${pkgnameprefix}_${BLD} found."
-      techo "$adirvar = $adirval."
-      techo "$alibvar = $alibval."
+      printvar $adirvar
+      printvar $alibvar
     elif test -n "$adirval"; then
       techo "New build, ${pkgnameprefix}_${BLD}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."

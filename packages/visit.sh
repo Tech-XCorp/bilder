@@ -169,18 +169,18 @@ buildVisit() {
 # Set unix style directories
   VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
   local VISIT_NETCDF_DIR=
-  if test -d $CONTRIB_DIR/netcdf/lib; then
-    VISIT_NETCDF_DIR=$CONTRIB_DIR/netcdf
+  VISIT_NETCDF_DIR="$NETCDF_CC4PY_DIR"
   fi
   local VISIT_PYTHON_DIR="$PYTHON_DIR"
-# Find location of QT in unix file system
-  findQt
 # Find Vtk
   local VISIT_VTK_DIR=$CONTRIB_DIR/VTK-$FORPYTHON_BUILD
   techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
-
 # Get mixed (CYGWIN) or native (OTHER) paths.
 # VISIT_PYTHON_DIR is already mixed.
+  if test -z $QT_BINDIR"; then
+    source $BILDER_DIR/packages/qt_aux.sh
+    findQt
+  fi
   VISIT_QT_BIN="$QT_BINDIR"
   for i in VISIT_HDF5_DIR VISIT_NETCDF_DIR VISIT_QT_BIN VISIT_VTK_DIR; do
     local val=`deref $i`
