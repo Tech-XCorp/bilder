@@ -66,7 +66,21 @@ buildCgm() {
   fi
 
 # Set other args, env
-  local CGM_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
+  local CGM_ADDL_ARGS=
+  if $CGM_USE_CMAKE; then
+    CGM_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
+  else
+    :
+  fi
+
+# Configure and build args
+  local otherargs=`deref CGM_${CGM_BUILD}_OTHER_ARGS`
+  local CGM_CONFIG_ARGS=
+  if $CGM_USE_CMAKE; then
+    CGM_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargs"
+  else
+    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargs"
+  fi
 
 # When not all dependencies right on Windows, need nmake
   local makerargs=
@@ -78,7 +92,7 @@ buildCgm() {
   fi
 
 # Configure and build
-  if bilderConfig $cgmcmakearg cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $CGM_BUILD "$CGM_CONFIG_ARGS" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $CGM_BUILD "$makejargs" "$CGM_ENV"
   fi
 
