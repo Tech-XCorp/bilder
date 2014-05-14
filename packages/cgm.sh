@@ -70,7 +70,7 @@ buildCgm() {
   if $CGM_USE_CMAKE; then
     CGM_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
   else
-    :
+    CGM_ADDL_ARGS="--with-occ='$OCE_CC4PY_DIR'"
   fi
 
 # Configure and build args
