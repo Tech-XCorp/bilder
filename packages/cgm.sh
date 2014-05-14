@@ -100,7 +100,7 @@ buildCgm() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs -c cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
+  if bilderConfig -c cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $CGM_BUILD "$makejargs" "$CGM_ENV"
   fi
 
