@@ -91,3 +91,8 @@ findQt() {
   return 0
 }
 
+#
+# Looks like we have to find qt at sourcing
+#
+findQt
+
