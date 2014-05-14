@@ -48,43 +48,21 @@ setCgmGlobalVars
 #
 buildCgm() {
 
-# Get cgm from repo and remove any detritus
+# Get cgm from repo, determine whether to build
   updateRepo cgm
-  # rm -f $PROJECT_DIR/cgm/CMakeLists.txt.{orig,rej}
-
-# If no subdir, done.
-  if ! test -d $PROJECT_DIR/cgm; then
-    techo "WARNING: cgm dir not found. Building from package."
+  getVersion cgm
+  if ! bilderPreconfig $cgmcmakearg cgm; then
+    return 1
   fi
 
-# Get cgm
-  cd $PROJECT_DIR
-  local CGM_ADDL_ARGS=
-  local CGM_INSTALL_DIR=
-  if test -d cgm; then
-    getVersion cgm
-    local patchfile=
-    if $BUILD_EXPERIMENTAL; then
-      patchfile=$BILDER_DIR/patches/cgm-exp.patch
-    else
-      patchfile=$BILDER_DIR/patches/cgm-${CGM_BLDRVERSION}.patch
-    fi
-    if test -e $patchfile; then
-      CGM_PATCH=$patchfile
-      cmd="(cd $PROJECT_DIR/cgm; patch -N -p1 <$patchfile)"
-      techo "$cmd"
-      eval "$cmd"
-    fi
-    if ! bilderPreconfig -c cgm; then
-      return 1
-    fi
-    CGM_INSTALL_DIR="$BLDR_INSTALL_DIR/cgm-$CGM_BLDRVERSION-$CGM_BUILD"
-    techo "NOTE: cgm git repo found."
-  else
-    if ! bilderUnpack cgm; then
-      return 1
-    fi
-    CGM_INSTALL_DIR="$CONTRIB_DIR/cgm-$CGM_BLDRVERSION-$CGM_BUILD"
+# Whether using cmake
+  CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
+  if [[ `uname` =~ CYGWIN ]]; then
+    CGM_USE_CMAKE=true
+  fi
+  local cgmcmakearg=
+  if $CGM_USE_CMAKE; then
+    cgmcmakearg=-c
   fi
 
 # Set other args, env
@@ -100,7 +78,7 @@ buildCgm() {
   fi
 
 # Configure and build
-  if bilderConfig -c cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $CGM_BUILD "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $CGM_OTHER_ARGS" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $CGM_BUILD "$makejargs" "$CGM_ENV"
   fi
 

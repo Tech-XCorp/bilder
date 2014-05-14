@@ -44,8 +44,14 @@ setMoabGlobalVars
 
 buildMoab() {
 
-# Get moab from repo and remove any detritus
+# Get moab from repo, determine whether to build
   updateRepo moab
+  getVersion moab
+  if ! bilderPreconfig $moabcmakearg moab; then
+    return 1
+  fi
+
+# Whether using cmake
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
@@ -53,18 +59,6 @@ buildMoab() {
   local moabcmakearg=
   if $MOAB_USE_CMAKE; then
     moabcmakearg=-c
-  fi
-
-# Preconfig or unpack
-  if test -d $PROJECT_DIR/moab; then
-    getVersion moab
-    if ! bilderPreconfig $moabcmakearg moab; then
-      return 1
-    fi
-  else
-    if ! bilderUnpack moab; then
-      return 1
-    fi
   fi
 
 # Set other args, env
@@ -84,6 +78,15 @@ buildMoab() {
     MOAB_ENV="$MOAB_ENV LD_RUN_PATH='$HDF5_CC4PY_DIR/lib'"
   fi
 
+# Configure and build args
+  local otherargs=`deref MOAB_${MOAB_BUILD}_OTHER_ARGS`
+  local MOAB_CONFIG_ARGS=
+  if $MOAB_USE_CMAKE; then
+    MOAB_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
+  else
+    MOAB_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
+  fi
+
 # When not all dependencies right on Windows, need nmake
   local makerargs=
   local makejargs=
@@ -94,13 +97,6 @@ buildMoab() {
   fi
 
 # Configure and build
-  local otherargs=`deref MOAB_${MOAB_BUILD}_OTHER_ARGS`
-  local MOAB_CONFIG_ARGS=
-  if $MOAB_USE_CMAKE; then
-    MOAB_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
-  else
-    MOAB_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
-  fi
   if bilderConfig $makerargs $moabcmakearg moab $MOAB_BUILD "$MOAB_CONFIG_ARGS" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $MOAB_BUILD "$makejargs" "$MOAB_ENV"
   fi
