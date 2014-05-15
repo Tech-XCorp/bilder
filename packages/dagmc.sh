@@ -58,6 +58,9 @@ buildDagMc() {
     return
   fi
   getVersion dagmc
+  if ! bilderPreconfig dagmc; then
+    return
+  fi
 
 # If not all dependencies right on Windows, need nmake
   local makerargs=
