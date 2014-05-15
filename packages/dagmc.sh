@@ -30,8 +30,7 @@ source $mydir/dagmc_aux.sh
 
 setDagMcGlobalVars() {
 # Only the python build needed.
-  DAGMC_BUILD=$FORPYTHON_BUILD
-  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD"}
+  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD,batlab"}
   DAGMC_DEPS=geant4,moab
   DAGMC_UMASK=002
 }
@@ -69,9 +68,16 @@ buildDagMc() {
     makejargs="$DAGMC_MAKEJ_ARGS"
   fi
 
-# Configure and build
-  if bilderConfig $makerargs dagmc $DAGMC_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
-    bilderBuild $makerargs dagmc $DAGMC_BUILD "$makejargs" "$DAGMC_ENV"
+# Bilder build
+  local otherargs=`deref DAGMC_${FORPYTHON_BUILD}_OTHER_ARGS`
+  if bilderConfig $makerargs dagmc $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
+    bilderBuild $makerargs dagmc $FORPYTHON_BUILD "$makejargs" "$DAGMC_ENV"
+  fi
+
+# batlab build
+  local DAGMC_BATLAB_ADDL_ARGS="-DMOAB_DIR=$MOAB_CC4PY_DIR -DGEANT_DIR=$GEANT4_SERSH_DIR"
+  if bilderConfig $makerargs dagmc batlab "$CMAKE_COMPILERS_PYC $DAGMC_BATLAB_ADDL_ARGS $DAGMC_BATLAB_OTHER_ARGS" "" "$DAGMC_ENV"; then
+    bilderBuild $makerargs dagmc batlab "$makejargs" "$DAGMC_ENV"
   fi
 
 }
