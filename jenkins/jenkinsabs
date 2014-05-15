@@ -261,8 +261,9 @@ for absdir in $absdirs; do
   if $istopdir; then
 # -a/-t passed, so email this file to the specified email address.
 # Assuming sendmail exists.
-    if test -n "$projemail"; then
-      cmd="sendmail -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
+    SENDMAIL=`env PATH="$PATH":/usr/sbin:/usr/lib which sendmail 2>/dev/null`
+    if test -n "$projemail" -a -n "$SENDMAIL"; then
+      cmd="$SENDMAIL -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
       lecho "$cmd"
       eval "$cmd"
     fi
