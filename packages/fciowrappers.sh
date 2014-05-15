@@ -21,7 +21,10 @@ FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-"1.1.1-r175"}
 ######################################################################
 
 FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-"ser,par"}
-FCIOWRAPPERS_DEPS=hdf5,netcdf,openmpi
+FCIOWRAPPERS_DEPS=hdf5,openmpi
+# Right now netcdf has separated the C and fortran libraries 
+# which is a total pain so just skip it.
+#FCIOWRAPPERS_DEPS=hdf5,netcdf,openmpi
 
 ######################################################################
 #
