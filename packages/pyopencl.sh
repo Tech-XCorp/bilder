@@ -21,7 +21,17 @@ PYOPENCL_BLDRVERSION_STD=${PYOPENCL_BLDRVERSION_STD:-"2013.2"}
 ######################################################################
 
 PYOPENCL_BUILDS=${PYOPENCL_BUILDS:-"cc4py"}
-PYOPENCL_DEPS=
+# DM 5/15/2014:
+# PyOpenCL depends on an OpenCL platform.  However, they're are many
+# different choices available and there is no reasonable default.
+# Therefore I leave OpenCL out of the PYOPENCL_DEPS for now. Building
+# will fail if no OpenCL platform can be found.  Typical choices for
+# OpenCL platforms would be:
+# NVIDIA GPU machines: cuda toolkit
+# AMD GPU machines: AMD APP SDK
+# CPU only: AMD APP SDK or intel OpenCL SDK
+# Altera FPGA: Altera OpenCL SDK
+PYOPENCL_DEPS=boost
 
 ######################################################################
 #
