@@ -75,8 +75,8 @@ buildDagMc() {
   fi
 
 # batlab build
-  local DAGMC_BATLAB_ADDL_ARGS="-DMOAB_DIR=$MOAB_CC4PY_DIR -DGEANT_DIR=$GEANT4_SERSH_DIR"
-  if bilderConfig $makerargs dagmc batlab "$CMAKE_COMPILERS_PYC $DAGMC_BATLAB_ADDL_ARGS $DAGMC_BATLAB_OTHER_ARGS" "" "$DAGMC_ENV"; then
+  local DAGMC_BATLAB_ADDL_ARGS="-DMOAB_DIR=$MOAB_CC4PY_DIR -DGEANT_DIR=$GEANT4_CC4PY_DIR"
+  if bilderConfig $makerargs -T Geant4/dagsolid dagmc batlab "$CMAKE_COMPILERS_PYC $DAGMC_BATLAB_ADDL_ARGS $DAGMC_BATLAB_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc batlab "$makejargs" "$DAGMC_ENV"
   fi
 

@@ -2439,7 +2439,8 @@ findPackage() {
     alibdirval=${adirval}/lib
     if test -d $alibdirval; then
       alibdirval=`(cd $alibdirval; pwd -P)`
-      techo "Found $alibdirval."
+    elif test -d $adirval/lib64; then
+      alibdirval=`(cd $adirval/lib64; pwd -P)`
     elif test -n "$adirval" -a -d "$adirval"; then
       techo "Using $adirvar = $adirval."
       eval HAVE_${pkgnameprefix}_$BLD=true
@@ -2447,6 +2448,9 @@ findPackage() {
       techo "Directory $adirvar not set, and $alibdirval not found. Setting HAVE_${pkgnameprefix}_$BLD to false."
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
+    fi
+    if test -n "$alibdirval"; then
+      techo "Found library directory, $alibdirval."
     fi
 
 # Look for the library
