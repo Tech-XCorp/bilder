@@ -46,8 +46,9 @@ buildNetcdf() {
     return
   fi
 
-# Combine other desired flags
-  local NETCDF_ADDL_ARGS="-DENABLE_DAP:BOOL=OFF -DBUILD_UTILITIES:BOOL=ON"
+# Combine other desired args.  Last arg needed only for shared Linux, but
+# not harmful to add.
+  local NETCDF_ADDL_ARGS="-DENABLE_DAP:BOOL=OFF -DBUILD_UTILITIES:BOOL=ON -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
 
   case `uname` in
     CYGWIN*)
@@ -79,6 +80,10 @@ buildNetcdf() {
           ;;
       esac
       NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SERSH_CMAKE_DIR'"
+# Just adding the following is enough
+      # NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+# Following not needed.  Saving as a reminder for now.
+      # NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING=\"-Wl,-rpath,'$HDF5_CC4PY_DIR/lib'\""
       ;;
   esac
 
