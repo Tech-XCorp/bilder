@@ -80,10 +80,9 @@ buildNetcdf() {
           ;;
       esac
       NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SERSH_CMAKE_DIR'"
-# Just adding the following is enough
-      # NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-# Following not needed.  Saving as a reminder for now.
-      # NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING=\"-Wl,-rpath,'$HDF5_CC4PY_DIR/lib'\""
+# MAKE_INSTALL_RPATH_USE_LINK_PATH seems not enough, so adding following
+      NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING=\"-Wl,-rpath,'$HDF5_SERSH_DIR/lib'\""
+      NETCDF_CC4PY_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING=\"-Wl,-rpath,'$HDF5_CC4PY_DIR/lib'\""
       ;;
   esac
 
@@ -103,7 +102,7 @@ buildNetcdf() {
   fi
 
 # For python build
-  if bilderConfig -c netcdf cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_ADDL_ARGS $NETCDF_CC4PY_OTHER_ARGS"; then
+  if bilderConfig -c netcdf cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CC4PY_ADDL_ARGS $NETCDF_CC4PY_OTHER_ARGS"; then
     bilderBuild netcdf cc4py
   fi
 
