@@ -16,19 +16,8 @@
 #
 ######################################################################
 
-# version 1_50_0 does not build with Intel compiler on windows (Pletzer)
-# 1_55_0 must be patched to build with NO_COMPRESSION:
-#   https://svn.boost.org/trac/boost/ticket/9156
-BOOST_BLDRVERSION_STD=1_53_0
-
-# Boost 1_55_0 does not build using gcc 4.1.2, nor does it seem to build
-# on Lion and Snow Leopard.
-#
-# Ted will build gcc 4.2.4 on qalinux, and we'll perhaps install gcc on
-# the Macs (instead of LLVM), but for now we're sticking with boost 1_53_0.
-
-BOOST_BLDRVERSION_EXP=1_53_0
-#BOOST_BLDRVERSION_EXP=1_55_0
+mydir=`dirname $BASH_SOURCE`
+source $mydir/boost_aux.sh
 
 ######################################################################
 #
@@ -220,8 +209,8 @@ installBoost() {
     esac
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
-      findBoost
     fi
   done
+  findBoost
 }
 
