@@ -2849,22 +2849,6 @@ findBlasLapack() {
 }
 
 #
-# Find the BOOST includes
-#
-findBoost() {
-  if test -z "$BOOST_BLDRVERSION"; then
-    source $BILDER_DIR/packages/boost.sh
-  fi
-  if test -L $CONTRIB_DIR/boost -o -d $CONTRIB_DIR/boost; then
-    local boostincdir=`(cd $CONTRIB_DIR/boost/include; pwd -P)`
-    if [[ `uname` =~ CYGWIN ]]; then
-      boostincdir=`cygpath -am $boostincdir`
-    fi
-    BOOST_INCDIR_ARG="-DBoost_INCLUDE_DIR='$boostincdir'"
-  fi
-}
-
-#
 # Find a the cc4py build of a package that may be in the contrib dir
 # by using that value, or sersh if not present, then ser
 #
@@ -4117,6 +4101,10 @@ bilderConfig() {
     cmval=cmake
   fi
   if test -z "$configexec"; then
+    if test "$cmval" = cmake; then
+      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Location of cmake not found. PATH = $PATH."
+      terminate
+    fi
     techo "No configure system found for $1-$2.  Assuming no need."
     return 0
   fi

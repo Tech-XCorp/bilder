@@ -12,8 +12,8 @@
 #
 ######################################################################
 
-CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"2.8.12.1"}
-CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/cmake_aux.sh
 
 ######################################################################
 #
@@ -21,10 +21,13 @@ CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
 #
 ######################################################################
 
-CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
-CMAKE_DEPS=${CMAKE_DEPS:-""}
-CMAKE_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/cmake/bin
+setCmakeGlobalVars() {
+  CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
+  CMAKE_DEPS=${CMAKE_DEPS:-""}
+  CMAKE_UMASK=002
+  addtopathvar PATH $CONTRIB_DIR/cmake/bin
+}
+setCmakeGlobalVars
 
 ######################################################################
 #
@@ -44,6 +47,7 @@ buildCmake() {
   local CONFIGURE_ARGS=
   CMAKE_BILDER_ENV=
   if cmakepath=`which cmake 2>/dev/null`; then
+    findCmake
     local cmakever=`"$cmakepath" --version | sed 's/^cmake version //'`
     techo "$cmakepath is version $cmakever."
     case "$cmakever" in
@@ -205,6 +209,7 @@ installCmake() {
   fi
 
 # Recompute cmake
-  CMAKE=`which cmake`
+  findCmake
+
 }
 
