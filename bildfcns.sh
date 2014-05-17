@@ -7206,9 +7206,11 @@ getDeps() {
     fi
 # If first package has no builds, then neither it nor its dependents
 # matter at this point, so pull out of resulting packages
+# Not true: packages could contain data by dependents so will need BuildChain
+# to source them.  May need to remove 4 next lines.
     if test -z "$builds" -o "$builds" = NONE; then
-      techo "Package $pkg has no builds.  No further analysis needed." 1>&2
-      rempkgs=`echo ' '$rempkgs' ' | sed -e "s/ $pkg / /"`
+      techo "Package $pkg has no builds.  No analysis of deps needed." 1>&2
+      # rempkgs=`echo ' '$rempkgs' ' | sed -e "s/ $pkg / /"`
       continue
     fi
     techo "Package $pkg has builds, $builds.  Following dependencies." 1>&2
