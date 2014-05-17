@@ -83,9 +83,6 @@ buildMoab() {
     esac
   fi
   local MOAB_ENV=
-  if [[ `uname` =~ Linux ]]; then
-    MOAB_ENV="$MOAB_ENV LD_RUN_PATH='$HDF5_CC4PY_DIR/lib'"
-  fi
 
 # Configure and build args
   local otherargs=`deref MOAB_${MOAB_BUILD}_OTHER_ARGS`
