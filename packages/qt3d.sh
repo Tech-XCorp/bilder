@@ -64,9 +64,11 @@ buildQt3d() {
 
   local makerargs=
   case `uname` in
-    CYGWIN*) case `uname -m` in
-               i686) makerargs="-m nmake";;
-             esac;;
+    CYGWIN*)
+      case `uname -m` in
+        i686) makerargs="-m nmake";;
+      esac
+      ;;
   esac
 
   if bilderConfig $makerargs -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
