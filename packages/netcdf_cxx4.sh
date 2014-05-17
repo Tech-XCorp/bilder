@@ -25,11 +25,12 @@ setNetcdf_cxx4GlobalVars() {
   if test -z "$NETCDF_CXX4_BUILDS"; then
     NETCDF_CXX4_BUILDS=ser,sersh
     if [[ `uname` =~ CYGWIN ]]; then
-      NETCDF_CXX4_BUILDS=$NETCDF_CXX4_BUILDS,sermd
+      # NETCDF_CXX4_BUILDS=$NETCDF_CXX4_BUILDS,sermd
+      NETCDF_CXX4_BUILDS=NONE
     fi
     addCc4pyBuild netcdf_cxx4
   fi
-  NETCDF_CXX4_DEPS="hdf5,cmake"
+  NETCDF_CXX4_DEPS="netcdf,hdf5,cmake"
   NETCDF_CXX4_UMASK=002
 }
 setNetcdf_cxx4GlobalVars
@@ -48,8 +49,9 @@ buildNetcdf_cxx4() {
 
 # Combine other desired args.  Last arg needed only for shared Linux, but
 # not harmful to add.
-  local NETCDF_CXX4_ADDL_ARGS="-DENABLE_DAP:BOOL=OFF -DBUILD_UTILITIES:BOOL=ON -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+  # local NETCDF_CXX4_ADDL_ARGS="-DENABLE_DAP:BOOL=OFF -DBUILD_UTILITIES:BOOL=ON -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
 
+if false; then
   case `uname` in
     CYGWIN*)
 # JRC: netcdf_cxx4-4 is disabled because of all the complications of finding
@@ -86,24 +88,28 @@ buildNetcdf_cxx4() {
       NETCDF_CXX4_CC4PY_ADDL_ARGS="${NETCDF_CXX4_CC4PY_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$HDF5_CC4PY_DIR/lib'"
       ;;
   esac
+fi
 
 # Serial build
-  if bilderConfig -c netcdf_cxx4 ser "-DNC_USE_STATIC_CRT:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=OFF $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_SER_ADDL_ARGS $NETCDF_CXX4_SER_OTHER_ARGS"; then
+  if bilderConfig netcdf_cxx4 ser "--disable-shared --enable-static $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_SER_ADDL_ARGS $NETCDF_CXX4_SER_OTHER_ARGS"; then
     bilderBuild netcdf_cxx4 ser
   fi
 
 # Serial shared build
-  if bilderConfig -c netcdf_cxx4 sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_SERSH_ADDL_ARGS $NETCDF_CXX4_SERSH_OTHER_ARGS"; then
+  if bilderConfig  netcdf_cxx4 sersh "--enable-shared --disable-static $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_SERSH_ADDL_ARGS $NETCDF_CXX4_SERSH_OTHER_ARGS"; then
     bilderBuild netcdf_cxx4 sersh
   fi
 
+# Disabling as autotools
+if false; then
 # Serial shared runtime build
-  if bilderConfig -c netcdf_cxx4 sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=OFF $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_SERMD_ADDL_ARGS $NETCDF_CXX4_SERMD_OTHER_ARGS"; then
+  if bilderConfig netcdf_cxx4 sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DBUILD_SHARED_LIBS:BOOL=OFF $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_SERMD_ADDL_ARGS $NETCDF_CXX4_SERMD_OTHER_ARGS"; then
     bilderBuild netcdf_cxx4 sermd
   fi
+fi
 
 # For python build
-  if bilderConfig -c netcdf_cxx4 cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_CC4PY_ADDL_ARGS $NETCDF_CXX4_CC4PY_OTHER_ARGS"; then
+  if bilderConfig netcdf_cxx4 cc4py "-DBUILD_SHARED_LIBS:BOOL=ON $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_CXX4_CC4PY_ADDL_ARGS $NETCDF_CXX4_CC4PY_OTHER_ARGS"; then
     bilderBuild netcdf_cxx4 cc4py
   fi
 

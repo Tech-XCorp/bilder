@@ -72,10 +72,11 @@ buildNetcdf() {
 # On Linux netcdf 4.3.[0-2] does not get the order of hdf5 libraries correct
 # for ser.  Will have to check new versions as they come along.
       case $NETCDF_BLDRVERSION in
-        3.* | 4.3.[0-2])
+        3.* | 4.3.[0-1])
           NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
           ;;
-        *)
+        4.3.2)
+# Now patched to work with hdf5
           NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DHDF5_DIR:PATH='$HDF5_SER_CMAKE_DIR'"
           ;;
       esac
