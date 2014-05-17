@@ -32,3 +32,46 @@ diff -ruN netcdf-4.3.2/liblib/CMakeLists.txt netcdf-4.3.2-new/liblib/CMakeLists.
    ELSE() # Windows CMake defines HDF5_LIBRARIES.
      SET(TLL_LIBS ${HDF5_LIBRARIES} ${TLL_LIBS} ${SZIP_LIBRARY})
    ENDIF()
+diff -ruN netcdf-4.3.2/nc-config.in netcdf-4.3.2-new/nc-config.in
+--- netcdf-4.3.2/nc-config.in	2014-04-23 15:35:20.000000000 -0600
++++ netcdf-4.3.2-new/nc-config.in	2014-05-17 12:36:00.035718752 -0600
+@@ -11,7 +11,14 @@
+ 
+ cc="@CC@"
+ cflags=" -I${includedir} @CPPFLAGS@" 
+-libs="-L${libdir} @NC_LIBS@"
++if test -d ${exec_prefix}/lib; then
++  libdir=${exec_prefix}/lib
++  libs="-L${exec_prefix}/lib"
++elif test -d ${exec_prefix}/lib64; then
++  libs="-L${exec_prefix}/lib64"
++  libdir=${exec_prefix}/lib64
++fi
++libs="$libs @NC_LIBS@"
+ has_dap="@HAS_DAP@"
+ has_nc2="@HAS_NC2@"
+ has_nc4="@HAS_NC4@"
+diff -ruN netcdf-4.3.2/nc-config.in.cmake netcdf-4.3.2-new/nc-config.in.cmake
+--- netcdf-4.3.2/nc-config.in.cmake	2014-04-23 15:35:20.000000000 -0600
++++ netcdf-4.3.2-new/nc-config.in.cmake	2014-05-17 12:36:00.106652568 -0600
+@@ -6,12 +6,18 @@
+ 
+ prefix=@CMAKE_INSTALL_PREFIX@
+ exec_prefix=@CMAKE_INSTALL_PREFIX@
+-libdir=@CMAKE_INSTALL_PREFIX@/lib
+ includedir=@CMAKE_INSTALL_PREFIX@/include
+ 
+ cc="@CMAKE_C_COMPILER@"
+ cflags="-I@CMAKE_INSTALL_PREFIX@/include"
+-libs="-L@CMAKE_INSTALL_PREFIX@/lib @NC_LIBS@"
++if test -d @CMAKE_INSTALL_PREFIX@/lib; then
++  libdir=@CMAKE_INSTALL_PREFIX@/lib
++  libs="-L@CMAKE_INSTALL_PREFIX@/lib"
++elif test -d @CMAKE_INSTALL_PREFIX@/lib64; then
++  libs="-L@CMAKE_INSTALL_PREFIX@/lib64"
++  libdir=@CMAKE_INSTALL_PREFIX@/lib64
++fi
++libs="$libs @NC_LIBS@"
+ 
+ has_dap="@USE_DAP@"
+ if [ -z $has_dap ]; then
