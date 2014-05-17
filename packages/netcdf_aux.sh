@@ -27,7 +27,7 @@ getNetcdfVersion
 findNetcdf() {
 
 # Find installation directories
-  findContribPackage Netcdf netcdf ser sersh cc4py
+  findContribPackage Netcdf netcdf ser sersh par cc4py
   local builds="ser sersh cc4py"
   if [[ `uname` =~ CYGWIN ]]; then
     findContribPackage Netcdf netcdf sermd
