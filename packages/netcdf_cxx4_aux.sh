@@ -27,13 +27,13 @@ getNetcdf_cxx4Version
 findNetcdf_cxx4() {
 
 # Find installation directories
-  findContribPackage Netcdf_cxx4 netcdf_cxx4 ser sersh cc4py
+  findContribPackage Netcdf_cxx4 netcdf_cxx4 ser par
   local builds="ser sersh cc4py"
-  if [[ `uname` =~ CYGWIN ]]; then
-    findContribPackage Netcdf_cxx4 netcdf_cxx4 sermd
-    builds="$builds sermd"
-  fi
-  findCc4pyDir Netcdf_cxx4
+  # if [[ `uname` =~ CYGWIN ]]; then
+    # findContribPackage Netcdf_cxx4 netcdf_cxx4 sermd
+    # builds="$builds sermd"
+  # fi
+  # findCc4pyDir Netcdf_cxx4
 
 # Find cmake configuration directories
   for bld in $builds; do
