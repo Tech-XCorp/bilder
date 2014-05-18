@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for zlib
+# Build information for zlib
 #
 # $Id$
 #
@@ -8,32 +8,24 @@
 
 ######################################################################
 #
-# Version:
-#
-# Look at http://gitorious.org/zlib/ for cmake progress
+# Trigger variables set in zlib_aux.sh
 #
 ######################################################################
 
-ZLIB_BLDRVERSION=${ZLIB_BLDRVERSION:-"1.2.6"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/zlib_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$ZLIB_BUILDS"; then
-# zlib needed only on windows
-  if [[ `uname` =~ CYGWIN ]]; then
-    ZLIB_DESIRED_BUILDS=${ZLIB_DESIRED_BUILDS:-"ser,sersh,sermd"}
-    computeBuilds zlib
-    addCc4pyBuild zlib
-  fi
-fi
-ZLIB_DEPS=cmake
-ZLIB_UMASK=002
-# This is needed for Windows to get the right dll
-addtopathvar PATH $CONTRIB_DIR/zlib-${FORPYTHON_BUILD}/bin
+setZlibNonTriggerVars() {
+  ZLIB_UMASK=002
+}
 
 ######################################################################
 #

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for openmpi
+# Build information for openmpi
 #
 # $Id$
 #
@@ -8,19 +8,22 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in open_aux.sh
 #
 ######################################################################
 
-OPENMPI_BLDRVERSION_STD=1.6.5
-OPENMPI_BLDRVERSION_EXP=1.6.5
+mydir=`dirname $BASH_SOURCE`
+source $mydir/openmpi_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
+setOpenmpiNonTriggerVars() {
 if test -z "$OPENMPI_BUILDS"; then
   if $BUILD_MPIS; then
     case `uname` in
@@ -34,7 +37,9 @@ if test -z "$OPENMPI_BUILDS"; then
   fi
 fi
 OPENMPI_DEPS=valgrind,doxygen,libtool,automake
-OPENMPI_UMASK=002
+  OPENMPI_UMASK=002
+}
+setOpenmpiNonTriggerVars
 
 ######################################################################
 #
@@ -221,6 +226,7 @@ installOpenmpi() {
     MPICXX=`basename "$MPICXX"`
     MPIFC=`basename "$MPIFC"`
     MPIF77=`basename "$MPIF77"`
+    findOpenmpi
     findParallelFcComps
     getCombinedCompVars
   fi

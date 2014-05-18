@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for oce
+# Build information for oce
 #
 # $Id$
 #
