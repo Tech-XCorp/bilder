@@ -20,7 +20,6 @@ getCmakeTriggerVars() {
   CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
   CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
   CMAKE_DEPS=
-  addtopathvar PATH $CONTRIB_DIR/cmake/bin
 }
 getCmakeTriggerVars
 
@@ -31,6 +30,7 @@ getCmakeTriggerVars
 ######################################################################
 
 findCmake() {
+  addtopathvar PATH $CONTRIB_DIR/cmake/bin
   CMAKE=`which cmake`
 }
 

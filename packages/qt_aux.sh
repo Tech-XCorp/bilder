@@ -50,9 +50,14 @@ setQtTriggerVars() {
   QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
   QT_BUILD=$FORPYTHON_BUILD
   QT_DEPS=bzip2
-  addtopathvar PATH $CONTRIB_DIR/qt-$FORPYTHON_BUILD/bin
 }
 setQtTriggerVars
+
+######################################################################
+#
+# Set paths and variables that change after a build
+#
+######################################################################
 
 #
 # print Qt vars
@@ -64,9 +69,6 @@ printQtVars() {
   done
 }
 
-#
-# Find the QT packages
-#
 findQt() {
 
 # Try accepting what the user specified

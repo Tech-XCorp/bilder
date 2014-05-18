@@ -23,7 +23,16 @@ setBzip2TriggerVars() {
     fi
   fi
   BZIP2_DEPS=
-  addtopathvar PATH $CONTRIB_DIR/bzip2/bin
 }
 setBzip2TriggerVars
+
+######################################################################
+#
+# Set paths and variables that change after a build
+#
+######################################################################
+
+findBzip2() {
+  addtopathvar PATH $CONTRIB_DIR/bzip2/bin
+}
 

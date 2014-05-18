@@ -72,5 +72,6 @@ installBzip2() {
     PREFIX=`cygpath -aw $PREFIX`
   fi
   bilderInstall bzip2 ser bzip2 "$BZIP2_MAKE_ARGS PREFIX='$PREFIX'"
+  findBzip2
 }
 
