@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for visit.
+# Build information for visit
 #
 # See http://portal.nersc.gov/svn/visit/branches/txc/README
 # for the branch usage for Composer.
@@ -11,11 +11,12 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in visit_aux.sh
 #
 ######################################################################
 
-VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/visit_aux.sh
 
 ######################################################################
 #
@@ -23,22 +24,10 @@ VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 #
 ######################################################################
 
-setVisItGlobalVars() {
-# VisIt is built the way python is built.
-  if test -z "$VISIT_DESIRED_BUILDS"; then
-    VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
-    if isCcCc4py; then
-      if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
-        VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
-      fi
-    fi
-  fi
-  computeBuilds visit
-  VISIT_SER_BUILD=$FORPYTHON_BUILD
-  VISIT_DEPS=VTK,Imaging,numpy,Python,qt,hdf5,cmake
+setVisItNonTriggerVars() {
   VISIT_UMASK=002
 }
-setVisItGlobalVars
+setVisItNonTriggerVars
 
 ######################################################################
 #
@@ -503,6 +492,7 @@ installVisit() {
 
 # Restore umask
   umask $umasksav
+  findVisit
 
 }
 
