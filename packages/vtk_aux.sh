@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and find information for vtk
+# Trigger vars and find information
 #
 # $Id$
 #
@@ -8,15 +8,20 @@
 
 ######################################################################
 #
-# Version.
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-getVtkVersion() {
+getVtkTriggerVars() {
   VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
-  VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
+  VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
+  VTK_BUILD=$FORPYTHON_BUILD
+  VTK_DEPS=cmake
 }
-getVtkVersion
+getVtkTriggerVars
 
 ######################################################################
 #

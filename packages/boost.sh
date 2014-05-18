@@ -1,18 +1,18 @@
 #!/bin/bash
 #
-# Version and build information for boost
-#
-# $Id$
+# Build information for boost
 #
 # ./bootstrap.sh -show-libraries
 # ./b2 --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi stage
 # ./b2 --prefix=/contrib/boost-1_50_0-ser --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi install
 #
+# $Id$
+#
 ######################################################################
 
 ######################################################################
 #
-# Version
+# Trigger variables set in boost_aux.sh
 #
 ######################################################################
 
@@ -21,22 +21,16 @@ source $mydir/boost_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setBoostGlobalVars() {
-  if test -z "$BOOST_DESIRED_BUILDS"; then
-    BOOST_DESIRED_BUILDS=ser,sersh
-  fi
-  computeBuilds boost
-  addCc4pyBuild boost
-# It does not hurt to add deps that do not get built
-# (e.g., Python on Darwin and CYGWIN).
-# Only certain builds depend on Python.
-  BOOST_DEPS=Python,bzip2
+setBoostNonTriggerVars() {
+  :
 }
-setBoostGlobalVars
+setBoostNonTriggerVars
 
 ######################################################################
 #

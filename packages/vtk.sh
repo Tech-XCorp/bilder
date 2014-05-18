@@ -10,14 +10,7 @@
 
 ######################################################################
 #
-# Version
-#
-# Putting the version information into vtk_aux.sh eliminates the
-# rebuild when one changes that file.  Of course, if the actual version
-# changes, or this file changes, there will be a rebuild.  But with
-# this one can change the experimental version without causing a rebuild
-# in a non-experimental Bilder run.  One can also change any auxiliary
-# functions without sparking a build.
+# Trigger variables set in vtk_aux.sh
 #
 ######################################################################
 
@@ -26,16 +19,16 @@ source $mydir/vtk_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setVtkGlobalVars() {
-  VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
-  VTK_BUILD=$FORPYTHON_BUILD
-  VTK_DEPS=cmake
+setVtkNonTriggerVars() {
+  VTK_NAME=${VTK_NAME:-"VTK"}  # Needed because of vtk -> VTK
 }
-setVtkGlobalVars
+setVtkNonTriggerVars
 
 ######################################################################
 #

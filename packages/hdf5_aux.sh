@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for hdf5
+# Trigger vars and find information
 #
 # $Id$
 #
@@ -10,11 +10,16 @@
 
 ######################################################################
 #
-# Version:
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-getHdf5Version() {
+getHdf5TriggerVars() {
+
+# Set the version
   case `uname` in
     CYGWIN*)
 # If you upgrade to a newer version of hdf5, first check a parallel run on
@@ -25,19 +30,38 @@ getHdf5Version() {
         HDF5_BLDRVERSION_STD=1.8.12
       fi
       ;;
-
     Darwin)
       case `uname -r` in
         13.*) HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
            *) HDF5_BLDRVERSION_STD=1.8.12;;	# Everything else
       esac
       ;;
-
     Linux) HDF5_BLDRVERSION_STD=1.8.12;;
   esac
   HDF5_BLDRVERSION_EXP=1.8.12
+
+# Set the builds.
+  if test -z "$HDF5_DESIRED_BUILDS"; then
+    HDF5_DESIRED_BUILDS=ser,par,sersh
+# No need for parallel shared, as MPI executables are built static.
+    case `uname`-${BILDER_CHAIN} in
+      CYGWIN*)
+        HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
+        if test "$VISUALSTUDIO_VERSION" = "10"; then
+# Python built with VS9, so need hdf5 build for that
+          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,cc4py"
+        fi
+        ;;
+    esac
+  fi
+  computeBuilds hdf5
+  addCc4pyBuild hdf5
+
+# Deps and other
+  HDF5_DEPS=openmpi,zlib,cmake,bzip2
+
 }
-getHdf5Version
+getHdf5TriggerVars
 
 ######################################################################
 #
@@ -88,6 +112,9 @@ findHdf5() {
       done
     fi
   done
+
+# Add to path
+  addtopathvar PATH $CONTRIB_DIR/hdf5/bin
 
 }
 

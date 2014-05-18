@@ -10,14 +10,7 @@
 
 ######################################################################
 #
-# Version
-#
-# Putting the version information into hdf5_aux.sh eliminates the
-# rebuild when one changes that file.  Of course, if the actual version
-# changes, or this file changes, there will be a rebuild.  But with
-# this one can change the experimental version without causing a rebuild
-# in a non-experimental Bilder run.  One can also change any auxiliary
-# functions without sparking a build.
+# Trigger variables set in hdf5_aux.sh
 #
 ######################################################################
 
@@ -26,32 +19,16 @@ source $mydir/hdf5_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setHdf5GlobalVars() {
-# Set the builds.
-  if test -z "$HDF5_DESIRED_BUILDS"; then
-    HDF5_DESIRED_BUILDS=ser,par,sersh
-# No need for parallel shared, as MPI executables are built static.
-    case `uname`-${BILDER_CHAIN} in
-      CYGWIN*)
-        HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
-        if test "$VISUALSTUDIO_VERSION" = "10"; then
-# Python built with VS9, so need hdf5 build for that
-          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,cc4py"
-        fi
-        ;;
-    esac
-  fi
-  computeBuilds hdf5
-  addCc4pyBuild hdf5
-  HDF5_DEPS=openmpi,zlib,cmake,bzip2
+setHdf5NonTriggerVars() {
   HDF5_UMASK=002
-  addtopathvar PATH $CONTRIB_DIR/hdf5/bin
 }
-setHdf5GlobalVars
+setHdf5NonTriggerVars
 
 ######################################################################
 #

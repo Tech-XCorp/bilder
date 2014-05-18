@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for netcdf
+# Build information for cmake
 #
 # $Id$
 #
