@@ -19,7 +19,7 @@ getVtkTriggerVars() {
   VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
   VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
   VTK_BUILD=$FORPYTHON_BUILD
-  VTK_DEPS=cmake
+  VTK_DEPS=qt,cmake
 }
 getVtkTriggerVars
 
