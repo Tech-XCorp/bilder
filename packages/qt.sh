@@ -1,23 +1,6 @@
 # #!/bin/bash
 #
-# Version and build information for qt.  Latest source packages
-# available from http://get.qt.nokia.com/qt/source/.
-# 20121125: Moved to http://qt-project.org/downloads.
-#
-# These have to be unpacked and repacked for Bilder standards.  E.g.:
-#   tar xzf qt-everywhere-opensource-src-4.8.4.tar.gz
-#   mv qt-everywhere-opensource-src-4.8.4 qt-4.8.4
-#   tar --exclude '\._*' cjf qt-4.8.4.tar.bz2 qt-4.8.4
-# OR
-#   tar xzf qt-everywhere-opensource-src-5.0.0-beta2.tar.gz
-#   mv qt-everywhere-opensource-src-5.0.0-beta2 qt-5.0.0b2
-#   tar --exclude '\._*' cjf qt-5.0.0b2.tar.bz2 qt-5.0.0b2
-#
-# The args, --exclude '\._*', are needed to not put extended attributes
-#   files in the tarball on OS X.
-#
-# Tar up on an older dist, or one may get errors like
-# gtar: Ignoring unknown extended header keyword `SCHILY.dev'
+# Build information for qt.
 #
 # $Id$
 #
@@ -25,14 +8,7 @@
 
 ######################################################################
 #
-# Version
-#
-# Putting the version information into qt_aux.sh eliminates the
-# rebuild when one changes that file.  Of course, if the actual version
-# changes, or this file changes, there will be a rebuild.  But with
-# this one can change the experimental version without causing a rebuild
-# in a non-experimental Bilder run.  Auxiliary functions should also
-# go into qt_aux.
+# Trigger variables set in qt_aux.sh
 #
 ######################################################################
 
@@ -41,19 +17,16 @@ source $mydir/qt_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setQtGlobalVars() {
-# Only the python build is needed
-  QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
-  QT_BUILD=$FORPYTHON_BUILD
-  QT_DEPS=bzip2
+setQtNonTriggerVars() {
   QT_UMASK=002
-  addtopathvar PATH $CONTRIB_DIR/qt-$FORPYTHON_BUILD/bin
 }
-setQtGlobalVars
+setQtNonTriggerVars
 
 ######################################################################
 #
@@ -239,12 +212,12 @@ buildQt() {
 
 # Version dependent args
 # qt-5 configures differently
-# make -j does not work with 4.8.4, apparently.
+# make -j does not work with 4.8.6, apparently.
   case $QT_BLDRVERSION in
     5.*)
       QT_VERSION_ARGS="-developer-build"
       ;;
-    4.8.4)
+    4.8.6)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
       ;;
     4.*)

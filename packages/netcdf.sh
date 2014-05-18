@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for netcdf
+# Build information for netcdf
 #
 # $Id$
 #
@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in netcdf_aux.sh
 #
 ######################################################################
 
@@ -17,23 +17,16 @@ source $mydir/netcdf_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setNetcdfGlobalVars() {
-  if test -z "$NETCDF_BUILDS"; then
-# netcdf_cxx4 requires a parallel build
-    NETCDF_BUILDS=ser,sersh,par
-    if [[ `uname` =~ CYGWIN ]]; then
-      NETCDF_BUILDS=$NETCDF_BUILDS,sermd
-    fi
-    addCc4pyBuild netcdf
-  fi
-  NETCDF_DEPS="hdf5,cmake"
+setNetcdfNonTriggerVars() {
   NETCDF_UMASK=002
 }
-setNetcdfGlobalVars
+setNetcdfNonTriggerVars
 
 ######################################################################
 #

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for cmake
+# Build information for netcdf
 #
 # $Id$
 #
@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in cmake_aux.sh
 #
 ######################################################################
 
@@ -17,17 +17,16 @@ source $mydir/cmake_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setCmakeGlobalVars() {
-  CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
-  CMAKE_DEPS=${CMAKE_DEPS:-""}
+setCmakeNonTriggerVars() {
   CMAKE_UMASK=002
-  addtopathvar PATH $CONTRIB_DIR/cmake/bin
 }
-setCmakeGlobalVars
+setCmakeNonTriggerVars
 
 ######################################################################
 #

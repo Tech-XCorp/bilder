@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for bzip2
+# Build information for bzip2
 #
 # $Id$
 #
@@ -8,26 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in bzip2_aux.sh
 #
 ######################################################################
 
-BZIP2_BLDRVERSION=${BZIP2_BLDRVERSION:-"1.0.6"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/bzip2_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$BZIP2_BUILDS"; then
-  if [[ `uname` =~ CYGWIN ]]; then
-    BZIP2_BUILDS=ser
-  fi
-fi
-BZIP2_DEPS=
-BZIP2_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/bzip2/bin
+setBzip2NonTriggerVars() {
+  BZIP2_UMASK=002
+}
+setBzip2NonTriggerVars
 
 ######################################################################
 #

@@ -15,22 +15,15 @@
 #
 ######################################################################
 
-getCmakeTriggerVars() {
-  CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"2.8.12.1"}
-  CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
-  CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
-  CMAKE_DEPS=
-  addtopathvar PATH $CONTRIB_DIR/cmake/bin
+setBzip2TriggerVars() {
+  BZIP2_BLDRVERSION=${BZIP2_BLDRVERSION:-"1.0.6"}
+  if test -z "$BZIP2_BUILDS"; then
+    if [[ `uname` =~ CYGWIN ]]; then
+      BZIP2_BUILDS=ser
+    fi
+  fi
+  BZIP2_DEPS=
+  addtopathvar PATH $CONTRIB_DIR/bzip2/bin
 }
-getCmakeTriggerVars
-
-######################################################################
-#
-# Find CMake
-#
-######################################################################
-
-findCmake() {
-  CMAKE=`which cmake`
-}
+setBzip2TriggerVars
 

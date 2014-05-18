@@ -1,18 +1,40 @@
 # #!/bin/bash
 #
-# Auxiliary information for qt: anything that if changed should
-# not per se force a rebuild.  E.g., changing the version info
-# below will cause an appropriate rebuild anyway, but changing
-# this file will not.
+# Trigger vars and find information
+#
+# Latest source packages available from
+#   http://get.qt.nokia.com/qt/source/.
+#   20121125: Moved to http://qt-project.org/downloads.
+#
+# These have to be unpacked and repacked for Bilder standards.  E.g.:
+#   tar xzf qt-everywhere-opensource-src-4.8.6.tar.gz
+#   mv qt-everywhere-opensource-src-4.8.6 qt-4.8.6
+#   tar --exclude '\._*' cjf qt-4.8.6.tar.bz2 qt-4.8.6
+# OR
+#   tar xzf qt-everywhere-opensource-src-5.0.0-beta2.tar.gz
+#   mv qt-everywhere-opensource-src-5.0.0-beta2 qt-5.0.0b2
+#   tar --exclude '\._*' cjf qt-5.0.0b2.tar.bz2 qt-5.0.0b2
+#
+# The args, --exclude '\._*', are needed to not put extended attributes
+#   files in the tarball on OS X.
+#
+# Tar up on an older dist, or one may get errors like
+# gtar: Ignoring unknown extended header keyword `SCHILY.dev'
 #
 # $Id$
 #
 ######################################################################
 
+######################################################################
 #
-# Get the Qt version
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
 #
-getQtVersion() {
+######################################################################
+
+setQtTriggerVars() {
   case `uname`-`uname -r` in
     Darwin-13.*)
 # 4.8.4 and 4.8.5 do not build on Mavericks
@@ -25,8 +47,12 @@ getQtVersion() {
       ;;
   esac
   QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.6"}
+  QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
+  QT_BUILD=$FORPYTHON_BUILD
+  QT_DEPS=bzip2
+  addtopathvar PATH $CONTRIB_DIR/qt-$FORPYTHON_BUILD/bin
 }
-getQtVersion
+setQtTriggerVars
 
 #
 # print Qt vars

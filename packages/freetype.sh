@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for freetype
+# Build information for freetype
 #
 # $Id$
 #
@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version:
+# Trigger variables set in freetype_aux.sh
 #
 ######################################################################
 
@@ -17,36 +17,16 @@ source $mydir/freetype_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setFreetypeGlobalVars() {
-# freetype generally needed on windows
-  case `uname` in
-    CYGWIN*)
-      findFreetype
-      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-      ;;
-    Darwin | Linux)
-# Build on Linux or Darwin only if not found in system
-      findFreetype -s
-      if test -z "$FREETYPE_CC4PY_DIR"; then
-        techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
-        FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-      else
-        techo "System freetype found in $FREETYPE_CC4PY_DIR, will not build."
-      fi
-      ;;
-  esac
-  computeBuilds freetype
-  if test -n "$FREETYPE_BUILDS"; then
-    addCc4pyBuild freetype
-  fi
-  FREETYPE_DEPS=
+setFreetypeNonTriggerVars() {
   FREETYPE_UMASK=002
 }
-setFreetypeGlobalVars
+setFreetypeNonTriggerVars
 
 ######################################################################
 #

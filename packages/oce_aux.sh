@@ -1,19 +1,30 @@
 #!/bin/bash
 #
-# Version and find information for oce
+# Trigger vars and find information
 #
 # $Id$
 #
 ######################################################################
 
-getOceVersion() {
-  # OCE_BLDRVERSION=${OCE_BLDRVERSION:-"0.10.1-r747"}
+######################################################################
+#
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
+#
+######################################################################
+
+setOceTriggerVars() {
   OCE_REPO_URL=git://github.com/tpaviot/oce.git
   OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
   OCE_REPO_BRANCH_STD=OCE-0.14.1
   OCE_REPO_BRANCH_EXP=OCE-0.15
+  OCE_BUILD=$FORPYTHON_BUILD
+  OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
+  OCE_DEPS=freetype,cmake
 }
-getOceVersion
+setOceTriggerVars
 
 ######################################################################
 #

@@ -8,14 +8,7 @@
 
 ######################################################################
 #
-# Version
-#
-# Putting the version information into oce_aux.sh eliminates the
-# rebuild when one changes that file.  Of course, if the actual version
-# changes, or this file changes, there will be a rebuild.  But with
-# this one can change the experimental version without causing a rebuild
-# in a non-experimental Bilder run.  One can also change any auxiliary
-# functions without sparking a build.
+# Trigger variables set in oce_aux.sh
 #
 ######################################################################
 
@@ -24,18 +17,16 @@ source $mydir/oce_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setOceGlobalVars() {
-# Only the python build needed.
-  OCE_BUILD=$FORPYTHON_BUILD
-  OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
-  OCE_DEPS=freetype,cmake
+setOceNonTriggerVars() {
   OCE_UMASK=002
 }
-setOceGlobalVars
+setOceNonTriggerVars
 
 ######################################################################
 #
