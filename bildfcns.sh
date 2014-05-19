@@ -7353,7 +7353,8 @@ buildChain() {
     cd $PROJECT_DIR # Make sure at top
 
 # Determine package file
-    pkgfile=`echo $pkg | tr '[A-Z]' '[a-z]'`.sh
+    pkglc=`echo $pkg | tr '[A-Z]' '[a-z]'`
+    pkgfile=${pkglc}.sh
     if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$pkgfile; then
       pkgfile="$BILDER_CONFDIR/packages/$pkgfile"
     elif test -f $BILDER_DIR/packages/$pkgfile; then
@@ -7405,7 +7406,16 @@ buildChain() {
       exitOnError
     fi
     techo "--------> Executing $cmd <--------"
+# See whether findpkg method exists.  If so, execute.
     $cmd
+    local auxfile=${pkglc}_aux.sh
+    if test -f ${auxfile}; then
+      cmd=`grep -i "^ *find${pkg} *()" $pkgfile | sed 's/(.*$//'`
+      if test -n "$cmd"; then
+        techo "--------> Executing $cmd <--------"
+        $cmd
+      fi
+    fi
     techo "-----------------------------------${dashend}"
   done
 

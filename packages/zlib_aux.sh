@@ -36,6 +36,8 @@ setZlibTriggerVars() {
 
 findZlib() {
 # This is needed for Windows to get the right dll
+  findContribPackage zlib zlib sersh cc4py
+  findCc4pyDir zlib
   addtopathvar PATH $CONTRIB_DIR/zlib-${FORPYTHON_BUILD}/bin
 }
 
