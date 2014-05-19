@@ -8,44 +8,7 @@
 
 ######################################################################
 #
-# Set variables whose change should not trigger a rebuild or will
-# by value change trigger a rebuild, as change of this file will not
-# trigger a rebuild.
-# E.g: version, builds, deps, auxdata, paths, builds of other packages
-#
-######################################################################
-
-setFreetypeTriggerVars() {
-  FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
-  FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.5.2"}
-# freetype generally needed on windows
-  case `uname` in
-    CYGWIN*)
-      findFreetype
-      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-      ;;
-    Darwin | Linux)
-# Build on Linux or Darwin only if not found in system
-      findFreetype -s
-      if test -z "$FREETYPE_CC4PY_DIR"; then
-        techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
-        FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-      else
-        techo "System freetype found in $FREETYPE_CC4PY_DIR, will not build."
-      fi
-      ;;
-  esac
-  computeBuilds freetype
-  if test -n "$FREETYPE_BUILDS"; then
-    addCc4pyBuild freetype
-  fi
-  FREETYPE_DEPS=
-}
-setFreetypeTriggerVars
-
-######################################################################
-#
-# Find freetype.
+# Find freetype.  This is used below, so must be first.
 #
 # Named args (must come first):
 # -s  Look in system directories only
@@ -89,6 +52,43 @@ findFreetype() {
   printvar CMAKE_FREETYPE_CC4PY_DIR_ARG
   printvar CONFIG_FREETYPE_CC4PY_DIR_ARG
 }
+
+######################################################################
+#
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
+#
+######################################################################
+
+setFreetypeTriggerVars() {
+  FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
+  FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.5.2"}
+# freetype generally needed on windows
+  case `uname` in
+    CYGWIN*)
+      findFreetype
+      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+      ;;
+    Darwin | Linux)
+# Build on Linux or Darwin only if not found in system
+      findFreetype -s
+      if test -z "$FREETYPE_CC4PY_DIR"; then
+        techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
+        FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+      else
+        techo "System freetype found in $FREETYPE_CC4PY_DIR, will not build."
+      fi
+      ;;
+  esac
+  computeBuilds freetype
+  if test -n "$FREETYPE_BUILDS"; then
+    addCc4pyBuild freetype
+  fi
+  FREETYPE_DEPS=
+}
+setFreetypeTriggerVars
 
 ######################################################################
 #
