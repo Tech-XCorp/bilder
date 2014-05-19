@@ -33,7 +33,7 @@ setVisItTriggerVars() {
   VISIT_SER_BUILD=$FORPYTHON_BUILD
   VISIT_DEPS=vtk,Imaging,numpy,Python,qt,hdf5,cmake
 }
-setVisItGlobalVars
+setVisItTriggerVars
 
 ######################################################################
 #
