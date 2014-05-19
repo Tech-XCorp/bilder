@@ -7353,12 +7353,15 @@ buildChain() {
     cd $PROJECT_DIR # Make sure at top
 
 # Determine package file
-    pkglc=`echo $pkg | tr '[A-Z]' '[a-z]'`
-    pkgfile=${pkglc}.sh
+    local pkglc=`echo $pkg | tr '[A-Z]' '[a-z]'`
+    local pkgfile=${pkglc}.sh
+    local auxfile=${pkglc}_aux.sh
     if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$pkgfile; then
       pkgfile="$BILDER_CONFDIR/packages/$pkgfile"
+      auxfile="$BILDER_CONFDIR/packages/$auxfile"
     elif test -f $BILDER_DIR/packages/$pkgfile; then
       pkgfile="$BILDER_DIR/packages/$pkgfile"
+      auxfile="$BILDER_DIR/packages/$auxfile"
     else
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Bilder package file, $pkgfile, not found."
 # Cannot use cleanup here, as the print gives the dependencies
@@ -7408,13 +7411,17 @@ buildChain() {
     techo "--------> Executing $cmd <--------"
 # See whether findpkg method exists.  If so, execute.
     $cmd
-    local auxfile=${pkglc}_aux.sh
+# Now find
+    techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
-      cmd=`grep -i "^ *find${pkg} *()" $pkgfile | sed 's/(.*$//'`
+      techo "${auxfile} found."
+      cmd=`grep -i "^ *find${pkg} *()" $auxfile | sed 's/(.*$//'`
       if test -n "$cmd"; then
         techo "--------> Executing $cmd <--------"
         $cmd
       fi
+    else
+      techo "${auxfile} NOT found."
     fi
     techo "-----------------------------------${dashend}"
   done

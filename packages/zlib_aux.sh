@@ -27,6 +27,7 @@ setZlibTriggerVars() {
   fi
   ZLIB_DEPS=cmake
 }
+setZlibTriggerVars
 
 ######################################################################
 #
