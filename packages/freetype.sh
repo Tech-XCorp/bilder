@@ -103,8 +103,5 @@ installFreetype() {
     fi
   done
 
-# Find freetype
-  findFreetype
-
 }
 

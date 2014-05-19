@@ -205,6 +205,5 @@ installBoost() {
       setOpenPerms $boost_instdir
     fi
   done
-  findBoost
 }
 

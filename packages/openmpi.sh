@@ -226,7 +226,6 @@ installOpenmpi() {
     MPICXX=`basename "$MPICXX"`
     MPIFC=`basename "$MPIFC"`
     MPIF77=`basename "$MPIF77"`
-    findOpenmpi
     findParallelFcComps
     getCombinedCompVars
   fi

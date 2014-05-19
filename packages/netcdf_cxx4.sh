@@ -88,6 +88,5 @@ testNetcdf_cxx4() {
 #
 installNetcdf_cxx4() {
   bilderInstallAll netcdf_cxx4
-  findNetcdf_cxx4
 }
 

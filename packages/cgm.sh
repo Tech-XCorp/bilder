@@ -116,6 +116,5 @@ testCgm() {
 
 installCgm() {
   bilderInstallAll cgm
-  findCgm
 }
 

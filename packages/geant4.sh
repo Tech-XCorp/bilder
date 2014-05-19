@@ -73,6 +73,5 @@ testGeant4() {
 
 installGeant4() {
   bilderInstallAll geant4
-  findGeant4
 }
 
