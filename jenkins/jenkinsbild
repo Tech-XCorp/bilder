@@ -52,7 +52,7 @@ while getopts "d:E:hmnps:2f" arg; do
     p) PRINT_ONLY=true;;
     s) STEP=$OPTARG;;
     2) STEP=2
-       techo "WARNING: jenkinsbild arg -2 is the same as -s 2 and will be deprecated on Oct. 18, 2014";;
+       echo "WARNING: jenkinsbild arg -2 is the same as -s 2 and will be deprecated on Oct. 18, 2014";;
     f) FORCESTEP2=true;;
   esac
 done
