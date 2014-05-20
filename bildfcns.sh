@@ -7387,18 +7387,22 @@ buildChain() {
         exitOnError
       else
 # Determine the full list of builds
-         local bldsvar=`genbashvar ${pkg}`_BUILDS
-         local bldsval=`deref $bldsvar | tr ',' ' '`
-         techo "$bldsvar = $bldsval."
+        local bldsvar=`genbashvar ${pkg}`_BUILDS
+        local bldsval=`deref $bldsvar | tr ',' ' '`
+        techo "$bldsvar = $bldsval."
       fi
     fi
+    dobuild=true
+    if test -z "$bldsval" -o "$bldsval" = NONE; then
+      dobuild=false
+    fi
     techo "--------> Executing $cmd <--------"
-    $cmd
+    $dobuild && $cmd
     techo "---------------------------------${dashend}"
     cmd=`grep -i "^ *test${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -n "$cmd"; then
       techo "--------> Executing $cmd <--------"
-      $cmd
+      $dobuild && $cmd
       techo "--------------------------------${dashend}"
     else
       techo "WARNING: [$FUNCNAME] test method for $pkg not found."
@@ -7410,7 +7414,7 @@ buildChain() {
     fi
     techo "--------> Executing $cmd <--------"
 # See whether findpkg method exists.  If so, execute.
-    $cmd
+    $dobuild && $cmd
 # Now find
     techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
