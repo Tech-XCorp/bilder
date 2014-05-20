@@ -492,7 +492,6 @@ installVisit() {
 
 # Restore umask
   umask $umasksav
-  findVisit
 
 }
 

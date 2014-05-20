@@ -194,9 +194,6 @@ testVtk() {
 ######################################################################
 
 installVtk() {
-  if bilderInstall $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"; then
-    :
-  fi
-  findVtk
+  bilderInstall $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"
 }
 

@@ -96,6 +96,11 @@ buildOce() {
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
       ;;
+    Linux)
+      if test -n "$FREETYPE_CC4PY_DIR"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS  -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$FREETYPE_CC4PY_DIR/lib'"
+      fi
+      ;;
   esac
 
 # OCE does not have all dependencies right on Windows, so needs nmake
@@ -132,6 +137,5 @@ testOce() {
 
 installOce() {
   bilderInstallAll oce
-  findOce
 }
 

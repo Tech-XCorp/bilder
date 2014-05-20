@@ -103,6 +103,5 @@ testDagMc() {
 
 installDagMc() {
   bilderInstallAll dagmc
-  findDagMc
 }
 

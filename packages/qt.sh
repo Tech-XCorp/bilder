@@ -316,8 +316,5 @@ EOF
     fi
   fi
 
-# Find qt even if not installed as may have been installed before
-  findQt
-
 }
 

@@ -243,7 +243,4 @@ installHdf5() {
     fi
   done
 
-# Find hdf5
-  findHdf5
-
 }

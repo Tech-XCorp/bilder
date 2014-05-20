@@ -127,6 +127,5 @@ testMoab() {
 
 installMoab() {
   bilderInstallAll moab
-  findMoab
 }
 

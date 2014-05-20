@@ -207,8 +207,5 @@ installCmake() {
     $cmd
   fi
 
-# Recompute cmake
-  findCmake
-
 }
 

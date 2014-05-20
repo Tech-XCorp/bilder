@@ -90,6 +90,5 @@ testGras() {
 
 installGras() {
   bilderInstallAll gras
-  findGras
 }
 
