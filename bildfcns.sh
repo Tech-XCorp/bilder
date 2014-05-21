@@ -1480,7 +1480,7 @@ mkConfigScript() {
   local configure_txt=$1-$2-$3-config.txt
 # Make sure all scripts have the exact same length for sed below
   echo >> $configscript
-  if egrep -q "(^|/)cmake('| ) " $configure_txt; then
+  if egrep -q "(^|/)cmake('| )" $configure_txt; then
     echo "# Clear cmake cache to ensure a clean configure." >> $configscript
     echo "rm -rf CMakeFiles CMakeCache.txt" >> $configscript
     echo >> $configscript
