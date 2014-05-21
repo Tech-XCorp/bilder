@@ -7395,6 +7395,7 @@ buildChain() {
     dobuild=true
     if test -z "$bldsval" -o "$bldsval" = NONE; then
       dobuild=false
+      techo "No builds for $pkg.  Will not call $cmd."
     fi
     techo "--------> Executing $cmd <--------"
     $dobuild && $cmd
