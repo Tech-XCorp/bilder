@@ -7376,22 +7376,22 @@ buildChain() {
 # Cannot use cleanup here, as the print gives the dependencies
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exitOnError
-    else
-      techo "Using package file: $pkgfile"
     fi
-    if ! declare -f $cmd 1>/dev/null; then
+    techo "Using package file: $pkgfile"
+    if declare -f $cmd 1>/dev/null; then
+      techo "$cmd already known."
+    else
       cmd2="source $pkgfile"
       if ! $cmd2 1>&2; then
         techo "$cmd2" 1>&2
         TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Error in sourcing $pkgfile."
         exitOnError
-      else
-# Determine the full list of builds
-        local bldsvar=`genbashvar ${pkg}`_BUILDS
-        local bldsval=`deref $bldsvar | tr ',' ' '`
-        techo "$bldsvar = $bldsval."
       fi
     fi
+# Determine the full list of builds
+    local bldsvar=`genbashvar ${pkg}`_BUILDS
+    local bldsval=`deref $bldsvar | tr ',' ' '`
+    techo "$bldsvar = $bldsval."
     dobuild=true
     if test -z "$bldsval" -o "$bldsval" = NONE; then
       dobuild=false
