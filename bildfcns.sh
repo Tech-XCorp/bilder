@@ -7372,7 +7372,7 @@ buildChain() {
 # Look for commands and execute
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Build method for $pkg not found."
+      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Build method for $pkg not found in $pkgfile."
 # Cannot use cleanup here, as the print gives the dependencies
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exitOnError
@@ -7395,40 +7395,50 @@ buildChain() {
     dobuild=true
     if test -z "$bldsval" -o "$bldsval" = NONE; then
       dobuild=false
+    fi
+    if $dobuild; then
+      techo "--------> Executing $cmd <--------"
+      $cmd
+      techo "---------------------------------${dashend}"
+    else
       techo "No builds for $pkg.  Will not call $cmd."
     fi
-    techo "--------> Executing $cmd <--------"
-    $dobuild && $cmd
-    techo "---------------------------------${dashend}"
     cmd=`grep -i "^ *test${pkg} *()" $pkgfile | sed 's/(.*$//'`
-    if test -n "$cmd"; then
-      techo "--------> Executing $cmd <--------"
-      $dobuild && $cmd
-      techo "--------------------------------${dashend}"
-    else
-      techo "WARNING: [$FUNCNAME] test method for $pkg not found."
+    if $dobuild; then
+      if test -n "$cmd"; then
+        techo "--------> Executing $cmd <--------"
+        $cmd
+        techo "--------------------------------${dashend}"
+      else
+        techo -2 "WARNING: [$NOTE] test method for $pkg not found."
+      fi
     fi
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Install method for $pkg not found."
       exitOnError
     fi
-    techo "--------> Executing $cmd <--------"
+    if $dobuild; then
+      techo "--------> Executing $cmd <--------"
 # See whether findpkg method exists.  If so, execute.
-    $dobuild && $cmd
+      $cmd
+      techo "--------------------------------${dashend}"
+    fi
 # Now find
-    techo "auxfile = ${auxfile}."
+    # techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
-      techo "${auxfile} found."
+      # techo "${auxfile} found."
       cmd=`grep -i "^ *find${pkg} *()" $auxfile | sed 's/(.*$//'`
       if test -n "$cmd"; then
         techo "--------> Executing $cmd <--------"
         $cmd
+        techo "-----------------------------------${dashend}"
+      else
+        techo "NOTE: [$FUNCNAME] find$pkg not found in ${auxfile}."
       fi
     else
-      techo "${auxfile} NOT found."
+      techo -2 "NOTE: [$FUNCNAME] ${auxfile} not found."
     fi
-    techo "-----------------------------------${dashend}"
   done
 
 # Trying to trace down a de-installation of numpy
