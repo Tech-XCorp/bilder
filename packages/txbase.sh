@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for txbase
+# Build information for txbase
 #
 # $Id$
 #
@@ -8,16 +8,12 @@
 
 ######################################################################
 #
-# Version.  No current tarball, so always build from repo.
+# Trigger variables set in txbase_aux.sh
 #
 ######################################################################
 
-# NOTE: txbase is set to the following tarball version so that if a
-# project does not have txbase as an external repo, then this tarball
-# will be used instead. If you want to use the repo, make sure you have
-# txbase an external.
-
-# TXBASE_BLDRVERSION=${TXBASE_BLDRVERSION:-"2.9.1-r516"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/txbase_aux.sh
 
 ######################################################################
 #
@@ -25,29 +21,12 @@
 #
 ######################################################################
 
-setTxBaseGlobalVars() {
-  if test -z "$TXBASE_DESIRED_BUILDS"; then
-    TXBASE_DESIRED_BUILDS=ser,par,sersh
-    if [[ `uname` =~ CYGWIN ]]; then
-      TXBASE_DESIRED_BUILDS="${TXBASE_DESIRED_BUILDS},sermd"
-    fi
-    if echo $DOCS_BUILDS | egrep -q "(^|,)develdocs($|,)"; then
-      TXBASE_DESIRED_BUILDS=$TXBASE_DESIRED_BUILDS,develdocs
-    fi
-  fi
-  computeBuilds txbase
-  addCc4pyBuild txbase
-  TXBASE_DEPS=hdf5,Python,openmpi,cmake
-# On Windows, boost needed for some math functions
-  if [[ `uname` =~ CYGWIN ]]; then
-    TXBASE_DEPS=$TXBASE_DEPS,boost
-  fi
-  trimvar TXBASE_DEPS ','
+setTxbaseNonTriggerVars() {
   TXBASE_MASK=002
   TXBASE_TESTING=${TXBASE_TESTING:-"${TESTING_BUILDS}"}
   $TXBASE_TESTING && TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
 }
-setTxBaseGlobalVars
+setTxbaseNonTriggerVars
 
 ######################################################################
 #
