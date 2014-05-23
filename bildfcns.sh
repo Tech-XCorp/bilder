@@ -3217,6 +3217,22 @@ updateRepo() {
   techo "$cmd"
   eval "$cmd"
 
+# Determine whether changesets are available
+  rm -f chgsets
+  upurlvar=`genbashvar $pkg`_UPSTREAM_URL
+  upurlval=`deref $upurlvar`
+  if test -n "$upurlval"; then
+    case $scmexec in
+      hg) hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>chgsets;;
+      git) git fetch && git log ..origin/$branchval 2>/dev/null 1>chgsets;;
+    esac
+    if test -s chgsets; then
+      techo "WARNING: Changesets available for $pkg from $upurlval."
+    else
+      techo "No changesets available for $pkg from $upurlval."
+    fi
+  fi
+
 # Return to project dir
   cd $PROJECT_DIR
 
