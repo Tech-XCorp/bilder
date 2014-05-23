@@ -26,6 +26,7 @@ source $mydir/zlib_aux.sh
 setZlibNonTriggerVars() {
   ZLIB_UMASK=002
 }
+setZlibNonTriggerVars
 
 ######################################################################
 #
