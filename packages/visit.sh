@@ -26,6 +26,8 @@ source $mydir/visit_aux.sh
 
 setVisItNonTriggerVars() {
   VISIT_UMASK=002
+  VISIT_TESTING=${VISIT_TESTING:-"${TESTING_BUILDS}"}
+  $VISIT_TESTING && VISIT_CTEST_TARGET=${VISIT_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
 }
 setVisItNonTriggerVars
 
@@ -127,7 +129,7 @@ buildVisit() {
   local VISIT_ARCH=`getVisitArch`
 
 # Args for make and environment, and configuration file
-  local VISIT_MAKEARGS=       # This to be set as needed, since can fail
+  local VISIT_MAKEARGS=$VISIT_CTEST_TARGET
   local VISIT_ENV=
   local VISIT_MESA_DIR=
   case `uname` in
@@ -216,6 +218,7 @@ buildVisit() {
     Darwin) VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB";;
 
   esac
+  $VISIT_TESTING && VISIT_OS_ARGS="$VISIT_OS_ARGS -DBUILD_TESTING:BOOL=ON"
 
 # Build serial
   if bilderConfig -c visit $VISIT_SER_BUILD "-DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
@@ -262,7 +265,7 @@ buildVisit() {
 ######################################################################
 
 testVisit() {
-  techo "Not testing visit."
+  bilderRunTests -s visit ""
 }
 
 ######################################################################
