@@ -4256,6 +4256,11 @@ bilderConfig() {
       if test -n "$FQMAILHOST"; then
         configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
       fi
+# These args are needed by visit.  Adding them always for now
+      if test -n "$FQMAILHOST"; then
+        configargs="$configargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
+      fi
+      configargs="$configargs -DCTEST_BUILD_NAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-${CXX_VERSION}-${bld}'"
       if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
         srcarg=$PROJECT_DIR/$1/$srcsubdir
       elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
