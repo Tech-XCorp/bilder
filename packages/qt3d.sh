@@ -58,6 +58,15 @@ buildQt3d() {
     return 1
   fi
 
+# Patch qt3d with new camera params
+  QT3D_PATCH=$BILDER_DIR/patches/qt3d-${QT3D_BLDRVERSION}.patch
+  echo "QT3D_PATCH=${QT3D_PATCH}";
+  if test -e $QT3D_PATCH; then
+    cmd="(cd $PROJECT_DIR/qt3d; patch -N -p1 < ${QT3D_PATCH})"
+    echo "$cmd"
+    eval "$cmd"
+  fi
+
 # This is installed into qmake, which is in the contrib dir
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
 # Configure and build
