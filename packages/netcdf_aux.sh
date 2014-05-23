@@ -16,7 +16,7 @@
 ######################################################################
 
 setNetcdfTriggerVars() {
-  NETCDF_BLDRVERSION_STD="4.3.1"
+  NETCDF_BLDRVERSION_STD="4.3.2"
   NETCDF_BLDRVERSION_EXP="4.3.2"
   if test -z "$NETCDF_BUILDS"; then
 # netcdf_cxx4 requires a parallel build
