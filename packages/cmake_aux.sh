@@ -15,13 +15,13 @@
 #
 ######################################################################
 
-getCmakeTriggerVars() {
+setCmakeTriggerVars() {
   CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"2.8.12.1"}
   CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"2.8.12.1"}
   CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
   CMAKE_DEPS=
 }
-getCmakeTriggerVars
+setCmakeTriggerVars
 
 ######################################################################
 #
