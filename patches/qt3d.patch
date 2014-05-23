@@ -1,0 +1,37 @@
+--- qt3d/src/threed/viewing/qglview.cpp	2014-05-22 19:41:50.000000000 -0600
++++ qt3d/src/threed/viewing/qglview.cpp.other	2014-05-22 19:41:42.000000000 -0600
+@@ -52,6 +52,7 @@
+ #include <QtCore/qtimer.h>
+ #include <QtCore/qdatetime.h>
+ #include <QtCore/qdebug.h>
++#include <QtCore/qglobal.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+@@ -1379,17 +1380,20 @@
+     } else {
+         // enable this to get wheel navigation that actually zooms by moving the
+         // camera back, as opposed to making the angle of view wider.        
+-        QVector3D viewVector= camera()->eye() - camera()->center();
+-        qreal zoomMag = viewVector.length();
+-        qreal zoomIncrement = -float(delta) / 100.0f;
++        QVector3D viewVector= camera()->center() - camera()->eye();
++        //qreal zoomMag = viewVector.length();
++        qreal zoomIncrement = float(delta) / 100.0f;
++        zoomIncrement = qBound(-1.0f, float(zoomIncrement), 1.0f);
+         if (!qFuzzyIsNull(zoomIncrement))
+         {
+-            zoomMag += zoomIncrement;
++          #if 0
++            zoomMag *= zoomIncrement;
+             if (zoomMag < 1.0f)
+                 zoomMag = 1.0f;
++          #endif
+ 
+-            QRay3D viewLine(camera()->center(), viewVector.normalized());
+-            camera()->setEye(viewLine.point(zoomMag));
++            QRay3D viewLine(camera()->eye(), viewVector);
++            camera()->setEye(viewLine.point(zoomIncrement));
+         }
+     }
+ 
