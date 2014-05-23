@@ -1,0 +1,52 @@
+Index: visit/CMakeLists.txt
+===================================================================
+--- visit/CMakeLists.txt	(revision 23357)
++++ visit/CMakeLists.txt	(working copy)
+@@ -879,20 +879,36 @@
+     # * test data is generated from a set of programs
+     #   that need to be built, also not in the source tree,
+     #   but configured by this cmake lists file
+-    SET(VISIT_TEST_DIR "${VISIT_SOURCE_DIR}/../test"
++    if (NOT DEFINED VISIT_TEST_DIR)
++      SET(VISIT_TEST_DIR "${VISIT_SOURCE_DIR}/../test"
+         CACHE PATH "Path to VisIt's regression suite")
+-    SET(VISIT_BASELINE_DIR "${VISIT_SOURCE_DIR}/../test/baseline"
++    endif ()
++    message(STATUS "VISIT_TEST_DIR = ${VISIT_TEST_DIR}.")
++    IF (NOT EXISTS ${VISIT_TEST_DIR})
++      MESSAGE(FATAL_ERROR
++           "CTest based testing requires a checkout of trunk/test.  Specify location with VISIT_TEST_DIR.")
++    endif ()
++    if (NOT DEFINED VISIT_BASELINE_DIR)
++      SET(VISIT_BASELINE_DIR "${VISIT_TEST_DIR}/baseline"
+         CACHE PATH "Path to baseline images used by VisIt's regression suite")
+-    SET(VISIT_DATA_DIR "${CMAKE_BINARY_DIR}/data"
++    endif ()
++    message(STATUS "VISIT_BASELINE_DIR = ${VISIT_BASELINE_DIR}.")
++    IF (NOT EXISTS ${VISIT_BASELINE_DIR})
++      MESSAGE(FATAL_ERROR
++           "Baseline directory not found under ${VISIT_TEST_DIR}.  Error in
++checkout of trunk/test?")
++    endif ()
++    if (NOT DEFINED VISIT_DATA_DIR)
++      SET(VISIT_DATA_DIR "${VISIT_TEST_DIR}/../data"
+         CACHE PATH "Path to data used by VisIt's regression suite")
+-    # make it obvous if we do not have any of these, as
+-    # this will likely be a source of confusion for the
+-    # uninitiated
+-    IF ((NOT EXISTS ${VISIT_TEST_DIR}) OR (NOT EXISTS ${VISIT_BASELINE_DIR})
+-       OR ((NOT EXISTS ${VISIT_DATA_DIR}) AND (NOT EXISTS "${VISIT_SOURCE_DIR}/../data")))
+-        MESSAGE(FATAL_ERROR
+-           "CTest based testing requires a checkout of trunk/test and trunk/data")
+-    ENDIF()
++    endif ()
++    message(STATUS "VISIT_DATA_DIR = ${VISIT_DATA_DIR}.")
++    IF (NOT EXISTS ${VISIT_DATA_DIR})
++      MESSAGE(FATAL_ERROR
++           "CTest based testing requires a checkout of trunk/test.  Specify
++location with VISIT_DATA_DIR.")
++    endif ()
++
+     # add a phony target to be sure that data for tests is
+     # generated/updated during the build
+     ADD_CUSTOM_TARGET(testing ALL)
