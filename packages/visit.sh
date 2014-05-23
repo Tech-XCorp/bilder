@@ -129,30 +129,33 @@ buildVisit() {
   local VISIT_ARCH=`getVisitArch`
 
 # Args for make and environment, and configuration file
-  local VISIT_MAKEARGS=$VISIT_CTEST_TARGET
+  local VISIT_MAKE_ARGS=
   local VISIT_ENV=
   local VISIT_MESA_DIR=
   case `uname` in
     CYGWIN*)
       if which jom 1>/dev/null 2>/dev/null; then
-        VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+        VISIT_MAKE_ARGS="$VISIT_MAKEJ_ARGS"
       fi
 # Remove cygwin paths when configuring
       PATH_CYGWIN_LAST=`echo :$PATH: | sed -e 's?:/usr/bin:?:?' -e 's?:/bin:?:?'`:/usr/bin
       VISIT_ENV="PATH='$PATH_CYGWIN_LAST'"
       ;;
     Darwin)
-      VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+      VISIT_MAKE_ARGS="$VISIT_MAKEJ_ARGS"
       if ! $IS_VISIT_TRUNK && test -d $CONTRIB_DIR/mesa/lib; then
         VISIT_MESA_DIR=$CONTRIB_DIR/mesa
       fi
       ;;
     Linux)
-      VISIT_MAKEARGS="$VISIT_MAKEJ_ARGS"
+      VISIT_MAKE_ARGS="$VISIT_MAKEJ_ARGS"
       local VISIT_LD_RUN_PATH=$PYC_LD_RUN_PATH:$LD_RUN_PATH
       VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
       ;;
   esac
+  if test -n "$VISIT_CTEST_TARGET"; then
+    VISIT_MAKE_ARGS="$VISIT_MAKE_ARGS ${VISIT_CTEST_TARGET}Start ${VISIT_CTEST_TARGET}Build"
+  fi
 
 #
 # VisIt needs to find hdf5 netcdf Python Qt VTK
@@ -222,7 +225,7 @@ buildVisit() {
 
 # Build serial
   if bilderConfig -c visit $VISIT_SER_BUILD "-DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
-    bilderBuild visit $VISIT_SER_BUILD "$VISIT_MAKEARGS" "$VISIT_ENV"
+    bilderBuild visit $VISIT_SER_BUILD "$VISIT_MAKE_ARGS" "$VISIT_ENV"
   fi
 
 # Build parallel doing optional builds
@@ -253,7 +256,7 @@ buildVisit() {
       fi
     fi
 # Visit uses serial hdf5 even in parallel.
-    bilderBuild visit parsh "$VISIT_MAKEARGS" "$VISIT_ENV"
+    bilderBuild visit parsh "$VISIT_MAKE_ARGS" "$VISIT_ENV"
   fi
 
 }
