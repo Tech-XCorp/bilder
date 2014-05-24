@@ -214,6 +214,7 @@ runnrGetHostVars() {
   fi
 
 # Set variables associated with system: RUNNRSYSTEM and IS_64BIT
+  local mach=
   if test -z "$RUNNRSYSTEM"; then
     case `uname` in
       CYGWIN*)
@@ -239,30 +240,16 @@ runnrGetHostVars() {
         ;;
       Linux)
 # Linux has processor in 'uname -r'
-        # RUNNRSYSTEM=`uname`_`uname -r`-$ccbase
         mach=`uname -m`
         if test $mach = x86_64; then
           IS_64BIT=true
         else
           IS_64BIT=false
         fi
-# Strip any machine off rev so not duplicated
-        rev=`uname -r | sed "s/\.$mach//"`
-# Get only major-minor of rev
-        local majmindist=`echo $rev | sed 's/^\([0-9]*\.[0-9]\).*$/\1/'`
-        local contains=false
-        for pd in el fc; do
-          if [[ $rev =~ \.${pd}[0-9] ]]; then
-            # echo $rev contains $pd
-            contains=true
-            break
-          fi
-        done
-        if $contains; then
-          local dist=`echo $rev | sed "s/^.*\.\(${pd}[0-9]\)/\1/"`
-          majmindist=${majmindist}.${dist}
-        fi
-        RUNNRSYSTEM=Linux_${majmindist}-${mach}
+# Get distro
+        local distroname=`lsb_release -is`
+        local distrover=`lsb_release -rs`
+        RUNNRSYSTEM=${distroname}_${distrover}-${mach}
         ;;
       *)
         echo "WARNING: RUNNRSYSTEM not known."
