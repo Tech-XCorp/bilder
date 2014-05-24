@@ -249,7 +249,7 @@ runnrGetHostVars() {
 # Get distro
         local distroname=`lsb_release -is`
         local distrover=`lsb_release -rs`
-        RUNNRSYSTEM=${distroname}-${distrover}_${mach}
+        RUNNRSYSTEM=${distroname}${distrover}_${mach}
         ;;
       *)
         echo "WARNING: RUNNRSYSTEM not known."
