@@ -130,7 +130,7 @@ buildVisit() {
 
 # Args for make and environment, and configuration file
   local VISIT_MAKE_ARGS=
-  local VISIT_ADDL_ARGS=
+  local VISIT_ADDL_ARGS="-DSITE:STRING='${FQMAILHOST}' -DBUILDNAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-${bld}'"
   local VISIT_ENV=
   local VISIT_MESA_DIR=
   case `uname` in
