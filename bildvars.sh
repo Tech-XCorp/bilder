@@ -313,6 +313,7 @@ if test -z "$BILDER_CHAIN"; then
       case $CC in
         *mingw*)
           BILDER_CHAIN=MinGW
+          ccver=`$CC --version | sed -e 's/ 9.*$//'`
           ;;
         *icl.*)
           BILDER_CHAIN=icl
