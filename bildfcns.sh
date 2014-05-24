@@ -4250,11 +4250,13 @@ bilderConfig() {
       if test -n "$SVN_BINDIR"; then
         configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
       fi
-      if test -n "$CTEST_DROP_SITE"; then
-        configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-      fi
-      if test -n "$FQMAILHOST"; then
-        configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
+      if $TESTING and test -d $PROJECT_DIR/$1/scimake; then
+        if test -n "$CTEST_DROP_SITE"; then
+          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+        fi
+        if test -n "$FQMAILHOST"; then
+          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
+        fi
       fi
       if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
         srcarg=$PROJECT_DIR/$1/$srcsubdir
