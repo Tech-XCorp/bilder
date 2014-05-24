@@ -310,10 +310,11 @@ if test -z "$BILDER_CHAIN"; then
   ccbase=$(basename "${CC}" .exe)
   case $(uname) in
     CYGWIN*)
-      case $CC in
+      case $ccbase in
         *mingw*)
-          BILDER_CHAIN=MinGW
           ccver=`$CC --version | sed -e 's/ 9.*$//'`
+          BILDER_CHAIN=MinGW
+          BILDER_CHAIN=${ccbase}${ccver}
           ;;
         *icl.*)
           BILDER_CHAIN=icl
@@ -325,7 +326,8 @@ if test -z "$BILDER_CHAIN"; then
       esac
       ;;
     Darwin)
-      BILDER_CHAIN=$ccbase
+      ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+      BILDER_CHAIN=${ccbase}${ccver}
       ;;
     Linux)
       case $ccbase in
@@ -336,7 +338,8 @@ if test -z "$BILDER_CHAIN"; then
           BILDER_CHAIN=pgi
           ;;
         *)
-          BILDER_CHAIN=$ccbase
+          ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+          BILDER_CHAIN=${ccbase}${ccver}
           ;;
       esac
       ;;

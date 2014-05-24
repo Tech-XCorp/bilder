@@ -236,7 +236,7 @@ runnrGetHostVars() {
             ;;
         esac
         rev=`uname -r | sed 's/\.[0-9]*$//'`
-        RUNNRSYSTEM=Darwin_${rev}-${mach}
+        RUNNRSYSTEM=Darwin${rev}_${mach}
         ;;
       Linux)
 # Linux has processor in 'uname -r'
@@ -249,7 +249,7 @@ runnrGetHostVars() {
 # Get distro
         local distroname=`lsb_release -is`
         local distrover=`lsb_release -rs`
-        RUNNRSYSTEM=${distroname}_${distrover}-${mach}
+        RUNNRSYSTEM=${distroname}-${distrover}_${mach}
         ;;
       *)
         echo "WARNING: RUNNRSYSTEM not known."

@@ -4260,7 +4260,7 @@ bilderConfig() {
       if test -n "$FQMAILHOST"; then
         configargs="$configargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
       fi
-      configargs="$configargs -DCTEST_BUILD_NAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-${CXX_VERSION}-${bld}'"
+      configargs="$configargs -DCTEST_BUILD_NAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-${bld}'"
       if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
         srcarg=$PROJECT_DIR/$1/$srcsubdir
       elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
