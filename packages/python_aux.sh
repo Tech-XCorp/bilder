@@ -23,7 +23,9 @@ setPythonTriggerVars() {
   export PYTHON_BLDRVERSION
 # Needed?
   # PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
-  PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_BUILD"}
+  if [[ `uname` =~ Linux ]]; then
+    PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_BUILD"}
+  fi
   PYTHON_BUILD=$FORPYTHON_BUILD
   PYTHON_DEPS=chrpath,sqlite,bzip2
 }
