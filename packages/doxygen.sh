@@ -8,24 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in aux script
 #
 ######################################################################
 
-DOXYGEN_BLDRVERSION_STD=1.8.5
-DOXYGEN_BLDRVERSION_EXP=1.8.5
+mydir=`dirname $BASH_SOURCE`
+source $mydir/doxygen_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths
+# Set variables that should trigger a rebuild, but which by value 
+# change here do not, so that build gets triggered by change of this 
+# file. E.g: mask
 #
 ######################################################################
 
-case `uname` in
-  CYGWIN*) ;;
-  *) DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-"ser"};;
-esac
-DOXYGEN_DEPS=
+#setDoxygenNonTriggerVars() {
+#  :
+#}
+#setDoxygenNonTriggerVars
 
 ######################################################################
 #
