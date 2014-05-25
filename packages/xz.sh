@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for xz
+# Build information for xz
 #
 # $Id$
 #
@@ -8,23 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in xz_aux.sh
 #
 ######################################################################
 
-XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
-XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/xz_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-XZ_BUILDS=${XZ_BUILDS:-"ser"}
-XZ_DEPS=doxygen
-XZ_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/xz/bin
+setXzNonTriggerVars() {
+  XZ_UMASK=002
+}
+setXzNonTriggerVars
 
 ######################################################################
 #
@@ -34,10 +36,11 @@ addtopathvar PATH $CONTRIB_DIR/xz/bin
 
 buildXz() {
 # Configure and build
-  if bilderUnpack xz; then
-    if bilderConfig xz ser "" "" CC=gcc; then
-      bilderBuild -m make xz ser "" "CC=gcc LD_RUN_PATH=$CONTRIB_DIR/xz-${XZ_BLDRVERSION}-ser/lib"
-    fi
+  if ! bilderUnpack xz; then
+    return
+  fi
+  if bilderConfig xz ser "" "" CC=gcc; then
+    bilderBuild -m make xz ser "" "CC=gcc LD_RUN_PATH=$CONTRIB_DIR/xz-${XZ_BLDRVERSION}-ser/lib"
   fi
 }
 
