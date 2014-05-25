@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for python imaging library
+# Build information for python imaging library
 #
 # $Id$
 #
@@ -8,21 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in imaging_aux.sh
 #
 ######################################################################
 
-IMAGING_BLDRVERSION=${IMAGING_BLDRVERSION:-"1.1.7"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/imaging_aux.sh
 
 ######################################################################
 #
-# Builds and deps
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-IMAGING_BUILDS=${IMAGING_BUILDS:-"cc4py"}
-IMAGING_DEPS=Python
-IMAGING_UMASK=002
+setImagingNonTriggerVars() {
+  IMAGING_UMASK=002
+}
+setImagingNonTriggerVars
 
 ######################################################################
 #
@@ -31,38 +35,46 @@ IMAGING_UMASK=002
 ######################################################################
 
 buildImaging() {
-  if bilderUnpack Imaging; then
-# Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/Imaging*"
-    techo "$cmd"
-    $cmd
-# Different targets for windows
-    case `uname`-$CC in
-      CYGWIN*-cl)
-        IMAGING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        IMAGING_ENV="$DISTUTILS_ENV"
-        ;;
-      CYGWIN*-mingw*)
-# Have to install with build to get both prefix and compiler correct.
-        IMAGING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        local mingwgcc=`which mingw32-gcc`
-        local mingwdir=`dirname $mingwgcc`
-        IMAGING_ENV="PATH=$mingwdir:'$PATH'"
-        ;;
-      Linux)
-        # IMAGING_ARGS=
-        local IMAGING_LIBPATH=$LD_LIBRARY_PATH
-        if test -n "$PYC_LD_LIBRARY_PATH"; then
-          IMAGING_LIBPATH=$PYC_LD_LIBRARY_PATH:$IMAGING_LIBPATH
-        fi
-        trimvar IMAGING_LIBPATH :
-        if test -n "$IMAGING_LIBPATH"; then
-          IMAGING_ENV="LDFLAGS='-Wl,-rpath,$IMAGING_LIBPATH -L$IMAGING_LIBPATH'"
-        fi
-        ;;
-    esac
-    bilderDuBuild -p PIL Imaging "$IMAGING_ARGS" "$IMAGING_ENV"
+
+# Unpack and determine whether to build
+  if ! bilderUnpack Imaging; then
+    return
   fi
+
+# Remove all old installations
+  cmd="rmall ${PYTHON_SITEPKGSDIR}/Imaging*"
+  techo "$cmd"
+  $cmd
+
+# Different targets for windows
+  case `uname`-$CC in
+    CYGWIN*-cl)
+      IMAGING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      IMAGING_ENV="$DISTUTILS_ENV"
+      ;;
+    CYGWIN*-mingw*)
+# Have to install with build to get both prefix and compiler correct.
+      IMAGING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      local mingwgcc=`which mingw32-gcc`
+      local mingwdir=`dirname $mingwgcc`
+      IMAGING_ENV="PATH=$mingwdir:'$PATH'"
+      ;;
+    Linux)
+      # IMAGING_ARGS=
+      local IMAGING_LIBPATH=$LD_LIBRARY_PATH
+      if test -n "$PYC_LD_LIBRARY_PATH"; then
+        IMAGING_LIBPATH=$PYC_LD_LIBRARY_PATH:$IMAGING_LIBPATH
+      fi
+      trimvar IMAGING_LIBPATH :
+      if test -n "$IMAGING_LIBPATH"; then
+        IMAGING_ENV="LDFLAGS='-Wl,-rpath,$IMAGING_LIBPATH -L$IMAGING_LIBPATH'"
+      fi
+      ;;
+  esac
+
+# Build
+  bilderDuBuild -p PIL Imaging "$IMAGING_ARGS" "$IMAGING_ENV"
+
 }
 
 ######################################################################
@@ -95,7 +107,6 @@ installImaging() {
       res=$?
       ;;
   esac
-  # techo "WARNING: Quitting at end of imaging.sh."; exit
   return $res
 }
 
