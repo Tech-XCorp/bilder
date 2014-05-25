@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for sqlite.
+# Build information for sqlite.
 #
 # $Id$
 #
@@ -8,27 +8,25 @@
 
 ######################################################################
 #
-# Version
-# Package retarred from sqlite-autoconf-3070800.tar.gz:
-# tar xzf sqlite-autoconf-3070800.tar.gz
-# mv sqlite-autoconf-3070800 sqlite-3070800
-# tar czf sqlite-3070800.tar.gz sqlite-3070800
+# Trigger variables set in sqlite_aux.sh
 #
 ######################################################################
 
-SQLITE_BLDRVERSION_STD=${SQLITE_BLDRVERSION_STD:-"3070800"}
-SQLITE_BLDRVERSION_EXP=${SQLITE_BLDRVERSION_EXP:-"3080200"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/sqlite_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-SQLITE_BUILDS=${SQLITE_BUILDS:-"$FORPYTHON_BUILD"}
-SQLITE_BUILD=$FORPYTHON_BUILD
-SQLITE_DEPS=
-SQLITE_UMASK=002
+setXzNonTriggerVars() {
+  SQLITE_UMASK=002
+}
+setXzNonTriggerVars
 
 ######################################################################
 #
@@ -37,10 +35,11 @@ SQLITE_UMASK=002
 ######################################################################
 
 buildSqlite() {
-  if bilderUnpack sqlite; then
-    if bilderConfig sqlite $SQLITE_BUILD; then
-      bilderBuild sqlite $SQLITE_BUILD
-    fi
+  if ! bilderUnpack sqlite; then
+    return
+  fi
+  if bilderConfig sqlite $SQLITE_BUILD; then
+    bilderBuild sqlite $SQLITE_BUILD
   fi
 }
 

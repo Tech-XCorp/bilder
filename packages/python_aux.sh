@@ -15,21 +15,31 @@
 #
 ######################################################################
 
-setXzTriggerVars() {
-  XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
-  XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
-  XZ_BUILDS=${XZ_BUILDS:-"ser"}
-  XZ_DEPS=doxygen
+setPythonTriggerVars() {
+  PYTHON_BLDRVERSION_STD=2.7.3
+  PYTHON_BLDRVERSION_EXP=2.7.6
+  computeVersion Python
+# Export so available to setinstald.sh
+  export PYTHON_BLDRVERSION
+# Needed?
+  # PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
+  PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_BUILD"}
+  PYTHON_BUILD=$FORPYTHON_BUILD
+  PYTHON_DEPS=chrpath,sqlite,bzip2
 }
-setXzTriggerVars
+setPythonTriggerVars
 
 ######################################################################
 #
-# Find xz
+# Find python
 #
 ######################################################################
 
-findXz() {
-  addtopathvar PATH $CONTRIB_DIR/xz/bin
+findPython() {
+  source $BILDER_DIR/bilderpy.sh
+  addtopathvar PATH $CONTRIB_DIR/python/bin
+  if test `uname` = Linux; then
+    addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
+  fi
 }
 

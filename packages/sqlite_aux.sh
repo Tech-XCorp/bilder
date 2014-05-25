@@ -2,6 +2,11 @@
 #
 # Trigger vars and find information
 #
+# Package retarred from sqlite-autoconf-3070800.tar.gz:
+# tar xzf sqlite-autoconf-3070800.tar.gz
+# mv sqlite-autoconf-3070800 sqlite-3070800
+# tar czf sqlite-3070800.tar.gz sqlite-3070800
+#
 # $Id$
 #
 ######################################################################
@@ -15,21 +20,21 @@
 #
 ######################################################################
 
-setXzTriggerVars() {
-  XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
-  XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
-  XZ_BUILDS=${XZ_BUILDS:-"ser"}
-  XZ_DEPS=doxygen
+setSqliteTriggerVars() {
+  SQLITE_BLDRVERSION_STD=${SQLITE_BLDRVERSION_STD:-"3070800"}
+  SQLITE_BLDRVERSION_EXP=${SQLITE_BLDRVERSION_EXP:-"3080200"}
+  SQLITE_BUILDS=${SQLITE_BUILDS:-"$FORPYTHON_BUILD"}
+  SQLITE_BUILD=$FORPYTHON_BUILD
+  SQLITE_DEPS=
 }
-setXzTriggerVars
+setSqliteTriggerVars
 
 ######################################################################
 #
-# Find xz
+# Find sqlite
 #
 ######################################################################
 
-findXz() {
-  addtopathvar PATH $CONTRIB_DIR/xz/bin
+findSqlite() {
 }
 
