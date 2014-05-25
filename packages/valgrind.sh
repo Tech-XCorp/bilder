@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for valgrind
+# Build information for valgrind
 #
 # $Id$
 #
@@ -8,32 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in valgrind_aux.sh
 #
 ######################################################################
 
-VALGRIND_BLDRVERSION_STD=3.9.0
-VALGRIND_BLDRVERSION_EXP=3.9.0
+mydir=`dirname $BASH_SOURCE`
+source $mydir/valgrind_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if [[ `uname` =~ Linux ]]; then
-  VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
-fi
-VALGRIND_DEPS=
-VALGRIND_MASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/valgrind/bin
+setValgrindNonTriggerVars() {
+  VALGRIND_MASK=002
+}
+setValgrindNonTriggerVars
 
 ######################################################################
 #
@@ -44,21 +37,23 @@ addtopathvar PATH $CONTRIB_DIR/valgrind/bin
 buildValgrind() {
 
 # VALGRIND must be built in place
-  if bilderUnpack -i valgrind; then
+  if ! bilderUnpack -i valgrind; then
+    return
+  fi
+
 # Test for unpacked as ser
-    if test -d $BUILD_DIR/valgrind-$VALGRIND_BLDRVERSION/ser; then
-      cmd="cd $BUILD_DIR/valgrind-$VALGRIND_BLDRVERSION/ser"
+  if test -d $BUILD_DIR/valgrind-$VALGRIND_BLDRVERSION/ser; then
+    cmd="cd $BUILD_DIR/valgrind-$VALGRIND_BLDRVERSION/ser"
+    techo "$cmd"
+    $cmd
+    if test -x autogen.sh; then
+      cmd="./autogen.sh"
       techo "$cmd"
       $cmd
-      if test -x autogen.sh; then
-        cmd="./autogen.sh"
-        techo "$cmd"
-        $cmd
-      fi
-      cd -
-      if bilderConfig -i valgrind ser; then
-        bilderBuild valgrind ser
-      fi
+    fi
+    cd -
+    if bilderConfig -i valgrind ser; then
+      bilderBuild valgrind ser
     fi
   fi
 
@@ -81,10 +76,6 @@ testValgrind() {
 ######################################################################
 
 installValgrind() {
-
-  if bilderInstall valgrind ser valgrind; then
-    : # Put post build commands here.
-  fi
-
+  bilderInstall valgrind ser valgrind
 }
 
