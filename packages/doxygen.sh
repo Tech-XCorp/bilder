@@ -17,8 +17,8 @@ source $mydir/doxygen_aux.sh
 
 ######################################################################
 #
-# Set variables that should trigger a rebuild, but which by value 
-# change here do not, so that build gets triggered by change of this 
+# Set variables that should trigger a rebuild, but which by value
+# change here do not, so that build gets triggered by change of this
 # file. E.g: mask
 #
 ######################################################################
@@ -35,10 +35,11 @@ source $mydir/doxygen_aux.sh
 ######################################################################
 
 buildDoxygen() {
-  if bilderUnpack -i doxygen; then
-    if bilderConfig -i -n -p - doxygen ser; then
-      bilderBuild doxygen ser
-    fi
+  if ! bilderUnpack -i doxygen; then
+    return
+  fi
+  if bilderConfig -i -n -p - doxygen ser; then
+    bilderBuild doxygen ser
   fi
 }
 
