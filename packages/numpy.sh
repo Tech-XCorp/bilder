@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for numpy
+# Build information for numpy
 #
 # $Id$
 #
@@ -8,23 +8,23 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in numpy_aux.sh
 #
 ######################################################################
 
-NUMPY_BLDRVERSION_STD=1.8.0
-NUMPY_BLDRVERSION_EXP=1.8.1
-
-computeVersion numpy
+mydir=`dirname $BASH_SOURCE`
+source $mydir/numpy_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setNumpyGlobalVars() {
-  NUMPY_BUILDS=${NUMPY_BUILDS:-"cc4py"}
+setNumpyNonTriggerVars() {
+
 # On Windows numpy can be built with any of
 #   no linear algebra libraries
 #   clapack_cmake (no fortran need)
@@ -66,14 +66,9 @@ setNumpyGlobalVars() {
     NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
   fi
   NUMPY_USE_ATLAS=${NUMPY_USE_ATLAS:-"false"}
-# The deps, atlas
-  NUMPY_DEPS=Python
-  if $NUMPY_USE_ATLAS; then
-    NUMPY_DEPS=$NUMPY_DEPS,atlas
-  fi
-  NUMPY_DEPS=$NUMPY_DEPS,clapack_cmake,lapack
+
 }
-setNumpyGlobalVars
+setNumpyNonTriggerVars
 
 ######################################################################
 #
@@ -277,18 +272,6 @@ testNumpy() {
 
 ######################################################################
 #
-# Get the installed nodes of the numpy packages
-#
-######################################################################
-
-getInstNumpyNodes() {
-# Get full paths, convert to native as needed
-  local nodes=("$PYTHON_SITEPKGSDIR/numpy" "$PYTHON_SITEPKGSDIR/numpy-${NUMPY_BLDRVERSION}-py${PYTHON_MAJMIN}.egg-info")
-  echo ${nodes[*]}
-}
-
-######################################################################
-#
 # Install
 #
 ######################################################################
@@ -298,6 +281,5 @@ installNumpy() {
     CYGWIN*) bilderDuInstall -n numpy "-" "$NUMPY_ENV";;
     *) bilderDuInstall -r numpy numpy "-" "$NUMPY_ENV";;
   esac
-  techo "numpy installation nodes are `getInstNumpyNodes`."
 }
 
