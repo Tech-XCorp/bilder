@@ -32,11 +32,18 @@ setOpenmpiTriggerVars
 
 ######################################################################
 #
-# Find oce
+# Find openmpi
 #
 ######################################################################
 
 findOpenmpi() {
+# Obtain correct mpi compiler names after bildall.sh is called
   addtopathvar PATH $CONTRIB_DIR/openmpi/bin
+  MPICC=`basename "$MPICC"`
+  MPICXX=`basename "$MPICXX"`
+  MPIFC=`basename "$MPIFC"`
+  MPIF77=`basename "$MPIF77"`
+  findParallelFcComps
+  getCombinedCompVars
 }
 

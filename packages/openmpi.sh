@@ -24,30 +24,9 @@ source $mydir/openmpi_aux.sh
 ######################################################################
 
 setOpenmpiNonTriggerVars() {
-if test -z "$OPENMPI_BUILDS"; then
-  if $BUILD_MPIS; then
-    case `uname` in
-      CYGWIN*)
-        OPENMPI_BUILDS=nodl
-        ;;
-      *)
-        OPENMPI_BUILDS=nodl,static
-        ;;
-    esac
-  fi
-fi
-OPENMPI_DEPS=valgrind,doxygen,libtool,automake
   OPENMPI_UMASK=002
 }
 setOpenmpiNonTriggerVars
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/openmpi/bin
 
 ######################################################################
 #
@@ -57,18 +36,20 @@ addtopathvar PATH $CONTRIB_DIR/openmpi/bin
 
 buildOpenmpiAT() {
 
-  if bilderUnpack openmpi; then
+  if ! bilderUnpack openmpi; then
+    return
+  fi
 
-    techo "OPENMPI_BLDRVERSION = $OPENMPI_BLDRVERSION."
+  techo "OPENMPI_BLDRVERSION = $OPENMPI_BLDRVERSION."
 # Look for valgrind
-    if test -h $CONTRIB_DIR/valgrind; then
-      OPENMPI_VALGRIND_ARG="--with-valgrind=$CONTRIB_DIR/valgrind"
-    fi
+  if test -h $CONTRIB_DIR/valgrind; then
+    OPENMPI_VALGRIND_ARG="--with-valgrind=$CONTRIB_DIR/valgrind"
+  fi
 
-    case `uname` in
-      Darwin)
-        if test -f /usr/bin/mpicc; then
-          cat <<EOF | tee -a $LOGFILE
+  case `uname` in
+    Darwin)
+      if test -f /usr/bin/mpicc; then
+        cat <<EOF | tee -a $LOGFILE
 WARNING: On OS X, you will need to execute the following commands
 WARNING: as root to prevent interference from the system mpi.
 WARNING:   cd /usr/lib
@@ -78,53 +59,51 @@ WARNING:   cd /usr/bin
 WARNING:   mkdir openmpi-save
 WARNING:   mv mpi* openmpi-save
 EOF
-        fi
+      fi
 # Need to add -Wreserved-user-defined-literal to 1.6.4 for clang?
-        ;;
-      Linux)
-        OPENMPI_NODL_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-nodl/lib $SER_EXTRA_LDFLAGS'"
-        ;;
-    esac
+      ;;
+    Linux)
+      OPENMPI_NODL_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-nodl/lib $SER_EXTRA_LDFLAGS'"
+      ;;
+  esac
 
 # With version 1.6.1, openmpi will stop in the middle of the build
 # unless one does --disable-vt.  One can restart it, and it continues.
 # Seems like an unregistered dependency.  Should try again after
 # bumping version.
-    case $OPENMPI_BLDRVERSION in
-      1.6.1)
-        OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
-        OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
-        ;;
-    esac
+  case $OPENMPI_BLDRVERSION in
+    1.6.1)
+      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
+      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
+      ;;
+  esac
 
 # Set jmake args.  Observed to fail on magnus.colorado.edu for openmpi-1.6.1,
 # but then observed to work with --disable-vt
 if false; then
-    local ompimakeflags="$SER_CONFIG_LDFLAGS"
-    case $OPENMPI_BLDRVERSION in
-      1.6.1)
-        case `uname`-`uname -r` in
-          # Darwin-1[12].*) ;;
-          *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
-        esac
-        ;;
-      *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
-    esac
+  local ompimakeflags="$SER_CONFIG_LDFLAGS"
+  case $OPENMPI_BLDRVERSION in
+    1.6.1)
+      case `uname`-`uname -r` in
+        # Darwin-1[12].*) ;;
+        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
+      esac
+      ;;
+    *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
+  esac
 fi
 
-    local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
-    trimvar ompcxxflags ' '
-    ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
-    if test -n "$FCFLAGS"; then
-      ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
-    fi
-    if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
-      bilderBuild openmpi nodl "$ompimakeflags"
-    fi
-    if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
-      bilderBuild openmpi static "$ompimakeflags"
-    fi
-
+  local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
+  trimvar ompcxxflags ' '
+  ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
+  if test -n "$FCFLAGS"; then
+    ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
+  fi
+  if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
+    bilderBuild openmpi nodl "$ompimakeflags"
+  fi
+  if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
+    bilderBuild openmpi static "$ompimakeflags"
   fi
 
 }
@@ -197,9 +176,7 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
-  local anyinstalled=false
   if bilderInstall openmpi nodl openmpi; then
-    anyinstalled=true
     if test -h $CONTRIB_DIR/mpi; then
       rm -f $CONTRIB_DIR/mpi
     fi
@@ -218,16 +195,7 @@ installOpenmpi() {
     fi
   fi
   if bilderInstall openmpi static; then
-    anyinstalled=true
-  fi
-  if $anyinstalled; then
-# Obtain correct mpi compiler names after bildall.sh is called
-    MPICC=`basename "$MPICC"`
-    MPICXX=`basename "$MPICXX"`
-    MPIFC=`basename "$MPIFC"`
-    MPIF77=`basename "$MPIF77"`
-    findParallelFcComps
-    getCombinedCompVars
+    :
   fi
 }
 
