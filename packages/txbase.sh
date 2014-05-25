@@ -108,11 +108,9 @@ buildTxbase() {
 ######################################################################
 
 testTxbase() {
-  if test -n "$TXBASE_CTEST_TARGET"; then
-    bilderRunTests -bs -i ben txbase "" "${TXBASE_CTEST_TARGET}Test"
-  else
-    bilderRunTests -bs -i ben txbase "" "test"
-  fi
+  local testtarg=test
+  test -n "$TXBASE_CTEST_TARGET" && testtarg="${TXBASE_CTEST_TARGET}Test"
+  bilderRunTests -bs -i ben txbase "" "${testtarg}"
 }
 
 ######################################################################
