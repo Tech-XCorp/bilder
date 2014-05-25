@@ -1,11 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for sphinx
-#
-# Repackage by, e.g.,
-#  tar xjf birkenfeld-sphinx-869bf6d21292.tar.bz2
-#  mv birkenfeld-sphinx-869bf6d21292.tar.bz2 sphinx-1.3a0
-#  env COPYFILE_DISABLE=true tar cjf sphinx-1.3a0.tar.bz2 sphinx-1.3a0
+# Build information for sphinx
 #
 # $Id$
 #
@@ -13,29 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in sphinx_aux.sh
 #
 ######################################################################
 
-SPHINX_BLDRVERSION_STD=${SPHINX_BLDRVERSION_STD="1.3a0"}
-SPHINX_BLDRVERSION_EXP=${SPHINX_BLDRVERSION_EXP="1.2.2"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/sphinx_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setSphinxGlobalVars() {
-  SPHINX_BUILDS=${SPHINX_BUILDS:-"cc4py"}
-  SPHINX_DEPS=docutils,Pygments,Imaging,setuptools,MathJax,Python
+setSphinxNonTriggerVars() {
   SPHINX_UMASK=002
-  case `uname` in
-    CYGWIN*) addtopathvar PATH $CONTRIB_DIR/Scripts;;
-          *) addtopathvar PATH $CONTRIB_DIR/bin;;
-  esac
 }
-setSphinxGlobalVars
+setSphinxNonTriggerVars
 
 #####################################################################
 #

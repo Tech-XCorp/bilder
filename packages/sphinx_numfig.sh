@@ -1,39 +1,32 @@
 #!/bin/bash
 #
-# Version and build information for sphinx_numfig
+# Build information for sphinx_numfig
 #
 # $Id$
 #
-# This package was taken from bitbucket and put into sourceforge:
-# https://svn.code.sf.net/p/numfig/code-0/trunk
-#
-# Create the tarball by running tarup.sh in the checked out repo.
-#
 ######################################################################
 
 ######################################################################
 #
-# Version
+# Trigger variables set in sphinx_numfig_aux.sh
 #
 ######################################################################
 
-SPHINX_NUMFIG_BLDRVERSION=${SPHINX_NUMFIG_BLDRVERSION:-"r13"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/sphinx_numfig_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-SPHINX_NUMFIG_BUILDS=${SPHINX_NUMFIG_BUILDS:-"cc4py"}
-SPHINX_NUMFIG_DEPS=sphinx
-SPHINX_NUMFIG_UMASK=002
-
-######################################################################
-#
-# Add to paths.
-#
-######################################################################
+setSphinx_numfigNonTriggerVars() {
+  SPHINX_NUMFIG_UMASK=002
+}
+setSphinx_numfigNonTriggerVars
 
 #####################################################################
 #
@@ -42,11 +35,9 @@ SPHINX_NUMFIG_UMASK=002
 ######################################################################
 
 buildSphinx_numfig() {
-
   if bilderUnpack sphinx_numfig; then
     bilderDuBuild sphinx_numfig
   fi
-
 }
 
 ######################################################################
