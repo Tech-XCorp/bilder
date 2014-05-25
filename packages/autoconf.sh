@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for autoconf
+# Build information for autoconf
 #
 # $Id$
 #
@@ -8,23 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in autoconf_aux.sh
 #
 ######################################################################
 
-AUTOCONF_BLDRVERSION_STD=2.69
-AUTOCONF_BLDRVERSION_EXP=2.69
+mydir=`dirname $BASH_SOURCE`
+source $mydir/autoconf_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-AUTOCONF_BUILDS=${AUTOCONF_BUILDS:-"ser"}
-AUTOCONF_DEPS=m4,xz
-AUTOCONF_UMASK=002
-addtopathvar PATH $CONTRIB_DIR/autotools/bin
+setAutoconfNonTriggerVars() {
+  AUTOCONF_UMASK=002
+}
+setAutoconfNonTriggerVars
 
 ######################################################################
 #
@@ -33,19 +35,16 @@ addtopathvar PATH $CONTRIB_DIR/autotools/bin
 ######################################################################
 
 buildAutoconf() {
-# Libtool determines the installation prefix
-  if test -z "$LIBTOOL_BLDRVERSION"; then
-    source $BILDER_DIR/packages/libtool.sh
-  fi
 # If executable not found, under prefix, needs installing
   if ! test -x $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin/autoconf; then
     $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR autoconf,ser
   fi
 # Build
-  if bilderUnpack autoconf; then
-    if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION autoconf ser; then
-      bilderBuild -m make autoconf ser
-    fi
+  if ! bilderUnpack autoconf; then
+    return
+  fi
+  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION autoconf ser; then
+    bilderBuild -m make autoconf ser
   fi
 }
 

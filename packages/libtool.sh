@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for libtool
+# Build information for libtool
 #
 # $Id$
 #
@@ -8,23 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in libtool_aux.sh
 #
 ######################################################################
 
-LIBTOOL_BLDRVERSION_STD=${LIBTOOL_BLDRVERSION_STD:-"2.4.2"}
-LIBTOOL_BLDRVERSION_EXP=${LIBTOOL_BLDRVERSION_EXP:-"2.4.2"}
-computeVersion libtool
+mydir=`dirname $BASH_SOURCE`
+source $mydir/libtool_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-LIBTOOL_BUILDS=${LIBTOOL_BUILDS:-"ser"}
-LIBTOOL_DEPS=automake,autoconf,m4
-LIBTOOL_UMASK=002
+setLibtoolNonTriggerVars() {
+  LIBTOOL_UMASK=002
+}
+setLibtoolNonTriggerVars
 
 ######################################################################
 #
@@ -33,10 +35,11 @@ LIBTOOL_UMASK=002
 ######################################################################
 
 buildLibtool() {
-  if bilderUnpack libtool; then
-    if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION libtool ser; then
-      bilderBuild -m make libtool ser
-    fi
+  if ! bilderUnpack libtool; then
+    return
+  fi
+  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION libtool ser; then
+    bilderBuild -m make libtool ser
   fi
 }
 
@@ -57,11 +60,8 @@ testLibtool() {
 ######################################################################
 
 installLibtool() {
-  if which /usr/bin/install 1>/dev/null 2>&1; then
-    bilderInstall -m make libtool ser autotools "INSTALL=/usr/bin/install"
-  else
-    bilderInstall -m make libtool ser autotools
-  fi
-  # techo "WARNING: Quitting at end of installLibtool."; cleanup
+  local instenv=
+  which /usr/bin/install 1>/dev/null 2>&1 && instenv="INSTALL=/usr/bin/install"
+  bilderInstall -m make libtool ser autotools "$instenv"
 }
 

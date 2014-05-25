@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for m4
+# Build information for m4
 #
 # $Id$
 #
@@ -8,22 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in m4_aux.sh
 #
 ######################################################################
 
-M4_BLDRVERSION_STD=1.4.17
-M4_BLDRVERSION_EXP=1.4.17
+mydir=`dirname $BASH_SOURCE`
+source $mydir/m4_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-M4_BUILDS=${M4_BUILDS:-"ser"}
-M4_DEPS=xz
-M4_UMASK=002
+setM4NonTriggerVars() {
+  M4_UMASK=002
+}
+setM4NonTriggerVars
 
 ######################################################################
 #
@@ -32,20 +35,17 @@ M4_UMASK=002
 ######################################################################
 
 buildM4() {
-# Libtool determines the installation prefix
-  if test -z "$LIBTOOL_BLDRVERSION"; then
-    source $BILDER_DIR/packages/libtool.sh
-  fi
 # If executable not found, under prefix, needs installing
   if ! test -x $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin/m4; then
     techo "Executable, $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin/m4, not found."
     $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR m4,ser
   fi
 # On to the regular build
-  if bilderUnpack m4; then
-    if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION m4 ser; then
-      bilderBuild -m make m4 ser
-    fi
+  if ! bilderUnpack m4; then
+    return
+  fi
+  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION m4 ser; then
+    bilderBuild -m make m4 ser
   fi
 }
 
@@ -67,6 +67,5 @@ testM4() {
 
 installM4() {
   bilderInstall -m make m4 ser autotools
-  # techo "WARNING: exit in $BASH_SOURCE"; exit
 }
 
