@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for atlas
+# Build information for atlas
 #
 # $Id$
 #
@@ -8,52 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in atlas_aux.sh
 #
 ######################################################################
 
-ATLAS_BLDRVERSION_STD=${ATLAS_BLDRVERSION_STD:-"3.10.1"}
-# Atlas 3.11.17 cannot be built with gcc 4.1.2 (the default on qalinux)
-# or gcc 4.2.4. Both compilers seg fault when building Atlas.
-ATLAS_BLDRVERSION_EXP=${ATLAS_BLDRVERSION_EXP:-"3.10.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/atlas_aux.sh
 
 ######################################################################
 #
-# Builds and other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setAtlasGlobalVars() {
-  if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
-    case `uname` in
-      CYGWIN*)
-        if test -n "$FC"; then
-          ATLAS_BUILDS=${ATLAS_BUILDS},ser
-        else
-          : # ATLAS_BUILDS=NONE
-        fi
-        if ! isCcCc4py; then
-# Do this way, as ser contains sersh
-          ATLAS_BUILDS=${ATLAS_BUILDS},cc4py
-        fi
-        ATLAS_BUILDS=${ATLAS_BUILDS},clp
-        ;;
-      Darwin)
-        ATLAS_BUILDS=NONE
-        ;;
-      Linux)
-        ATLAS_BUILDS=ser,sersh
-        addCc4pyBuild atlas
-        # addBenBuild atlas # Have no ben build
-        ;;
-    esac
-  fi
-  trimvar ATLAS_BUILDS ','
-# Atlas no longer depends on lapack or clapack, as it builds them
-  # ATLAS_DEPS=lapack
+setAtlasNonTriggerVars() {
+  ATLAS_UMASK=002
 }
-
-setAtlasGlobalVars
+setAtlasNonTriggerVars
 
 ######################################################################
 #
@@ -289,11 +262,11 @@ testAtlas() {
 ######################################################################
 
 installAtlas() {
-  local anyinstalled=false
+  ATLAS_INSTALLED=false
   rm -f $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-ser/lib/*.so
   for bld in `echo $ATLAS_BUILDS | tr ',' ' '`; do
     if bilderInstall -r atlas $bld; then
-      anyinstalled=true
+      ATLAS_INSTALLED=true
       case `uname` in
 
         CYGWIN*)
@@ -345,8 +318,5 @@ installAtlas() {
       esac
     fi
   done
-  if $anyinstalled; then
-    findBlasLapack
-  fi
 }
 

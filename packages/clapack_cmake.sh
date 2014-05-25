@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for clapack_cmake
+# Build information for clapack_cmake
 #
 # $Id$
 #
@@ -8,28 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in clapack_cmake_aux.sh
 #
 ######################################################################
 
-CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/clapack_cmake_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setCLapackCmakeGlobalVars () {
-# Machine files should enable these builds as needed.
-# E.g., for Windows, modify cygwin.vs.
-  CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
-  CLAPACK_CMAKE_DEPS=cmake
-  if test $CLAPACK_CMAKE_BUILDS != NONE; then
-    addCc4pyBuild clapack_lapack
-  fi
+setCLapack_CmakeNonTriggerVars() {
+  CLAPACK_CMAKE_UMASK=002
 }
-setCLapackCmakeGlobalVars
+setCLapack_CmakeNonTriggerVars
 
 ######################################################################
 #
@@ -94,15 +91,12 @@ makeLapackf2c() {
 }
 
 installCLapack_CMake() {
-  local anyinstalled=false
+  CLAPACK_CMAKE_INSTALLED=false
   for bld in ser sermd cc4py; do
     if bilderInstall clapack_cmake $bld; then
       makeLapackf2c $bld
-      anyinstalled=true
+      CLAPACK_CMAKE_INSTALLED=true
     fi
   done
-  if $anyinstalled; then
-    findBlasLapack
-  fi
 }
 
