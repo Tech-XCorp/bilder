@@ -24,7 +24,8 @@ setVisItTriggerVars() {
   if test -z "$VISIT_DESIRED_BUILDS"; then
     VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
     if isCcCc4py; then
-      if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
+      # if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
+      if test `uname` = Linux  && $BUILD_OPTIONAL; then
         VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
       fi
     fi
