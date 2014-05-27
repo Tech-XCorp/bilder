@@ -4002,6 +4002,7 @@ bilderConfig() {
 #
   local configexec=
   local configargs=
+  local ctestargs=
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
 # qmake configure
@@ -4219,6 +4220,7 @@ bilderConfig() {
 
 # Location of source for cmake builds.
   local srcarg=
+  local hasctest=false
 # Add other, default args
   case $cmval in
     qmake)
@@ -4268,6 +4270,9 @@ bilderConfig() {
         techo "cmake build, but no CMakeLists.txt.  Skipping this build."
         return 1
       fi
+      if test -f $srcarg/Start.ctest; then
+        hasctest=true
+      fi
       ;;
     *)
       techo -2 "Neither cmake nor qmake used to configure."
@@ -4302,6 +4307,14 @@ bilderConfig() {
   esac
   techo -2 "After Windows fix, srcarg = $srcarg"
 
+# In the case of ctest, modify args to be able to pass as options
+  configargs="$configargs $3"
+  if $hasctest; then
+    techo "Start.ctest found."
+    ctestoptions=`echo $configargs | tr -d \'\"\; | sed -e 's/ -D/;-D/g'`
+    techo "ctestoptions = $ctestoptions."
+  fi
+
 # Ready to start configuring
   local configure_txt=$FQMAILHOST-$1-$2-config.txt
   techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
@@ -4329,35 +4342,35 @@ bilderConfig() {
                 ;;
             esac
           fi
-          finalcmd="'$configexec' $configargs -G '$generator' $3 $srcarg"
+          finalcmd="'$configexec' $configargs -G '$generator' $srcarg"
           ;;
         autotools)
           case $1 in
             qt)  # QT is not autotools
-              local finalcmd="'$configexec' $configargs $3"
+              local finalcmd="'$configexec' $configargs3"
               ;;
             *)  # Actually, this decision should be made by the package
-              local finalcmd="'$configexec' $configargs $3"
+              local finalcmd="'$configexec' $configargs"
               ;;
           esac
           ;;
         *)
-          local finalcmd="$configexec $configargs $3"
+          local finalcmd="$configexec $configargs"
           ;;
       esac
       ;;
     MINGW*)
       case "$configexec" in
         cmake*)
-          local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $3 $srcarg"
+          local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $srcarg"
           ;;
         *)
-          local finalcmd="'$configexec' $configargs $3 CC=gcc"
+          local finalcmd="'$configexec' $configargs CC=gcc"
           ;;
       esac
       ;;
     *)
-      finalcmd="$configexec $configargs $3 $srcarg"
+      finalcmd="$configexec $configargs $srcarg"
       ;;
   esac
 
