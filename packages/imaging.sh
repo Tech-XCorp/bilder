@@ -59,6 +59,18 @@ buildImaging() {
       local mingwdir=`dirname $mingwgcc`
       IMAGING_ENV="PATH=$mingwdir:'$PATH'"
       ;;
+    Darwin)
+# See http://stackoverflow.com/questions/22334776/installing-pillow-pil-on-mavericks
+      IMAGING_ENV="ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future"
+# Find X11.  May need to check other places
+       local cflags=
+       if test -d /opt/X11/include; then
+         cflags=-I/opt/X11/include
+       fi
+       if test -n "$cflags"; then
+         IMAGING_ENV="$IMAGING_ENV CFLAGS='$cflags'"
+       fi
+      ;;
     Linux)
       # IMAGING_ARGS=
       local IMAGING_LIBPATH=$LD_LIBRARY_PATH
