@@ -31,7 +31,8 @@ setCLapack_CmakeTriggerVars
 #
 ######################################################################
 
-findCLapack_Cmake() {
+CindCLapack_Cmake() {
+  CLAPACK_CMAKE_INSTALLED=${CLAPACK_CMAKE_INSTALLED:-"false"}
   if $CLAPACK_CMAKE_INSTALLED; then
     findBlasLapack
   fi

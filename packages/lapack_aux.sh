@@ -56,6 +56,7 @@ setLapackTriggerVars
 ######################################################################
 
 findLapack() {
+  LAPACK_INSTALLED=${LAPACK_INSTALLED:-"false"}
   if $LAPACK_INSTALLED; then
     findBlasLapack
   fi
