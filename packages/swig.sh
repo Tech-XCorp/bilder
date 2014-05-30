@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for swig
+# Build information for swig
 #
 # $Id$
 #
@@ -8,29 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in swig_aux.sh
 #
 ######################################################################
 
-SWIG_BLDRVERSION_STD=2.0.4
-SWIG_BLDRVERSION_EXP=2.0.11
+mydir=`dirname $BASH_SOURCE`
+source $mydir/swig_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-SWIG_BUILDS=${SWIG_BUILDS:-"ser"}
-SWIG_DEPS=pcre
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/swig/bin
+setSwigNonTriggerVars() {
+  SWIG_UMASK=002
+}
+setSwigNonTriggerVars
 
 ######################################################################
 #
@@ -52,6 +48,7 @@ buildSwig() {
     esac
     bilderBuild swig ser "$SWIG_MAKE_ENV"
   fi
+
 }
 
 ######################################################################
@@ -72,6 +69,5 @@ testSwig() {
 
 installSwig() {
   bilderInstall -r swig ser swig
-  # techo exit; exit
 }
 

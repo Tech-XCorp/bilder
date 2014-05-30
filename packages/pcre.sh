@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for pcre
+# Build information for pcre
 #
 # $Id$
 #
@@ -8,28 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in pcre_aux.sh
 #
 ######################################################################
 
-PCRE_BLDRVERSION=${PCRE_BLDRVERSION:-"8.20"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/pcre_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-PCRE_BUILDS=${PCRE_BUILDS:-"ser"}
-PCRE_DEPS=
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/pcre/bin
+setPcreNonTriggerVars() {
+  PCRE_UMASK=002
+}
+setPcreNonTriggerVars
 
 ######################################################################
 #
@@ -38,11 +35,12 @@ addtopathvar PATH $CONTRIB_DIR/pcre/bin
 ######################################################################
 
 buildPcre() {
-  if bilderUnpack pcre; then
+  if ! bilderUnpack pcre; then
+    return
+  fi
 # PCRE built with cmake does not install pcre-config, which swig needs.
-    if bilderConfig pcre ser; then
-      bilderBuild pcre ser
-    fi
+  if bilderConfig pcre ser; then
+    bilderBuild pcre ser
   fi
 }
 
@@ -64,6 +62,5 @@ testPcre() {
 
 installPcre() {
   bilderInstall -r pcre ser
-  # techo exit; exit
 }
 
