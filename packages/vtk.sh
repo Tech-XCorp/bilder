@@ -49,6 +49,7 @@ buildVtk() {
   local VTK_OS_ARGS=
   local VTK_PKG_ARGS=
   local VTK_PYTHON_ARGS=
+  local VTK_ADDL_ARGS=
   local VTK_MAKE_ARGS=
 # build_visit sets both of these the same for Darwin
   # local MANGLED_MESA_LIB=libOSMesa${SHOBJEXT}
@@ -74,6 +75,8 @@ buildVtk() {
           VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
           ;;
       esac
+# See http://public.kitware.com/pipermail/vtkusers/2014-March/083368.html
+      VTK_ADDL_ARGS="VTK_REQUIRED_OBJCXX_FLAGS=''"
       ;;
     Linux)
       # VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib:$LD_RUN_PATH
@@ -167,7 +170,7 @@ buildVtk() {
 # For Windows, try not replacing the RELEASE flags
   local otherargsvar=`genbashvar VTK_${VTK_BUILD}`_OTHER_ARGS
   local otherargsval=`deref $otherargsvar`
-  local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $otherargsval"
+  local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $VTK_ADDL_ARGS $otherargsval"
   techo -2 "VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS"
 # Pass with commas and separate later.
   if bilderConfig $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS" "" "$VTK_ENV"; then
