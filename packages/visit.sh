@@ -129,31 +129,32 @@ buildVisit() {
   local VISIT_ARCH=`getVisitArch`
 
 # Args for make and environment, and configuration file
-  local VISIT_MAKE_ARGS=
   local VISIT_ADDL_ARGS=
+  local VISIT_MAKE_ARGS=
   local VISIT_ENV=
   local VISIT_MESA_DIR=
   case `uname` in
     CYGWIN*)
       if which jom 1>/dev/null 2>/dev/null; then
-        VISIT_MAKE_ARGS="$VISIT_MAKEJ_ARGS"
+        VISIT_MAKE_ARGS="$VISIT_MAKE_ARGS $VISIT_MAKEJ_ARGS"
       fi
 # Remove cygwin paths when configuring
       PATH_CYGWIN_LAST=`echo :$PATH: | sed -e 's?:/usr/bin:?:?' -e 's?:/bin:?:?'`:/usr/bin
       VISIT_ENV="PATH='$PATH_CYGWIN_LAST'"
       ;;
     Darwin)
-      VISIT_MAKE_ARGS="$VISIT_MAKEJ_ARGS"
+      VISIT_MAKE_ARGS="$VISIT_MAKE_ARGS $VISIT_MAKEJ_ARGS"
       if ! $IS_VISIT_TRUNK && test -d $CONTRIB_DIR/mesa/lib; then
         VISIT_MESA_DIR=$CONTRIB_DIR/mesa
       fi
       ;;
     Linux)
-      VISIT_MAKE_ARGS="$VISIT_MAKEJ_ARGS"
+      VISIT_MAKE_ARGS="$VISIT_MAKE_ARGS $VISIT_MAKEJ_ARGS"
       local VISIT_LD_RUN_PATH=$PYC_LD_RUN_PATH:$LD_RUN_PATH
       VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
       ;;
   esac
+  trimvar VISIT_MAKE_ARGS ' '
   if test -n "$VISIT_CTEST_TARGET"; then
     VISIT_ADDL_ARGS="$VISIT_ADDL_ARGS -DSITE:STRING='${FQMAILHOST}' -DBUILDNAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-${bld}' -DBUILD_TESTING:BOOL=ON -DVISIT_TEST_DIR:PATH=$PROJECT_DIR/visittest/test -DCTEST_BUILD_FLAGS:STRING='$VISIT_MAKE_ARGS'"
     VISIT_MAKE_ARGS="${VISIT_CTEST_TARGET}Start ${VISIT_CTEST_TARGET}Build"
