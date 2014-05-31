@@ -32,7 +32,6 @@ setOceTriggerVars
 #
 ######################################################################
 
-# Find the directory containing the OCE cmake files
 findOce() {
 
 # Look for Oce in the install directory

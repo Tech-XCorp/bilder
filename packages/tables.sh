@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for tables
+# Build information for tables
 #
 # $Id$
 #
@@ -8,25 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in tables_aux.sh
 #
 ######################################################################
 
-TABLES_BLDRVERSION_STD=${TABLES_BLDRVERSION_STD:-"3.0.0"}
-TABLES_BLDRVERSION_EXP=${TABLES_BLDRVERSION_EXP:-"3.1.0"}
-computeVersion tables
+mydir=`dirname $BASH_SOURCE`
+source $mydir/tables_aux.sh
 
 ######################################################################
 #
-# Builds and deps
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setTablesGlobalVars() {
-  TABLES_BUILDS=${TABLES_BUILDS:-"cc4py"}
-  TABLES_DEPS=hdf5,Cython,numexpr,numpy
+setTablesNonTriggerVars() {
+  :
 }
-setTablesGlobalVars
+setTablesNonTriggerVars
 
 ######################################################################
 #

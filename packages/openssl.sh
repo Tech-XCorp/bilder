@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for openssl
+# Build information for openssl
 #
 # $Id$
 #
@@ -8,21 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in openssl_aux.sh
 #
 ######################################################################
 
-OPENSSL_BLDRVERSION_STD=${OPENSSL_BLDRVERSION_STD:-"1.0.1c"}
-OPENSSL_BLDRVERSION_EXP=${OPENSSL_BLDRVERSION_EXP:-"1.0.1c"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/openssl_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-OPENSSL_BUILDS=${OPENSSL_BUILDS:-"NONE"}
-OPENSSL_DEPS=
+setOpensslNonTriggerVars() {
+  :
+}
+setOpensslNonTriggerVars
 
 ######################################################################
 #
