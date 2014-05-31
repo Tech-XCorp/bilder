@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for cython
+# Build information for cython
 #
 # $Id$
 #
@@ -8,27 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in cython_aux.sh
 #
 ######################################################################
 
-CYTHON_BLDRVERSION_STD=0.19.2
-CYTHON_BLDRVERSION_EXP=0.20.1
+mydir=`dirname $BASH_SOURCE`
+source $mydir/cython_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setCythonGlobalVars() {
-  CYTHON_BUILDS=${CYTHON_BUILDS:-"cc4py"}
-  CYTHON_DEPS=Python
-  if $HAVE_ATLAS_PYC; then
-    CYTHON_DEPS="$CYTHON_DEPS,atlas"
-  fi
+setCythonNonTriggerVars() {
+  :
 }
-setCythonGlobalVars
+setCythonNonTriggerVars
 
 ######################################################################
 #
@@ -101,6 +99,5 @@ installCython() {
     chmod a+r $PYTHON_SITEPKGSDIR/cython.py*
     setOpenPerms $PYTHON_SITEPKGSDIR/pyximport
   fi
-  # techo "WARNING: Quitting at end of cython.sh."; cleanup
 }
 

@@ -15,22 +15,25 @@
 #
 ######################################################################
 
-setNumexprTriggerVars() {
-  NUMEXPR_BLDRVERSION_STD=${NUMEXPR_BLDRVERSION_STD:-"2.2.2"}
-  NUMEXPR_BLDRVERSION_EXP=${NUMEXPR_BLDRVERSION_EXP:-"2.2.2"}
-  NUMEXPR_BUILDS=${NUMEXPR_BUILDS:-"cc4py"}
-  NUMEXPR_DEPS=numpy,Python
+setCythonTriggerVars() {
+  CYTHON_BLDRVERSION_STD=0.19.2
+  CYTHON_BLDRVERSION_EXP=0.20.1
+  CYTHON_BUILDS=${CYTHON_BUILDS:-"cc4py"}
+  CYTHON_DEPS=Python
+  if $HAVE_ATLAS_PYC; then
+    CYTHON_DEPS="$CYTHON_DEPS,atlas"
+  fi
 }
-setNumexprTriggerVars
+setCythonTriggerVars
 
 ######################################################################
 #
-# Find numexpr
+# Find cython
 #
 ######################################################################
 
-findNumexpr() {
+findCython() {
   :
 }
-findNumexpr
+findCython
 
