@@ -4485,12 +4485,14 @@ bilderBuild() {
   local builddir
   local bildermake
   local makeclean=true
+  local makedepend=true
 # Parse options
 # This syntax is needed to keep parameters quoted
   set -- "$@"
   OPTIND=1
-  while getopts "km:" arg; do
+  while getopts "dkm:" arg; do
     case "$arg" in
+      D) makedepend=false;;
       k) makeclean=false;;
       m) bildermake="$OPTARG";;
     esac
@@ -4548,8 +4550,10 @@ bilderBuild() {
     $bildermake clean 1>/dev/null 2>&1
   fi
 # Ignore errors for depend, as some fortran components do not have this.
-  techo "$bildermake -i depend"
-  $bildermake -i depend 1>depend.txt 2>&1
+  if $makedepend; then
+    techo "$bildermake -i depend"
+    $bildermake -i depend 1>depend.txt 2>&1
+  fi
 
 # make all
   local envprefix=
