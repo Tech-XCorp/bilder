@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Trigger vars and find information
+# Version and build information for numexpr
 #
 # $Id$
 #
@@ -15,26 +15,22 @@
 #
 ######################################################################
 
-setCLapack_CmakeTriggerVars() {
-  CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
-  CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
-  if test $CLAPACK_CMAKE_BUILDS != NONE; then
-    addCc4pyBuild clapack_lapack
-  fi
-  CLAPACK_CMAKE_DEPS=cmake
+setNumexprTriggerVars() {
+  NUMEXPR_BLDRVERSION_STD=${NUMEXPR_BLDRVERSION_STD:-"2.2.2"}
+  NUMEXPR_BLDRVERSION_EXP=${NUMEXPR_BLDRVERSION_EXP:-"2.2.2"}
+  NUMEXPR_BUILDS=${NUMEXPR_BUILDS:-"cc4py"}
+  NUMEXPR_DEPS=numpy,Python
 }
-setCLapack_CmakeTriggerVars
+setNumexprTriggerVars
 
 ######################################################################
 #
-# Find clapack_cmake
+# Find numpy
 #
 ######################################################################
 
-findCLapack_Cmake() {
-  CLAPACK_CMAKE_INSTALLED=${CLAPACK_CMAKE_INSTALLED:-"false"}
-  if $CLAPACK_CMAKE_INSTALLED; then
-    findBlasLapack
-  fi
+findNumexpr() {
+  :
 }
+findNumexpr
 

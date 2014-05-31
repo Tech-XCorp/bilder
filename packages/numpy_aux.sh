@@ -1,6 +1,18 @@
 #!/bin/bash
 #
 # Trigger vars and find information
+
+# On Windows numpy can be built with any of
+#   no linear algebra libraries
+#   clapack_cmake (no fortran need)
+#   netlib-lapack (fortran needed)
+#   atlas-clp (atlas built with clp, no fortran needed)
+#   atlas-ser (atlas built with netlib-lapack, fortran needed)
+# These flags determine how numpy is built, with or without fortran, atlas.
+
+# There is also a move to using OpenBLAS
+#  http://numpy-discussion.10968.n7.nabble.com/Default-builds-of-OpenBLAS-development-branch-are-now-fork-safe-td36523.html
+# due to the slowness of compiling atlas.
 #
 # $Id$
 #

@@ -15,26 +15,24 @@
 #
 ######################################################################
 
-setCLapack_CmakeTriggerVars() {
-  CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
-  CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
-  if test $CLAPACK_CMAKE_BUILDS != NONE; then
-    addCc4pyBuild clapack_lapack
+setChrpathTriggerVars() {
+  CHRPATH_BLDRVERSION=${CHRPATH_BLDRVERSION:-"0.13"}
+  if test `uname` = Linux && ! which chrpath 1>/dev/null; then
+    CHRPATH_BUILDS=${CHRPATH_BUILDS:-"ser"}
   fi
-  CLAPACK_CMAKE_DEPS=cmake
+  CHRPATH_DEPS=
+  CHRPATH_UMASK=002
 }
-setCLapack_CmakeTriggerVars
+setChrpathTriggerVars
 
 ######################################################################
 #
-# Find clapack_cmake
+# Find oce
 #
 ######################################################################
 
-findCLapack_Cmake() {
-  CLAPACK_CMAKE_INSTALLED=${CLAPACK_CMAKE_INSTALLED:-"false"}
-  if $CLAPACK_CMAKE_INSTALLED; then
-    findBlasLapack
-  fi
+# Find the directory containing the OCE cmake files
+findChrpath() {
+  :
 }
 

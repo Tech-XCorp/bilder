@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for chrpath
+# Build information for chrpath
 #
 # $Id$
 #
@@ -8,24 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in chrpath_aux.sh
 #
 ######################################################################
 
-CHRPATH_BLDRVERSION=${CHRPATH_BLDRVERSION:-"0.13"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/chrpath_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-# Build only if not present
-if test `uname` = Linux && ! which chrpath 1>/dev/null; then
-  CHRPATH_BUILDS=${CHRPATH_BUILDS:-"ser"}
-fi
-CHRPATH_DEPS=
-CHRPATH_UMASK=002
+setChrpathNonTriggerVars() {
+  CHRPATH_UMASK=002
+}
+setChrpathNonTriggerVars
 
 ######################################################################
 #
@@ -34,10 +35,11 @@ CHRPATH_UMASK=002
 ######################################################################
 
 buildChrpath() {
-  if bilderUnpack chrpath; then
-    if bilderConfig chrpath ser; then
-      bilderBuild chrpath ser
-    fi
+  if ! bilderUnpack chrpath; then
+    return
+  fi
+  if bilderConfig chrpath ser; then
+    bilderBuild chrpath ser
   fi
 }
 

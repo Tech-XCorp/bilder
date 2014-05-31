@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for numexpr
+# Build information for numexpr
 #
 # $Id$
 #
@@ -8,21 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in numexpr_aux.sh
 #
 ######################################################################
 
-NUMEXPR_BLDRVERSION_STD=${NUMEXPR_BLDRVERSION_STD:-"2.2.2"}
-NUMEXPR_BLDRVERSION_EXP=${NUMEXPR_BLDRVERSION_EXP:-"2.2.2"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/numexpr_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-NUMEXPR_BUILDS=${NUMEXPR_BUILDS:-"cc4py"}
-NUMEXPR_DEPS=numpy,Python
+setNumexprNonTriggerVars() {
+  :
+}
+setNumexprNonTriggerVars
 
 ######################################################################
 #
@@ -44,7 +48,7 @@ buildNumexpr() {
   techo "$cmd"
   sed -i.bak -e 's/inline static/inline/g' $ptchfile
 
-# Accumulate link flags for modules, and make ATLAS modifications.
+# Accumulate link flags for modules.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
