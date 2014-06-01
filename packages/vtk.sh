@@ -65,7 +65,7 @@ buildVtk() {
          ;;
       esac
 # Protect against jom, as dependencies not right
-      VTK_BUILD_ARGS="-m nmake"
+      VTK_MAKER_ARGS="-m nmake"
       ;;
     Darwin)	# make -j can fail on Darwin
       VTK_OS_ARGS="$VTK_OS_ARGS -DVTK_USE_CARBON:BOOL=OFF -DVTK_USE_COCOA:BOOL=ON"
@@ -76,6 +76,7 @@ buildVtk() {
           ;;
       esac
 # See http://public.kitware.com/pipermail/vtkusers/2014-March/083368.html
+      VTK_MAKE_ARGS="$VTK_MAKE_ARGS $VTK_MAKEJ_ARGS"
       VTK_ADDL_ARGS="VTK_REQUIRED_OBJCXX_FLAGS=''"
       ;;
     Linux)
@@ -113,6 +114,7 @@ buildVtk() {
       VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
       ;;
   esac
+  trimvar VTK_MAKE_ARGS ' '
   local VTK_COMPILERS
   local VTK_FLAGS
 
@@ -173,7 +175,7 @@ buildVtk() {
   local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $VTK_ADDL_ARGS $otherargsval"
   techo -2 "VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS"
   if bilderConfig $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS" "" "$VTK_ENV"; then
-    bilderBuild $VTK_BUILD_ARGS $VTK_NAME $VTK_BUILD "$VTK_MAKE_ARGS" "$VTK_ENV"
+    bilderBuild $VTK_MAKER_ARGS $VTK_NAME $VTK_BUILD "$VTK_MAKE_ARGS" "$VTK_ENV"
   fi
 
 }
@@ -195,6 +197,6 @@ testVtk() {
 ######################################################################
 
 installVtk() {
-  bilderInstall $VTK_BUILD_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"
+  bilderInstall $VTK_MAKER_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"
 }
 
