@@ -157,9 +157,11 @@ case `uname` in
     LIBEXT=.a
     LIBPREFIX=lib
     if ! MAKEJ_TOTAL=`hwprefs cpu_count 2>/dev/null`; then
-      MAKEJ_TOTAL=`sysctl -n hw.ncpu`
+      # MAKEJ_TOTAL=`sysctl -n hw.ncpu`
+      MAKEJ_TOTAL=`sysctl -n hw.physicalcpu`
     fi
     OSVER=`uname -r`
+    CPUINFO=`sysctl -n machdep.cpu.brand_string`
 # On Darwin, jenkins is not getting /usr/local/bin
     if ! echo $PATH | egrep -q "(^|:)/usr/local/bin($|:)"; then
       PATH="$PATH":/usr/local/bin
