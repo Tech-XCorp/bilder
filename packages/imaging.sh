@@ -61,7 +61,9 @@ buildImaging() {
       ;;
     Darwin-*)
 # See http://stackoverflow.com/questions/22334776/installing-pillow-pil-on-mavericks
-      IMAGING_ENV="ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future"
+      case `uname -r` in
+        1[2-9].*) IMAGING_ENV="ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future";;
+      esac
 # Find X11.  May need to check other places
       local cflags=
       if test -d /opt/X11/include; then
@@ -69,6 +71,8 @@ buildImaging() {
       fi
       if test -n "$cflags"; then
         IMAGING_ENV="$IMAGING_ENV CFLAGS='$cflags'"
+      fi
+      trimvar IMAGING_ENV ' '
       fi
       ;;
     Linux-*)
