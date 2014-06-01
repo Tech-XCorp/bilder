@@ -73,7 +73,6 @@ buildImaging() {
         IMAGING_ENV="$IMAGING_ENV CFLAGS='$cflags'"
       fi
       trimvar IMAGING_ENV ' '
-      fi
       ;;
     Linux-*)
       # IMAGING_ARGS=
