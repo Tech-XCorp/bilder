@@ -417,9 +417,10 @@ getMaker() {
     CYGWIN*)
       case "$1" in
         qmake | cmake | none)
-          if which jom 1>/dev/null 2>&1; then
+          if which ninja 1>/dev/null 2>&1; then
+            maker=ninja
+          elif which jom 1>/dev/null 2>&1; then
             maker=jom
-            # maker=nmake
           else
             maker=nmake
           fi
@@ -3784,7 +3785,7 @@ rminterlibdeps() {
 # -i configures in the source directory
 # -I use optarg for install directory
 # -l removes previous install if found
-# -m the eventually used "maker", e.g., make, nmake, jom
+# -m the eventually used "maker", e.g., make, nmake, jom, ninja
 # -n uses a space instead of an equals for the prefix command.
 # -p <specified prefix subdir>.  '-' means none.
 # -q <name of .pro file> path (relative to src directory) and
@@ -4325,9 +4326,10 @@ bilderConfig() {
         cmake)
           local generator=
           case "$maker" in
-            nmake) generator="NMake Makefiles";;
             jom) generator="NMake Makefiles JOM";;
             make) generator="Unix Makefiles";;
+            ninja) generator="Ninja";;
+            nmake) generator="NMake Makefiles";;
           esac
           if test -z "$generator"; then
             case "$2" in
