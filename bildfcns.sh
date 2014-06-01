@@ -3793,6 +3793,7 @@ rminterlibdeps() {
 # -r uses riverbank procedure (for sip and PyQt): python configure.py
 # -s if specified with -m, strips off the builddir and uses only the command
 #    specified with -m option
+# -S <time> maximum seconds a test is allowed to take
 # -t do not record failure if $IGNORE_TEST_RESULTS is true
 # -T top of sourcedir for configuring
 # -y do not use --prefix in configure command at all
@@ -3827,12 +3828,13 @@ bilderConfig() {
   local rminstall=false
   local stripbuilddir=false
   local srcsubdir=
+  local testsecs=
   local usecmake=false
   local webdocs=false  # By default, we do not build documentation for the web
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cC:d:fgiI:ylm:np:q:rstT:" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:np:q:rsS:tT:" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
@@ -3850,6 +3852,7 @@ bilderConfig() {
       q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;
       r) riverbank=true;;
       s) stripbuilddir=true;;
+      S) testsecs="$OPTARG";;
       t) recordfailure=false;;
       T) srcsubdir="$OPTARG";;
       y) noprefix=true; inplace=true;;
@@ -4003,7 +4006,7 @@ bilderConfig() {
 #
   local configexec=
   local configargs=
-  local ctestargs="-DCTEST_BUILD_NAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-$2'"
+  local ctestargs=
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
 # qmake configure
@@ -4222,6 +4225,7 @@ bilderConfig() {
 # Location of source for cmake builds.
   local srcarg=
   local hasctest=false
+  local hasscimake=false
 # Add other, default args
   case $cmval in
     qmake)
@@ -4258,22 +4262,27 @@ bilderConfig() {
       if test -f $srcarg/Start.ctest; then
         hasctest=true
       fi
+      if test -d $srcarg/scimake; then
+        hasscimake=true
+      fi
 # Some options are always chosen
-      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
       if test $VERBOSITY -ge 1; then
         configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
       fi
-      if test -n "$SVN_BINDIR"; then
-        configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
+      if test -n "$testsecs"; then
+        configargs="$configargs -DDART_TESTING_TIMEOUT:STRING=$testsecs"
       fi
-      if $hasctest or $TESTING and test -d $srcarg/scimake; then
-        if test -n "$CTEST_DROP_SITE"; then
-          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-          ctestargs="$ctestargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+      if $hasscimake; then
+        configargs="$configargs -DSCIMAKE_BUILD:STRING=$2"
+        if test -n "$SCIMAKE_DROP_SITE"; then
+          configargs="$configargs -DSCIMAKE_DROP_SITE:STRING='${SCIMAKE_DROP_SITE}'"
         fi
         if test -n "$FQMAILHOST"; then
-          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
-          ctestargs="$ctestargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
+          configargs="$configargs -DSCIMAKE_SITE:STRING='${FQMAILHOST}'"
+        fi
+        if test -n "$SVN_BINDIR"; then
+          configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
         fi
       fi
       ;;
