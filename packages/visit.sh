@@ -134,7 +134,7 @@ buildVisit() {
   local VISIT_ARCH=`getVisitArch`
 
 # Args for make and environment, and configuration file
-  local VISIT_ADDL_ARGS=
+  local VISIT_ADDL_ARGS="-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
   local VISIT_MAKE_ARGS=
   local VISIT_ENV=
   local VISIT_MESA_DIR=

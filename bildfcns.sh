@@ -4003,7 +4003,7 @@ bilderConfig() {
 #
   local configexec=
   local configargs=
-  local ctestargs=
+  local ctestargs="-DCTEST_BUILD_NAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-$2'"
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
 # qmake configure
@@ -4245,24 +4245,8 @@ bilderConfig() {
           cmakeinstdir="$fullinstalldir"
           ;;
       esac
-# Some options are always chosen
-      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
-      if test $VERBOSITY -ge 1; then
-        configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
-      fi
-      if test -n "$SVN_BINDIR"; then
-        configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
-      fi
-      if $TESTING and test -d $PROJECT_DIR/$1/scimake; then
-        if test -n "$CTEST_DROP_SITE"; then
-          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-        fi
-        if test -n "$FQMAILHOST"; then
-          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
-        fi
-      fi
       if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
-        srcarg=$PROJECT_DIR/$1/$srcsubdir
+        srcarg=`(cd $PROJECT_DIR/$1/$srcsubdir; pwd -P)`
       elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
         srcarg=`(cd $builddir/../$srcsubdir; pwd -P)`
       elif test -f $builddir/../src/CMakeLists.txt; then
@@ -4273,6 +4257,24 @@ bilderConfig() {
       fi
       if test -f $srcarg/Start.ctest; then
         hasctest=true
+      fi
+# Some options are always chosen
+      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DBILDER_BUILD:STRING=$2 -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+      if test $VERBOSITY -ge 1; then
+        configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
+      fi
+      if test -n "$SVN_BINDIR"; then
+        configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
+      fi
+      if $hasctest or $TESTING and test -d $srcarg/scimake; then
+        if test -n "$CTEST_DROP_SITE"; then
+          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+          ctestargs="$ctestargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+        fi
+        if test -n "$FQMAILHOST"; then
+          configargs="$configargs -DBILDER_SITE:STRING='${FQMAILHOST}'"
+          ctestargs="$ctestargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
+        fi
       fi
       ;;
     *)
@@ -4310,10 +4312,13 @@ bilderConfig() {
 
 # In the case of ctest, modify args to be able to pass as options
   configargs="$configargs $3"
+  local ctestoptions=
   if $hasctest; then
     techo "Start.ctest found."
     ctestoptions=`echo $configargs | tr -d \'\"\; | sed -e 's/ -D/;-D/g'`
     techo "ctestoptions = $ctestoptions."
+    ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
+    techo "ctestargs = $ctestargs."
   fi
 
 # Ready to start configuring
@@ -4372,7 +4377,11 @@ bilderConfig() {
       esac
       ;;
     *)
-      finalcmd="$configexec $configargs $srcarg"
+      if $hasctest; then
+        finalcmd="ctest $ctestargs -S $srcarg/Start.ctest"
+      else
+        finalcmd="$configexec $configargs $srcarg"
+      fi
       ;;
   esac
 
