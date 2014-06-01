@@ -82,11 +82,13 @@ getVisitArch() {
 buildVisit() {
 
 # Check for svn repo or package
+  local cmd=
   if test -d $PROJECT_DIR/visit; then
 # Package: so patch and preconfig
 
 # Revert to undo previous patch.
     bilderSvn revert --recursive $PROJECT_DIR/visit
+    rm -f $PROJECT_DIR/visit/Start.ctest
     VISIT_DISTVERSION=`cat $PROJECT_DIR/visit/VERSION`
     getVersion visit
     techo "After reverting, VISIT_BLDRVERSION = $VISIT_BLDRVERSION."
@@ -119,6 +121,9 @@ buildVisit() {
     if ! bilderPreconfig -c visit; then
       return 1
     fi
+    cmd="cp $BILDER_DIR/patches/Start.ctest $PROJECT_DIR/visit/"
+    techo "$cmd"
+    $cmd
   else
     if ! bilderUnpack visit; then
       return 1
