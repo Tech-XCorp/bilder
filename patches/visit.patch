@@ -1,6 +1,6 @@
 Index: visit/CMakeLists.txt
 ===================================================================
---- visit/CMakeLists.txt	(revision 23357)
+--- visit/CMakeLists.txt	(revision 23408)
 +++ visit/CMakeLists.txt	(working copy)
 @@ -879,20 +879,36 @@
      # * test data is generated from a set of programs
