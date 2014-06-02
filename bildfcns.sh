@@ -417,10 +417,10 @@ getMaker() {
     CYGWIN*)
       case "$1" in
         qmake | cmake | none)
-          if which ninja 1>/dev/null 2>&1; then
-            maker=ninja
-          elif which jom 1>/dev/null 2>&1; then
+          if which jom 1>/dev/null 2>&1; then
             maker=jom
+          elif which ninja 1>/dev/null 2>&1; then
+            maker=ninja
           else
             maker=nmake
           fi
