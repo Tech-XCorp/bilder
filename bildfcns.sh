@@ -4006,7 +4006,8 @@ bilderConfig() {
 #
   local configexec=
   local configargs=
-  local ctestargs=
+# Ctest needs to be told (redundantly) the build
+  local ctestargs="-DCTEST_BUILD_NAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-$2'"
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
 # qmake configure
@@ -4272,6 +4273,10 @@ bilderConfig() {
       fi
       if test -n "$testsecs"; then
         configargs="$configargs -DDART_TESTING_TIMEOUT:STRING=$testsecs"
+      fi
+# Ctest needs the following variable to get site correct for configure submit
+      if test -n "$FQMAILHOST"; then
+        ctestargs="$ctestargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
       fi
       if $hasscimake; then
         configargs="$configargs -DSCIMAKE_BUILD:STRING=$2"
