@@ -95,6 +95,8 @@ case `uname` in
     CYGWIN_ROOT=${CYGWIN_ROOT:-"/cygwin"}
     CC=${CC:-"cl"}
     CXX=${CXX:-"cl"}
+# http://www.windows-commandline.com/get-cpu-processor-information-command/
+    CPUINFO=`wmic cpu get caption | tail -1`
     LIBEXT=.lib
     unset LIBPREFIX
     techo "Getting number of cores."
@@ -152,6 +154,7 @@ case `uname` in
       techo "WARNING: [bildvars.sh] ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
     fi
     ARCHIVER=ar
+    CPUINFO=`sysctl -n machdep.cpu.brand_string`
     SYSTEM_BLAS_SER_LIB="-framework Accelerate"
     SYSTEM_LAPACK_SER_LIB="-framework Accelerate"
     LIBEXT=.a
@@ -161,7 +164,6 @@ case `uname` in
       MAKEJ_TOTAL=`sysctl -n hw.physicalcpu`
     fi
     OSVER=`uname -r`
-    CPUINFO=`sysctl -n machdep.cpu.brand_string`
 # On Darwin, jenkins is not getting /usr/local/bin
     if ! echo $PATH | egrep -q "(^|:)/usr/local/bin($|:)"; then
       PATH="$PATH":/usr/local/bin
@@ -204,6 +206,7 @@ case `uname` in
 
   Linux)
     ARCHIVER=ar
+    CPUINFO=`grep "model name" /proc/cpuinfo | head -1 | sed 's/^.*:  *//'`
     LIBEXT=.a
     LIBPREFIX=lib
     MAKEJ_TOTAL=`grep ^processor /proc/cpuinfo | wc -l`
@@ -836,7 +839,7 @@ USING_BUILD_CHAIN=false
 ######################################################################
 
 techo -2 "Trimming and writing out all variables."
-hostvars="USER BLDRHOSTID FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
+hostvars="USER BLDRHOSTID CPUINFO FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
 instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh

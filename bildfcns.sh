@@ -419,8 +419,8 @@ getMaker() {
         qmake | cmake | none)
           if which jom 1>/dev/null 2>&1; then
             maker=jom
-          elif which ninja 1>/dev/null 2>&1; then
-            maker=ninja
+          # elif which ninja 1>/dev/null 2>&1; then
+            # maker=ninja
           else
             maker=nmake
           fi
@@ -4275,8 +4275,8 @@ bilderConfig() {
       fi
       if $hasscimake; then
         configargs="$configargs -DSCIMAKE_BUILD:STRING=$2"
-        if test -n "$SCIMAKE_DROP_SITE"; then
-          configargs="$configargs -DSCIMAKE_DROP_SITE:STRING='${SCIMAKE_DROP_SITE}'"
+        if test -n "$CTEST_DROP_SITE"; then
+          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
         fi
         if test -n "$FQMAILHOST"; then
           configargs="$configargs -DSCIMAKE_SITE:STRING='${FQMAILHOST}'"
@@ -6981,6 +6981,7 @@ EOF
   cat <<EOF >>$SUMMARY
 USER          $USER
 Host          $FQHOSTNAME
+cpuinfo       $CPUINFO
 System:       `uname -a`
 BLDRHOSTID:   $BLDRHOSTID
 RUNNRSYSTEM:  $RUNNRSYSTEM
