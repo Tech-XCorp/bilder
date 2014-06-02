@@ -5084,6 +5084,7 @@ getForceTests() {
 # Named args (must come first)
 #
 # -b has tests in each build directory
+# -c do coverage tests
 # -i comma-separated list of build(s) to ignore when deciding to run tests
 #    (documentation generating builds always ignored.)
 # -s submit the results of the builds and tests to the cdash site.
@@ -5098,13 +5099,15 @@ bilderRunTests() {
   local hasbuildtests=false
   local ignoreBuilds=develdocs
   local submitres=false
+  local testcoverage=false
   local usepkgver=false
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bi:sv" arg; do
+  while getopts "bci:sv" arg; do
     case $arg in
       b) hasbuildtests=true;;
+      c) testcoverage=true;;
       i) ignoreBuilds="$ignoreBuilds,$OPTARG";;
       s) submitres=true;;
       v) usepkgver=true;;
@@ -5165,6 +5168,7 @@ bilderRunTests() {
 # For those not failed, launch tests in build dir if asked.
   local tbFailures=
   local builddirtests=
+  local cmd=
   for bld in `echo $buildsval | tr ',' ' '`; do
 # Is there a problem that only some builds might be done at any run?
     cmd="waitAction $pkgname-$bld"
@@ -5286,10 +5290,15 @@ EOF
         cd $BUILD_DIR/$pkgname/$bld
 # TODO: add memcheck target for automated/nightly builds
         local sub_fname=$FQMAILHOST-$pkgname-$bld-submit
+        local cmdtarg="${targval}Submit"
+        if $testcoverage; then
+          cmdtarg="${targval}Coverage ${cmdtarg}"
+        fi
+        cmd="$maker -i $cmdtarg"
         cat >${sub_fname}.sh <<EOF
 #!/bin/bash
 
-cmd="$maker -i ${targval}Coverage ${targval}Submit"
+cmd="$cmd"
 echo \$cmd
 \$cmd
 res=\$?
