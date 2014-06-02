@@ -20,7 +20,7 @@ setNetcdfTriggerVars() {
   NETCDF_BLDRVERSION_EXP="4.3.2"
   if test -z "$NETCDF_BUILDS"; then
 # netcdf_cxx4 requires a parallel build
-    NETCDF_BUILDS=ser,sersh,par
+    NETCDF_BUILDS=ser,sersh
     case `uname` in
       CYGWIN*) ;; # par, sermd not building
       *) NETCDF_BUILDS=${NETCDF_BUILDS},par;;
