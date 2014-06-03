@@ -3433,7 +3433,7 @@ bilderUnpack() {
       mkdir -p $1-$verval
       cd $1-$verval
       local builds=`echo $builds | tr ',' ' '`
-      techo -2 builds = $builds
+      techo -2 "builds = $builds"
       for i in $builds; do
         techo "Unpacking for $i build in $PWD."
         cmd="rmall $i"
@@ -3445,7 +3445,7 @@ bilderUnpack() {
         fi
         cmd="$pretar $tarball | $TAR -xf -"
         techo "$cmd"
-        $pretar $tarball | $TAR -xf -
+        eval $cmd
         if test $? != 0 -o ${PIPESTATUS[0]} != 0; then
           TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Unpacking failed."
           terminate
