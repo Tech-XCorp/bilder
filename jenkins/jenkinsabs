@@ -32,11 +32,6 @@ EOF
 }
 
 #
-# Get startup parameters
-#
-args="$*"
-
-#
 # Extract options.
 #
 istopdir=false
