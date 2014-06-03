@@ -8,7 +8,7 @@
  
  QT_BEGIN_NAMESPACE
  
-@@ -1379,17 +1380,20 @@
+@@ -1379,17 +1380,24 @@
      } else {
          // enable this to get wheel navigation that actually zooms by moving the
          // camera back, as opposed to making the angle of view wider.        
@@ -18,7 +18,7 @@
 +        QVector3D viewVector= camera()->center() - camera()->eye();
 +        //qreal zoomMag = viewVector.length();
 +        qreal zoomIncrement = float(delta) / 100.0f;
-+        zoomIncrement = qBound(-1.0f, float(zoomIncrement), 1.0f);
++        zoomIncrement = qBound(-0.95f, float(zoomIncrement), 0.95f);
          if (!qFuzzyIsNull(zoomIncrement))
          {
 -            zoomMag += zoomIncrement;
@@ -27,6 +27,10 @@
              if (zoomMag < 1.0f)
                  zoomMag = 1.0f;
 +          #endif
++            if (zoomIncrement > 0.0f && viewVector.lengthSquared() < 1e-35f)
++              return;  // Zoom min limit
++            if (zoomIncrement < 0.0f && viewVector.lengthSquared() > 1e+35f)
++              return;  // Zoom max limit
  
 -            QRay3D viewLine(camera()->center(), viewVector.normalized());
 -            camera()->setEye(viewLine.point(zoomMag));
