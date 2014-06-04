@@ -331,7 +331,14 @@ if test -z "$BILDER_CHAIN"; then
       esac
       ;;
     Darwin)
-      ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+      case $CC in
+        clang)
+          ccver=`clang --version | head -1 | sed -e 's/^.*clang-//' -e 's/).*$//'`
+          ;;
+        gcc)
+          ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+          ;;
+      esac
       BILDER_CHAIN=${ccbase}${ccver}
       ;;
     Linux)
