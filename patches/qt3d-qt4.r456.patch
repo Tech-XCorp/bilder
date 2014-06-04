@@ -1,41 +1,32 @@
---- qt3d/src/threed/viewing/qglview.cpp	2014-05-22 19:41:50.000000000 -0600
-+++ qt3d/src/threed/viewing/qglview.cpp.other	2014-05-22 19:41:42.000000000 -0600
+--- qt3d/src/threed/viewing/qglview.cpp	2014-06-04 15:19:41.000000000 -0600
++++ qt3d/src/threed/viewing/qglview.cpp.other	2014-06-04 15:18:54.000000000 -0600
 @@ -52,6 +52,7 @@
  #include <QtCore/qtimer.h>
  #include <QtCore/qdatetime.h>
  #include <QtCore/qdebug.h>
-+#include <QtCore/qglobal.h>
++#include <QtCore/qmath.h>
  
  QT_BEGIN_NAMESPACE
  
-@@ -1379,17 +1380,24 @@
+@@ -1379,16 +1380,12 @@
      } else {
          // enable this to get wheel navigation that actually zooms by moving the
          // camera back, as opposed to making the angle of view wider.        
 -        QVector3D viewVector= camera()->eye() - camera()->center();
 -        qreal zoomMag = viewVector.length();
 -        qreal zoomIncrement = -float(delta) / 100.0f;
-+        QVector3D viewVector= camera()->center() - camera()->eye();
-+        //qreal zoomMag = viewVector.length();
-+        qreal zoomIncrement = float(delta) / 100.0f;
-+        zoomIncrement = qBound(-0.95f, float(zoomIncrement), 0.95f);
-         if (!qFuzzyIsNull(zoomIncrement))
+-        if (!qFuzzyIsNull(zoomIncrement))
++        QVector3D viewVector = camera()->eye() - camera()->center();
++        qreal zoomIncrement  = -float(delta) / 120.0f;
++        qreal zoomMag = qPow(1.15f, zoomIncrement);
++        if (!qFuzzyIsNull(zoomMag))
          {
 -            zoomMag += zoomIncrement;
-+          #if 0
-+            zoomMag *= zoomIncrement;
-             if (zoomMag < 1.0f)
-                 zoomMag = 1.0f;
-+          #endif
-+            if (zoomIncrement > 0.0f && viewVector.lengthSquared() < 1e-35f)
-+              return;  // Zoom min limit
-+            if (zoomIncrement < 0.0f && viewVector.lengthSquared() > 1e+35f)
-+              return;  // Zoom max limit
- 
+-            if (zoomMag < 1.0f)
+-                zoomMag = 1.0f;
+-
 -            QRay3D viewLine(camera()->center(), viewVector.normalized());
--            camera()->setEye(viewLine.point(zoomMag));
-+            QRay3D viewLine(camera()->eye(), viewVector);
-+            camera()->setEye(viewLine.point(zoomIncrement));
++            QRay3D viewLine(camera()->center(), viewVector);
+             camera()->setEye(viewLine.point(zoomMag));
          }
      }
- 
