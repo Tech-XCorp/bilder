@@ -1,5 +1,18 @@
---- qt3d/src/threed/viewing/qglview.cpp	2014-06-04 15:19:41.000000000 -0600
-+++ qt3d/src/threed/viewing/qglview.cpp.other	2014-06-04 15:18:54.000000000 -0600
+Binary files qt3d/.git/index and qt3d_orig/.git/index differ
+diff -ur qt3d/src/threed/scene/qglscenenode.cpp qt3d_orig/src/threed/scene/qglscenenode.cpp
+--- qt3d/src/threed/scene/qglscenenode.cpp	2014-06-04 16:54:11.000000000 -0600
++++ qt3d_orig/src/threed/scene/qglscenenode.cpp	2014-06-04 16:55:58.000000000 -0600
+@@ -354,6 +354,7 @@
+ {
+     Q_D(QGLSceneNode);
+     d->geometry = geometry;
++    invalidateBoundingBox();
+     emit updated();
+ }
+ 
+diff -ur qt3d/src/threed/viewing/qglview.cpp qt3d_orig/src/threed/viewing/qglview.cpp
+--- qt3d/src/threed/viewing/qglview.cpp	2014-06-04 16:54:11.000000000 -0600
++++ qt3d_orig/src/threed/viewing/qglview.cpp	2014-06-04 16:54:04.000000000 -0600
 @@ -52,6 +52,7 @@
  #include <QtCore/qtimer.h>
  #include <QtCore/qdatetime.h>
