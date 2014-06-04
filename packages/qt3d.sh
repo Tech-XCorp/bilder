@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for qt3d
+# Build information for qt3d
 #
 # $Id$
 #
@@ -8,30 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in qt3d_aux.sh
 #
 ######################################################################
 
-# Built from git repo only
+mydir=`dirname $BASH_SOURCE`
+source $mydir/qt3d_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setQt3dGlobalVars() {
-# Qt is built $QT3D_BUILD if this is the python build, otherwise it is cc4py
-  QT3D_BUILD=$FORPYTHON_BUILD
-  QT3D_BUILDS=${QT3D_BUILDS:-"$FORPYTHON_BUILD"}
-  QT3D_DEPS=qt
+setQt3dNonTriggerVars() {
   QT3D_UMASK=002
-  QT3D_REPO_URL=git://gitorious.org/qt/qt3d.git
-  QT3D_UPSTREAM_URL=git://gitorious.org/qt/qt3d.git
-  QT3D_REPO_BRANCH_STD=qt4
-  QT3D_REPO_BRANCH_EXP=qt4  # The only choice
 }
-setQt3dGlobalVars
+setQt3dNonTriggerVars
 
 ######################################################################
 #
@@ -67,9 +62,8 @@ buildQt3d() {
     eval "$cmd"
   fi
 
-# This is installed into qmake, which is in the contrib dir
+# This is installed into qt, which is in the contrib dir
   QT3D_INSTALL_DIRS=$CONTRIB_DIR
-# Configure and build
 
   local makerargs=
   case `uname` in
@@ -79,11 +73,10 @@ buildQt3d() {
       esac
       ;;
   esac
-
   if bilderConfig $makerargs -q qt3d.pro qt3d $QT3D_BUILD "$QMAKESPECARG"; then
     local QT3D_PLATFORM_BUILD_ARGS=
     case `uname`-`uname -r` in
-      Darwin-12.*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
+      Darwin-1[2-3].*) QT3D_PLATFORM_BUILD_ARGS="CXX=clang++";;
       CYGWIN*)     QT3D_PLATFORM_BUILD_ARGS="CXX=$(basename "${CXX}")";;
       *)           QT3D_PLATFORM_BUILD_ARGS="CXX=g++";;
     esac
