@@ -4328,10 +4328,13 @@ bilderConfig() {
 
 # In the case of ctest, modify args to be able to pass as options
   configargs="$configargs $3"
+  trimvar configargs ' '
   local ctestoptions=
   if $hasctest; then
     techo "Start.ctest found."
-    ctestoptions=`echo $configargs | tr -d \'\"\; | sed -e 's/ -D/;-D/g'`
+# For ctest: remove the quotes escape the semicolons, but semicolons
+    techo -2 "configargs = $configargs."
+    ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g'`
     techo "ctestoptions = $ctestoptions."
     ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
     techo "ctestargs = $ctestargs."
