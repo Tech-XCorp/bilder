@@ -117,4 +117,3 @@ installQt3d() {
     esac
   fi
 }
-
