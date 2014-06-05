@@ -4009,6 +4009,11 @@ bilderConfig() {
 # Ctest needs to be told (redundantly) the build
   local ctestbuildname="${RUNNRSYSTEM}-${BILDER_CHAIN}-$2"
   local ctestargs="-DCTEST_BUILD_NAME:STRING='${ctestbuildname}'"
+  local targvar=`genbashvar $pkgname`_CTEST_TARGET
+  local targval=`deref $targvar`
+  if test -n "$targval"; then
+    ctestargs="$ctestargs -DCTEST_MODEL:STRING='${targval}'"
+  fi
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
 # qmake configure
