@@ -2,7 +2,7 @@
 #
 # Version and build information for ruby
 #
-# $Id: ruby.sh 92 2013-01-19 16:25:14Z jrobcary $
+# $Id$
 #
 ######################################################################
 

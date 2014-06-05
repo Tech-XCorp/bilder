@@ -3,7 +3,7 @@ rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 rem
 rem Purpose: This starts jenkinsrun through cygwin on windows.
 rem
-rem $Id: jenkinsrun.bat 276 2013-07-13 20:08:15Z techxdws $
+rem $Id$
 rem
 rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for Votca
 #
-# $Id: votca_csg_tutorials.sh 290 2013-07-18 18:06:28Z swsides $
+# $Id$
 #
 ######################################################################
 

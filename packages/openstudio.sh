@@ -2,7 +2,7 @@
 #
 # Version and build information for openstudio
 #
-# $Id: openstudio.sh 664 2013-06-17 21:15:06Z pletzer $
+# $Id$
 #
 ######################################################################
 

@@ -2,7 +2,7 @@
 #
 # Version and build information for python
 #
-# $Id: python.sh 562 2013-12-04 18:55:59Z techxdave $
+# $Id$
 #
 ######################################################################
 

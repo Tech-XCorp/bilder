@@ -2,7 +2,7 @@
 #
 # Version and build information for boost
 #
-# $Id: boost.sh 337 2013-08-02 23:32:38Z swsides $
+# $Id$
 #
 ######################################################################
 

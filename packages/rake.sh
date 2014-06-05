@@ -2,7 +2,7 @@
 #
 # Version and build information for rake (ruby make and scripting)
 #
-# $Id: rake.sh 246 2013-07-07 07:01:37Z  swsides $
+# $Id$
 #
 ######################################################################
 

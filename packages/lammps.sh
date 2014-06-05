@@ -2,7 +2,7 @@
 #
 # Version and build information for lammps
 #
-# $Id: lammps.sh 5767 2012-04-11 17:03:36Z pletzer $
+# $Id$
 #
 ######################################################################
 
