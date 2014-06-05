@@ -4268,7 +4268,7 @@ bilderConfig() {
         return 1
       fi
       local start_ctest=
-      if test -f $srcarg/scimake/Start.ctest; then
+      if test -f $srcarg/scimake/Start.ctest -a -f $srcarg/CTestConfig.cmake; then
         hasctest=true
         start_ctest=$srcarg/scimake/Start.ctest
       elif test -f $srcarg/Start.ctest; then
