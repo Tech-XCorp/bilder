@@ -4009,10 +4009,11 @@ bilderConfig() {
 # Ctest needs to be told (redundantly) the build
   local ctestbuildname="${RUNNRSYSTEM}-${BILDER_CHAIN}-$2"
   local ctestargs="-DCTEST_BUILD_NAME:STRING='${ctestbuildname}'"
-  local targvar=`genbashvar $pkgname`_CTEST_TARGET
-  local targval=`deref $targvar`
-  if test -n "$targval"; then
-    ctestargs="$ctestargs -DCTEST_MODEL:STRING='${targval}'"
+  local modelvar=`genbashvar $pkg`_CTEST_TARGET
+  local modelval=`deref $modelvar`
+  techo -2 "$modelvar = $modelval."
+  if test -n "$modelval"; then
+    ctestargs="$ctestargs -DCTEST_MODEL:STRING='${modelval}'"
   fi
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
@@ -5233,7 +5234,7 @@ echo \$res > bildersubmit-$1-$bld.res
 exit \$res
 EOF
         chmod a+x ${sub_fname}.sh
-        techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
+        techo "Submitting $targval results for $pkgname-$bld at `date +%F-%T`."
 # From cperry: Background submission, we don't need to keep track of it at this
 # point, since the build directory won't change.
 # JRC: Undoing.  Adding action to list should be done only if one is
