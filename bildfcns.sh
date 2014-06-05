@@ -4266,8 +4266,13 @@ bilderConfig() {
         techo "cmake build, but no CMakeLists.txt.  Skipping this build."
         return 1
       fi
-      if test -f $srcarg/Start.ctest; then
+      local start_ctest=
+      if test -f $srcarg/scimake/Start.ctest; then
         hasctest=true
+        start_ctest=$srcarg/scimake/Start.ctest
+      elif test -f $srcarg/Start.ctest; then
+        hasctest=true
+        start_ctest=$srcarg/Start.ctest
       fi
       if test -d $srcarg/scimake; then
         hasscimake=true
@@ -4402,7 +4407,7 @@ bilderConfig() {
       ;;
     *)
       if $hasctest; then
-        finalcmd="ctest $ctestargs -S $srcarg/Start.ctest"
+        finalcmd="ctest $ctestargs -S $start_ctest"
       else
         finalcmd="$configexec $configargs $srcarg"
       fi
