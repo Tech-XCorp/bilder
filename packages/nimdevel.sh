@@ -23,6 +23,7 @@
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
 NIMDEVEL_DEPS=openmpi,netlib_lite,fciowrappers,superlu_dist3,superlu,cmake
 NIMDEVEL_UMASK=002
+nimversion=nimdevel
 
 ######################################################################
 #
@@ -38,8 +39,6 @@ if $NIMDEVEL_SURFORIG; then
 fi
 if $NIMDEVEL_WITH_GRIN; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",grin"
-  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_Grin:BOOL=TRUE"
-  NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_Grin:BOOL=TRUE"
 fi
 if $NIMDEVEL_WITH_TAU; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",metatau"
@@ -55,6 +54,16 @@ if $NIMDEVEL_NATIVE_ENDIAN; then
   NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_NATIVE_ENDIAN:BOOL=TRUE"
   NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_NATIVE_ENDIAN:BOOL=TRUE"
 fi
+if $NIMDEVEL_WITH_PYTHON; then
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",Python,scipy,tables,matplotlib,numpy"
+fi
+
+######################################################################
+#
+# Build with the following options if installed or source is present
+#
+######################################################################
+
 if test -d $BLDR_INSTALL_DIR/simyan; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",simyan"
 fi
@@ -66,26 +75,10 @@ fi
 if test -d $PROJECT_DIR/genray; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",genray"
 fi
-if $NIMDEVEL_WITH_PYTHON; then
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",Python,scipy,tables,matplotlib,numpy"
-fi
-# No bilderized pastix yet - key off pastix in install directory
-# but change to $PROJECT_DIR when pastix is bilderized.
 if test -d $BLDR_INSTALL_DIR/pastix; then
   #NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",pastix"
   NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_Pastix:BOOL=TRUE"
 fi
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-nimversion=nimdevel
-addtopathvar PYTHONPATH $PROJECT_DIR/$nimversion/bin
-addtopathvar PATH $PROJECT_DIR/$nimversion/bin
-addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion-par/bin
-addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/bin
 
 ######################################################################
 #
@@ -170,4 +163,9 @@ installNimdevel() {
       setOpenPerms $instdir
     fi
   done
+
+# Add to paths after install to resolve the correct version (use serial)
+  #addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion-par/bin
+  addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/bin
+
 }
