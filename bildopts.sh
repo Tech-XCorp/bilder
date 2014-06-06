@@ -215,7 +215,6 @@ setBilderOptions() {
   SVNUP=false
   SVNUP_PKGS=true # Whether to svn up pkgs
   TARBALL_BUILD_TYPE=Release
-  TESTING_BUILDS=${TESTING_BUILDS:-"false"}
   TESTING_DEVELDOCS=${TESTING_DEVELDOCS:-"false"}
   TESTING=false
   USE_INTERNAL_TXPP=false
@@ -412,9 +411,10 @@ EOF
   fi
 
   if $TESTING; then
-    TESTING_BUILDS=true
+    TESTING_BUILDS=${TESTING_BUILDS:-"true"}
     techo "Tests will be run.  You must have the results directories checked out for installation.  If a package does not install (due to failing tests) its dependents might not build."
   else
+    TESTING_BUILDS=${TESTING_BUILDS:-"false"}
     techo "Tests will NOT be run."
   fi
 
