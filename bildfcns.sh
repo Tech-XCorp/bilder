@@ -5234,7 +5234,7 @@ echo \$res > bildersubmit-$1-$bld.res
 exit \$res
 EOF
         chmod a+x ${sub_fname}.sh
-        techo "Submitting $targval results for $pkgname-$bld at `date +%F-%T`."
+        techo "Submitting $targval post-build results for $pkgname-$bld at `date +%F-%T`."
 # From cperry: Background submission, we don't need to keep track of it at this
 # point, since the build directory won't change.
 # JRC: Undoing.  Adding action to list should be done only if one is
@@ -5322,7 +5322,7 @@ echo \$res > bildersubmit-$1-$bld.res
 exit \$res
 EOF
         chmod a+x ${sub_fname}.sh
-        techo "Submitting $targval build results for $pkgname-$bld at `date +%F-%T`."
+        techo "Submitting $targval post-test results for $pkgname-$bld at `date +%F-%T`."
 # cperry: Background the submission, we don't need to keep track of it at this
 # point, since the build directory won't change
 # JRC: Undoing.  Adding action to list should be done only if one is
