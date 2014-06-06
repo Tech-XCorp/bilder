@@ -276,7 +276,9 @@ buildVisit() {
 ######################################################################
 
 testVisit() {
-  bilderRunTests -bs visit
+  local testtarg=test
+  test -n "$VISIT_CTEST_TARGET" && testtarg="${VISIT_CTEST_TARGET}Test"
+  bilderRunTests -bs visit "" "${testtarg}"
 }
 
 ######################################################################
