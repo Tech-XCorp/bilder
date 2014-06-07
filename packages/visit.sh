@@ -221,13 +221,39 @@ buildVisit() {
   local VISIT_OS_ARGS=
   case `uname` in
 
-    CYGWIN*) VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`";;
+    CYGWIN*)
+      VISIT_OS_ARGS="-DVISIT_CONFIG_SITE:FILEPATH=`cygpath -am $PROJECT_DIR/visit/config-site/windows-bilder.cmake`"
+      ;;
 
 # Brad Whitlock writes (April 17, 9:58, 2012)
 #   All I\'ve ever had to pass is VISIT_PYTHON_DIR. The intent is that you
 #   should only have to set VISIT_PYTHON_DIR.
 # But it appears that on snowleopard with need to add the library dir?
-    Darwin) VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB";;
+    Darwin)
+      VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
+
+# Get references to libs correct
+      case `uname -r` in
+        9.*) ;;
+        10.*)
+# snow leopard does not do rpath, so have to add installation dir
+          VISIT_OS_ARGS="$VISIT_OS_ARGS -DCMAKE_INSTALL_NAME_DIR='${CONTRIB_DIR}/VTK-${VTK_BLDRVERSION}-${VTK_BUILD}/lib'"
+          ;;
+        *)
+# New rpath handling in http://www.kitware.com/blog/home/post/510 as of 2.8.12
+# The below sets the library name to start with @rpath/
+          VISIT_OS_ARGS="$VISIT_OS_ARGS -DCMAKE_MACOSX_RPATH:BOOL=TRUE"
+# The below adds this rpath to all libs and executables
+          VISIT_OS_ARGS="$VISIT_OS_ARGS -DCMAKE_INSTALL_RPATH:STRING='@loader_path/../lib:$VISIT_VTK_DIR/lib'"
+          ;;
+      esac
+
+      ;;
+
+    Linux)
+      VISIT_OS_ARGS="-DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
+      VISIT_ADDL_ARGS="$VISIT_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
+      ;;
 
   esac
 

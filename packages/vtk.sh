@@ -69,15 +69,26 @@ buildVtk() {
       ;;
     Darwin)	# make -j can fail on Darwin
       VTK_OS_ARGS="$VTK_OS_ARGS -DVTK_USE_CARBON:BOOL=OFF -DVTK_USE_COCOA:BOOL=ON"
+
+# Get references to libs correct
       case `uname -r` in
         9.*) ;;
         10.*)
-          VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
+# snow leopard does not do rpath, so have to add installation dir
+          VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_INSTALL_NAME_DIR='${CONTRIB_DIR}/VTK-${VTK_BLDRVERSION}-${VTK_BUILD}/lib'"
+          ;;
+        *)
+# New rpath handling in http://www.kitware.com/blog/home/post/510 as of 2.8.12
+# The below sets the library name to start with @rpath/
+          VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_MACOSX_RPATH:BOOL=TRUE"
+# The below adds this rpath to all libs and executables
+          VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_INSTALL_RPATH:STRING='@loader_path/../lib'"
           ;;
       esac
+
 # See http://public.kitware.com/pipermail/vtkusers/2014-March/083368.html
       VTK_MAKE_ARGS="$VTK_MAKE_ARGS $VTK_MAKEJ_ARGS"
-      VTK_ADDL_ARGS="VTK_REQUIRED_OBJCXX_FLAGS=''"
+      VTK_ADDL_ARGS="-DVTK_REQUIRED_OBJCXX_FLAGS:STRING=''"
       ;;
     Linux)
       # VTK_LD_RUN_PATH=${PYTHON_LIBDIR}:${CONTRIB_DIR}/mesa-${MESA_BLDRVERSION}-mgl/lib:$LD_RUN_PATH
@@ -111,7 +122,7 @@ buildVtk() {
         return
       fi
       VTK_PYTHON_ARGS="-DPYTHON_EXECUTABLE:FILEPATH='$PYTHON' -DPYTHON_INCLUDE_DIR:PATH=$PYTHON_INCDIR -DPYTHON_LIBRARY:FILEPATH=$PYTHON_SHLIB"
-      VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
+      VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON"
       ;;
   esac
   trimvar VTK_MAKE_ARGS ' '
@@ -125,13 +136,6 @@ buildVtk() {
 # As of visit-2.6.2, no one uses mesa
   VTK_COMPILERS="$CMAKE_COMPILERS_PYC"
   VTK_FLAGS="$CMAKE_COMPFLAGS_PYC"
-  case `uname` in
-    CYGWIN*)
-      ;;
-    Linux)
-      # VTK_MESA_ARGS="-DVTK_USE_MANGLED_MESA:BOOL=ON -DMANGLED_MESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DMANGLED_MESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_MESA_LIB} -DMANGLED_OSMESA_INCLUDE_DIR:PATH=$CONTRIB_DIR/mesa-mgl/include -DMANGLED_OSMESA_LIBRARY:FILEPATH=$CONTRIB_DIR/mesa-mgl/lib/${MANGLED_OSMESA_LIB}"
-      ;;
-  esac
 
 # Packages
 # Turn off module groups
