@@ -17,7 +17,7 @@
 
 setPythonTriggerVars() {
   PYTHON_BLDRVERSION_STD=2.7.3
-  PYTHON_BLDRVERSION_EXP=2.7.6
+  PYTHON_BLDRVERSION_EXP=2.7.7
   computeVersion Python
 # Export so available to setinstald.sh
   export PYTHON_BLDRVERSION
