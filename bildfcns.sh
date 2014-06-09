@@ -4290,7 +4290,7 @@ bilderConfig() {
       if test -n "$FQMAILHOST"; then
         ctestargs="$ctestargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
       fi
-      if test -n "$CTEST_DROP_SITE"; then
+      if test -n "$CTEST_DROP_SITE" -a "$CTEST_DROP_SITE" != NONE; then
         ctestargs="$ctestargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
       fi
       if $hasscimake; then
