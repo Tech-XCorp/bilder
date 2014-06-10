@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for libpng
+# Build information for libpng
 #
 # $Id$
 #
@@ -8,36 +8,25 @@
 
 ######################################################################
 #
-# Version:
-#
-# Look at http://gitorious.org/libpng/ for cmake progress
+# Trigger variables set in libpng_aux.sh
 #
 ######################################################################
 
-LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/libpng_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-# libpng generally needed on windows only
-if [[ `uname` =~ CYGWIN ]]; then
-  LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh"}
-  computeBuilds libpng
-  addCc4pyBuild libpng
-fi
-LIBPNG_DEPS=zlib
-LIBPNG_UMASK=002
-
-######################################################################
-#
-# Add to path
-#
-######################################################################
-
-# addtopathvar PATH $CONTRIB_DIR/libpng/bin
+setLibpngNonTriggerVars() {
+  LIBPNG_UMASK=002
+}
+setLibpngNonTriggerVars
 
 ######################################################################
 #
@@ -47,30 +36,30 @@ LIBPNG_UMASK=002
 
 buildLibpng() {
 
-  if bilderUnpack libpng; then
+  if ! bilderUnpack libpng; then
+    return
+  fi
 
 # For cygwin, get zlib version
-    local LIBPNG_ADDL_ARGS=
-    case `uname` in
-      CYGWIN*)
-        if test -z "$ZLIB_BLDRVERSION"; then
-          source $BILDER_DIR/packages/zlib.sh
-        fi
+  local LIBPNG_ADDL_ARGS=
+  case `uname` in
+    CYGWIN*)
+      if test -z "$ZLIB_BLDRVERSION"; then
+        source $BILDER_DIR/packages/zlib.sh
+      fi
 # on Win64, sersh exists, but cc4py does not
-        LIBPNG_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/lib/zlib.lib"
-        if $IS_MINGW; then
-          LIBPNG_ADDL_ARGS="$LIBPNG_ADDL_ARGS -DPNG_STATIC:BOOL=FALSE"
-        fi
-        ;;
-    esac
+      LIBPNG_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/lib/zlib.lib"
+      if $IS_MINGW; then
+        LIBPNG_ADDL_ARGS="$LIBPNG_ADDL_ARGS -DPNG_STATIC:BOOL=FALSE"
+      fi
+      ;;
+  esac
 
-    if bilderConfig -c libpng sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_SERSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-      bilderBuild libpng sersh "" "$DISTUTILS_NOLV_ENV"
-    fi
-    if bilderConfig -c libpng cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_CC4PY_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-      bilderBuild libpng cc4py "" "$DISTUTILS_NOLV_ENV"
-    fi
-
+  if bilderConfig -c libpng sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_SERSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
+    bilderBuild libpng sersh "" "$DISTUTILS_NOLV_ENV"
+  fi
+  if bilderConfig -c libpng cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_CC4PY_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
+    bilderBuild libpng cc4py "" "$DISTUTILS_NOLV_ENV"
   fi
 
 }
@@ -110,7 +99,6 @@ installLibpng() {
       esac
     fi
   done
-  # techo "Quitting at end of libpng.sh."; exit
 
 }
 
