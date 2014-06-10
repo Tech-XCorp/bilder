@@ -29,6 +29,7 @@ setMatplotlibGlobalVars() {
     *) MATPLOTLIB_DEPS=${MATPLOTLIB_DEPS},pyqt ;;
   esac
 }
+setMatplotlibGlobalVars
 
 ######################################################################
 #
