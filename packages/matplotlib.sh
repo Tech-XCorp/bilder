@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for matplotlib
+# Build information for matplotlib
 #
 # $Id$
 #
@@ -8,28 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in matplotlib_aux.sh
 #
 ######################################################################
 
-MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.3.1"}
-MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.3.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/matplotlib_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setMatplotlibGlobalVars() {
-  MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"cc4py"}
-  MATPLOTLIB_DEPS=numpy,Python,libpng,freetype
-  case `uname` in
-    Darwin) ;;
-    *) MATPLOTLIB_DEPS=${MATPLOTLIB_DEPS},pyqt ;;
-  esac
+setMatplotlibNonTriggerVars() {
+  :
 }
-setMatplotlibGlobalVars
+setMatplotlibNonTriggerVars
 
 ######################################################################
 #
