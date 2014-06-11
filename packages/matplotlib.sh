@@ -44,7 +44,7 @@ setMatplotlibNonTriggerVars
 # 4: All possible include dirs.  If empty, set to include
 #
 findMatplotlibDepDir() {
-  local sysdirs="$CONTRIB_DIR /opt/local /usr /usr/X11"
+  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/local /usr /usr/X11"
   local pkgdir=
   local libprefix=
   local incdirs="$4"
@@ -123,9 +123,10 @@ buildMatplotlib() {
 # Find dependencies and construct the basedirs variable needed for setupext.py
   # techo "Looking for png."
   local pngdir=`findMatplotlibDepDir libpng png.h png`
+  techo "pngdir = $pngdir."; exit
   # techo "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
-  # techo "freetypedir = $freetypedir."; exit
+  techo "freetypedir = $freetypedir."; exit
   if test -z "${pngdir}${freetypedir}"; then
     case `uname` in
       Darwin)
@@ -144,19 +145,16 @@ buildMatplotlib() {
     *)       zlibdir=`findMatplotlibDepDir zlib zlib.h z`;;
   esac
   local basedirs=
-  # techo "pngdir = $pngdir."
+  techo "zlibdir = $zlibdir."
   if test -n "$pngdir"; then
     basedirs="'$pngdir',"
   fi
-  # techo "freetypedir = $freetypedir."
   if test -n "$freetypedir" -a "$freetypedir" != "$pngdir"; then
     basedirs="$basedirs '$freetypedir',"
   fi
-  # techo "zlibdir = $zlibdir."
   if test -n "$zlibdir" && ! echo $basedirs | grep -q "'$zlibdir'"; then
     basedirs="$basedirs '$zlibdir',"
   fi
-  # techo "basedirs = $basedirs."
 # Escape backslashes one more time to get through sed
   if [[ `uname` =~ CYGWIN ]]; then
     basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
