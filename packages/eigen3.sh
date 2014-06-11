@@ -28,7 +28,7 @@ EIGEN3_BLDRVERSION=${EIGEN3_BLDRVERSION:-"3.0.5"}
 #
 ######################################################################
 
-EIGEN3_BUILDS=${EIGEN3_BUILDS:-"sersh"}
+EIGEN3_BUILDS=${EIGEN3_BUILDS:-"ser"}
 EIGEN3_DEPS=bzip2
 EIGEN3_UMASK=002
 
@@ -52,8 +52,8 @@ buildEigen3() {
   if bilderUnpack eigen3; then
 
 # Configure and build
-    if bilderConfig eigen3 sersh "$EIGEN3_OTHER_ARGS"; then
-      bilderBuild eigen3 sersh "$EIGEN3_MAKEJ_ARGS"
+    if bilderConfig eigen3 ser "$EIGEN3_OTHER_ARGS"; then
+      bilderBuild eigen3 ser "$EIGEN3_MAKEJ_ARGS"
     fi
 
   fi
@@ -77,7 +77,7 @@ testEigen3() {
 ######################################################################
 
 installEigen3() {
-  if bilderInstall eigen3 sersh; then
+  if bilderInstall eigen3 ser; then
     : # Probably need to fix up dylibs here
   fi
   # techo "WARNING: Quitting at end of eigen3.sh."; cleanup
