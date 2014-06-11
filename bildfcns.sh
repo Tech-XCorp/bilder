@@ -5099,6 +5099,7 @@ getForceTests() {
 #    package file by lower-casing this.  Then it runs the build method,
 #    e.g., buildVpTest to run the tests.
 # 3: (optional) args to make for testing. Default is 'test'.
+# 4: (optional) environment under which to run tests
 #
 # Named args (must come first)
 #
@@ -5146,6 +5147,7 @@ bilderRunTests() {
   fi
   local tstsname=`echo $2 | tr 'A-Z.-' 'a-z__'`
   local tststarget="$3"
+  local tstsenv="$4"
   tststarget=${tststarget:-"test"}
 
 # In some cases, the tests are not in their own repo but are part of
@@ -5265,9 +5267,13 @@ EOF
       if [[ `uname` =~ CYGWIN ]]; then
         MAKER=nmake
       fi
+      cmd="$MAKER $tststarget"
+      if test -n "$tstsenv"; then
+        cmd="env $tstsenv $cmd"
+      fi
       cat <<EOF >$testScript
 #!/bin/bash
-cmd="$MAKER $tststarget"
+cmd="$cmd"
 echo \$cmd
 \$cmd
 res=\$?

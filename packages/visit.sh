@@ -136,7 +136,7 @@ buildVisit() {
 # Args for make and environment, and configuration file
   local VISIT_ADDL_ARGS=
   local VISIT_MAKE_ARGS=
-  local VISIT_ENV=
+  VISIT_ENV=
   local VISIT_MESA_DIR=
   case `uname` in
     CYGWIN*)
