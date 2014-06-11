@@ -123,10 +123,10 @@ buildMatplotlib() {
 # Find dependencies and construct the basedirs variable needed for setupext.py
   # techo "Looking for png."
   local pngdir=`findMatplotlibDepDir libpng png.h png`
-  techo "pngdir = $pngdir."; exit
+  techo "pngdir = $pngdir."
   # techo "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
-  techo "freetypedir = $freetypedir."; exit
+  techo "freetypedir = $freetypedir."
   if test -z "${pngdir}${freetypedir}"; then
     case `uname` in
       Darwin)
