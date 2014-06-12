@@ -17,14 +17,34 @@
 
 setLibpngTriggerVars() {
   LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
-  case `uname`-`uname -r` in
-    # CYGWIN*-* | Darwin-1[0-2].*)
-    CYGWIN*-*) # libpng in /usr/X11 on Darwin
-      LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh"}
-      ;;
-  esac
+  if test -z "$LIBPNG_DESIRED_BUILDS"; then
+    case `uname` in
+      CYGWIN*)
+        LIBPNG_DESIRED_BUILDS=sersh
+        LIBPNG_DIRS=$CONTRIB_DIR/libpng-${LIBPNG_BLDRVERSION}-sersh
+        ;;
+      Darwin)
+        LIBPNG_DIRS="/opt/homebrew/opt/freetype /opt/X11 /usr/X11"
+        if test -e $CONTRIB_DIR/libpng-sersh; then
+          LIBPNG_DESIRED_BUILDS=sersh
+        else
+          LIBPNG_SERSH_DIR=
+          for dir in $LIBPNG_DIRS; do
+            if test -e $dir/lib/libpng.dylib; then
+              LIBPNG_SERSH_DIR=`(cd $dir; pwd -P)`
+              break
+            fi
+          done
+        fi
+        if test -n "$LIBPNG_SERSH_DIR"; then
+          LIBPNG_DIRS="$CONTRIB_DIR/libpng-sersh"
+        fi
+        ;;
+    esac
+  fi
   computeBuilds libpng
-  addCc4pyBuild libpng
+# No need to add cc4py build, as pure C
+  #  addCc4pyBuild libpng
   LIBPNG_DEPS=zlib,cmake
 }
 setLibpngTriggerVars
@@ -36,6 +56,15 @@ setLibpngTriggerVars
 ######################################################################
 
 findLibpng() {
-  :
+  for dir in $LIBPNG_DIRS; do
+    if test -e $dir/lib/libpng.dylib; then
+      LIBPNG_SERSH_DIR=`(cd $dir; pwd -P)`
+      break
+    fi
+  done
+  if test -n "$LIBPNG_SERSH_DIR" && [[ `uname` =~ CYGWIN ]]; then
+    LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
+  fi
+  printvar LIBPNG_SERSH_DIR
 }
 
