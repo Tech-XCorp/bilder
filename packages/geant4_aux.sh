@@ -10,6 +10,11 @@ getGeant4Version() {
 # Version 10 does not work with gras-03-03-r1561
   # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
   # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
+# Make sure to repack to Bilder conventions:
+#  tar xzf geant4-9.6.p03.tar.gz
+#  mv geant4.9.6.p03 geant4-9.6.p03
+#  tar czf geant4-9.6.p03.tar.gz  geant4-9.6.p03
+# and then add the above tarball to svnpkgs
 # p03 is recommended for GRAS
   GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
 }
