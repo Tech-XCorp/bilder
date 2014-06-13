@@ -9,7 +9,9 @@
 getGeant4Version() {
 # Version 10 does not work with gras-03-03-r1561
   # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
-  GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
+  # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
+# p03 is recommended for GRAS
+  GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
 }
 getGeant4Version
 
