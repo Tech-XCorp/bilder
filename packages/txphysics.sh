@@ -26,8 +26,13 @@ setTxPhysicsGlobalVars() {
   computeBuilds txphysics
   addBenBuild txphysics
   TXPHYSICS_DEPS=cmake
-# txphysics does not have ctesting.  Uncomment when it does.
-  # $TESTING_BUILDS && TXPHYSICS_CTEST_MODEL=${TXPHYSICS_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
+# This allows individual package control of testing
+  TXPHYSICS_TESTING=${TXPHYSICS_TESTING:-"${TESTING}"}
+# This allows individual package control over whether ctest is used
+  # TXPHYSICS_USE_CTEST=${TXPHYSICS_USE_CTEST:-"$BILDER_USE_CTEST"}
+  TXPHYSICS_USE_CTEST=false
+# This allows individual package control over ctest submission model
+  TXPHYSICS_CTEST_MODEL=${TXPHYSICS_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
 }
 setTxPhysicsGlobalVars
 
@@ -50,8 +55,8 @@ buildTxphysics() {
   local TXPHYSICS_MAKE_ARGS=
 # txphysics does not have develdocs.  Uncomment when that happens.
   # local TXPHYSICS_DEVELDOCS_MAKE_ARGS=apidocs-force
-  if test -n "$TXPHYSICS_CTEST_MODEL"; then
-    TXPHYSICS_MAKE_ARGS="$TXPHYSICS_MAKE_ARGS ${TXPHYSICS_CTEST_MODEL}Start ${TXPHYSICS_CTEST_MODEL}Build"
+  if $TXPHYSICS_USE_CTEST; then
+    TXPHYSICS_MAKE_ARGS="$TXPHYSICS_MAKE_ARGS ${TXPHYSICS_CTEST_MODEL}Build"
     # TXPHYSICS_DEVELDOCS_MAKE_ARGS="$TXPHYSICS_MAKE_ARGS"
   fi
 
@@ -80,7 +85,9 @@ testTxphysics() {
 # Not doing much here, as neither testing builds nor submitting, but
 # ready for when txphysics is ready by uncommenting upper line and
 # removing lower.
-  bilderRunTests -i ben txphysics "" "${TXPHYSICS_CTEST_MODEL}Test"
+  local testtarg=test
+  $TXPHYSICS_USE_CTEST && testtarg="${TXPHYSICS_CTEST_MODEL}Test"
+  bilderRunTests -bs -i ben txphysics "" "${testtarg}"
 }
 
 ######################################################################

@@ -26,8 +26,12 @@ source $mydir/visit_aux.sh
 
 setVisItNonTriggerVars() {
   VISIT_UMASK=002
-  VISIT_TESTING=${VISIT_TESTING:-"${TESTING_BUILDS}"}
-  $VISIT_TESTING && VISIT_CTEST_MODEL=${VISIT_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
+# This allows individual package control of testing
+  VISIT_TESTING=${VISIT_TESTING:-"${TESTING}"}
+# This allows individual package control over whether ctest is used
+  VISIT_USE_CTEST=${VISIT_USE_CTEST:-"$BILDER_USE_CTEST"}
+# This allows individual package control over ctest submission model
+  VISIT_CTEST_MODEL=${VISIT_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
 }
 setVisItNonTriggerVars
 
@@ -162,7 +166,7 @@ buildVisit() {
       ;;
   esac
   trimvar VISIT_MAKE_ARGS ' '
-  if test -n "$VISIT_CTEST_MODEL"; then
+  if $VISIT_USE_CTEST; then
     VISIT_ADDL_ARGS="$VISIT_ADDL_ARGS -DSITE:STRING='${FQMAILHOST}' -DBUILD_TESTING:BOOL=ON -DVISIT_TEST_DIR:PATH=$PROJECT_DIR/visittest/test -DCTEST_BUILD_FLAGS:STRING='$VISIT_MAKE_ARGS'"
     VISIT_MAKE_ARGS="${VISIT_MAKEJ_ARGS} ${VISIT_CTEST_MODEL}Build"
   fi
@@ -311,7 +315,7 @@ buildVisit() {
 
 testVisit() {
   local testtarg=test
-  test -n "$VISIT_CTEST_MODEL" && testtarg="${VISIT_CTEST_MODEL}Test"
+  $VISIT_USE_CTEST && testtarg="${VISIT_CTEST_MODEL}Test"
   bilderRunTests -bs visit "" "${testtarg}" "$VISIT_ENV"
 }
 
