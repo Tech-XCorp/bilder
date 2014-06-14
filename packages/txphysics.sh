@@ -27,7 +27,8 @@ setTxPhysicsGlobalVars() {
   addBenBuild txphysics
   TXPHYSICS_DEPS=cmake
 # This allows individual package control of testing
-  TXPHYSICS_TESTING=${TXPHYSICS_TESTING:-"${TESTING}"}
+  # TXPHYSICS_TESTING=${TXPHYSICS_TESTING:-"${TESTING}"}
+  TXPHYSICS_TESTING=false
 # This allows individual package control over whether ctest is used
   # TXPHYSICS_USE_CTEST=${TXPHYSICS_USE_CTEST:-"$BILDER_USE_CTEST"}
   TXPHYSICS_USE_CTEST=false
@@ -87,7 +88,7 @@ testTxphysics() {
 # removing lower.
   local testtarg=test
   $TXPHYSICS_USE_CTEST && testtarg="${TXPHYSICS_CTEST_MODEL}Test"
-  bilderRunTests -bs -i ben txphysics "" "${testtarg}"
+  $TXPHYSICS_TESTING && bilderRunTests -bs -i ben txphysics "" "${testtarg}"
 }
 
 ######################################################################
