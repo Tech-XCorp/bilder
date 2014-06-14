@@ -4271,9 +4271,13 @@ bilderConfig() {
       if test -f $srcarg/scimake/Start.ctest -a -f $srcarg/CTestConfig.cmake; then
         hasctest=true
         start_ctest=$srcarg/scimake/Start.ctest
+        techo "Found $srcarg/scimake/Start.ctest and $srcarg/CTestConfig.cmake.  ctest can be used."
       elif test -f $srcarg/Start.ctest; then
         hasctest=true
         start_ctest=$srcarg/Start.ctest
+        techo "Found $srcarg/Start.ctest.  ctest can be used."
+      else
+        techo "Found Start.ctest not found under $srcarg.  ctest cannot be used."
       fi
       if test -d $srcarg/scimake; then
         hasscimake=true
@@ -4382,7 +4386,21 @@ bilderConfig() {
                 ;;
             esac
           fi
-          finalcmd="'$configexec' $configargs -G '$generator' $srcarg"
+          if $hasctest; then
+# Think this not needed since taken care of above
+if false; then
+            start_ctest=`cygpath -am ${start_ctest}`
+            if test -n "$JENKINS_JOB_DIR"; then
+              techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in ctest configure."
+              cygprojdir=`cygpath -am $PROJECT_DIR`
+              cygjenkinsdir=`cygpath -am $JENKINS_JOB_DIR`
+              start_ctest=`echo $start_ctest | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
+            fi
+fi
+            finalcmd="ctest $ctestargs -S $start_ctest"
+          else
+            finalcmd="'$configexec' $configargs -G '$generator' $srcarg"
+          fi
           ;;
         autotools)
           case $1 in
@@ -4411,15 +4429,6 @@ bilderConfig() {
       ;;
     *)
       if $hasctest; then
-        if [[ `uname` =~ CYGWIN ]]; then
-          start_ctest=`cygpath -am ${start_ctest}`
-          if test -n "$JENKINS_JOB_DIR"; then
-            techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in ctest configure."
-            cygprojdir=`cygpath -am $PROJECT_DIR`
-            cygjenkinsdir=`cygpath -am $JENKINS_JOB_DIR`
-            start_ctest=`echo $start_ctest | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
-          fi
-        fi
         finalcmd="ctest $ctestargs -S $start_ctest"
       else
         finalcmd="$configexec $configargs $srcarg"
