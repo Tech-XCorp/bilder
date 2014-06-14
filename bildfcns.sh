@@ -4344,24 +4344,7 @@ bilderConfig() {
   esac
   techo -2 "After Windows fix, srcarg = $srcarg"
 
-# In the case of ctest, modify args to be able to pass as options
-  configargs="$configargs $3"
-  trimvar configargs ' '
-  local ctestoptions=
-  if $hasctest; then
-    techo "Start.ctest found."
-# For ctest: remove the quotes escape the semicolons, but semicolons
-    techo -2 "configargs = $configargs."
-    ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g'`
-    techo "ctestoptions = $ctestoptions."
-    ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
-    techo "ctestargs = $ctestargs."
-  fi
-
-# Ready to start configuring
-  local configure_txt=$FQMAILHOST-$1-$2-config.txt
-  techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
-  local finalcmd
+# Fix generator arg
   case `uname` in
     CYGWIN*)
       case "$cmval" in
@@ -4386,55 +4369,40 @@ bilderConfig() {
                 ;;
             esac
           fi
-          if $hasctest; then
-# Think this not needed since taken care of above
-if false; then
-            start_ctest=`cygpath -am ${start_ctest}`
-            if test -n "$JENKINS_JOB_DIR"; then
-              techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in ctest configure."
-              cygprojdir=`cygpath -am $PROJECT_DIR`
-              cygjenkinsdir=`cygpath -am $JENKINS_JOB_DIR`
-              start_ctest=`echo $start_ctest | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
-            fi
-fi
-            finalcmd="ctest $ctestargs -S $start_ctest"
-          else
-            finalcmd="'$configexec' $configargs -G '$generator' $srcarg"
-          fi
-          ;;
-        autotools)
-          case $1 in
-            qt)  # QT is not autotools
-              local finalcmd="'$configexec' $configargs3"
-              ;;
-            *)  # Actually, this decision should be made by the package
-              local finalcmd="'$configexec' $configargs"
-              ;;
-          esac
-          ;;
-        *)
-          local finalcmd="$configexec $configargs"
+          configargs="$configargs -G '$generator'"
           ;;
       esac
       ;;
     MINGW*)
       case "$configexec" in
         cmake*)
-          local finalcmd="'$configexec' $configargs -G 'MSYS Makefiles' $srcarg"
+          configargs="$configargs -G 'MSYS Makefiles'"
           ;;
         *)
-          local finalcmd="'$configexec' $configargs CC=gcc"
+          configargs="$configargs CC=gcc"
           ;;
       esac
       ;;
-    *)
-      if $hasctest; then
-        finalcmd="ctest $ctestargs -S $start_ctest"
-      else
-        finalcmd="$configexec $configargs $srcarg"
-      fi
-      ;;
   esac
+
+# Add specified args
+  configargs="$configargs $3"
+  trimvar configargs ' '
+
+# Create final command
+  local finalcmd=
+  if $hasctest; then
+    techo "Start.ctest found."
+# For ctest: remove the quotes escape the semicolons, but semicolons
+    techo -2 "configargs = $configargs."
+    local ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g'`
+    techo "ctestoptions = $ctestoptions."
+    ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
+    techo "ctestargs = $ctestargs."
+    finalcmd="ctest $ctestargs -S $start_ctest"
+  else
+    finalcmd="$configexec $configargs $srcarg"
+  fi
 
 # Now add the environment variables
   if test -n "$5"; then
@@ -4447,6 +4415,8 @@ fi
 # the -r flag if needed and acceptable.
 #
 # Store command
+  local configure_txt=$FQMAILHOST-$1-$2-config.txt
+  techo "Configuring $1-$2 in $PWD at `date +%F-%T`." | tee $configure_txt
   techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
   mkConfigScript $FQMAILHOST $1 $2
