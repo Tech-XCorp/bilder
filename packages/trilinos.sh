@@ -72,15 +72,17 @@ buildTrilinos() {
   local HDF5_BASE_DIR=$MIXED_CONTRIB_DIR/hdf5-$HDF5_BLDRVERSION-ser
   local NETCDF_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH=\"$NETCDF_BASE_DIR/lib;$HDF5_BASE_DIR/lib\" -DNetcdf_LIBRARY_NAMES:STRING=\"netcdf;hdf5_hl;hdf5\" -DNetcdf_INCLUDE_DIRS:PATH=$NETCDF_BASE_DIR/include"
   local SEACAS_ARGS="${SEACAS_ARGS} -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_ENABLE_SEACASExodus:BOOL=ON -DTrilinos_ENABLE_SEACASNemesis:BOOL=ON $NETCDF_ARGS -DTPL_ENABLE_MATLAB:BOOL=OFF"
-  case `uname` in
-    CYGWIN*) ;;
-    *)
-      if test -n "$LIBFORTRAN_DIR"; then
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    if test -n "$LIBFORTRAN_DIR"; then
         TRILINOS_ADDL_STARGS="$TRILINOS_ALL_OTHER_ARGS -DTrilinos_EXTRA_LINK_FLAGS:STRING='-L$LIBFORTRAN_DIR'"
         TRILINOS_ALL_OTHER_ARGS="$TRILINOS_ALL_OTHER_ARGS -DTrilinos_ENABLE_Fortran=OFF -DTrilinos_EXTRA_LINK_FLAGS:STRING='-L$LIBFORTRAN_DIR -Wl,-rpath,$LIBFORTRAN_DIR'"
-      fi
-      ;;
-  esac
+    fi
+    case `uname`-`uname -r` in
+      Darwin-13.*)
+        TRILINOS_ALL_OTHER_ARGS="$TRILINOS_ALL_OTHER_ARGS -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=TRUE"
+        ;;
+    esac
+  fi
 
 # Shared and static specific args
   TRILINOS_SERSH_OTHER_ARGS="$TRILINOS_SERSH_OTHER_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost-sersh/include"

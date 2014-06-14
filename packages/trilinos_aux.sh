@@ -24,7 +24,7 @@ setTrilinosTriggerVars() {
 
 # Versions
   TRILINOS_BLDRVERSION_STD=11.4.3
-  TRILINOS_BLDRVERSION_EXP=11.8.1
+  TRILINOS_BLDRVERSION_EXP=11.4.3
 
 # Can add builds in package file only if no add builds defined.
   if test -z "$TRILINOS_DESIRED_BUILDS"; then
