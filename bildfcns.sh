@@ -2428,13 +2428,13 @@ findPackage() {
     adirval=`deref $sysadirvar`
 # Otherwise in contrib
     if test -z "$adirval"; then
-# Should not be lower cased
+# Look through all casings
       case $bld in
         ser)
-          adirval=${INSTDIR}/${pkgname}
+          adirval=`(shopt -s nocaseglob; \ls ${INSTDIR}/${pkgname} 2>/dev/null)`
           ;;
         *)
-          adirval=${INSTDIR}/${pkgname}-$bld
+          adirval=`(shopt -s nocaseglob; \ls ${INSTDIR}/${pkgname}-$bld 2>/dev/null)`
           ;;
       esac
     fi

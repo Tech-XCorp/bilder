@@ -198,7 +198,10 @@ buildVisit() {
   done
 
 # Set cmake args for packages
-  local VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
+  local VISIT_QT_ARGS=
+  if test -n "$VISIT_QT_BIN"; then
+     VISIT_QT_ARGS="-DVISIT_QT_BIN:PATH=$VISIT_QT_BIN"
+  fi
   local VISIT_PKG_ARGS="$VISIT_QT_ARGS"
   for i in HDF5 NETCDF PYTHON VTK; do
     local var=VISIT_${i}_DIR
