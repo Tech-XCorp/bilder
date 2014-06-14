@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 # $Id$
-# /* vim: set filetype=sh : */
 #
 # Define variables.
 # Do not override existing definitions.
@@ -13,58 +12,19 @@
 # KEEP THIS
 # These contents are not sourced or changed on a file update, but
 # they are sourced for an actual build.
-# Lots of info at https://computing.llnl.gov/tutorials/bgp
-# Stefan's page: https://ice.txcorp.com/trac/ccaEcloud/wiki/vorpalSurBuild
-# Nov 2010 correspondence with Vitali Morozov indicates that one must use
-# '-O2' and not '-O' to get vorpal to build on intrepid.
-# Our tx_clean_libs wants lib*.a, hence choices
-#   for LAPACK_BEN_LIB and BLAS_BEN_LIB.
-# nubeam elvislib builds on intrepid only with --disable-shared --enable-static
-#   even for serial.
-# uedge-nopetsc has to be built "parallel" even though it is serial to
-#   use the same hdf5 libs as facets.  We are dropping this case.
-# vorpal is fully building.
 
-# System setup
-cat >/dev/null <<EOF
-# Follwing needed to get python to build with hashlib, which numpy now needs
-cd $CONTRIB_DIR/lib
-ln -s /usr/lib64/libcrypto.so.0.9.8 libcrypto.so
-ln -s /usr/lib64/libssl.so.4 libssl.so
-# Not needed? -L/usr/lib64 -L/usr/X11R6/lib64
-EOF
-
-cmd="mkdir -p /scratch/$USER/tmp"
-techo "$cmd"
-$cmd
-cmd="export TMP=/scratch/$USER/tmp"
-techo "$cmd"
-$cmd
-# FACETS built only parallel as cannot build serial petsc.
 case $UQMAILHOST in
-  challenger)
-    techo "Be sure to use the system cmake, which has the BlueGeneP-xxx files."
+  vesta)
+    techo "Be sure to use the system cmake on vesta."
     ;;
-  surveyor)
-    techo "BlueGeneP-static is not available on surveyor."
-    ;;
-  intrepid)
-    techo "Be sure to use the system cmake, which has the BlueGeneP-xxx files."
+  mira)
+    techo "Be sure to use the system cmake on mira."
     ;;
 esac
+
 USE_CCXX_PIC_FLAG=false    # Use PIC for C and CXX
 USE_FORTRAN_PIC_FLAG=false # Use PIC for Fortran
 USE_CONTRIB_LAPACK=true    # Use lapack built in contrib if no system version.
-
-# Make sure we have the XL mpi.mod, as the one in
-# /bgsys/drivers/V1R4M2_200_2010-100508P/ppc/comm/default/include
-# was compiled by gfortran.
-if ! test -f $CONTRIB_DIR/include/mpi.mod; then
-  mkdir -p $CONTRIB_DIR/include
-  chmod 775 $CONTRIB_DIR/include
-  cp /bgsys/drivers/ppcfloor/comm/fast/include/mpi.mod $CONTRIB_DIR/include
-  chmod 664 $CONTRIB_DIR/include/mpi.mod
-fi
 
 # END KEEP THIS
 
@@ -131,18 +91,18 @@ MPI_FFLAGS=${MPI_FFLAGS:-"-qextname=flush"}
 # SER versions are for front-end nodes.
 # BEN versions are for back-end nodes if different.
 # PYC versions are for front-end nodes.
-# SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
+#SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-""}
 # SYSTEM_BLAS_CC4PY_LIB=${SYSTEM_BLAS_CC4PY_LIB:-""}
-SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/soft/apps/BLAS/libblas_bgp.a"}
-# SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
-# SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
-SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-"/soft/apps/LAPACK/liblapack_bgp.a"}
+SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/soft/libraries/alcf/current/xl/BLAS/lib/libblas.a"}
+#SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-""}
+#SYSTEM_LAPACK_CC4PY_LIB=${SYSTEM_LAPACK_CC4PY_LIB:-""}
+SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-"/soft/libraries/alcf/current/xl/LAPACK/lib/liblapack.a"}
 
 # IO directories:
-# SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-""}
-SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/soft/apps/hdf5-1.8.0"}
-# SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-""}
-# SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-""}
+SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-"/soft/libraries/hdf5/1.8.10-serial/cnk-xl/current/"}
+SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/soft/libraries/hdf5/current/cnk-xl/current/"}
+SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-"/soft/libraries/netcdf/current/cnk-xl/current/"}
+SYSTEM_NETCDF_PAR_DIR=${SYSTEM_NETCDF_PAR_DIR:-"/soft/libraries/pnetcdf/current/cnk-xl/current/"}
 
 # Java options
 # export _JAVA_OPTIONS=
@@ -175,7 +135,7 @@ SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/soft/apps/hdf5-1.8.0"}
 # ATLAS_BUILDS=${ATLAS_BUILDS:-""}
 # ATLAS_CC4PY_OTHER_ARGS=${ATLAS_CC4PY_OTHER_ARGS:-""}
 # ATLAS_CLP_OTHER_ARGS=${ATLAS_CLP_OTHER_ARGS:-""}
-ATLAS_SER_OTHER_ARGS=${ATLAS_SER_OTHER_ARGS:-"-A 5"}
+# ATLAS_SER_OTHER_ARGS=${ATLAS_SER_OTHER_ARGS:-"-A 5"}
 
 # AUTOCONF_BLDRVERSION=${AUTOCONF_BLDRVERSION:-""}
 # AUTOCONF_BUILDS=${AUTOCONF_BUILDS:-""}
@@ -259,7 +219,8 @@ BOOST_SER_OTHER_ARGS=${BOOST_SER_OTHER_ARGS:-"address-model=64"}
 # CLAPACK_CMAKE_SERMD_OTHER_ARGS=${CLAPACK_CMAKE_SERMD_OTHER_ARGS:-""}
 
 # CMAKE_BLDRVERSION=${CMAKE_BLDRVERSION:-""}
-# CMAKE_BUILDS=${CMAKE_BUILDS:-""}
+# Use the system cmake (+cmake in .soft)
+CMAKE_BUILDS=${CMAKE_BUILDS:-"NONE"} 
 # CMAKE_SER_OTHER_ARGS=${CMAKE_SER_OTHER_ARGS:-""}
 
 # COIN_BLDRVERSION=${COIN_BLDRVERSION:-""}
@@ -343,8 +304,8 @@ FACETS_SER_OTHER_ARGS=${FACETS_SER_OTHER_ARGS:-"--with-babel-static-dir=no --wit
 
 # FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-""}
 # FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-""}
-FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"--host=powerpc-bgp-linux --enable-static --disable-shared cross_compiling=yes"}
-FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"--enable-static --disable-shared"}
+FCIOWRAPPERS_PAR_OTHER_ARGS=${FCIOWRAPPERS_PAR_OTHER_ARGS:-"-DHdf5_ROOT_DIR:PATH='${SYSTEM_HDF5_PAR_DIR}' -DNetcdf_ROOT_DIR:PATH='${SYSTEM_NETCDF_PAR_DIR}'"}
+FCIOWRAPPERS_SER_OTHER_ARGS=${FCIOWRAPPERS_SER_OTHER_ARGS:-"-DHdf5_ROOT_DIR:PATH='${SYSTEM_HDF5_SER_DIR}' -DNetcdf_ROOT_DIR:PATH='${SYSTEM_NETCDF_SER_DIR}'"}
 
 # FCTESTS_BLDRVERSION=${FCTESTS_BLDRVERSION:-""}
 # FCTESTS_BUILDS=${FCTESTS_BUILDS:-""}
@@ -448,11 +409,11 @@ GA_TRANSPORT_PAR_OTHER_ARGS=${GA_TRANSPORT_PAR_OTHER_ARGS:-"--disable-shared --e
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"ser,cc4py"}
+HDF5_BUILDS=${HDF5_BUILDS:-"cc4py"}
 # HDF5_CC4PY_OTHER_ARGS=${HDF5_CC4PY_OTHER_ARGS:-""}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
-HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-"-DHDF5_BUILD_FORTRAN:BOOL=OFF"}
+# HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
 # HDF5_SERMD_OTHER_ARGS=${HDF5_SERMD_OTHER_ARGS:-""}
 # HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
 
@@ -616,13 +577,13 @@ LAPACK_BUILDS=${LAPACK_BUILDS:-"ser,cc4py"}
 
 # NETCDF_BLDRVERSION=${NETCDF_BLDRVERSION:-""}
 # NETCDF_BUILDS=${NETCDF_BUILDS:-""}
-NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-"--enable-static --disable-shared cross_compiling=yes"}
+# NETCDF_BEN_OTHER_ARGS=${NETCDF_BEN_OTHER_ARGS:-""}
 # NETCDF_CC4PY_OTHER_ARGS=${NETCDF_CC4PY_OTHER_ARGS:-""}
 # NETCDF_PAR_OTHER_ARGS=${NETCDF_PAR_OTHER_ARGS:-""}
 # NETCDF_SER_OTHER_ARGS=${NETCDF_SER_OTHER_ARGS:-""}
 
 # NETLIB_LITE_BLDRVERSION=${NETLIB_LITE_BLDRVERSION:-""}
-# NETLIB_LITE_BUILDS=${NETLIB_LITE_BUILDS:-""}
+NETLIB_LITE_BUILDS=${NETLIB_LITE_BUILDS:-"ser,ben"}
 NETLIB_LITE_BEN_OTHER_ARGS=${NETLIB_LITE_BEN_OTHER_ARGS:-"--enable-static --disable-shared cross_compiling=yes"}
 NETLIB_LITE_SER_OTHER_ARGS=${NETLIB_LITE_SER_OTHER_ARGS:-"--enable-static --disable-shared"}
 
@@ -908,6 +869,13 @@ SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"ben"}
 # SUPERLU_DIST_PARCOMM_OTHER_ARGS=${SUPERLU_DIST_PARCOMM_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARCOMMSH_OTHER_ARGS=${SUPERLU_DIST_PARCOMMSH_OTHER_ARGS:-""}
 # SUPERLU_DIST_PARSH_OTHER_ARGS=${SUPERLU_DIST_PARSH_OTHER_ARGS:-""}
+
+# SUPERLU_DIST3_BLDRVERSION=${SUPERLU_DIST3_BLDRVERSION:-""}
+# SUPERLU_DIST3_BUILDS=${SUPERLU_DIST3_BUILDS:-""}
+# SUPERLU_DIST3_PAR_OTHER_ARGS=${SUPERLU_DIST3_PAR_OTHER_ARGS:-""}
+# SUPERLU_DIST3_PARCOMM_OTHER_ARGS=${SUPERLU_DIST3_PARCOMM_OTHER_ARGS:-""}
+# SUPERLU_DIST3_PARCOMMSH_OTHER_ARGS=${SUPERLU_DIST3_PARCOMMSH_OTHER_ARGS:-""}
+# SUPERLU_DIST3_PARSH_OTHER_ARGS=${SUPERLU_DIST3_PARSH_OTHER_ARGS:-""}
 
 # SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-""}
 SUPERLU_BUILDS=${SUPERLU_BUILDS:-"ser"}
