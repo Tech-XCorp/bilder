@@ -2431,10 +2431,10 @@ findPackage() {
 # Look through all casings
       case $bld in
         ser)
-          adirval=`(shopt -s nocaseglob; \ls ${INSTDIR}/${pkgname} 2>/dev/null)`
+          adirval=`(shopt -s nocaseglob; \ls -d ${INSTDIR}/${pkgname} 2>/dev/null)`
           ;;
         *)
-          adirval=`(shopt -s nocaseglob; \ls ${INSTDIR}/${pkgname}-$bld 2>/dev/null)`
+          adirval=`(shopt -s nocaseglob; \ls -d ${INSTDIR}/${pkgname}-$bld 2>/dev/null)`
           ;;
       esac
     fi
