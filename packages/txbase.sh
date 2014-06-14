@@ -25,8 +25,10 @@ setTxbaseNonTriggerVars() {
   TXBASE_MASK=002
 # This allows individual package control of testing
   TXBASE_TESTING=${TXBASE_TESTING:-"${TESTING}"}
-# This allows changing the target if ctest is enabled
-  $TXBASE_TESTING && TXBASE_CTEST_MODEL=${TXBASE_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
+# This allows individual package control over whether ctest is used
+  TXBASE_USE_CTEST=${TXBASE_USE_CTEST:-"$BILDER_USE_CTEST"}
+# This allows individual package control over ctest submission model
+  TXBASE_CTEST_MODEL=${TXBASE_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
 }
 setTxbaseNonTriggerVars
 
@@ -56,7 +58,7 @@ buildTxbase() {
   local TXBASE_DEVELDOCS_MAKE_ARGS=apidocs-force
   TXBASE_MAKE_ARGS="$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   trimvar TXBASE_MAKE_ARGS ' '
-  if test -n "$TXBASE_CTEST_MODEL"; then
+  if $TXBASE_USE_CTEST; then
     TXBASE_ADDL_ARGS="-DCTEST_BUILD_FLAGS:STRING='$TXBASE_MAKE_ARGS'"
     TXBASE_MAKE_ARGS="$TXBASE_MAKEJ_ARGS ${TXBASE_CTEST_MODEL}Build"
     TXBASE_DEVELDOCS_MAKE_ARGS="${TXBASE_CTEST_MODEL}Build"
@@ -110,7 +112,7 @@ buildTxbase() {
 
 testTxbase() {
   local testtarg=test
-  test -n "$TXBASE_CTEST_MODEL" && testtarg="${TXBASE_CTEST_MODEL}Test"
+  $TXBASE_USE_CTEST && testtarg="${TXBASE_CTEST_MODEL}Test"
   bilderRunTests -bs -i ben txbase "" "${testtarg}"
 }
 
