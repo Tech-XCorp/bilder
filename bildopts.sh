@@ -179,8 +179,8 @@ setBilderOptions() {
   BILDER_START=`date`
 
 # Universal defaults
-# Use - instead of :- to allow BILDER_CTEST_TARGET to be empty.
-  BILDER_CTEST_TARGET=${BILDER_CTEST_TARGET-"Experimental"} 
+# Use - instead of :- to allow BILDER_CTEST_MODEL to be empty.
+  BILDER_CTEST_MODEL=${BILDER_CTEST_MODEL-"Experimental"} 
   BILDER_LOGDIR=
   BILDER_WAIT_DAYS=0
   BUILD_DEBUG=false
@@ -417,6 +417,7 @@ EOF
     TESTING_BUILDS=${TESTING_BUILDS:-"false"}
     techo "Tests will NOT be run."
   fi
+  ENABLE_CTEST=${ENABLE_CTEST:-"true"}
 
 # Parse out first or second half of variable
   SECOND_INSTALL_DIR=

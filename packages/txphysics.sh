@@ -27,7 +27,7 @@ setTxPhysicsGlobalVars() {
   addBenBuild txphysics
   TXPHYSICS_DEPS=cmake
 # txphysics does not have ctesting.  Uncomment when it does.
-  # $TESTING_BUILDS && TXPHYSICS_CTEST_TARGET=${TXPHYSICS_CTEST_TARGET:-"$BILDER_CTEST_TARGET"}
+  # $TESTING_BUILDS && TXPHYSICS_CTEST_TARGET=${TXPHYSICS_CTEST_TARGET:-"$BILDER_CTEST_MODEL"}
 }
 setTxPhysicsGlobalVars
 
