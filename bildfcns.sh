@@ -2365,8 +2365,8 @@ findLibraries() {
 # but if found as a SYSTEM_ variable, use that.
 #
 # Args:
-# 1:  The name of the package
-#     (appropriately capitalized, pkgnamelc be a package.sh bilder script)
+# 1:  The name of the package, appropriately capitalized, pkgnamelc is a
+#     package.sh bilder script, but pkgname is the installation dir start.
 # 2:  Library name to look for
 # 3:  The directory to look in
 # 4-: The different builds to look for
@@ -2428,12 +2428,13 @@ findPackage() {
     adirval=`deref $sysadirvar`
 # Otherwise in contrib
     if test -z "$adirval"; then
+# Should not be lower cased
       case $bld in
         ser)
-          adirval=${INSTDIR}/${pkgnamelc}
+          adirval=${INSTDIR}/${pkgname}
           ;;
         *)
-          adirval=${INSTDIR}/${pkgnamelc}-$bld
+          adirval=${INSTDIR}/${pkgname}-$bld
           ;;
       esac
     fi
