@@ -4277,7 +4277,7 @@ bilderConfig() {
         start_ctest=$srcarg/Start.ctest
         techo "Found $srcarg/Start.ctest.  ctest can be used."
       else
-        techo "Found Start.ctest not found under $srcarg.  ctest cannot be used."
+        techo "Start.ctest not found under $srcarg/{scimake,.}.  ctest cannot be used."
       fi
       if test -d $srcarg/scimake; then
         hasscimake=true
