@@ -4010,7 +4010,7 @@ bilderConfig() {
 # Ctest needs to be told (redundantly) the build
   local ctestbuildname="${RUNNRSYSTEM}-${BILDER_CHAIN}-$2"
   local ctestargs="-DCTEST_BUILD_NAME:STRING='${ctestbuildname}'"
-  local modelvar=`genbashvar $pkg`_CTEST_TARGET
+  local modelvar=`genbashvar $pkg`_CTEST_MODEL
   local modelval=`deref $modelvar`
   techo -2 "$modelvar = $modelval."
   if test -n "$modelval"; then
@@ -5167,7 +5167,7 @@ bilderRunTests() {
   local cmvar=`genbashvar $pkgname`_CONFIG_METHOD
   local cmval=`deref $cmvar`
   local maker=`getMaker $cmval`
-  local targvar=`genbashvar $pkgname`_CTEST_TARGET
+  local targvar=`genbashvar $pkgname`_CTEST_MODEL
   local targval=`deref $targvar`
 # For selecting specific packages to test
   local testingvar=`genbashvar $pkgname`_TESTING

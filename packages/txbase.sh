@@ -23,8 +23,10 @@ source $mydir/txbase_aux.sh
 
 setTxbaseNonTriggerVars() {
   TXBASE_MASK=002
-  TXBASE_TESTING=${TXBASE_TESTING:-"${TESTING_BUILDS}"}
-  $TXBASE_TESTING && TXBASE_CTEST_TARGET=${TXBASE_CTEST_TARGET:-"$BILDER_CTEST_MODEL"}
+# This allows individual package control of testing
+  TXBASE_TESTING=${TXBASE_TESTING:-"${TESTING}"}
+# This allows changing the target if ctest is enabled
+  $TXBASE_TESTING && TXBASE_CTEST_MODEL=${TXBASE_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
 }
 setTxbaseNonTriggerVars
 
@@ -54,10 +56,10 @@ buildTxbase() {
   local TXBASE_DEVELDOCS_MAKE_ARGS=apidocs-force
   TXBASE_MAKE_ARGS="$TXBASE_MAKE_ARGS $TXBASE_MAKEJ_ARGS"
   trimvar TXBASE_MAKE_ARGS ' '
-  if test -n "$TXBASE_CTEST_TARGET"; then
+  if test -n "$TXBASE_CTEST_MODEL"; then
     TXBASE_ADDL_ARGS="-DCTEST_BUILD_FLAGS:STRING='$TXBASE_MAKE_ARGS'"
-    TXBASE_MAKE_ARGS="$TXBASE_MAKEJ_ARGS ${TXBASE_CTEST_TARGET}Build"
-    TXBASE_DEVELDOCS_MAKE_ARGS="${TXBASE_CTEST_TARGET}Build"
+    TXBASE_MAKE_ARGS="$TXBASE_MAKEJ_ARGS ${TXBASE_CTEST_MODEL}Build"
+    TXBASE_DEVELDOCS_MAKE_ARGS="${TXBASE_CTEST_MODEL}Build"
   fi
 
 # Force full link path
@@ -108,7 +110,7 @@ buildTxbase() {
 
 testTxbase() {
   local testtarg=test
-  test -n "$TXBASE_CTEST_TARGET" && testtarg="${TXBASE_CTEST_TARGET}Test"
+  test -n "$TXBASE_CTEST_MODEL" && testtarg="${TXBASE_CTEST_MODEL}Test"
   bilderRunTests -bs -i ben txbase "" "${testtarg}"
 }
 
