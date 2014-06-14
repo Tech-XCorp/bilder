@@ -4411,6 +4411,15 @@ bilderConfig() {
       ;;
     *)
       if $hasctest; then
+        if [[ `uname` =~ CYGWIN ]]; then
+          start_ctest=`cygpath -am ${start_ctest}`
+          if test -n "$JENKINS_JOB_DIR"; then
+            techo -2 "Since JENKINS_JOB_DIR=$JENKINS_JOB_DIR defined, using it in ctest configure."
+            cygprojdir=`cygpath -am $PROJECT_DIR`
+            cygjenkinsdir=`cygpath -am $JENKINS_JOB_DIR`
+            start_ctest=`echo $start_ctest | sed -e "s@${cygprojdir}@${cygjenkinsdir}@"`
+          fi
+        fi
         finalcmd="ctest $ctestargs -S $start_ctest"
       else
         finalcmd="$configexec $configargs $srcarg"
