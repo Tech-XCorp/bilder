@@ -2428,16 +2428,22 @@ findPackage() {
     adirval=`deref $sysadirvar`
 # Otherwise in contrib
     if test -z "$adirval"; then
-# Look through all casings
-      case $bld in
-        ser)
-          adirval=`(shopt -s nocaseglob; \ls -d ${INSTDIR}/${pkgname} 2>/dev/null)`
-          ;;
-        *)
-          adirval=`(shopt -s nocaseglob; \ls -d ${INSTDIR}/${pkgname}-$bld 2>/dev/null)`
-          ;;
-      esac
+      sfx=
+      if ! test $bld = ser; then
+        sfx=-$bld
+      fi
+      for dir in ${INSTDIR}/${pkgnamelc}${sfx} ${INSTDIR}/${pkgname}${sfx} ${INSTDIR}/${pkgnameuc}${sfx}; do
+        if test -e ${dir}; then
+          adirval=${dir}
+          break
+        fi
+        techo "$dir not found."
+      done
     fi
+    if test -z "$adirval"; then
+      techo "$dirname not found for any case."
+    fi
+    techo "adirval = $adirval"
     alibdirval=${adirval}/lib
     if test -d $alibdirval; then
       alibdirval=`(cd $alibdirval; pwd -P)`

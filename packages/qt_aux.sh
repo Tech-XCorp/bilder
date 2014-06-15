@@ -80,11 +80,13 @@ findQt() {
       printQtVars
       return
     else
+      techo "Qt not found in $QT_BINDIR."
       unset QT_BINDIR
       unset QTDIR
     fi
+  else
+    techo "QT_BINDIR not set."
   fi
-  techo "Qt not found in $QT_BINDIR."
 
 # Seek Qt in the contrib directory
   local libname=
@@ -93,9 +95,12 @@ findQt() {
   else
     libname=QtCore
   fi
-  findContribPackage Qt $libname cc4py sersh
+  findContribPackage Qt $libname sersh cc4py
+  techo "QT_SERSH_DIR = $QT_SERSH_DIR."
   findCc4pyDir Qt
-  if test -z "$QT_CC4PY_DIR"; then
+  if test -n "$QT_CC4PY_DIR"; then
+    techo "QT_CC4PY_DIR = $QT_CC4PY_DIR."
+  else
     findContribPackage Qt $libname ser
   fi
   local qtdir=$QT_CC4PY_DIR
