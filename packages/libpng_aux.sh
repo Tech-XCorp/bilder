@@ -24,7 +24,7 @@ setLibpngTriggerVars() {
         LIBPNG_DIRS=$CONTRIB_DIR/libpng-${LIBPNG_BLDRVERSION}-sersh
         ;;
       Darwin)
-        LIBPNG_DIRS="/opt/homebrew/opt/freetype /opt/X11 /usr/X11"
+        LIBPNG_DIRS="/opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11"
         if test -e $CONTRIB_DIR/libpng-sersh; then
           LIBPNG_DESIRED_BUILDS=sersh
         else
