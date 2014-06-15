@@ -4529,7 +4529,7 @@ bilderBuild() {
 # This syntax is needed to keep parameters quoted
   set -- "$@"
   OPTIND=1
-  while getopts "dkm:" arg; do
+  while getopts "Dkm:" arg; do
     case "$arg" in
       D) makedepend=false;;
       k) makeclean=false;;
