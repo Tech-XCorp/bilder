@@ -4013,15 +4013,30 @@ bilderConfig() {
 #
   local configexec=
   local configargs=
-# Ctest needs to be told (redundantly) the build
-  local ctestbuildname="${RUNNRSYSTEM}-${BILDER_CHAIN}-$2"
-  local ctestargs="-DCTEST_BUILD_NAME:STRING='${ctestbuildname}'"
-  local modelvar=`genbashvar $pkg`_CTEST_MODEL
-  local modelval=`deref $modelvar`
-  techo -2 "$modelvar = $modelval."
-  if test -n "$modelval"; then
-    ctestargs="$ctestargs -DCTEST_MODEL:STRING='${modelval}'"
+
+# Determine whether using ctest
+  local usectestvar=`genbashvar $pkg`_USE_CTEST
+  local usectest=`deref $usectestvar`
+  usectest=${usectest:-"$BILDER_USE_CTEST"}
+  if $usectest; then
+    techo "Will use ctest if needed files found."
+  else
+    techo "Will not use ctest."
   fi
+
+# Start on ctest args
+  if $usectest; then
+    local ctestbuildname="${RUNNRSYSTEM}-${BILDER_CHAIN}-$2"
+    local ctestargs="-DCTEST_BUILD_NAME:STRING='${ctestbuildname}'"
+    local modelvar=`genbashvar $pkg`_CTEST_MODEL
+    local modelval=`deref $modelvar`
+    modelval=${modelval:-"$BILDER_CTEST_MODEL"}
+    techo -2 "$modelvar = $modelval."
+    if test -n "$modelval"; then
+      ctestargs="$ctestargs -DCTEST_MODEL:STRING='${modelval}'"
+    fi
+  fi
+
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
 # qmake configure
@@ -4294,27 +4309,28 @@ bilderConfig() {
       if test $VERBOSITY -ge 1; then
         configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
       fi
-      if test -n "$testsecs"; then
-        configargs="$configargs -DDART_TESTING_TIMEOUT:STRING=$testsecs"
+      if test -n "$SVN_BINDIR"; then
+        configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
       fi
+      if $usectest; then
+        if test -n "$testsecs"; then
+          configargs="$configargs -DDART_TESTING_TIMEOUT:STRING=$testsecs"
+        fi
 # Ctest needs the following variable to get site correct for configure submit
-      if test -n "$FQMAILHOST"; then
-        ctestargs="$ctestargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
-      fi
-      if test -n "$CTEST_DROP_SITE" -a "$CTEST_DROP_SITE" != NONE; then
-        ctestargs="$ctestargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-      fi
-      if $hasscimake; then
-        # configargs="$configargs -DSCIMAKE_BUILD:STRING=$2"
-        configargs="$configargs -DSCIMAKE_BUILD_NAME:STRING=$ctestbuildname"
-        if test -n "$CTEST_DROP_SITE"; then
-          configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
-        fi
         if test -n "$FQMAILHOST"; then
-          configargs="$configargs -DSCIMAKE_SITE:STRING='${FQMAILHOST}'"
+          ctestargs="$ctestargs -DCTEST_SITE:STRING='${FQMAILHOST}'"
         fi
-        if test -n "$SVN_BINDIR"; then
-          configargs="$configargs -DSVN_BINDIR:PATH='${SVN_BINDIR}'"
+        if test -n "$CTEST_DROP_SITE" -a "$CTEST_DROP_SITE" != NONE; then
+          ctestargs="$ctestargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+        fi
+        if $hasscimake; then
+          configargs="$configargs -DSCIMAKE_BUILD_NAME:STRING=$ctestbuildname"
+          if test -n "$CTEST_DROP_SITE"; then
+            configargs="$configargs -DCTEST_DROP_SITE:STRING='${CTEST_DROP_SITE}'"
+          fi
+          if test -n "$FQMAILHOST"; then
+            configargs="$configargs -DSCIMAKE_SITE:STRING='${FQMAILHOST}'"
+          fi
         fi
       fi
       ;;
@@ -4398,7 +4414,7 @@ bilderConfig() {
 
 # Create final command
   local finalcmd=
-  if $hasctest; then
+  if $usectest && $hasctest; then
     techo "Start.ctest found."
 # For ctest: remove the quotes escape the semicolons, but semicolons
     techo -2 "configargs = $configargs."
