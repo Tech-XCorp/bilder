@@ -34,7 +34,7 @@ findFreetype() {
 
 # OSX puts freetype under the X11 location, which may be in more than one place.
   if test -z "$FREETYPE_SERSH_DIR"; then
-    for dir in /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11; do
+    for dir in /opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11; do
       if test -d $dir/include/freetype2; then
         FREETYPE_CC4PY_DIR=$dir
         break
@@ -122,7 +122,7 @@ findFreetypeRootdir() {
   fi
 # OSX puts freetype under the X11 location, which may be in more than one place.
   if test -z "$ftdir"; then
-    for dir in /opt/X11 /usr/X11R6 /usr /opt/homebrew /opt/local; do
+    for dir in /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr /opt/homebrew /opt/local; do
       if test -d $dir/include/freetype2; then
         ftdir=$dir
         break
