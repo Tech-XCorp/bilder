@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for geant4
+# Build information for geant4
 #
 # $Id$
 #
@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version and finding.
+# Trigger variables set in geant4_aux.sh
 #
 ######################################################################
 
@@ -17,20 +17,16 @@ source $mydir/geant4_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setGeant4GlobalVars() {
-  GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_BUILD"}
-  if which qmake 1>/dev/null 2>&1; then
-    GEANT4_DEPS=qt
-  fi
-  GEANT4_DEPS=$GEANT4_DEPS,pcre,xercesc,cmake
-  trimvar GEANT4_DEPS ,
-  addtopathvar PATH $CONTRIB_DIR/geant4-$FORPYTHON_BUILD/bin
+setGeant4NonTriggerVars() {
+  GEANT4_MASK=002
 }
-setGeant4GlobalVars
+setGeant4NonTriggerVars
 
 ######################################################################
 #

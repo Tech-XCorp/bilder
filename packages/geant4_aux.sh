@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Version and find information for geant4
+# Trigger vars and find information
 #
 # $Id$
 #
 ######################################################################
 
-getGeant4Version() {
+setGeant4TriggerVars() {
 # Version 10 does not work with gras-03-03-r1561
   # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.00.p01"}
   # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p02"}
@@ -17,8 +17,11 @@ getGeant4Version() {
 # and then add the above tarball to svnpkgs
 # p03 is recommended for GRAS
   GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
+  GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_BUILD"}
+  GEANT4_DEPS=qt,pcre,xercesc,cmake
+  trimvar GEANT4_DEPS ,
 }
-getGeant4Version
+setGeant4TriggerVars
 
 ######################################################################
 #
@@ -51,6 +54,9 @@ findGeant4() {
 # Do these work for cmake projects?
 #  source $GEANT4_HOME/bin/geant4.sh
 #  source $GEANT4_HOME/share/Geant4-${GEANT4_REGVER}/geant4make/geant4make.sh
+
+# Add to path
+  addtopathvar PATH $CONTRIB_DIR/geant4-$FORPYTHON_BUILD/bin
 
 }
 
