@@ -801,7 +801,9 @@ addtopathvar() {
 # Find absolute, resolved path, if it exists
   case `uname`-$1 in
     *-PATH)  # cygwin converts PATH and uses colon
-      addpath=`(cd "$addpathcand" 2>/dev/null; pwd -P)`
+      # addpathcand may not exist *yet*, so `cd` won't work
+      #addpath=`(cd "$addpathcand" 2>/dev/null; pwd -P)`
+      addpath=$addpathcand
       ;;
     CYGWIN*)
       sep=";"
