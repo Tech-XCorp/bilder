@@ -266,7 +266,7 @@ EOF
           fi
           continue
           ;;
-        qt3d | pyqt | sip)
+        ninja | pyqt | qt3d | sip)
           echo "Keeping ${pkglc} as does not have a top-level installation dir."
           echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
           continue
