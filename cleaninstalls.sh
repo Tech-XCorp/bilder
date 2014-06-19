@@ -209,6 +209,8 @@ EOF
         continue
       fi
       echo "Bilder package file is ${pkgfile}."
+
+# If python, get version by importing
       pver=
       if pkgline=`grep -q bilderDu $pkgfile`; then
         echo "$pkg is a python package."
@@ -238,12 +240,14 @@ EOF
         esac
         continue
       fi
+
       case $pkglc in
-        doxygen)
+# Packages that install a binary of the same nae
+        doxygen | ninja)
           bindir=$CLN_INSTALL_DIR/bin
-          if test -x $bindir/doxygen; then
-            ver=`$bindir/doxygen --version`
-            if [[ "$LINE" =~ doxygen-$ver ]]; then
+          if test -x $bindir/$pkglc; then
+            ver=`$bindir/$pgklc --version`
+            if [[ "$LINE" =~ ${pkglc}-$ver ]]; then
               echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             fi
           fi
@@ -266,7 +270,7 @@ EOF
           fi
           continue
           ;;
-        ninja | pyqt | qt3d | sip)
+        pyqt | qt3d | sip)
           echo "Keeping ${pkglc} as does not have a top-level installation dir."
           echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
           continue
@@ -277,6 +281,22 @@ EOF
           continue
           ;;
       esac
+
+# Not needed for now
+if false; then
+# If package sets clean variable to false, do not clean
+      cleanvar=`genbashvar $pkg`_CLEAN
+      pkgauxfile=${pkgfile%.sh}_aux.sh
+      if test -f $pkgauxfile && grep -q $cleanvar $pkgauxfile; then
+        source $pkgauxfile
+      fi
+      cleanval=`deref $cleanvar`
+      cleanval=${cleanval:-"true"}
+      if ! $cleanval; then
+        continue
+      fi
+fi
+
 # If any subdir with that version present, keep
 # rev=`echo $inst | sed -e "s/${pkg}-//" -e 's/-.*$//'`
       dirs=`(cd $CLN_INSTALL_DIR; \ls -d ${pkg}-${ver}-* ${pkg}-${ver} 2>/dev/null)`
