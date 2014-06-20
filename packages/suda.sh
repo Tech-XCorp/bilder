@@ -23,12 +23,12 @@ source $mydir/suda_aux.sh
 #
 ######################################################################
 
-setTxradNonTriggerVars() {
+setSudaNonTriggerVars() {
   SUDA_MASK=002
   SUDA_TESTING=${SUDA_TESTING:-"${TESTING_BUILDS}"}
   $SUDA_TESTING && SUDA_CTEST_MODEL=${SUDA_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
 }
-setTxradNonTriggerVars
+setSudaNonTriggerVars
 
 ######################################################################
 #
@@ -36,7 +36,7 @@ setTxradNonTriggerVars
 #
 ######################################################################
 
-buildTxrad() {
+buildSuda() {
   if ! bilderPreconfig -c suda; then
     return
   fi
@@ -52,7 +52,7 @@ buildTxrad() {
 #
 ######################################################################
 
-testTxrad() {
+testSuda() {
   techo "No tests yet"
 }
 
@@ -62,7 +62,7 @@ testTxrad() {
 #
 ######################################################################
 
-installTxrad() {
+installSuda() {
   bilderInstallAll suda
 }
 
