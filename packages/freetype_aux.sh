@@ -34,7 +34,7 @@ findFreetype() {
   findPackage Freetype freetype "$CONTRIB_DIR" cc4py sersh
   findCc4pyDir Freetype
 
-# OSX puts freetype under the X11 location, which may be in more than one place.
+# If not found, we look in $DIRLIST 
   if test -z "$FREETYPE_SERSH_DIR"; then
     for dir in $DIRLIST; do
       if test -d $dir/include/freetype2; then
