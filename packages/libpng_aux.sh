@@ -46,6 +46,13 @@ setLibpngTriggerVars() {
 # No need to add cc4py build, as pure C
   #  addCc4pyBuild libpng
   LIBPNG_DEPS=zlib,cmake
+
+  if test -z "$LIBPNG_SERSH_DIR"; then
+    CMAKE_LIBPNG_DIR_ARG="-DPng_ROOT_DIR:PATH='$LIBPNG_SERSH_DIR'"
+    CONFIG_LIBPNG_DIR_ARG="--with-png-dir='$LIBPNG_SERSH_DIR'"
+    printvar CMAKE_LIBPNG_DIR_ARG
+    printvar CONFIG_LIBPNG_DIR_ARG
+  fi
 }
 setLibpngTriggerVars
 
