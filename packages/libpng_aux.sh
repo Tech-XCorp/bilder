@@ -19,8 +19,9 @@ findLibpng() {
   case `uname` in
     CYGWIN*)
       findPackage Libpng libpng "$CONTRIB_DIR" sersh
-      LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
-      if test -z "$LIBPNG_SERSH_DIR"; then
+      if test -n "$LIBPNG_SERSH_DIR"; then
+        LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
+      else
         echo "WARNING: libpng not found. May have failed to build."
       fi
       ;;
@@ -38,16 +39,16 @@ echo "     Found in $dir"
         echo "WARNING: libpng16 not found. Please install on system."
       fi
       ;;
-    Linux) 
+    Linux)
       findPackage Libpng libpng "$CONTRIB_DIR" sersh
       if test -z "$LIBPNG_SERSH_DIR"; then
         echo "WARNING: libpng not found. May have failed to build."
       fi
       ;;
-  esac 
+  esac
 
 # If found, we set some arguments that can be used in other package
-# configures to make sure libpng is consistent in all pkgs that use the args. 
+# configures to make sure libpng is consistent in all pkgs that use the args.
   if test -n "$LIBPNG_SERSH_DIR"; then
     echo "Setting configure args to use libpng in $LIBPNG_SERSH_DIR."
     CMAKE_LIBPNG_SERSH_DIR_ARG="-DPng_ROOT_DIR:PATH='$LIBPNG_SERSH_DIR'"
