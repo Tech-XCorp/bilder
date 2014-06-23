@@ -87,8 +87,10 @@ testTxphysics() {
 # ready for when txphysics is ready by uncommenting upper line and
 # removing lower.
   local testtarg=test
+  local perbuildarg=
   $TXPHYSICS_USE_CTEST && testtarg="${TXPHYSICS_CTEST_MODEL}Test"
-  $TXPHYSICS_TESTING && bilderRunTests -bs -i ben txphysics "" "${testtarg}"
+  $TXPHYSICS_TESTING && perbuildarg=-b
+  bilderRunTests ${perbuildarg} -s -i ben txphysics "" "${testtarg}"
 }
 
 ######################################################################
