@@ -22,27 +22,17 @@ findLibpng() {
       if test -n "$LIBPNG_SERSH_DIR"; then
         LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
       else
-        echo "WARNING: libpng not found. May have failed to build."
+        techo "WARNING: libpng not found. May have failed to build."
       fi
       ;;
-    Darwin)
-      local dirlist="/opt/homebrew /opt/homebrew/opt/libpng /opt/X11 /usr/X11R6 /usr/X11"
-      for dir in $dirlist; do
-echo "Trying $dir"
-        if test -d $dir/include/libpng16; then
-echo "     Found in $dir"
-          LIBPNG_SERSH_DIR=$dir
-          break
-        fi
-      done
-      if test -z "$LIBPNG_SERSH_DIR"; then
-        echo "WARNING: libpng16 not found. Please install on system."
-      fi
-      ;;
-    Linux)
-      findPackage Libpng libpng "$CONTRIB_DIR" sersh
-      if test -z "$LIBPNG_SERSH_DIR"; then
-        echo "WARNING: libpng not found. May have failed to build."
+    *)
+      local libpngconfig=`which libpng-config`
+      if test -z "$libpngconfig"; then
+        techo "WARNING: libpng not found by bilder. Please install on system."
+      else
+        local libpngdir=`$libpngconfig --prefix`
+        techo "Using libpng from $libpngdir."
+        LIBPNG_SERSH_DIR=$libpngdir
       fi
       ;;
   esac
@@ -50,7 +40,7 @@ echo "     Found in $dir"
 # If found, we set some arguments that can be used in other package
 # configures to make sure libpng is consistent in all pkgs that use the args.
   if test -n "$LIBPNG_SERSH_DIR"; then
-    echo "Setting configure args to use libpng in $LIBPNG_SERSH_DIR."
+    techo "Setting configure args to use libpng in $LIBPNG_SERSH_DIR."
     CMAKE_LIBPNG_SERSH_DIR_ARG="-DPng_ROOT_DIR:PATH='$LIBPNG_SERSH_DIR'"
     CONFIG_LIBPNG_SERSH_DIR_ARG="--with-libpng-dir='$LIBPNG_SERSH_DIR'"
     printvar CMAKE_LIBPNG_SERSH_DIR_ARG
@@ -71,10 +61,8 @@ setLibpngTriggerVars() {
   LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
   findLibpng
   case `uname` in
-    Darwin)
-# Do not attempt to build on Darwin. Must be installed.
-      ;;
-    *)
+    CYGWIN*)
+# Only attempt to build on Windows. Must be installed elsewhere.
       LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh"}
       ;;
   esac
