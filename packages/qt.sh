@@ -237,7 +237,6 @@ buildQt() {
       rm -f ${CONTRIB_DIR}/bin/g++
     fi
   fi
-
 }
 
 ######################################################################
@@ -291,7 +290,6 @@ fixQtInstall() {
 # Install Qt
 #
 installQt() {
-
   local qt_tried=false
   local qtpid=`deref QT_${QT_BUILD}_PID`
   if test -n "$qtpid"; then
@@ -315,6 +313,5 @@ EOF
       techo "Extra build steps failed."
     fi
   fi
-
 }
 
