@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for setuptools
+# Build information for setuptools
 #
 # $Id$
 #
@@ -8,25 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in setuptools_aux.sh
 #
 ######################################################################
 
-SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"2.0.2"}
-SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"2.0.2"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/setuptools_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setSetupToolsGlobalVars() {
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"cc4py"}
-  SETUPTOOLS_DEPS=Python
+setSetuptoolsNonTriggerVars() {
   SETUPTOOLS_UMASK=002
 }
-setSetupToolsGlobalVars
+setSetuptoolsNonTriggerVars
 
 #####################################################################
 #
