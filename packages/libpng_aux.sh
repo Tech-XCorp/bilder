@@ -18,7 +18,7 @@ findLibpng() {
 # on mac we look for it in certain system places
   case `uname` in
     CYGWIN*)
-      findPackage Libpng libpng "$CONTRIB_DIR" sersh
+      findPackage Libpng png "$CONTRIB_DIR" sersh
       if test -n "$LIBPNG_SERSH_DIR"; then
         LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
       else

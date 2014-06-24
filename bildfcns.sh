@@ -2494,7 +2494,7 @@ findPackage() {
       printvar $adirvar
       printvar $alibvar
     elif test -n "$adirval"; then
-      techo "New build, ${pkgnameprefix}_${BLD}, not found."
+      techo "Library, ${PKG_LIBNAME}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."
     else
       techo "Package ${pkgnameprefix}_${BLD} not set or found."
