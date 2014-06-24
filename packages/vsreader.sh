@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for vsreader
+# Build information for vsreader
 #
 # $Id$
 #
@@ -8,26 +8,31 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in vsreader_aux.sh
 #
 ######################################################################
 
-# VSREADER_BLDRVERSION=${VSREADER_BLDRVERSION:-""}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/vsreader_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$VSREADER_BUILDS"; then
-  VSREADER_BUILDS=${FORPYTHON_BUILD}
-  if [[ `uname` =~ CYGWIN ]]; then
-    VSREADER_BUILDS="${VSREADER_BUILDS},sermd"
-  fi
-fi
-VSREADER_UMASK=007
-VSREADER_DEPS=hdf5
+setVsreaderNonTriggerVars() {
+  VSREADER_MASK=002
+# This allows individual package control of testing
+  VSREADER_TESTING=${VSREADER_TESTING:-"${TESTING}"}
+# This allows individual package control over whether ctest is used
+  VSREADER_USE_CTEST=${VSREADER_USE_CTEST:-"$BILDER_USE_CTEST"}
+# This allows individual package control over ctest submission model
+  VSREADER_CTEST_MODEL=${VSREADER_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
+}
+setVsreaderNonTriggerVars
 
 ######################################################################
 #
@@ -77,7 +82,5 @@ testVsreader() {
 ######################################################################
 
 installVsreader() {
-  for bld in `echo $VSREADER_BUILDS | tr ',' ' '`; do
-    bilderInstall vsreader $bld
-  done
+  bilderInstallAll vsreader
 }
