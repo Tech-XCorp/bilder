@@ -2443,7 +2443,9 @@ findPackage() {
       done
     fi
     if test -z "$adirval"; then
-      techo "$dirname not found for any case."
+      techo "${pkgnameprefix}_${BLD}_DIR not found for any case."
+      eval HAVE_${pkgnameprefix}_$BLD=false
+      continue
     fi
     techo "adirval = $adirval"
     alibdirval=${adirval}/lib
