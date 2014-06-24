@@ -79,7 +79,7 @@ buildQt() {
 
     Darwin)
 # jpeg present, but qt cannot find headers
-      QMAKE_PLATFORM_ARGS="-spec macx-g++ -r"
+      QMAKE_PLATFORM_ARGS="-spec macx-g++ -r -qt-libpng"
       case `uname -r` in
         13.*)
 # This will need to be clang
@@ -105,7 +105,7 @@ buildQt() {
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
 # with a comma.
-      QMAKE_PLATFORM_ARGS="-spec linux-g++ -r"
+      QMAKE_PLATFORM_ARGS="-spec linux-g++ -r -system-libpng"
       QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
       case `uname -m` in
         x86_64)
