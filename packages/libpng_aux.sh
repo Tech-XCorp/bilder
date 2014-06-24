@@ -59,7 +59,6 @@ findLibpng() {
 
 setLibpngTriggerVars() {
   LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
-  findLibpng
   case `uname` in
     CYGWIN*)
 # Only attempt to build on Windows. Must be installed elsewhere.
@@ -68,7 +67,6 @@ setLibpngTriggerVars() {
   esac
   computeBuilds libpng
 # No need to add cc4py build, as pure C
-  #  addCc4pyBuild libpng
   LIBPNG_DEPS=zlib,cmake
 }
 setLibpngTriggerVars
