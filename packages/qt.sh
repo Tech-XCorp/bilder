@@ -220,6 +220,7 @@ buildQt() {
       ;;
     4.8.6)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
+      QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
       ;;
     4.*)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
