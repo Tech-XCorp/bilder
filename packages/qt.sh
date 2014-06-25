@@ -67,9 +67,9 @@ buildQt() {
       case $CC in
         *cl)
           case ${VISUALSTUDIO_VERSION} in
-            9)  QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -spec win32-msvc2008";;
-            10) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -spec win32-msvc2010";;
-            11) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -spec win32-msvc2012";;
+            9)  QMAKE_PLATFORM_ARGS="-spec win32-msvc2008";;
+            10) QMAKE_PLATFORM_ARGS="-spec win32-msvc2010";;
+            11) QMAKE_PLATFORM_ARGS="-spec win32-msvc2012";;
           esac
           ;;
         *mingw*)
@@ -79,7 +79,7 @@ buildQt() {
 
     Darwin)
 # jpeg present, but qt cannot find headers
-      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -spec macx-g++ -r -qt-libpng"
+      QMAKE_PLATFORM_ARGS="-spec macx-g++ -r -qt-libpng"
       case `uname -r` in
         13.*)
 # This will need to be clang
@@ -105,7 +105,7 @@ buildQt() {
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
 # with a comma.
-      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -spec linux-g++ -r -system-libpng"
+      QMAKE_PLATFORM_ARGS="-spec linux-g++ -r -system-libpng"
       QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
       case `uname -m` in
         x86_64)
@@ -200,7 +200,6 @@ buildQt() {
       ;;
 
   esac
-  trimvar QT_PLATFORM_ARGS ' '
 
 # PyQt will not build on Linux when Qt is built without phonon, so restoring.
 # Phonon is also required for WebKit, which the composers need.
@@ -220,7 +219,6 @@ buildQt() {
       ;;
     4.8.6)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
-      QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
       ;;
     4.*)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
