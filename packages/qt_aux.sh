@@ -69,6 +69,40 @@ printQtVars() {
   done
 }
 
+#
+# Set qmake variables for later use
+#
+setQmakeArgs() {
+
+  case `uname` in
+
+    CYGWIN*)
+      case $CC in
+        *cl)
+          case ${VISUALSTUDIO_VERSION} in
+            9)  QMAKE_PLATFORM_ARGS="-spec win32-msvc2008";;
+            10) QMAKE_PLATFORM_ARGS="-spec win32-msvc2010";;
+            11) QMAKE_PLATFORM_ARGS="-spec win32-msvc2012";;
+          esac
+          ;;
+        *mingw*)
+          ;;
+      esac
+      ;;
+
+    Darwin) QMAKE_PLATFORM_ARGS="-spec macx-g++";;
+
+    Linux)
+      case `uname -m` in
+        x86_64) QMAKE_PLATFORM_ARGS="-spec linux-g++-64";;
+        *) QMAKE_PLATFORM_ARGS="-spec linux-g++";;
+      esac
+      ;;
+
+  esac
+
+}
+
 findQt() {
 
 # Try accepting what the user specified
@@ -77,6 +111,7 @@ findQt() {
       techo "qmake found in $QT_BINDIR"
       addtopathvar PATH $QT_BINDIR
       QTDIR=`dirname $QT_BINDIR`
+      setQmakeArgs
       printQtVars
       return
     else
@@ -111,6 +146,7 @@ findQt() {
     addtopathvar PATH $QT_BINDIR
     QMAKE=`env PATH=$QT_BINDIR:/usr/bin which qmake 2>/dev/null`
     QTDIR=$qtdir
+    setQmakeArgs
     printQtVars
     return
   fi
@@ -121,6 +157,7 @@ findQt() {
     QT_BINDIR=`dirname $QMAKE`
     addtopathvar PATH $QT_BINDIR
     QTDIR=`dirname $QT_BINDIR`
+    setQmakeArgs
     printQtVars
     return
   fi
@@ -135,6 +172,7 @@ findQt() {
       addtopathvar PATH $QT_BINDIR
       QMAKE=`env PATH=$QT_BINDIR which qmake 2>/dev/null`
       QTDIR=`dirname $QT_BINDIR`
+      setQmakeArgs
       printQtVars
       return
     fi

@@ -64,33 +64,18 @@ buildQt() {
   case `uname` in
 
     CYGWIN*)
-      case $CC in
-        *cl)
-          case ${VISUALSTUDIO_VERSION} in
-            9)  QMAKE_PLATFORM_ARGS="-spec win32-msvc2008";;
-            10) QMAKE_PLATFORM_ARGS="-spec win32-msvc2010";;
-            11) QMAKE_PLATFORM_ARGS="-spec win32-msvc2012";;
-          esac
-          ;;
-        *mingw*)
-          ;;
-      esac
       ;;
 
     Darwin)
 # jpeg present, but qt cannot find headers
-      QMAKE_PLATFORM_ARGS="-spec macx-g++ -r -qt-libpng"
+      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++"
       case `uname -r` in
         13.*)
 # This will need to be clang
-          QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
           ;;
         1[0-2].*)
           case `uname -m` in
             i386) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64";;
-            *)
-              QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++ -no-gif"
-              ;;
           esac
           ;;
       esac
@@ -98,6 +83,7 @@ buildQt() {
         5.*) ;;
         *) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -cocoa";;
       esac
+      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -no-gif -qt-libpng"
       ;;
 
     Linux)
@@ -105,7 +91,6 @@ buildQt() {
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
 # with a comma.
-      QMAKE_PLATFORM_ARGS="-spec linux-g++ -r -system-libpng"
       QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
       case `uname -m` in
         x86_64)
@@ -115,6 +100,7 @@ buildQt() {
           QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++"
           ;;
       esac
+      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -system-libpng"
 
 # Need the following for phonon (and for webkit):
 #   glib
@@ -140,7 +126,6 @@ buildQt() {
 #  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
 #  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
       local incdir=
-      local libdir=
 # qt will not compile with gstreamer-1.0, so specifically look for 0.10
       for i in gstreamer-0.10 libxml2; do
 # Get the latest
@@ -153,10 +138,6 @@ buildQt() {
         else
           techo "WARNING: [qt.sh] May need to install ${i}-devel."
         fi
-# Looks like this is not used?
-        # if test -n "$libdir"; then
-          # QT_PHONON_ARGS="$QT_PHONON_ARGS -L$libdir"
-        # fi
       done
 # glib a little special to deal with versions
       incdir=`ls -1d /usr/include/glib-* 2>/dev/null | tail -1`
@@ -219,6 +200,7 @@ buildQt() {
       ;;
     4.8.6)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
+      QT_MAKEJ_USEARGS="$QT_MAKEJ_ARGS"
       ;;
     4.*)
       QT_VERSION_ARGS="-buildkey bilder -no-libtiff -declarative -webkit $QT_PHONON_ARGS"
