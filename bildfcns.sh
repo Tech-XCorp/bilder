@@ -4372,11 +4372,11 @@ bilderConfig() {
   techo -2 "After Windows fix, srcarg = $srcarg"
 
 # Fix generator arg
+  local generator=
   case `uname` in
     CYGWIN*)
       case "$cmval" in
         cmake)
-          local generator=
           case "$maker" in
             jom) generator="NMake Makefiles JOM";;
             make) generator="Unix Makefiles";;
@@ -4396,14 +4396,15 @@ bilderConfig() {
                 ;;
             esac
           fi
-          configargs="$configargs -G '$generator'"
+          # configargs="$configargs -G '$generator'"
           ;;
       esac
       ;;
     MINGW*)
       case "$configexec" in
         cmake*)
-          configargs="$configargs -G 'MSYS Makefiles'"
+          generator="MSYS Makefiles"
+          # configargs="$configargs -G 'MSYS Makefiles'"
           ;;
         *)
           configargs="$configargs CC=gcc"
@@ -4418,16 +4419,24 @@ bilderConfig() {
 
 # Create final command
   local finalcmd=
+  local ctestoptions=
   if $usectest && $hasctest; then
     techo "Using ctest."
 # For ctest: remove the quotes escape the semicolons, but semicolons
     techo -2 "configargs = $configargs."
-    local ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g' -e 's/ -G/;-G/g'`
+    # ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g' -e 's/ -G/;-G/g'`
+    ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g'`
     techo -2 "ctestoptions = $ctestoptions."
+    if test -n "$generator"; then
+      ctestargs="$ctestargs -DCTEST_CMAKE_GENERATOR:STRING='$generator'"
+    fi
     ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
     techo -2 "ctestargs = $ctestargs."
     finalcmd="ctest $ctestargs -S $start_ctest"
   else
+    if test -n "$generator"; then
+      configargs="$configargs -G '$generator'"
+    fi
     finalcmd="$configexec $configargs $srcarg"
   fi
 
