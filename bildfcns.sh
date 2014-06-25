@@ -4184,7 +4184,7 @@ bilderConfig() {
   if test "$cmval" = petsc; then
     configexec="$CYGWIN_PYTHON '$configexec'"
   fi
-  techo "Will configure with '$configexec'."
+  # techo "Will configure with '$configexec'."
 
 #
 # Find the build directory if not yet known
@@ -4238,7 +4238,7 @@ bilderConfig() {
     if test `\ls | wc -l` -gt 0; then
       chmod -R u+w *
     fi
-    techo "$cmd" | tee distclean.out
+    techo -2 "$cmd" | tee distclean.out
     if ! $cmd 2>&1 >>distclean.out; then
 # For CYGWIN, may need to run twice
       sleep 1
@@ -4419,13 +4419,13 @@ bilderConfig() {
 # Create final command
   local finalcmd=
   if $usectest && $hasctest; then
-    techo "Start.ctest found."
+    techo "Using ctest."
 # For ctest: remove the quotes escape the semicolons, but semicolons
     techo -2 "configargs = $configargs."
     local ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g'`
-    techo "ctestoptions = $ctestoptions."
+    techo -2 "ctestoptions = $ctestoptions."
     ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
-    techo "ctestargs = $ctestargs."
+    techo -2 "ctestargs = $ctestargs."
     finalcmd="ctest $ctestargs -S $start_ctest"
   else
     finalcmd="$configexec $configargs $srcarg"
