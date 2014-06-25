@@ -31,7 +31,7 @@ source $mydir/moab_aux.sh
 setMoabGlobalVars() {
   MOAB_BUILD=$FORPYTHON_BUILD
   MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
-  MOAB_DEPS=vtk,cgm,netcdf
+  MOAB_DEPS=cgm,netcdf
   MOAB_UMASK=002
 }
 setMoabGlobalVars
@@ -71,7 +71,7 @@ buildMoab() {
 # With cgm:
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
-    MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
+    MOAB_ADDL_ARGS="--enable-shared --without-vtk --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
     case `uname` in
       Linux)
         local nclibsubdir=lib
