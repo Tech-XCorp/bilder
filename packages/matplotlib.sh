@@ -166,7 +166,7 @@ buildMatplotlib() {
       sed -i.bak -e "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
       ;;
     Darwin)
-      sed -i.bak -e "/^ *'darwin' *:/s?\]?$basedirs]?" setupext.py
+      sed -i.bak -e "/^ *'darwin' *:/s?\]?, $basedirs]?" setupext.py
       ;;
     Linux)
       sed -i.bak -e "/^ *'linux' *:/s?\]?$basedirs]?" setupext.py
