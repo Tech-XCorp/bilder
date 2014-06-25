@@ -1,7 +1,22 @@
-diff -ruN Imaging-1.1.7/setup.py Imaging-1.1.7macpatched/setup.py
+diff -ruN Imaging-1.1.7/setup.py Imaging-1.1.7-new/setup.py
 --- Imaging-1.1.7/setup.py	2009-11-15 09:06:10.000000000 -0700
-+++ Imaging-1.1.7macpatched/setup.py	2010-05-06 12:04:59.000000000 -0600
-@@ -137,6 +137,9 @@
++++ Imaging-1.1.7-new/setup.py	2014-06-25 08:21:15.000000000 -0600
+@@ -86,9 +86,12 @@
+ from distutils.core import Extension, setup
+ from distutils.command.build_ext import build_ext
+ 
+-try:
++if sys.platform == 'darwin':
++  _tkinter = None
++else:
++  try:
+     import _tkinter
+-except ImportError:
++  except ImportError:
+     _tkinter = None
+ 
+ def add_directory(path, dir, where=None):
+@@ -137,6 +140,9 @@
                  ))
  
          elif sys.platform == "darwin":
@@ -11,3 +26,21 @@ diff -ruN Imaging-1.1.7/setup.py Imaging-1.1.7macpatched/setup.py
              # attempt to make sure we pick freetype2 over other versions
              add_directory(include_dirs, "/sw/include/freetype2")
              add_directory(include_dirs, "/sw/lib/freetype2/include")
+@@ -332,12 +338,14 @@
+                 ))
+ 
+         if sys.platform == "darwin":
+-            # locate Tcl/Tk frameworks
+-            frameworks = []
+-            framework_roots = [
++          frameworks = []
++          framework_roots = [
+                 "/Library/Frameworks",
+                 "/System/Library/Frameworks"
+                 ]
++          feature.tcl = feature.tk = 0 # mark as absent
++          if 0:
++            # locate Tcl/Tk frameworks
+             for root in framework_roots:
+                 if (os.path.exists(os.path.join(root, "Tcl.framework")) and
+                     os.path.exists(os.path.join(root, "Tk.framework"))):
