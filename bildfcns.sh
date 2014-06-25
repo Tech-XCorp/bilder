@@ -4422,7 +4422,7 @@ bilderConfig() {
     techo "Using ctest."
 # For ctest: remove the quotes escape the semicolons, but semicolons
     techo -2 "configargs = $configargs."
-    local ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g'`
+    local ctestoptions=`echo "$configargs" | tr -d \'\" | sed -e 's/;/\\\\;/g' -e 's/ -D/;-D/g' -e 's/ -G/;-G/g'`
     techo -2 "ctestoptions = $ctestoptions."
     ctestargs="$ctestargs -DCMAKE_OPTIONS:STRING=\"$ctestoptions\""
     techo -2 "ctestargs = $ctestargs."
