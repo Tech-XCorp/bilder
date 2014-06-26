@@ -44,7 +44,8 @@ setMatplotlibNonTriggerVars
 # 4: All possible include dirs.  If empty, set to include
 #
 findMatplotlibDepDir() {
-  local sysdirs="$CONTRIB_DIR /opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11 /usr"
+# For some reason, need to go deeper for freetype and libpng
+  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/homebrew/opt/libpng /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11"
   local pkgdir=
   local libprefix=
   local incdirs="$4"
