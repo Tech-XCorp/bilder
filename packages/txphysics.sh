@@ -8,34 +8,31 @@
 
 ######################################################################
 #
-# Version.  No current tarball, so always build from repo.
+# Trigger variables set in txphysics_aux.sh
 #
 ######################################################################
 
-# Built from svn repo only
+mydir=`dirname $BASH_SOURCE`
+source $mydir/txphysics_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setTxPhysicsGlobalVars() {
-# txphysics used only by engine, so no sersh build needed
-  TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser"}
-  computeBuilds txphysics
-  addBenBuild txphysics
-  TXPHYSICS_DEPS=cmake
+setTxphysicsNonTriggerVars() {
+  TXPHYSICS_MASK=002
 # This allows individual package control of testing
-  # TXPHYSICS_TESTING=${TXPHYSICS_TESTING:-"${TESTING}"}
-  TXPHYSICS_TESTING=false
+  TXPHYSICS_TESTING=${TXPHYSICS_TESTING:-"${TESTING}"}
 # This allows individual package control over whether ctest is used
-  # TXPHYSICS_USE_CTEST=${TXPHYSICS_USE_CTEST:-"$BILDER_USE_CTEST"}
-  TXPHYSICS_USE_CTEST=false
+  TXPHYSICS_USE_CTEST=${TXPHYSICS_USE_CTEST:-"$BILDER_USE_CTEST"}
 # This allows individual package control over ctest submission model
   TXPHYSICS_CTEST_MODEL=${TXPHYSICS_CTEST_MODEL:-"$BILDER_CTEST_MODEL"}
 }
-setTxPhysicsGlobalVars
+setTxphysicsNonTriggerVars
 
 ######################################################################
 #
@@ -58,7 +55,6 @@ buildTxphysics() {
   # local TXPHYSICS_DEVELDOCS_MAKE_ARGS=apidocs-force
   if $TXPHYSICS_USE_CTEST; then
     TXPHYSICS_MAKE_ARGS="$TXPHYSICS_MAKE_ARGS ${TXPHYSICS_CTEST_MODEL}Build"
-    # TXPHYSICS_DEVELDOCS_MAKE_ARGS="$TXPHYSICS_MAKE_ARGS"
   fi
 
 # Build serial.  Eliminate definition of lib flags
@@ -73,7 +69,6 @@ buildTxphysics() {
   if bilderConfig -c txphysics ben "$CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $TXPHYSICS_BEN_OTHER_ARGS"; then
     bilderBuild txphysics ben "$TXPHYSICS_MAKE_ARGS"
   fi
-
 }
 
 ######################################################################
