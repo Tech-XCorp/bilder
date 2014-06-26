@@ -44,7 +44,7 @@ setMatplotlibNonTriggerVars
 # 4: All possible include dirs.  If empty, set to include
 #
 findMatplotlibDepDir() {
-  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11 /usr"
+  local sysdirs="$CONTRIB_DIR /opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11 /usr"
   local pkgdir=
   local libprefix=
   local incdirs="$4"
@@ -93,7 +93,7 @@ findMatplotlibDepDir() {
       # techo "After cygpath conversion, ${1}dir = $pkgdir." 1>&2
       pkgdir=`echo $pkgdir | sed 's/\\\\/\\\\\\\\/g'`
     fi
-    # techo "After conversion, ${1}dir = $pkgdir." 1>&2
+    techo "${1}dir = $pkgdir." 1>&2
   else
     techo "WARNING: Unable to find $1." 1>&2
   fi
@@ -121,12 +121,8 @@ buildMatplotlib() {
   fi
 
 # Find dependencies and construct the basedirs variable needed for setupext.py
-  # techo "Looking for png."
-  local pngdir=`findMatplotlibDepDir libpng png.h png`
-  techo "pngdir = $pngdir."
   # techo "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
-  techo "freetypedir = $freetypedir."
   if test -z "${pngdir}${freetypedir}"; then
     case `uname` in
       Darwin)
@@ -138,19 +134,23 @@ buildMatplotlib() {
         ;;
     esac
   fi
+  # techo "freetypedir = $freetypedir."
+  # techo "Looking for png."
+  local libpngdir=`findMatplotlibDepDir libpng png.h png`
+  # techo "libpngdir = $libpngdir."
   # techo "Looking for zlib."
   local zlibdir=
   case `uname` in
     CYGWIN*) zlibdir=`findMatplotlibDepDir zlib zlib.h zlib`;;
     *)       zlibdir=`findMatplotlibDepDir zlib zlib.h z`;;
   esac
+  # techo "zlibdir = $zlibdir."
   local basedirs=
-  techo "zlibdir = $zlibdir."
-  if test -n "$pngdir"; then
-    basedirs="'$pngdir',"
+  if test -n "$freetypedir"; then
+    basedirs="'$freetypedir',"
   fi
-  if test -n "$freetypedir" -a "$freetypedir" != "$pngdir"; then
-    basedirs="$basedirs '$freetypedir',"
+  if test -n "$libpngdir" && ! echo $basedirs | grep -q "'$libpngdir'"; then
+    basedirs="$basedirs '$pngdir',"
   fi
   if test -n "$zlibdir" && ! echo $basedirs | grep -q "'$zlibdir'"; then
     basedirs="$basedirs '$zlibdir',"
@@ -169,7 +169,7 @@ buildMatplotlib() {
       sed -i.bak -e "/^ *'darwin' *:/s?\]?, $basedirs]?" setupext.py
       ;;
     Linux)
-      sed -i.bak -e "/^ *'linux' *:/s?\]?$basedirs]?" setupext.py
+      sed -i.bak -e "/^ *'linux' *:/s?\] ?$basedirs]?" setupext.py
       ;;
   esac
 

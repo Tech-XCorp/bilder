@@ -1968,24 +1968,9 @@ addCc4pyBuild() {
   done
   shift $(($OPTIND - 1))
 
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -f)
-        local forceadd=true
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-  done
-fi
-
 # Find builds
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
-  # echo "$buildsvar = $buildsval."
 # Force addition if no sersh build
   if ! echo $buildsval | egrep -q "(^|,)sersh($|,)"; then
     forceadd=true
