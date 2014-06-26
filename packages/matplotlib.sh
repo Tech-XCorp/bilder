@@ -123,19 +123,18 @@ buildMatplotlib() {
 # Find dependencies and construct the basedirs variable needed for setupext.py
   # techo "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
-  if test -z "${pngdir}${freetypedir}"; then
+  # techo "freetypedir = $freetypedir."
+  if test -z "${freetypedir}"; then
     case `uname` in
       Darwin)
-        techo "WARNING: Install macports, then do."
-        techo "WARNING:   sudo port install ImageMagick +no_x11."
+        techo "WARNING: freetype not found.  Install via homebrew."
         ;;
       Linux)
         techo "WARNING: May need to install the -devel or -dev versions of libpng and/or freetype."
         ;;
     esac
   fi
-  # techo "freetypedir = $freetypedir."
-  # techo "Looking for png."
+  # techo "Looking for libpng."
   local libpngdir=`findMatplotlibDepDir libpng png.h png`
   # techo "libpngdir = $libpngdir."
   # techo "Looking for zlib."
@@ -150,7 +149,7 @@ buildMatplotlib() {
     basedirs="'$freetypedir',"
   fi
   if test -n "$libpngdir" && ! echo $basedirs | grep -q "'$libpngdir'"; then
-    basedirs="$basedirs '$pngdir',"
+    basedirs="$basedirs '$libpngdir',"
   fi
   if test -n "$zlibdir" && ! echo $basedirs | grep -q "'$zlibdir'"; then
     basedirs="$basedirs '$zlibdir',"
