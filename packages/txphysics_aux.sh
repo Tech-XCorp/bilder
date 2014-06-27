@@ -22,7 +22,6 @@ setTxphysicsTriggerVars() {
   addBenBuild txphysics
   TXPHYSICS_DEPS=cmake
 }
-
 setTxphysicsTriggerVars
 
 ######################################################################

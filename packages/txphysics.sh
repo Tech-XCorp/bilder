@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for txphysics
+# Build information for txphysics
 #
 # $Id$
 #
@@ -81,10 +81,10 @@ testTxphysics() {
 # Not doing much here, as neither testing builds nor submitting, but
 # ready for when txphysics is ready by uncommenting upper line and
 # removing lower.
-  local testtarg=test
   local perbuildarg=
-  $TXPHYSICS_USE_CTEST && testtarg="${TXPHYSICS_CTEST_MODEL}Test"
   $TXPHYSICS_TESTING && perbuildarg=-b
+  local testtarg=test
+  $TXPHYSICS_USE_CTEST && testtarg="${TXPHYSICS_CTEST_MODEL}Test"
   bilderRunTests ${perbuildarg} -s -i ben txphysics "" "${testtarg}"
 }
 
