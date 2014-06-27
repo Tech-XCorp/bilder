@@ -4279,16 +4279,16 @@ bilderConfig() {
         return 1
       fi
       local start_ctest=
-      if test -f $srcarg/scimake/Start.ctest -a -f $srcarg/CTestConfig.cmake; then
+      if test -f $srcarg/scimake/SciStart.ctest -a -f $srcarg/CTestConfig.cmake; then
         hasctest=true
-        start_ctest=$srcarg/scimake/Start.ctest
-        techo "Found $srcarg/scimake/Start.ctest and $srcarg/CTestConfig.cmake.  ctest can be used."
+        start_ctest=$srcarg/scimake/SciStart.ctest
+        techo "Found $srcarg/scimake/SciStart.ctest and $srcarg/CTestConfig.cmake.  ctest can be used."
       elif test -f $srcarg/Start.ctest; then
         hasctest=true
         start_ctest=$srcarg/Start.ctest
         techo "Found $srcarg/Start.ctest.  ctest can be used."
       else
-        techo "Start.ctest not found under $srcarg/{scimake,.}.  ctest cannot be used."
+        techo "(Sci)Start.ctest not found under $srcarg/{scimake,.}.  ctest cannot be used."
       fi
       if test -d $srcarg/scimake; then
         hasscimake=true
