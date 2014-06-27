@@ -417,7 +417,7 @@ EOF
     TESTING_BUILDS=${TESTING_BUILDS:-"false"}
     techo "Tests will NOT be run."
   fi
-  BILDER_USE_CTEST=${BILDER_USE_CTEST:-"true"}
+  BILDER_USE_CTEST=${BILDER_USE_CTEST:-"false"}
 
 # Parse out first or second half of variable
   SECOND_INSTALL_DIR=
