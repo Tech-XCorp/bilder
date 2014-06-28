@@ -28,7 +28,7 @@ findLibpng() {
     *)
       local libpngconfig=`which libpng-config`
       if test -z "$libpngconfig"; then
-        techo "WARNING: libpng not found by bilder. Please install on system."
+        techo "WARNING: [$FUNCNAME] libpng not found by bilder. Please install on system.  PATH = $PATH."
       else
         local libpngdir=`$libpngconfig --prefix`
         techo "Using libpng from $libpngdir."

@@ -96,7 +96,7 @@ findMatplotlibDepDir() {
     fi
     techo "${1}dir = $pkgdir." 1>&2
   else
-    techo "WARNING: Unable to find $1." 1>&2
+    techo "WARNING: [$FUNCNAME] Unable to find $1." 1>&2
   fi
   trimvar pkgdir ','
   # techo "${1}dir = $pkgdir." 1>&2
@@ -128,10 +128,10 @@ buildMatplotlib() {
   if test -z "${freetypedir}"; then
     case `uname` in
       Darwin)
-        techo "WARNING: freetype not found.  Install via homebrew."
+        techo "WARNING: [$FUNCNAME] freetype not found.  Install via homebrew."
         ;;
       Linux)
-        techo "WARNING: May need to install the -devel or -dev versions of libpng and/or freetype."
+        techo "WARNING: [$FUNCNAME] May need to install the -devel or -dev versions of libpng and/or freetype."
         ;;
     esac
   fi
