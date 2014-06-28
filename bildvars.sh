@@ -164,10 +164,13 @@ case `uname` in
       MAKEJ_TOTAL=`sysctl -n hw.physicalcpu`
     fi
     OSVER=`uname -r`
-# On Darwin, jenkins is not getting /usr/local/bin
-    if ! echo $PATH | egrep -q "(^|:)/usr/local/bin($|:)"; then
-      PATH="$PATH":/usr/local/bin
-    fi
+# On Darwin, jenkins is not getting /usr/local/bin or /opt/homebrew/bin
+    xdirs="/usr/local/bin /opt/homebrew/bin"
+    for dir in $xdirs; do
+      if ! echo $PATH | egrep -q "(^|:)$dir($|:)"; then
+        PATH="$PATH":$dir
+      fi
+    done
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-undefined dynamic_lookup"}
     case "$OSVER" in
       9.[4-8].*)
