@@ -526,11 +526,11 @@ if test `uname` = Linux; then
   if test -n "$PYC_LD_RUN_PATH"; then
     PYC_LD_RUN_VAR="LD_RUN_PATH=$PYC_LD_RUN_PATH"
     PYC_LD_RUN_ARG="-e '$PYC_LD_RUN_VAR'"
+    if test "$CC" = gcc; then
+      addtopathvar LD_RUN_PATH $PYC_LD_RUN_PATH
+    fi
   fi
-  if test "$CC" = gcc; then
-    addtopathvar LD_RUN_PATH $PYC_LD_RUN_PATH
-    export LD_RUN_PATH
-  fi
+  export LD_RUN_PATH
   trimvar LD_RUN_PATH ':'
   if test -n "$LD_RUN_PATH"; then
     LD_RUN_VAR="LD_RUN_PATH=$LD_RUN_PATH"
@@ -544,6 +544,7 @@ fi
 #
 ######################################################################
 
+techo "Finding the parallel fortran compilers."
 findParallelFcComps
 
 ######################################################################
@@ -553,6 +554,7 @@ findParallelFcComps
 ######################################################################
 
 # PIC and optimization flags
+techo "Setting default pic and optimization flags."
 case $CXX in
   *cl*)
     unset PIC_FLAG
@@ -683,6 +685,7 @@ MPI_FCFLAGS=${MPI_FCFLAGS:-"$FCFLAGS"}
 #
 ######################################################################
 
+techo "Making the combined flags."
 for i in SER PYC PAR; do
 
   case $i in
