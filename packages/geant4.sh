@@ -41,16 +41,18 @@ buildGeant4() {
   local GEANT4_CONFIG_ARGS=
   GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-$FORPYTHON_BUILD'"
   case `uname` in
-    Linux)
-     GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF"
+    Darwin)
 # Geant requires X11 for opengl and qt
-    if test -d /usr/X11 -o -d /opt/X11; then
-       GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_OPENGL_X11:BOOL=ON"
-      if which qmake 1>/dev/null 2>&1; then
-         GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_QT:BOOL=ON"
+      if test -d /usr/X11 -o -d /opt/X11; then
+         GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_OPENGL_X11:BOOL=ON"
+        if which qmake 1>/dev/null 2>&1; then
+           GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_QT:BOOL=ON"
+        fi
       fi
-    fi
-    ;;
+      ;;
+    Linux)
+      GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF"
+      ;;
   esac
   if bilderConfig -c geant4 $FORPYTHON_BUILD "$GEANT4_CONFIG_ARGS"; then
     bilderBuild geant4 $FORPYTHON_BUILD "$GEANT4_MAKEJ_ARGS"
