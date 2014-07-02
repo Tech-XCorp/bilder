@@ -3189,7 +3189,7 @@ updateRepo() {
       eval "$cmd"
     fi
 # Update repo if requested
-    if $SVNUP || test -n "$JENKINS_FSROOT"; then
+    if $NONSVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git) cmd="git pull origin $branchval";;
         hg) cmd="hg pull; hg update";;

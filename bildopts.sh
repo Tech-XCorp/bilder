@@ -32,6 +32,7 @@ EOF
 
   cat >&2 <<EOF
 BILDER OPTIONS
+  -a ................ Update non-subversion packages
   -A <addl_sp> ...... Add this to the supra search path.
   -b <build_dir> .... Build in <build_dir>.
   -B <force builds>.. Force build of package (comma-delimited list)
@@ -99,7 +100,7 @@ EOF
 #
 processBilderArgs() {
   case "$1" in
-    a) echo "WARNING: [bildopts.sh] (Aug 19, 2012): -a no longer valid.  Will be removed Sep. 30, 2012.";;
+    a) NONSVNUP=true;;
     A) ADDL_SUPRA_SP=$OPTARG;;
     b) BUILD_DIR=$OPTARG;;
     B) FORCEBUILD_PKGS=${FORCEBUILD_PKGS},$OPTARG;;
@@ -180,7 +181,7 @@ setBilderOptions() {
 
 # Universal defaults
 # Use - instead of :- to allow BILDER_CTEST_MODEL to be empty.
-  BILDER_CTEST_MODEL=${BILDER_CTEST_MODEL-"Experimental"} 
+  BILDER_CTEST_MODEL=${BILDER_CTEST_MODEL-"Experimental"}
   BILDER_LOGDIR=
   BILDER_WAIT_DAYS=0
   BUILD_DEBUG=false
@@ -337,6 +338,7 @@ EOF
   esac
 
   BUILD_ATLAS=${BUILD_ATLAS:-"$BUILD_OPTIONAL"}
+  NONSVNUP=${NONSVNUP:-"$SVNUP"}
 # Auxiliary variables
   TARBALL_BUILD_TYPE_LC=`echo $TARBALL_BUILD_TYPE | tr 'A-Z' 'a-z'`
   TARBALL_BUILD_TYPE_UC=`echo $TARBALL_BUILD_TYPE | tr 'a-z' 'A-Z'`
