@@ -44,7 +44,7 @@ buildGeant4() {
     Darwin)
 # Geant requires X11 for opengl and qt
       if test -d /usr/X11 -o -d /opt/X11; then
-         GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_OPENGL_X11:BOOL=ON"
+        GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_OPENGL_X11:BOOL=ON"
         if which qmake 1>/dev/null 2>&1; then
            GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_QT:BOOL=ON"
         fi
