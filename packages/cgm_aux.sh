@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version information for cgm
+# Trigger vars and find information
 #
 # $Id$
 #
@@ -8,17 +8,19 @@
 
 ######################################################################
 #
-# Version
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-setCgmVersion() {
-  CGM_REPO_URL=https://bitbucket.org/cadg4/cgm.git
-  CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
-  CGM_REPO_BRANCH_STD=master
-  CGM_REPO_BRANCH_EXP=master
+setCgmTriggerVars() {
+  CGM_BUILD=$FORPYTHON_BUILD
+  CGM_BUILDS=${CGM_BUILDS:-"$FORPYTHON_BUILD"}
+  CGM_DEPS=oce,cmake
 }
-setCgmVersion
+setCgmTriggerVars
 
 ######################################################################
 #

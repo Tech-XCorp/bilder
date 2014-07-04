@@ -113,7 +113,9 @@ buildOce() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $OCE_OTHER_ARGS" "" "$OCE_ENV"; then
+  local otherargsvar=`genbashvar OCE_${QT_BUILD}`_OTHER_ARGS
+  local otherargsval=`deref ${otherargsvar}`
+  if bilderConfig $makerargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
     bilderBuild $makerargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
   fi
 

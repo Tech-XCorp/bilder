@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for cgm
+# Build information for cgm
 #
 # $Id$
 #
@@ -24,15 +24,25 @@ source $mydir/cgm_aux.sh
 
 ######################################################################
 #
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
+
+setCgmNonTriggerVars() {
+  CGM_UMASK=002
+}
+setCgmNonTriggerVars
+
+######################################################################
+#
 # Builds, deps, mask, auxdata, paths, builds of other packages
 #
 ######################################################################
 
 setCgmGlobalVars() {
 # Only the python build needed.
-  CGM_BUILD=$FORPYTHON_BUILD
-  CGM_BUILDS=${CGM_BUILDS:-"$FORPYTHON_BUILD"}
-  CGM_DEPS=oce,cmake
   CGM_UMASK=002
 }
 setCgmGlobalVars
@@ -75,12 +85,12 @@ buildCgm() {
 
 # Configure and build args
   local otherargsvar=`genbashvar CGM_${CGM_BUILD}`_OTHER_ARGS
-  local otherargs=`deref ${otherargsvar}`
+  local otherargsval=`deref ${otherargsvar}`
   local CGM_CONFIG_ARGS=
   if $CGM_USE_CMAKE; then
-    CGM_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargs"
+    CGM_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargsval"
   else
-    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargs"
+    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargsval"
   fi
 
 # When not all dependencies right on Windows, need nmake
