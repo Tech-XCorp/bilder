@@ -38,7 +38,7 @@ buildGeant4() {
   if ! bilderUnpack geant4; then
     return
   fi
-  local GEANT4_CONFIG_ARGS=
+  local GEANT4_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
   GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-$FORPYTHON_BUILD'"
   case `uname` in
     Darwin)
@@ -54,7 +54,11 @@ buildGeant4() {
       GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_USE_SYSTEM_EXPAT:BOOL=OFF"
       ;;
   esac
-  if bilderConfig -c geant4 $FORPYTHON_BUILD "$GEANT4_CONFIG_ARGS"; then
+# Timeouts occurring on txmtnlion
+  GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_INSTALL_DATA_TIMEOUT:STRING=3000"
+  local otherargsvar=` genbashvar GEANT4_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargs=`deref ${otherargsvar}`
+  if bilderConfig -c geant4 $FORPYTHON_BUILD "$GEANT4_CONFIG_ARGS $otherargs"; then
     bilderBuild geant4 $FORPYTHON_BUILD "$GEANT4_MAKEJ_ARGS"
   fi
 }

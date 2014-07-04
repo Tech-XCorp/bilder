@@ -41,7 +41,8 @@ buildZeromq() {
   if ! bilderUnpack zeromq; then
     return 1
   fi
-  local zmqotherargs=`deref ZEROMQ_${ZEROMQ_BUILD}_OTHER_ARGS`
+  local otherargsvar=`genbashvar ZEROMQ_${ZEROMQ_BUILD}`_OTHER_ARGS
+  local zmqotherargs=`deref ${otherargsvar}`
   if bilderConfig zeromq $ZEROMQ_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $zmqotherargs"; then
     bilderBuild zeromq $ZEROMQ_BUILD
   fi

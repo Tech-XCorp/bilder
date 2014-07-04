@@ -72,7 +72,8 @@ buildDagMc() {
   fi
 
 # Bilder build
-  local otherargs=`deref DAGMC_${FORPYTHON_BUILD}_OTHER_ARGS`
+  local otherargsvar=`genbashvar DAGMC_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargs=`deref ${otherargsvar}`
   if bilderConfig $makerargs dagmc $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc $FORPYTHON_BUILD "$makejargs" "$DAGMC_ENV"
   fi

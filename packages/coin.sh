@@ -160,7 +160,8 @@ buildCoin() {
     COMPILERS_COIN="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC "
   fi
 
-  local otherargs=`deref COIN_${FORPYTHON_BUILD}_OTHER_ARGS`
+  local otherargsvar=`genbashvar COIN_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargs=`deref ${otherargsvar}`
   if bilderConfig $COIN_CMAKE_ARGS $COIN_NAME $FORPYTHON_BUILD "$COMPILERS_COIN $COIN_ADDL_ARGS $otherargs" "" "$COIN_ENV"; then
     bilderBuild $COIN_MAKER_ARGS $COIN_NAME $FORPYTHON_BUILD "" "$COIN_ENV"
   fi

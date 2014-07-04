@@ -74,7 +74,8 @@ buildCgm() {
   fi
 
 # Configure and build args
-  local otherargs=`deref CGM_${CGM_BUILD}_OTHER_ARGS`
+  local otherargsvar=`genbashvar CGM_${CGM_BUILD}`_OTHER_ARGS
+  local otherargs=`deref ${otherargsvar}`
   local CGM_CONFIG_ARGS=
   if $CGM_USE_CMAKE; then
     CGM_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargs"

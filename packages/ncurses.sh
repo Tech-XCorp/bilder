@@ -43,8 +43,9 @@ buildNcurses() {
   if ! bilderUnpack ncurses; then
     return 1
   fi
-  local ncursesotherargs=`deref NCURSES_${NCURSES_BUILD}_OTHER_ARGS`
-  if bilderConfig ncurses ${NCURSES_BUILD} "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ncursesotherargs"; then
+  local otherargsvar=`genbashvar NCURSES_${NCURSES_BUILD}_OTHER_ARGS`
+  local otherargs=`deref ${otherargsvar}`
+  if bilderConfig ncurses ${NCURSES_BUILD} "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $otherargs"; then
     bilderBuild ncurses ${NCURSES_BUILD}
   fi
 }

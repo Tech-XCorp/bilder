@@ -85,7 +85,8 @@ buildMoab() {
   local MOAB_ENV=
 
 # Configure and build args
-  local otherargs=`deref MOAB_${MOAB_BUILD}_OTHER_ARGS`
+  local otherargsvar=`genbashvar MOAB_${MOAB_BUILD}`_OTHER_ARGS
+  local otherargs=`deref ${otherargsvar}`
   local MOAB_CONFIG_ARGS=
   if $MOAB_USE_CMAKE; then
     MOAB_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"

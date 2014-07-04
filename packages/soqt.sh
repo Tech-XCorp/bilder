@@ -171,16 +171,11 @@ buildSoQt() {
   trimvar SOQT_DBG_ENV ' '
 
 # Configure and build
-  local otherargs=`deref SOQT_${FORPYTHON_BUILD}_OTHER_ARGS`
+  local otherargsvar=`genbashvar SOQT_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargs=`deref ${otherargsvar}`
   if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-$FORPYTHON_BUILD $SOQT_NAME $FORPYTHON_BUILD "$COMPILERS_SOQT $SOQT_ADDL_ARGS $otherargs" "" "$SOQT_ENV"; then
     bilderBuild $SOQT_MAKER_ARGS $SOQT_NAME $FORPYTHON_BUILD "" "$SOQT_ENV"
   fi
-
-if false; then
-  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-${FORPYTHON_BUILD}dbg $SOQT_NAME ${FORPYTHON_BUILD}dbg "CFLAGS='$SOQT_CFLAGS' CXXFLAGS='$SOQT_CXXFLAGS' $SOQT_DBG_ADDL_ARGS $otherargs" "" "$SOQT_DBG_ENV"; then
-    bilderBuild $SOQT_MAKER_ARGS $SOQT_NAME ${FORPYTHON_BUILD}dbg "" "$SOQT_DBG_ENV"
-  fi
-fi
 
 }
 

@@ -209,7 +209,8 @@ buildQt() {
   esac
 
 # Restore dbus and xmlpatterns or get wrong one
-  local qtotherargs=`deref QT_${QT_BUILD}_OTHER_ARGS`
+  local qtotherargsvar=`genbashvar QT_${QT_BUILD}`_OTHER_ARGS
+  local qtotherargs=`deref ${qtotherargsvar}`
   if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $qtotherargs" "" "$QT_ENV"; then
 # Make clean seems to hang
     bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
