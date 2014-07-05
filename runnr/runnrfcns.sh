@@ -260,7 +260,8 @@ runnrGetHostVars() {
 # Look for anything in the configuration directory
   if test -n "$BILDER_CONFDIR" -a -f "$BILDER_CONFDIR/bilderrc"; then
     cmd="source $BILDER_CONFDIR/bilderrc"
-    $runnrdebug && echo "$cmd"
+    # $runnrdebug && echo "$cmd"
+    echo "$cmd"
     $cmd
   fi
 
@@ -268,7 +269,8 @@ runnrGetHostVars() {
   RUNNR_DIR=${RUNNR_DIR:-"$mydir"}
   if test -x $RUNNR_DIR/fqdn.sh; then
     cmd="source $RUNNR_DIR/fqdn.sh"
-    $runnrdebug && echo "$cmd"
+    # $runnrdebug && echo "$cmd"
+    echo "$cmd"
     $cmd
   fi
 
@@ -319,24 +321,29 @@ runnrGetHostVars() {
 # FQMAILHOST, BLDRHOSTID
   if test -f $DOMAINS_DIR/${DOMAINNAME}; then
     cmd="source $DOMAINS_DIR/${DOMAINNAME}"
-    $runnrdebug && echo "$cmd"
+    # $runnrdebug && echo "$cmd"
+    echo "$cmd"
     $cmd
   elif test -f $BILDER_CONFDIR/domains/${DOMAINNAME}; then
     cmd="source $BILDER_CONFDIR/domains/${DOMAINNAME}"
-    $runnrdebug && echo "$cmd"
+    # $runnrdebug && echo "$cmd"
+    echo "$cmd"
     $cmd
   elif test -f $BILDER_DIR/domains/${DOMAINNAME}; then
     cmd="source $BILDER_DIR/domains/${DOMAINNAME}"
-    $runnrdebug && echo "$cmd"
+    # $runnrdebug && echo "$cmd"
+    echo "$cmd"
     $cmd
   else
-    $runnrdebug &&  echo "Domains file not found."
+    # $runnrdebug &&  echo "Domains file not found."
+    echo "Domains file not found."
   fi
 
 # Get any private queue information
   if test -f $BILDER_CONFDIR/bilderqs; then
     cmd="source $BILDER_CONFDIR/bilderqs"
-    $runnrdebug && echo "$cmd"
+    # $runnrdebug && echo "$cmd"
+    echo "$cmd"
     $cmd
   fi
 
@@ -445,18 +452,6 @@ runnrGetQSubCmd() {
   local jobname=$3
   local queue=$4
   local account=$5
-
-# Determine what file to source from domain name
-if false; then
-  if test -z "$queue" -o -z "$account"; then
-    if test -f $BILDER_CONFDIR/$DOMAINNAME; then
-      source $BILDER_CONFDIR/$DOMAINNAME
-      if declare -f runnrSetQInfoByDomain 1>/dev/null 2>&1; then
-        runnrSetQInfoByDomain
-      fi
-    fi
-  fi
-fi
 
 # Set variables from new names
   account=${account:-"$RUNNR_ACCOUNT"}	# ComPASS
