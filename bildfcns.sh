@@ -5143,9 +5143,6 @@ bilderRunTests() {
     esac
   done
   shift $(($OPTIND - 1))
-  if ! $usectestval; then
-    submitres=false
-  fi
 # Initial handling
   local pkgname=$1
   if test $hasbuildtests; then
@@ -5199,6 +5196,10 @@ bilderRunTests() {
   local usectestvar=`genbashvar $pkgname`_USE_CTEST
   local usectestval=`deref $usectestvar`
   usectestval=${usectestval:-${BILDER_USE_CTEST}}
+# Do not submit if not using ctest
+  if ! $usectestval; then
+    submitres=false
+  fi
 
 # Wait on all builds, see if any tested build failed.
 # For those not failed, launch tests in build dir if asked.
