@@ -37,18 +37,6 @@ setCgmNonTriggerVars
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
-#
-######################################################################
-
-setCgmGlobalVars() {
-# Only the python build needed.
-  CGM_UMASK=002
-}
-setCgmGlobalVars
-
-######################################################################
-#
 # Launch cgm builds.
 #
 ######################################################################
