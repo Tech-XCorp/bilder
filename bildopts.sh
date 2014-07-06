@@ -59,8 +59,8 @@ BILDER OPTIONS
   -k <tarball_dir> .. Set installation directory for code in tarballs,
                         expected to be found in one of the pkg repo subdirs;
                         <tarball_dir> defaults to <install_dir> if not set.
-  -K                  Run cleaninstalls.sh -lR to clean broken links and update
-                      installations.txt.
+  -K <val> .......... Run cleaninstalls.sh -lrR -k <val> to clean broken links
+                      and update installations.txt.
   -l <mpi launcher> . The executable that launches an MPI job.
   -L ................ Directory for logs (if different from build).
   -m <hostfile> ..... File to source for machine specific defs.
@@ -127,7 +127,7 @@ processBilderArgs() {
     I) IGNORE_TEST_RESULTS=true;;
     j) JMAKE=$OPTARG;;
     k) CONTRIB_DIR=$OPTARG;;
-    K) CLEAN_INSTALLS=true;;
+    K) CLEAN_INSTALLS=$OPTARG;;
     l) MPI_LAUNCHER=$OPTARG;;
     L) BILDER_LOGDIR=$OPTARG;;
     m) export MACHINE_FILE=$OPTARG;;  # Give to subshells
@@ -193,8 +193,7 @@ setBilderOptions() {
   BUILD_OPTIONAL=false
   BUILD_TARBALLS=true
   CLEAN_GITHG_SUBREPOS=true
-  CLEAN_INSTALLS=false
-  CLEAN_OPTS="-lrR -k2"
+  CLEAN_INSTALLS=
   CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
   DOCS_BUILDS=
@@ -226,7 +225,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:KL:l:m:MNoOp:PrRsStTuUv:VW:w:XzZ2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:K:L:l:m:MNoOp:PrRsStTuUv:VW:w:XzZ2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."
@@ -459,9 +458,10 @@ EOF
   export CONTRIB_DIR
 
 # Clean directories if requested
-  if $CLEAN_INSTALLS; then
+  if test -n "$CLEAN_INSTALLS"; then
     # printInstallationStatus numpy $CONTRIB_DIR pre-cleaninstalls
     rotateFile $BILDER_LOGDIR/cleaninstalls.log
+    CLEAN_OPTS="-lrR -k $CLEAN_INSTALLS"
     cmd="$BILDER_DIR/cleaninstalls.sh $CLEAN_OPTS $CONTRIB_DIR $BLDR_INSTALL_DIR $USERDOCS_DIR $DEVELDOCS_DIR 1>$BILDER_LOGDIR/cleaninstalls.log 2>&1"
     techo "$cmd"
     eval "$cmd"
