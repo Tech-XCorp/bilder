@@ -59,7 +59,7 @@ buildTsTests() {
   fi
 # Configure and run all tests
   if bilderPreconfig $forcetests $TESTSUITE_NAME; then
-    if bilderConfig -i $forcetests $TESTSUITE_NAME all "--with-source-dir=$PROJECT_DIR/$SOFTWARE_BEING_TESTED --with-serial-dir=${BUILD_DIR}/$SOFTWARE_BEING_TESTED/ser --with-parallel-dir=${BUILD_DIR}/$SOFTWARE_BEING_TESTED/ser $CONFIG_SUPRA_SP_ARG $MPI_LAUNCHER_ARG $EMAIL_ARG $TSTESTS_ALL_OTHER_ARGS"; then
+    if bilderConfig -i $forcetests $TESTSUITE_NAME all "--with-source-dir=$PROJECT_DIR/$SOFTWARE_BEING_TESTED --with-serial-dir=${BUILD_DIR}/$SOFTWARE_BEING_TESTED/ser --with-parallel-dir=${BUILD_DIR}/$SOFTWARE_BEING_TESTED/par $CONFIG_SUPRA_SP_ARG $MPI_LAUNCHER_ARG $EMAIL_ARG $TSTESTS_ALL_OTHER_ARGS"; then
       case `uname` in
         CYGWIN*)
           local RUNTXTEST_OTHER_ARGS=-k
