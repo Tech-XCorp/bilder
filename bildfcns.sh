@@ -3809,6 +3809,7 @@ bilderConfig() {
   local build_inplace=false
   local buildsubdir=
   local cmakebuildtype=
+  local cmd=
   local cmval=
   local configcmdin=
   local forceconfig=false
@@ -4206,6 +4207,7 @@ bilderConfig() {
 #
   unset cmd
   if test $RM_BUILD; then
+    techo -2 "Removing old builds..."
     if test "$cmval" = cmake -a "$inplace" = false; then
       cmd="rmall *"
     elif $inplace; then
