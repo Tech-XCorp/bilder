@@ -299,6 +299,9 @@ case $STEP in
 # If first run successful, no need for second run
         if grep -q SUCCESS $firstrunsubjfile; then
           lecho "First run reported SUCCESS.  No need for second."
+# Remove file so does not affect all future builds when switch to doing
+# only second build.
+          rm $firstrunsubjfile
           lecho "jenkinsbild completing with result 0."
           exit 0
         else
