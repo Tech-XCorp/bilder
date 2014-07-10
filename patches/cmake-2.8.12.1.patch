@@ -24,6 +24,19 @@ diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindC
  
    # We need to set the linker language based on what the expected generated file
    # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
+diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake
+--- cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake	2013-11-05 12:07:22.000000000 -0700
++++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake	2014-07-10 13:17:14.373133300 -0600
+@@ -38,7 +38,8 @@
+ 
+   # We pass this for historical reasons.  Projects may have
+   # executables that use dlopen but do not set ENABLE_EXPORTS.
+-  set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
++# This causes build failure on hopper (Cray)
++  # set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
+ 
+   if(XIAR)
+     # INTERPROCEDURAL_OPTIMIZATION
 diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake
 --- cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake	2013-11-05 12:07:22.000000000 -0700
 +++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake	2014-07-10 10:08:44.188789500 -0600
