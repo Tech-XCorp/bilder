@@ -67,32 +67,17 @@ setBilderDirsVars() {
 #------------------
 
   USERINST_ROOTDIR=${USERINST_ROOTDIR:-"$JENKINS_FSROOT"}
-if false; then
-  if test -n "$ROOTDIR_CVI"; then
-    if [[ $ROOTDIR_CVI =~ ^/ ]]; then
-      USERINST_ROOTDIR=$ROOTDIR_CVI
-    else
-      USERINST_ROOTDIR=$USERINST_ROOTDIR/$ROOTDIR_CVI
-    fi
-  fi
-fi
 
 #------------------
 # Contrib/tarball location
 #------------------
 
+  echo "computing contribdir"
   if test -z "$CONTRIB_DIR"; then
     if $COMMON_CONTRIB; then
       CONTRIB_DIR=$CONTRIB_ROOTDIR
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
-    fi
-    if test -n "$ROOTDIR_CVI"; then
-      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        CONTRIB_DIR=$ROOTDIR_CVI
-      else
-        CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
-      fi
     fi
     if $USE_COMMON_INSTDIRS; then
       CONTRIB_DIR=$CONTRIB_DIR/software${INSTALL_SUBDIR_SFX}
@@ -100,7 +85,16 @@ fi
       CONTRIB_DIR=$CONTRIB_DIR/contrib${INSTALL_SUBDIR_SFX}
     fi
     CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
+    if test -n "$ROOTDIR_CVI"; then
+      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+        CONTRIB_DIR=$ROOTDIR_CVI/$CONTRIB_DIR
+      else
+        CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
+      fi
+    fi
   fi
+  CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
+  echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
 # Install location
@@ -112,13 +106,6 @@ fi
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    if test -n "$ROOTDIR_CVI"; then
-      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        BLDR_INSTALL_DIR=$ROOTDIR_CVI
-      else
-        BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
-      fi
-    fi
     if $USE_COMMON_INSTDIRS; then
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/software${INSTALL_SUBDIR_SFX}
     elif $INSTDIR_IS_INTERNAL; then
@@ -126,6 +113,13 @@ fi
     else
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/volatile${INSTALL_SUBDIR_SFX}
       SCRIPT_ADDL_ARGS="-r $SCRIPT_ADDL_ARGS"
+    fi
+    if test -n "$ROOTDIR_CVI"; then
+      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+        BLDR_INSTALL_DIR=$ROOTDIR_CVI/$BLDR_INSTALL_DIR
+      else
+        BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
+      fi
     fi
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
   fi
