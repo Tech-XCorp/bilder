@@ -72,29 +72,29 @@ setBilderDirsVars() {
 # Contrib/tarball location
 #------------------
 
-  echo "computing contribdir"
+  # echo "computing contribdir"
   if test -z "$CONTRIB_DIR"; then
     if $COMMON_CONTRIB; then
       CONTRIB_DIR=$CONTRIB_ROOTDIR
+      if test -n "$ROOTDIR_CVI" && [[ $ROOTDIR_CVI =~ ^/ ]]; then
+        CONTRIB_DIR=$ROOTDIR_CVI/$CONTRIB_DIR
+      fi
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
+    # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
     if $USE_COMMON_INSTDIRS; then
       CONTRIB_DIR=$CONTRIB_DIR/software${INSTALL_SUBDIR_SFX}
     else
       CONTRIB_DIR=$CONTRIB_DIR/contrib${INSTALL_SUBDIR_SFX}
     fi
     CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
-    if test -n "$ROOTDIR_CVI"; then
-      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        CONTRIB_DIR=$ROOTDIR_CVI/$CONTRIB_DIR
-      else
+    if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
         CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
-      fi
     fi
   fi
   CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
-  echo "CONTRIB_DIR = $CONTRIB_DIR"
+  # echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
 # Install location
@@ -103,6 +103,9 @@ setBilderDirsVars() {
   if test -z "$BLDR_INSTALL_DIR"; then
     if $COMMON_CONTRIB; then
       BLDR_INSTALL_DIR=$INSTALL_ROOTDIR
+      if test -n "$ROOTDIR_CVI" && [[ $ROOTDIR_CVI =~ ^/ ]]; then
+        BLDR_INSTALL_DIR=$ROOTDIR_CVI/$BLDR_INSTALL_DIR
+      fi
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
@@ -114,12 +117,8 @@ setBilderDirsVars() {
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/volatile${INSTALL_SUBDIR_SFX}
       SCRIPT_ADDL_ARGS="-r $SCRIPT_ADDL_ARGS"
     fi
-    if test -n "$ROOTDIR_CVI"; then
-      if [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        BLDR_INSTALL_DIR=$ROOTDIR_CVI/$BLDR_INSTALL_DIR
-      else
+    if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
         BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
-      fi
     fi
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
   fi
@@ -128,6 +127,7 @@ setBilderDirsVars() {
     CONTRIB_DIR=$CONTRIB_DIR/$INST_SUBDIR
     BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$INST_SUBDIR
   fi
+  # echo "BLDR_INSTALL_DIR = $BLDR_INSTALL_DIR"
 
 }
 

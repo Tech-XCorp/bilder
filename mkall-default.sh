@@ -26,7 +26,7 @@ after the double dash, --.
 
 WRAPPER OPTIONS
   -b <dir> .......... Set builds directory. If not used, bilder chooses a default.
-  -c ................ Common installations: for non-LCFS, goes into /contrib,
+  -c ................ All-user installations: for non-LCFS, goes into /contrib,
                         /volatile or /internal, for LCFSs, goes into group areas
   -C ................ Install in separate tarball and repo install dirs
                         (internal/volatile) rather than in one area (software).
@@ -42,7 +42,7 @@ WRAPPER OPTIONS
   -I ................ Install in \$HOME instead of default location
                         (projects directory at LCFs, BUILD_ROOTDIR on non-LCFs)
   -j ................ Maximum allowed value of the arg of make -j
-  -k <dir> .......... On non-LCFs: Try to find a tarball directory (/contrib)
+  -k ................ On non-LCFs: Try to find a tarball directory (/contrib)
                         On LCFs: Install tarballs (instead of using facetspkgs)
   -m ................ Force this machine file
   -n ................ Invoke with a nohup and a redirect output
@@ -105,7 +105,7 @@ $cmd
 processArg() {
   case "$arg" in
     b) BUILD_DIR=$OPTARG;;
-    c) COMMON_INSTALL=true;;
+    c) ALL_USER_INSTALL=true;;
     C) USE_COMMON_INSTDIRS=false;;
     E) EXTRA_ARGS="$EXTRA_ARGS $OPTARG";;
     f) EXTRA_ARG_FILE="$OPTARG";;
@@ -135,7 +135,7 @@ processArg() {
 BILDER_ARGS=
 BILDER_NOBUILD_FILE=".nobuild"
 COMMON_CONTRIB=false
-COMMON_INSTALL=false
+ALL_USER_INSTALL=false
 EXTRA_ARG_FILE=".extra_args"
 INSTDIR_IS_INTERNAL=false
 INSTALL_IN_HOME=false
@@ -220,7 +220,7 @@ END
 chmod a+x $REDO_SCRIPT
 
 # Make consistent
-if $COMMON_INSTALL; then
+if $ALL_USER_INSTALL; then
   COMMON_CONTRIB=true
 fi
 if $COMMON_CONTRIB || $INSTDIR_IS_INTERNAL; then
