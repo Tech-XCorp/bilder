@@ -77,7 +77,7 @@ setFreetypeTriggerVars() {
 # Build on Linux or Darwin only if not found in system
       findFreetype -s
       if test -z "$FREETYPE_CC4PY_DIR"; then
-        techo "WARNING: System freetype not found.  Will build if out of date, but better to install system version and more contrib version to prevent incompatibility."
+        techo "WARNING: [$FUNCNAME] System freetype not found.  Will build if out of date, but better to install system version and remove contrib version to prevent incompatibility."
         FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
       else
         techo "System freetype found in $FREETYPE_CC4PY_DIR, will not build."
