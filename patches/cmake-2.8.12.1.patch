@@ -1,6 +1,6 @@
 diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindCUDA.cmake
 --- cmake-2.8.12.1/Modules/FindCUDA.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2014-03-04 11:09:29.541942297 -0700
++++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2014-07-10 10:04:15.688942200 -0600
 @@ -852,6 +852,7 @@
          arg STREQUAL "EXCLUDE_FROM_ALL" OR
          arg STREQUAL "STATIC" OR
@@ -24,3 +24,11 @@ diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindC
  
    # We need to set the linker language based on what the expected generated file
    # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
+diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake
+--- cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake	2013-11-05 12:07:22.000000000 -0700
++++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake	2014-07-10 10:08:44.188789500 -0600
+@@ -1,2 +1,4 @@
+ include(Platform/Linux-Intel)
++# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
++set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
+ __linux_compiler_intel(C)
