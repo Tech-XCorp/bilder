@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for moab
+# Build information for moab
 #
 # $Id$
 #
@@ -24,17 +24,16 @@ source $mydir/moab_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setMoabGlobalVars() {
-  MOAB_BUILD=$FORPYTHON_BUILD
-  MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
-  MOAB_DEPS=cgm,netcdf
+setMoabNonTriggerVars() {
   MOAB_UMASK=002
 }
-setMoabGlobalVars
+setMoabNonTriggerVars
 
 ######################################################################
 #

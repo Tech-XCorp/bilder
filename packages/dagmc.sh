@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for dagmc
+# Build information for dagmc
 #
 # $Id$
 #
@@ -24,17 +24,16 @@ source $mydir/dagmc_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setDagMcGlobalVars() {
-# Only the python build needed.
-  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD,batlab"}
-  DAGMC_DEPS=geant4,moab
+setDagmcNonTriggerVars() {
   DAGMC_UMASK=002
 }
-setDagMcGlobalVars
+setDagmcNonTriggerVars
 
 ######################################################################
 #

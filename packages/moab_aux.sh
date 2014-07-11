@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version information for moab
+# Trigger vars and find information
 #
 # $Id$
 #
@@ -8,17 +8,23 @@
 
 ######################################################################
 #
-# Version
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
 #
 ######################################################################
 
-setMoabVersion() {
+setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_REPO_BRANCH_STD=master
   MOAB_REPO_BRANCH_EXP=master
+  MOAB_BUILD=$FORPYTHON_BUILD
+  MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
+  MOAB_DEPS=cgm,netcdf
 }
-setMoabVersion
+setMoabTriggerVars
 
 ######################################################################
 #

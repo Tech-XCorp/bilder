@@ -1,18 +1,29 @@
 #!/bin/bash
 #
-# Version and find information for dagmc
+# Trigger vars and find information
 #
 # $Id$
 #
 ######################################################################
 
-getDagMcVersion() {
+######################################################################
+#
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
+#
+######################################################################
+
+setDagMcTriggerVars() {
   DAGMC_REPO_URL=https://github.com/Tech-XCorp/DAGMC.git
   DAGMC_UPSTREAM_URL=https://github.com/svalinn/DAGMC.git
   DAGMC_REPO_BRANCH_STD=develop
   DAGMC_REPO_BRANCH_EXP=develop
+  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD,batlab"}
+  DAGMC_DEPS=geant4,moab,boost
 }
-getDagMcVersion
+setDagMcTriggerVars
 
 ######################################################################
 #
