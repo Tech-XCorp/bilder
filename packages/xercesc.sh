@@ -42,7 +42,7 @@ XERCESC_UMASK=002
 buildXercesc() {
   if bilderUnpack xercesc; then
     for bld in `echo $XERCESC_BUILDS | tr ',' ' '`; do
-      if bilderConfig xercesc $bld; then
+      if bilderConfig xercesc $bld "--disable-network"; then
         bilderBuild xercesc $bld
       fi
     done
