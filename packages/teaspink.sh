@@ -68,7 +68,8 @@ buildTeaspink() {
     if bilderConfig -c teaspink par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_PAR_OTHER_ARGS"; then
       bilderBuild teaspink par "$TEASPINK_MAKEJ_ARGS"
     fi
-    if bilderConfig -c teaspink ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_SER_OTHER_ARGS"; then
+    # use hdf5-sersh to avoid issues with ser build
+    if bilderConfig -c teaspink ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $REPO_NODEFLIB_FLAGS $CMAKE_HDF5_SERSH_DIR_ARG $CMAKE_SUPRA_SP_ARG $TEASPINK_SER_OTHER_ARGS"; then
       bilderBuild teaspink ser "$TEASPINK_MAKEJ_ARGS"
     fi
   fi
