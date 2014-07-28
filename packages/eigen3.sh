@@ -51,6 +51,9 @@ buildEigen3() {
 # If worked, preigen3ed to configure and build
   if bilderUnpack eigen3; then
 
+    # This makes eigen3 configure/installs more robust as it's 
+    # not strictly needed.
+    EIGEN3_OTHER_ARGS="-DEIGEN_BUILD_PKGCONFIG:BOOL=FALSE ${EIGEN3_OTHER_ARGS}"
 # Configure and build
     if bilderConfig eigen3 ser "$EIGEN3_OTHER_ARGS"; then
       bilderBuild eigen3 ser "$EIGEN3_MAKEJ_ARGS"
