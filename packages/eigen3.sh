@@ -52,7 +52,7 @@ buildEigen3() {
   if bilderUnpack eigen3; then
 
     # This makes eigen3 configure/installs more robust as it's 
-    # not strictly needed.
+    # not strictly needed.  Had it installing into cuda for some reason
     EIGEN3_OTHER_ARGS="-DEIGEN_BUILD_PKGCONFIG:BOOL=FALSE ${EIGEN3_OTHER_ARGS}"
 # Configure and build
     if bilderConfig eigen3 ser "$EIGEN3_OTHER_ARGS"; then
