@@ -83,6 +83,8 @@ if test -n "$pdirs"; then
   done
 elif test -d ../packages; then
   pkgdirs=`(cd ../packages; pwd -P)`
+elif test -d $mydir/packages; then
+  pkgdirs=`(cd $mydir/packages; pwd -P)`
 else
   echo "Packages directory unknown."; usage
 fi
@@ -107,6 +109,8 @@ if test -n "$sourcefile"; then
     echo $sourcefile does not exist.  Quitting. >&2
     exit
   fi
+else
+  touch tmp.sh   # Stuff breaks if this is not here
 fi
 
 # Write out the header
