@@ -104,7 +104,7 @@ if test -n "$sourcefile"; then
     source tmp.sh
     cp $sourcefile $sourcefile.bak
   else
-    echo $sourcefile does not exit.  Quitting. >&2
+    echo $sourcefile does not exist.  Quitting. >&2
     exit
   fi
 fi
@@ -127,7 +127,9 @@ END
 
 # Grab the keep this section
 if $printkeep; then
-  sed -n '/^# KEEP THIS$/,/^# END KEEP THIS$/p' <$sourcefile
+  if test -n "$sourcefile"; then
+    sed -n '/^# KEEP THIS$/,/^# END KEEP THIS$/p' <$sourcefile
+  fi
 else
   cat <<EOF
 # KEEP THIS
