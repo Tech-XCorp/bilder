@@ -4138,7 +4138,7 @@ bilderConfig() {
     fi
   elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
-    configexec="$CMAKE"
+    configexec="'$CMAKE'"
     cmval=cmake
   fi
   if test -z "$configexec"; then
@@ -4424,7 +4424,7 @@ bilderConfig() {
     if test -n "$generator"; then
       configargs="$configargs -G '$generator'"
     fi
-    finalcmd="'$configexec' $configargs $srcarg"
+    finalcmd="$configexec $configargs $srcarg"
   fi
 
 # Now add the environment variables
