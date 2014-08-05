@@ -4001,6 +4001,7 @@ bilderConfig() {
 # configargs: the default args to the executable
 # cmval:      string describing the type of configuration (e.g., autotools)
 #
+  local configprefix=
   local configexec=
   local configargs=
 
@@ -4138,7 +4139,7 @@ bilderConfig() {
     fi
   elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
-    configexec="'$CMAKE'"
+    configexec="$CMAKE"
     cmval=cmake
   fi
   if test -z "$configexec"; then
@@ -4168,7 +4169,7 @@ bilderConfig() {
     configexec="$configcmdin"
   fi
   if test "$cmval" = petsc; then
-    configexec="$CYGWIN_PYTHON '$configexec'"
+    configprefix="$CYGWIN_PYTHON"
   fi
   # techo "Will configure with '$configexec'."
 
@@ -4424,7 +4425,7 @@ bilderConfig() {
     if test -n "$generator"; then
       configargs="$configargs -G '$generator'"
     fi
-    finalcmd="$configexec $configargs $srcarg"
+    finalcmd="$configprefix '$configexec' $configargs $srcarg"
   fi
 
 # Now add the environment variables
