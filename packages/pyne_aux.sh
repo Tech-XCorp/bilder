@@ -18,8 +18,9 @@
 setPyneTriggerVars() {
   PYNE_REPO_URL=git://github.com/pyne/pyne.git
   # PYNE_UPSTREAM_URL=
-  # PYNE_REPO_BRANCH_STD=
+  PYNE_REPO_BRANCH_STD=develop
   # PYNE_REPO_BRANCH_EXP=
+  PYNE_BUILDS=cc4py
   PYNE_DEPS=
 }
 setPyneTriggerVars

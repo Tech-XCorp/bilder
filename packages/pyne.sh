@@ -36,8 +36,11 @@ setPyneNonTriggerVars
 
 buildPyne() {
 
-  if ! bilderUnpack pyne; then
-    return
+# Get pyne from repo, determine whether to build
+  updateRepo pyne
+  getVersion pyne
+  if ! bilderPreconfig pyne; then
+    return 1
   fi
 
 # Build/install
