@@ -43,6 +43,12 @@ buildPyne() {
     return 1
   fi
 
+# This is a new case for Bilder: a repo for a python module.
+
+# Compute args
+  local PYNE_ARGS=
+  PYNE_ARGS="$PYNE_ARGS --hdf5='$HDF5_SERSH_DIR'"
+
 # Build/install
   bilderDuBuild pyne "$PYNE_ARGS" "$PYNE_ENV"
 

@@ -3172,6 +3172,7 @@ updateRepo() {
     branchvar=`genbashvar $1`_REPO_BRANCH_STD
   fi
   local branchval=`deref $branchvar`
+  # echo "$branchvar = $branchval"; exit
 
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
@@ -6497,31 +6498,41 @@ bilderDuBuild() {
   fi
   techo -2 "doBuild = $doBuild"
 
-# If required, build
-  if $doBuild; then
-    cd $PROJECT_DIR
-    local vervar=`genbashvar $1`_BLDRVERSION
-    local verval=`deref $vervar`
-    local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
-    eval $builddirvar=$BUILD_DIR/$1-${verval}
-    cd $BUILD_DIR/$1-${verval}
-    if test $? != 0; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Unable to cd to $BUILD_DIR/$1-${verval}."
-      terminate
-    fi
-    local bilderaction_resfile=bilderbuild-$1-cc4py.res
-    rm -f $bilderaction_resfile
-    rm -rf build/*
-    local build_txt=$FQMAILHOST-$1-cc4py-build.txt
-    techo "Building $1 in $PWD with output going to $build_txt." | tee $build_txt
-    if test "$2" = '-'; then
-      unset buildargs
-    else
-      buildargs="$2"
-    fi
-    local buildscript=$FQMAILHOST-$1-cc4py-build.sh
-    cmd="env $3 python setup.py $4 build $buildargs"
-    cat >$buildscript <<EOF
+# If not building, return
+  if ! $doBuild; then
+    return 1
+  fi
+
+# Build
+  cd $PROJECT_DIR
+  local vervar=`genbashvar $1`_BLDRVERSION
+  local verval=`deref $vervar`
+  local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+  local builddirval=
+  if test -d $PROJECT_DIR/$1; then
+    builddirval=$PROJECT_DIR/$1
+  else
+    builddirval=$BUILD_DIR/$1-${verval}
+  fi
+  eval $builddirvar=$builddirval
+  cd $builddirval
+  if test $? != 0; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Unable to cd to $builddirval."
+    terminate
+  fi
+  local bilderaction_resfile=bilderbuild-$1-cc4py.res
+  rm -f $bilderaction_resfile
+  rm -rf build/*
+  local build_txt=$FQMAILHOST-$1-cc4py-build.txt
+  techo "Building $1 in $PWD with output going to $build_txt." | tee $build_txt
+  if test "$2" = '-'; then
+    unset buildargs
+  else
+    buildargs="$2"
+  fi
+  local buildscript=$FQMAILHOST-$1-cc4py-build.sh
+  cmd="env $3 python setup.py $4 build $buildargs"
+  cat >$buildscript <<EOF
 #!/bin/bash
 $cmd
 res=\$?
@@ -6529,25 +6540,22 @@ echo Build of $1-cc4py completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
 EOF
-    sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $buildscript
-    # rm ${buildscript}.bak
-    chmod ug+x $buildscript
-    techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
-    techo ./$buildscript | tee -a $build_txt
-    techo "$cmd" | tee -a $build_txt
-    ./$buildscript >>$build_txt 2>&1 &
-    pid=$!
-    if test -n "$BLDR_PROJECT_URL"; then
-      local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
-      techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
-    fi
-
-# Record build
-    addActionToLists $1-cc4py $pid
-    return 0
+  sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $buildscript
+  # rm ${buildscript}.bak
+  chmod ug+x $buildscript
+  techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
+  techo ./$buildscript | tee -a $build_txt
+  techo "$cmd" | tee -a $build_txt
+  ./$buildscript >>$build_txt 2>&1 &
+  pid=$!
+  if test -n "$BLDR_PROJECT_URL"; then
+    local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
+    techo "See $BLDR_PROJECT_URL/$subdir/$build_txt."
   fi
 
-  return 1
+# Record build
+  addActionToLists $1-cc4py $pid
+  return 0
 
 }
 
@@ -6621,7 +6629,9 @@ bilderDuInstall() {
   fi
 
 # Clean out the output
-  cd $BUILD_DIR/$1-${verval}
+  local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+  local builddirval=`deref $builddirvar`
+  cd $builddirval
   local install_txt=$FQMAILHOST-$1-cc4py-install.txt
   rm -f $install_txt
 
