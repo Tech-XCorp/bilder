@@ -26,7 +26,7 @@ source $mydir/superlu_aux.sh
 setSuperluNonTriggerVars() {
   SUPERLU_UMASK=002
 }
-setSuperLuNonTriggerVars
+setSuperluNonTriggerVars
 
 ######################################################################
 #
