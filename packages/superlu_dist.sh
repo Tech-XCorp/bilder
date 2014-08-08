@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for superlu_dist
+# Build information for superlu_dist
 #
 # $Id$
 #
@@ -8,33 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in superlu_dist_aux.sh
 #
 ######################################################################
 
-SUPERLU_DIST_BLDRVERSION=${SUPERLU_DIST_BLDRVERSION:-"2.5"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/superlu_dist_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$SUPERLU_DIST_BUILDS"; then
-  SUPERLU_DIST_BUILDS="par,parcomm"
-  case `uname` in
-    Linux) SUPERLU_DIST_BUILDS="${SUPERLU_DIST_BUILDS},parsh,parcommsh"
-  esac
-fi
-
-# Not sure if we need the dependency to atlas, lapack and clapack_cmake
-SUPERLU_DIST_DEPS=${SUPERLU_DIST_DEPS:-"cmake,openmpi,atlas,lapack,clapack_cmake"}
-SUPERLU_DIST_UMASK=002
-
-# Add parmetis if there are only standard builds and no commercial builds
-if !(grep -q comm <<<$SUPERLU_DIST_BUILDS); then
-  SUPERLU_DIST_DEPS=$SUPERLU_DIST_DEPS,parmetis
-fi
+setSuperlu_DistNonTriggerVars() {
+  SUPERLU_DIST_UMASK=002
+}
+setSuperlu_DistNonTriggerVars
 
 ######################################################################
 #
