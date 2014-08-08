@@ -20,8 +20,7 @@ setSuperlu_DistTriggerVars() {
   if test -z "$SUPERLU_DIST_BUILDS"; then
     SUPERLU_DIST_BUILDS="par,parcomm"
     case `uname` in
-# JRC: parsh build needed on Darwin for pytrilinos
-      Darwin | Linux) SUPERLU_DIST_BUILDS="${SUPERLU_DIST_BUILDS},parsh,parcommsh"
+      Linux) SUPERLU_DIST_BUILDS="${SUPERLU_DIST_BUILDS},parsh,parcommsh"
     esac
   fi
   SUPERLU_DIST_DEPS=cmake,openmpi,atlas,lapack,clapack_cmake
