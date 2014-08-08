@@ -21,22 +21,20 @@
 ######################################################################
 
 setTrilinosTriggerVars() {
-
 # Versions
   TRILINOS_BLDRVERSION_STD=11.4.3
   TRILINOS_BLDRVERSION_EXP=11.4.3
-
 # Can add builds in package file only if no add builds defined.
   if test -z "$TRILINOS_DESIRED_BUILDS"; then
     TRILINOS_DESIRED_BUILDS="serbare,parbare,sercomm,parcomm"
     case `uname` in
-      CYGWIN* | Darwin) ;;
-      Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,sercommsh,parcommsh,serfull,parfull,serfullsh,parfullsh";;
+      Darwin | Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,sercommsh,parcommsh,serfull,parfull,serfullsh,parfullsh";;
     esac
   fi
 # Can remove builds based on OS here, as this decides what can build.
   case `uname` in
-    CYGWIN* | Darwin) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh;;
+    CYGWIN*) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},serbaresh,parbaresh,serfullsh,parfullsh,sercommsh,parcommsh;;
+    Darwin) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},parbaresh,parfullsh,parcommsh;;
   esac
   computeBuilds trilinos
 
