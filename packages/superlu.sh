@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for superlu
+# Build information for superlu
 #
 # $Id$
 #
@@ -8,28 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in superlu_aux.sh
 #
 ######################################################################
 
-SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-"4.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/superlu_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$SUPERLU_BUILDS"; then
-  SUPERLU_BUILDS=ser
-  case `uname` in
-    CYGWIN* | Darwin) ;;
-    *) SUPERLU_BUILDS="${SUPERLU_BUILDS},sersh";;
-  esac
-fi
-
-SUPERLU_DEPS=cmake,atlas,lapack,clapack_cmake
-SUPERLU_UMASK=002
+setSuperluNonTriggerVars() {
+  SUPERLU_UMASK=002
+}
+setSuperLuNonTriggerVars
 
 ######################################################################
 #
