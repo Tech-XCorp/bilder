@@ -5779,11 +5779,11 @@ bilderInstall() {
   elif test -n "$grpnm" -a -z "$hostids"; then
     techo "WARNING: [$FUNCNAME] Install requested to set group name for $1-$2, but no hostids given."
   elif test -n "$grpnm" -a -n "$hostids"; then
-    techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm' on host '$hostids'."
     printSetGroup=true
     local hs=`echo $hostids | tr ',' ' '`
     for h in $hs; do
       if [[ $FQMAILHOST =~ "$h" ]]; then
+        techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm'. Host in list [$hostids]."
         setGroup=true
         break
       fi
