@@ -3983,7 +3983,7 @@ bilderConfig() {
   if $riverbank; then
     builddir=$BUILD_DIR/$1-$verval
   elif test "$unpackedval" = true && test -n "$buildsubdir"; then
-    # This is for petsc where we configure inplace build build out-of-place
+    # This is for petsc where we configure inplace but build out-of-place
     builddir=$BUILD_DIR/$1-$verval
   elif test "$unpackedval" = true; then
     builddir=$BUILD_DIR/$1-$verval/$2
@@ -4135,9 +4135,9 @@ bilderConfig() {
     configargs="--prefix=$fullinstalldir"
     cmval=petsc
     # SEK: I'm not sure this will work on Windows
-    if ! test -d $BUILD_DIR/$1; then
-      ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
-    fi
+    #SEK if ! test -d $BUILD_DIR/$1; then
+    #SEK   ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
+    #SEK fi
   elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
     configexec="$CMAKE"
@@ -4481,6 +4481,7 @@ bilderConfig() {
     local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
     techo "See $BLDR_PROJECT_URL/$subdir/$configure_txt."
   fi
+
 
 # Finally, if building in a separate place, need to fix that.
   if test -n "$buildsubdir"; then
