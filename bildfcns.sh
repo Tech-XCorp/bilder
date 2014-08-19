@@ -3785,6 +3785,7 @@ rminterlibdeps() {
 # -m the eventually used "maker", e.g., make, nmake, jom, ninja
 # -n uses a space instead of an equals for the prefix command.
 # -p <specified prefix subdir>.  '-' means none.
+# -P Configure petsc which has complicated logic
 # -q <name of .pro file> path (relative to src directory) and
 #    name of .pro file to run qmake on
 # -r uses riverbank procedure (for sip and PyQt): python configure.py
@@ -3821,6 +3822,7 @@ bilderConfig() {
   local maker=
   local noequals=false  # Do not use equals in prefix command
   local noprefix=false
+  local petscconfig=false
   local recordfailure=true
   local riverbank=false
   local rminstall=false
@@ -3832,7 +3834,7 @@ bilderConfig() {
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cC:d:fgiI:ylm:np:q:rsS:tT:" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:np:Pq:rsS:tT:" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
@@ -3847,6 +3849,7 @@ bilderConfig() {
       m) maker="$OPTARG";;
       n) noequals=true;;
       p) instsubdirval="$OPTARG";;
+      P) petscconfig=true;;
       q) QMAKE_PRO_FILENAME="$OPTARG"; forceqmake=true;;
       r) riverbank=true;;
       s) stripbuilddir=true;;
@@ -3983,7 +3986,8 @@ bilderConfig() {
   if $riverbank; then
     builddir=$BUILD_DIR/$1-$verval
   elif test "$unpackedval" = true && test -n "$buildsubdir"; then
-    # This is for petsc where we configure inplace but build out-of-place
+    # This is for petsc tarballs
+    # where we configure inplace but build out-of-place
     builddir=$BUILD_DIR/$1-$verval
   elif test "$unpackedval" = true; then
     builddir=$BUILD_DIR/$1-$verval/$2
@@ -4064,6 +4068,19 @@ bilderConfig() {
     fi
     configargs="configure.py --destdir='$pspdir' --bindir='$cbindir'"
     cmval=riverbank
+  elif $petscconfig; then
+    # PETSc is difficult to get to work with bilder because of the
+    # configure in place and build out of place.  To work with multiple
+    # compiler options, it's often better to checkout into the BUILD_DIR
+    # to keep compiler combinations separate.  So first check to see if
+    # this is the case 
+    if test -f $BUILD_DIR/$1/configure; then
+      configexec="$BUILD_DIR/$1/configure"
+    else
+      configexec="$PROJECT_DIR/$1/configure"
+    fi
+    cmval=petsc
+    inplace=true
   elif test -n "$configcmdin"; then
 # Custom configure executable
     if test -f $builddir/$configcmdin; then
@@ -4094,22 +4111,16 @@ bilderConfig() {
       configexec="$builddir/../configure"
       configargs="--prefix=$fullinstalldir"
       cmval=autotools
-# If configure is a python script like PETSc, then use the cygwin python.
+# If configure is a python script, then use the cygwin python.
       if head -1 $configexec | egrep -q python; then
         if test -n "$CYGWIN_PYTHON"; then
           configexec="$CYGWIN_PYTHON $configexec"
         fi
       fi
     elif test -f $builddir/configure; then
-# Possible in-place build, e.g., PETSc, doxygen
+# Possible in-place build, e.g., doxygen
       configexec="$builddir/configure"
 	cmval=autotools
-# This signals PETSc, and on Windows we have issues
-      if test -n "$buildsubdir"; then
-        if test -n "$CYGWIN_PYTHON"; then
-		    cmval=petsc;
-        fi
-      fi
       if $noequals; then
         configargs="--prefix $fullinstalldir"
       else
@@ -4131,13 +4142,10 @@ bilderConfig() {
     cmval=autotools
   elif test -f $PROJECT_DIR/$1/$srcsubdir/configure; then
 # Repo but not configure.ac: Most likely petsc
-    configexec="$PROJECT_DIR/$1/configure"
-    configargs="--prefix=$fullinstalldir"
-    cmval=petsc
-    # SEK: I'm not sure this will work on Windows
-    #SEK if ! test -d $BUILD_DIR/$1; then
-    #SEK   ln -sf $PROJECT_DIR/$1 $BUILD_DIR/$1
-    #SEK fi
+    if test -f $PROJECT_DIR/$1/configure; then
+      configexec="$PROJECT_DIR/$1/configure"
+      configargs="--prefix=$fullinstalldir"
+    fi
   elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
     configexec="$CMAKE"
@@ -4179,16 +4187,24 @@ bilderConfig() {
 #
   if test -z "$builddir"; then
 # In place build with qmake
-    if $inplace && test -d $PROJECT_DIR/$1; then
+    if $inplace; then
+      if $petscconfig; then
+        if test -d $BUILD_DIR/$1; then
+          builddir=$BUILD_DIR/$1
+        else
+          builddir=$PROJECT_DIR/$1
+        fi
+      elif test -d $PROJECT_DIR/$1; then
 # In place build from repo
-      builddir=$PROJECT_DIR/$1
+        builddir=$PROJECT_DIR/$1
 # For petsc tarballs, the configure is in place but the builds are
 # out-of-place
-    elif $inplace; then
-      local buildtopdir=`getBuildTopdir $1 $verval`
-      (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
-      techo "HERE where I belong"
-      local builddir=$buildtopdir
+      else
+        local buildtopdir=`getBuildTopdir $1 $verval`
+        (cd $buildtopdir; mkdir -p $2) # mkdir -p fails on a link
+        techo "HERE where I belong"
+        local builddir=$buildtopdir
+      fi
 # In all other cases, build under main dir in builds directory
     else
       local buildtopdir=`getBuildTopdir $1 $verval`
@@ -4213,7 +4229,7 @@ bilderConfig() {
     if test "$cmval" = cmake -a "$inplace" = false; then
       cmd="rmall *"
     elif $inplace; then
-      if test -f Makefile -a $1 != petsc -a $1 != petscdev -a $1 != slepc; then
+      if test -f Makefile -a ! $petscconfig; then
         local bildermake=${bildermake:-"`getMaker $cmval`"}
         cmd="$bildermake distclean"
       fi
