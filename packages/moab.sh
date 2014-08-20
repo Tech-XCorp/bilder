@@ -70,14 +70,16 @@ buildMoab() {
 # With cgm:
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
-    MOAB_ADDL_ARGS="--enable-shared --without-vtk --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
+    MOAB_ADDL_ARGS_PYC="--enable-shared --without-vtk --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
+    MOAB_ADDL_ARGS_SER="--without-vtk --with-hdf5='$HDF5_SER_DIR' --with-netcdf='$NETCDF_SER_DIR'"
+    MOAB_ADDL_ARGS_PAR="--without-vtk --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_SER_DIR'  --with-mpi='$CONTRIB_DIR/openmpi'"
     case `uname` in
       Linux)
         local nclibsubdir=lib
         if test -d "$NETCDF_CC4PY_DIR/lib64"; then
           nclibsubdir=lib64
         fi
-        MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS LDFLAGS=-Wl,-rpath,'$HDF5_CC4PY_DIR/lib':'$NETCDF_CC4PY_DIR/$nclibsubdir'"
+        MOAB_ADDL_ARGS_PYC="$MOAB_ADDL_ARGS_PYC LDFLAGS=-Wl,-rpath,'$HDF5_CC4PY_DIR/lib':'$NETCDF_CC4PY_DIR/$nclibsubdir'"
         ;;
     esac
   fi
@@ -90,7 +92,10 @@ buildMoab() {
   if $MOAB_USE_CMAKE; then
     MOAB_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
   else
-    MOAB_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
+    MOAB_CONFIG_ARGS_PYC="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $MOAB_ADDL_ARGS_PYC $otherargs"
+    MOAB_CONFIG_ARGS_SER="$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MOAB_ADDL_ARGS_SER $otherargs"
+    MOAB_CONFIG_ARGS_PAR="$CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $MOAB_ADDL_ARGS_PAR $otherargs"
+
   fi
 
 # When not all dependencies right on Windows, need nmake
@@ -103,8 +108,16 @@ buildMoab() {
   fi
 
 # Configure and build
-  if bilderConfig $makerargs $moabcmakearg moab $MOAB_BUILD "$MOAB_CONFIG_ARGS" "" "$MOAB_ENV"; then
+  if bilderConfig $makerargs $moabcmakearg moab $FORPYTHON_BUILD "$MOAB_CONFIG_ARGS_PYC" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $MOAB_BUILD "$makejargs" "$MOAB_ENV"
+  fi
+
+  if bilderConfig $makerargs $moabcmakearg moab ser "$MOAB_CONFIG_ARGS_SER" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab ser "$makejargs" "$MOAB_ENV"
+  fi
+
+  if bilderConfig $makerargs $moabcmakearg moab par "$MOAB_CONFIG_ARGS_PAR" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab par "$makejargs" "$MOAB_ENV"
   fi
 
 }
