@@ -21,7 +21,7 @@ setDagMcTriggerVars() {
   DAGMC_REPO_BRANCH_STD=develop
   DAGMC_REPO_BRANCH_EXP=develop
   DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD,batlab"}
-  DAGMC_DEPS=geant4,moab,boost
+  DAGMC_DEPS=geant4,moab,boost,pyne
 }
 setDagMcTriggerVars
 
