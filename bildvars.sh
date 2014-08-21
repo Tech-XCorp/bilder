@@ -452,6 +452,10 @@ case `uname` in
       PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_LIBRARY_PATH
       PYC_LD_RUN_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_RUN_PATH
     fi
+    if test -e $CONTRIB_DIR/lib; then
+      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/lib:$PYC_LD_LIBRARY_PATH
+      PYC_LD_RUN_PATH=$CONTRIB_DIR/lib:$PYC_LD_RUN_PATH
+    fi
     ;;
 esac
 
