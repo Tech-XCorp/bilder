@@ -2605,6 +2605,14 @@ setDefaultPkgVars() {
 #
 # Find blas and lapack in various forms for the builds, ser, cc4py, and ben.
 #
+# The favored configuration args in order:
+#   {system}  or {MKL}   # See note below
+#   {contrib atlas, contrib lapack} or {contrib ptsolve-lite}
+#   {atlas-clapack, clapack} or {ptsolve-lite}
+#
+# Useful ENV variables for controlling order: USE_ATLAS, USE_MKL, USE_PTSOLVE_LITE
+#  USE_CONTRIB_LAPACK
+#
 # The goal is to assign values
 #   LINLIB_${BLD}_LIBS, the absolute paths to the libraries
 #   CMAKE_LINLIB_${BLD}_ARGS, the cmake args for finding those libraries
@@ -2621,15 +2629,26 @@ setDefaultPkgVars() {
 # found, but they are there.  In this case they remain
 # unset and packages should find.
 #
+# ptsolve-lite is a pure fortran version of blas/lapack that is
+# much faster to build.  It is not as high performance as atlas, but
+# for many applications, it's preferred (blas,lapack required but not
+# critical to performance).  
+# The environment variables are PTSOLVE_LITE_* 
+#
+# MKL is a unique beast because it's tightly coupled to the Intel compilers.
+# In this case, it acts more like a system library than a "contributed" library
+#
+# This method is a pretty verbose method as it shows all possible choices 
+#  and then the one used is shown at the end.
+#
 findBlasLapack() {
 
-  techo "----------------------------------------"
-  techo "--------> Executing findBlasLapack <--------"
-# The favored configuration args in order:
-#   system
-#   contrib atlas, contrib lapack
-#   atlas-clapack, clapack
+  techo " ---------------------------------------"
+  techo " -------> Executing findBlasLapack <--------"
+
   USE_ATLAS=${USE_ATLAS:-"false"}
+  USE_PTSOLVE_LITE=${USE_PTSOLVE_LITE:-"false"}
+  USE_MKL=${USE_MKL:-"false"}
 
 # Temps
   local lapack_libs=
@@ -2682,6 +2701,34 @@ findBlasLapack() {
       else
         eval BLAS_${BLD}_LIBS="\"-L$atlaslibdir -lcblas -lf77blas -latlas\""
       fi
+    fi
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
+  done
+
+# Find ptsolve_lite build, but use it only if requested.
+# plite builds both shared and static simultaneously
+  findContribPackage PTSOLVE_LITE lapack ser
+# Set defaults
+  setDefaultPkgVars PTSOLVE_LITE "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  for BLD in CC4PY BEN SERSH SER; do
+    techo -2 "PTSOLVE_LITE_${BLD}_DIR = `deref PTSOLVE_LITE_${BLD}_DIR`."
+    techo -2 "PTSOLVE_LITE_${BLD}_LIB = `deref PTSOLVE_LITE_${BLD}_LIB`."
+    techo -2 "PTSOLVE_LITE_${BLD}_LIBDIR = `deref PTSOLVE_LITE_${BLD}_LIBDIR`."
+    techo -2 "CMAKE_PTSOLVE_LITE_${BLD}_DIR_ARG = `deref CMAKE_PTSOLVE_LITE_${BLD}_DIR_ARG`."
+    techo -2 "CONFIG_PTSOLVE_LITE_${BLD}_DIR_ARG = `deref CONFIG_PTSOLVE_LITE_${BLD}_DIR_ARG`."
+  done
+# Compute vars
+  USE_PTSOLVE_LITE_CC4PY=${USE_PTSOLVE_LITE_CC4PY:-"false"}
+  for BLD in SER SERSH CC4PY BEN; do
+    local haveplite=`deref HAVE_PTSOLVE_LITE_$BLD`
+    local useplite=`deref USE_PTSOLVE_LITE_$BLD`
+    useplite=${useplite:-"$USE_PTSOLVE_LITE"}
+    useplite=${useplite:-"false"}
+    if $useplite && $haveplite; then
+      local plitelibdir=`deref PTSOLVE_LITE_${BLD}_DIR`/lib
+      eval LAPACK_${BLD}_LIBS="\"-L$plitelibdir -llapack\""
+      eval BLAS_${BLD}_LIBS="\"-L$plitelibdir -lblas\""
     fi
     techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
     techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
@@ -2773,6 +2820,22 @@ findBlasLapack() {
     done
   fi
 
+# If MKL requested, then use it
+  if test -n $USE_MKL; then 
+   if $USE_MKL; then
+    # MKL doesn't separate blas and lapack?
+    MKL_DIR=${MKL_DIR:-${MKLROOT}}
+    MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
+    MKL_LAPACK_LIBS="-lmkl_lapack"
+    for BLD in SER SERMD SERSH CC4PY BEN; do
+      eval LAPACK_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_LAPACK_LIBS}\""
+      eval BLAS_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_BLAS_LIBS}\""
+    done
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
+   fi
+  fi
+
 # Ben defaults to ser
   LAPACK_BEN_LIBS=${LAPACK_BEN_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_BEN_LIBS=${BLAS_BEN_LIBS:-"$BLAS_SER_LIBS"}
@@ -2813,6 +2876,7 @@ findBlasLapack() {
   fi
 
 # Print out results
+  techo " -------> Results of findBlasLapack <--------"
   for BLD in SER SERSH CC4PY BEN; do
     techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
     techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
@@ -4079,6 +4143,7 @@ bilderConfig() {
     else
       configexec="$PROJECT_DIR/$1/configure"
     fi
+    configargs="--prefix=$fullinstalldir"
     cmval=petsc
     inplace=true
   elif test -n "$configcmdin"; then
