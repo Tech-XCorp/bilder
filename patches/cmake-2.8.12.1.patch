@@ -1,6 +1,6 @@
 diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindCUDA.cmake
 --- cmake-2.8.12.1/Modules/FindCUDA.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2014-07-10 10:04:15.688942200 -0600
++++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2014-08-28 12:35:04.980520200 -0600
 @@ -852,6 +852,7 @@
          arg STREQUAL "EXCLUDE_FROM_ALL" OR
          arg STREQUAL "STATIC" OR
@@ -24,9 +24,21 @@ diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindC
  
    # We need to set the linker language based on what the expected generated file
    # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
+diff -ruN cmake-2.8.12.1/Modules/Platform/Linux.cmake cmake-2.8.12.1-new/Modules/Platform/Linux.cmake
+--- cmake-2.8.12.1/Modules/Platform/Linux.cmake	2013-11-05 12:07:22.000000000 -0700
++++ cmake-2.8.12.1-new/Modules/Platform/Linux.cmake	2014-08-28 12:36:15.686590100 -0600
+@@ -2,7 +2,7 @@
+ set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath,")
+ set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG_SEP ":")
+ set(CMAKE_SHARED_LIBRARY_RPATH_LINK_C_FLAG "-Wl,-rpath-link,")
+-set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname,")
++set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
+ set(CMAKE_EXE_EXPORTS_C_FLAG "-Wl,--export-dynamic")
+ 
+ # Shared libraries with no builtin soname may not be linked safely by
 diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake
 --- cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake	2014-07-10 13:17:14.373133300 -0600
++++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake	2014-08-28 12:35:04.985520700 -0600
 @@ -38,7 +38,8 @@
  
    # We pass this for historical reasons.  Projects may have
@@ -39,7 +51,7 @@ diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake cmake-2.8.12.1-new/M
      # INTERPROCEDURAL_OPTIMIZATION
 diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake
 --- cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake	2014-07-10 10:08:44.188789500 -0600
++++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake	2014-08-28 12:35:04.989521100 -0600
 @@ -1,2 +1,4 @@
  include(Platform/Linux-Intel)
 +# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
