@@ -199,7 +199,7 @@ installBoost() {
       ser) instargs="$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS";;
       sersh) sfx=-sersh; instargs="$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS";;
       cc4py) sfx=-cc4py; instargs="$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS";;
-      ben) sfx=-cc4py; instargs="$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS";;
+      ben) sfx=-ben; instargs="$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS";;
     esac
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
