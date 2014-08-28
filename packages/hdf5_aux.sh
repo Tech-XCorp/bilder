@@ -38,7 +38,7 @@ getHdf5TriggerVars() {
       ;;
     Linux) HDF5_BLDRVERSION_STD=1.8.12;;
   esac
-  HDF5_BLDRVERSION_EXP=1.8.12
+  HDF5_BLDRVERSION_EXP=1.8.13
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
