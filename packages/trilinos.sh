@@ -157,7 +157,7 @@ buildTrilinos() {
     bilderBuild trilinos parcommsh "$TRILINOS_MAKEJ_ARGS"
   fi
 
-# Cannot we add these to the comm buidls?
+# Cannot we add these to the comm builds?
   local NETCDF_BASE_DIR=$MIXED_CONTRIB_DIR/netcdf-$NETCDF_BLDRVERSION-ser
   local HDF5_BASE_DIR=$MIXED_CONTRIB_DIR/hdf5-$HDF5_BLDRVERSION-ser
   local NETCDF_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH='$NETCDF_BASE_DIR/lib;$HDF5_BASE_DIR/lib' -DNetcdf_LIBRARY_NAMES:STRING='netcdf;hdf5_hl;hdf5' -DNetcdf_INCLUDE_DIRS:PATH=$NETCDF_BASE_DIR/include"
@@ -173,9 +173,6 @@ buildTrilinos() {
   if bilderConfig trilinos parfullsh "-DTPL_ENABLE_MPI:BOOL=ON -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parsh/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parsh/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist  -DTPL_ENABLE_PARMETIS:BOOL=ON -DParMETIS_INCLUDE_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}-par/include  -DParMETIS_LIBRARY_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}-par/lib $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_BLAS_LIB_ARG -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PARSH_OTHER_ARGS"; then
     bilderBuild trilinos parfullsh "$TRILINOS_MAKEJ_ARGS"
   fi
-  if bilderConfig trilinos parcommsh "-DTPL_ENABLE_MPI:BOOL=ON -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_BLAS_LIB_ARG -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_LINLIB_SER_ARGS $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PARCOMMSH_OTHER_ARGS"; then
-    bilderBuild trilinos parcommsh "$TRILINOS_MAKEJ_ARGS"
-  fi
 
 # The non-ben builds
   if bilderConfig trilinos serfull "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_ADDL_ARGS $TRILINOS_SER_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLU:BOOL=ON -DSuperLU_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include -DSuperLU_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib -DSuperLU_LIBRARY_NAMES:STRING=superlu"; then
@@ -187,9 +184,6 @@ buildTrilinos() {
 
   if bilderConfig trilinos parfull "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-par/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-par/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist -DTPL_ENABLE_PARMETIS:BOOL=ON -DParMETIS_INCLUDE_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}-par/include  -DParMETIS_LIBRARY_DIRS:PATH=$CONTRIB/parmetis-${PARMETIS_BLDRVERSION}-par/lib $TRILINOS_PARFULL_OTHER_ARGS"; then
     bilderBuild trilinos parfull "$TRILINOS_MAKEJ_ARGS"
-  fi
-  if bilderConfig trilinos parcomm "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist $TRILINOS_PARCOMM_OTHER_ARGS"; then
-    bilderBuild trilinos parcomm "$TRILINOS_MAKEJ_ARGS"
   fi
   if bilderConfig trilinos parcommio "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_STATIC_LINLIB_ARGS $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS ${SEACAS_ARGS} -DTrilinos_ENABLE_Amesos:BOOL=ON -DTrilinos_ENABLE_Galeri:BOOL=ON -DTrilinos_ENABLE_Shards:BOOL=ON -DTrilinos_ENABLE_Intrepid:BOOL=ON -DTrilinos_ENABLE_Komplex:BOOL=ON -DTrilinos_ENABLE_Phalanx:BOOL=ON -DTrilinos_ENABLE_NOX:STRING=ON -DTPL_ENABLE_SuperLUDist:BOOL=ON -DSuperLUDist_INCLUDE_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include -DSuperLUDist_LIBRARY_DIRS:PATH=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib -DSuperLUDist_LIBRARY_NAMES:STRING=superlu_dist $TRILINOS_PARCOMMIO_OTHER_ARGS"; then
     bilderBuild trilinos parcommio "$TRILINOS_MAKEJ_ARGS"
@@ -227,16 +221,6 @@ testTrilinos() {
 ######################################################################
 
 installTrilinos() {
-# -DCMAKE_INSTALL_ALWAYS:BOOL=TRUE is not working, so add -r.
-  for bld in serbaresh parbaresh serfullsh parfullsh sercommsh parcommsh serbare parbare serfull parfull sercomm sercommio parcomm parcommio ben; do
-    # if bilderInstall -r trilinos $bld; then
-    if bilderInstall -r trilinos $bld; then
-# Group writable perms for trilinos
-      bldpre=`echo $bld | sed 's/sh$//'`
-      local instdir=$CONTRIB_DIR/trilinos-$TRILINOS_BLDRVERSION-$bldpre
-      setOpenPerms $instdir
-    fi
-  done
-  # techo "WARNING: Quitting at end of installTrilinos."; cleanup
+  bilderInstallAll trilinos " -r -p open"
 }
 
