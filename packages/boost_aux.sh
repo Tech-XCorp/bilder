@@ -36,9 +36,12 @@ getBoostTriggerVars() {
 }
 getBoostTriggerVars
 
+######################################################################
 #
-# Find the BOOST includes
+# Find boost
 #
+######################################################################
+
 findBoost() {
   if test -L $CONTRIB_DIR/boost -o -d $CONTRIB_DIR/boost; then
     local boostincdir=`(cd $CONTRIB_DIR/boost/include; pwd -P)`
