@@ -1,0 +1,132 @@
+diff -ruN trilinos-11.10.2/packages/amesos/CMakeLists.txt trilinos-11.10.2-new/packages/amesos/CMakeLists.txt
+--- trilinos-11.10.2/packages/amesos/CMakeLists.txt	2014-08-14 10:52:13.000000000 -0600
++++ trilinos-11.10.2-new/packages/amesos/CMakeLists.txt	2014-09-02 14:48:23.977745649 -0600
+@@ -13,9 +13,13 @@
+ #
+ 
+ # if using SuperLUDist, must also link in ParMETIS for some reason
++# JRC: Because it is now a dependency that would go away if Sherry Li
++# would accept Tech-X changes
++if (NOT ${PACKAGE_NAME}_ENABLE_SuperLUDist_Without_ParMETIS)
+ IF(${PACKAGE_NAME}_ENABLE_SuperLUDist AND NOT ${PACKAGE_NAME}_ENABLE_ParMETIS)
+   MESSAGE(FATAL_ERROR "The Amesos support for the SuperLUIDist TPL requires the ParMETIS TPL.  Either disable Amesos SuperLUDist support or enable the ParMETIS TPL.")
+ ENDIF()
++ENDIF()
+ 
+ # if using parallel MUMPS, must also link in scalapack and BLACS
+ 
+diff -ruN trilinos-11.10.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.10.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
+--- trilinos-11.10.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-08-14 10:51:55.000000000 -0600
++++ trilinos-11.10.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-09-02 14:50:30.869137037 -0600
+@@ -15,6 +15,8 @@
+ #include "MLAPI_Workspace.h"
+ #ifdef _MSC_VER
+ #include "winprocess.h"
++#elif defined(__MINGW32__)
++#include "windows.h"
+ #endif
+ 
+ namespace MLAPI {
+diff -ruN trilinos-11.10.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.10.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp
+--- trilinos-11.10.2/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-08-14 10:51:54.000000000 -0600
++++ trilinos-11.10.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-09-02 14:51:27.854863716 -0600
+@@ -42,6 +42,8 @@
+ #endif
+ #ifdef _MSC_VER
+ # include "winprocess.h"
++#elif defined(__MINGW32__)
++# include "windows.h"
+ #endif
+ 
+ #ifdef HAVE_ML_TEUCHOS
+diff -ruN trilinos-11.10.2/packages/ml/src/Utils/ml_utils.c trilinos-11.10.2-new/packages/ml/src/Utils/ml_utils.c
+--- trilinos-11.10.2/packages/ml/src/Utils/ml_utils.c	2014-08-14 10:51:54.000000000 -0600
++++ trilinos-11.10.2-new/packages/ml/src/Utils/ml_utils.c	2014-09-02 14:52:48.050479074 -0600
+@@ -1956,13 +1956,15 @@
+       if (i == mypid) {
+ #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
+         sprintf(buf, "Host: %s   PID: %d", "janus", getpid());
++#elif defined(__MINGW32__)
++        sprintf(buf, "Host: %s   PID: %d", "mingw", getpid());
+ #else
+         gethostname(hostname, sizeof(hostname));
+         sprintf(buf, "Host: %s   PID: %d (mpi task %d)", hostname, getpid(),mypid);
+ #endif
+         printf("%s\n",buf);
+         fflush(stdout);
+-#ifdef ICL
++#if defined(ICL) || defined(__MINGW32__)
+         Sleep(1);
+ #else
+         sleep(1);
+diff -ruN trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
+--- trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-08-14 10:51:48.000000000 -0600
++++ trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-09-02 14:53:47.459194132 -0600
+@@ -51,7 +51,12 @@
+ 
+ #include <stddef.h>
+ #include <stdlib.h>
+-#include <stdint.h>
++#ifdef WIN32
++  typedef __int64 int64_t;
++  #define PRId64 "%ld"
++#else
++  #include <stdint.h>
++#endif
+ 
+ #ifndef NC_INT64
+ #error "NetCDF version 4.1.2 or later is required."
+diff -ruN trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
+--- trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-08-14 10:51:48.000000000 -0600
++++ trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-09-02 14:57:02.864256909 -0600
+@@ -63,7 +63,7 @@
+ #include <exodusII_int.h>               // for EX_FATAL, ex_leavedef, etc
+ #include <netcdf.h>                     // for NC_NOERR, nc_def_var, etc
+ #include <stddef.h>                     // for size_t
+-#include <stdint.h>                     // for int64_t
++// #include <stdint.h>                     // for int64_t
+ #include <stdio.h>                      // for sprintf
+ 
+ 
+diff -ruN trilinos-11.10.2/packages/seacas/libraries/nemesis/ne_nemesisI.h trilinos-11.10.2-new/packages/seacas/libraries/nemesis/ne_nemesisI.h
+--- trilinos-11.10.2/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-08-14 10:51:45.000000000 -0600
++++ trilinos-11.10.2-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-09-02 14:57:51.645022942 -0600
+@@ -46,7 +46,12 @@
+ #endif
+ 
+ #ifndef EXODUS_II_HDR
+-#include <stdint.h>
++#ifdef WIN32
++  typedef __int64 int64_t;
++  #define PRId64 "%ld"
++#else
++  #include <stdint.h>
++#endif
+   /** Specifies that this argument is the id of an entity: element block, nodeset, sideset, ... */
+   typedef int64_t ex_entity_id;
+   
+diff -ruN trilinos-11.10.2/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.10.2-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
+--- trilinos-11.10.2/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-08-14 10:51:08.000000000 -0600
++++ trilinos-11.10.2-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-09-02 14:59:30.106550691 -0600
+@@ -111,7 +111,8 @@
+ 
+ //Explicitly instantiating these templates for windows due to an issue with
+ //resolving them when linking dlls.
+-#ifdef _WIN32
++// #ifdef _WIN32
++#ifdef _MSC_VER
+ #  ifdef HAVE_TEUCHOS_COMPLEX
+      template BLAS<long int, std::complex<float> >;
+      template BLAS<long int, std::complex<double> >;
+diff -ruN trilinos-11.10.2/PackagesList.cmake trilinos-11.10.2-new/PackagesList.cmake
+--- trilinos-11.10.2/PackagesList.cmake	2014-08-14 10:52:14.000000000 -0600
++++ trilinos-11.10.2-new/PackagesList.cmake	2014-09-02 14:45:46.231502248 -0600
+@@ -191,7 +191,7 @@
+ TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(TriKota Windows)
+ TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Pamgen Windows)
+ TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(STK Windows)
+-TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(SEACAS Windows)
++# TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(SEACAS Windows)
+ TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Anasazi Windows)
+ TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Zoltan Windows)
+ TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Isorropia Windows)
