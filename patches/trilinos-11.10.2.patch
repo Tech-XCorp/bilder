@@ -1,6 +1,6 @@
 diff -ruN trilinos-11.10.2/packages/amesos/CMakeLists.txt trilinos-11.10.2-new/packages/amesos/CMakeLists.txt
 --- trilinos-11.10.2/packages/amesos/CMakeLists.txt	2014-08-14 10:52:13.000000000 -0600
-+++ trilinos-11.10.2-new/packages/amesos/CMakeLists.txt	2014-09-02 14:48:23.977745649 -0600
++++ trilinos-11.10.2-new/packages/amesos/CMakeLists.txt	2014-09-03 07:16:09.750720287 -0600
 @@ -13,9 +13,13 @@
  #
  
@@ -17,7 +17,7 @@ diff -ruN trilinos-11.10.2/packages/amesos/CMakeLists.txt trilinos-11.10.2-new/p
  
 diff -ruN trilinos-11.10.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.10.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
 --- trilinos-11.10.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-08-14 10:51:55.000000000 -0600
-+++ trilinos-11.10.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-09-02 14:50:30.869137037 -0600
++++ trilinos-11.10.2-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-09-03 07:16:09.750720287 -0600
 @@ -15,6 +15,8 @@
  #include "MLAPI_Workspace.h"
  #ifdef _MSC_VER
@@ -29,7 +29,7 @@ diff -ruN trilinos-11.10.2/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11
  namespace MLAPI {
 diff -ruN trilinos-11.10.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.10.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp
 --- trilinos-11.10.2/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-08-14 10:51:54.000000000 -0600
-+++ trilinos-11.10.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-09-02 14:51:27.854863716 -0600
++++ trilinos-11.10.2-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-09-03 07:16:09.751720265 -0600
 @@ -42,6 +42,8 @@
  #endif
  #ifdef _MSC_VER
@@ -41,7 +41,7 @@ diff -ruN trilinos-11.10.2/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11
  #ifdef HAVE_ML_TEUCHOS
 diff -ruN trilinos-11.10.2/packages/ml/src/Utils/ml_utils.c trilinos-11.10.2-new/packages/ml/src/Utils/ml_utils.c
 --- trilinos-11.10.2/packages/ml/src/Utils/ml_utils.c	2014-08-14 10:51:54.000000000 -0600
-+++ trilinos-11.10.2-new/packages/ml/src/Utils/ml_utils.c	2014-09-02 14:52:48.050479074 -0600
++++ trilinos-11.10.2-new/packages/ml/src/Utils/ml_utils.c	2014-09-03 07:16:09.751720265 -0600
 @@ -1956,13 +1956,15 @@
        if (i == mypid) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
@@ -59,9 +59,31 @@ diff -ruN trilinos-11.10.2/packages/ml/src/Utils/ml_utils.c trilinos-11.10.2-new
          Sleep(1);
  #else
          sleep(1);
+diff -ruN trilinos-11.10.2/packages/PyTrilinos/src/Teuchos_Traits.i trilinos-11.10.2-new/packages/PyTrilinos/src/Teuchos_Traits.i
+--- trilinos-11.10.2/packages/PyTrilinos/src/Teuchos_Traits.i	2014-08-14 10:51:25.000000000 -0600
++++ trilinos-11.10.2-new/packages/PyTrilinos/src/Teuchos_Traits.i	2014-09-03 07:16:27.375329892 -0600
+@@ -61,14 +61,18 @@
+   : public DirectSerializationTraits<Ordinal,unsigned long>
+ {};
+ #endif
++#if defined(TEUCHOS_SERIALIZATIONTRAITS_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ template<typename Ordinal>
+ class SerializationTraits<Ordinal,long long>
+   : public DirectSerializationTraits<Ordinal,long long>
+ {};
++#endif
++#if defined(TEUCHOS_SERIALIZATIONTRAITS_UNSIGNED_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ template<typename Ordinal>
+ class SerializationTraits<Ordinal,unsigned long long>
+   : public DirectSerializationTraits<Ordinal,unsigned long long>
+ {};
++#endif
+ }
+ %}
+ 
 diff -ruN trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-08-14 10:51:48.000000000 -0600
-+++ trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-09-02 14:53:47.459194132 -0600
++++ trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-09-03 07:16:09.752720247 -0600
 @@ -51,7 +51,12 @@
  
  #include <stddef.h>
@@ -78,7 +100,7 @@ diff -ruN trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/include/exodus
  #error "NetCDF version 4.1.2 or later is required."
 diff -ruN trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
 --- trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-08-14 10:51:48.000000000 -0600
-+++ trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-09-02 14:57:02.864256909 -0600
++++ trilinos-11.10.2-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-09-03 07:16:09.752720247 -0600
 @@ -63,7 +63,7 @@
  #include <exodusII_int.h>               // for EX_FATAL, ex_leavedef, etc
  #include <netcdf.h>                     // for NC_NOERR, nc_def_var, etc
@@ -90,7 +112,7 @@ diff -ruN trilinos-11.10.2/packages/seacas/libraries/exodus/cbind/src/ex_put_cma
  
 diff -ruN trilinos-11.10.2/packages/seacas/libraries/nemesis/ne_nemesisI.h trilinos-11.10.2-new/packages/seacas/libraries/nemesis/ne_nemesisI.h
 --- trilinos-11.10.2/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-08-14 10:51:45.000000000 -0600
-+++ trilinos-11.10.2-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-09-02 14:57:51.645022942 -0600
++++ trilinos-11.10.2-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-09-03 07:16:09.752720247 -0600
 @@ -46,7 +46,12 @@
  #endif
  
@@ -107,7 +129,7 @@ diff -ruN trilinos-11.10.2/packages/seacas/libraries/nemesis/ne_nemesisI.h trili
    
 diff -ruN trilinos-11.10.2/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.10.2-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
 --- trilinos-11.10.2/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-08-14 10:51:08.000000000 -0600
-+++ trilinos-11.10.2-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-09-02 14:59:30.106550691 -0600
++++ trilinos-11.10.2-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-09-03 07:16:09.752720247 -0600
 @@ -111,7 +111,8 @@
  
  //Explicitly instantiating these templates for windows due to an issue with
@@ -120,7 +142,7 @@ diff -ruN trilinos-11.10.2/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilin
       template BLAS<long int, std::complex<double> >;
 diff -ruN trilinos-11.10.2/PackagesList.cmake trilinos-11.10.2-new/PackagesList.cmake
 --- trilinos-11.10.2/PackagesList.cmake	2014-08-14 10:52:14.000000000 -0600
-+++ trilinos-11.10.2-new/PackagesList.cmake	2014-09-02 14:45:46.231502248 -0600
++++ trilinos-11.10.2-new/PackagesList.cmake	2014-09-03 07:16:09.752720247 -0600
 @@ -191,7 +191,7 @@
  TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(TriKota Windows)
  TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Pamgen Windows)
