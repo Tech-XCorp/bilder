@@ -134,8 +134,8 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c trilinos-11.4.3-new/p
          sleep(1);
  #endif
 diff -ruN trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i
---- trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i	2013-11-21 13:11:36.000000000 -0700
-+++ trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i	2014-09-03 08:36:06.952493103 -0600
+--- trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i    2013-11-21 13:11:36.000000000 -0700
++++ trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i    2014-09-03 08:36:06.952493103 -0600
 @@ -61,14 +61,18 @@
    : public DirectSerializationTraits<Ordinal,unsigned long>
  {};
@@ -154,6 +154,68 @@ diff -ruN trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i trilinos-11.4
 +#endif
  }
  %}
+ 
+@@ -199,6 +203,7 @@ struct ScalarTraits<unsigned long>
+ };
+ #endif
+ 
++#if defined(TEUCHOS_SCALARTRAITS_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ // Type long long
+ template<>
+ struct ScalarTraits<long long>
+@@ -226,7 +231,9 @@ struct ScalarTraits<long long>
+   static inline long long pow(long long x, long long y)
+   { return (long long) std::pow((double)x,(double)y); }
+ };
++#endif
+ 
++#if defined(TEUCHOS_SCALARTRAITS_UNSIGNED_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ // Type unsigned long long
+ template<>
+ struct ScalarTraits<unsigned long long>
+@@ -254,6 +261,7 @@ struct ScalarTraits<unsigned long long>
+   static inline unsigned long long pow(unsigned long long x, unsigned long long y)
+   { return (unsigned long long) std::pow((double)x,(double)y); }
+ };
++#endif
+ 
+ }
+ %}
+@@ -355,8 +363,34 @@ struct ScalarTraits<unsigned long long>
+ %ignore Teuchos::ScalarTraits< unsigned long >::isnaninf;
+ %template(ScalarTraitsUlong) Teuchos::ScalarTraits< unsigned long >;
+ 
++%ignore Teuchos::ScalarTraits< long long >::eps     ;
++%ignore Teuchos::ScalarTraits< long long >::sfmin   ;
++%ignore Teuchos::ScalarTraits< long long >::base    ;
++%ignore Teuchos::ScalarTraits< long long >::prec    ;
++%ignore Teuchos::ScalarTraits< long long >::t       ;
++%ignore Teuchos::ScalarTraits< long long >::rnd     ;
++%ignore Teuchos::ScalarTraits< long long >::emin    ;
++%ignore Teuchos::ScalarTraits< long long >::rmin    ;
++%ignore Teuchos::ScalarTraits< long long >::emax    ;
++%ignore Teuchos::ScalarTraits< long long >::rmax    ;
++%ignore Teuchos::ScalarTraits< long long >::nan     ;
++%ignore Teuchos::ScalarTraits< long long >::isnaninf;
++
+ %template(ScalarTraitsLongLong) Teuchos::ScalarTraits< long long >;
+ 
++%ignore Teuchos::ScalarTraits< unsigned long long >::eps     ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::sfmin   ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::base    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::prec    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::t       ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::rnd     ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::emin    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::rmin    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::emax    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::rmax    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::nan     ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::isnaninf;
++
+ %template(ScalarTraitsUlongLong) Teuchos::ScalarTraits< unsigned long long >;
+ 
+ %template(ScalarTraitsFloat) Teuchos::ScalarTraits< float >;
  
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2013-11-21 13:12:15.000000000 -0700
