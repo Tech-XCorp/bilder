@@ -2632,13 +2632,13 @@ setDefaultPkgVars() {
 # ptsolve-lite is a pure fortran version of blas/lapack that is
 # much faster to build.  It is not as high performance as atlas, but
 # for many applications, it's preferred (blas,lapack required but not
-# critical to performance).  
-# The environment variables are PTSOLVE_LITE_* 
+# critical to performance).
+# The environment variables are PTSOLVE_LITE_*
 #
 # MKL is a unique beast because it's tightly coupled to the Intel compilers.
 # In this case, it acts more like a system library than a "contributed" library
 #
-# This method is a pretty verbose method as it shows all possible choices 
+# This method is a pretty verbose method as it shows all possible choices
 #  and then the one used is shown at the end.
 #
 findBlasLapack() {
@@ -2821,7 +2821,7 @@ findBlasLapack() {
   fi
 
 # If MKL requested, then use it
-  if test -n $USE_MKL; then 
+  if test -n $USE_MKL; then
    if $USE_MKL; then
     # MKL doesn't separate blas and lapack?
     MKL_DIR=${MKL_DIR:-${MKLROOT}}
@@ -2839,11 +2839,12 @@ findBlasLapack() {
 # Ben defaults to ser
   LAPACK_BEN_LIBS=${LAPACK_BEN_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_BEN_LIBS=${BLAS_BEN_LIBS:-"$BLAS_SER_LIBS"}
+# sersh defaults to ser
+  LAPACK_SERSH_LIBS=${LAPACK_SERSH_LIBS:-"$LAPACK_SER_LIBS"}
+  BLAS_SERSH_LIBS=${BLAS_SERSH_LIBS:-"$BLAS_SER_LIBS"}
 # Cc4py defaults to sersh, then ser
   LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SERSH_LIBS"}
   BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SERSH_LIBS"}
-  LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SER_LIBS"}
-  BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SER_LIBS"}
 
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
@@ -4137,7 +4138,7 @@ bilderConfig() {
     # configure in place and build out of place.  To work with multiple
     # compiler options, it's often better to checkout into the BUILD_DIR
     # to keep compiler combinations separate.  So first check to see if
-    # this is the case 
+    # this is the case
     if test -f $BUILD_DIR/$1/configure; then
       configexec="$BUILD_DIR/$1/configure"
     else
