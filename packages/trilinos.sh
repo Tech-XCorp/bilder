@@ -86,17 +86,15 @@ buildTrilinos() {
 #
 
 # Collect the locations of static or shared serial libraries
-  TRILINOS_SER_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost/include"
-  TRILINOS_SERSH_ADDL_ARGS="$TRILINOS_SERSH_ADDL_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost-sersh/include"
-  TRILINOS_BEN_ADDL_ARGS="$TRILINOS_BEN_ADDL_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost-ben/include"
-
-# After updating all to use both ADDL and OTHER, these should not be needed.
-  TRILINOS_SERSH_OTHER_ARGS="$TRILINOS_SERSH_OTHER_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost-sersh/include"
-  TRILINOS_SER_OTHER_ARGS="$TRILINOS_SER_OTHER_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost/include"
-  TRILINOS_PARSH_OTHER_ARGS="$TRILINOS_PARSH_OTHER_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost-sersh/include"
-  TRILINOS_PAR_OTHER_ARGS="$TRILINOS_PAR_OTHER_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost/include"
-  TRILINOS_BEN_OTHER_ARGS="$TRILINOS_BEN_OTHER_ARGS -DTPL_Boost_INCLUDE_DIRS:FILEPATH=$CONTRIB_DIR/boost-ben/include"
-
+  for bld in ser sersh ben; do
+    local BLD=`echo $bld | tr [a-z] [A-Z]`
+    local oldval=`deref TRILINOS_${BLD}_ADDL_ARGS`
+    local boostincdir=$CONTRIB_DIR/boost-${BOOST_BLDRVERSION}-$bld/include
+    if [[ `uname` =~ CYGWIN ]]; then
+      boostincdir=`cygpath -am $boostincdir`
+      eval "TRILINOS_${BLD}_ADDL_ARGS=\"$oldval -DTPL_Boost_INCLUDE_DIRS:FILEPATH='$boostincdir'\""
+    fi
+  done
 
 # Determine best choice for linalg libraries for static builds and add to vars
 #
@@ -108,6 +106,8 @@ buildTrilinos() {
     TRILINOS_STATIC_LINLIB_ARGS="$CMAKE_LINLIB_SER_ARGS"
   fi
   TRILINOS_SER_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS $TRILINOS_STATIC_LINLIB_ARGS"
+# JRC (20140905):TARBALL_NODEFLIB_FLAGS prevents /MD in trilinos-11.10.2 builds
+  TRILINOS_SER_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS $TARBALL_NODEFLIB_FLAGS"
 # Shared linear algebra libraries
   if test -n "$CMAKE_LINLIB_SERSH_ARGS"; then
     TRILINOS_SERSH_ADDL_ARGS="$TRILINOS_SERSH_ADDL_ARGS $CMAKE_LINLIB_SERSH_ARGS"
@@ -122,6 +122,7 @@ buildTrilinos() {
     TRILINOS_BEN_LINLIB_ARGS="$CMAKE_LINLIB_SER_ARGS"
   fi
   TRILINOS_BEN_ADDL_ARGS="$TRILINOS_BEN_ADDL_ARGS $TRILINOS_BEN_LINLIB_ARGS"
+  TRILINOS_BEN_ADDL_ARGS="$TRILINOS_BEN_ADDL_ARGS $TARBALL_NODEFLIB_FLAGS"
 # For these serial packages, parallel analogs are the same
   TRILINOS_PAR_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS"
   TRILINOS_PARSH_ADDL_ARGS="$TRILINOS_SERSH_ADDL_ARGS"
@@ -138,7 +139,7 @@ buildTrilinos() {
     bilderBuild trilinos serbaresh "$TRILINOS_MAKEJ_ARGS"
   fi
 # For parallel, turn on mpi
-  if bilderConfig trilinos parbare "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS"; then
+  if bilderConfig trilinos parbare "-DTPL_ENABLE_MPI:BOOL=ON $TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS"; then
     bilderBuild trilinos parbare "$TRILINOS_MAKEJ_ARGS"
   fi
 # For shared parallel, turn on mpi and shared libs
