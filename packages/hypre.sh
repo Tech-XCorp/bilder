@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for hypre (only build parallel for PETSc)
+# Build information for hypre
 # PETSc does not allow serial build w/hypre
 #
 # $Id$
@@ -9,34 +9,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in hypre_aux.sh
 #
 ######################################################################
 
-HYPRE_BLDRVERSION=${HYPRE_BLDRVERSION:-"2.8.3a"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/hypre_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
-if test -z "$HYPRE_BUILDS"; then
-  # Leaving serial build in case non-PETSc package needs it
-  HYPRE_BUILDS=ser,par
-  case `uname` in
-    CYGWIN* | Darwin) ;;
-    *) HYPRE_BUILDS="${HYPRE_BUILDS},sersh,parsh";;
-  esac
-fi
 
-HYPRE_DEPS=cmake,atlas,lapack,clapack_cmake
-HYPRE_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
+setHypreNonTriggerVars() {
+  HYPRE_UMASK=002
+}
+setHypreNonTriggerVars
 
 ######################################################################
 #
@@ -46,24 +37,24 @@ HYPRE_UMASK=002
 
 buildHypre() {
 
-  if bilderUnpack hypre; then
+  if ! bilderUnpack hypre; then
+    return 1
+  fi
 
-    if bilderConfig -c hypre par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS"; then
-      bilderBuild hypre par
-    fi
+  if bilderConfig -c hypre ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"; then
+    bilderBuild hypre ser
+  fi
 
-    if bilderConfig hypre parsh "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TARBALL_NODEFLIB_FLAGS  -DHYPRE_SHARED:BOOL=ON"; then
-      bilderBuild hypre parsh
-    fi
+  if bilderConfig -c hypre sersh "-DHYPRE_SHARED:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"; then
+    bilderBuild hypre sersh
+  fi
 
-    if bilderConfig -c hypre ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS"; then
-      bilderBuild hypre ser
-    fi
+  if bilderConfig -c hypre par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"; then
+    bilderBuild hypre par
+  fi
 
-    if bilderConfig hypre sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS  -DHYPRE_SHARED:BOOL=ON"; then
-      bilderBuild hypre sersh
-    fi
-
+  if bilderConfig -c hypre parsh "-DHYPRE_SHARED:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"; then
+    bilderBuild hypre parsh
   fi
 
 }
@@ -85,12 +76,6 @@ testHypre() {
 ######################################################################
 
 installHypre() {
- for bld in sersh ser parsh par; do
-    if bilderInstall -r hypre $bld; then
-      bldpre=`echo $bld | sed 's/sh$//'`
-      local instdir=$CONTRIB_DIR/hypre-$HYPRE_BLDRVERSION-$bldpre
-      setOpenPerms $instdir
-    fi
-  done
+  bilderInstallAll hypre "  -r -p open"
 }
 
