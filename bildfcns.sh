@@ -4036,8 +4036,6 @@ bilderConfig() {
   local fullinstalldir=
   if test $instsubdirval != '-'; then
     fullinstalldir=$instdirval/`deref $instsubdirvar`
-  else
-    fullinstalldir=$instdirval
   fi
   techo -2 "Full installation directory is $fullinstalldir."
 
@@ -4144,7 +4142,7 @@ bilderConfig() {
     else
       configexec="$PROJECT_DIR/$1/configure"
     fi
-    configargs="--prefix=$fullinstalldir"
+    test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     cmval=petsc
     inplace=true
   elif test -n "$configcmdin"; then
@@ -4175,7 +4173,7 @@ bilderConfig() {
     elif test -f $builddir/../configure; then
 # Usual autotools out-of-place build
       configexec="$builddir/../configure"
-      configargs="--prefix=$fullinstalldir"
+      test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
       cmval=autotools
 # If configure is a python script, then use the cygwin python.
       if head -1 $configexec | egrep -q python; then
@@ -4186,11 +4184,13 @@ bilderConfig() {
     elif test -f $builddir/configure; then
 # Possible in-place build, e.g., doxygen
       configexec="$builddir/configure"
-	cmval=autotools
-      if $noequals; then
-        configargs="--prefix $fullinstalldir"
-      else
-        configargs="--prefix=$fullinstalldir"
+      cmval=autotools
+      if test -n "$fullinstalldir"; then
+        if $noequals; then
+          configargs="--prefix $fullinstalldir"
+        else
+          configargs="--prefix=$fullinstalldir"
+        fi
       fi
     elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
 # CMake is always out of place
@@ -4204,13 +4204,13 @@ bilderConfig() {
   elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
 # Repo, autotools
     configexec="$PROJECT_DIR/$1/$srcsubdir/configure"
-    configargs="--prefix=$fullinstalldir"
+    test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     cmval=autotools
   elif test -f $PROJECT_DIR/$1/$srcsubdir/configure; then
 # Repo but not configure.ac: Most likely petsc
     if test -f $PROJECT_DIR/$1/configure; then
       configexec="$PROJECT_DIR/$1/configure"
-      configargs="--prefix=$fullinstalldir"
+      test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     fi
   elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
@@ -4322,7 +4322,7 @@ bilderConfig() {
 # Remove previous install if requested and installdir exists
 #
   techo -2 "fullinstalldir = $fullinstalldir."
-  if test -d $fullinstalldir -a "$rminstall" = true; then
+  if test -n "$fullinstalldir" -a -d "$fullinstalldir" -a "$rminstall" = true; then
     techo "removing fullinstalldir"
     rmall $fullinstalldir
   fi
@@ -4346,14 +4346,13 @@ bilderConfig() {
       configargs="${configargs} '${profilename}'"
       ;;
     cmake)
-      case `uname` in
-        CYGWIN*)
-          cmakeinstdir=`cygpath -am $fullinstalldir`
-          ;;
-        *)
-          cmakeinstdir="$fullinstalldir"
-          ;;
-      esac
+      local cmakeinstdir=
+      if test -n "$fullinstalldir"; then
+        case `uname` in
+          CYGWIN*) cmakeinstdir=`cygpath -am $fullinstalldir`;;
+          *) cmakeinstdir="$fullinstalldir";;
+        esac
+      fi
       if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
         srcarg=`(cd $PROJECT_DIR/$1/$srcsubdir; pwd -P)`
       elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
@@ -4380,7 +4379,8 @@ bilderConfig() {
         hasscimake=true
       fi
 # Some options are always chosen
-      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+      test -n "$cmakeinstdir" && configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir"
+      configargs="$configargs -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
       if test $VERBOSITY -ge 1; then
         configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
       fi
