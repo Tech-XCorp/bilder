@@ -30,7 +30,7 @@ case $UQMAILHOST in
     SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/130/sandybridge/lib/libsci_intel.a
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
     MKL_ROOT_DIR=/opt/intel/composer_xe_2013.5.192/mkl
-   
+
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/130
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/130
@@ -927,7 +927,7 @@ TORIC_PAR_OTHER_ARGS=${TORIC_PAR_OTHER_ARGS:-"--disable-shared --enable-static c
 # TORNADO_BUILDS=${TORNADO_BUILDS:-""}
 # TORNADO_CC4PY_OTHER_ARGS=${TORNADO_CC4PY_OTHER_ARGS:-""}
 
-TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
+# TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
 TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
 # TRILINOS_PARBARE_OTHER_ARGS=${TRILINOS_PARBARE_OTHER_ARGS:-""}
 # TRILINOS_PARBARESH_OTHER_ARGS=${TRILINOS_PARBARESH_OTHER_ARGS:-""}
