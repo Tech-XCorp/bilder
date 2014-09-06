@@ -43,12 +43,6 @@ getBoostTriggerVars
 ######################################################################
 
 findBoost() {
-  if test -L $CONTRIB_DIR/boost -o -d $CONTRIB_DIR/boost; then
-    local boostincdir=`(cd $CONTRIB_DIR/boost/include; pwd -P)`
-    if [[ `uname` =~ CYGWIN ]]; then
-      boostincdir=`cygpath -am $boostincdir`
-    fi
-    BOOST_INCDIR_ARG="-DBoost_INCLUDE_DIR='$boostincdir'"
-  fi
+  findContribPackage -i include/boost boost boost_math_tr1
 }
 

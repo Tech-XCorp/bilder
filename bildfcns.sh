@@ -2359,16 +2359,19 @@ findLibraries() {
 # 4-: The different builds to look for
 #
 # Named args (must come first):
+# -i include subdir.  Defaults to include.
 # -p Variable name prefix
 #
 findPackage() {
 
   local nameprefix=
+  local incsubdir=include
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "p:" arg; do
+  while getopts "i:p:" arg; do
     case $arg in
+      i) incsubdir=$2;;
       p) nameprefix=$2;;
     esac
   done
@@ -2388,12 +2391,11 @@ findPackage() {
     techo "[$FUNCNAME] usage: $FUNCNAME pkgname libname instdir BUILDS"
   fi
   local pkgnameprefix=${nameprefix}${pkgnameuc}
-  while test -n "$1"; do
-    local targetBlds="$targetBlds $1"
-    shift
-  done
+  local buildsvar=${pkgnameuc}_BUILDS
+  local targetBlds=`deref $buildsvar | tr ',' ' '`
+  techo "$buildsvar = $targetBlds"
   trimvar targetBlds ' '
-  techo "Seeking $pkgnamelc with builds $targetBlds as system definition or in $INSTDIR."
+  techo "Seeking $pkgnamelc with builds, $targetBlds, as system definition or in $INSTDIR."
 
 # For each build, find the specified library
   local BLD
@@ -2410,6 +2412,8 @@ findPackage() {
     sysadirvar=SYSTEM_${pkgnameprefix}_${BLD}_DIR
     adirvar=${pkgnameprefix}_${BLD}_DIR
     alibvar=${pkgnameprefix}_${BLD}_LIB
+    alibdirvar=${pkgnameprefix}_${BLD}_LIBDIR
+    aincdirvar=${pkgnameprefix}_${BLD}_INCDIR
 
 # First look in system
     adirval=`deref $sysadirvar`
@@ -2432,7 +2436,7 @@ findPackage() {
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
     fi
-    techo "adirval = $adirval"
+    # techo "adirval = $adirval"
     alibdirval=${adirval}/lib
     if test -d $alibdirval; then
       alibdirval=`(cd $alibdirval; pwd -P)`
@@ -2470,14 +2474,18 @@ findPackage() {
 
 # Set variables accordingly
     if $havelib; then
-      eval $adirvar=`(cd $alibdirval/..; pwd -P)`
-      eval HAVE_${pkgnameprefix}_${BLD}=true
-      adirval=`deref $adirvar`
-      eval ${pkgnameprefix}_${BLD}_LIBDIR=$alibdirval
-      eval $alibvar=$alibval
       techo "Package ${pkgnameprefix}_${BLD} found."
+      eval HAVE_${pkgnameprefix}_${BLD}=true
+      eval $adirvar=`(cd $alibdirval/..; pwd -P)`
+      # adirval=`deref $adirvar`
+      eval $alibvar=$alibval
+      eval $alibdirvar=$alibdirval
+      test -n "$incsubdir" && eval aincdirval=$adirval/$incsubdir
+      eval $aincdirvar=$aincdirval
       printvar $adirvar
       printvar $alibvar
+      printvar $alibdirvar
+      printvar $aincdirvar
     elif test -n "$adirval"; then
       techo "Library, ${PKG_LIBNAME}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."
@@ -2487,26 +2495,28 @@ findPackage() {
     fi
 
 # Set cmake and config args
-    adirvar=${pkgnameprefix}_${BLD}_DIR
     adirval=`deref $adirvar`
     local adirvalcmake=
     local alibdirvalcmake=
+    local aincdirvalcmake=
     case `uname` in
       CYGWIN*)
-        if test -n "$adirval"; then
-          adirvalcmake=`cygpath -am $adirval`
-        fi
-        if test -n "$alibdirval"; then
-          alibdirvalcmake=`cygpath -am $alibdirval`
-        fi
+        test -n "$adirval" && adirvalcmake=`cygpath -am $adirval`
+        test -n "$alibdirval" && alibdirvalcmake=`cygpath -am $alibdirval`
+        test -n "$aincdirval" && aincdirvalcmake=`cygpath -am $aincdirval`
         ;;
       *)
         adirvalcmake="$adirval"
         alibdirvalcmake="$alibdirval"
+        aincdirvalcmake="$aincdirval"
         ;;
     esac
     eval CMAKE_${pkgnameprefix}_${BLD}_DIR=$adirvalcmake
     eval CMAKE_${pkgnameprefix}_${BLD}_LIBDIR=$alibdirvalcmake
+    eval CMAKE_${pkgnameprefix}_${BLD}_INCDIR=$aincdirvalcmake
+    printvar CMAKE_${pkgnameprefix}_${BLD}_DIR
+    printvar CMAKE_${pkgnameprefix}_${BLD}_LIBDIR
+    printvar CMAKE_${pkgnameprefix}_${BLD}_INCDIR
     if test -n "$adirvalcmake"; then
 # cmake moving too root_dir
       eval CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG=-D${pkgname}_ROOT_DIR:PATH=$adirvalcmake
@@ -2524,6 +2534,7 @@ findPackage() {
     if $havepkg; then
       eval HAVE_${pkgnameprefix}_ANY=true
     fi
+    techo
 
   done
 
@@ -2540,6 +2551,7 @@ findPackage() {
 # 3: different builds to look for
 #
 # Named args (must come first):
+# -i The include subdir
 # -p Variable name prefix
 #
 findContribPackage() {
@@ -2547,8 +2559,9 @@ findContribPackage() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "p:" arg; do
+  while getopts "i:p:" arg; do
     case $arg in
+      i) preargs="$preargs -i $2";;
       p) preargs="$preargs -p $2";;
     esac
   done
@@ -2557,7 +2570,9 @@ findContribPackage() {
   shift
   local libname=$1
   shift
-  findPackage $preargs $pkgname $libname $CONTRIB_DIR $*
+  # buildsvar=`genbashvar $1`_BUILDS
+  # buildsval=`deref $buildsvar`
+  findPackage $preargs $pkgname $libname $CONTRIB_DIR # $buildsval
 }
 
 #
