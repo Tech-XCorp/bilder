@@ -72,26 +72,24 @@ getHdf5TriggerVars
 findHdf5() {
 
 # Find installation directories
-  local builds="ser par"
-  findContribPackage Hdf5 hdf5 ser par
+  local srchbuilds="ser par"
   case `uname` in
     CYGWIN*)
-      builds="$builds sersh parsh sermd cc4py"
-      findContribPackage Hdf5 hdf5 sermd
+      srchbuilds="$srchbuilds sermd"
       case $HDF5_BLDRVERSION in
         1.8.[0-9]) findContribPackage Hdf5 hdf5dll sersh parsh cc4py;;
-        *) findContribPackage Hdf5 hdf5 sersh parsh cc4py;;
+        *) srchbuilds="$srchbuilds sersh parsh cc4py";;
       esac
       ;;
     *)
-      builds="$builds sersh parsh cc4py"
-      findContribPackage Hdf5 hdf5 sersh parsh cc4py
+      srchbuilds="$srchbuilds sersh parsh cc4py"
       ;;
   esac
+  findContribPackage Hdf5 hdf5 $srchbuilds
   findCc4pyDir Hdf5
 
 # Find cmake configuration directories
-  for bld in $builds; do
+  for bld in $srchbuilds; do
     local blddirvar=`genbashvar HDF5_${bld}`_DIR
     local blddir=`deref $blddirvar`
     if test -d "$blddir"; then

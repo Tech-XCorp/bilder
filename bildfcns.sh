@@ -2356,7 +2356,7 @@ findLibraries() {
 #     package.sh bilder script, but pkgname is the installation dir start.
 # 2:  Library name to look for
 # 3:  The directory to look in
-# 4-: The different builds to look for
+# 4: The different builds to look for.  If empty, use the _BUILDS variable.
 #
 # Named args (must come first):
 # -i include subdir.  Defaults to include.
@@ -2393,8 +2393,17 @@ findPackage() {
   local pkgnameprefix=${nameprefix}${pkgnameuc}
   local buildsvar=${pkgnameuc}_BUILDS
   local targetBlds=`deref $buildsvar | tr ',' ' '`
+  if test -n "$*"; then
+    targetBlds="$*"
+  else
+    targetBlds=`deref $buildsvar | tr ',' ' '`
+  fi
   techo "$buildsvar = $targetBlds"
   trimvar targetBlds ' '
+  if test -z "$targetBlds"; then
+    techo "WARNING: [$FUNCNAME] no builds.  Returning."
+    return
+  fi
   techo "Seeking $pkgnamelc with builds, $targetBlds, as system definition or in $INSTDIR."
 
 # For each build, find the specified library
@@ -2548,7 +2557,7 @@ findPackage() {
 # 1: The name of the package
 #    (appropriately capitalized, pkgnamelc to be a package.sh bilder script)
 # 2: Library name to look for
-# 3: different builds to look for
+# 3: different builds to look for.  If empty, use the _BUILDS variable.
 #
 # Named args (must come first):
 # -i The include subdir
@@ -2570,9 +2579,7 @@ findContribPackage() {
   shift
   local libname=$1
   shift
-  # buildsvar=`genbashvar $1`_BUILDS
-  # buildsval=`deref $buildsvar`
-  findPackage $preargs $pkgname $libname $CONTRIB_DIR # $buildsval
+  findPackage $preargs $pkgname $libname $CONTRIB_DIR $*
 }
 
 #
