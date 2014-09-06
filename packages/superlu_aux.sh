@@ -35,6 +35,6 @@ setSuperluTriggerVars
 ######################################################################
 
 findSuperlu() {
-  :
+  findContribPackage SuperLU superlu
 }
 

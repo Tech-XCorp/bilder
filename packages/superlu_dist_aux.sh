@@ -33,11 +33,12 @@ setSuperlu_DistTriggerVars
 
 ######################################################################
 #
-# Find oce
+# Find Superlu_Dist
 #
 ######################################################################
 
 findSuperlu_Dist() {
-  :
+# Here we adopt the names that trilinos uses
+  findContribPackage SuperLUDist superlu_dist
 }
 

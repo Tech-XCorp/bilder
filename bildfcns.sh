@@ -2480,7 +2480,7 @@ findPackage() {
       # adirval=`deref $adirvar`
       eval $alibvar=$alibval
       eval $alibdirvar=$alibdirval
-      test -n "$incsubdir" && eval aincdirval=$adirval/$incsubdir
+      test -n "$incsubdir" && eval aincdirval=`(cd $adirval/$incsubdir; pwd -P)`
       eval $aincdirvar=$aincdirval
       printvar $adirvar
       printvar $alibvar
