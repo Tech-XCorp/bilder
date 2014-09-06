@@ -89,11 +89,8 @@ buildTrilinos() {
   for bld in ser sersh ben; do
     local BLD=`echo $bld | tr [a-z] [A-Z]`
     local oldval=`deref TRILINOS_${BLD}_ADDL_ARGS`
-    local boostincdir=$CONTRIB_DIR/boost-${BOOST_BLDRVERSION}-$bld/include
-    if [[ `uname` =~ CYGWIN ]]; then
-      boostincdir=`cygpath -am $boostincdir`
-      eval "TRILINOS_${BLD}_ADDL_ARGS=\"$oldval -DTPL_Boost_INCLUDE_DIRS:FILEPATH='$boostincdir'\""
-    fi
+    local incdir=`deref CMAKE_BOOST_${BLD}_INCDIR`
+    eval "TRILINOS_${BLD}_ADDL_ARGS=\"$oldval -DTPL_Boost_INCLUDE_DIRS:FILEPATH='$incdir'\""
   done
 
 # Determine best choice for linalg libraries for static builds and add to vars
