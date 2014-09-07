@@ -49,21 +49,21 @@ case $UQMAILHOST in
   hopper*)
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
-
-# System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel.a
-    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
+# System linear algebra libraries.  mc12 (Magny-Cours) for Hopper.
+# These are used together.  Not really the right division by name, but with
+# these definitions one gets the libraries in the right order.
     SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel_mp.a
+# These are used together.  Not really the right division by name, but with
+# these definitions one gets the libraries in the right order.
     SYSTEM_LAPACK_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_CC4PY_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu_mp.a
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/130
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/130
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/130
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/130
-
-# Trilinos and Petsc
-    # TRILINOS_PARCOMM_OTHER_ARGS="${TRILINOS_PARCOMM_OTHER_ARGS} -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"
 
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
     PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
