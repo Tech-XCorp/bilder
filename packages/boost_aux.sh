@@ -43,6 +43,6 @@ getBoostTriggerVars
 ######################################################################
 
 findBoost() {
-  findContribPackage -i include/boost Boost boost_math_tr1
+  findContribPackage Boost boost_math_tr1
 }
 

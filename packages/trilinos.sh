@@ -90,7 +90,8 @@ buildTrilinos() {
     local BLD=`echo $bld | tr [a-z] [A-Z]`
     local oldval=`deref TRILINOS_${BLD}_ADDL_ARGS`
     local incdir=`deref CMAKE_BOOST_${BLD}_INCDIR`
-    eval "TRILINOS_${BLD}_ADDL_ARGS=\"$oldval -DTPL_Boost_INCLUDE_DIRS:FILEPATH='$incdir'\""
+# Build on a clean machine shows this to be the right arg.
+    eval "TRILINOS_${BLD}_ADDL_ARGS=\"$oldval -DBoost_INCLUDE_DIRS:FILEPATH='$incdir'\""
   done
 
 # Determine best choice for linalg libraries for static builds and add to vars
