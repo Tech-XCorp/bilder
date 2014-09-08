@@ -2407,17 +2407,16 @@ findPackage() {
   techo "Seeking $pkgnamelc with builds, $targetBlds, as system definition or in $INSTDIR."
 
 # For each build, find the specified library
-  local BLD
-  local adirvar
-  local adirval
-  local alibvar
-  local alibval
-  local alibdirval
   eval HAVE_${pkgnameprefix}_ANY=false
   for bld in $targetBlds; do
 
+    local adirval=
+    local alibval=
+    local alibdirval=
+    local aincdirval=
+
 # Set variable names
-    BLD=`echo $bld | tr 'a-z' 'A-Z'`
+    local BLD=`echo $bld | tr 'a-z' 'A-Z'`
     sysadirvar=SYSTEM_${pkgnameprefix}_${BLD}_DIR
     adirvar=${pkgnameprefix}_${BLD}_DIR
     alibvar=${pkgnameprefix}_${BLD}_LIB
@@ -2446,11 +2445,11 @@ findPackage() {
       continue
     fi
     # techo "adirval = $adirval"
-    alibdirval=${adirval}/lib
+    alibdirval=${adirval}/lib64
     if test -d $alibdirval; then
       alibdirval=`(cd $alibdirval; pwd -P)`
-    elif test -d $adirval/lib64; then
-      alibdirval=`(cd $adirval/lib64; pwd -P)`
+    elif test -d $adirval/lib; then
+      alibdirval=`(cd $adirval/lib; pwd -P)`
     elif test -n "$adirval" -a -d "$adirval"; then
       techo "Using $adirvar = $adirval."
       eval HAVE_${pkgnameprefix}_$BLD=true
@@ -2481,15 +2480,18 @@ findPackage() {
       fi
     fi
 
+# Look for the includes
+    if test -d $adirval/$incsubdir; then
+      aincdirval=`(cd $adirval/$incsubdir; pwd -P)`
+    fi
+
 # Set variables accordingly
     if $havelib; then
       techo "Package ${pkgnameprefix}_${BLD} found."
       eval HAVE_${pkgnameprefix}_${BLD}=true
       eval $adirvar=`(cd $alibdirval/..; pwd -P)`
-      # adirval=`deref $adirvar`
       eval $alibvar=$alibval
       eval $alibdirvar=$alibdirval
-      test -n "$incsubdir" && eval aincdirval=`(cd $adirval/$incsubdir; pwd -P)`
       eval $aincdirvar=$aincdirval
       printvar $adirvar
       printvar $alibvar
