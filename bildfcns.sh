@@ -2401,7 +2401,7 @@ findPackage() {
   techo "$buildsvar = $targetBlds"
   trimvar targetBlds ' '
   if test -z "$targetBlds"; then
-    techo "WARNING: [$FUNCNAME] no builds.  Returning."
+    techo "WARNING: [$FUNCNAME] $pgkname: no builds.  Returning."
     return
   fi
   techo "Seeking $pkgnamelc with builds, $targetBlds, as system definition or in $INSTDIR."
