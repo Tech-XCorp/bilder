@@ -1,6 +1,113 @@
+diff -ruN trilinos-11.4.3/PackagesList.cmake trilinos-11.4.3-new/PackagesList.cmake
+--- trilinos-11.4.3/PackagesList.cmake	2013-11-21 13:13:01.000000000 -0700
++++ trilinos-11.4.3-new/PackagesList.cmake	2014-09-09 14:48:49.000000000 -0600
+@@ -190,7 +190,7 @@
+ PACKAGE_DISABLE_ON_PLATFORMS(TriKota Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Pamgen Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(STK Windows)
+-PACKAGE_DISABLE_ON_PLATFORMS(SEACAS Windows)
++#PACKAGE_DISABLE_ON_PLATFORMS(SEACAS Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Anasazi Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Zoltan Windows)
+ PACKAGE_DISABLE_ON_PLATFORMS(Isorropia Windows)
+diff -ruN trilinos-11.4.3/packages/PyTrilinos/src/CMakeLists.txt trilinos-11.4.3-new/packages/PyTrilinos/src/CMakeLists.txt
+--- trilinos-11.4.3/packages/PyTrilinos/src/CMakeLists.txt	2013-11-21 13:11:37.000000000 -0700
++++ trilinos-11.4.3-new/packages/PyTrilinos/src/CMakeLists.txt	2014-09-09 14:49:10.000000000 -0600
+@@ -62,7 +62,7 @@
+ # to the pytrilinos library and PyTrilinos extension modules
+ SET(EXTRA_LINK_ARGS "${CMAKE_SHARED_LINKER_FLAGS}")
+ IF(APPLE)
+-  IF((CMAKE_CXX_COMPILER_ID MATCHES) "GNU" OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
++  IF((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+     SET(EXTRA_LINK_ARGS "${EXTRA_LINK_ARGS} -undefined dynamic_lookup")
+   ENDIF()
+ ENDIF(APPLE)
+diff -ruN trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i
+--- trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i	2013-11-21 13:11:36.000000000 -0700
++++ trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i	2014-09-09 14:48:49.000000000 -0600
+@@ -61,14 +61,18 @@
+   : public DirectSerializationTraits<Ordinal,unsigned long>
+ {};
+ #endif
++#if defined(TEUCHOS_SERIALIZATIONTRAITS_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ template<typename Ordinal>
+ class SerializationTraits<Ordinal,long long>
+   : public DirectSerializationTraits<Ordinal,long long>
+ {};
++#endif
++#if defined(TEUCHOS_SERIALIZATIONTRAITS_UNSIGNED_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ template<typename Ordinal>
+ class SerializationTraits<Ordinal,unsigned long long>
+   : public DirectSerializationTraits<Ordinal,unsigned long long>
+ {};
++#endif
+ }
+ %}
+ 
+@@ -199,6 +203,7 @@
+ };
+ #endif
+ 
++#if defined(TEUCHOS_SCALARTRAITS_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ // Type long long
+ template<>
+ struct ScalarTraits<long long>
+@@ -226,7 +231,9 @@
+   static inline long long pow(long long x, long long y)
+   { return (long long) std::pow((double)x,(double)y); }
+ };
++#endif
+ 
++#if defined(TEUCHOS_SCALARTRAITS_UNSIGNED_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
+ // Type unsigned long long
+ template<>
+ struct ScalarTraits<unsigned long long>
+@@ -254,6 +261,7 @@
+   static inline unsigned long long pow(unsigned long long x, unsigned long long y)
+   { return (unsigned long long) std::pow((double)x,(double)y); }
+ };
++#endif
+ 
+ }
+ %}
+@@ -355,8 +363,34 @@
+ %ignore Teuchos::ScalarTraits< unsigned long >::isnaninf;
+ %template(ScalarTraitsUlong) Teuchos::ScalarTraits< unsigned long >;
+ 
++%ignore Teuchos::ScalarTraits< long long >::eps     ;
++%ignore Teuchos::ScalarTraits< long long >::sfmin   ;
++%ignore Teuchos::ScalarTraits< long long >::base    ;
++%ignore Teuchos::ScalarTraits< long long >::prec    ;
++%ignore Teuchos::ScalarTraits< long long >::t       ;
++%ignore Teuchos::ScalarTraits< long long >::rnd     ;
++%ignore Teuchos::ScalarTraits< long long >::emin    ;
++%ignore Teuchos::ScalarTraits< long long >::rmin    ;
++%ignore Teuchos::ScalarTraits< long long >::emax    ;
++%ignore Teuchos::ScalarTraits< long long >::rmax    ;
++%ignore Teuchos::ScalarTraits< long long >::nan     ;
++%ignore Teuchos::ScalarTraits< long long >::isnaninf;
++
+ %template(ScalarTraitsLongLong) Teuchos::ScalarTraits< long long >;
+ 
++%ignore Teuchos::ScalarTraits< unsigned long long >::eps     ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::sfmin   ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::base    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::prec    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::t       ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::rnd     ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::emin    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::rmin    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::emax    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::rmax    ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::nan     ;
++%ignore Teuchos::ScalarTraits< unsigned long long >::isnaninf;
++
+ %template(ScalarTraitsUlongLong) Teuchos::ScalarTraits< unsigned long long >;
+ 
+ %template(ScalarTraitsFloat) Teuchos::ScalarTraits< float >;
 diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt trilinos-11.4.3-new/packages/amesos/CMakeLists.txt
 --- trilinos-11.4.3/packages/amesos/CMakeLists.txt	2013-11-21 13:13:00.000000000 -0700
-+++ trilinos-11.4.3-new/packages/amesos/CMakeLists.txt	2014-09-03 08:34:54.225103343 -0600
++++ trilinos-11.4.3-new/packages/amesos/CMakeLists.txt	2014-09-09 14:48:49.000000000 -0600
 @@ -12,10 +12,19 @@
  # B) Set up package-specific options
  #
@@ -23,7 +130,7 @@ diff -ruN trilinos-11.4.3/packages/amesos/CMakeLists.txt trilinos-11.4.3-new/pac
  
 diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp trilinos-11.4.3-new/packages/ifpack/src/Ifpack_ICT.cpp
 --- trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp	2013-11-21 13:11:43.000000000 -0700
-+++ trilinos-11.4.3-new/packages/ifpack/src/Ifpack_ICT.cpp	2014-09-03 08:32:31.435265420 -0600
++++ trilinos-11.4.3-new/packages/ifpack/src/Ifpack_ICT.cpp	2014-09-09 14:48:49.000000000 -0600
 @@ -40,6 +40,7 @@
  //@HEADER
  */
@@ -34,7 +141,7 @@ diff -ruN trilinos-11.4.3/packages/ifpack/src/Ifpack_ICT.cpp trilinos-11.4.3-new
  #include "Ifpack_ICT.h"
 diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h trilinos-11.4.3-new/packages/ml/src/MLAPI/MLAPI_MultiVector.h
 --- trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h	2013-11-21 13:12:27.000000000 -0700
-+++ trilinos-11.4.3-new/packages/ml/src/MLAPI/MLAPI_MultiVector.h	2014-09-03 08:32:31.436265396 -0600
++++ trilinos-11.4.3-new/packages/ml/src/MLAPI/MLAPI_MultiVector.h	2014-09-09 14:48:49.000000000 -0600
 @@ -15,6 +15,7 @@
  /* person and disclaimer.                                               */        
  /* ******************************************************************** */
@@ -45,7 +152,7 @@ diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_MultiVector.h trilinos-11.
  #include "MLAPI_BaseObject.h"
 diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.4.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
 --- trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2013-11-21 13:12:27.000000000 -0700
-+++ trilinos-11.4.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-09-03 08:32:31.436265396 -0600
++++ trilinos-11.4.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2014-09-09 14:48:49.000000000 -0600
 @@ -13,8 +13,10 @@
  #endif
  #include "MLAPI_Error.h"
@@ -73,7 +180,7 @@ diff -ruN trilinos-11.4.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.
  #endif
 diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.4.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp	2013-11-21 13:12:26.000000000 -0700
-+++ trilinos-11.4.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-09-03 08:32:31.438265352 -0600
++++ trilinos-11.4.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2014-09-09 14:48:49.000000000 -0600
 @@ -40,8 +40,10 @@
  #include "Teuchos_Array.hpp"
  #include "Teuchos_ParameterList.hpp"
@@ -112,7 +219,7 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.
  #endif
 diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c trilinos-11.4.3-new/packages/ml/src/Utils/ml_utils.c
 --- trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c	2013-11-21 13:12:26.000000000 -0700
-+++ trilinos-11.4.3-new/packages/ml/src/Utils/ml_utils.c	2014-09-03 08:38:48.604913536 -0600
++++ trilinos-11.4.3-new/packages/ml/src/Utils/ml_utils.c	2014-09-09 14:48:49.000000000 -0600
 @@ -1956,14 +1956,18 @@
        if (i == mypid) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
@@ -133,93 +240,9 @@ diff -ruN trilinos-11.4.3/packages/ml/src/Utils/ml_utils.c trilinos-11.4.3-new/p
  #else
          sleep(1);
  #endif
-diff -ruN trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i
---- trilinos-11.4.3/packages/PyTrilinos/src/Teuchos_Traits.i    2013-11-21 13:11:36.000000000 -0700
-+++ trilinos-11.4.3-new/packages/PyTrilinos/src/Teuchos_Traits.i    2014-09-03 08:36:06.952493103 -0600
-@@ -61,14 +61,18 @@
-   : public DirectSerializationTraits<Ordinal,unsigned long>
- {};
- #endif
-+#if defined(TEUCHOS_SERIALIZATIONTRAITS_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
- template<typename Ordinal>
- class SerializationTraits<Ordinal,long long>
-   : public DirectSerializationTraits<Ordinal,long long>
- {};
-+#endif
-+#if defined(TEUCHOS_SERIALIZATIONTRAITS_UNSIGNED_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
- template<typename Ordinal>
- class SerializationTraits<Ordinal,unsigned long long>
-   : public DirectSerializationTraits<Ordinal,unsigned long long>
- {};
-+#endif
- }
- %}
- 
-@@ -199,6 +203,7 @@ struct ScalarTraits<unsigned long>
- };
- #endif
- 
-+#if defined(TEUCHOS_SCALARTRAITS_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
- // Type long long
- template<>
- struct ScalarTraits<long long>
-@@ -226,7 +231,9 @@ struct ScalarTraits<long long>
-   static inline long long pow(long long x, long long y)
-   { return (long long) std::pow((double)x,(double)y); }
- };
-+#endif
- 
-+#if defined(TEUCHOS_SCALARTRAITS_UNSIGNED_LONG_LONG) || !defined(HAVE_TEUCHOS_LONG_LONG_INT)
- // Type unsigned long long
- template<>
- struct ScalarTraits<unsigned long long>
-@@ -254,6 +261,7 @@ struct ScalarTraits<unsigned long long>
-   static inline unsigned long long pow(unsigned long long x, unsigned long long y)
-   { return (unsigned long long) std::pow((double)x,(double)y); }
- };
-+#endif
- 
- }
- %}
-@@ -355,8 +363,34 @@ struct ScalarTraits<unsigned long long>
- %ignore Teuchos::ScalarTraits< unsigned long >::isnaninf;
- %template(ScalarTraitsUlong) Teuchos::ScalarTraits< unsigned long >;
- 
-+%ignore Teuchos::ScalarTraits< long long >::eps     ;
-+%ignore Teuchos::ScalarTraits< long long >::sfmin   ;
-+%ignore Teuchos::ScalarTraits< long long >::base    ;
-+%ignore Teuchos::ScalarTraits< long long >::prec    ;
-+%ignore Teuchos::ScalarTraits< long long >::t       ;
-+%ignore Teuchos::ScalarTraits< long long >::rnd     ;
-+%ignore Teuchos::ScalarTraits< long long >::emin    ;
-+%ignore Teuchos::ScalarTraits< long long >::rmin    ;
-+%ignore Teuchos::ScalarTraits< long long >::emax    ;
-+%ignore Teuchos::ScalarTraits< long long >::rmax    ;
-+%ignore Teuchos::ScalarTraits< long long >::nan     ;
-+%ignore Teuchos::ScalarTraits< long long >::isnaninf;
-+
- %template(ScalarTraitsLongLong) Teuchos::ScalarTraits< long long >;
- 
-+%ignore Teuchos::ScalarTraits< unsigned long long >::eps     ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::sfmin   ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::base    ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::prec    ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::t       ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::rnd     ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::emin    ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::rmin    ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::emax    ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::rmax    ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::nan     ;
-+%ignore Teuchos::ScalarTraits< unsigned long long >::isnaninf;
-+
- %template(ScalarTraitsUlongLong) Teuchos::ScalarTraits< unsigned long long >;
- 
- %template(ScalarTraitsFloat) Teuchos::ScalarTraits< float >;
- 
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2013-11-21 13:12:15.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-09-03 08:32:31.441265287 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2014-09-09 14:48:49.000000000 -0600
 @@ -51,7 +51,12 @@
  
  #include <stddef.h>
@@ -236,7 +259,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusI
  #error "NetCDF version 4.1.2 or later is required."
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h	2013-11-21 13:12:15.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h	2014-09-03 08:32:31.442265264 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII_int.h	2014-09-09 14:48:49.000000000 -0600
 @@ -42,7 +42,12 @@
  #define EXODUS_II_INT_HDR
  
@@ -253,7 +276,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/include/exodusI
  #if defined __STDC__ || defined __cplusplus
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c	2013-11-21 13:12:13.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c	2014-09-03 08:32:31.442265264 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_get_processor_elem_maps.c	2014-09-09 14:48:49.000000000 -0600
 @@ -52,7 +52,7 @@
  
  #include <stdio.h>
@@ -265,7 +288,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_get_proc
  
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c	2013-11-21 13:12:13.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c	2014-09-03 08:32:31.443265242 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.c	2014-09-09 14:48:49.000000000 -0600
 @@ -55,7 +55,7 @@
  
  #include <stdio.h>
@@ -277,7 +300,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_ne_util.
  #include <math.h>
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
 --- trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2013-11-21 13:12:14.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-09-03 08:32:31.443265242 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-09-09 14:48:49.000000000 -0600
 @@ -60,7 +60,7 @@
  /*****************************************************************************/
  
@@ -289,7 +312,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap
  
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt trilinos-11.4.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt
 --- trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt	2013-11-21 13:12:10.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt	2014-09-03 08:32:31.444265219 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt	2014-09-09 14:48:49.000000000 -0600
 @@ -42,10 +42,12 @@
    )
  ENDIF()
@@ -309,7 +332,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/CMakeLists.txt trili
  
 diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trilinos-11.4.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h
 --- trilinos-11.4.3/packages/seacas/libraries/nemesis/ne_nemesisI.h	2013-11-21 13:12:10.000000000 -0700
-+++ trilinos-11.4.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-09-03 08:32:31.444265219 -0600
++++ trilinos-11.4.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2014-09-09 14:48:49.000000000 -0600
 @@ -46,7 +46,12 @@
  #endif
  
@@ -326,7 +349,7 @@ diff -ruN trilinos-11.4.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trilin
    
 diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.4.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
 --- trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2013-11-21 13:11:09.000000000 -0700
-+++ trilinos-11.4.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-09-03 08:32:31.445265197 -0600
++++ trilinos-11.4.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2014-09-09 14:48:49.000000000 -0600
 @@ -111,7 +111,8 @@
  
  //Explicitly instantiating these templates for windows due to an issue with
@@ -337,15 +360,3 @@ diff -ruN trilinos-11.4.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilino
  #  ifdef HAVE_TEUCHOS_COMPLEX
       template BLAS<long int, std::complex<float> >;
       template BLAS<long int, std::complex<double> >;
-diff -ruN trilinos-11.4.3/PackagesList.cmake trilinos-11.4.3-new/PackagesList.cmake
---- trilinos-11.4.3/PackagesList.cmake	2013-11-21 13:13:01.000000000 -0700
-+++ trilinos-11.4.3-new/PackagesList.cmake	2014-09-03 08:32:31.434265446 -0600
-@@ -190,7 +190,7 @@
- PACKAGE_DISABLE_ON_PLATFORMS(TriKota Windows)
- PACKAGE_DISABLE_ON_PLATFORMS(Pamgen Windows)
- PACKAGE_DISABLE_ON_PLATFORMS(STK Windows)
--PACKAGE_DISABLE_ON_PLATFORMS(SEACAS Windows)
-+#PACKAGE_DISABLE_ON_PLATFORMS(SEACAS Windows)
- PACKAGE_DISABLE_ON_PLATFORMS(Anasazi Windows)
- PACKAGE_DISABLE_ON_PLATFORMS(Zoltan Windows)
- PACKAGE_DISABLE_ON_PLATFORMS(Isorropia Windows)
