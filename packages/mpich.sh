@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for mpich
+# Build information for mpich
 #
 # $Id$
 #
@@ -8,29 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in mpich_aux.sh
 #
 ######################################################################
 
-if test -z "$MPICH_BLDRVERSION"; then
-  MPICH_BLDRVERSION=3.0.4
-fi
+mydir=`dirname $BASH_SOURCE`
+source $mydir/mpich_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if $BUILD_MPIS && test -z "$MPICH_BUILDS"; then
-  if ! [[ `uname` =~ CYGWIN ]]; then
-    MPICH_BUILDS=static
-  fi
-fi
-MPICH_DEPS=libtool,automake
-MPICH_UMASK=002
-# Not adding for now to not conflict with openmpi
-# addtopathvar PATH $CONTRIB_DIR/mpich/bin
+setMpichNonTriggerVars() {
+  MPICH_UMASK=002
+}
+setMpichNonTriggerVars
 
 ######################################################################
 #
@@ -46,10 +42,18 @@ buildMpich() {
   fi
 # Needed?
   # MPICH_ADDL_ARGS="--enable-romio --enable-smpcoll --with-device=ch3:ssm --with-pm=hydra--with-mpe"
-# Configure and build
-  if bilderConfig mpich static "--enable-static --disable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MPICH_ADDL_ARGS $MPICH_OTHER_ARGS"; then
-    bilderBuild mpich static
+  mpichmakeflags="$MPICH_MAKEJ_ARGS $mpichmakeflags"
+
+# Builds
+
+  if bilderConfig mpich static "--enable-static --disable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MPICH_STATIC_ADDL_ARGS $MPICH_STATIC_OTHER_ARGS"; then
+    bilderBuild mpich static $mpichmakeflags
   fi
+
+  if bilderConfig mpich shared "--enable-shared --disable-static $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MPICH_SHARED_ADDL_ARGS $MPICH_SHARED_OTHER_ARGS"; then
+    bilderBuild mpich shared $mpichmakeflags
+  fi
+
 }
 
 ######################################################################
@@ -70,6 +74,6 @@ testMpich() {
 
 # Set umask to allow only group to use
 installMpich() {
-  bilderInstall mpich static
+  bilderInstallAll mpich
 }
 
