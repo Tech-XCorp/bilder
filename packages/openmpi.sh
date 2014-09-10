@@ -80,18 +80,20 @@ EOF
 
 # Set jmake args.  Observed to fail on magnus.colorado.edu for openmpi-1.6.1,
 # but then observed to work with --disable-vt
-if false; then
+# if false; then
   local ompimakeflags="$SER_CONFIG_LDFLAGS"
   case $OPENMPI_BLDRVERSION in
     1.6.1)
+if false; then
       case `uname`-`uname -r` in
-        # Darwin-1[12].*) ;;
+        Darwin-1[12].*) ;;
         *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
       esac
+fi
       ;;
     *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
   esac
-fi
+# fi
 
   local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
   trimvar ompcxxflags ' '
@@ -102,8 +104,13 @@ fi
   if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
     bilderBuild openmpi nodl "$ompimakeflags"
   fi
+
   if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
     bilderBuild openmpi static "$ompimakeflags"
+  fi
+
+  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS"; then
+    bilderBuild openmpi shared "$ompimakeflags"
   fi
 
 }
@@ -176,6 +183,7 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
+if false; then
   if bilderInstall openmpi nodl openmpi; then
     if test -h $CONTRIB_DIR/mpi; then
       rm -f $CONTRIB_DIR/mpi
@@ -197,5 +205,8 @@ installOpenmpi() {
   if bilderInstall openmpi static; then
     :
   fi
+fi
+  bilderInstallAll openmpi
+  (cd $CONTRIB_DIR; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
 }
 

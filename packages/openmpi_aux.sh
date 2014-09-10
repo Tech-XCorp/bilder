@@ -21,8 +21,8 @@ setOpenmpiTriggerVars() {
   if test -z "$OPENMPI_BUILDS"; then
     if $BUILD_MPIS; then
       case `uname` in
-        CYGWIN*) OPENMPI_BUILDS=nodl ;;
-        *) OPENMPI_BUILDS=nodl,static ;;
+        CYGWIN*) OPENMPI_BUILDS=nodl;;
+        *) OPENMPI_BUILDS=nodl,static,shared;;
       esac
     fi
   fi
