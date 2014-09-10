@@ -126,7 +126,7 @@ buildBoost() {
 # runtime-link=static gives the /MT flags, which does not work with python.
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
-  BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
   BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
@@ -199,13 +199,11 @@ installBoost() {
 # For b2, installation directory must be added at install time,
 # and it is relative to the C: root.
     local sfx=
-    local instargs=
-    case $bld in
-      ser) instargs="$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS";;
-      sersh) sfx=-sersh; instargs="$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS";;
-      cc4py) sfx=-cc4py; instargs="$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS";;
-      ben) sfx=-ben; instargs="$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS";;
-    esac
+    if test $bld != ser; then
+      sfx="-$bld"
+    fi
+    local BLD=`echo $bld | tr [a-z] [A-Z]`
+    local instargs="`deref BOOST_${BLD}_ADDL_ARGS` `deref BOOST_${BLD}_OTHER_ARGS`"
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
     fi
