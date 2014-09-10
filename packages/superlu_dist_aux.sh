@@ -39,6 +39,6 @@ setSuperlu_DistTriggerVars
 
 findSuperlu_Dist() {
 # Here we adopt the names that trilinos uses
-  findContribPackage SuperLUDist superlu_dist
+  findContribPackage Superlu_Dist superlu_dist
 }
 
