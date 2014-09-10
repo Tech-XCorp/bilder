@@ -27,6 +27,9 @@ getBoostTriggerVars() {
   if test -z "$BOOST_DESIRED_BUILDS"; then
     BOOST_DESIRED_BUILDS=ser,sersh
   fi
+  if [[ `uname` =~ CYGWIN ]]; then
+    BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sermd
+  fi
   computeBuilds boost
   addCc4pyBuild boost
 # It does not hurt to add deps that do not get built

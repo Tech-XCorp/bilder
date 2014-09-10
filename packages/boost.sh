@@ -126,6 +126,7 @@ buildBoost() {
 # runtime-link=static gives the /MT flags, which does not work with python.
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs $BOOST_ALL_ADDL_ARGS"
   BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
   BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
@@ -140,6 +141,10 @@ fi
 
   if bilderConfig -i boost ser; then
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
+  fi
+
+  if bilderConfig -i boost sermd; then
+    bilderBuild -m ./b2 boost sermd "$BOOST_SERMD_ADDL_ARGS $BOOST_SERMD_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost sersh; then
