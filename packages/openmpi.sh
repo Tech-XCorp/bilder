@@ -72,7 +72,7 @@ EOF
 # Seems like an unregistered dependency.  Should try again after
 # bumping version.
   case $OPENMPI_BLDRVERSION in
-    1.6.1)
+    1.6.*)
       OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
       OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
       ;;
@@ -83,13 +83,11 @@ EOF
 # if false; then
   local ompimakeflags="$SER_CONFIG_LDFLAGS"
   case $OPENMPI_BLDRVERSION in
-    1.6.1)
-if false; then
+    1.6.*)
       case `uname`-`uname -r` in
         Darwin-1[12].*) ;;
         *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
       esac
-fi
       ;;
     *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
   esac
