@@ -64,6 +64,7 @@ EOF
       ;;
     Linux)
       OPENMPI_NODL_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-nodl/lib $SER_EXTRA_LDFLAGS'"
+      OPENMPI_SHARED_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-shared/lib $SER_EXTRA_LDFLAGS'"
       ;;
   esac
 
@@ -101,12 +102,18 @@ EOF
       ;;
   esac
 
+# Fix some flags
   local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
   trimvar ompcxxflags ' '
   ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
   if test -n "$FCFLAGS"; then
     ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
   fi
+
+#
+# The builds
+#
+
   if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
     bilderBuild openmpi nodl "$ompimakeflags"
   fi
