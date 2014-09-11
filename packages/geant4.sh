@@ -35,11 +35,37 @@ setGeant4NonTriggerVars
 ######################################################################
 
 buildGeant4() {
+
+# Determine whether to build
+  if ! bilderUnpack -c geant4; then
+    return
+  fi
+
+# Get library names
+  local libpost=
+  local libpre=
+  case `uname` in
+    CYGWIN*)
+      libpost=lib
+      ;;
+    Darwin)
+      libpre=lib
+      libpost=dylib
+      ;;
+    Linux)
+      libpre=lib
+      libpost=so
+      ;;
+  esac
+  local xercescdir="${CONTRIB_DIR}/xercesc-$FORPYTHON_BUILD"
+
   if ! bilderUnpack geant4; then
     return
   fi
+
   local GEANT4_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
-  GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_INSTALL_DATA:BOOL=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-$FORPYTHON_BUILD'"
+  GEANT4_CONFIG_ARGS="${GEANT4_CONFIG_ARGS} -DGEANT4_INSTALL_DATA:BOOL=ON -DGEANT4_USE_GDML:BOOL=ON -DXERCESC_ROOT_DIR:PATH='$CONTRIB_DIR/xercesc-$FORPYTHON_BUILD' -DXERCESC_INCLUDE_DIR:PATH='${xercescdir}/include' -DXERCESC_LIBRARY:FILEPATH='${xercescdir}/lib/${libpre}xerces-c.$libpost'"
+
   case `uname` in
     Darwin)
 # Geant requires X11 for opengl and qt
