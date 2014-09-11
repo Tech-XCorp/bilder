@@ -107,7 +107,7 @@ EOF
     bilderBuild openmpi static "$ompimakeflags"
   fi
 
-  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS"; then
+  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS"; then
     bilderBuild openmpi shared "$ompimakeflags"
   fi
 
@@ -181,30 +181,9 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
-if false; then
-  if bilderInstall openmpi nodl openmpi; then
-    if test -h $CONTRIB_DIR/mpi; then
-      rm -f $CONTRIB_DIR/mpi
-    fi
-    ln -s $CONTRIB_DIR/openmpi $CONTRIB_DIR/mpi
-# Allow rsh use
-    OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
-    if $OPENMPI_ALLOW_RSH; then
-      case $OPENMPI_BLDRVERSION in
-        1.3* | 1.4*)
-          echo "plm_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
-          ;;
-        *)
-          echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
-          ;;
-      esac
-    fi
-  fi
-  if bilderInstall openmpi static; then
-    :
-  fi
-fi
   bilderInstallAll openmpi
   (cd $CONTRIB_DIR; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
+# Is this needed?
+  # echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
 }
 
