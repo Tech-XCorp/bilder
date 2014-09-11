@@ -92,9 +92,11 @@ EOF
 # Restarting with just "make" succeeds.
         Darwin-1[12].*) ;;
 # make -j2 failed on magnus (Darwin-13.3.0) but succeeded on cleon (13.3.0) ??
+# make -j2 succeeded on magnus with --disable-vt
         Darwin-1[34].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
         Darwin-*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
-        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+# make -j2 failed on enrico without --disable-vt, succeeded with
+        Linux) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
       esac
       ;;
     *)
