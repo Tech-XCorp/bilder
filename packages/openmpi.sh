@@ -67,31 +67,39 @@ EOF
       ;;
   esac
 
-# With version 1.6.1, openmpi will stop in the middle of the build
-# unless one does --disable-vt.  One can restart it, and it continues.
-# Seems like an unregistered dependency.  Should try again after
-# bumping version.
-  case $OPENMPI_BLDRVERSION in
-    1.6.*)
-      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
-      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
-      ;;
-  esac
-
 # Set jmake args.  Observed to fail on magnus.colorado.edu for openmpi-1.6.1,
 # but then observed to work with --disable-vt
-# if false; then
   local ompimakeflags="$SER_CONFIG_LDFLAGS"
   case $OPENMPI_BLDRVERSION in
     1.6.*)
+# With version 1.6.1, openmpi will stop in the middle of the build
+# unless one does --disable-vt.
+      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
+      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
       case `uname`-`uname -r` in
-        Darwin-1[12].*) ;;
+        Darwin-1[13].*) ;;
         *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
       esac
       ;;
-    *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
+    1.8.*)
+# Disabling vt can help build
+      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
+      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
+      OPENMPI_SHARED_ADDL_ARGS="$OPENMPI_SHARED_ADDL_ARGS --disable-vt"
+      case `uname`-`uname -r` in
+# make -j2 fails on Darwin-11.4.2 with ld: "library not found for -lmpi"
+# Restarting with just "make" succeeds.
+        Darwin-1[12].*) ;;
+# make -j2 failed on magnus (Darwin-13.3.0) but succeeded on cleon (13.3.0) ??
+        Darwin-1[34].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+        Darwin-*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+      esac
+      ;;
+    *)
+      ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags"
+      ;;
   esac
-# fi
 
   local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
   trimvar ompcxxflags ' '
