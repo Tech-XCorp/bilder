@@ -2505,8 +2505,15 @@ findPackage() {
       eval HAVE_${pkgnameprefix}_$BLD=false
     fi
 
-# Set cmake and config args
+# Set config arg
     adirval=`deref $adirvar`
+    if test -n "$adirval"; then
+      eval CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG=--with-${pkgnamelc}-dir=$adirval
+    fi
+    val=`deref CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG`
+    techo "CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
+
+# Set cmake arg
     local adirvalcmake=
     local alibdirvalcmake=
     local aincdirvalcmake=
@@ -2534,11 +2541,6 @@ findPackage() {
     fi
     val=`deref CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG`
     techo "CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
-    if test -n "$adirval"; then
-      eval CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG=--with-${pkgnamelc}-dir=$adirval
-    fi
-    val=`deref CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG`
-    techo "CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
 
 # Set any
     local havepkg=`deref HAVE_${pkgnameprefix}_$BLD`
