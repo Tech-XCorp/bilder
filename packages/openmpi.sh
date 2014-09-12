@@ -74,12 +74,13 @@ EOF
   case $OPENMPI_BLDRVERSION in
     1.6.*)
 # With version 1.6.1, openmpi will stop in the middle of the build
-# unless one does --disable-vt.
+# with "library not found for -lmpi unless one has --disable-vt.
       OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
       OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
+      OPENMPI_SHARED_ADDL_ARGS="$OPENMPI_SHARED_ADDL_ARGS --disable-vt"
       case `uname`-`uname -r` in
         Darwin-1[13].*) ;;
-        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
+        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
       esac
       ;;
     1.8.*)
@@ -90,12 +91,12 @@ EOF
       case `uname`-`uname -r` in
 # make -j2 fails on Darwin-11.4.2 with ld: "library not found for -lmpi"
 # Restarting with just "make" succeeds.
-        Darwin-1[12].*) ;;
-# make -j2 failed on magnus (Darwin-13.3.0) but succeeded on cleon (13.3.0) ??
-# make -j2 succeeded on magnus with --disable-vt
+        Darwin-1[12].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+# make -j2 failed on one Darwin-13.3.0 machine but succeeded on another??
+# make -j2 succeeded on both with --disable-vt
         Darwin-1[34].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
         Darwin-*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
-# make -j2 failed on enrico without --disable-vt, succeeded with
+# make -j2 failed on one Centos 6.3 machonewithout --disable-vt, succeeded with
         Linux) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
       esac
       ;;
