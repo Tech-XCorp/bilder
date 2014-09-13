@@ -91,8 +91,8 @@ fi
 # echo pkgdirs = $pkgdirs.; exit
 
 # Get the functions
-source $mydir/bildfcns.sh
-source $mydir/runnr/runnrfcns.sh
+source $mydir/bildfcns.sh 1>&2
+source $mydir/runnr/runnrfcns.sh 1>&2
 
 # Unset all variables
 for i in $allvars; do
@@ -158,7 +158,7 @@ EOF
 
   cat <<EOF
 
-# Python builds -- much use gcc for consistency.
+# Python builds -- must use gcc for consistency.
 EOF
   writevars "$gcccomps"
 
