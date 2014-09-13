@@ -7583,7 +7583,7 @@ buildChain() {
       let i++
     done
     techo ""
-    techo "  Bilder Examining $pkg"
+    techo "  Bilder examining $pkg"
     techo "===================${equalsend}"
 
     cd $PROJECT_DIR # Make sure at top
