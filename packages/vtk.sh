@@ -75,7 +75,7 @@ buildVtk() {
         9.*) ;;
         10.*)
 # snow leopard does not do rpath, so have to add installation dir
-          VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_INSTALL_NAME_DIR='${CONTRIB_DIR}/VTK-${VTK_BLDRVERSION}-${VTK_BUILD}/lib'"
+          VTK_OS_ARGS="$VTK_OS_ARGS -DCMAKE_INSTALL_NAME_DIR='${CONTRIB_DIR}/VTK-${VTK_BLDRVERSION}-${FORPYTHON_BUILD}/lib'"
           ;;
         *)
 # New rpath handling in http://www.kitware.com/blog/home/post/510 as of 2.8.12
@@ -174,12 +174,12 @@ buildVtk() {
 # we always want to use the 'system's GL library.
 # The only time this is not done is Linux-static
 # For Windows, try not replacing the RELEASE flags
-  local otherargsvar=`genbashvar VTK_${VTK_BUILD}`_OTHER_ARGS
+  local otherargsvar=`genbashvar VTK_${FORPYTHON_BUILD}`_OTHER_ARGS
   local otherargsval=`deref $otherargsvar`
   local VTK_CONFIG_ARGS="$VTK_COMPILERS $VTK_FLAGS $VTK_OS_ARGS -DBUILD_TESTING:BOOL=OFF -DBUILD_DOCUMENTATION:BOOL=OFF -D${VTK_PREFIX}_ALL_NEW_OBJECT_FACTORY:BOOL=TRUE -DUSE_ANSI_STD_LIB:BOOL=ON -DVTK_USE_HYBRID:BOOL=ON ${VTK_PKG_ARGS} ${VTK_MESA_ARGS} $VTK_PYTHON_ARGS $VTK_ADDL_ARGS $otherargsval"
   techo -2 "VTK_CONFIG_ARGS=$VTK_CONFIG_ARGS"
-  if bilderConfig $VTK_NAME $VTK_BUILD "$VTK_CONFIG_ARGS" "" "$VTK_ENV"; then
-    bilderBuild $VTK_MAKER_ARGS $VTK_NAME $VTK_BUILD "$VTK_MAKE_ARGS" "$VTK_ENV"
+  if bilderConfig VTK $FORPYTHON_BUILD "$VTK_CONFIG_ARGS" "" "$VTK_ENV"; then
+    bilderBuild $VTK_MAKER_ARGS VTK $FORPYTHON_BUILD "$VTK_MAKE_ARGS" "$VTK_ENV"
   fi
 
 }
@@ -201,6 +201,6 @@ testVtk() {
 ######################################################################
 
 installVtk() {
-  bilderInstall $VTK_MAKER_ARGS -r $VTK_NAME $VTK_BUILD "" "" "$VTK_ENV"
+  bilderInstall $VTK_MAKER_ARGS -r $VTK_NAME $FORPYTHON_BUILD "" "" "$VTK_ENV"
 }
 

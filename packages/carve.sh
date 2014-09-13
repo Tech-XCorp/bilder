@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for carve
+# Build information for carve
 #
 # $Id$
 #
@@ -8,42 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in carve_aux.sh
 #
 ######################################################################
 
-case `uname`-`uname -r` in
-  CYGWIN* | Darwin-11.*) CARVE_BLDRVERSION_STD=1.4.0;;
-  *) CARVE_BLDRVERSION_STD=1.4.0;;
-esac
-CARVE_BLDRVERSION_EXP=1.4.0
+mydir=`dirname $BASH_SOURCE`
+source $mydir/carve_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-# Carve builds only shared
-CARVE_BUILD=$FORPYTHON_BUILD
-CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
-computeBuilds carve
-CARVE_DEPS=cmake,mercurial
-CARVE_UMASK=002
-CARVE_REPO_URL=https://code.google.com/r/cary-carve4bilder
-CARVE_UPSTREAM_URL=https://code.google.com/p/carve
-# Cloned at 475:be054bc7ed86
-# Pulled in changes via
-cat >/dev/null <<EOF
-hg pull -r tip https://code.google.com/p/carve
-hg merge tip
-hg commit -m "Commit changes from remote repo."
-hg push
-EOF
-# Changes now in cary-carve4bilder
-
-# Blender maintains carve in the repo
-#   https://svn.blender.org/svnroot/bf-blender/trunk/blender/extern/carve
+setCarveNonTriggerVars() {
+  CARVE_UMASK=002
+}
+setCarveNonTriggerVars
 
 ######################################################################
 #
@@ -115,7 +98,6 @@ buildCarve() {
   fi
 
 # Carve compilers
-  #CARVE_COMPILERS="-DCMAKE_C_COMPILER:FILEPATH='$PYC_CC' -DCMAKE_CXX_COMPILER:FILEPATH='$PYC_CXX'"
   CARVE_COMPILERS="$CMAKE_COMPILERS_PYC"
   case `uname`-`uname -r` in
     Darwin-13.*)

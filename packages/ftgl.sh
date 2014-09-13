@@ -21,7 +21,7 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 ######################################################################
 
 # Only the python build needed.
-FORPYTHON_BUILDS=${FORPYTHON_BUILDS:-"$FORPYTHON_BUILD"}
+FTGL_BUILDS=${FTGL_BUILDS:-"$FORPYTHON_BUILD"}
 FTGL_DEPS=freetype
 FTGL_UMASK=002
 

@@ -1,15 +1,26 @@
 #!/bin/bash
 #
-# Version and find information for gras
+# Trigger vars and find information
 #
 # $Id$
 #
 ######################################################################
 
-getGrasVersion() {
+######################################################################
+#
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
+#
+######################################################################
+
+setGrasTriggerVars() {
   GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-03-r1561"}
+  GRAS_BUILDS=${GRAS_BUILDS:-"$FORPYTHON_BUILD"}
+  GRAS_DEPS=geant4
 }
-getGrasVersion
+setGrasTriggerVars
 
 ######################################################################
 #
@@ -28,6 +39,7 @@ findGras() {
   local GRAS_HOME="$CONTRIB_DIR/gras-sersh"
   printvar GRAS_HOME
   source $GRAS_HOME/bin/gras-env.sh
+  addtopathvar PATH $CONTRIB_DIR/gras-$FORPYTHON_BUILD/bin
 
 }
 

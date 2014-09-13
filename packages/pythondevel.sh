@@ -33,7 +33,6 @@ if test -z "$PYTHON_BUILDS"; then
   case `uname` in
     Linux)
       PYTHON_BUILDS=$FORPYTHON_BUILD
-      PYTHON_BUILD=$FORPYTHON_BUILD
       ;;
   esac
 fi
@@ -68,7 +67,7 @@ buildPython() {
     case `uname` in
       Linux)
 # Ensure python can find its own library and any libraries linked into contrib
-        pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
+        pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
 	if cd $CONTRIB_DIR/sqlite; then
           local preswd=`pwd -P`
           pyldflags="$pyldflags -L$preswd/lib"
@@ -94,8 +93,8 @@ buildPython() {
 #  imageop  sunaudiodev
 #  To find the necessary bits, look in setup.py in detect_modules() for the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-    if bilderConfig Python $PYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_CC4PY_OTHER_ARGS $PYTHON_CC4PY_ADDL_ARGS"; then
-      bilderBuild Python $PYTHON_BUILD
+    if bilderConfig Python $FORPYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_CC4PY_OTHER_ARGS $PYTHON_CC4PY_ADDL_ARGS"; then
+      bilderBuild Python $FORPYTHON_BUILD
     fi
   fi
 
@@ -118,12 +117,12 @@ testPython() {
 ######################################################################
 
 installPython() {
-  if bilderInstall -r Python $PYTHON_BUILD python; then
+  if bilderInstall -r Python $FORPYTHON_BUILD python; then
     case `uname` in
       Linux)
 # Fix rpath if known how
 	if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/bin/python${PYTHON_MAJMIN}
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_BUILD/bin/python${PYTHON_MAJMIN}
 	fi
         ;;
     esac

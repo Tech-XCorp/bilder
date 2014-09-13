@@ -201,7 +201,7 @@ testOpenmpi() {
 installOpenmpi() {
   bilderInstallAll openmpi
   (cd $CONTRIB_DIR; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
-# Is this needed?
+# This not needed for 1.8.X.  Not certain about 1.6.x.
   # echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
 }
 

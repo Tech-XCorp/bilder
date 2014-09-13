@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for gras
+# Build information for gras
 #
 # $Id$
 #
@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Version and finding.
+# Trigger variables set in gras_aux.sh
 #
 ######################################################################
 
@@ -17,16 +17,16 @@ source $mydir/gras_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setGrasGlobalVars() {
-  GRAS_BUILDS=${GRAS_BUILDS:-"$FORPYTHON_BUILD"}
-  GRAS_DEPS=geant4
-  addtopathvar PATH $CONTRIB_DIR/gras-$FORPYTHON_BUILD/bin
+setGrasNonTriggerVars() {
+  GRAS_UMASK=002
 }
-setGrasGlobalVars
+setGrasNonTriggerVars
 
 ######################################################################
 #

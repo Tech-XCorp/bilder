@@ -15,23 +15,28 @@
 #
 ######################################################################
 
-getVtkTriggerVars() {
-  VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
-  VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
-  VTK_DEPS=qt,cmake
+setCudaTriggerVars() {
+  :
 }
-getVtkTriggerVars
+setCudaTriggerVars
 
 ######################################################################
 #
-# Set paths and variables that change after a build
+# Find hypre
 #
 ######################################################################
 
-findVtk() {
-  local majmin=`echo $VTK_BLDRVERSION | sed 's/\.[0-9]*$//'`
-  techo -2 "Looking for vtkCommonCore-${majmin}."
-  findContribPackage VTK vtkCommonCore-${majmin} sersh cc4py
-  findCc4pyDir VTK
+findCuda() {
+# Determine whether CUDA is in path.  If so, get version
+  CUDA_VERSION=`nvcc --version 2> /dev/null `
+  if test -n "$CUDA_VERSION"; then
+    CUDA_VERSION=`echo $CUDA_VERSION | sed 's/.*release \([0-9]\)\.\([0-9]\).*/\1\.\2/'`
+    techo "CUDA_VERSION: $CUDA_VERSION"
+    BUILD_CUDA=true
+  else
+    echo "CUDA NOT found.  No nvcc in path."
+    BUILD_CUDA=false
+  fi
+  techo "BUILD_CUDA = $BUILD_CUDA."
 }
 

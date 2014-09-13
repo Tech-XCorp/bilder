@@ -92,6 +92,7 @@ fi
 
 # Get the functions
 source $mydir/bildfcns.sh
+source $mydir/runnr/runnrfcns.sh
 
 # Unset all variables
 for i in $allvars; do
@@ -237,7 +238,7 @@ echo "#   for build <BUILD>.  If a package could have a cmake or an autotools"
 echo "#   build, then the variables are <PKG>_<BUILD>_CMAKE_OTHER_ARGS"
 echo "#   and <PKG>_<BUILD>_CONFIG_OTHER_ARGS"
 for pkgdir in $pkgdirs; do
-  pkgs=`\ls $pkgdir/*.sh | sed -e 's/\.sh//' -e "s?^.*/??"`
+  pkgs=`\ls $pkgdir/*.sh | grep -v _aux | sed -e 's/\.sh//' -e "s?^.*/??"`
   # echo pkgs are $pkgs; exit
   rm -f mkerrs.out
   for pkg in $pkgs; do
@@ -262,13 +263,19 @@ for pkgdir in $pkgdirs; do
       ispypkg=true
     fi
     if test -z "$builds" -a -n "$pkgname"; then
-      builds=`sed -e 's/ *#.*$//' <$pkgdir/$pkg.sh | grep bilderBuild | sed -e 's/"[^"]*"//' -e "s/^.*$pkgname *//" -e 's/[ ;].*$//' -e 's/[\$"].*//' | sort -u`
+      builds=`sed -e 's/ *#.*$//' <$pkgdir/$pkg.sh | grep bilderBuild | sed -e 's/"[^"]*"//' -e "s/^.* $pkgname *//" -e 's/[ ;].*$//' -e 's/\$FORPYTHON/FORPYTHON/' -e 's/[\$"].*//' | sort -u`
     fi
+    echo $pkg has builds $builds. 1>&2
 # If did not get builds this way, try to determine from BUILDS variable
     if test -z "$builds"; then
-      builds1=`grep "^ *${cappkg}_BUILDS=..${cappkg}_BUILDS" $pkgdir/$pkg.sh | sed -e "s/${cappkg}_BUILDS//g" -e 's/\\$//g' -e 's/=//g'`
+      if test -e $pkgdir/${pkg}_aux.sh; then
+        pkgbldsfile=$pkgdir/${pkg}_aux.sh
+      else
+        pkgbldsfile=$pkgdir/${pkg}.sh
+      fi
+      builds1=`grep "^ *${cappkg}_BUILDS=..${cappkg}_BUILDS" $pkgbldsfile | sed -e "s/${cappkg}_BUILDS//g" -e 's/\\$//g' -e 's/=//g'`
 # Or builds can come from the quoted or not
-      builds2=`grep "^ *${cappkg}_BUILDS=[\"a-z]" $pkgdir/$pkg.sh | sed -e "s/${cappkg}_BUILDS//g" -e 's/\\$//g' -e 's/=//g'`
+      builds2=`grep "^ *${cappkg}_BUILDS=[\"a-z]" $pkgbldsfile | sed -e "s/${cappkg}_BUILDS//g" -e 's/\\$//g' -e 's/=//g'`
       builds="$builds1 $builds2"
       builds=`echo $builds | tr -d '":{}' | tr -d '\-'`
       builds=`echo $builds | sed -e 's/,/ /g' -e 's/NONE//'`
@@ -287,7 +294,12 @@ for pkgdir in $pkgdirs; do
         fi
       fi
     fi
-    # echo $pkg has builds $builds. 1>&2
+    if echo $builds | grep -q FORPYTHON_BUILD; then
+      builds=`echo $builds | sed 's/FORPYTHON_BUILD//'`" sersh cc4py"
+    fi
+    builds=$(echo "$builds" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    trimvar builds ' '
+    echo $pkg has builds $builds. 1>&2
     if test $pkg = nubeam; then
       : # echo exit; exit
     fi
