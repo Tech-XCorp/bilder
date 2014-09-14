@@ -1,53 +1,25 @@
-diff -ruN hdf5-1.8.12/CMakeLists.txt hdf5-1.8.12-new/CMakeLists.txt
---- hdf5-1.8.12/CMakeLists.txt	2013-11-21 08:14:04.000000000 -0700
-+++ hdf5-1.8.12-new/CMakeLists.txt	2014-06-27 07:43:36.000000000 -0600
-@@ -664,9 +664,9 @@
- # Parallel IO usage requires MPI to be Linked and Included
- IF (H5_HAVE_PARALLEL)
-   SET (LINK_LIBS ${LINK_LIBS} ${MPI_C_LIBRARIES})
--  IF (MPI_C_LINK_FLAGS)
--    SET (CMAKE_EXE_LINKER_FLAGS ${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
--  ENDIF (MPI_C_LINK_FLAGS)
-+  IF (WIN32)
-+    SET (CMAKE_EXE_LINKER_FLAGS "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
-+  ENDIF ()
- ENDIF (H5_HAVE_PARALLEL)
- 
- SET (DEFAULT_API_VERSION "v18")
-diff -ruN hdf5-1.8.12/config/cmake/ConfigureChecks.cmake hdf5-1.8.12-new/config/cmake/ConfigureChecks.cmake
---- hdf5-1.8.12/config/cmake/ConfigureChecks.cmake	2013-11-21 08:14:03.000000000 -0700
-+++ hdf5-1.8.12-new/config/cmake/ConfigureChecks.cmake	2014-06-27 07:48:00.000000000 -0600
-@@ -123,6 +123,7 @@
- 
- SET (WINDOWS)
- IF (WIN32)
-+  message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}.")
-   IF (MINGW)
-     SET (H5_HAVE_MINGW 1)
-     SET (WINDOWS 1) # MinGW tries to imitate Windows
-@@ -133,9 +134,9 @@
-   IF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
-     SET (WINDOWS 1)
-     SET (CMAKE_REQUIRED_FLAGS "/DWIN32_LEAN_AND_MEAN=1 /DNOGDI=1")
--    IF (MSVC)
-+    IF (MSVC OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-       SET (H5_HAVE_VISUAL_STUDIO 1)
--    ENDIF (MSVC)
-+    ENDIF ()
-   ENDIF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
- ENDIF (WIN32)
- 
-@@ -179,7 +180,9 @@
-   SET (H5_HAVE_LONGJMP 1)
-   IF (NOT MINGW)
-     SET (H5_HAVE_GETHOSTNAME 1)
--  ENDIF (NOT MINGW)
-+  ELSE ()
-+    SET (H5_HAVE_GETHOSTNAME 0)
-+  ENDIF ()
-   IF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
-     SET (H5_HAVE_GETCONSOLESCREENBUFFERINFO 1)
-   ENDIF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
+diff -ruN hdf5-1.8.13/config/cmake/ConfigureChecks.cmake hdf5-1.8.13-new/config/cmake/ConfigureChecks.cmake
+--- hdf5-1.8.13/config/cmake/ConfigureChecks.cmake	2014-05-05 20:13:20.000000000 -0600
++++ hdf5-1.8.13-new/config/cmake/ConfigureChecks.cmake	2014-09-14 12:15:38.000000000 -0600
+@@ -138,7 +138,7 @@
+   if (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
+     set (WINDOWS 1)
+     set (CMAKE_REQUIRED_FLAGS "/DWIN32_LEAN_AND_MEAN=1 /DNOGDI=1")
+-    if (MSVC)
++    if (MSVC OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+       set (H5_HAVE_VISUAL_STUDIO 1)
+     endif (MSVC)
+   endif (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
+@@ -177,6 +177,9 @@
+   set (H5_HAVE_LONGJMP 1)
+   if (NOT MINGW)
+     set (H5_HAVE_GETHOSTNAME 1)
++  else ()
++    set (H5_HAVE_GETHOSTNAME 0)
++  endif ()
+   endif (NOT MINGW)
+   if (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
+     set (H5_HAVE_GETCONSOLESCREENBUFFERINFO 1)
 @@ -638,7 +641,9 @@
  CHECK_FUNCTION_EXISTS (frexpf            H5_HAVE_FREXPF)
  CHECK_FUNCTION_EXISTS (frexpl            H5_HAVE_FREXPL)
@@ -59,10 +31,10 @@ diff -ruN hdf5-1.8.12/config/cmake/ConfigureChecks.cmake hdf5-1.8.12-new/config/
  CHECK_FUNCTION_EXISTS (getpwuid          H5_HAVE_GETPWUID)
  CHECK_FUNCTION_EXISTS (getrusage         H5_HAVE_GETRUSAGE)
  CHECK_FUNCTION_EXISTS (lstat             H5_HAVE_LSTAT)
-diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/FindMPI.cmake
---- hdf5-1.8.12/config/cmake/FindMPI.cmake	2013-11-21 08:14:03.000000000 -0700
-+++ hdf5-1.8.12-new/config/cmake/FindMPI.cmake	1969-12-31 17:00:00.000000000 -0700
-@@ -1,628 +0,0 @@
+diff -ruN hdf5-1.8.13/config/cmake/FindMPI.cmake hdf5-1.8.13-new/config/cmake/FindMPI.cmake
+--- hdf5-1.8.13/config/cmake/FindMPI.cmake	2014-05-05 20:13:20.000000000 -0600
++++ hdf5-1.8.13-new/config/cmake/FindMPI.cmake	1969-12-31 17:00:00.000000000 -0700
+@@ -1,647 +0,0 @@
 -# - Find a Message Passing Interface (MPI) implementation
 -# The Message Passing Interface (MPI) is a library used to write
 -# high-performance distributed-memory parallel applications, and
@@ -151,7 +123,7 @@ diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/Fi
 -#
 -# The compilers are detected in this order:
 -#
--# 1. Try to find the most generic availble MPI compiler, as this is usually set up by
+-# 1. Try to find the most generic available MPI compiler, as this is usually set up by
 -#    cluster admins.  e.g., if plain old mpicc is available, we'll use it and assume it's
 -#    the right compiler.
 -#
@@ -419,6 +391,20 @@ diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/Fi
 -        # Extract the set of libraries to link against from the link command
 -        # line
 -        string(REGEX MATCHALL "(^| )-l([^\" ]+|\"[^\"]+\")" MPI_LIBNAMES "${MPI_LINK_CMDLINE}")
+-        # add the compiler implicit directories because some compilers
+-        # such as the intel compiler have libraries that show up
+-        # in the showme list that can only be found in the implicit
+-        # link directories of the compiler. Do this for C++ and C
+-        # compilers if the implicit link directories are defined.
+-        if (DEFINED CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES)
+-          set(MPI_LINK_PATH
+-            "${MPI_LINK_PATH};${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}")
+-        endif ()
+-
+-        if (DEFINED CMAKE_C_IMPLICIT_LINK_DIRECTORIES)
+-          set(MPI_LINK_PATH
+-            "${MPI_LINK_PATH};${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
+-        endif ()
 -
 -        # Determine full path names for all of the libraries that one needs
 -        # to link against in an MPI program
@@ -478,18 +464,18 @@ diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/Fi
 -          HINTS         ${_MPI_BASE_DIR} ${_MPI_PREFIX_PATH}
 -          PATH_SUFFIXES lib)
 -        if (MPI_LIBRARIES_WORK AND MPI_LIB)
--          set(MPI_LIBRARIES_WORK ${MPI_LIBRARIES_WORK} ${MPI_LIB})
+-          list(APPEND MPI_LIBRARIES_WORK ${MPI_LIB})
 -        endif()
 -      endif()
 -
 -      if (${lang} STREQUAL Fortran)
 -        set(MPI_LIB "MPI_LIB-NOTFOUND" CACHE FILEPATH "Cleared" FORCE)
 -        find_library(MPI_LIB
--          NAMES         fmpi fmpich fmpich2 fmpich2g
+-          NAMES         fmpi fmpich fmpich2 fmpich2g msmpifec msmpifmc
 -          HINTS         ${_MPI_BASE_DIR} ${_MPI_PREFIX_PATH}
--          PATH_SUFFIXES lib)
+-          PATH_SUFFIXES lib lib/${MS_MPI_ARCH_DIR} Lib Lib/${MS_MPI_ARCH_DIR})
 -        if (MPI_LIBRARIES_WORK AND MPI_LIB)
--          set(MPI_LIBRARIES_WORK ${MPI_LIBRARIES_WORK} ${MPI_LIB})
+-          list(APPEND MPI_LIBRARIES_WORK ${MPI_LIB})
 -        endif()
 -      endif()
 -
@@ -638,6 +624,11 @@ diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/Fi
 -      try_regular_compiler(${lang} regular_compiler_worked)
 -    endif()
 -
+-    set(MPI_${lang}_FIND_QUIETLY ${MPI_FIND_QUIETLY})
+-    set(MPI_${lang}_FIND_REQUIRED ${MPI_FIND_REQUIRED})
+-    set(MPI_${lang}_FIND_VERSION ${MPI_FIND_VERSION})
+-    set(MPI_${lang}_FIND_VERSION_EXACT ${MPI_FIND_VERSION_EXACT})
+-
 -    if (regular_compiler_worked)
 -      find_package_handle_standard_args(MPI_${lang} DEFAULT_MSG MPI_${lang}_COMPILER)
 -    else()
@@ -691,9 +682,9 @@ diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/Fi
 -foreach (lang C CXX Fortran)
 -  unset(_MPI_${lang}_COMPILER_NAMES)
 -endforeach()
-diff -ruN hdf5-1.8.12/fortran/src/CMakeLists.txt hdf5-1.8.12-new/fortran/src/CMakeLists.txt
---- hdf5-1.8.12/fortran/src/CMakeLists.txt	2013-11-21 08:14:04.000000000 -0700
-+++ hdf5-1.8.12-new/fortran/src/CMakeLists.txt	2014-06-27 07:50:05.000000000 -0600
+diff -ruN hdf5-1.8.13/fortran/src/CMakeLists.txt hdf5-1.8.13-new/fortran/src/CMakeLists.txt
+--- hdf5-1.8.13/fortran/src/CMakeLists.txt	2014-05-05 20:13:23.000000000 -0600
++++ hdf5-1.8.13-new/fortran/src/CMakeLists.txt	2014-09-14 12:15:57.000000000 -0600
 @@ -117,6 +117,11 @@
      ${HDF5_F90_SRC_SOURCE_DIR}/H5Tf.c
      ${HDF5_F90_SRC_SOURCE_DIR}/H5Zf.c
@@ -704,15 +695,15 @@ diff -ruN hdf5-1.8.12/fortran/src/CMakeLists.txt hdf5-1.8.12-new/fortran/src/CMa
 +)
 +endforeach ()
  
- IF (H5_HAVE_PARALLEL)
-   SET (f90CStub_C_SRCS
+ if (H5_HAVE_PARALLEL)
+   set (f90CStub_C_SRCS
 @@ -132,7 +137,8 @@
      ${HDF5_F90_BINARY_DIR}/H5f90i_gen.h
  )
  
--ADD_LIBRARY (${HDF5_F90_C_LIB_TARGET} ${LIB_TYPE} ${f90CStub_C_SRCS} ${f90CStub_C_HDRS})
-+# ADD_LIBRARY (${HDF5_F90_C_LIB_TARGET} ${LIB_TYPE} ${f90CStub_C_SRCS} ${f90CStub_C_HDRS})
-+ADD_LIBRARY (${HDF5_F90_C_LIB_TARGET} ${LIB_TYPE} ${f90CStub_C_SRCS})
+-add_library (${HDF5_F90_C_LIB_TARGET} ${LIB_TYPE} ${f90CStub_C_SRCS} ${f90CStub_C_HDRS})
++# add_library (${HDF5_F90_C_LIB_TARGET} ${LIB_TYPE} ${f90CStub_C_SRCS} ${f90CStub_C_HDRS})
++add_library (${HDF5_F90_C_LIB_TARGET} ${LIB_TYPE} ${f90CStub_C_SRCS})
  TARGET_C_PROPERTIES (${HDF5_F90_C_LIB_TARGET} " " " ")
- TARGET_LINK_LIBRARIES (${HDF5_F90_C_LIB_TARGET} ${HDF5_LIB_TARGET} ${LINK_LIBS})
- SET_GLOBAL_VARIABLE (HDF5_LIBRARIES_TO_EXPORT "${HDF5_LIBRARIES_TO_EXPORT};${HDF5_F90_C_LIB_TARGET}")
+ target_link_libraries (${HDF5_F90_C_LIB_TARGET} ${HDF5_LIB_TARGET} ${LINK_LIBS})
+ set_global_variable (HDF5_LIBRARIES_TO_EXPORT "${HDF5_LIBRARIES_TO_EXPORT};${HDF5_F90_C_LIB_TARGET}")
