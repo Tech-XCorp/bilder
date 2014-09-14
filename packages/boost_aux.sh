@@ -24,14 +24,16 @@ getBoostTriggerVars() {
 # For now we're sticking with boost 1_53_0.
   BOOST_BLDRVERSION_EXP=1_53_0
   # BOOST_BLDRVERSION_EXP=1_55_0
-  if test -z "$BOOST_DESIRED_BUILDS"; then
-    BOOST_DESIRED_BUILDS=ser,sersh
+  if test -z "$BOOST_BUILDS"; then
+    if test -z "$BOOST_DESIRED_BUILDS"; then
+      BOOST_DESIRED_BUILDS=ser,sersh
+    fi
+    if [[ `uname` =~ CYGWIN ]]; then
+      BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sermd
+    fi
+    computeBuilds boost
+    addCc4pyBuild boost
   fi
-  if [[ `uname` =~ CYGWIN ]]; then
-    BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sermd
-  fi
-  computeBuilds boost
-  addCc4pyBuild boost
 # It does not hurt to add deps that do not get built
 # (e.g., Python on Darwin and CYGWIN).
 # Only certain builds depend on Python.

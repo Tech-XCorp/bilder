@@ -38,6 +38,45 @@ setBoostNonTriggerVars
 #
 ######################################################################
 
+# Fix boost post unpacking
+fixBoost() {
+  if test `uname` != Darwin; then
+    return
+  fi
+  local bld=$1
+  local cxxbase=
+  case $bld in
+    cc4py) cxxbase=`basename $PYC_CXX`;;
+    *) cxxbase=`basename $CXX`;;
+  esac
+  local cxxversfx=
+  if [[ "$cxxbase" =~ 'g++' ]]; then
+    echo "Executing sed."
+    cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
+  fi
+  if test -n "$cxxversfx"; then
+    cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : g++-$cxxversfx ;/' tools/build/v2/user-config.jam"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+  local jamfile=
+  case $cxxbase in
+    clang++ | g++) jamfile=tools/build/v2/tools/clang-darwin.jam;;
+    g++-*) jamfile=tools/build/v2/tools/darwin.jam;;
+    icpc) jamfile=tools/build/v2/tools/icpc-darwin.jam;;
+  esac
+  if test -n "$jamfile"; then
+# Change install_name for osx to be an absolute path
+# For more information, see https://svn.boost.org/trac/boost/ticket/9141
+# (this is already being done in macports & homebrew):
+    local boost_prefix=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-$bld
+    techo "Setting install_name to ${boost_prefix}/lib in $jamfile."
+    sed -i .bak "s?-install_name \"?-install_name \"${boost_prefix}/lib/?" $jamfile
+  else
+    techo "WARNING: [$FUNCNAME] jamfile not known."
+  fi
+}
+
 buildBoost() {
 
 # Process
@@ -60,41 +99,18 @@ buildBoost() {
         toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
       fi
       ;;
-    Darwin-13.*)
-      case $CXX in
-	*clang++)
-	  stdlibargs="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
-          toolsetarg_ser="toolset=clang"
-          jamfile=tools/build/v2/tools/clang-darwin.jam
-	  ;;
-      esac
-      ;;
-    Darwin-12.*)
-# Clang works for g++ as well on Darwin-12
+    Darwin-*)
+      toolsetarg_cc4py="toolset=clang"
       case $CXX in
         *clang++ | *g++)
+# g++ is clang++ on Darwin-11+
+          if [[ `uname -r` =~ '^1[3-9]' ]]; then
+	    stdlibargs="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
+          fi
           toolsetarg_ser="toolset=clang"
-          jamfile=tools/build/v2/tools/clang-darwin.jam
-          ;;
-        *icpc)
-          toolsetarg_ser="toolset=icpc"
-          jamfile=tools/build/v2/tools/icpc-darwin.jam
-          ;;
-      esac
-      ;;
-    Darwin-*)
-      case $CXX in
-        *clang++)
-          toolsetarg_ser="toolset=clang"
-          jamfile=tools/build/v2/tools/clang-darwin.jam
-          ;;
-        *g++)
-          jamfile=tools/build/v2/tools/darwin.jam
-          ;;
-        *icpc)
-          toolsetarg_ser="toolset=icpc"
-          jamfile=tools/build/v2/tools/icpc-darwin.jam
-          ;;
+	  ;;
+        # *g++-*) toolsetarg_ser="toolset=`basename $CXX`";;
+        *icpc) toolsetarg_ser="toolset=icpc";;
       esac
       ;;
     Linux-*)
@@ -140,6 +156,8 @@ if false; then
 fi
 
   if bilderConfig -i boost ser; then
+# In-place build, so make compiler/os modifications now
+    fixBoost ser
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
@@ -148,17 +166,8 @@ fi
   fi
 
   if bilderConfig -i boost sersh; then
-# In-place build, so patch now
-# Change install_name for osx to be an absolute path
-# For more information, see https://svn.boost.org/trac/boost/ticket/9141
-# (this is already being done in macports & homebrew):
-    local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
-    if test -n "$jamfile"; then
-      techo "Setting install_name to ${BOOST_INSTALL_PREFIX}/lib in $jamfile."
-      sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
-    elif test `uname` = Darwin; then
-      techo "WARNING: [$FUNCNAME] jamfile not known."
-    fi
+# In-place build, so make compiler/os modifications now
+    fixBoost sersh
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
