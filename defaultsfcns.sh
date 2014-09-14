@@ -16,6 +16,7 @@
 
 setBilderOsVars() {
 
+  local machsfx=
   case `uname` in
 
 # For CYGWIN machine file must be passed in. COMPKEY derives from that
@@ -24,11 +25,21 @@ setBilderOsVars() {
       INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/winsame"}
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
-      local winsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
-      INSTALL_SUBDIR_SFX=-$winsfx
+      machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
+      INSTALL_SUBDIR_SFX=-$machsfx
       ;;
 
     Darwin)
+      if test -n "$MACHINEFILE"; then
+        machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
+        if test -n "$machsfx"; then
+          # CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/$machsfx"}
+          # INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/$machsfx"}
+          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
+          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
+          INSTALL_SUBDIR_SFX=-$machsfx
+        fi
+      fi
       ;;
 
     Linux)
