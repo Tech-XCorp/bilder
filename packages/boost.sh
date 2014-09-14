@@ -106,9 +106,9 @@ buildBoost() {
       fi
       ;;
     Darwin-*)
-      if [[ `uname -r` =~ '^1[3-9]' ]]; then
-	stdlibargs_cc4py="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
-      fi
+      case `uname -r` in
+        1[3-9]*) stdlibargs_cc4py="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"; echo foo;;
+      esac
       toolsetarg_cc4py="toolset=clang"
       case $CXX in
         *clang++ | *g++)
