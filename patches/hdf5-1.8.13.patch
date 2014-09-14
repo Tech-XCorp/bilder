@@ -1,6 +1,6 @@
 diff -ruN hdf5-1.8.13/config/cmake/ConfigureChecks.cmake hdf5-1.8.13-new/config/cmake/ConfigureChecks.cmake
 --- hdf5-1.8.13/config/cmake/ConfigureChecks.cmake	2014-05-05 20:13:20.000000000 -0600
-+++ hdf5-1.8.13-new/config/cmake/ConfigureChecks.cmake	2014-09-14 12:15:38.000000000 -0600
++++ hdf5-1.8.13-new/config/cmake/ConfigureChecks.cmake	2014-09-14 14:55:57.000000000 -0600
 @@ -138,7 +138,7 @@
    if (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
      set (WINDOWS 1)
@@ -10,17 +10,18 @@ diff -ruN hdf5-1.8.13/config/cmake/ConfigureChecks.cmake hdf5-1.8.13-new/config/
        set (H5_HAVE_VISUAL_STUDIO 1)
      endif (MSVC)
    endif (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
-@@ -177,6 +177,9 @@
+@@ -177,7 +177,9 @@
    set (H5_HAVE_LONGJMP 1)
    if (NOT MINGW)
      set (H5_HAVE_GETHOSTNAME 1)
+-  endif (NOT MINGW)
 +  else ()
 +    set (H5_HAVE_GETHOSTNAME 0)
 +  endif ()
-   endif (NOT MINGW)
    if (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
      set (H5_HAVE_GETCONSOLESCREENBUFFERINFO 1)
-@@ -638,7 +641,9 @@
+   endif (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
+@@ -638,7 +640,9 @@
  CHECK_FUNCTION_EXISTS (frexpf            H5_HAVE_FREXPF)
  CHECK_FUNCTION_EXISTS (frexpl            H5_HAVE_FREXPL)
  
