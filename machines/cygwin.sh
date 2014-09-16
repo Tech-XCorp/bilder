@@ -102,7 +102,7 @@ if echo ${PATH}: | grep -qi '/cygdrive/c/Python2'; then
   pythonexec=`which python`
   # echo "pythonexec = $pythonexec."
   aftloc=
-  if echo $pythonexec | egrep -q "(p|P)ython2(6|7)"; then
+  if echo $pythonexec | egrep -qi "Python2(6|7)"; then
     aftloc=`dirname $pythonexec`
   fi
 # Do the move if python found in Windows area
