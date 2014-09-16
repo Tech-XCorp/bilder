@@ -51,7 +51,7 @@ findBoost() {
   local boost_lib_prefix=boost
   if [[ `uname` =~ CYGWIN ]] && [[ "$BOOST_BUILD" == sersh ]]; then
     boost_lib_prefix=libboost
-  fi 
-  findContribPackage Boost ${boost_lib_prefix}_math_tr1;;
+  fi
+  findContribPackage Boost ${boost_lib_prefix}_math_tr1
 }
 

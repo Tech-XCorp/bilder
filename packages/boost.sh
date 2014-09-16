@@ -98,7 +98,7 @@ buildBoost() {
 # Determine the toolset
   local toolsetarg_ser=
   local toolsetarg_cc4py=
-  local stdlibargs=
+  local stdlibargs_ser=
   case `uname`-`uname -r` in
     CYGWIN*)
       if $IS_64BIT; then
@@ -107,15 +107,15 @@ buildBoost() {
       ;;
     Darwin-*)
       case `uname -r` in
-        1[3-9]*) stdlibargs_cc4py="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++";;
+        1[3-9]*) stdlibargs_cc4py="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
       esac
       toolsetarg_cc4py="toolset=clang"
       case $CXX in
         *clang++ | *g++)
 # g++ is clang++ on Darwin-11+
-          if [[ `uname -r` =~ '^1[3-9]' ]]; then
-	    stdlibargs="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
-          fi
+          case `uname -r` in
+	    1[3-9]*) stdlibargs_ser="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
+          esac
           toolsetarg_ser="toolset=clang"
 	  ;;
         *g++-*) ;; # toolsetarg_ser="toolset=`basename $CC`";;
@@ -149,8 +149,8 @@ buildBoost() {
   fi
 # Only the shared and cc4py build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags, which does not work with python.
-  BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs} --without-python $BOOST_ALL_ADDL_ARGS"
-  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs} $BOOST_ALL_ADDL_ARGS"
+  BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} $BOOST_ALL_ADDL_ARGS"
   BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs ${stdlibargs_cc4py} $BOOST_ALL_ADDL_ARGS"
   BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
