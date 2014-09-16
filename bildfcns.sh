@@ -4168,6 +4168,7 @@ bilderConfig() {
     else
       configexec="$PROJECT_DIR/$1/configure"
     fi
+    techo -2 "Using this configure: $configexec."
     test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     cmval=petsc
     inplace=true
@@ -4286,6 +4287,7 @@ bilderConfig() {
         else
           builddir=$PROJECT_DIR/$1
         fi
+        techo -2 "Using this builddir for petsc: $builddir"
       elif test -d $PROJECT_DIR/$1; then
 # In place build from repo
         builddir=$PROJECT_DIR/$1
