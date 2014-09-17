@@ -16,17 +16,6 @@
 ######################################################################
 
 setCudaTriggerVars() {
-  :
-}
-setCudaTriggerVars
-
-######################################################################
-#
-# Find hypre
-#
-######################################################################
-
-findCuda() {
 # Determine whether CUDA is in path.  If so, get version
   CUDA_VERSION=`nvcc --version 2> /dev/null `
   if test -n "$CUDA_VERSION"; then
@@ -38,5 +27,16 @@ findCuda() {
     BUILD_CUDA=false
   fi
   techo "BUILD_CUDA = $BUILD_CUDA."
+}
+setCudaTriggerVars
+
+######################################################################
+#
+# Find cuda
+#
+######################################################################
+
+findCuda() {
+  :
 }
 
