@@ -4022,8 +4022,12 @@ bilderConfig() {
       if shouldInstall -I $instdirval $1-$verval $2 $DEPS; then
         dobuildval=true
         techo "Package $1-$verval-$2 is a candidate for configuring since a dependency rebuilt or $1-$verval not installed."
+      else
+        techo "Not configuring since $1-$verval-$2 already installed in $instdirval."
       fi
     fi
+  else
+    techo "Not configuring since $2 build not in $buildsvar = $buildsval."
   fi
 # Store result
   local dobuildvar=`genbashvar $1-$2`_DOBUILD
@@ -4032,7 +4036,6 @@ bilderConfig() {
 # If not building, return 99.
 # the config file.
   if ! $dobuildval; then
-    techo "Not configuring since $1-$verval-$2 already installed in $instdirval, or $2 not in $buildsvar = $buildsval."
     return 99
   fi
 
