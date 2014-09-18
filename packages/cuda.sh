@@ -28,3 +28,13 @@ setCudaNonTriggerVars() {
 }
 setCudaNonTriggerVars
 
+buildCuda() {
+    echo "Building cuda is not relevant"
+}
+testCuda() {
+    echo "Testing cuda is not relevant"
+}
+installCuda() {
+    echo "Installing cuda is not relevant"
+}
+
