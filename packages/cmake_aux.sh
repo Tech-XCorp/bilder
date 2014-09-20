@@ -19,7 +19,7 @@ setCmakeTriggerVars() {
   local stdVersion="2.8.12.1"
   case `uname` in
     Darwin*)
-      if test -d /usr/local/cuda; then 
+      if test -d /usr/local/cuda; then
         stdVersion="2.8.10.1"
       fi
       ;;

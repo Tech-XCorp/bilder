@@ -1,0 +1,19 @@
+diff -ruN VTK-6.1.0/CMakeLists.txt VTK-6.1.0-new/CMakeLists.txt
+--- VTK-6.1.0/CMakeLists.txt	2014-01-22 08:55:41.000000000 -0700
++++ VTK-6.1.0-new/CMakeLists.txt	2014-05-31 11:55:45.000000000 -0600
+@@ -16,6 +16,7 @@
+ project(VTK)
+ 
+ # Objective-C++ compile flags, future CMake versions might make this obsolete
++IF(FALSE)
+ IF(APPLE)
+   # Being a library, VTK may be linked in either GC (garbage collected)
+   # processes or non-GC processes.  Default to "GC supported" so that both
+@@ -24,6 +25,7 @@
+   SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
+   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
+ ENDIF(APPLE)
++ENDIF()
+ 
+ set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+ set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
