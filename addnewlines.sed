@@ -62,3 +62,6 @@ s/ \([[:graph:]]*@PACKAGE@-@VERSION@ \)/\
 # all configuration variables are trim'd.
 s/' /'\
 /g
+# Put newline in front of absolute path
+s? /?\
+ ?g

@@ -52,8 +52,6 @@ buildVtk() {
   local VTK_ADDL_ARGS=
   local VTK_MAKE_ARGS=
 # build_visit sets both of these the same for Darwin
-  # local MANGLED_MESA_LIB=libOSMesa${SHOBJEXT}
-  # local MANGLED_OSMESA_LIB=libOSMesa${SHOBJEXT}
   case `uname` in
     CYGWIN*) # Add /MT flags
       VTK_OS_ARGS="$VTK_OS_ARGS -DVTK_USE_VIDEO_FOR_WINDOWS:BOOL=OFF"
@@ -115,8 +113,6 @@ buildVtk() {
       fi
       trimvar VTK_ENV ' '
       VTK_MAKE_ARGS="$VTK_MAKE_ARGS $VTK_MAKEJ_ARGS"
-# build_visit uses MANGLED_OSMESA_LIB=libMesaGL on Linux.
-      # MANGLED_OSMESA_LIB=libMesaGL${SHOBJEXT}	# per build_visit
       if test -z "$PYTHON"; then
         techo "PYTHON NOT SET.  VTK Python wrappers will not build."
         return
