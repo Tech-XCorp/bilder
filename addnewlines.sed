@@ -64,4 +64,4 @@ s/' /'\
 /g
 # Put newline in front of absolute path
 s? /?\
- ?g
+/?g
