@@ -57,3 +57,29 @@ diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake cmake-2.8.12.1-new
 +# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
 +set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
  __linux_compiler_intel(C)
+diff -ruN cmake-2.8.12.1/Modules/FindFreetype.cmake cmake-2.8.12.1-new/Modules/FindFreetype.cmake
+--- cmake-2.8.12.1/Modules/FindFreetype.cmake  2014-09-23 11:23:35.263693600 -0600
++++ cmake-2.8.12.1-new/Modules/FindFreetype.cmake       2014-09-23 11:23:54.414693600 -0600
+@@ -70,6 +70,22 @@
+   PATH_SUFFIXES include/freetype2 include
+ )
+
++if(NOT FREETYPE_INCLUDE_DIR_freetype2)
++  find_path(FREETYPE_INCLUDE_DIR_freetype2 freetype2/config/ftheader.h
++    HINTS
++      ENV FREETYPE_DIR
++    PATHS
++      /usr/X11R6
++      /usr/local/X11R6
++      /usr/local/X11
++      /usr/freeware
++      ENV GTKMM_BASEPATH
++      [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]
++      [HKEY_LOCAL_MACHINE\\SOFTWARE\\gtkmm\\2.4;Path]
++    PATH_SUFFIXES include/freetype2 include
++  )
++endif()
++
+ find_library(FREETYPE_LIBRARY
+   NAMES freetype libfreetype freetype219
+   HINTS
