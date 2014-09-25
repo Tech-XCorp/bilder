@@ -90,7 +90,7 @@ findMatplotlibDepDir() {
     pkgdir=`(cd $pkgdir; pwd -P)`
     # techo "${1}dir = $pkgdir." 1>&2
     if [[ `uname` =~ CYGWIN ]]; then
-      pkgdir=`cygpath -am $pkgdir`
+      pkgdir=`cygpath -aw $pkgdir`
       # techo "After cygpath conversion, ${1}dir = $pkgdir." 1>&2
       pkgdir=`echo $pkgdir | sed 's/\\\\/\\\\\\\\/g'`
     fi
@@ -153,13 +153,28 @@ buildMatplotlib() {
       fi
     fi
   done
-# Escape backslashes one more time to get through sed
+# Escape even more backslashes to get through sed
   if [[ `uname` =~ CYGWIN ]]; then
     basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
+    basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
   fi
-  techo "basedirs = $basedirs."
+  printvar basedirs
   cd $BUILD_DIR/matplotlib-$MATPLOTLIB_BLDRVERSION
-  sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirs?" <setup.cfg.template >setup.cfg
+
+# Fix appropriate file
+  case `uname` in
+    CYGWIN*)
+# CYGWIN does not listen to setup.cfg
+      echo "sed -i.bak -e \"/^ *'win32' *:/s?'win32_static',?$basedirs?\" setupext.py"
+      sed -i.bak -e "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
+      ;;
+    # Linux)
+      # sed -i.bak -e "/^ *'linux' *:/s?\] ?$basedirs]?" setupext.py
+      # ;;
+    *)
+      sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirs?" <setup.cfg.template >setup.cfg
+      ;;
+  esac
 
 # Accumulate link flags for modules, and make ATLAS modifications.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
