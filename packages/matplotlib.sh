@@ -120,7 +120,7 @@ buildMatplotlib() {
     return
   fi
 
-# Find dependencies and construct the basedirs variable needed for setupext.py
+# Find dependencies and construct the basedirs variable needed for setup
   # techo "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
   # techo "freetypedir = $freetypedir."
