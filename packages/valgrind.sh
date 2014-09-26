@@ -52,8 +52,11 @@ buildValgrind() {
       $cmd
     fi
     cd -
-    if bilderConfig -i valgrind ser; then
-      bilderBuild valgrind ser
+    if test `uname` = Darwin; then
+      VALGRIND_ENV="SDKROOT=`xcrun --show-sdk-path`"
+    fi
+    if bilderConfig -i valgrind ser "$VALGRIND_SER_OTHER_ARGS" "" "$VALGRIND_ENV"; then
+      bilderBuild valgrind ser "" "$VALGRIND_ENV"
     fi
   fi
 
@@ -76,6 +79,6 @@ testValgrind() {
 ######################################################################
 
 installValgrind() {
-  bilderInstall valgrind ser valgrind
+  bilderInstall valgrind ser valgrind "" "$VALGRIND_ENV"
 }
 
