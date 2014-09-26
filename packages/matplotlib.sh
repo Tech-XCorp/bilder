@@ -168,9 +168,11 @@ buildMatplotlib() {
       echo "sed -i.bak -e \"/^ *'win32' *:/s?'win32_static',?$basedirs?\" setupext.py"
       sed -i.bak -e "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
       ;;
-    # Linux)
-      # sed -i.bak -e "/^ *'linux' *:/s?\] ?$basedirs]?" setupext.py
-      # ;;
+    Linux)
+# Linux does not listen to setup.cfg
+      sed -i.bak -e "/^ *'linux' *:/s?\[?[$basedirs?" setupext.py
+      sed -i.bak -e "/^ *'gnu0' *:/s?\[?[$basedirs?" setupext.py
+      ;;
     *)
       sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirs?" <setup.cfg.template >setup.cfg
       ;;
