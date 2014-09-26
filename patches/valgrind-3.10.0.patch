@@ -1,3 +1,42 @@
+diff -ruN valgrind-3.10.0-clean/coregrind/Makefile.am valgrind-3.10.0-new/coregrind/Makefile.am
+--- valgrind-3.10.0-clean/coregrind/Makefile.am	2014-09-08 06:28:30.000000000 -0600
++++ valgrind-3.10.0-new/coregrind/Makefile.am	2014-09-26 08:21:17.000000000 -0600
+@@ -131,10 +131,10 @@
+         m_mach/thread_act.h \
+         m_mach/vm_map.h
+ mach_defs += \
+-	/usr/include/mach/mach_vm.defs \
+-        /usr/include/mach/task.defs \
+-        /usr/include/mach/thread_act.defs \
+-        /usr/include/mach/vm_map.defs
++	$(SDKROOT)/usr/include/mach/mach_vm.defs \
++        $(SDKROOT)/usr/include/mach/task.defs \
++        $(SDKROOT)/usr/include/mach/thread_act.defs \
++        $(SDKROOT)/usr/include/mach/vm_map.defs
+ endif
+ 
+ # Be careful w.r.t. parallel builds.  See section 27.9 of the automake info
+@@ -142,9 +142,9 @@
+ $(abs_builddir)/m_mach: 
+ 	mkdir -p $@
+ $(mach_user_srcs): $(mach_defs) $(abs_builddir)/m_mach
+-	(cd m_mach && mig $(mach_defs))
++	(cd m_mach && xcrun mig $(mach_defs))
+ $(mach_hdrs): $(mach_defs) $(mach_user_srcs) $(abs_builddir)/m_mach
+-	(cd m_mach && mig $(mach_defs))
++	(cd m_mach && xcrun mig $(mach_defs))
+ 
+ #----------------------------------------------------------------------------
+ # Headers
+@@ -643,7 +643,7 @@
+ 
+ BUILT_SOURCES += fixup_macho_loadcmds
+ fixup_macho_loadcmds: fixup_macho_loadcmds.c
+-	$(CC) -g -Wall -o $@ $<
++	$(CC) -g -Wall -o $@ $< $(CFLAGS)
+ 
+ CLEANFILES += fixup_macho_loadcmds
+ 
 diff -ruN valgrind-3.10.0-clean/coregrind/Makefile.in valgrind-3.10.0-new/coregrind/Makefile.in
 --- valgrind-3.10.0-clean/coregrind/Makefile.in	2014-09-11 03:15:32.000000000 -0600
 +++ valgrind-3.10.0-new/coregrind/Makefile.in	2014-09-26 07:41:15.000000000 -0600
