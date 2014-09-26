@@ -2737,7 +2737,7 @@ findBlasLapack() {
   findContribPackage PTSOLVE_LITE lapack ser
 # Set defaults
   setDefaultPkgVars PTSOLVE_LITE "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  for BLD in CC4PY BEN SERSH SER; do
+  for BLD in CC4PY BEN SER SERDBG; do
     techo -2 "PTSOLVE_LITE_${BLD}_DIR = `deref PTSOLVE_LITE_${BLD}_DIR`."
     techo -2 "PTSOLVE_LITE_${BLD}_LIB = `deref PTSOLVE_LITE_${BLD}_LIB`."
     techo -2 "PTSOLVE_LITE_${BLD}_LIBDIR = `deref PTSOLVE_LITE_${BLD}_LIBDIR`."
@@ -2746,7 +2746,7 @@ findBlasLapack() {
   done
 # Compute vars
   USE_PTSOLVE_LITE_CC4PY=${USE_PTSOLVE_LITE_CC4PY:-"false"}
-  for BLD in SER SERSH CC4PY BEN; do
+  for BLD in SER SERDBG CC4PY BEN; do
     local haveplite=`deref HAVE_PTSOLVE_LITE_$BLD`
     local useplite=`deref USE_PTSOLVE_LITE_$BLD`
     useplite=${useplite:-"$USE_PTSOLVE_LITE"}
