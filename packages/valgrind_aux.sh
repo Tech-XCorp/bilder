@@ -21,6 +21,15 @@ setValgrindTriggerVars() {
   if [[ `uname` =~ Linux ]]; then
     VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
   fi
+  if [[ `uname` =~ Darwin ]]; then
+    case `uname -r` in
+      1[3-9]*)
+	VALGRIND_BLDRVERSION_STD=3.10.0
+	VALGRIND_BLDRVERSION_EXP=3.10.0
+	VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
+	;;
+    esac
+  fi
   VALGRIND_DEPS=
 }
 setValgrindTriggerVars
