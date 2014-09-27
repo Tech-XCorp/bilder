@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# Version and build information for tdd.
+# Build information for tdd
 #
 # From http://software.intel.com/en-us/intel-tbb
-# tar xzf tbb41_20130314oss_src.tgz
-# mv tbb41_20130314oss tbb-41_20130314oss
-# COPY_EXTENDED_ATTRIBUTES_DISABLE=1 tar czf tbb-41_20130314oss.tgz tbb-41_20130314oss
+# tar xzf tbb43_20140724oss_src.tgz
+# mv tbb41_20140724oss tbb-41_20140724oss
+# COPY_EXTENDED_ATTRIBUTES_DISABLE=1 tar czf tbb-43_20140724oss.tar.gz tbb-43_20140724oss
 #
 # $Id$
 #
@@ -13,21 +13,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in tdd_aux.sh
 #
 ######################################################################
 
-TDD_BLDRVERSION=${TDD_BLDRVERSION:-"41_20130314oss"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/tdd_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-TDD_BUILDS=${TDD_BUILDS:-"ser,sersh"}
-addCc4pyBuild tdd
-TDD_DEPS=
+setTddNonTriggerVars() {
+  TDD_UMASK=002
+}
+setTddNonTriggerVars
 
 ######################################################################
 #
@@ -41,7 +45,7 @@ buildTdd() {
   TDD_CONFIG_METHOD=NONE
   if bilderUnpack -i tdd; then
     for bld in `echo $TDD_BUILDS | sed 's/,/ /g'`; do
-      local builddirvar=`genbashvar $1-$bld`__BUILD_DIR
+      local builddirvar=`genbashvar $1-$bld`_BUILD_DIR
       eval $builddirvar=$BUILD_DIR/tdd-$TDD_BLDRVERSION/$bld
       bilderBuild tdd $bld
     done
@@ -66,8 +70,9 @@ testTdd() {
 ######################################################################
 
 installTdd() {
-  for bld in `echo $TDD_BUILDS | sed 's/,/ /g'`; do
-    bilderInstall tdd $bld
-  done
+  bilderInstallAll tdd
+  # for bld in `echo $TDD_BUILDS | sed 's/,/ /g'`; do
+     # bilderInstall tdd $bld
+  # done
 }
 
