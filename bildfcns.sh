@@ -6134,24 +6134,35 @@ EOF
       esac
 
 # Fix perms according to umask.  Is this needed anymore?
-      if test -d $instdirval/$instsubdirval -a -n "$umaskval"; then
-        techo "Setting permissions according to umask."
-        case $umaskval in
-          000? | 00? | ?)  # printing format can vary.
-  # For case where directories end up not being owned by installer
-            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            ;;
-        esac
-        case $umaskval in
-          0002 | 002 | 2)
-  # For case where directories end up not being owned by installer
-            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            ;;
-        esac
+      if test -n "$perms"; then
+        techo "Perms specified, so not setting permissions according to umask."
+      else
+        if test -n "$umaskval"; then
+          techo "umask specified as $umaskval."
+          if test -d $instdirval/$instsubdirval; then
+            techo "Setting permissions according to umask."
+            case $umaskval in
+              000? | 00? | ?)  # printing format can vary.
+      # For case where directories end up not being owned by installer
+                cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
+                techo "$cmd"
+                eval "$cmd"
+                ;;
+            esac
+            case $umaskval in
+              0002 | 002 | 2)
+      # For case where directories end up not being owned by installer
+                cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
+                techo "$cmd"
+                eval "$cmd"
+                ;;
+            esac
+          else
+            techo "$instdirval/$instsubdirval not found, so not setting perms according to umask."
+          fi
+        else
+          techo "umask not specified, so not setting perms accoring to umask."
+        fi
       fi
 
 # Fix group if requested

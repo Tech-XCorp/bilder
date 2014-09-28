@@ -94,9 +94,35 @@ installTbb() {
     cmd="/usr/bin/install -m 664 $hdrs $instdir/include"
     techo "$cmd"
     eval "$cmd"
-    libs=`ls build/*_release/{lib*,*.lib} 2>/dev/null | tr '\n' ' '`
+    local bldlibdir=`ls -d build/*_release`
+    local ver=
+    local libs=
+    case `uname` in
+      CYGWIN*)
+        libs=`ls $bldlibdir/{*.lib} 2>/dev/null | tr '\n' ' '`
+        ;;
+      Darwin)
+        libs=`ls $bldlibdir/{lib*} 2>/dev/null | tr '\n' ' '`
+        ;;
+      Linux)
+        ver=`(cd $bldlibdir; ls libtbb.so.* | sed 's/libtbb.so.//')`
+        libnames=`(cd $bldlibdir; ls lib* | sed 's/\.so.*//' | uniq | tr '\n' ' ')`
+        for l in $libnames; do
+          libs="$libs $bldlibdir/${l}.so.$ver"
+        done
+        ;;
+    esac
     cmd="/usr/bin/install -m 775 $libs $instdir/lib"
+    techo "$cmd"
     eval "$cmd"
+    case `uname` in
+      Linux)
+        techo "Making links to shared libs."
+        for l in $libnames; do
+          (cd $instdir/lib; ln -sf ${l}.so.$ver ${l}.so)
+        done
+        ;;
+    esac
   else
     cmd="rm -rf $instdir $CONTRIB_DIR/tbb-sersh"
     techo "$cmd"
