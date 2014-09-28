@@ -15,21 +15,21 @@
 #
 ######################################################################
 
-setTddTriggerVars() {
-  TDD_BLDRVERSION=${TDD_BLDRVERSION:-"43_20140724oss"}
-  TDD_BUILDS=${TDD_BUILDS:-"ser,sersh"}
-  addCc4pyBuild tdd
-  TDD_DEPS=
+setTbbTriggerVars() {
+  TBB_BLDRVERSION=${TBB_BLDRVERSION:-"43_20140724oss"}
+  TBB_BUILDS=${TBB_BUILDS:-"sersh"}
+  addCc4pyBuild tbb
+  TBB_DEPS=
 }
-setTddTriggerVars
+setTbbTriggerVars
 
 ######################################################################
 #
-# Find tdd
+# Find tbb
 #
 ######################################################################
 
-findTdd() {
+findTbb() {
   :
 }
 

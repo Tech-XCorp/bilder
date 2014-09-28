@@ -202,8 +202,9 @@ mkLink() {
     fi
   fi
   if $unix; then
-    techo "(cd $1; rmall $3; ln -s $2 $3)"
-    (cd $1; rmall $3; ln -s $2 $3)
+    cmd="(cd $1; rmall $3; ln -s $2 $3)"
+    techo "$cmd"
+    eval "$cmd"
   fi
 }
 
@@ -5999,10 +6000,10 @@ bilderInstall() {
       fi
     else
       instsubdirbase=$1
-      if test -d $instdirval/$1-$verval-$2; then
-        instsubdirval=$1-$verval-$2
-      elif test -d $instdirval/$1-$verval; then
+      if test -d $instdirval/$1-$verval; then
         instsubdirval=$1-$verval
+      else
+        instsubdirval=$1-$verval-$2
       fi
     fi
     techo -2 "instsubdirval = $instsubdirval."
@@ -6095,12 +6096,10 @@ bilderInstall() {
 # Set umask, install, restore umask
     local umaskvar=`genbashvar $1`_UMASK
     local umaskval=`deref $umaskvar`
-    if test -z "$umaskval"; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] $umaskvar not set."
-      terminate
-    fi
     local origumask=`umask`
-    umask $umaskval
+    if test -n "$umaskval"; then
+      umask $umaskval
+    fi
 
 # Create installation script, as gets env correct when there are spaces
     local installscript=$FQMAILHOST-$1-$2-install.sh
@@ -6117,7 +6116,7 @@ EOF
     chmod ug+x $installscript
 # Use the installation script
     install_txt=$FQMAILHOST-$1-$2-install.txt
-    techo "Installing $1-$2 in $PWD using $installscript at `date +%F-%T`." | tee $install_txt
+    techo "Installing $1-$2 from $PWD using $installscript at `date +%F-%T`." | tee $install_txt
     techo "$installscript" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
     RESULT=$?
@@ -6135,7 +6134,7 @@ EOF
       esac
 
 # Fix perms according to umask.  Is this needed anymore?
-      if test -d $instdirval/$instsubdirval; then
+      if test -d $instdirval/$instsubdirval -a -n "$umaskval"; then
         techo "Setting permissions according to umask."
         case $umaskval in
           000? | 00? | ?)  # printing format can vary.
