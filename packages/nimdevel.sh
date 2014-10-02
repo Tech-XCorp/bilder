@@ -171,5 +171,6 @@ installNimdevel() {
   done
 
   addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/bin
+  addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/scripts
 }
 
