@@ -165,22 +165,26 @@ testNimdevel() {
 ######################################################################
 
 installNimdevel() {
-  if bilderInstall $nimversion ser || bilderInstall $nimversion par; then
+  local parinst=bilderInstall $nimversion par
+  if bilderInstall $nimversion ser || $parinst; then
     setOpenPerms $BLDR_INSTALL_DIR/$nimversion-${NIMDEVEL_BLDRVERSION}
   fi
   if bilderInstall $nimversion partau; then
     setOpenPerms $BLDR_INSTALL_DIR/$nimversion-${NIMDEVEL_BLDRVERSION}-partau
   fi
   if $BUILD_DEBUG; then
-    if bilderInstall $nimversion serdbg || bilderInstall $nimversion pardbg; then
+    local parinst=bilderInstall $nimversion pardbg
+    if bilderInstall $nimversion serdbg || $parinst; then
       setOpenPerms $BLDR_INSTALL_DIR/$nimversion-dbg-${NIMDEVEL_BLDRVERSION}
     fi
   fi
   if $NIMDEVEL_SURFORIG; then
-    if bilderInstall $nimversion sersurf || bilderInstall $nimversion parsurf; then
+    local parinst=bilderInstall $nimversion parsurf
+    if bilderInstall $nimversion sersurf || $parinst; then
       setOpenPerms $BLDR_INSTALL_DIR/$nimversion-surf-${NIMDEVEL_BLDRVERSION}
     fi
   fi
 
   addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/bin
 }
+
