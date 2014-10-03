@@ -294,8 +294,10 @@ if ! [[ `uname` =~ CYGWIN ]]; then
   fi
 fi
 
-USE_MPI=${USE_MPI:-"openmpi-nodl"}
-MPI_BUILD=`echo $USE_MPI | sed 's/-.*//'`
+if $BUILD_MPIS; then
+  USE_MPI=${USE_MPI:-"openmpi-nodl"}
+  MPI_BUILD=`echo $USE_MPI | sed 's/-.*//'`
+fi
 # Parallel compilers
 if test -z "$MPICC" && which mpicc 1>/dev/null 2>&1; then
   MPICC=mpicc

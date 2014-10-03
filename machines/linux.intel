@@ -34,8 +34,11 @@ else
   TERMINATE_ERROR_MSG="ERROR: [linux.intel] Intel compilers not found."
   terminate
 fi
-if test -z "$IMPI_INSTALL_DIR"; then
+if test -n "$IMPI_INSTALL_DIR"; then
   source $IMPI_INSTALL_DIR/intel64/bin/mpivars.sh intel64
+  if $BUILD_MPIS; then
+    techo "WARNING: [linux.intel] Building mpi when have intell parallel environment."
+  fi
 else
   techo "WARNING: [linux.intel] Intel parallel environment not found.  Must build an mpi implementation."
 fi
