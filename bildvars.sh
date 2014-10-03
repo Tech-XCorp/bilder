@@ -294,6 +294,8 @@ if ! [[ `uname` =~ CYGWIN ]]; then
   fi
 fi
 
+USE_MPI=${USE_MPI:-"openmpi-nodl"}
+MPI_BUILD=`echo $USE_MPI | sed 's/-.*//'`
 # Parallel compilers
 if test -z "$MPICC" && which mpicc 1>/dev/null 2>&1; then
   MPICC=mpicc
@@ -419,12 +421,13 @@ fi
 #
 ######################################################################
 
-techo -2 "Testing mpicc."
-isMpich2=`mpicc -show 2>/dev/null | grep mpich2`
-if test -n "$isMpich2"; then
-  MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`
-  PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
-  PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
+if test -n "$MPICC"; then
+  isMpich2=`$MPICC -show 2>/dev/null | grep mpich2`
+  if test -n "$isMpich2"; then
+    MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`
+    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
+    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
+  fi
 fi
 
 ######################################################################
@@ -696,50 +699,7 @@ MPI_FCFLAGS=${MPI_FCFLAGS:-"$FCFLAGS"}
 ######################################################################
 
 techo "Making the combined flags."
-for i in SER PYC PAR; do
-
-  case $i in
-    SER) unset varprfx;;
-    PAR) varprfx=MPI_;;
-    *) varprfx=${i}_;;
-  esac
-
-# Configure flags
-  unset CONFIG_COMPFLAGS_${i}
-  for j in C CXX F FC; do
-    oldval=`deref CONFIG_COMPFLAGS_${i}`
-    varname=${varprfx}${j}FLAGS
-    varval=`deref $varname`
-    if test -n "$varval"; then
-      eval "CONFIG_COMPFLAGS_${i}=\"$oldval ${j}FLAGS='$varval'\""
-    fi
-  done
-  trimvar ALL_${i}_FLAGS ' '
-
-# CMake flags
-  unset CMAKE_COMPFLAGS_${i}
-  for j in C CXX FC; do
-    case $j in
-      CC)
-       cmakecompname=C
-       ;;
-      FC)
-       cmakecompname=Fortran
-       ;;
-      *)
-       cmakecompname=$j
-       ;;
-    esac
-    oldval=`deref CMAKE_COMPFLAGS_${i}`
-    varname=${varprfx}${j}FLAGS
-    varval=`deref $varname`
-    if test -n "$varval"; then
-      eval "CMAKE_COMPFLAGS_${i}=\"$oldval -DCMAKE_${cmakecompname}_FLAGS:STRING='$varval'\""
-    fi
-  done
-  trimvar ALL_${i}_CMAKE_FLAGS ' '
-
-done
+getCombinedCompVars
 
 ######################################################################
 #
@@ -867,7 +827,7 @@ instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
-compvars="CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
+compvars="USE_MPI MPI_BUILD CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
 envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS"

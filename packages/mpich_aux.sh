@@ -47,6 +47,12 @@ findMpich() {
       fi
       printvar $c
     done
+    MPICH2_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
+    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
+    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
+    printvar PAR_EXTRA_LDFLAGS
+    printvar PAR_EXTRA_LT_LDFLAGS
+    getCombinedCompVars
   fi
 }
 

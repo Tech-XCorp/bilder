@@ -58,7 +58,7 @@ getHdf5TriggerVars() {
   addCc4pyBuild hdf5
 
 # Deps and other
-  HDF5_DEPS=openmpi,zlib,cmake,bzip2
+  HDF5_DEPS=${MPI_BUILD},zlib,cmake,bzip2
 
 }
 getHdf5TriggerVars
