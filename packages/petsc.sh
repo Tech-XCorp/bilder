@@ -79,7 +79,7 @@ fi
 #
 ######################################################################
 
-PETSC_DEPS=openmpi,atlas,lapack,clapack_cmake,Python
+PETSC_DEPS=$MPI_BUILD,atlas,lapack,clapack_cmake,Python
 BUILD_PETSC_WITH_GPU_CODE=${BUILD_PETSC_WITH_GPU_CODE:-false}
 if $BUILD_PETSC_WITH_GPU_CODE; then
  PETSC_DEPS=cusp

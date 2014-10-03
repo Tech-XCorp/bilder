@@ -21,7 +21,7 @@
 ######################################################################
 
 TORIC_BUILDS=${TORIC_BUILDS:-"ser,par"}
-TORIC_DEPS=openmpi,fciowrappers
+TORIC_DEPS=$MPI_BUILD,fciowrappers
 TORIC_UMASK=002
 
 ######################################################################

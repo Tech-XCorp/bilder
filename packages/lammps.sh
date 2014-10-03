@@ -22,7 +22,7 @@ LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 
 LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
-LAMMPS_DEPS=fftw,fftw3,gsl,openmpi,votca_csg,votca_csg_tutorials,moltemplate
+LAMMPS_DEPS=fftw,fftw3,gsl,$MPI_BUILD,votca_csg,votca_csg_tutorials,moltemplate
 
 # These targets are not needed, but the flags below are
 # expecting the setup in these files

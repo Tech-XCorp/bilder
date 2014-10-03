@@ -20,7 +20,7 @@
 #
 ######################################################################
 
-FACETS_DEPS=${FACETS_DEPS:-"muparser,ntcc_transport,gacode,uedge,nubeam,fmcfm,eqcodes,wallpsi,fluxgrid,facetsifc,fusion_machine,matplotlib,scipy,tables,lp_solve,muparser,txbase,fciowrappers,petsc,openmpi,babel,metatau,simyan,autotools"}
+FACETS_DEPS=${FACETS_DEPS:-"muparser,ntcc_transport,gacode,uedge,nubeam,fmcfm,eqcodes,wallpsi,fluxgrid,facetsifc,fusion_machine,matplotlib,scipy,tables,lp_solve,muparser,txbase,fciowrappers,petsc,$MPI_BUILD,babel,metatau,simyan,autotools"}
 
 if test -z "$FACETS_BUILDS"; then
   FACETS_BUILDS=ser,par

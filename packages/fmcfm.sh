@@ -22,7 +22,7 @@
 if test -z "$FMCFM_BUILDS"; then
   FMCFM_BUILDS=ser,par
 fi
-FMCFM_DEPS=gacode,ntcc_transport,fciowrappers,openmpi,autotools
+FMCFM_DEPS=gacode,ntcc_transport,fciowrappers,$MPI_BUILD,autotools
 FMCFM_UMASK=002
 
 ######################################################################

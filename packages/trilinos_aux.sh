@@ -39,7 +39,7 @@ setTrilinosTriggerVars() {
   computeBuilds trilinos
 
 # Add in superlu all the time.  May be needed elsewhere
-  TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,boost,openmpi,superlu,swig,numpy,atlas,lapack"}
+  TRILINOS_DEPS=${TRILINOS_DEPS:-"superlu_dist,boost,$MPI_BUILD,superlu,swig,numpy,atlas,lapack"}
 # commio builds depend on netcdf and hdf5. Only add in if these builds are present.
   if echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
     TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"

@@ -22,7 +22,7 @@ GACODE_BLDRVERSION=${GACODE_BLDRVERSION:-"8.3.16"}
 ######################################################################
 
 GACODE_BUILDS=${GACODE_BUILDS:-"ser,par"}
-GACODE_DEPS=fftw,openmpi,fciowrappers
+GACODE_DEPS=fftw,$MPI_BUILD,fciowrappers
 GACODE_UMASK=002
 
 ######################################################################

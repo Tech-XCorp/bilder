@@ -28,7 +28,7 @@ if test -z "$SUPERLU_DIST3_BUILDS"; then
 fi
 
 # Not sure if we need the dependency to atlas, lapack and clapack_cmake
-SUPERLU_DIST3_DEPS=${SUPERLU_DIST3_DEPS:-"cmake,openmpi,atlas,lapack,clapack_cmake"}
+SUPERLU_DIST3_DEPS=${SUPERLU_DIST3_DEPS:-"cmake,$MPI_BUILD,atlas,lapack,clapack_cmake"}
 SUPERLU_DIST3_UMASK=002
 
 # Add parmetis if there are only standard builds and no commercial builds

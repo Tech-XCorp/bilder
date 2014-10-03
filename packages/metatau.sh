@@ -21,7 +21,7 @@ METATAU_BLDRVERSION=${METATAU_BLDRVERSION:-"2.21.1"}
 ######################################################################
 
 METATAU_BUILDS=${METATAU_BUILDS:-"par"}
-METATAU_DEPS=openmpi
+METATAU_DEPS=$MPI_BUILD
 METATAU_UMASK=002
 
 ######################################################################

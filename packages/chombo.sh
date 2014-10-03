@@ -20,8 +20,8 @@ CHOMBO_BLDRVERSION=${CHOMBO_BLDRVERSION:-"21324"}
 #
 ######################################################################
 
-#CHOMBO_DEPS=petsc34,hdf5,openmpi
-CHOMBO_DEPS=hdf5,openmpi
+#CHOMBO_DEPS=petsc34,hdf5,$MPI_BUILD
+CHOMBO_DEPS=hdf5,$MPI_BUILD
 if test -z "$CHOMBO_BUILDS"; then
   CHOMBO_BUILDS=par3d,par2d,par2ddbg,par3ddbg,ser3d,ser2d
 fi
