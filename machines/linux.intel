@@ -21,6 +21,12 @@ case $FQMAILHOST in
     NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
     TRILINOS_PAR_OTHER_ARGS=${TRILINOS_PAR_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF"}
     ;;
+  sandybridge.txcorp.com)
+    SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/usr/local/intel/composer_xe_2015.0.090/mkl/include/intel64"}
+    SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/usr/local/intel/composer_xe_2015.0.090/mkl/lib/intel64"}
+    SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"/usr/local/intel/composer_xe_2015.0.090/mkl/lib/intel64"}
+    SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"/usr/local/intel/composer_xe_2015.0.090/mkl/include/intel64"}
+    ;;
 esac
 
 ##
@@ -74,16 +80,20 @@ PYC_F77=${PYC_F77:-"gfortran"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-# MPICC=${MPICC:-""}
-# MPICXX=${MPICXX:-""}
-# MPIFC=${MPIFC:-""}
-MPIF77=${MPIF77:-"mpif90"}
+MPICC=${MPICC:-"icc"}
+MPICXX=${MPICXX:-"icpc"}
+MPIFC=${MPIFC:-"ifort"}
+MPIF77=${MPIF77:-"ifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
 # pic flags are added later
 
 # Serial
+CFLAGS=${CFLAGS:-"-mkl -O3"}
+CXXFLAGS=${CXXFLAGS:-"-mkl -O3"}
+#FCFLAGS=${FCFLAGS:-" "}
+#FFLAGS=${FFLAGS:-" "}
 # CFLAGS=${CFLAGS:-""}
 # CXXFLAGS=${CXXFLAGS:-""}
 # FCFLAGS=${FCFLAGS:-""}
@@ -94,14 +104,19 @@ MPIF77=${MPIF77:-"mpif90"}
 # PYC_MODFLAGS is for creating a module.
 # PYC_CFLAGS=${PYC_CFLAGS:-""}
 # PYC_CXXFLAGS=${PYC_CXXFLAGS:-""}
-# PYC_FCFLAGS=${PYC_FCFLAGS:-""}
+# PYC_FCFLAGS=${PYC_FCFLAGS:-":/fast"}
 # PYC_FFLAGS=${PYC_FFLAGS:-""}
 # PYC_LDFLAGS=${PYC_LDFLAGS:-""}
 # PYC_MODFLAGS=${PYC_MODFLAGS:-""}
 # PYC_LD_LIBRARY_PATH=${PYC_LD_LIBRARY_PATH:-""}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
 
-# Parallel
+# Paralleli
+MPI_CFLAGS=${MPI_CFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpicxx -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_FFLAGS=${FFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5
+.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
 # MPI_CFLAGS=${MPI_CFLAGS:-""}
 # MPI_CXXFLAGS=${MPI_CXXFLAGS:-""}
 # MPI_FCFLAGS=${MPI_FCFLAGS:-""}
@@ -878,6 +893,12 @@ PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-shared=0"}
 # TORNADO_BLDRVERSION=${TORNADO_BLDRVERSION:-""}
 # TORNADO_BUILDS=${TORNADO_BUILDS:-""}
 # TORNADO_CC4PY_OTHER_ARGS=${TORNADO_CC4PY_OTHER_ARGS:-""}
+
+TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-"-DBLAS_INCLUDE_DIRS:PATH=${SYSTEM_BLAS_SER_INC} -DLAPACK_INCLUDE_DIRS:PATH=${SYSTEM_LAPACK_SER_INC} -DBLAS_LIBRARY_DIRS:PATH=${SYSTEM_BLAS_SER_LIB} -DLAPACK_LIBRARY_DIRS:PATH=${SYSTEM_LAPACK_SER_LIB} -DBLAS_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DLAPACK_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK' -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"}
+TRILINOS_PARCOMMSH_OTHER_ARGS=${TRILINOS_PARCOMMSH_OTHER_ARGS:-"-DBLAS_INCLUDE_DIRS:PATH=${SYSTEM_BLAS_SER_INC} -DLAPACK_INCLUDE_DIRS:PATH=${SYSTEM_LAPACK_SER_INC} -DBLAS_LIBRARY_DIRS:PATH=${SYSTEM_BLAS_SER_LIB} -DLAPACK_LIBRARY_DIRS:PATH=${SYSTEM_LAPACK_SER_LIB} -DBLAS_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DLAPACK_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK'"}
+
+TRILINOS_SERCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-"-DBLAS_INCLUDE_DIRS:PATH=${SYSTEM_BLAS_SER_INC} -DLAPACK_INCLUDE_DIRS:PATH=${SYSTEM_LAPACK_SER_INC} -DBLAS_LIBRARY_DIRS:PATH=${SYSTEM_BLAS_SER_LIB} -DLAPACK_LIBRARY_DIRS:PATH=${SYSTEM_LAPACK_SER_LIB} -DBLAS_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DLAPACK_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DCMAKE_CXX_FLAGS:STRING='-DMPICH_IGNORE_CXX_SEEK' -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON"}
+TRILINOS_PARCOMMSH_OTHER_ARGS=${TRILINOS_PARCOMMSH_OTHER_ARGS:-"-DBLAS_INCLUDE_DIRS:PATH=${SYSTEM_BLAS_SER_INC} -DLAPACK_INCLUDE_DIRS:PATH=${SYSTEM_LAPACK_SER_INC} -DBLAS_LIBRARY_DIRS:PATH=${SYSTEM_BLAS_SER_LIB} -DLAPACK_LIBRARY_DIRS:PATH=${SYSTEM_LAPACK_SER_LIB} -DBLAS_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DLAPACK_LIBRARY_NAMES:STRING='mkl_intel_lp64' -DCMAKE_CXX_FLAGS:STRING='-DIGNORE_CXX_SEEK'"}
 
 # TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-""}
 # TRILINOS_BUILDS=${TRILINOS_BUILDS:-""}
