@@ -17,18 +17,24 @@ if test -n "PETSC_MPIEXEC"; then
 fi
 # This should be specialized to systems with static mvapich libs
 if test -z "$ICC_INSTALL_DIR"; then
+  ICC_INSTALL_DIR=`ls -1d /opt/intel/composer_xe_* 2>/dev/null | tail -1`
+fi
+if test -z "$ICC_INSTALL_DIR"; then
   ICC_INSTALL_DIR=`ls -1d /usr/local/intel/composer_xe_* 2>/dev/null | tail -1`
+fi
+if test -z "$IMPI_INSTALL_DIR"; then
+  IMPI_INSTALL_DIR=`ls -1d /opt/intel/impi/5* 2>/dev/null | tail -1`
 fi
 if test -z "$IMPI_INSTALL_DIR"; then
   IMPI_INSTALL_DIR=`ls -1d /usr/local/intel/impi/5* 2>/dev/null | tail -1`
 fi
 
 # Assume structure follows from ICC_INSTALL_DIR
-SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
-SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
-SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
-SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
 if test -n "$ICC_INSTALL_DIR"; then
+  SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
+  SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
+  SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
+  SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
   source $ICC_INSTALL_DIR/bin/compilervars.sh intel64
 else
   TERMINATE_ERROR_MSG="ERROR: [linux.intel] Intel compilers not found."
