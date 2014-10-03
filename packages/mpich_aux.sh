@@ -33,9 +33,9 @@ setMpichTriggerVars
 
 findMpich() {
 # Not adding for now to not conflict with openmpi
-  if [[ "$USE_MPI" =~ mpich ]]; then
+  if [[ "$USE_MPI" =~ mpich ]] && test -d $CONTRIB_DIR/$USE_MPI/bin; then
     addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
-    mpichdir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
+    local mpichdir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
     for c in MPICC MPICXX MPIFC MPIF77; do
       case $c in
         MPIFC) MPIFC=$mpichdir/mpif90;;

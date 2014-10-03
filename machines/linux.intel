@@ -16,17 +16,29 @@ if test -n "PETSC_MPIEXEC"; then
   PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
 fi
 # This should be specialized to systems with static mvapich libs
-ICC_INSTALL_DIR=`ls -1d /usr/local/intel/composer_xe_* | tail -1`
-IMPI_INSTALL_DIR=`ls -1d /usr/local/intel/impi/5* | tail -1`
+if test -z "$ICC_INSTALL_DIR"; then
+  ICC_INSTALL_DIR=`ls -1d /usr/local/intel/composer_xe_* 2>/dev/null | tail -1`
+fi
+if test -z "$IMPI_INSTALL_DIR"; then
+  IMPI_INSTALL_DIR=`ls -1d /usr/local/intel/impi/5* 2>/dev/null | tail -1`
+fi
 
 # Assume structure follows from ICC_INSTALL_DIR
 SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
 SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
 SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
 SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
-# addtopathvar PATH $ICC_INSTALL_DIR/bin/intel64
-source $ICC_INSTALL_DIR/bin/compilervars.sh intel64
-source $IMPI_INSTALL_DIR/intel64/bin/mpivars.sh intel64
+if test -n "$ICC_INSTALL_DIR"; then
+  source $ICC_INSTALL_DIR/bin/compilervars.sh intel64
+else
+  TERMINATE_ERROR_MSG="ERROR: [linux.intel] Intel compilers not found."
+  terminate
+fi
+if test -z "$IMPI_INSTALL_DIR"; then
+  source $IMPI_INSTALL_DIR/intel64/bin/mpivars.sh intel64
+else
+  techo "WARNING: [linux.intel] Intel parallel environment not found.  Must build an mpi implementation."
+fi
 
 # END KEEP THIS
 

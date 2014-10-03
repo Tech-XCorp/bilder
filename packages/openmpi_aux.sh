@@ -38,9 +38,9 @@ setOpenmpiTriggerVars
 
 findOpenmpi() {
 # Obtain correct mpi compiler names after bildall.sh is called
-  if [[ "$USE_MPI" =~ openmpi ]]; then
+  if [[ "$USE_MPI" =~ openmpi ]] && test -d $CONTRIB_DIR/$USE_MPI/bin; then
     addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
-    openmpidir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
+    local openmpidir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
     for c in MPICC MPICXX MPIFC MPIF77; do
       case $c in
         MPIFC) MPIFC=$openmpidir/mpif90;;
