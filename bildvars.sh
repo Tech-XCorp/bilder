@@ -295,8 +295,12 @@ if ! [[ `uname` =~ CYGWIN ]]; then
 fi
 
 # Parallel compilers
-MPICC=${MPICC:-"mpicc"}
-MPICXX=${MPICXX:-"mpicxx"}
+if test -z "$MPICC" && which mpicc 1>/dev/null 2>&1; then
+  MPICC=mpicc
+fi
+if test -z "$MPICXX" && which mpicxx 1>/dev/null 2>&1; then
+  MPICXX=mpicxx
+fi
 if test -z "$MPIFC" && which mpif90 1>/dev/null 2>&1; then
   MPIFC=mpif90
 fi

@@ -19,7 +19,7 @@ setMpichTriggerVars() {
   MPICH_BLDRVERSION_STD=3.0.4
   MPICH_BLDRVERSION_EXP=3.1.2
   MPICH_DEPS=libtool,automake
-  if ! [[ `uname` =~ CYGWIN ]]; then
+  if [[ "$USE_MPI" =~ mpich ]]  && ! [[ `uname` =~ CYGWIN ]]; then
     MPICH_BUILDS=static,shared
   fi
 }
@@ -33,7 +33,20 @@ setMpichTriggerVars
 
 findMpich() {
 # Not adding for now to not conflict with openmpi
-# addtopathvar PATH $CONTRIB_DIR/mpich/bin
-  :
+  if [[ "$USE_MPI" =~ mpich ]]; then
+    addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
+    mpichdir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
+    for c in MPICC MPICXX MPIFC MPIF77; do
+      case $c in
+        MPIFC) MPIFC=$mpichdir/mpif90;;
+        *) exe=`echo $c | tr [A-Z] [a-z]`; eval $c=$mpichdir/$exe;;
+      esac
+      exe=`deref $c`
+      if ! test -x $exe; then
+        techo "WARNING: $exe not found."
+      fi
+      printvar $c
+    done
+  fi
 }
 
