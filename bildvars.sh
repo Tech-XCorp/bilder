@@ -702,6 +702,7 @@ MPI_FCFLAGS=${MPI_FCFLAGS:-"$FCFLAGS"}
 
 techo "Making the combined flags."
 getCombinedCompVars
+getCombinedCompFlagVars
 
 ######################################################################
 #

@@ -2168,7 +2168,7 @@ findParallelFcComps() {
 }
 
 #
-# Compute combined vars
+# Compute combined compiler vars
 #
 getCombinedCompVars() {
 
@@ -2256,6 +2256,59 @@ getCombinedCompVars() {
     techo -2 "CMAKE_COMPILERS_$i = $val."
   done
   techo -2 "The combined compiler variables have been set."
+
+}
+
+#
+# Compute combined compiler flag vars
+#
+getCombinedCompFlagVars() {
+
+  techo "Making the combined flags."
+  for i in SER PYC PAR; do
+
+    case $i in
+      SER) unset varprfx;;
+      PAR) varprfx=MPI_;;
+      *) varprfx=${i}_;;
+    esac
+
+# autotools flags
+    unset CONFIG_COMPFLAGS_${i}
+    for j in C CXX F FC; do
+      oldval=`deref CONFIG_COMPFLAGS_${i}`
+      varname=${varprfx}${j}FLAGS
+      varval=`deref $varname`
+      if test -n "$varval"; then
+        eval "CONFIG_COMPFLAGS_${i}=\"$oldval ${j}FLAGS='$varval'\""
+      fi
+    done
+    trimvar ALL_${i}_FLAGS ' '
+
+# CMake flags
+    unset CMAKE_COMPFLAGS_${i}
+    for j in C CXX FC; do
+      case $j in
+        CC)
+         cmakecompname=C
+         ;;
+        FC)
+         cmakecompname=Fortran
+         ;;
+        *)
+         cmakecompname=$j
+         ;;
+      esac
+      oldval=`deref CMAKE_COMPFLAGS_${i}`
+      varname=${varprfx}${j}FLAGS
+      varval=`deref $varname`
+      if test -n "$varval"; then
+        eval "CMAKE_COMPFLAGS_${i}=\"$oldval -DCMAKE_${cmakecompname}_FLAGS:STRING='$varval'\""
+      fi
+    done
+    trimvar ALL_${i}_CMAKE_FLAGS ' '
+
+  done
 
 }
 
