@@ -84,3 +84,4 @@ testVsreader() {
 installVsreader() {
   bilderInstallAll vsreader
 }
+
