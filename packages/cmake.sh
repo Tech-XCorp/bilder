@@ -50,7 +50,7 @@ buildCmake() {
     local cmakever=`"$cmakepath" --version | head -1 | sed 's/^cmake version //'`
     techo "$cmakepath is version $cmakever."
     case "$cmakever" in
-      2.8.[2-9] | 2.8.[1-9][0-9] | 2.8.1?.?)
+      2.8.[1-9][0-9] | 2.8.[2-9] | 2.8.1?.? | 3.*)
         CMAKE_CONFIG_ARGS=-c
         CONFIGURE_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
         ;;
