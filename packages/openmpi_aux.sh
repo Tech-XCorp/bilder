@@ -44,7 +44,7 @@ findOpenmpi() {
     for c in MPICC MPICXX MPIFC MPIF77; do
       case $c in
         MPIFC) MPIFC=$openmpidir/mpif90;;
-        *) exe=`echo $c | tr [A-Z] [a-z]`; eval $c=$openmpidir/$exe;;
+        *) exe=`echo $c | tr A-Z a-z`; eval $c=$openmpidir/$exe;;
       esac
       exe=`deref $c`
       if ! test -x $exe; then
