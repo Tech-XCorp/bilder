@@ -5699,6 +5699,7 @@ installRelShlib() {
 # -b <builds>  Builds that could have been tested
 # -h           Whether builds have tests
 # -n <tests>   Name of tests if not found from lower-casing $2
+# -I 	       Ignore test results
 #
 # Return true if should be installed
 #
@@ -5708,13 +5709,15 @@ shouldInstallTestedPkg() {
 # Parse options
   local hasbuildtests=false
   local tstsnm=
+  local localIgnore=false;
   set -- "$@"
   OPTIND=1
-  while getopts "b:hn:" arg; do
+  while getopts "b:hn:I" arg; do
     case $arg in
       b) builds="$OPTARG";;
       h) hasbuildtests=true;;
       n) tstsnm="$OPTARG";;
+      I) localIgnore=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -5762,7 +5765,7 @@ shouldInstallTestedPkg() {
           fi
         elif test "$resval" != 0; then
           techo "shouldInstallTestedPkg: $pkgname-$bld $tsttype failed."
-          if $IGNORE_TEST_RESULTS; then
+          if $IGNORE_TEST_RESULTS || $localIgnore; then
             techo "Ignoring $tsttype result of $pkgname-$bld in determining whether to install."
           else
             installPkg=false
@@ -6489,6 +6492,7 @@ bilderInstallAll() {
 # -i ignore the tests of builds when calling install, comma-separated list
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -t do not install test pkg
+# -I ignore test results--passed on to shouldInstallTestedPkg()
 #
 # Return true if should be installed
 #
@@ -6504,15 +6508,18 @@ bilderInstallTestedPkg() {
   local removePkg=false
   local removearg=
   local testinstall=false
+  local ignoreTestResultsArg=
+
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bi:n:t" arg; do
+  while getopts "bi:n:tI" arg; do
     case $arg in
       b) hasbuildtests=true;;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
       n) tstsnm="$OPTARG";;
       t) testinstall=true;;
+      I) ignoreTestResultsArg=-I;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -6547,7 +6554,7 @@ bilderInstallTestedPkg() {
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
   if test -n "$tstdblds"; then
-    if shouldInstallTestedPkg -b "$tstdblds" $sitpargs $1 $2; then
+    if shouldInstallTestedPkg $ignoreTestResultsArg -b "$tstdblds" $sitpargs $1 $2; then
       techo "All $1 builds and tests passed or failures ignored."
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
