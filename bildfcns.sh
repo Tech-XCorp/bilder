@@ -6276,7 +6276,7 @@ EOF
           $cmd
         fi
       else
-        techo "WARNING: [$FUNCNAME] Configure script not found for package $1."
+        techo "NOTE: [$FUNCNAME] Configure script not found for package $1."
       fi
 
 # Remove old installations.
