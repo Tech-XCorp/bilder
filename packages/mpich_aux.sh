@@ -39,7 +39,7 @@ findMpich() {
     for c in MPICC MPICXX MPIFC MPIF77; do
       case $c in
         MPIFC) MPIFC=$mpichdir/mpif90;;
-        *) exe=`echo $c | tr A-Z a-z`; eval $c=$mpichdir/$exe;;
+        *) exe=`echo $c | tr '[:upper:]' '[:lower:]'`; eval $c=$mpichdir/$exe;;
       esac
       exe=`deref $c`
       if ! test -x $exe; then
