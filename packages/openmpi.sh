@@ -35,7 +35,6 @@ setOpenmpiNonTriggerVars
 ######################################################################
 
 buildOpenmpiAT() {
-
   if ! bilderUnpack openmpi; then
     return
   fi

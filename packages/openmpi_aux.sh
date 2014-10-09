@@ -16,7 +16,7 @@
 ######################################################################
 
 setOpenmpiTriggerVars() {
-  OPENMPI_BLDRVERSION_STD=1.8.2
+  OPENMPI_BLDRVERSION_STD=1.6.5
   OPENMPI_BLDRVERSION_EXP=1.8.2
   if test -z "$OPENMPI_BUILDS"; then
     if $BUILD_MPIS; then
