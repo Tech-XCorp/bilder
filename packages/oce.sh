@@ -54,14 +54,11 @@ buildOce() {
   local OCE_INSTALL_DIR=
   if test -d oce; then
     getVersion oce
-    local patchfile=
-    if $BUILD_EXPERIMENTAL; then
+    local patchfile=$BILDER_DIR/patches/oce-${OCE_BLDRVERSION}.patch
+    if ! test -e $patchfile && $BUILD_EXPERIMENTAL; then
       patchfile=$BILDER_DIR/patches/oce-exp.patch
-    else
-      patchfile=$BILDER_DIR/patches/oce-${OCE_BLDRVERSION}.patch
     fi
     if test -e $patchfile; then
-      OCE_PATCH=$patchfile
       cmd="(cd $PROJECT_DIR/oce; patch -N -p1 <$patchfile)"
       techo "$cmd"
       eval "$cmd"
