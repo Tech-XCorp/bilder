@@ -1389,11 +1389,15 @@ fi
       techo -2 "Patch $instdir/$instsubdir not present.  Patch cannot be checked."
     fi
     if $dopatch; then
-      cd $origdir
+      # Commenting this out because $origdir is not set and it seems like we
+      # never used cd in this method previously.
+      #cd $origdir
       return 1
     fi
   fi
-  cd $origdir
+  # Commenting this out because $origdir is not set and it seems like we
+  # never used cd in this method previously.
+  #cd $origdir
   return 0
 
 }
