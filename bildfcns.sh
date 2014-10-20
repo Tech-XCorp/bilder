@@ -3828,10 +3828,13 @@ bilderPreconfig() {
     preconfigaction=${preconfigaction:-"autoreconf -fi"}
   fi
 
+# Commenting out the below because value printed was wrong, and the existing
+# comment is unclear, and nothing is done with the information computed.
+#
 # Is there a patch?  Not going further, as not clear that we want this.
-  local patchvar=`genbashvar $1`_PATCH
-  local patchfile=`deref ${patchvar}`
-  techo "$patchvar = $patchval"
+# local patchvar=`genbashvar $1`_PATCH
+# local patchfile=`deref ${patchvar}`
+# techo "$patchvar = $patchval"
 
 # If no preconfigure action, compute make -j value and return
   if test -z "$preconfigaction"; then
