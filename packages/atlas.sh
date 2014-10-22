@@ -70,6 +70,13 @@ fixRestartAtlasBuild() {
 
 buildAtlas() {
 
+# If the sersh build required and not present, set ser build to be uninstalled
+  if echo $ATLAS_BUILDS | grep -q sersh && ! isInstalled -i $CONTRIB_DIR atlas-sersh; then
+    techo "atlas-sersh not installed, so setting atlas-ser as not installed."
+    $BILDER_DIR/setinstald.sh -i $CONTRIB_DIR -r atlas,ser
+  fi
+
+
 # All builds and deps now taken from global variables
   if ! bilderUnpack atlas; then
     return
@@ -296,6 +303,7 @@ installAtlas() {
               if isCcGcc && test -n "$LIBGFORTRAN_DIR"; then
                 ldfl="$ldfl -L$LIBGFORTRAN_DIR -rpath $LIBGFORTRAN_DIR"
               fi
+              techo "Creating shared atlas libraries."
               cmd="cd $BUILD_DIR/atlas-$ATLAS_BLDRVERSION/$bld/lib"
               techo "$cmd"
               $cmd
@@ -310,6 +318,11 @@ installAtlas() {
               $cmd
               cd -
               (cd $CONTRIB_DIR; rm -rf atlas-sersh; ln -sf atlas-$ATLAS_BLDRVERSION-sersh atlas-sersh)
+              if test -n "$ATLAS_PATCH"; then
+                cmd="/usr/bin/install -m 664 $ATLAS_PATCH $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-sersh/lib"
+                techo "$cmd"
+                $cmd
+              fi
               $BILDER_DIR/setinstald.sh -i $CONTRIB_DIR atlas,sersh
               ;;
           esac
