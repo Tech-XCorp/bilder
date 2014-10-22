@@ -71,9 +71,11 @@ fixRestartAtlasBuild() {
 buildAtlas() {
 
 # If the sersh build required and not present, set ser build to be uninstalled
-  if echo $ATLAS_BUILDS | grep -q sersh && ! isInstalled -i $CONTRIB_DIR atlas-sersh; then
-    techo "atlas-sersh not installed, so setting atlas-ser as not installed."
+  if echo $ATLAS_BUILDS | grep -q sersh && ! isInstalled -i $CONTRIB_DIR atlas-${ATLAS_BLDRVERSION}-sersh; then
+    techo "atlas-${ATLAS_BLDRVERSION}-sersh is not installed, so setting atlas-ser as not installed."
     $BILDER_DIR/setinstald.sh -i $CONTRIB_DIR -r atlas,ser
+  else
+    techo "atlas-${ATLAS_BLDRVERSION}-sersh is installed."
   fi
 
 
@@ -304,24 +306,27 @@ installAtlas() {
                 ldfl="$ldfl -L$LIBGFORTRAN_DIR -rpath $LIBGFORTRAN_DIR"
               fi
               techo "Creating shared atlas libraries."
-              cmd="cd $BUILD_DIR/atlas-$ATLAS_BLDRVERSION/$bld/lib"
+              cmd="cd $BUILD_DIR/atlas-${ATLAS_BLDRVERSION}/$bld/lib"
               techo "$cmd"
               $cmd
               cmd="make shared LDFLAGS='$ldfl'"
               techo "$cmd"
               eval "$cmd"
-              cmd="/usr/bin/install -m 775 -d $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-sersh/lib"
+              cmd="/usr/bin/install -m 775 -d $CONTRIB_DIR/atlas-${ATLAS_BLDRVERSION}-sersh/lib"
               techo "$cmd"
               $cmd
-              cmd="/usr/bin/install -m 775 *.a *.so $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-sersh/lib"
+              cmd="/usr/bin/install -m 775 *.a *.so $CONTRIB_DIR/atlas-${ATLAS_BLDRVERSION}-sersh/lib"
               techo "$cmd"
               $cmd
               cd -
-              (cd $CONTRIB_DIR; rm -rf atlas-sersh; ln -sf atlas-$ATLAS_BLDRVERSION-sersh atlas-sersh)
+              (cd $CONTRIB_DIR; rm -rf atlas-sersh; ln -sf atlas-${ATLAS_BLDRVERSION}-sersh atlas-sersh)
+              ATLAS_PATCH=${ATLAS_PATCH:-"$BILDER_DIR/patches/atlas-${ATLAS_BLDRVERSION}.patch"}
               if test -n "$ATLAS_PATCH"; then
-                cmd="/usr/bin/install -m 664 $ATLAS_PATCH $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-sersh/lib"
+                cmd="/usr/bin/install -m 664 $ATLAS_PATCH $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-sersh"
                 techo "$cmd"
                 $cmd
+              else
+                techo "ATLAS_PATCH not defined."
               fi
               $BILDER_DIR/setinstald.sh -i $CONTRIB_DIR atlas,sersh
               ;;

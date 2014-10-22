@@ -1,0 +1,21 @@
+diff -ruN atlas-3.10.2/makes/Make.lib atlas-3.10.2-new/makes/Make.lib
+--- atlas-3.10.2/makes/Make.lib	2014-07-10 10:22:01.000000000 -0600
++++ atlas-3.10.2-new/makes/Make.lib	2014-10-22 13:04:12.000000000 -0600
+@@ -51,7 +51,7 @@
+            --whole-archive $(libas) --no-whole-archive $(LIBS)
+ GCCTRY_WIN:
+ 	$(GOODGCC) -shared -o $(outso) -Wl,--output-def=$(outdef) \
+-           -Wl,"rpath-link $(LIBINSTdir)" \
++           -Wl,rpath-link,"$(LIBINSTdir)" \
+            -Wl,--whole-archive $(libas) -Wl,--no-whole-archive $(LIBS)
+ GCCTRY_norp_WIN:
+ 	$(GOODGCC) -shared -o $(outso) -Wl,--output-def=$(outdef) \
+@@ -117,7 +117,7 @@
+            --whole-archive $(libas) --no-whole-archive $(LIBS)
+ GCCTRY:
+ 	$(GOODGCC) -shared -o $(outso)  \
+-           -Wl,"rpath-link $(LIBINSTdir)" \
++           -Wl,rpath-link,"$(LIBINSTdir)" \
+            -Wl,--whole-archive $(libas) -Wl,--no-whole-archive $(LIBS)
+ GCCTRY_norp:
+ 	$(GOODGCC) -shared -o $(outso)  \
