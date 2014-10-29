@@ -12,7 +12,7 @@
 #
 ######################################################################
 
-OPENSPLICE_BLDRVERSION=${OPENSPLICE_BLDRVERSION:-"5.5.1"}
+OPENSPLICE_BLDRVERSION=${OPENSPLICE_BLDRVERSION:-"6.3"}
 
 # Built from package only
 ######################################################################
@@ -102,8 +102,6 @@ installOpensplice() {
 
 #   Determine where it will be installed
     local instdirvar=`genbashvar opensplice-ser`_INSTALL_DIR
-    echo !!!!!!!
-    echo $TXOSPL_SER_INSTALL_DIR
     techo -2 instdirvar = ${instdirvar}
     local instdirval=`deref ${instdirvar}`
     if test -z "${instdirval}"; then
