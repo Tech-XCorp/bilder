@@ -4382,7 +4382,7 @@ bilderConfig() {
 # has been created.
 #
   unset cmd
-  if test $RM_BUILD; then
+  if $RM_BUILD; then
     techo -2 "Removing old builds..."
     if test "$cmval" = cmake -a "$inplace" = false; then
       cmd="rmall *"
