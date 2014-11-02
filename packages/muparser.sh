@@ -41,35 +41,42 @@ buildMuparser() {
     return
   fi
 
+# Set flags
+  local MUPARSER_SER_MAKE_ARGS=
+  local MUPARSER_SERMD_MAKE_ARGS=
+  local MUPARSER_SERSH_MAKE_ARGS=
+  local configargs=
+  local makerargs=
   case `uname` in
     CYGWIN*)
 # The build on Windows is just an "nmake -fmakefile.vc"
 # and then manually installing the includes and library
-      cmd="cd $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/build"
+      MUPARSER_SER_MAKE_ARGS="muparser.lib -f../build/makefile.vcmt"
+      MUPARSER_SERMD_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
+      configargs="-C :"
+      makerargs="-m nmake"
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/ser/obj/vc_static_rel"
+      techo "$cmd"
       $cmd
-      cmd="nmake -fmakefile.vcmt"
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/sermd/obj/vc_static_rel"
+      techo "$cmd"
       $cmd
-      cmd="mkdir -p $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-ser"
-      $cmd
-      cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/lib $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-ser"
-      $cmd
-      cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/include $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-ser"
-      $cmd
-      cmd="mkLink $CONTRIB_DIR muparser-${MUPARSER_BLDRVERSION}-ser muparser"
-      $cmd
-      cmd="$BILDER_DIR/setinstald.sh -i $CONTRIB_DIR muparser,ser"
-      $cmd
-      buildSuccesses="$buildSuccesses muparser"
       ;;
     Darwin | Linux)
-      if bilderConfig muparser ser "--enable-shared=no"; then
-        bilderBuild muparser ser
-      fi
-      if bilderConfig muparser sersh "--enable-shared=yes"; then
-        bilderBuild muparser sersh
-      fi
       ;;
   esac
+
+# The builds
+  if bilderConfig $configargs muparser ser "--enable-shared=no"; then
+    bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
+  fi
+  if bilderConfig $configargs muparser sermd "--enable-shared=no"; then
+    bilderBuild $makerargs muparser sermd "$MUPARSER_SERMD_MAKE_ARGS"
+  fi
+  if bilderConfig $configargs muparser sersh "--enable-shared=yes"; then
+    bilderBuild $makerargs muparser sersh
+  fi
+
 }
 
 ######################################################################
@@ -89,8 +96,29 @@ testMuparser() {
 ######################################################################
 
 installMuparser() {
-  case `uname` in
-    Darwin | Linux) bilderInstallAll muparser;;
-  esac
+  local makerargs=
+# No install target on Windows
+  if [[ `uname` =~ CYGWIN ]]; then
+    makerargs="-m :"
+  fi
+  for bld in `echo $MUPARSER_BUILDS | tr ',' ' '`; do
+    if bilderInstall $makerargs muparser $bld; then
+      if [[ `uname` =~ CYGWIN ]]; then
+# Manual install on Windows
+        cmd="mkdir -p $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/lib"
+        techo "$cmd"
+        $cmd
+        cmd="cd $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/build"
+        techo "$cmd"
+        $cmd
+        cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/$bld/muparser.lib $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/lib"
+        techo "$cmd"
+        $cmd
+        cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/include $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld"
+        techo "$cmd"
+        $cmd
+      fi
+    fi
+  done
 }
 

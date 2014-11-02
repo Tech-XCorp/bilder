@@ -4,6 +4,8 @@
 #
 # $Id$
 #
+# To create the tarball, unzip, change first _ to -, tar up.
+#
 ######################################################################
 
 ######################################################################
@@ -21,6 +23,7 @@ setMuparserTriggerVars() {
   if test -z "$MUPARSER_BUILDS"; then
     MUPARSER_BUILDS=ser
     case `uname` in
+      CYGWIN*) MUPARSER_BUILDS="${MUPARSER_BUILDS},sermd";;
       Darwin | Linux) MUPARSER_BUILDS="${MUPARSER_BUILDS},sersh";;
     esac
   fi
