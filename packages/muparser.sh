@@ -126,11 +126,11 @@ installMuparser() {
         $cmd
       fi
     else
-      if [[ `uname` =~ CYGWIN ]]; then
+# Should remove only if a build was attempted and failed to install
+# Disable for now.
+      if false; then
+      # if [[ `uname` =~ CYGWIN ]]; then
         cmd="rm -rf $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld"
-        techo "$cmd"
-        $cmd
-        cmd="rm -rf $CONTRIB_DIR/muparser${sfx} $CONTRIB_DIR/muparser${sfx}.lnk"
         techo "$cmd"
         $cmd
       fi
