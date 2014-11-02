@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for muparser
+# Build information for muparser
 #
 # $Id$
 #
@@ -8,28 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in muparser_aux.sh
 #
 ######################################################################
 
-MUPARSER_BLDRVERSION=${MUPARSER_BLDRVERSION:-"v134"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/muparser_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-case `uname` in
- CYGWIN*)
-  MUPARSER_BUILDS=${MUPARSER_BUILDS:-"ser"}
-  ;;
- Darwin | Linux)
-  MUPARSER_BUILDS=${MUPARSER_BUILDS:-"ser,sersh"}
-  ;;
-esac
-
-MUPARSER_DEPS=m4
+setMuparserNonTriggerVars() {
+  MUPARSER_UMASK=002
+}
+setMuparserNonTriggerVars
 
 ######################################################################
 #
@@ -39,7 +36,7 @@ MUPARSER_DEPS=m4
 
 buildMuparser() {
   case `uname` in
-   CYGWIN*)
+    CYGWIN*)
     # The build on Windows is just an "nmake -fmakefile.vc" and then manually installing the includes and library
     if shouldInstall -i $CONTRIB_DIR muparser-${MUPARSER_BLDRVERSION} ser; then
       if bilderUnpack muparser; then
@@ -61,8 +58,8 @@ buildMuparser() {
       fi
 	fi
     ;;
-   Darwin | Linux)
-    if bilderUnpack muparser; then
+    Darwin | Linux)
+      if bilderUnpack muparser; then
       if bilderConfig muparser ser "--enable-shared=no"; then
         bilderBuild muparser ser
       fi
