@@ -30,11 +30,11 @@ setMuparserTriggerVars
 
 ######################################################################
 #
-# Find hypre
+# Find muparser
 #
 ######################################################################
 
 findMuparser() {
-  :
+  findContribPackage muparser muparser ser
 }
 
