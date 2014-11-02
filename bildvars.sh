@@ -243,7 +243,7 @@ case `uname` in
     ;;
 
 esac
-techo "Found $MAKEJ_TOTAL cores to build on."
+techo "Found $MAKEJ_TOTAL cores."
 IS_MINGW=${IS_MINGW:-"false"}
 
 ######################################################################
