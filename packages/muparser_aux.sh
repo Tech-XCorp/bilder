@@ -5,6 +5,10 @@
 # $Id$
 #
 # To create the tarball, unzip, change first _ to -, tar up.
+# The patch is created by
+# sed -i.bak -e 's?..\\lib\\??g' -e 's?..\\samples\\??g' build/makefile.vc
+# rm build/makefile.vc.bak
+# sed -e '/^EXAMPLE/s?/MD?/MT?' -e '/MUPARSER_LIB_CXXFLAGS/s?/MD?/MT?'  <build/makefile.vc >build/makefile.vcmt
 #
 ######################################################################
 
