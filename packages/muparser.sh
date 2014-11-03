@@ -67,13 +67,13 @@ buildMuparser() {
   esac
 
 # The builds
-  if bilderConfig $configargs muparser ser "--enable-shared=no"; then
+  if bilderConfig $configargs muparser ser "$CONFIG_COMPILERS_SER --enable-shared=no"; then
     bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sermd "--enable-shared=no"; then
+  if bilderConfig $configargs muparser sermd "$CONFIG_COMPILERS_SER --enable-shared=no"; then
     bilderBuild $makerargs muparser sermd "$MUPARSER_SERMD_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sersh "--enable-shared=yes"; then
+  if bilderConfig $configargs muparser sersh "$CONFIG_COMPILERS_SER --enable-shared=yes"; then
     bilderBuild $makerargs muparser sersh
   fi
 
