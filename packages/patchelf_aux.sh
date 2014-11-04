@@ -15,7 +15,7 @@
 #
 ######################################################################
 
-setAutoconfTriggerVars() {
+setPatchelfTriggerVars() {
   PATCHELF_BLDRVERSION_STD=${PATCHELF_BLDRVERSION_STD:-"0.8"}
   PATCHELF_BLDRVERSION_EXP=${PATCHELF_BLDRVERSION_EXP:-"0.8"}
   PATCHELF_BUILDS=${PATCHELF_BUILDS:-"ser"}
