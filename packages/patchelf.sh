@@ -43,8 +43,8 @@ buildPatchelf() {
   if ! bilderUnpack patchelf; then
     return
   fi
-  if bilderConfig -p - patchelf ser; then
-    bilderBuild -m make patchelf ser
+  if bilderConfig patchelf ser; then
+    bilderBuild patchelf ser
   fi
 }
 
