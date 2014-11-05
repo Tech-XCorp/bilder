@@ -33,7 +33,7 @@ findGras() {
 
 # Look for Gras in the contrib directory
   findContribPackage Gras G4global sersh pycsh
-  findCc4pyDir Gras
+  findPycshDir Gras
 
 # Set envvars for other packages
   local GRAS_HOME="$CONTRIB_DIR/gras-sersh"

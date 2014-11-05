@@ -36,7 +36,7 @@ findOce() {
 
 # Look for Oce in the install directory
   findPackage Oce TKMath "$BLDR_INSTALL_DIR" pycsh sersh
-  findCc4pyDir Oce
+  findPycshDir Oce
 
 # Set root dir
   local ocerootdir=$OCE_PYCSH_DIR

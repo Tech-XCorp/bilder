@@ -288,7 +288,7 @@ for pkgdir in $pkgdirs; do
           builds="$builds ben"
         fi
       fi
-      if grep -q '^ *addCc4pyBuild' $pkgdir/$pkg.sh; then
+      if grep -q '^ *addPycshBuild' $pkgdir/$pkg.sh; then
         if ! echo $builds | egrep -q "(^| )pycsh($| )"; then
           builds="$builds pycsh"
         fi

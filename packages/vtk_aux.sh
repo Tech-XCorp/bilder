@@ -32,6 +32,6 @@ findVtk() {
   local majmin=`echo $VTK_BLDRVERSION | sed 's/\.[0-9]*$//'`
   techo -2 "Looking for vtkCommonCore-${majmin}."
   findContribPackage VTK vtkCommonCore-${majmin} sersh pycsh
-  findCc4pyDir VTK
+  findPycshDir VTK
 }
 

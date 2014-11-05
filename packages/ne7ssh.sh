@@ -24,7 +24,7 @@ if test -z "$NE7SSH_DESIRED_BUILDS"; then
   NE7SSH_DESIRED_BUILDS=sersh
 fi
 computeBuilds ne7ssh
-addCc4pyBuild ne7ssh
+addPycshBuild ne7ssh
 
 NE7SSH_DEPS=${NE7SSH_DEPS:-"cmake,botan"}
 NE7SSH_UMASK=002

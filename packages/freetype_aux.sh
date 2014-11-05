@@ -32,7 +32,7 @@ findFreetype() {
 
 # Look for freetype in contrib
   findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
-  findCc4pyDir Freetype
+  findPycshDir Freetype
 
 # If not found, we look in $DIRLIST 
   if test -z "$FREETYPE_SERSH_DIR"; then
@@ -86,7 +86,7 @@ setFreetypeTriggerVars() {
   esac
   computeBuilds freetype
   if test -n "$FREETYPE_BUILDS"; then
-    addCc4pyBuild freetype
+    addPycshBuild freetype
   fi
   FREETYPE_DEPS=
 }

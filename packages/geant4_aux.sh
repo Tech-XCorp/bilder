@@ -34,7 +34,7 @@ findGeant4() {
 
 # Look for Geant4 in the contrib directory
   findContribPackage Geant4 G4global sersh pycsh
-  findCc4pyDir Geant4
+  findPycshDir Geant4
 
 # Environment variables to help find Geant4
   local GEANT4_HOME="$CONTRIB_DIR/geant4-sersh"

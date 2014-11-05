@@ -132,7 +132,7 @@ findQt() {
   fi
   findContribPackage Qt $libname sersh pycsh
   techo "QT_SERSH_DIR = $QT_SERSH_DIR."
-  findCc4pyDir Qt
+  findPycshDir Qt
   if test -n "$QT_PYCSH_DIR"; then
     techo "QT_PYCSH_DIR = $QT_PYCSH_DIR."
   else

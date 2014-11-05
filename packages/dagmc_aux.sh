@@ -35,6 +35,6 @@ setDagMcTriggerVars
 findDagMc() {
 # Look for DagMc in the contrib directory
   findPackage DagMc dagsolid "$BLDR_INSTALL_DIR" pycsh sersh
-  findCc4pyDir DagMc
+  findPycshDir DagMc
 }
 

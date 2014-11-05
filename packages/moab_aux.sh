@@ -34,6 +34,6 @@ setMoabTriggerVars
 
 findMoab() {
   findPackage Moab MOAB "$BLDR_INSTALL_DIR" sersh pycsh
-  findCc4pyDir Moab
+  findPycshDir Moab
 }
 

@@ -22,7 +22,7 @@ BOTAN_BLDRVERSION=${BOTAN_BLDRVERSION:-"1.8.13"}
 
 BOTAN_DESIRED_BUILDS=${BOTAN_DESIRED_BUILDS:-"sersh"}
 computeBuilds botan
-addCc4pyBuild botan
+addPycshBuild botan
 BOTAN_DEPS=
 BOTAN_UMASK=007
 

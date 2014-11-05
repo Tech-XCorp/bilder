@@ -737,18 +737,6 @@ rmVals() {
 }
 
 #
-# Determine the python build: sersh if compiler is the one used to
-# compiler python, pycsh otherwise.
-#
-getPythonBuild() {
-  if isCcPyc; then
-    echo sersh
-  else
-    echo pycsh
-  fi
-}
-
-#
 # Compute the builds from a package by taking the add builds
 # minus the no-builds
 #
@@ -1963,7 +1951,7 @@ isCcPyc() {
 #
 # return whether added pycsh to the build
 #
-addCc4pyBuild() {
+addPycshBuild() {
 
 # Defaults
   local forceadd=false
@@ -3007,7 +2995,7 @@ findBlasLapack() {
 # Args:
 # 1: The name of the package (should be a package.sh bilder script)
 #
-findCc4pyDir() {
+findPycshDir() {
 
 # Get name of package
   if test -n "$1"; then

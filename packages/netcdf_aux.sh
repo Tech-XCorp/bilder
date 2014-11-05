@@ -25,7 +25,7 @@ setNetcdfTriggerVars() {
       CYGWIN*) ;; # par, sermd not building
       *) NETCDF_BUILDS=${NETCDF_BUILDS},par;;
     esac
-    addCc4pyBuild netcdf
+    addPycshBuild netcdf
   fi
   NETCDF_DEPS="hdf5,cmake"
 }
@@ -46,7 +46,7 @@ findNetcdf() {
     findContribPackage Netcdf netcdf sermd
     builds="$builds sermd"
   fi
-  findCc4pyDir Netcdf
+  findPycshDir Netcdf
 
 # Find cmake configuration directories
   for bld in $builds; do

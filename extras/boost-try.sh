@@ -38,7 +38,7 @@ if test -z "$BOOST_DESIRED_BUILDS"; then
   fi
 fi
 computeBuilds boost
-addCc4pyBuild boost
+addPycshBuild boost
 # It does not hurt to add deps that do not get built
 # (e.g., Python on Darwin and CYGWIN)
 # Only certain builds depend on Python

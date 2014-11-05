@@ -55,7 +55,7 @@ getHdf5TriggerVars() {
     esac
   fi
   computeBuilds hdf5
-  addCc4pyBuild hdf5
+  addPycshBuild hdf5
 
 # Deps and other
   HDF5_DEPS=${MPI_BUILD},zlib,cmake,bzip2
@@ -86,7 +86,7 @@ findHdf5() {
       ;;
   esac
   findContribPackage Hdf5 hdf5 $srchbuilds
-  findCc4pyDir Hdf5
+  findPycshDir Hdf5
 
 # Find cmake configuration directories
   for bld in $srchbuilds; do

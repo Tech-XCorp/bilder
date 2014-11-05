@@ -29,7 +29,7 @@ XERCESC_BLDRVERSION=${XERCESC_BLDRVERSION:-"3.1.1"}
 
 XERCESC_DESIRED_BUILDS=${XERCESC_DESIRED_BUILDS:-"ser,sersh"}
 computeBuilds xercesc
-addCc4pyBuild xercesc
+addPycshBuild xercesc
 XERCESC_DEPS=
 XERCESC_UMASK=002
 

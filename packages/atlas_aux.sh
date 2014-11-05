@@ -39,7 +39,7 @@ setAtlasTriggerVars() {
         ;;
       Linux)
         ATLAS_BUILDS=ser,sersh
-        addCc4pyBuild atlas
+        addPycshBuild atlas
         # addBenBuild atlas # Have no ben build
         ;;
     esac

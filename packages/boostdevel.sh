@@ -32,7 +32,7 @@ if test -z "$BOOSTDEVEL_DESIRED_BUILDS"; then
 fi
 
 # computeBuilds boostdevel
-# addCc4pyBuild boostdevel
+# addPycshBuild boostdevel
 BOOSTDEVEL_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS
 
 # It does not hurt to add deps that do not get built

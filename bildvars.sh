@@ -373,12 +373,27 @@ fi
 
 ######################################################################
 #
-# Need to know the python build before sourcing any package file
+# For python build.
 #
 ######################################################################
 
-FORPYTHON_SHARED_BUILD=`getPythonBuild`
+if isCcPyc; then
+  FORPYTHON_SHARED_BUILD=sersh
+  if [[ `uname` =~ CYGWIN ]]; then
+    FORPYTHON_STATIC_BUILD=sermd
+  else
+    FORPYTHON_STATIC_BUILD=ser
+  fi
+else
+  FORPYTHON_SHARED_BUILD=pycsh
+  if [[ `uname` =~ CYGWIN ]]; then
+    FORPYTHON_STATIC_BUILD=pycmd
+  else
+    FORPYTHON_STATIC_BUILD=pyc
+  fi
+fi
 techo -2 "FORPYTHON_SHARED_BUILD = $FORPYTHON_SHARED_BUILD."
+techo -2 "FORPYTHON_STATIC_BUILD = $FORPYTHON_STATIC_BUILD."
 
 ######################################################################
 #

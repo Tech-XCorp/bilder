@@ -18,7 +18,7 @@
 setTbbTriggerVars() {
   TBB_BLDRVERSION=${TBB_BLDRVERSION:-"43_20140724oss"}
   TBB_BUILDS=${TBB_BUILDS:-"sersh"}
-  addCc4pyBuild tbb
+  addPycshBuild tbb
   TBB_DEPS=
 }
 setTbbTriggerVars

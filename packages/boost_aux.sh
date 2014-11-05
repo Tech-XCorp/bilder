@@ -32,7 +32,7 @@ getBoostTriggerVars() {
       BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sermd
     fi
     computeBuilds boost
-    addCc4pyBuild boost
+    addPycshBuild boost
   fi
 # It does not hurt to add deps that do not get built
 # (e.g., Python on Darwin and CYGWIN).
