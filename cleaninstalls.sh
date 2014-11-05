@@ -109,6 +109,9 @@ cleanInstallDir() {
     return
   fi
 
+# Remove old cc4py installations
+  sed -i.bak '/cc4py/d' installations.txt
+
 # Removing tarball packages.  Do as subshell so as not to change
 # nocaseglob in this shell.
   if $REMOVE_CONTRIB_PKGS; then
