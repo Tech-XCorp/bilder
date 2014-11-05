@@ -20,7 +20,7 @@ FORTHON_BLDRVERSION=${FORTHON_BLDRVERSION:-"0.8.4"}
 #
 ######################################################################
 
-FORTHON_BUILDS=${FORTHON_BUILDS:-"cc4py"}
+FORTHON_BUILDS=${FORTHON_BUILDS:-"pycsh"}
 FORTHON_DEPS=numpy
 
 ######################################################################

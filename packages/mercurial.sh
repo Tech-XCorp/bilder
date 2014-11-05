@@ -22,7 +22,7 @@ MERCURIAL_BLDRVERSION=${MERCURIAL_BLDRVERSION:-"2.8.1"}
 
 HG=`which hg 2>/dev/null`
 if test -z "$HG" -o "$HG" = $CONTRIB_DIR/bin/hg; then
-  MERCURIAL_BUILDS=${MERCURIAL_BUILDS:-"cc4py"}
+  MERCURIAL_BUILDS=${MERCURIAL_BUILDS:-"pycsh"}
 fi
 # setuptools gets site-packages correct
 MERCURIAL_DEPS=Python

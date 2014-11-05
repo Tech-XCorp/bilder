@@ -49,7 +49,7 @@ getHdf5TriggerVars() {
         HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
         if test "$VISUALSTUDIO_VERSION" = "10"; then
 # Python built with VS9, so need hdf5 build for that
-          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,cc4py"
+          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,pycsh"
         fi
         ;;
     esac
@@ -77,12 +77,12 @@ findHdf5() {
     CYGWIN*)
       srchbuilds="$srchbuilds sermd"
       case $HDF5_BLDRVERSION in
-        1.8.[0-9]) findContribPackage Hdf5 hdf5dll sersh parsh cc4py;;
-        *) srchbuilds="$srchbuilds sersh parsh cc4py";;
+        1.8.[0-9]) findContribPackage Hdf5 hdf5dll sersh parsh pycsh;;
+        *) srchbuilds="$srchbuilds sersh parsh pycsh";;
       esac
       ;;
     *)
-      srchbuilds="$srchbuilds sersh parsh cc4py"
+      srchbuilds="$srchbuilds sersh parsh pycsh"
       ;;
   esac
   findContribPackage Hdf5 hdf5 $srchbuilds

@@ -77,15 +77,15 @@ buildOce() {
   OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$OCE_INSTALL_DIR -DCMAKE_INSTALL_NAME_DIR:PATH=$OCE_INSTALL_DIR/lib -DOCE_MULTITHREADED_BUILD:BOOL=FALSE -DOCE_TESTING:BOOL=FALSE"
 
 # Find freetype
-  if test -z "$FREETYPE_CC4PY_DIR"; then
+  if test -z "$FREETYPE_PYCSH_DIR"; then
     source $BILDER_DIR/packages/freetype_aux.sh
     findFreetype
   fi
 
 # Set other args, env
   local OCE_ENV=
-  if test -n "$FREETYPE_CC4PY_DIR"; then
-    OCE_ENV="FREETYPE_DIR=$FREETYPE_CC4PY_DIR"
+  if test -n "$FREETYPE_PYCSH_DIR"; then
+    OCE_ENV="FREETYPE_DIR=$FREETYPE_PYCSH_DIR"
   fi
 # Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
@@ -94,8 +94,8 @@ buildOce() {
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
       ;;
     Linux)
-      if test -n "$FREETYPE_CC4PY_DIR"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS  -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$FREETYPE_CC4PY_DIR/lib'"
+      if test -n "$FREETYPE_PYCSH_DIR"; then
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS  -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$FREETYPE_PYCSH_DIR/lib'"
       fi
       ;;
   esac

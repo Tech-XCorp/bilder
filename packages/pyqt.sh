@@ -29,7 +29,7 @@ if test -z "$PYQT_BUILDS"; then
 # PyQt does not build on windows due to crash of sip.
     PYQT_BUILDS=NONE
   else
-    PYQT_BUILDS=cc4py
+    PYQT_BUILDS=pycsh
   fi
 fi
 PYQT_DEPS=qt,sip,Python
@@ -48,9 +48,9 @@ buildPyQt() {
 # Configure args: qmake must be found from path
     PYQT_CONFIG_ARGS="--confirm-license"
 # Configure
-    if bilderConfig -r PyQt cc4py "$PYQT_CONFIG_ARGS"; then
+    if bilderConfig -r PyQt pycsh "$PYQT_CONFIG_ARGS"; then
 # Build
-      bilderBuild PyQt cc4py
+      bilderBuild PyQt pycsh
     fi
   fi
 }
@@ -72,6 +72,6 @@ testPyQt() {
 ######################################################################
 
 installPyQt() {
-  bilderInstall -L -r PyQt cc4py
+  bilderInstall -L -r PyQt pycsh
 }
 

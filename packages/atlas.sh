@@ -236,11 +236,11 @@ buildAtlas() {
 
 # Not doing sersh build, as we will get that from the ser build.
 
-# cc4py build
+# pycsh build
 #
 # Find the python build of lapack
-  if bilderConfig atlas cc4py "-C ic '$PYC_CC' -F ic '$PYC_CFLAGS -O3' -C if '$PYC_F77' -F if '$PYC_FFLAGS -O3' -Fa alg -fPIC --shared $ATLAS_PTR_ARG $ATLAS_CC4PY_LP_ARGS $ATLAS_CC4PY_OTHER_ARGS" "" "$ATLAS_CC4PY_ENV"; then
-    bilderBuild atlas cc4py "" "$ATLAS_CC4PY_ENV"
+  if bilderConfig atlas pycsh "-C ic '$PYC_CC' -F ic '$PYC_CFLAGS -O3' -C if '$PYC_F77' -F if '$PYC_FFLAGS -O3' -Fa alg -fPIC --shared $ATLAS_PTR_ARG $ATLAS_PYCSH_LP_ARGS $ATLAS_PYCSH_OTHER_ARGS" "" "$ATLAS_PYCSH_ENV"; then
+    bilderBuild atlas pycsh "" "$ATLAS_PYCSH_ENV"
   fi
 
 # clapack build

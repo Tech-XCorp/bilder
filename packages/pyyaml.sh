@@ -20,7 +20,7 @@ PYYAML_BLDRVERSION_STD=${PYYAML_BLDRVERSION_STD:-"3.10.0"}
 #
 ######################################################################
 
-PYYAML_BUILDS=${PYYAML_BUILDS:-"cc4py"}
+PYYAML_BUILDS=${PYYAML_BUILDS:-"pycsh"}
 PYYAML_DEPS=yaml
 
 ######################################################################

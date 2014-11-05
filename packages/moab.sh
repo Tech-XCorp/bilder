@@ -63,21 +63,21 @@ buildMoab() {
 # Set other args, env
   local MOAB_ADDL_ARGS=
   if $MOAB_USE_CMAKE; then
-    MOAB_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
+    MOAB_ADDL_ARGS="$OCE_PYCSH_CMAKE_DIR_ARG"
   else
-    # MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR' --with-vtk='$VTK_CC4PY_DIR' --with-cgm='$CGM_CC4PY_DIR'"
+    # MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_PYCSH_DIR' --with-netcdf='$NETCDF_PYCSH_DIR' --with-vtk='$VTK_PYCSH_DIR' --with-cgm='$CGM_PYCSH_DIR'"
 # moab cannot use recent vtk
 # With cgm:
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
-    MOAB_ADDL_ARGS="--enable-shared --without-vtk --with-hdf5='$HDF5_CC4PY_DIR' --with-netcdf='$NETCDF_CC4PY_DIR'"
+    MOAB_ADDL_ARGS="--enable-shared --without-vtk --with-hdf5='$HDF5_PYCSH_DIR' --with-netcdf='$NETCDF_PYCSH_DIR'"
     case `uname` in
       Linux)
         local nclibsubdir=lib
-        if test -d "$NETCDF_CC4PY_DIR/lib64"; then
+        if test -d "$NETCDF_PYCSH_DIR/lib64"; then
           nclibsubdir=lib64
         fi
-        MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS LDFLAGS=-Wl,-rpath,'$HDF5_CC4PY_DIR/lib':'$NETCDF_CC4PY_DIR/$nclibsubdir'"
+        MOAB_ADDL_ARGS="$MOAB_ADDL_ARGS LDFLAGS=-Wl,-rpath,'$HDF5_PYCSH_DIR/lib':'$NETCDF_PYCSH_DIR/$nclibsubdir'"
         ;;
     esac
   fi

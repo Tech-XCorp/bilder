@@ -46,10 +46,10 @@ fixBoost() {
   local bld=$1
   local cxxbase=
   case $bld in
-    cc4py) cxxbase=`basename $PYC_CXX`;;
+    pycsh) cxxbase=`basename $PYC_CXX`;;
     *) cxxbase=`basename $CXX`;;
   esac
-  if test $bld != cc4py; then
+  if test $bld != pycsh; then
     local cxxversfx=
     if [[ "$cxxbase" =~ 'g++' ]]; then
       echo "Executing sed."
@@ -62,7 +62,7 @@ fixBoost() {
     fi
   fi
   case $bld in
-    sersh | cc4py)
+    sersh | pycsh)
       local jamfile=
       case $cxxbase in
         clang++ | g++) jamfile=tools/build/v2/tools/clang-darwin.jam;;
@@ -97,7 +97,7 @@ buildBoost() {
 
 # Determine the toolset
   local toolsetarg_ser=
-  local toolsetarg_cc4py=
+  local toolsetarg_pycsh=
   local stdlibargs_ser=
   case `uname`-`uname -r` in
     CYGWIN*)
@@ -107,9 +107,9 @@ buildBoost() {
       ;;
     Darwin-*)
       case `uname -r` in
-        1[3-9]*) stdlibargs_cc4py="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
+        1[3-9]*) stdlibargs_pycsh="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
       esac
-      toolsetarg_cc4py="toolset=clang"
+      toolsetarg_pycsh="toolset=clang"
       case $CXX in
         *clang++ | *g++)
 # g++ is clang++ on Darwin-11+
@@ -123,7 +123,7 @@ buildBoost() {
       esac
       ;;
     Linux-*)
-      toolsetarg_cc4py="toolset=gcc"
+      toolsetarg_pycsh="toolset=gcc"
       case $CXX in
         *g++) ;;
         *icpc) toolsetarg_ser="toolset=intel";;
@@ -132,7 +132,7 @@ buildBoost() {
       esac
       ;;
   esac
-  toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
+  toolsetarg_pycsh=${toolsetarg_pycsh:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
   local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"
@@ -147,12 +147,12 @@ buildBoost() {
       BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
     fi
   fi
-# Only the shared and cc4py build boost python, as shared libs required.
+# Only the shared and pycsh build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags, which does not work with python.
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} $BOOST_ALL_ADDL_ARGS"
   BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
-  BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs ${stdlibargs_cc4py} $BOOST_ALL_ADDL_ARGS"
+  BOOST_PYCSH_ADDL_ARGS="$toolsetarg_pycsh $sharedlinkargs ${stdlibargs_pycsh} $BOOST_ALL_ADDL_ARGS"
   BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
 # When that is done, the below will be needed.
@@ -180,9 +180,9 @@ fi
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
-  if bilderConfig -i boost cc4py; then
-    fixBoost cc4py
-    bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
+  if bilderConfig -i boost pycsh; then
+    fixBoost pycsh
+    bilderBuild -m ./b2 boost pycsh "$BOOST_PYCSH_ADDL_ARGS $BOOST_PYCSH_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then

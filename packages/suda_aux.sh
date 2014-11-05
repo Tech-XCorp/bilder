@@ -16,8 +16,8 @@
 ######################################################################
 
 setTxradTriggerVars() {
-  SUDA_BUILD="$FORPYTHON_BUILD"
-  SUDA_DESIRED_BUILDS=${SUDA_BUILDS:-"$FORPYTHON_BUILD"}
+  SUDA_BUILD="$FORPYTHON_SHARED_BUILD"
+  SUDA_DESIRED_BUILDS=${SUDA_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   computeBuilds suda
   SUDA_DEPS=gras
 }

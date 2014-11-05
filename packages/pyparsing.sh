@@ -21,7 +21,7 @@ PYPARSING_BLDRVERSION=${PYPARSING_BLDRVERSION:-"2.2.1"}
 #
 ######################################################################
 
-PYPARSING_BUILDS=${PYPARSING_BUILDS:-"cc4py"}
+PYPARSING_BUILDS=${PYPARSING_BUILDS:-"pycsh"}
 PYPARSING_DEPS=
 PYPARSING_UMASK=002
 

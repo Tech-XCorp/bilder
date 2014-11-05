@@ -66,7 +66,7 @@ setLibpngTriggerVars() {
       ;;
   esac
   computeBuilds libpng
-# No need to add cc4py build, as pure C
+# No need to add pycsh build, as pure C
   LIBPNG_DEPS=zlib,cmake
 }
 setLibpngTriggerVars

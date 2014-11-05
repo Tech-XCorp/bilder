@@ -732,13 +732,13 @@ rmVals() {
 
 #
 # Determine the python build: sersh if compiler is the one used to
-# compiler python, cc4py otherwise.
+# compiler python, pycsh otherwise.
 #
 getPythonBuild() {
-  if isCcCc4py; then
+  if isCcPyc; then
     echo sersh
   else
-    echo cc4py
+    echo pycsh
   fi
 }
 
@@ -1934,7 +1934,7 @@ isCcGcc() {
 # Returns whether CC contains a compiler that can compile
 # Python modules.
 #
-isCcCc4py() {
+isCcPyc() {
 # JRC: vs10 does differ from vs9 in stdint
   # if [[ `uname` =~ CYGWIN ]]; then
 # All compilers appear to work.
@@ -1947,15 +1947,15 @@ isCcCc4py() {
 }
 
 #
-# Add in cc4py build.  Done to packages that will be used by python.
+# Add in pycsh build.  Done to packages that will be used by python.
 #
 # Args:
 # 1: the package to add it to
 #
 # Named args (must come first):
-# -f forces addition of cc4py build, as needed for Darwin
+# -f forces addition of pycsh build, as needed for Darwin
 #
-# return whether added cc4py to the build
+# return whether added pycsh to the build
 #
 addCc4pyBuild() {
 
@@ -1982,9 +1982,9 @@ addCc4pyBuild() {
   fi
 # Add builds
   if test "$buildsval" != NONE; then
-    if $forceadd || ! isCcCc4py; then
-      if ! echo "$buildsval" | egrep -q "(^|,)cc4py($|,)"; then
-        buildsval=$buildsval,cc4py
+    if $forceadd || ! isCcPyc; then
+      if ! echo "$buildsval" | egrep -q "(^|,)pycsh($|,)"; then
+        buildsval=$buildsval,pycsh
         trimvar buildsval ,
         eval $buildsvar=$buildsval
         buildsval=`deref $buildsvar`
@@ -2145,9 +2145,9 @@ setDistutilsEnv() {
 
 # Finish up
   DISTUTILS_NOLV_ENV="$DISTUTILS_ENV"
-  # DISTUTILS_ENV="$DISTUTILS_ENV $LINLIB_CC4PY_ENV $LDVARS_ENV"
+  # DISTUTILS_ENV="$DISTUTILS_ENV $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV="$DISTUTILS_ENV $LDVARS_ENV"
-  # DISTUTILS_ENV2="$DISTUTILS_ENV2 $LINLIB_CC4PY_ENV $LDVARS_ENV"
+  # DISTUTILS_ENV2="$DISTUTILS_ENV2 $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV2="$DISTUTILS_ENV2 $LDVARS_ENV"
   trimvar DISTUTILS_ENV ' '
   trimvar DISTUTILS_NOLV_ENV ' '
@@ -2687,7 +2687,7 @@ setDefaultPkgVars() {
 }
 
 #
-# Find blas and lapack in various forms for the builds, ser, cc4py, and ben.
+# Find blas and lapack in various forms for the builds, ser, pycsh, and ben.
 #
 # The favored configuration args in order:
 #   {system}  or {MKL}   # See note below
@@ -2701,7 +2701,7 @@ setDefaultPkgVars() {
 #   LINLIB_${BLD}_LIBS, the absolute paths to the libraries
 #   CMAKE_LINLIB_${BLD}_ARGS, the cmake args for finding those libraries
 #   CONFIG_LINLIB_${BLD}_ARGS, the autotools args for finding those libraries
-# where BLD = SER, SERMD for CLAPACK, CC4PY, BEN, and
+# where BLD = SER, SERMD for CLAPACK, PYCSH, BEN, and
 #   LAPACK_${BLD}_${VAR}
 #   BLAS_${BLD}_${VAR}
 # where VAR is one of DIR, LIBRARY_DIRS, LIBRARY_NAMES
@@ -2744,7 +2744,7 @@ findBlasLapack() {
 #
 
 # Use system libraries if defined
-  for BLD in SER SERSH CC4PY BEN; do
+  for BLD in SER SERSH PYCSH BEN; do
     lapack_libs=`deref SYSTEM_LAPACK_${BLD}_LIB`
     blas_libs=`deref SYSTEM_BLAS_${BLD}_LIB`
     if test -n "$lapack_libs" -a -n "$blas_libs"; then
@@ -2757,11 +2757,11 @@ findBlasLapack() {
   done
 
 # Find atlas build, but use it only if requested.
-  findContribPackage ATLAS atlas cc4py ben clp sersh ser
+  findContribPackage ATLAS atlas pycsh ben clp sersh ser
 # Set defaults
-  setDefaultPkgVars ATLAS "SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars ATLAS "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  for BLD in CC4PY BEN SERSH SER; do
+  setDefaultPkgVars ATLAS "SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars ATLAS "SER SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  for BLD in PYCSH BEN SERSH SER; do
     techo -2 "ATLAS_${BLD}_DIR = `deref ATLAS_${BLD}_DIR`."
     techo -2 "ATLAS_${BLD}_LIB = `deref ATLAS_${BLD}_LIB`."
     techo -2 "ATLAS_${BLD}_LIBDIR = `deref ATLAS_${BLD}_LIBDIR`."
@@ -2769,8 +2769,8 @@ findBlasLapack() {
     techo -2 "CONFIG_ATLAS_${BLD}_DIR_ARG = `deref CONFIG_ATLAS_${BLD}_DIR_ARG`."
   done
 # Compute vars
-  USE_ATLAS_CC4PY=${USE_ATLAS_CC4PY:-"true"}
-  for BLD in SER SERSH CC4PY BEN CLP; do
+  USE_ATLAS_PYCSH=${USE_ATLAS_PYCSH:-"true"}
+  for BLD in SER SERSH PYCSH BEN CLP; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveatlas=`deref HAVE_ATLAS_$BLD`
@@ -2794,8 +2794,8 @@ findBlasLapack() {
 # plite builds both shared and static simultaneously
   findContribPackage PTSOLVE_LITE lapack ser
 # Set defaults
-  setDefaultPkgVars PTSOLVE_LITE "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  for BLD in CC4PY BEN SER SERDBG; do
+  setDefaultPkgVars PTSOLVE_LITE "SER SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  for BLD in PYCSH BEN SER SERDBG; do
     techo -2 "PTSOLVE_LITE_${BLD}_DIR = `deref PTSOLVE_LITE_${BLD}_DIR`."
     techo -2 "PTSOLVE_LITE_${BLD}_LIB = `deref PTSOLVE_LITE_${BLD}_LIB`."
     techo -2 "PTSOLVE_LITE_${BLD}_LIBDIR = `deref PTSOLVE_LITE_${BLD}_LIBDIR`."
@@ -2803,8 +2803,8 @@ findBlasLapack() {
     techo -2 "CONFIG_PTSOLVE_LITE_${BLD}_DIR_ARG = `deref CONFIG_PTSOLVE_LITE_${BLD}_DIR_ARG`."
   done
 # Compute vars
-  USE_PTSOLVE_LITE_CC4PY=${USE_PTSOLVE_LITE_CC4PY:-"false"}
-  for BLD in SER SERDBG CC4PY BEN; do
+  USE_PTSOLVE_LITE_PYCSH=${USE_PTSOLVE_LITE_PYCSH:-"false"}
+  for BLD in SER SERDBG PYCSH BEN; do
     local haveplite=`deref HAVE_PTSOLVE_LITE_$BLD`
     local useplite=`deref USE_PTSOLVE_LITE_$BLD`
     useplite=${useplite:-"$USE_PTSOLVE_LITE"}
@@ -2819,12 +2819,12 @@ findBlasLapack() {
   done
 
 # Find the lapack in the contrib dir, but use it only if requested.
-  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh cc4py ben
-  setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
+  setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"false"}
   if $USE_CONTRIB_LAPACK; then
-    for BLD in SER SERMD SERSH CC4PY BEN; do
+    for BLD in SER SERMD SERSH PYCSH BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       local havecontlp=`deref HAVE_CONTRIB_LAPACK_$BLD`
@@ -2845,8 +2845,8 @@ findBlasLapack() {
   fi
 
 # Find clapack.  Use it if found and not defined.
-  findContribPackage clapack_cmake lapack ser sermd cc4py ben
-  for BLD in SER SERMD SERSH CC4PY BEN; do
+  findContribPackage clapack_cmake lapack ser sermd pycsh ben
+  for BLD in SER SERMD SERSH PYCSH BEN; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveclp=`deref HAVE_CLAPACK_CMAKE_$BLD`
@@ -2911,7 +2911,7 @@ findBlasLapack() {
     MKL_DIR=${MKL_DIR:-${MKLROOT}}
     MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
     MKL_LAPACK_LIBS="-lmkl_lapack"
-    for BLD in SER SERMD SERSH CC4PY BEN; do
+    for BLD in SER SERMD SERSH PYCSH BEN; do
       eval LAPACK_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_LAPACK_LIBS}\""
       eval BLAS_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_BLAS_LIBS}\""
     done
@@ -2927,13 +2927,13 @@ findBlasLapack() {
   LAPACK_SERSH_LIBS=${LAPACK_SERSH_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_SERSH_LIBS=${BLAS_SERSH_LIBS:-"$BLAS_SER_LIBS"}
 # Cc4py defaults to sersh, then ser
-  LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SERSH_LIBS"}
-  BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SERSH_LIBS"}
+  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SERSH_LIBS"}
+  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SERSH_LIBS"}
 
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
   if ! test `uname` = Darwin; then
-    for BLD in SER SERSH CC4PY BEN; do
+    for BLD in SER SERSH PYCSH BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       eval LINLIB_${BLD}_LIBS="\"$lapack_libs $blas_libs\""
@@ -2962,7 +2962,7 @@ findBlasLapack() {
 
 # Print out results
   techo " -------> Results of findBlasLapack <--------"
-  for BLD in SER SERSH CC4PY BEN; do
+  for BLD in SER SERSH PYCSH BEN; do
     techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
     techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
     techo "CONFIG_LINLIB_${BLD}_ARGS = `deref CONFIG_LINLIB_${BLD}_ARGS`."
@@ -2977,25 +2977,25 @@ findBlasLapack() {
 # The linear library env is needed for numpy and scipy only.
 # BLAS and LAPACK define the dirs they are in, and then numpy
 # checks for mkl, acml, ...
-  LINLIB_CC4PY_ENV=
+  LINLIB_PYCSH_ENV=
   for PKG in LAPACK BLAS; do
-    local libdir=`deref ${PKG}_CC4PY_LIBRARY_DIRS | sed 's/ .*$//'`
+    local libdir=`deref ${PKG}_PYCSH_LIBRARY_DIRS | sed 's/ .*$//'`
     if test -n "$libdir"; then
       if [[ `uname` =~ CYGWIN ]]; then
         libdir=`cygpath -aw "$libdir"`
       fi
-      LINLIB_CC4PY_ENV="$LINLIB_CC4PY_ENV $PKG='$libdir'"
+      LINLIB_PYCSH_ENV="$LINLIB_PYCSH_ENV $PKG='$libdir'"
     fi
   done
-  trimvar LINLIB_CC4PY_ENV ' '
-  techo "LINLIB_CC4PY_ENV = $LINLIB_CC4PY_ENV."
+  trimvar LINLIB_PYCSH_ENV ' '
+  techo "LINLIB_PYCSH_ENV = $LINLIB_PYCSH_ENV."
   setDistutilsEnv
   # techo "Quitting after setDistutilsEnv."; exit
 
 }
 
 #
-# Find a the cc4py build of a package that may be in the contrib dir
+# Find a the pycsh build of a package that may be in the contrib dir
 # by using that value, or sersh if not present, then ser
 #
 # Args:
@@ -3012,27 +3012,27 @@ findCc4pyDir() {
   fi
 
 # Look through names
-  local val=`deref ${pkgnameuc}_CC4PY_DIR`
+  local val=`deref ${pkgnameuc}_PYCSH_DIR`
 
 # If explicit build not found, then it is the shared, then the serial
   if test -z "$val"; then
-    eval ${pkgnameuc}_CC4PY_DIR=`deref ${pkgnameuc}_SERSH_DIR`
-    val=`deref ${pkgnameuc}_CC4PY_DIR`
+    eval ${pkgnameuc}_PYCSH_DIR=`deref ${pkgnameuc}_SERSH_DIR`
+    val=`deref ${pkgnameuc}_PYCSH_DIR`
   fi
   if test -z "$val"; then
-    eval ${pkgnameuc}_CC4PY_DIR=`deref ${pkgnameuc}_SER_DIR`
-    val=`deref ${pkgnameuc}_CC4PY_DIR`
+    eval ${pkgnameuc}_PYCSH_DIR=`deref ${pkgnameuc}_SER_DIR`
+    val=`deref ${pkgnameuc}_PYCSH_DIR`
   fi
-  techo "${pkgnameuc}_CC4PY_DIR = `deref ${pkgnameuc}_CC4PY_DIR`."
-  eval CONFIG_${pkgnameuc}_CC4PY_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
-  techo "CONFIG_${pkgnameuc}_CC4PY_DIR_ARG = `deref CONFIG_${pkgnameuc}_CC4PY_DIR_ARG`."
+  techo "${pkgnameuc}_PYCSH_DIR = `deref ${pkgnameuc}_PYCSH_DIR`."
+  eval CONFIG_${pkgnameuc}_PYCSH_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
+  techo "CONFIG_${pkgnameuc}_PYCSH_DIR_ARG = `deref CONFIG_${pkgnameuc}_PYCSH_DIR_ARG`."
   if test -n "$val"; then
     case `uname` in
       CYGWIN*) val=`cygpath -am $val`;;
     esac
   fi
-  eval CMAKE_${pkgnameuc}_CC4PY_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
-  techo "CMAKE_${pkgnameuc}_CC4PY_DIR_ARG = `deref CMAKE_${pkgnameuc}_CC4PY_DIR_ARG`."
+  eval CMAKE_${pkgnameuc}_PYCSH_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
+  techo "CMAKE_${pkgnameuc}_PYCSH_DIR_ARG = `deref CMAKE_${pkgnameuc}_PYCSH_DIR_ARG`."
 
 }
 
@@ -6686,7 +6686,7 @@ bilderDuBuild() {
 
 # If not yet asked to install check dependencies
   techo -2 "doBuild = $doBuild"
-  if shouldInstall -I $instdirval $1-$verval cc4py $DEPS; then
+  if shouldInstall -I $instdirval $1-$verval pycsh $DEPS; then
     doBuild=true
   fi
   techo -2 "doBuild = $doBuild"
@@ -6700,7 +6700,7 @@ bilderDuBuild() {
   cd $PROJECT_DIR
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
-  local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+  local builddirvar=`genbashvar $1-pycsh`_BUILD_DIR
   local builddirval=
   if test -d $PROJECT_DIR/$1; then
     builddirval=$PROJECT_DIR/$1
@@ -6713,30 +6713,30 @@ bilderDuBuild() {
     TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Unable to cd to $builddirval."
     terminate
   fi
-  local bilderaction_resfile=bilderbuild-$1-cc4py.res
+  local bilderaction_resfile=bilderbuild-$1-pycsh.res
   rm -f $bilderaction_resfile
   rm -rf build/*
-  local build_txt=$FQMAILHOST-$1-cc4py-build.txt
+  local build_txt=$FQMAILHOST-$1-pycsh-build.txt
   techo "Building $1 in $PWD with output going to $build_txt." | tee $build_txt
   if test "$2" = '-'; then
     unset buildargs
   else
     buildargs="$2"
   fi
-  local buildscript=$FQMAILHOST-$1-cc4py-build.sh
+  local buildscript=$FQMAILHOST-$1-pycsh-build.sh
   cmd="env $3 python setup.py $4 build $buildargs"
   cat >$buildscript <<EOF
 #!/bin/bash
 $cmd
 res=\$?
-echo Build of $1-cc4py completed with result = \$res.
+echo Build of $1-pycsh completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
 EOF
   sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $buildscript
   # rm ${buildscript}.bak
   chmod ug+x $buildscript
-  techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
+  techo "Building $1-pycsh in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
   techo ./$buildscript | tee -a $build_txt
   techo "$cmd" | tee -a $build_txt
   ./$buildscript >>$build_txt 2>&1 &
@@ -6747,7 +6747,7 @@ EOF
   fi
 
 # Record build
-  addActionToLists $1-cc4py $pid
+  addActionToLists $1-pycsh $pid
   return 0
 
 }
@@ -6796,10 +6796,10 @@ bilderDuInstall() {
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
   # techo -2 "$vervar = $verval."
-  # local installstrval=$1-$verval-cc4py
+  # local installstrval=$1-$verval-pycsh
 
 # Wait on the build.  waitAction writes SUCCESS or FAILURE.
-  if ! waitAction $1-cc4py; then
+  if ! waitAction $1-pycsh; then
     return 1
   fi
 
@@ -6822,10 +6822,10 @@ bilderDuInstall() {
   fi
 
 # Clean out the output
-  local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+  local builddirvar=`genbashvar $1-pycsh`_BUILD_DIR
   local builddirval=`deref $builddirvar`
   cd $builddirval
-  local install_txt=$FQMAILHOST-$1-cc4py-install.txt
+  local install_txt=$FQMAILHOST-$1-pycsh-install.txt
   rm -f $install_txt
 
   local res
@@ -6856,20 +6856,20 @@ bilderDuInstall() {
     fi
 
 # Create installation script, as gets env correct when there are spaces
-    local installscript=$FQMAILHOST-$1-cc4py-install.sh
+    local installscript=$FQMAILHOST-$1-pycsh-install.sh
     techo "Creating installation script, $installscript in directory `pwd -P`."
     cat >$installscript << EOF
 #!/bin/bash
 $cmd
 res=\$?
-echo Installation of $1-cc4py completed with result = \$res.
+echo Installation of $1-pycsh completed with result = \$res.
 echo \$res >bilderinstall.res
 exit \$res
 EOF
     chmod ug+x $installscript
     sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $installscript
 # Use the installation script
-    techo "Installing $1-cc4py in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
+    techo "Installing $1-pycsh in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
     techo ./$installscript | tee -a $install_txt
     techo "$cmd" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
@@ -6882,7 +6882,7 @@ EOF
 # Do the installation
   if test $RESULT = 0; then
     echo SUCCESS >>$install_txt
-    recordInstallation $instdirval $1 $verval cc4py
+    recordInstallation $instdirval $1 $verval pycsh
     chmod a+rX $PYTHON_SITEPKGSDIR/..
     chmod a+rX $PYTHON_SITEPKGSDIR
     if test -e $PYTHON_SITEPKGSDIR/$dupkg; then

@@ -63,7 +63,7 @@ cleanInstallDir() {
     unset pkgs
     for i in $pkgcands; do
       case $i in
-        bin | gcc | lib | lib64 | share | *-cc4py | *-nopetsc | *-novisit | *-par | *-partau | *-visit | *.bak | *.csh | *.lnk| *.out | *.rmv | *.sh | *.tmp | *.txt)
+        bin | gcc | lib | lib64 | share | *-pycsh | *-nopetsc | *-novisit | *-par | *-partau | *-visit | *.bak | *.csh | *.lnk| *.out | *.rmv | *.sh | *.tmp | *.txt)
           ;;
         *)
           pkgs="$pkgs $i"
@@ -75,10 +75,10 @@ cleanInstallDir() {
     for i in $pkgs; do
 # Separate sorts or works on first field only.
 # Following depends on non versions (builds) being alpha only, so
-# others, like cc4py, have to be listed explicitly
+# others, like pycsh, have to be listed explicitly
 # Really want sort -V, but that is not present on all platforms
 # Try listing by modification time
-      \ls -1trd $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-cc4py//' -e "s/^-//" -e '/^$/d' | uniq >numversions_$i.txt
+      \ls -1trd $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-pycsh//' -e "s/^-//" -e '/^$/d' | uniq >numversions_$i.txt
       numversions=`wc -l numversions_$i.txt | sed -e "s/numversions_$i.txt//" -e 's/  *//g'`
       case $i in
         bin | develdocs | include | lib | man | share | userdocs) continue;
@@ -134,7 +134,7 @@ cleanInstallDir() {
 # Double versions
   rm -rf *-r[0-9]*-[0-9]*-* *-r[0-9]*\:[0-9]*-*
 # Remove python
-  sed -i.bak '/cc4py/d' installations.txt
+  sed -i.bak '/pycsh/d' installations.txt
 EOF
     chmod a+x rmtarballs.sh
     cmd="./rmtarballs.sh"
@@ -188,7 +188,7 @@ EOF
       ver=`echo $inst | sed -e "s/${pkg}-//" -e "s/-${build}\$//"`
       echo "Version in installations.txt is $ver."
       echo "$pkg-$ver is in installations.txt"
-      pv=`echo $LINE | sed 's/-cc4py.*$//'`
+      pv=`echo $LINE | sed 's/-pycsh.*$//'`
       echo "Found record for $pv in installations.txt."
       pkglc=`echo $pkg | tr 'A-Z' 'a-z'`
       pkgfile=

@@ -51,22 +51,22 @@ buildTables() {
   esac
 
 # Look for HDF5 first by defines
-  if test -z "$HDF5_CC4PY_DIR"; then
-    techo "HDF5_CC4PY_DIR not set.  Cannot find hdf5.  Cannot build tables."
+  if test -z "$HDF5_PYCSH_DIR"; then
+    techo "HDF5_PYCSH_DIR not set.  Cannot find hdf5.  Cannot build tables."
     return 1
   fi
-  local TABLES_HDF5_DIR="$HDF5_CC4PY_DIR"
+  local TABLES_HDF5_DIR="$HDF5_PYCSH_DIR"
   if [[ `uname` =~ CYGWIN ]]; then
     TABLES_HDF5_DIR=`cygpath -aw $TABLES_HDF5_DIR`
   fi
-  TABLES_HDF5_VERSION=`echo $HDF5_CC4PY_DIR | sed -e 's/^.*hdf5-//' -e 's/-.*$//'`
+  TABLES_HDF5_VERSION=`echo $HDF5_PYCSH_DIR | sed -e 's/^.*hdf5-//' -e 's/-.*$//'`
   techo "TABLES_HDF5_VERSION = $TABLES_HDF5_VERSION."
 
 # Accumulate link flags for modules, and make ATLAS modifications.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
-  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # For Cygwin, build, install, and make packages all at once.
 # For others, just build.
@@ -159,7 +159,7 @@ installTables() {
     local instopts=
     case `uname` in
       CYGWIN*)
-        hdf5shdir=$HDF5_CC4PY_DIR/bin
+        hdf5shdir=$HDF5_PYCSH_DIR/bin
         if echo $TABLES_ENV | grep HDF5_LIBNAMES_LACK_DLL; then
           hdf5shlib=hdf5.dll
         else
@@ -167,12 +167,12 @@ installTables() {
         fi
         ;;
       Darwin)
-        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shdir=$HDF5_PYCSH_DIR/lib
         hdf5shlib=libhdf5.${TABLES_HDF5_VERSION}.dylib
         hdf5shname=`otool -D $hdf5shdir/$hdf5shlib | tail -1`
         ;;
       Linux)
-        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shdir=$HDF5_PYCSH_DIR/lib
         hdf5shlib=libhdf5.so.${TABLES_HDF5_VERSION}
         ;;
     esac

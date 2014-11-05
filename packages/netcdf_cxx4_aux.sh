@@ -28,7 +28,7 @@ findNetcdf_cxx4() {
 
 # Find installation directories
   findContribPackage Netcdf_cxx4 netcdf_cxx4 ser par
-  local builds="ser sersh cc4py"
+  local builds="ser sersh pycsh"
   # if [[ `uname` =~ CYGWIN ]]; then
     # findContribPackage Netcdf_cxx4 netcdf_cxx4 sermd
     # builds="$builds sermd"

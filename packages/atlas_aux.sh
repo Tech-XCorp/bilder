@@ -28,9 +28,9 @@ setAtlasTriggerVars() {
         else
           : # ATLAS_BUILDS=NONE
         fi
-        if ! isCcCc4py; then
+        if ! isCcPyc; then
 # Do this way, as ser contains sersh
-          ATLAS_BUILDS=${ATLAS_BUILDS},cc4py
+          ATLAS_BUILDS=${ATLAS_BUILDS},pycsh
         fi
         ATLAS_BUILDS=${ATLAS_BUILDS},clp
         ;;

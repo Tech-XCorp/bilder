@@ -17,7 +17,7 @@
 
 getVtkTriggerVars() {
   VTK_BLDRVERSION=${VTK_BLDRVERSION:-"6.1.0"}
-  VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_BUILD"}
+  VTK_BUILDS=${VTK_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   VTK_DEPS=qt,cmake
 }
 getVtkTriggerVars
@@ -31,7 +31,7 @@ getVtkTriggerVars
 findVtk() {
   local majmin=`echo $VTK_BLDRVERSION | sed 's/\.[0-9]*$//'`
   techo -2 "Looking for vtkCommonCore-${majmin}."
-  findContribPackage VTK vtkCommonCore-${majmin} sersh cc4py
+  findContribPackage VTK vtkCommonCore-${majmin} sersh pycsh
   findCc4pyDir VTK
 }
 

@@ -52,7 +52,7 @@ buildNumexpr() {
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
-  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # For Cygwin: build, install, and make packages all at once.
 # For others, just build.
@@ -81,7 +81,7 @@ buildNumexpr() {
       NUMEXPR_ENV="$DISTUTILS_ENV CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
       ;;
     Linux-*)
-	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_CC4PY_DIR}"
+	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}"
       NUMEXPR_ARGS=""
       NUMEXPR_ENV="$DISTUTILS_ENV"
       ;;

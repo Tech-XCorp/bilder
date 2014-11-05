@@ -43,8 +43,8 @@ buildNe7ssh() {
         botaninstdir=`cygpath -am ${botaninstdir}-sersh`
         ;;
       *)
-        if test -d ${botaninstdir}-cc4py; then
-          botaninstdir=${botaninstdir}-cc4py
+        if test -d ${botaninstdir}-pycsh; then
+          botaninstdir=${botaninstdir}-pycsh
         elif test -d ${botaninstdir}-sersh; then
           botaninstdir=${botaninstdir}-sersh
         else
@@ -56,8 +56,8 @@ buildNe7ssh() {
     if bilderConfig -c ne7ssh sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $BOTAN_ARGS $NE7SSH_SERSH_OTHER_ARGS"; then
       bilderBuild ne7ssh sersh
     fi
-    if bilderConfig -c ne7ssh cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $BOTAN_ARGS $NE7SSH_CC4PY_OTHER_ARGS"; then
-      bilderBuild ne7ssh cc4py
+    if bilderConfig -c ne7ssh pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $BOTAN_ARGS $NE7SSH_PYCSH_OTHER_ARGS"; then
+      bilderBuild ne7ssh pycsh
     fi
   fi
 }

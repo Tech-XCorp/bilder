@@ -29,9 +29,9 @@ fi
 setSoQtGlobalVars() {
 # SoQt is installed with Coin, so it is built the way Coin is built.
   if test -z "$SOQT_BUILDS"; then
-    SOQT_BUILDS=${FORPYTHON_BUILD}
+    SOQT_BUILDS=${FORPYTHON_SHARED_BUILD}
     if [[ `uname` =~ CYGWIN ]]; then
-      SOQT_BUILDS=${SOQT_BUILDS},${FORPYTHON_BUILD}dbg
+      SOQT_BUILDS=${SOQT_BUILDS},${FORPYTHON_SHARED_BUILD}dbg
     fi
   fi
   SOQT_DEPS=coin
@@ -134,7 +134,7 @@ buildSoQt() {
   fi
 
 # Find qt
-  local SOQT_QTDIR=$QT_CC4PY_DIR
+  local SOQT_QTDIR=$QT_PYCSH_DIR
   SOQT_QTDIR=${SOQT_QTDIR:-"$QT_SERSH_DIR"}
   if test -z "$SOQT_DIR" -a -n "$QT_SER_DIR"; then
     techo "WARNING: Qt is installed in ser dir, not sersh dir.  Reinstallation needed."
@@ -151,12 +151,12 @@ buildSoQt() {
 # Find Coin
   local COIN_DIR=
   if $COIN_USE_REPO; then
-    if test -d $BLDR_INSTALL_DIR/${COIN_NAME}-${FORPYTHON_BUILD}/bin; then
-      COIN_DIR=`(cd $BLDR_INSTALL_DIR/${COIN_NAME}-${FORPYTHON_BUILD}; pwd -P)`
+    if test -d $BLDR_INSTALL_DIR/${COIN_NAME}-${FORPYTHON_SHARED_BUILD}/bin; then
+      COIN_DIR=`(cd $BLDR_INSTALL_DIR/${COIN_NAME}-${FORPYTHON_SHARED_BUILD}; pwd -P)`
     fi
   else
-    if test -d $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_BUILD}/bin; then
-      COIN_DIR=`(cd $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_BUILD}; pwd -P)`
+    if test -d $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_SHARED_BUILD}/bin; then
+      COIN_DIR=`(cd $CONTRIB_DIR/${COIN_NAME}-${FORPYTHON_SHARED_BUILD}; pwd -P)`
     fi
   fi
   if test -n "$COIN_DIR"; then
@@ -171,10 +171,10 @@ buildSoQt() {
   trimvar SOQT_DBG_ENV ' '
 
 # Configure and build
-  local otherargsvar=`genbashvar SOQT_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargsvar=`genbashvar SOQT_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
-  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-$FORPYTHON_BUILD $SOQT_NAME $FORPYTHON_BUILD "$COMPILERS_SOQT $SOQT_ADDL_ARGS $otherargs" "" "$SOQT_ENV"; then
-    bilderBuild $SOQT_MAKER_ARGS $SOQT_NAME $FORPYTHON_BUILD "" "$SOQT_ENV"
+  if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-$FORPYTHON_SHARED_BUILD $SOQT_NAME $FORPYTHON_SHARED_BUILD "$COMPILERS_SOQT $SOQT_ADDL_ARGS $otherargs" "" "$SOQT_ENV"; then
+    bilderBuild $SOQT_MAKER_ARGS $SOQT_NAME $FORPYTHON_SHARED_BUILD "" "$SOQT_ENV"
   fi
 
 }

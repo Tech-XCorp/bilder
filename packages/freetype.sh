@@ -52,14 +52,14 @@ buildFreetype() {
         source $BILDER_DIR/packages/libpng.sh
       fi
       FREETYPE_SERSH_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-sersh/lib/zlib.lib"
-      FREETYPE_CC4PY_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-cc4py/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-cc4py/lib/zlib.lib"
+      FREETYPE_PYCSH_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-pycsh/include -DZLIB_LIBRARY:FILEPATH=$MIXED_CONTRIB_DIR/zlib-${ZLIB_BLDRVERSION}-pycsh/lib/zlib.lib"
       FREETYPE_MAKE_ARGS="-m nmake"
       ;;
   esac
 
-# cc4py always built shared
-  if bilderConfig -c freetype cc4py "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_CC4PY_OTHER_ARGS"; then
-    bilderBuild $FREETYPE_MAKE_ARGS freetype cc4py
+# pycsh always built shared
+  if bilderConfig -c freetype pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_PYCSH_OTHER_ARGS"; then
+    bilderBuild $FREETYPE_MAKE_ARGS freetype pycsh
   fi
   if bilderConfig -c freetype sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_SERSH_OTHER_ARGS"; then
     bilderBuild $FREETYPE_MAKE_ARGS freetype sersh
@@ -85,7 +85,7 @@ testFreetype() {
 
 installFreetype() {
 
-  for bld in sersh cc4py; do
+  for bld in sersh pycsh; do
     if bilderInstall freetype $bld; then
       instdir=$CONTRIB_DIR/freetype-${FREETYPE_BLDRVERSION}-$bld
       case `uname` in

@@ -25,7 +25,7 @@ PYNETCDF4_BLDRVERSION=${PYNETCDF4_BLDRVERSION:-"0.9.9"}
 #
 ######################################################################
 
-PYNETCDF4_BUILDS=${PYNETCDF4_BUILDS:-"cc4py"}
+PYNETCDF4_BUILDS=${PYNETCDF4_BUILDS:-"pycsh"}
 PYNETCDF4_DEPS=netcdf,hdf5,numpy,Cython,numexpr
 PYNETCDF4_UMASK=002
 
@@ -47,16 +47,16 @@ buildPynetcdf4() {
     done
 
 # Look for HDF5 first by defines
-    local PYNETCDF4_HDF5_DIR="$HDF5_CC4PY_DIR"
+    local PYNETCDF4_HDF5_DIR="$HDF5_PYCSH_DIR"
     if test -z "$PYNETCDF4_HDF5_DIR"; then
       techo "Cannot find hdf5.  Cannot build pynetcdf4."
       return 1
     fi
 # Look for netcdf4 first by defines
-    local PYNETCDF4_NETCDF_DIR="$NETCDF_CC4PY_DIR"
+    local PYNETCDF4_NETCDF_DIR="$NETCDF_PYCSH_DIR"
     if test -z "$PYNETCDF4_NETCDF_DIR"; then
-      if test -d "$CONTRIB_DIR/netcdf-cc4py"; then
-         PYNETCDF4_NETCDF_DIR=$CONTRIB_DIR/netcdf-cc4py
+      if test -d "$CONTRIB_DIR/netcdf-pycsh"; then
+         PYNETCDF4_NETCDF_DIR=$CONTRIB_DIR/netcdf-pycsh
       else
         techo "Cannot find netcdf4.  Cannot build pynetcdf4."
         return 1
@@ -67,7 +67,7 @@ buildPynetcdf4() {
     PYNETCDF4_ENV="HDF5_DIR=$PYNETCDF4_HDF5_DIR NETCDF4_DIR=$PYNETCDF4_NETCDF_DIR"
 
 # Global for use by install
-    PYNETCDF4_HDF5_VERSION=`echo $HDF5_CC4PY_DIR | sed -e 's/^.*hdf5-//' -e 's/-.*$//'`
+    PYNETCDF4_HDF5_VERSION=`echo $HDF5_PYCSH_DIR | sed -e 's/^.*hdf5-//' -e 's/-.*$//'`
     techo "PYNETCDF4_HDF5_VERSION = $PYNETCDF4_HDF5_VERSION."
 
     bilderDuBuild -p pynetcdf4 pynetcdf4 "$PYNETCDF4_ARGS" "$PYNETCDF4_ENV"
@@ -104,7 +104,7 @@ addDarwinRpathToDynLib() {
     techo "$cmd"
     $cmd
 
-    cmd="install_name_tool -add_rpath $HDF5_CC4PY_DIR/lib $i"
+    cmd="install_name_tool -add_rpath $HDF5_PYCSH_DIR/lib $i"
     techo "$cmd"
     $cmd
 

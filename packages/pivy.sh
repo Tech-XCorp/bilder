@@ -26,8 +26,8 @@ fi
 ######################################################################
 
 # Pivy is installed with Coin, so it is built the way Coin is built
-PIVY_BUILDS=${PIVY_BUILDS:-"$FORPYTHON_BUILD"}
-PIVY_BUILD=${PIVY_BUILD:-"$FORPYTHON_BUILD"}
+PIVY_BUILDS=${PIVY_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+PIVY_BUILD=${PIVY_BUILD:-"$FORPYTHON_SHARED_BUILD"}
 PIVY_DEPS=coin
 PIVY_UMASK=002
 PIVY_REPO_URL=https://bitbucket.org/Coin3D/pivy
@@ -116,7 +116,7 @@ buildPivy() {
   local otherargsval=`deref ${otherargsvar}`
 
 # Set env
-  local PIVY_QTDIR=$QT_CC4PY_DIR
+  local PIVY_QTDIR=$QT_PYCSH_DIR
   PIVY_QTDIR=${PIVY_QTDIR:-"$QT_SERSH_DIR"}
   local PIVY_ENV="QTDIR=$PIVY_QTDIR"
   case `uname` in
@@ -132,8 +132,8 @@ buildPivy() {
   trimvar PIVY_ENV ' '
 
 # Configure and build
-  # if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-cc4py $PIVY_NAME cc4py "CFLAGS='$PIVY_CFLAGS' CXXFLAGS='$PIVY_CXXFLAGS' $PIVY_ADDL_ARGS $otherargsval" "" "$PIVY_ENV"; then
-  bilderDuBuild $PIVY_NAME cc4py "" "$PIVY_ENV"
+  # if bilderConfig -p $COIN_NAME-$COIN_BLDRVERSION-pycsh $PIVY_NAME pycsh "CFLAGS='$PIVY_CFLAGS' CXXFLAGS='$PIVY_CXXFLAGS' $PIVY_ADDL_ARGS $otherargsval" "" "$PIVY_ENV"; then
+  bilderDuBuild $PIVY_NAME pycsh "" "$PIVY_ENV"
 
 }
 
@@ -154,7 +154,7 @@ testPivy() {
 ######################################################################
 
 installPivy() {
-  for bld in `echo cc4pyS | tr ',' ' '`; do
+  for bld in `echo pycshS | tr ',' ' '`; do
     bilderInstall -m make -L $PIVY_NAME $bld
   done
 }

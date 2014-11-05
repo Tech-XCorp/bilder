@@ -124,7 +124,7 @@ case `uname` in
     else
       techo "Correct sort, $mysort, found."
     fi
-    USE_ATLAS_CC4PY=true
+    USE_ATLAS_PYCSH=true
     case $CC in
       *cl)
 # Less efficient, but records these flags
@@ -234,7 +234,7 @@ case `uname` in
         ;;
     esac
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-shared"}
-    USE_ATLAS_CC4PY=true
+    USE_ATLAS_PYCSH=true
     READLINK=readlink
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}
     SHOBJEXT=.so
@@ -377,8 +377,8 @@ fi
 #
 ######################################################################
 
-FORPYTHON_BUILD=`getPythonBuild`
-techo -2 "FORPYTHON_BUILD = $FORPYTHON_BUILD."
+FORPYTHON_SHARED_BUILD=`getPythonBuild`
+techo -2 "FORPYTHON_SHARED_BUILD = $FORPYTHON_SHARED_BUILD."
 
 ######################################################################
 #
@@ -838,7 +838,7 @@ testvars="BILDER_CTEST_MODEL"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
-othervars="USE_ATLAS_CC4PY DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
+othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
 
 techo ""
 techo "Environment settings:"
@@ -854,9 +854,9 @@ env >$BUILD_DIR/bilderenv.txt
 # Various cleanups
 
 # Remove incorrect installations
-# if isCcCc4py; then
-  # rm -rf $BLDR_INSTALL_DIR/*-cc4py $BLDR_INSTALL_DIR/*-cc4py.lnk  # Should be sersh
-  # rm -rf $CONTRIB_DIR/*-cc4py $CONTRIB_DIR/*-cc4py.lnk  # Should be sersh
+# if isCcPyc; then
+  # rm -rf $BLDR_INSTALL_DIR/*-pycsh $BLDR_INSTALL_DIR/*-pycsh.lnk  # Should be sersh
+  # rm -rf $CONTRIB_DIR/*-pycsh $CONTRIB_DIR/*-pycsh.lnk  # Should be sersh
 # fi
 
 # techo "WARNING: [bildvars.sh] Quitting at end of bildvars.sh."; exit

@@ -19,8 +19,8 @@ setCgmTriggerVars() {
   CGM_REPO_URL=https://bitbucket.org/cadg4/cgm.git
   CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
   CGM_REPO_TAG_EXP=master
-  CGM_BUILD=$FORPYTHON_BUILD
-  CGM_BUILDS=${CGM_BUILDS:-"$FORPYTHON_BUILD"}
+  CGM_BUILD=$FORPYTHON_SHARED_BUILD
+  CGM_BUILDS=${CGM_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   CGM_DEPS=oce,cmake
 }
 setCgmTriggerVars
@@ -33,7 +33,7 @@ setCgmTriggerVars
 
 # Find the directory containing the OCE cmake files
 findCgm() {
-  findPackage Cgm cubit_facet "$BLDR_INSTALL_DIR" cc4py sersh
+  findPackage Cgm cubit_facet "$BLDR_INSTALL_DIR" pycsh sersh
   findCc4pyDir Cgm
 }
 

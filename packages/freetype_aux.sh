@@ -31,28 +31,28 @@ findFreetype() {
   shift $(($OPTIND - 1))
 
 # Look for freetype in contrib
-  findPackage Freetype freetype "$CONTRIB_DIR" cc4py sersh
+  findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
   findCc4pyDir Freetype
 
 # If not found, we look in $DIRLIST 
   if test -z "$FREETYPE_SERSH_DIR"; then
     for dir in $DIRLIST; do
       if test -d $dir/include/freetype2; then
-        FREETYPE_CC4PY_DIR=$dir
+        FREETYPE_PYCSH_DIR=$dir
         break
       fi
     done
   fi
-  if test -z "$FREETYPE_CC4PY_DIR"; then
+  if test -z "$FREETYPE_PYCSH_DIR"; then
     return
   fi
   if [[ `uname` =~ CYGWIN ]]; then
-    FREETYPE_CC4PY_DIR=`cygpath -am $FREETYPE_CC4PY_DIR`
+    FREETYPE_PYCSH_DIR=`cygpath -am $FREETYPE_PYCSH_DIR`
   fi
-  CMAKE_FREETYPE_CC4PY_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_CC4PY_DIR'"
-  CONFIG_FREETYPE_CC4PY_DIR_ARG="--with-freetype-dir='$FREETYPE_CC4PY_DIR'"
-  printvar CMAKE_FREETYPE_CC4PY_DIR_ARG
-  printvar CONFIG_FREETYPE_CC4PY_DIR_ARG
+  CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
+  CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
+  printvar CMAKE_FREETYPE_PYCSH_DIR_ARG
+  printvar CONFIG_FREETYPE_PYCSH_DIR_ARG
 }
 
 ######################################################################
@@ -76,11 +76,11 @@ setFreetypeTriggerVars() {
     Darwin | Linux)
 # Build on Linux or Darwin only if not found in system
       findFreetype -s
-      if test -z "$FREETYPE_CC4PY_DIR"; then
+      if test -z "$FREETYPE_PYCSH_DIR"; then
         techo "WARNING: [$FUNCNAME] System freetype not found.  Will build if out of date, but better to install system version and remove contrib version to prevent incompatibility."
         FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
       else
-        techo "System freetype found in $FREETYPE_CC4PY_DIR, will not build."
+        techo "System freetype found in $FREETYPE_PYCSH_DIR, will not build."
       fi
       ;;
   esac

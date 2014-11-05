@@ -24,7 +24,7 @@ setLibsshTriggerVars() {
   computeBuilds libssh
 # Since libssh always builds the shared libs in ser, addCc4py logic
 # not right.
-  if ! isCcCc4py; then
+  if ! isCcPyc; then
     addCc4pyBuild libssh
   fi
   LIBSSH_DEPS=openssl,cmake,zlib

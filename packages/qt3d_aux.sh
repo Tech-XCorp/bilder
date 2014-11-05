@@ -17,8 +17,8 @@
 
 setQt3dTriggerVars() {
 # Qt is built the same way as python
-  QT3D_BUILD=$FORPYTHON_BUILD
-  QT3D_BUILDS=${QT3D_BUILDS:-"$FORPYTHON_BUILD"}
+  QT3D_BUILD=$FORPYTHON_SHARED_BUILD
+  QT3D_BUILDS=${QT3D_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   QT3D_DEPS=qt
   QT3D_UMASK=002
   QT3D_REPO_URL=git://gitorious.org/qt/qt3d.git

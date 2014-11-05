@@ -17,7 +17,7 @@
 
 setPillowTriggerVars() {
   PILLOW_BLDRVERSION=${PILLOW_BLDRVERSION:-"2.4.0"}
-  PILLOW_BUILDS=${PILLOW_BUILDS:-"cc4py"}
+  PILLOW_BUILDS=${PILLOW_BUILDS:-"pycsh"}
   PILLOW_DEPS=Python
 }
 setPillowTriggerVars

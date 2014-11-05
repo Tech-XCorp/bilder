@@ -20,7 +20,7 @@ RST2PDF_BLDRVERSION=${RST2PDF_BLDRVERSION:-"0.16"}
 #
 ######################################################################
 
-RST2PDF_BUILDS=${RST2PDF_BUILDS:-"cc4py"}
+RST2PDF_BUILDS=${RST2PDF_BUILDS:-"pycsh"}
 # RST2PDF_DEPS=
 
 #####################################################################

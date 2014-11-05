@@ -55,7 +55,7 @@ findMatplotlibDepDir() {
     Darwin) libprefix=lib; libsfxs=dylib;;
     Linux) libprefix=lib; libsfxs=so;;
   esac
-  for j in $CONTRIB_DIR/$1-cc4py $CONTRIB_DIR/$1-sersh $CONTRIB_DIR/$1-sermd $sysdirs; do
+  for j in $CONTRIB_DIR/$1-pycsh $CONTRIB_DIR/$1-sersh $CONTRIB_DIR/$1-sermd $sysdirs; do
     local incdir=
     for i in $incdirs; do
       # techo "Looking for $j/$i/$2." 1>&2
@@ -182,7 +182,7 @@ buildMatplotlib() {
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
-  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # Compute args such that for
 #   Cygwin: build, install, and make packages all at once.

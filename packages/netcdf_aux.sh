@@ -40,8 +40,8 @@ setNetcdfTriggerVars
 findNetcdf() {
 
 # Find installation directories
-  findContribPackage Netcdf netcdf ser sersh par cc4py
-  local builds="ser sersh cc4py"
+  findContribPackage Netcdf netcdf ser sersh par pycsh
+  local builds="ser sersh pycsh"
   if [[ `uname` =~ CYGWIN ]]; then
     findContribPackage Netcdf netcdf sermd
     builds="$builds sermd"

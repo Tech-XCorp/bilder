@@ -22,8 +22,8 @@ setVisItTriggerVars() {
   VISIT_BLDRVERSION=${VISIT_BLDRVERSION:-"2.6.0b"}
 # VisIt is built the way python is built.
   if test -z "$VISIT_DESIRED_BUILDS"; then
-    VISIT_DESIRED_BUILDS=$FORPYTHON_BUILD
-    if isCcCc4py; then
+    VISIT_DESIRED_BUILDS=$FORPYTHON_SHARED_BUILD
+    if isCcPyc; then
       # if ! [[ `uname` =~ CYGWIN ]] && $BUILD_OPTIONAL; then
       if test `uname` = Linux  && $BUILD_OPTIONAL; then
         VISIT_DESIRED_BUILDS=$VISIT_DESIRED_BUILDS,parsh
@@ -31,7 +31,7 @@ setVisItTriggerVars() {
     fi
   fi
   computeBuilds visit
-  VISIT_SER_BUILD=$FORPYTHON_BUILD
+  VISIT_SER_BUILD=$FORPYTHON_SHARED_BUILD
   VISIT_DEPS=vtk,Imaging,numpy,Python,qt,hdf5,cmake
 }
 setVisItTriggerVars

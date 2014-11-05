@@ -20,7 +20,7 @@ PARAMIKO_BLDRVERSION=${PARAMIKO_BLDRVERSION:-"1.7.7.1"}
 #
 ######################################################################
 
-PARAMIKO_BUILDS=${PARAMIKO_BUILDS:-"cc4py"}
+PARAMIKO_BUILDS=${PARAMIKO_BUILDS:-"pycsh"}
 # setuptools gets site-packages correct
 PARAMIKO_DEPS=setuptools,Python
 PARAMIKO_UMASK=002

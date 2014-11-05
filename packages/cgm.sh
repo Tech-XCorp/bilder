@@ -66,9 +66,9 @@ buildCgm() {
 # Set other args, env
   local CGM_ADDL_ARGS=
   if $CGM_USE_CMAKE; then
-    CGM_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
+    CGM_ADDL_ARGS="$OCE_PYCSH_CMAKE_DIR_ARG"
   else
-    CGM_ADDL_ARGS="--with-occ='$OCE_CC4PY_DIR'"
+    CGM_ADDL_ARGS="--with-occ='$OCE_PYCSH_DIR'"
   fi
 
 # Configure and build args

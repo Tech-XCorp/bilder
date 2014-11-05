@@ -31,7 +31,7 @@ setCarveTriggerVars() {
   CARVE_REPO_URL=https://code.google.com/r/cary-carve4bilder
   CARVE_UPSTREAM_URL=https://code.google.com/p/carve
 # Carve builds only shared
-  CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
+  CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   computeBuilds carve
   CARVE_DEPS=cmake,mercurial
 }

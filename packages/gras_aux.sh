@@ -17,7 +17,7 @@
 
 setGrasTriggerVars() {
   GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-03-r1561"}
-  GRAS_BUILDS=${GRAS_BUILDS:-"$FORPYTHON_BUILD"}
+  GRAS_BUILDS=${GRAS_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   GRAS_DEPS=geant4
 }
 setGrasTriggerVars
@@ -32,14 +32,14 @@ setGrasTriggerVars
 findGras() {
 
 # Look for Gras in the contrib directory
-  findContribPackage Gras G4global sersh cc4py
+  findContribPackage Gras G4global sersh pycsh
   findCc4pyDir Gras
 
 # Set envvars for other packages
   local GRAS_HOME="$CONTRIB_DIR/gras-sersh"
   printvar GRAS_HOME
   source $GRAS_HOME/bin/gras-env.sh
-  addtopathvar PATH $CONTRIB_DIR/gras-$FORPYTHON_BUILD/bin
+  addtopathvar PATH $CONTRIB_DIR/gras-$FORPYTHON_SHARED_BUILD/bin
 
 }
 

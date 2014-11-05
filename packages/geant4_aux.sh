@@ -17,7 +17,7 @@ setGeant4TriggerVars() {
 # and then add the above tarball to svnpkgs
 # p03 is recommended for GRAS
   GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
-  GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_BUILD"}
+  GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   GEANT4_DEPS=qt,pcre,xercesc,cmake
   trimvar GEANT4_DEPS ,
 }
@@ -33,7 +33,7 @@ setGeant4TriggerVars
 findGeant4() {
 
 # Look for Geant4 in the contrib directory
-  findContribPackage Geant4 G4global sersh cc4py
+  findContribPackage Geant4 G4global sersh pycsh
   findCc4pyDir Geant4
 
 # Environment variables to help find Geant4
@@ -56,7 +56,7 @@ findGeant4() {
 #  source $GEANT4_HOME/share/Geant4-${GEANT4_REGVER}/geant4make/geant4make.sh
 
 # Add to path
-  addtopathvar PATH $CONTRIB_DIR/geant4-$FORPYTHON_BUILD/bin
+  addtopathvar PATH $CONTRIB_DIR/geant4-$FORPYTHON_SHARED_BUILD/bin
 
 }
 

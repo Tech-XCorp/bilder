@@ -20,7 +20,7 @@ PYDAP_BLDRVERSION=${PYDAP_BLDRVERSION:-"3.0.2"}
 #
 ######################################################################
 
-PYDAP_BUILDS=${PYDAP_BUILDS:-"cc4py"}
+PYDAP_BUILDS=${PYDAP_BUILDS:-"pycsh"}
 PYDAP_DEPS=Python,numpy,httplib2
 
 ######################################################################

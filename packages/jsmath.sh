@@ -23,7 +23,7 @@ JSMATH_BLDRVERSION=${JSMATH_BLDRVERSION:-"3.6e"}
 #
 ######################################################################
 
-JSMATH_BUILDS=${JSMATH_BUILDS:-"cc4py"}
+JSMATH_BUILDS=${JSMATH_BUILDS:-"pycsh"}
 JSMATH_DEPS=
 
 #####################################################################
@@ -57,7 +57,7 @@ buildJsmath() {
     ln -sf $CONTRIB_DIR/jsMath-${JSMATH_BLDRVERSION} $CONTRIB_DIR/jsMath
     # SWS: link name with all lowercase to aid in cmake package find
     ln -sf $CONTRIB_DIR/jsMath-${JSMATH_BLDRVERSION} $CONTRIB_DIR/jsmath
-    ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR jsMath,cc4py
+    ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR jsMath,pycsh
   fi
 }
 

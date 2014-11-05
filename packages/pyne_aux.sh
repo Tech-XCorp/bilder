@@ -20,7 +20,7 @@ setPyneTriggerVars() {
   PYNE_UPSTREAM_URL=https://github.com/pyne/pyne.git
   PYNE_REPO_BRANCH_STD=develop
   PYNE_REPO_BRANCH_EXP=develop
-  PYNE_BUILDS=cc4py
+  PYNE_BUILDS=pycsh
 # http://pyne.io/install.html
   PYNE_DEPS=tables,hdf5,cython,scipy,numpy,cmake
 # For docs, later...

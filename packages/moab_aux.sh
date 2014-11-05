@@ -20,8 +20,8 @@ setMoabTriggerVars() {
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_REPO_BRANCH_STD=master
   MOAB_REPO_BRANCH_EXP=master
-  MOAB_BUILD=$FORPYTHON_BUILD
-  MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_BUILD"}
+  MOAB_BUILD=$FORPYTHON_SHARED_BUILD
+  MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   MOAB_DEPS=cgm,netcdf
 }
 setMoabTriggerVars
@@ -33,7 +33,7 @@ setMoabTriggerVars
 ######################################################################
 
 findMoab() {
-  findPackage Moab MOAB "$BLDR_INSTALL_DIR" sersh cc4py
+  findPackage Moab MOAB "$BLDR_INSTALL_DIR" sersh pycsh
   findCc4pyDir Moab
 }
 

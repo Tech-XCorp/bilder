@@ -25,10 +25,10 @@ setReadlineGlobalVars() {
   if [[ `uname` =~ Darwin ]]; then
     local dver=`uname -r | sed -e 's/\..*$//'`
     if test $dver -lt 11; then
-      READLINE_BUILDS=${READLINE_BUILDS:-"$FORPYTHON_BUILD"}
+      READLINE_BUILDS=${READLINE_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
     fi
   fi
-  READLINE_BUILD=$FORPYTHON_BUILD
+  READLINE_BUILD=$FORPYTHON_SHARED_BUILD
   READLINE_DEPS=ncurses
 }
 setReadlineGlobalVars

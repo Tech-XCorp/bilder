@@ -17,7 +17,7 @@
 
 setImagingTriggerVars() {
   IMAGING_BLDRVERSION=${IMAGING_BLDRVERSION:-"1.1.7"}
-  IMAGING_BUILDS=${IMAGING_BUILDS:-"cc4py"}
+  IMAGING_BUILDS=${IMAGING_BUILDS:-"pycsh"}
   IMAGING_DEPS=Python
 }
 setImagingTriggerVars

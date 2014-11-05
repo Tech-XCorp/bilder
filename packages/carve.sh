@@ -109,8 +109,8 @@ buildCarve() {
   esac
 
 # Build the shared libs
-  if bilderConfig carve $FORPYTHON_BUILD "-DCARVE_WITH_GUI:BOOL=FALSE -DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CARVE_COMPILERS $CARVE_COMPFLAGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE -DCARVE_GTEST_TESTS:BOOL=FALSE $CARVE_SERSH_OTHER_ARGS"; then
-    bilderBuild carve $FORPYTHON_BUILD "$CARVE_MAKEJ_ARGS"
+  if bilderConfig carve $FORPYTHON_SHARED_BUILD "-DCARVE_WITH_GUI:BOOL=FALSE -DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CARVE_COMPILERS $CARVE_COMPFLAGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE -DCARVE_GTEST_TESTS:BOOL=FALSE $CARVE_SERSH_OTHER_ARGS"; then
+    bilderBuild carve $FORPYTHON_SHARED_BUILD "$CARVE_MAKEJ_ARGS"
   fi
 
 }
@@ -132,10 +132,10 @@ testCarve() {
 ######################################################################
 
 installCarve() {
-  if bilderInstall -p -r carve $FORPYTHON_BUILD; then
+  if bilderInstall -p -r carve $FORPYTHON_SHARED_BUILD; then
     case `uname` in
       Darwin)
-        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-$FORPYTHON_BUILD/bin
+        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin
         for i in *; do
 # Needs to be more general by finding the name of the library
           cmd="install_name_tool -change libcarve.2.0.dylib @rpath/libcarve.2.0.dylib $i"

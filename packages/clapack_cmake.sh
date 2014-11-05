@@ -92,7 +92,7 @@ makeLapackf2c() {
 
 installCLapack_CMake() {
   CLAPACK_CMAKE_INSTALLED=false
-  for bld in ser sermd cc4py; do
+  for bld in ser sermd pycsh; do
     if bilderInstall clapack_cmake $bld; then
       makeLapackf2c $bld
       CLAPACK_CMAKE_INSTALLED=true

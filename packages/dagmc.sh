@@ -71,14 +71,14 @@ buildDagMc() {
   fi
 
 # Bilder build
-  local otherargsvar=`genbashvar DAGMC_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargsvar=`genbashvar DAGMC_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
-  if bilderConfig $makerargs dagmc $FORPYTHON_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
-    bilderBuild $makerargs dagmc $FORPYTHON_BUILD "$makejargs" "$DAGMC_ENV"
+  if bilderConfig $makerargs dagmc $FORPYTHON_SHARED_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
+    bilderBuild $makerargs dagmc $FORPYTHON_SHARED_BUILD "$makejargs" "$DAGMC_ENV"
   fi
 
 # batlab build
-  local DAGMC_BATLAB_ADDL_ARGS="-DMOAB_DIR=$MOAB_CC4PY_DIR -DGEANT_DIR=$GEANT4_CC4PY_DIR"
+  local DAGMC_BATLAB_ADDL_ARGS="-DMOAB_DIR=$MOAB_PYCSH_DIR -DGEANT_DIR=$GEANT4_PYCSH_DIR"
   if bilderConfig $makerargs -T Geant4/dagsolid dagmc batlab "$CMAKE_COMPILERS_PYC $DAGMC_BATLAB_ADDL_ARGS $DAGMC_BATLAB_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc batlab "$makejargs" "$DAGMC_ENV"
   fi

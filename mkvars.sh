@@ -62,7 +62,7 @@ sercompflags="CFLAGS CXXFLAGS FCFLAGS FFLAGS"
 gcccompflags="PYC_CFLAGS PYC_CXXFLAGS PYC_FCFLAGS PYC_FFLAGS PYC_LDFLAGS PYC_MODFLAGS PYC_LD_LIBRARY_PATH PYC_LD_RUN_PATH"
 parcompflags="MPI_CFLAGS MPI_CXXFLAGS MPI_FCFLAGS MPI_FFLAGS"
 iodirs="SYSTEM_HDF5_SER_DIR SYSTEM_HDF5_PAR_DIR SYSTEM_NETCDF_SER_DIR SYSTEM_NETCDF_PAR_DIR"
-linalglibs="SYSTEM_BLAS_SER_LIB SYSTEM_BLAS_CC4PY_LIB SYSTEM_BLAS_BEN_LIB SYSTEM_LAPACK_SER_LIB SYSTEM_LAPACK_CC4PY_LIB SYSTEM_LAPACK_BEN_LIB"
+linalglibs="SYSTEM_BLAS_SER_LIB SYSTEM_BLAS_PYCSH_LIB SYSTEM_BLAS_BEN_LIB SYSTEM_LAPACK_SER_LIB SYSTEM_LAPACK_PYCSH_LIB SYSTEM_LAPACK_BEN_LIB"
 javaopts="_JAVA_OPTIONS"
 buildsysprefs="PREFER_CMAKE"
 allvars="$fccomps $sercomps $gcccomps $bencomps $parcomps $sercompflags $gcccompflags $parcompflags $iodirs $linalglibs $javaopts $buildsysprefs"
@@ -255,11 +255,11 @@ for pkgdir in $pkgdirs; do
     fi
     # echo "pkgname = $pkgname." 1>&2
 
-# For python packages, only cc4py build
+# For python packages, only pycsh build
     unset builds
     ispypkg=false
     if grep -q bilderDuBuild $pkgdir/$pkg.sh; then
-      builds=cc4py
+      builds=pycsh
       ispypkg=true
     fi
     if test -z "$builds" -a -n "$pkgname"; then
@@ -289,13 +289,13 @@ for pkgdir in $pkgdirs; do
         fi
       fi
       if grep -q '^ *addCc4pyBuild' $pkgdir/$pkg.sh; then
-        if ! echo $builds | egrep -q "(^| )cc4py($| )"; then
-          builds="$builds cc4py"
+        if ! echo $builds | egrep -q "(^| )pycsh($| )"; then
+          builds="$builds pycsh"
         fi
       fi
     fi
-    if echo $builds | grep -q FORPYTHON_BUILD; then
-      builds=`echo $builds | sed 's/FORPYTHON_BUILD//'`" sersh cc4py"
+    if echo $builds | grep -q FORPYTHON_SHARED_BUILD; then
+      builds=`echo $builds | sed 's/FORPYTHON_SHARED_BUILD//'`" sersh pycsh"
     fi
     builds=$(echo "$builds" | tr ' ' '\n' | sort -u | tr '\n' ' ')
     trimvar builds ' '

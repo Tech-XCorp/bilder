@@ -26,7 +26,7 @@ if test -z "$BOOSTDEVEL_DESIRED_BUILDS"; then
 #  BOOSTDEVEL_DESIRED_BUILDS=ser,parsh
   BOOSTDEVEL_DESIRED_BUILDS=parsh
   # No need for shared library unless that is the library for Python
-  #  if isCcCc4py; then
+  #  if isCcPyc; then
   #    BOOSTDEVEL_DESIRED_BUILDS=$BOOSTDEVEL_DESIRED_BUILDS,parsh
   # fi
 fi
@@ -63,7 +63,7 @@ buildBoostdevel() {
 
     # Determine the toolset
     local toolsetarg_ser=
-    local toolsetarg_cc4py=
+    local toolsetarg_pycsh=
     case `uname`-`uname -r` in
       Darwin-12.*)
       # Clang works for g++ as well on Darwin-12
@@ -76,7 +76,7 @@ buildBoostdevel() {
         esac
         ;;
       Linux-*)
-        toolsetarg_cc4py="toolset=gcc"
+        toolsetarg_pycsh="toolset=gcc"
         case $CXX in
           *g++) ;;
           *icc) toolsetarg_ser="toolset=intel-linux";;
@@ -88,7 +88,7 @@ buildBoostdevel() {
     # These args are actually to bilderBuild
     # local BOOSTDEVEL_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system"
 
-    # Only the shared and cc4py build boostdevel python, as shared libs required.
+    # Only the shared and pycsh build boostdevel python, as shared libs required.
     # runtime-link=static gives the /MT flags.  For simplicity, use for all.
     BOOSTDEVEL_SER_ADDL_ARGS="$toolsetarg_ser     link=static --without-python --without-mpi $BOOSTDEVEL_ALL_ADDL_ARGS"
     BOOSTDEVEL_SERSH_ADDL_ARGS="$toolsetarg_ser   link=shared                  --without-mpi $BOOSTDEVEL_ALL_ADDL_ARGS"
@@ -179,7 +179,7 @@ installBoostdevel() {
       ser) instargs="$BOOSTDEVEL_SER_ADDL_ARGS";;
       sersh) sfx=-sersh; instargs="$BOOSTDEVEL_SERSH_ADDL_ARGS";;
       parsh) sfx=-parsh; instargs="$BOOSTDEVEL_PARSH_ADDL_ARGS";;
-      cc4py) sfx=-cc4py; instargs="$BOOSTDEVEL_CC4PY_ADDL_ARGS";;
+      pycsh) sfx=-pycsh; instargs="$BOOSTDEVEL_PYCSH_ADDL_ARGS";;
     esac
     if bilderInstall -m ./b2 boostdevel $bld boostdevel${sfx} "$instargs --prefix=$boostdevel_instdir"; then
       setOpenPerms $boostdevel_instdir
