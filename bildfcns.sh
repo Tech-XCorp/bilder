@@ -694,7 +694,13 @@ checkDirWritable() {
 # Check for unknown version installations
   local unks=`(cd $dir; ls -d *unknown* 2>/dev/null)`
   if test -n "$unks"; then
-    techo "WARNING: [$FUNCNAME] Found unknown installations, $unks, in $dir."
+    techo "WARNING: [$FUNCNAME] $dir has unknown installations, $unks."
+  fi
+
+# Check for cc4py builds
+  local c4pys=`(cd $dir; ls -d *-cc4py 2>/dev/null)`
+  if test -n "$c4pys"; then
+    techo "WARNING: [$FUNCNAME] $dir has cc4py installations, $c4pys."
   fi
 
 }
