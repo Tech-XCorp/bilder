@@ -1941,17 +1941,20 @@ isCcPyc() {
 }
 
 #
-# Add in pycsh build.  Done to packages that will be used by python.
+# Add a build.
+# Used for packages that need to be compiled consistent with Python
 #
 # Args:
 # 1: the package to add it to
+# 2: if this build not present add the build. $3
+# 3: the build to add
 #
 # Named args (must come first):
-# -f forces addition of pycsh build, as needed for Darwin
+# -f forces addition of $3 build, as needed for Darwin
 #
-# return whether added pycsh to the build
+# return whether added $3 to the build
 #
-addPycshBuild() {
+addBuild() {
 
 # Defaults
   local forceadd=false
@@ -1970,15 +1973,15 @@ addPycshBuild() {
 # Find builds
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
-# Force addition if no sersh build
-  if ! echo $buildsval | egrep -q "(^|,)sersh($|,)"; then
+# Force addition if no $2 build
+  if ! echo $buildsval | egrep -q "(^|,)$2($|,)"; then
     forceadd=true
   fi
 # Add builds
   if test "$buildsval" != NONE; then
     if $forceadd || ! isCcPyc; then
-      if ! echo "$buildsval" | egrep -q "(^|,)pycsh($|,)"; then
-        buildsval=$buildsval,pycsh
+      if ! echo "$buildsval" | egrep -q "(^|,)$2($|,)"; then
+        buildsval=$buildsval,$2
         trimvar buildsval ,
         eval $buildsvar=$buildsval
         buildsval=`deref $buildsvar`
@@ -1987,6 +1990,71 @@ addPycshBuild() {
     fi
   fi
   return 1
+}
+
+#
+# Add a pycsh build if appropriate.
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pycsh build, as needed for Darwin
+#
+# return whether added pycsh to the build
+addPycshBuild() {
+  addBuild $* sersh pycsh
+  return $?
+}
+
+#
+# Add a pycmd build if appropriate.
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pycmd build, as needed for Darwin
+#
+# return whether added pycmd to the build
+addPycmdBuild() {
+  addBuild $* sermd pycmd
+  return $?
+}
+
+#
+# Add a pyc build if appropriate.
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pyc build, as needed for Darwin
+#
+# return whether added pyc to the build
+addPycBuild() {
+  addBuild $* ser pyc
+  return $?
+}
+
+#
+# Add the appropriate static build for python
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pyc build, as needed for Darwin
+#
+# return whether added pyc to the build
+addPycstBuild() {
+  if [[ `uname` =~ CYGWIN ]]; then
+    addPycmdBuild $*
+    return $?
+  else
+    addPycBuild $*
+    return $?
+  fi
 }
 
 #
