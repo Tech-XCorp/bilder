@@ -5961,8 +5961,10 @@ bilderInstall() {
     local hs=`echo $hostids | tr ',' ' '`
     for h in $hs; do
       if [[ $FQMAILHOST =~ "$h" ]]; then
-        techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm'. Host in list [$hostids]."
-        setGroup=true
+        if groups | egrep -q "(^| )${grpnm}( |$)"; then
+          techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm'. Host in list [$hostids]."
+          setGroup=true
+        fi
         break
       fi
     done
