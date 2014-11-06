@@ -58,6 +58,13 @@ findOpenmpi() {
     printvar PAR_EXTRA_LDFLAGS
     printvar PAR_EXTRA_LT_LDFLAGS
     getCombinedCompVars
+# Clean up bad links
+    for i in $CONTRIB_DIR/openmpi*; do
+      badlinks=`(cd $i; \ls -d openmpi*)`
+      if test -n "$badlinks"; then
+        badlinks=`(cd $i; rm -f openmpi*)`
+      fi
+    done
   fi
 }
 
