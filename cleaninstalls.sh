@@ -27,7 +27,7 @@ OPTIONS:
   -k # Keep this number of recent directories (defaults to 10000)
   -l   Remove broken links
   -r   Remove old installations
-  -s   Suffix to add to installation directories (eg, vs9)
+  -s   Suffix to add to installation directories (eg, '-vs9')
   -R   Remove from installations.txt any non present installation
 EOF
   exit $1
