@@ -22,7 +22,7 @@
 ######################################################################
 
 setMuparserTriggerVars() {
-  MUPARSER_BLDRVERSION_STD=${MUPARSER_BLDRVERSION:-"2.2.3"}
+  MUPARSER_BLDRVERSION_STD=${MUPARSER_BLDRVERSION:-"v2_2_3"}
   MUPARSER_BLDRVERSION_EXP=${MUPARSER_BLDRVERSION:-"v2_2_3"}
   if test -z "$MUPARSER_BUILDS"; then
     MUPARSER_BUILDS=ser,sersh
