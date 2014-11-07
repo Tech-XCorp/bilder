@@ -22,16 +22,15 @@
 ######################################################################
 
 setMuparserTriggerVars() {
-  MUPARSER_BLDRVERSION_STD=${MUPARSER_BLDRVERSION:-"v134"}
+  MUPARSER_BLDRVERSION_STD=${MUPARSER_BLDRVERSION:-"2.2.3"}
   MUPARSER_BLDRVERSION_EXP=${MUPARSER_BLDRVERSION:-"v2_2_3"}
   if test -z "$MUPARSER_BUILDS"; then
-    MUPARSER_BUILDS=ser
+    MUPARSER_BUILDS=ser,sersh
     case `uname` in
       CYGWIN*) MUPARSER_BUILDS="${MUPARSER_BUILDS},sermd";;
-      Darwin | Linux) MUPARSER_BUILDS="${MUPARSER_BUILDS},sersh";;
     esac
   fi
-  MUPARSER_DEPS=m4
+  MUPARSER_DEPS=cmake
 }
 setMuparserTriggerVars
 
@@ -42,6 +41,12 @@ setMuparserTriggerVars
 ######################################################################
 
 findMuparser() {
-  findContribPackage muparser muparser ser
+  findContribPackage muparser muparser ser sersh
+  local builds="ser sersh"
+  if [[ `uname` =~ CYGWIN ]]; then
+      builds="$builds sermd"
+  fi
+  findContribPackage muparser muparser "$builds"
+
 }
 
