@@ -42,25 +42,40 @@ buildMuparser() {
   fi
 
 # Set flags
-  local MUPARSER_SER_CMAKE_ARGS=
-  local MUPARSER_SERMD_CMAKE_ARGS="-DBUILD_WITH_SHARED_RUNTIME=TRUE"
-  local MUPARSER_SERSH_CMAKE_ARGS="-DBUILD_SHARED_LIBS=TRUE"
+  local MUPARSER_SER_MAKE_ARGS=
+  local MUPARSER_SERMD_MAKE_ARGS=
+  local MUPARSER_SERSH_MAKE_ARGS=
   local configargs=
   local makerargs=
-  # serial build
-  if bilderConfig -c muparser ser "$MUPARSER_SER_CMAKE_ARGS}"; then
-     bilderBuild muparser ser
+  case `uname` in
+    CYGWIN*)
+# The build on Windows is just an "nmake -fmakefile.vc"
+# and then manually installing the includes and library
+      MUPARSER_SER_MAKE_ARGS="muparser.lib -f../build/makefile.vcmt"
+      MUPARSER_SERMD_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
+      configargs="-C :"
+      makerargs="-m nmake"
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/ser/obj/vc_static_rel"
+      techo "$cmd"
+      $cmd
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/sermd/obj/vc_static_rel"
+      techo "$cmd"
+      $cmd
+      ;;
+    Darwin | Linux)
+      ;;
+  esac
+
+# The builds
+  if bilderConfig $configargs muparser ser "$CONFIG_COMPILERS_SER --enable-shared=no"; then
+    bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
   fi
-  # shared build
-  if bilderConfig -c muparser sersh "$MUPARSER_SERSH_CMAKE_ARGS}"; then
-     bilderBuild muparser sersh
+  if bilderConfig $configargs muparser sermd "$CONFIG_COMPILERS_SER --enable-shared=no"; then
+    bilderBuild $makerargs muparser sermd "$MUPARSER_SERMD_MAKE_ARGS"
   fi
-  if [[ `uname` =~ CYGWIN ]]; then 
-     # build with shared runtime
-     if bilderConfig -c muparser sermd "$MUPARSER_SERMD_CMAKE_ARGS}"; then
-         bilderBuild muparser sermd
-     fi
-  fi 
+  if bilderConfig $configargs muparser sersh "$CONFIG_COMPILERS_SER --enable-shared=yes"; then
+    bilderBuild $makerargs muparser sersh
+  fi
 
 }
 
