@@ -701,6 +701,14 @@ checkDirWritable() {
   local c4pys=`(cd $dir; ls -d *-cc4py 2>/dev/null)`
   if test -n "$c4pys"; then
     techo "WARNING: [$FUNCNAME] $dir has cc4py installations, $c4pys."
+    techo "WARNING: [$FUNCNAME] Trunk builds no longer needs these."
+  fi
+
+# Check for cc4py builds
+  local shctks=`(cd $dir; ls -d *composer*-sersh 2>/dev/null)`
+  if test -n "$shctks"; then
+    techo "WARNING: [$FUNCNAME] $dir has sersh composer installations, $shctks."
+    techo "WARNING: [$FUNCNAME] Trunk builds no longer needs these."
   fi
 
 }
