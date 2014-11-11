@@ -116,7 +116,7 @@ installMuparser() {
     if bilderInstall $makerargs muparser $bld; then
       if [[ `uname` =~ CYGWIN ]]; then
 # Manual install on Windows
-        cmd="mkdir -p $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/lib"
+        cmd="mkdir -p $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/{bin,lib}"
         techo "$cmd"
         $cmd
         cmd="cd $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/build"
@@ -125,6 +125,11 @@ installMuparser() {
         cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/$bld/muparser.lib $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/lib"
         techo "$cmd"
         $cmd
+        if test -f $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/$bld/muparser.dll; then
+          cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/$bld/muparser.dll $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/bin"
+          techo "$cmd"
+          $cmd
+        fi
         cmd="cp -r $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/include $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld"
         techo "$cmd"
         $cmd
