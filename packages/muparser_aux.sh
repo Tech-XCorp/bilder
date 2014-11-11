@@ -27,6 +27,8 @@ setMuparserTriggerVars() {
   if test -z "$MUPARSER_BUILDS"; then
     MUPARSER_BUILDS=ser
     case `uname` in
+# Can now build muparser dll, but do we need it?
+      # CYGWIN*) MUPARSER_BUILDS="${MUPARSER_BUILDS},sermd,sersh";;
       CYGWIN*) MUPARSER_BUILDS="${MUPARSER_BUILDS},sermd";;
       Darwin | Linux) MUPARSER_BUILDS="${MUPARSER_BUILDS},sersh";;
     esac
