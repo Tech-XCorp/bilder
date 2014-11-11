@@ -53,7 +53,7 @@ buildMuparser() {
 # and then manually installing the includes and library
       MUPARSER_SER_MAKE_ARGS="muparser.lib -f../build/makefile.vcmt"
       MUPARSER_SERMD_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
-      configargs="-C :"
+      configargs="-C :"  # Use no configure executable
       makerargs="-m nmake"
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/ser/obj/vc_static_rel"
       techo "$cmd"
@@ -67,14 +67,14 @@ buildMuparser() {
   esac
 
 # The builds
-  if bilderConfig $configargs muparser ser "$CONFIG_COMPILERS_SER --enable-shared=no"; then
+  if bilderConfig $configargs muparser ser "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER LDFLAGS='$CXXFLAGS' $MUPARSER_SER_OTHER_ARGS"; then
     bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sermd "$CONFIG_COMPILERS_SER --enable-shared=no"; then
+  if bilderConfig $configargs muparser sermd "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER LDFLAGS='$CXXFLAGS' $MUPARSER_SERMD_OTHER_ARGS"; then
     bilderBuild $makerargs muparser sermd "$MUPARSER_SERMD_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sersh "$CONFIG_COMPILERS_SER --enable-shared=yes"; then
-    bilderBuild $makerargs muparser sersh
+  if bilderConfig $configargs muparser sersh "--enable-shared=yes $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER LDFLAGS='$CXXFLAGS' $MUPARSER_SERSH_OTHER_ARG"; then
+    bilderBuild $makerargs muparser sersh "" "SHARED=1"
   fi
 
 }
