@@ -1,0 +1,41 @@
+MERGING FROM A REMOTE REPO
+
+NOTE: When working with github, one must have git-1.7.10 or later.
+
+$Id$
+
+Make sure you have a remote to what you want to merge from using
+
+  git remote -v
+
+If not, add one, e.g.,
+
+  git remote add upstream https://github.com/svalinn/DAGMC.git
+
+Make sure you are on the right branch
+
+  git checkout develop
+
+If you do not yet have it, fetch the branch you want to merge
+
+  git fetch upstream develop:upstream-develop
+  git branch --set-upstream-to=upstream/develop upstream-develop
+
+If you already have it, switch to it and pull
+
+  git checkout upstream-develop
+  git pull
+
+Move back to develop branch
+
+  git checkout develop
+
+Now merge that in.
+
+  git merge upstream-develop
+
+Commit and push:
+
+  git commit -am "MSG"
+  git push
+
