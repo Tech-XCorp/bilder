@@ -39,6 +39,7 @@ buildPyne() {
 # Get pyne from repo, determine whether to build
   updateRepo pyne
   getVersion pyne
+  PYNE_INSTALL_DIRS=$CONTRIB_DIR
   if ! bilderPreconfig pyne; then
     return 1
   fi

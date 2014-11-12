@@ -49,7 +49,12 @@ findGeant4() {
   export G4LEVELGAMMADATA="$G4DATA/PhotonEvaporation2.3"
   export G4NEUTRONXSDATA="$G4DATA/G4NEUTRONXS1.2"
   export G4SAIDXSDATA="$G4DATA/G4SAIDDATA1.1"
-  export GEANT4_SERSH_CMAKE_DIR=$GEANT4_HOME/lib/Geant4-${GEANT4_REGVER}
+  for libdir in lib64 lib; do
+    if test -d $GEANT4_HOME/$libdir; then
+      export GEANT4_SERSH_CMAKE_DIR=$GEANT4_HOME/$libdir/Geant4-${GEANT4_REGVER}
+      break
+    fi
+  done
   for i in G4DATA G4LEDATA G4LEVELGAMMADATA G4NEUTRONXSDATA G4SAIDXSDATA GEANT4_SERSH_CMAKE_DIR; do
     printvar $i
   done
