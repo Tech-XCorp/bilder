@@ -33,7 +33,31 @@ setMoabTriggerVars
 ######################################################################
 
 findMoab() {
-  findPackage Moab MOAB "$BLDR_INSTALL_DIR" sersh pycsh
+  srchbuilds="sersh pycsh"
+  findPackage Moab MOAB "$BLDR_INSTALL_DIR" $srchbuilds
   findPycshDir Moab
+# Find cmake configuration directories
+  for bld in $srchbuilds; do
+    local blddirvar=`genbashvar MOAB_${bld}`_DIR
+    local blddir=`deref $blddirvar`
+    if test -d "$blddir"; then
+      for subdir in lib; do
+        if test -d $blddir/$subdir; then
+          local dir=$blddir/$subdir
+          if [[ `uname` =~ CYGWIN ]]; then
+            dir=`cygpath -am $dir`
+          fi
+          local varname=`genbashvar MOAB_${bld}`_CMAKE_DIR
+          eval $varname=$dir
+          printvar $varname
+          varname=`genbashvar MOAB_${bld}`_CMAKE_DIR_ARG
+          eval $varname="\"-DHdf5_DIR:PATH='$dir'\""
+          printvar $varname
+          break
+        fi
+      done
+    fi
+  done
 }
+
 

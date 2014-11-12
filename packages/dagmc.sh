@@ -61,6 +61,9 @@ buildDagMc() {
     return
   fi
 
+# For finding hdf5 and moab.
+  DAGMC_ADDL_ARGS="-DHDF5_CMAKE_CONFIG:PATH='$HDF5_SERSH_CMAKE_DIR' -DMOAB_CMAKE_CONFIG:PATH='$MOAB_SERSH_CMAKE_DIR'"
+
 # If not all dependencies right on Windows, need nmake
   local makerargs=
   local makejargs=
@@ -73,7 +76,7 @@ buildDagMc() {
 # Bilder build
   local otherargsvar=`genbashvar DAGMC_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
-  if bilderConfig $makerargs dagmc $FORPYTHON_SHARED_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
+  if bilderConfig $makerargs dagmc $FORPYTHON_SHARED_BUILD "-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CMAKE_SUPRA_SP_ARG $DAGMC_ADDL_ARGS $DAGMC_OTHER_ARGS" "" "$DAGMC_ENV"; then
     bilderBuild $makerargs dagmc $FORPYTHON_SHARED_BUILD "$makejargs" "$DAGMC_ENV"
   fi
 
