@@ -50,6 +50,9 @@ buildPyne() {
   local PYNE_ARGS=
   PYNE_ARGS="$PYNE_ARGS --hdf5='$HDF5_SERSH_DIR'"
 
+# Debug
+  techo "PATH = $PATH."
+
 # Build/install
   bilderDuBuild pyne "$PYNE_ARGS" "$PYNE_ENV"
 
