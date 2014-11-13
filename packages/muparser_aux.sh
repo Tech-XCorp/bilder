@@ -45,9 +45,16 @@ setMuparserTriggerVars
 
 findMuparser() {
   findContribPackage muparser muparser ser
-  local sershbuilds=`(cd $CONTRIB_DIR; \ls -d muparser*-sersh*)`
-  if [[ `uname` =~ CYGWIN ]] && test -n "$sershbuilds"; then
-    techo "WARNING: [$FUNCNAME] Remove muparser sersh builds, $sershbuilds."
+  if [[ `uname` =~ CYGWIN ]]; then
+    local sershbuilds=`(cd $CONTRIB_DIR; \ls -d muparser-v*-{sersh,pycsh})`
+    if test -n "$sershbuilds"; then
+      for i in $sershbuilds; do
+        local dlls=`(cd $CONTRIB_DIR/$i; \ls bin/*.dll 2>/dev/null)`
+        if test -z "$dlls"; then
+          techo "WARNING: [$FUNCNAME] The shared build, $i, has no dlls.  Please remove it and any links or shortcuts to it."
+        fi
+      done
+    fi
   fi
 }
 
