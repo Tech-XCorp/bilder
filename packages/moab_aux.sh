@@ -36,6 +36,7 @@ findMoab() {
   srchbuilds="sersh pycsh"
   findPackage Moab MOAB "$BLDR_INSTALL_DIR" $srchbuilds
   findPycshDir Moab
+  addtopathvar PATH ${MOAB_PYCSH_DIR}/bin
 # Find cmake configuration directories
   for bld in $srchbuilds; do
     local blddirvar=`genbashvar MOAB_${bld}`_DIR

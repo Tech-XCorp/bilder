@@ -75,7 +75,7 @@ installPyne() {
 
 # Install library if not present, make link if needed
   if bilderDuInstall $instopts pyne "$PYNE_ARGS" "$PYNE_ENV"; then
-    :
+    (cd $PROJECT_DIR/pyne; ./scripts/nuc_data_make)
   fi
 
 }
