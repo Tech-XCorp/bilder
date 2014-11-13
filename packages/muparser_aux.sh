@@ -45,5 +45,9 @@ setMuparserTriggerVars
 
 findMuparser() {
   findContribPackage muparser muparser ser
+  local sershbuilds=`(cd $CONTRIB_DIR; \ls -d muparser*-sersh*)`
+  if [[ `uname` =~ CYGWIN ]] && test -n "$sershbuilds"; then
+    techo "WARNING: [$FUNCNAME] Remove muparser sersh builds, $sershbuilds."
+  fi
 }
 
