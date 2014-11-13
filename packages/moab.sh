@@ -37,6 +37,22 @@ setMoabNonTriggerVars
 
 ######################################################################
 #
+# Builds, deps, auxdata, paths, builds of other packages
+#
+######################################################################
+
+#if test -z "$MOAB_DEPS"; then
+#  MOAB_DEPS=$MPI_BUILD,zoltan,trilinos
+#  MOAB_DEPS=${MOAB_DEPS:-"$MPI_BUILD,zoltan,trilinos"}
+#fi
+#if test -z "$TRILINOS_DESIRED_BUILDS"; then
+#  TRILINOS_BUILDS=sercommio,parcommio
+#  echo TRILINOS_BUILDS = $TRILINOS_BUILDS
+#fi
+
+
+######################################################################
+#
 # Launch moab builds.
 #
 ######################################################################
@@ -62,6 +78,7 @@ buildMoab() {
 
 # Set other args, env
   local MOAB_ADDL_ARGS=
+  local MOAB_PAR_ADDL_ARGS=
   if $MOAB_USE_CMAKE; then
     MOAB_ADDL_ARGS="$OCE_PYCSH_CMAKE_DIR_ARG"
   else
@@ -83,14 +100,21 @@ buildMoab() {
   fi
   local MOAB_ENV=
 
+# add additional parallel args
+  MOAB_PAR_ADDL_ARGS="--without-vtk --enable-shared --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_PYCSH_DIR' --with-mpi='$CONTRIB_DIR/mpi' --with-zoltan='$TRILINOS_INSTALL_DIRS/trilinos-parcomm' --enable-mbzoltan"
+
+
 # Configure and build args
   local otherargsvar=`genbashvar MOAB_${MOAB_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
   local MOAB_CONFIG_ARGS=
+  local MOAB_PAR_CONFIG_ARGS=
   if $MOAB_USE_CMAKE; then
     MOAB_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
+    MOAB_PAR_CONFIG_ARGS="$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $MOAB_PAR_ADDL_ARGS $otherargs"
   else
     MOAB_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $MOAB_ADDL_ARGS $otherargs"
+    MOAB_PAR_CONFIG_ARGS="$CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $MOAB_PAR_ADDL_ARGS $otherargs"
   fi
 
 # When not all dependencies right on Windows, need nmake
@@ -102,9 +126,14 @@ buildMoab() {
     makejargs="$MOAB_MAKEJ_ARGS"
   fi
 
-# Configure and build
+# Configure and build serial
   if bilderConfig $makerargs $moabcmakearg moab $MOAB_BUILD "$MOAB_CONFIG_ARGS" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $MOAB_BUILD "$makejargs" "$MOAB_ENV"
+  fi
+
+# Configure and build parallel
+  if bilderConfig $makerargs $moabcmakearg moab par "$MOAB_PAR_CONFIG_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab par "$makejargs" "$MOAB_ENV"
   fi
 
 }
