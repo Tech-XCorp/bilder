@@ -20,9 +20,13 @@ setMoabTriggerVars() {
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_REPO_BRANCH_STD=master
   MOAB_REPO_BRANCH_EXP=master
-  MOAB_BUILD=$FORPYTHON_SHARED_BUILD
-  MOAB_BUILDS=${MOAB_BUILDS:-"$FORPYTHON_SHARED_BUILD,par"}
-  MOAB_DEPS=cgm,netcdf,trilinos
+  MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS:-"$FORPYTHON_SHARED_BUILD,par"}
+  computeBuilds moab 
+  addPycshBuild moab 
+  MOAB_DEPS=autotools,cgm,netcdf
+  if [[ $MOAB_BUILDS =~ par ]]; then
+    MOAB_DEPS=$MOAB_DEPS,trilinos
+  fi
 }
 setMoabTriggerVars
 
