@@ -111,6 +111,10 @@ cleanInstallDir() {
 
 # Remove old cc4py installations
   sed -i.bak '/cc4py/d' installations.txt
+# Remove other, site-specific installations
+  if declare -f cleanDirAddl 1>/dev/null 2>&1; then
+    cleanDirAddl
+  fi
 
 # Removing tarball packages.  Do as subshell so as not to change
 # nocaseglob in this shell.
@@ -350,6 +354,21 @@ fi
   fi
 
 }
+
+# Look for bilderrc to find confdir
+mydir=`dirname $0`
+mydir=`(cd $mydir; pwd -P)`
+if test -z "$BILDER_CONFDIR"; then
+  brc=`\ls -1 $mydir/../bilderrc 2>/dev/null | head -1`
+  if test -n "$brc"; then
+    BILDER_CONFDIR=`dirname $brc`
+    BILDER_CONFDIR=`(cd $BILDER_CONFDIR; pwd -P)`
+  fi
+fi
+echo "BILDER_CONFDIR = $BILDER_CONFDIR"
+if test -f $BILDER_CONFDIR/cleaninstalls.sh; then
+  source $BILDER_CONFDIR/cleaninstalls.sh
+fi
 
 BASEDIR=
 DEBUG=false
