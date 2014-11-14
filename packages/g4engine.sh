@@ -53,11 +53,11 @@ buildG4engine() {
   fi
 
 # hdf5 found from environment
-  G4ENGINE_ENV="HDF5_ROOT='$HDF5_SERSH_DIR'"
+#  G4ENGINE_ENV="HDF5_ROOT='$HDF5_SERSH_DIR'"
 # Moab found from config file
-  G4ENGINE_ADDL_ARGS="-DMOAB_CMAKE_CONFIG:PATH='$MOAB_SERSH_CMAKE_DIR'"
+#  G4ENGINE_ADDL_ARGS="-DMOAB_CMAKE_CONFIG:PATH='$MOAB_SERSH_CMAKE_DIR'"
 # Geant found from build directory
-  G4ENGINE_ADDL_ARGS="$G4ENGINE_ADDL_ARGS -DBUILD_GEANT4=ON -DGEANT4_DIR:PATH='$BUILD_DIR/geant4-$GEANT4_BLDRVERSION/sersh'"
+#  G4ENGINE_ADDL_ARGS="$G4ENGINE_ADDL_ARGS -DBUILD_GEANT4=ON -DGEANT4_DIR:PATH='$BUILD_DIR/geant4-$GEANT4_BLDRVERSION/sersh'"
 
 # If not all dependencies right on Windows, need nmake
   local makerargs=
