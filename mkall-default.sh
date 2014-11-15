@@ -210,7 +210,7 @@ else
   scrargs="$redoargs"
 fi
 if test "\$1" != default; then
-  scrargs="\$scrargs \$1"
+  scrargs="\$scrargs \$*"
 fi
 cmd="$0 \$scrargs"
 echo "\$cmd"

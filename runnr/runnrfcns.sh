@@ -77,11 +77,15 @@ trimvar() {
 removedups() {
   local varname=$1
   local sepchar="$2"
-  local varval
-  eval varval=\"`deref $varname`\"
-  varval=`echo $varval | sed -e "s/${sepchar}/ /g"`
-  varval=echo $(printf '%s\n' $varval | sort -u | tr '\n' ' ')
-  varval=`echo $varval | sed -e "s/ /${sepchar}/g"`
+  local varval0=
+  eval varval0=\"`deref $varname`\"
+  varval0=`echo $varval0 | sed -e "s/${sepchar}/ /g"`
+  local varval=
+  for i in $varval0; do
+    if ! echo $varval | egrep -q "(^|,)${i}(,|$)"; then
+      varval=${varval}${sepchar}${i}
+    fi
+  done
   trimvar varval "$sepchar"
   eval $varname="\"$varval\""
 }
