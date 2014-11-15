@@ -68,6 +68,25 @@ trimvar() {
 }
 
 #
+# Remove duplicates separated by some char and blanks
+#
+# Args:
+# 1: The variable to modify
+# 2: The separator char
+#
+removedups() {
+  local varname=$1
+  local sepchar="$2"
+  local varval
+  eval varval=\"`deref $varname`\"
+  varval=`echo $varval | sed -e "s/${sepchar}/ /g"`
+  varval=echo $(printf '%s\n' $varval | sort -u | tr '\n' ' ')
+  varval=`echo $varval | sed -e "s/ /${sepchar}/g"`
+  trimvar varval "$sepchar"
+  eval $varname="\"$varval\""
+}
+
+#
 # Echo a string and tee it to the log
 #
 # Args:
