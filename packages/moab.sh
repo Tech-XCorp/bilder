@@ -55,12 +55,14 @@ buildMoab() {
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
-    local enable_shared="-DBUILD_SHARED_LIBS:BOOL=TRUE"
   fi
   local moabcmakearg=
+  local enable_shared=
   if $MOAB_USE_CMAKE; then
+    enable_shared="-DBUILD_SHARED_LIBS:BOOL=TRUE"
     moabcmakearg=-c
-    local enable_shared="--enable-shared --disable-static"
+  else
+    enable_shared="--enable-shared --disable-static"
   fi
 
 #
