@@ -46,6 +46,7 @@ findNetcdf() {
     findContribPackage Netcdf netcdf sermd
     builds="$builds sermd"
   fi
+  findPycstDir Netcdf
   findPycshDir Netcdf
 
 # Find cmake configuration directories

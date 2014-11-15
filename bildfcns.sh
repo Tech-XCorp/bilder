@@ -3065,44 +3065,114 @@ findBlasLapack() {
 }
 
 #
+# Find a the build of a package that may be in the contrib dir
+# allowing for alternate builds to fit the role
+#
+# by using that value, then ser if not windows,
+# and sermd if windows
+#
+# Args:
+# 1: The name of the package (should be a package.sh bilder script)
+# 2: The name of build to be set
+# *: Fallback builds that can be used
+#
+findAltPkgDir() {
+
+# Get name of package
+  local pkgname=$1
+  if test -z "$1"; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] package not set."
+    terminate
+  fi
+  local pkgnameuc=`echo $1 | tr 'a-z./-' 'A-Z___'`
+  shift
+
+# Name of desired build
+  desbld=$1
+  if test -z "$1"; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] desired build not set."
+    terminate
+  fi
+  local desblduc=`echo $1 | tr 'a-z./-' 'A-Z___'`
+  shift
+
+# Try given name
+  local val=`deref ${pkgnameuc}_${desblduc}_DIR`
+
+# Names of fallback builds
+  local fallbacks="$*"
+  if test -z "$val" -a -z "$fallbacks"; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Neither ${pkgnameuc}_${desbld}_DIR nor fallback builds set."
+    terminate
+  fi
+
+# Work through fallback builds
+  if test -z $val; then
+    for bld in $fallbacks; do
+      local blduc=`echo $bld | tr 'a-z./-' 'A-Z___'`
+      val=`deref ${pkgnameuc}_${blduc}_DIR`
+      if test -n "$val"; then
+        eval ${pkgnameuc}_${desblduc}_DIR="$val"
+        break
+      else
+        techo "${pkgnameuc}_${blduc}_DIR not set."
+      fi
+    done
+  fi
+  if test -z "$val"; then
+    techo "WARNING: [$FUNCNAME] Cannot find ${desbld} build of ${pkgnameuc}."
+    return
+  fi
+
+# Set configure variables
+  techo "${pkgnameuc}_${desblduc}_DIR = `deref ${pkgnameuc}_${desblduc}_DIR`."
+  eval CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
+  techo "CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG`."
+  case `uname` in
+    CYGWIN*) val=`cygpath -am $val`;;
+  esac
+  eval CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
+  techo "CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG`."
+
+}
+
+#
+# Find a the pycst build of a package that may be in the contrib dir
+# by using that value, then ser if not windows,
+# and sermd if windows
+#
+# Args:
+# 1: The name of the package (should be a package.sh bilder script)
+#
+findPycstDir() {
+
+  local fallbacks=
+  if [[ `uname` =~ CYGWIN ]]; then
+    fallbacks="sermd"
+  else
+    fallbacks="ser"
+  fi
+  findAltPkgDir $1 pycst $fallbacks
+
+}
+
+#
 # Find a the pycsh build of a package that may be in the contrib dir
-# by using that value, or sersh if not present, then ser
+# by using that value, or sersh if not present, then ser if not windows,
+# and sermd if windows
 #
 # Args:
 # 1: The name of the package (should be a package.sh bilder script)
 #
 findPycshDir() {
 
-# Get name of package
-  if test -n "$1"; then
-    local pkgname=$1
-    local pkgnameuc=`echo $1 | tr 'a-z./-' 'A-Z___'`
-    local pkgnamelc=`echo $1 | tr 'A-Z./' 'a-z__'`
-    shift
+  local fallbacks=
+  if [[ `uname` =~ CYGWIN ]]; then
+    fallbacks="sersh sermd"
+  else
+    fallbacks="sersh ser"
   fi
-
-# Look through names
-  local val=`deref ${pkgnameuc}_PYCSH_DIR`
-
-# If explicit build not found, then it is the shared, then the serial
-  if test -z "$val"; then
-    eval ${pkgnameuc}_PYCSH_DIR=`deref ${pkgnameuc}_SERSH_DIR`
-    val=`deref ${pkgnameuc}_PYCSH_DIR`
-  fi
-  if test -z "$val"; then
-    eval ${pkgnameuc}_PYCSH_DIR=`deref ${pkgnameuc}_SER_DIR`
-    val=`deref ${pkgnameuc}_PYCSH_DIR`
-  fi
-  techo "${pkgnameuc}_PYCSH_DIR = `deref ${pkgnameuc}_PYCSH_DIR`."
-  eval CONFIG_${pkgnameuc}_PYCSH_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
-  techo "CONFIG_${pkgnameuc}_PYCSH_DIR_ARG = `deref CONFIG_${pkgnameuc}_PYCSH_DIR_ARG`."
-  if test -n "$val"; then
-    case `uname` in
-      CYGWIN*) val=`cygpath -am $val`;;
-    esac
-  fi
-  eval CMAKE_${pkgnameuc}_PYCSH_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
-  techo "CMAKE_${pkgnameuc}_PYCSH_DIR_ARG = `deref CMAKE_${pkgnameuc}_PYCSH_DIR_ARG`."
+  findAltPkgDir $1 pycsh $fallbacks
 
 }
 

@@ -86,6 +86,7 @@ findHdf5() {
       ;;
   esac
   findContribPackage Hdf5 hdf5 $srchbuilds
+  findPycstDir Hdf5
   findPycshDir Hdf5
 
 # Find cmake configuration directories
