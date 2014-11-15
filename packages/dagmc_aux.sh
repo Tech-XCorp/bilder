@@ -20,7 +20,7 @@ setDagMcTriggerVars() {
   DAGMC_UPSTREAM_URL=https://github.com/svalinn/DAGMC.git
   DAGMC_REPO_BRANCH_STD=develop
   DAGMC_REPO_BRANCH_EXP=develop
-  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_SHARED_BUILD,batlab"}
+  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   DAGMC_DEPS=geant4,moab,boost,pyne,pytaps
 }
 setDagMcTriggerVars

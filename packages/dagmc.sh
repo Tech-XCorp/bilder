@@ -87,12 +87,6 @@ buildDagMc() {
     bilderBuild $makerargs dagmc $FORPYTHON_SHARED_BUILD "$makejargs" "$DAGMC_ENV"
   fi
 
-# batlab build
-  local DAGMC_BATLAB_ADDL_ARGS="-DMOAB_DIR=$MOAB_PYCSH_DIR -DGEANT_DIR=$GEANT4_PYCSH_DIR"
-  if bilderConfig $makerargs -T Geant4/dagsolid dagmc batlab "$CMAKE_COMPILERS_PYC $DAGMC_BATLAB_ADDL_ARGS $DAGMC_BATLAB_OTHER_ARGS" "" "$DAGMC_ENV"; then
-    bilderBuild $makerargs dagmc batlab "$makejargs" "$DAGMC_ENV"
-  fi
-
 }
 
 ######################################################################
