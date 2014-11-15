@@ -90,13 +90,15 @@ buildMoab() {
     MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS $OCE_PYCSH_CMAKE_DIR_ARG"
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS $OCE_PYCSH_CMAKE_DIR_ARG"
   else
-    # MOAB_ADDL_ARGS="--enable-shared --with-hdf5='$HDF5_PYCSH_DIR' --with-netcdf='$NETCDF_PYCSH_DIR' --with-vtk='$VTK_PYCSH_DIR' --with-cgm='$CGM_PYCSH_DIR'"
-# moab cannot use recent vtk
-# With cgm:
+# Moab cannot use recent vtk
+# Moab cannot use recent cgm
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
-    MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PYCST_DIR' --with-netcdf='$NETCDF_PYCST_DIR'"
-    MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PYCSH_DIR' --with-netcdf='$NETCDF_PYCSH_DIR'"
+# CTK does not need netcdf
+    MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
+# DagMc does not need netcdf
+    MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
+# Build parallel with netcdf to get exodus reader
     MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_PAR_DIR'"
     case `uname` in
       Linux)
