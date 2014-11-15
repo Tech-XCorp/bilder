@@ -60,7 +60,7 @@ findOpenmpi() {
     getCombinedCompVars
 # Clean up bad links
     for i in $CONTRIB_DIR/openmpi*; do
-      badlinks=`(cd $i; \ls -d openmpi*)`
+      badlinks=`(cd $i; \ls -d openmpi* 2>/dev/null)`
       if test -n "$badlinks"; then
         badlinks=`(cd $i; rm -f openmpi*)`
       fi
