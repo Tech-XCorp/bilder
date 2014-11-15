@@ -59,7 +59,7 @@ buildMoab() {
   local moabcmakearg=
   if $MOAB_USE_CMAKE; then
     moabcmakearg=-c
-    local enable_shared="--enable-shared"
+    local enable_shared="--enable-shared --disable-static"
   fi
 
 #
