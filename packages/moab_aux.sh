@@ -39,9 +39,10 @@ setMoabTriggerVars
 ######################################################################
 
 findMoab() {
-  srchbuilds="sersh pycsh"
+  srchbuilds="ser pycst sersh pycsh par"
   findPackage Moab MOAB "$BLDR_INSTALL_DIR" $srchbuilds
   findPycshDir Moab
+  findPycstDir Moab
   addtopathvar PATH ${MOAB_PYCSH_DIR}/bin
 # Find cmake configuration directories
   for bld in $srchbuilds; do
