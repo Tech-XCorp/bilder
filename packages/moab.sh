@@ -116,8 +116,6 @@ buildMoab() {
 #
   local MOAB_ENV=
 
-# add additional parallel args
-
 # When not all dependencies right on Windows, need nmake
   local makerargs=
   local makejargs=
@@ -131,7 +129,7 @@ buildMoab() {
   local otherargsvar=`genbashvar MOAB_${FORPYTHON_STATIC_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
 # Configure and build serial
-  if bilderConfig $makerargs $moabcmakearg moab $FORPYTHON_STATIC_BUILD "$MOAB_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
+  if bilderConfig $makerargs $moabcmakearg moab $FORPYTHON_STATIC_BUILD "$MOAB_PYST_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $FORPYTHON_STATIC_BUILD "$makejargs" "$MOAB_ENV"
   fi
 
@@ -139,12 +137,12 @@ buildMoab() {
   local otherargsvar=`genbashvar MOAB_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
 # Configure and build serial
-  if bilderConfig $makerargs $moabcmakearg moab $FORPYTHON_SHARED_BUILD "$MOAB_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
+  if bilderConfig $makerargs $moabcmakearg moab $FORPYTHON_SHARED_BUILD "$MOAB_PYSH_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab $FORPYTHON_SHARED_BUILD "$makejargs" "$MOAB_ENV"
   fi
 
 # Configure and build parallel
-  if bilderConfig $makerargs $moabcmakearg moab par "$MOAB_PAR_CONFIG_ARGS $MOAB_PAR_ADDL_ARGS" "" "$MOAB_ENV"; then
+  if bilderConfig $makerargs $moabcmakearg moab par "$MOAB_PAR_CONFIG_ARGS $MOAB_PAR_OTHER_ARGS" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab par "$makejargs" "$MOAB_ENV"
   fi
 
