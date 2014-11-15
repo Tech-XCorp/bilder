@@ -51,6 +51,7 @@ buildMoab() {
   fi
 
 # Whether using cmake
+  MOAB_USE_CMAKE=true
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
@@ -95,11 +96,11 @@ buildMoab() {
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
 # CTK does not need netcdf
-    MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
+    MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
 # DagMc does not need netcdf
-    MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
+    MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
 # Build parallel with netcdf to get exodus reader
-    MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS --without-vtk --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_PAR_DIR'"
+    MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_PAR_DIR'"
     case `uname` in
       Linux)
         local nclibsubdir=lib
