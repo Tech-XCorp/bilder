@@ -108,5 +108,9 @@ testGeant4() {
 ######################################################################
 
 installGeant4() {
-  bilderInstallAll geant4 " -r"
+  if bilderInstall -r geant4 ${FORPYTHON_SHARED_BUILD}; then
+# Remove bad links
+    rm -f $CONTRIB_DIR/geant4-sersh/lib64/Geant4-$GEANT4_BLDRVERSION/Linux-g++
+  fi
 }
+
