@@ -46,15 +46,11 @@ buildPyne() {
 
 # This is a new case for Bilder: a repo for a python module.
 
-# Compute args
-  local PYNE_ARGS=
-  PYNE_ARGS="$PYNE_ARGS --hdf5='$HDF5_SERSH_DIR'"
-
 # Debug
-  techo -2 "PATH = $PATH."
+  techo "PATH = $PATH."
 
 # Build/install
-  bilderDuBuild pyne "$PYNE_ARGS" "$PYNE_ENV"
+  bilderDuBuild pyne "--hdf5=$HDF5_PYCSH_DIR --moab=$MOAB_PYCSH_DIR" "$PYNE_ENV"
 
 }
 

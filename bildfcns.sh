@@ -3115,6 +3115,7 @@ findAltPkgDir() {
       val=`deref ${pkgnameuc}_${blduc}_DIR`
       if test -n "$val"; then
         eval ${pkgnameuc}_${desblduc}_DIR="$val"
+        printvar ${pkgnameuc}_${desblduc}_DIR
         break
       else
         techo "${pkgnameuc}_${blduc}_DIR not set."
