@@ -7749,9 +7749,9 @@ buildChain() {
 # Determine the packages to build
   local buildpkgs=`echo $* | sed -e 's/ /,/g' -e 's?/??g'`
   removedups buildpkgs ','
-  echo "buildpkgs = $buildpkgs."
+  trimvar buildpkgs ','
+  # echo "buildpkgs = $buildpkgs."
   echo $buildpkgs >$PROJECT_DIR/lastbuildpkgs.txt
-  # exit
 
   if ! $analyzeonly; then
     USING_BUILD_CHAIN=true
