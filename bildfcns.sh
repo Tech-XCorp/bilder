@@ -2538,6 +2538,8 @@ findPackage() {
   eval HAVE_${pkgnameprefix}_ANY=false
   for bld in $targetBlds; do
 
+    techo
+
     local adirval=
     local alibval=
     local alibdirval=
@@ -2564,11 +2566,11 @@ findPackage() {
           adirval=${dir}
           break
         fi
-        techo "$dir not found."
+        # techo "$dir not found."
       done
     fi
     if test -z "$adirval"; then
-      techo "${pkgnameprefix}_${BLD}_DIR not found for any case."
+      techo "${pkgnameprefix}_${BLD}_DIR not found for any case, $pkgname, $pkgnameuc, $pkgnamelc."
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
     fi
@@ -2675,7 +2677,6 @@ findPackage() {
     if $havepkg; then
       eval HAVE_${pkgnameprefix}_ANY=true
     fi
-    techo
 
   done
 
@@ -3108,6 +3109,7 @@ findAltPkgDir() {
 
 # Work through fallback builds
   if test -z $val; then
+    techo "Looking for alternate builds for $pkgname-$desbld."
     for bld in $fallbacks; do
       local blduc=`echo $bld | tr 'a-z./-' 'A-Z___'`
       val=`deref ${pkgnameuc}_${blduc}_DIR`
@@ -3125,14 +3127,14 @@ findAltPkgDir() {
   fi
 
 # Set configure variables
-  techo "${pkgnameuc}_${desblduc}_DIR = `deref ${pkgnameuc}_${desblduc}_DIR`."
+  # techo "${pkgnameuc}_${desblduc}_DIR = `deref ${pkgnameuc}_${desblduc}_DIR`."
   eval CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
-  techo "CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG`."
+  # techo "CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG`."
   case `uname` in
     CYGWIN*) val=`cygpath -am $val`;;
   esac
   eval CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
-  techo "CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG`."
+  # techo "CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG`."
 
 }
 

@@ -82,14 +82,16 @@ findHdf5() {
       esac
       ;;
     *)
-      srchbuilds="$srchbuilds sersh parsh pycsh"
+      srchbuilds="$srchbuilds pycst sersh parsh pycsh"
       ;;
   esac
   findContribPackage Hdf5 hdf5 $srchbuilds
+  techo
   findPycstDir Hdf5
   findPycshDir Hdf5
 
 # Find cmake configuration directories
+  techo
   for bld in $srchbuilds; do
     local blddirvar=`genbashvar HDF5_${bld}`_DIR
     local blddir=`deref $blddirvar`

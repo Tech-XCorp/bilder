@@ -41,15 +41,17 @@ findNetcdf() {
 
 # Find installation directories
   findContribPackage Netcdf netcdf ser sersh par pycsh
-  local builds="ser sersh pycsh"
+  local builds="ser pycst sersh pycsh"
   if [[ `uname` =~ CYGWIN ]]; then
     findContribPackage Netcdf netcdf sermd
     builds="$builds sermd"
   fi
+  techo
   findPycstDir Netcdf
   findPycshDir Netcdf
 
 # Find cmake configuration directories
+  techo
   for bld in $builds; do
     local blddirvar=`genbashvar NETCDF_${bld}`_DIR
     local blddir=`deref $blddirvar`
