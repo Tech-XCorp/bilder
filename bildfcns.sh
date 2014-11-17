@@ -2574,22 +2574,27 @@ findPackage() {
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
     fi
-    # techo "adirval = $adirval"
-    alibdirval=${adirval}/lib64
-    if test -d $alibdirval; then
-      alibdirval=`(cd $alibdirval; pwd -P)`
-    elif test -d $adirval/lib; then
-      alibdirval=`(cd $adirval/lib; pwd -P)`
-    elif test -n "$adirval" -a -d "$adirval"; then
+    adirval=`(cd $adirval; pwd -P)`
+    techo "adirval = $adirval"
+    alibdirval=
+    for libsubdir in lib64 Win64/lib lib; do
+      techo "Looking for $adirval/$libsubdir"
+      if test -d $adirval/$libsubdir; then
+        techo "Found."
+        alibdirval=`(cd $adirval/$libsubdir; pwd -P)`
+        break
+      else
+        techo "$adirval/$libsubdir not present."
+      fi
+    done
+    if test -n "$alibdirval"; then
+      techo "Found library directory, $alibdirval."
       techo "Using $adirvar = $adirval."
       eval HAVE_${pkgnameprefix}_$BLD=true
     else
-      techo "Directory $adirvar not set, and $alibdirval not found. Setting HAVE_${pkgnameprefix}_$BLD to false."
+      techo "Library subdir not found for $adirval. Setting HAVE_${pkgnameprefix}_$BLD to false."
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
-    fi
-    if test -n "$alibdirval"; then
-      techo "Found library directory, $alibdirval."
     fi
 
 # Look for the library
@@ -2619,7 +2624,8 @@ findPackage() {
     if $havelib; then
       techo "Package ${pkgnameprefix}_${BLD} found."
       eval HAVE_${pkgnameprefix}_${BLD}=true
-      eval $adirvar=`(cd $alibdirval/..; pwd -P)`
+      eval $adirvar="$adirval"
+      eval $adirvar=`(cd $adirval; pwd -P)`
       eval $alibvar=$alibval
       eval $alibdirvar=$alibdirval
       eval $aincdirvar=$aincdirval
