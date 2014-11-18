@@ -7753,7 +7753,7 @@ buildChain() {
   shift $(($OPTIND - 1))
 
 # Determine the packages to build
-  local buildpkgs=`echo $* | sed -e 's/ /,/g' -e 's?/??g'`
+  local buildpkgs=`echo $* | sed -e 's/  */,/g' -e 's?/??g'`
   removedups buildpkgs ','
   trimvar buildpkgs ','
   # echo "buildpkgs = $buildpkgs."
