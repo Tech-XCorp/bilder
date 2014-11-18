@@ -43,13 +43,6 @@ setMoabNonTriggerVars
 
 buildMoab() {
 
-# Get moab from repo, determine whether to build
-  updateRepo moab
-  getVersion moab
-  if ! bilderPreconfig $moabcmakearg moab; then
-    return 1
-  fi
-
 # Whether using cmake
   # MOAB_USE_CMAKE=true
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
@@ -65,9 +58,18 @@ buildMoab() {
     enable_shared="--enable-shared --disable-static"
   fi
 
+# Get moab from repo, determine whether to build
+  updateRepo moab
+  getVersion moab
+  if ! bilderPreconfig $moabcmakearg moab; then
+    return 1
+  fi
+
 #
 # Basic configure and build args
 #
+# ser BUILD needed by ulixes
+  local MOAB_SER_CONFIG_ARGS=
 # FORPYTHON_STATIC_BUILD needed by composers
   local MOAB_PYST_CONFIG_ARGS=
 # FORPYTHON_SHARED_BUILD needed by dagmc
@@ -75,10 +77,12 @@ buildMoab() {
 # par BUILD needed by ulixes
   local MOAB_PAR_CONFIG_ARGS=
   if $MOAB_USE_CMAKE; then
+    MOAB_SER_CONFIG_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"
     MOAB_PYST_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_PYSH_CONFIG_ARGS="$enable_shared $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_PAR_CONFIG_ARGS="$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"
   else
+    MOAB_SER_CONFIG_ARGS="$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER"
     MOAB_PYST_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     MOAB_PYSH_CONFIG_ARGS="$enable_shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     MOAB_PAR_CONFIG_ARGS="--with-mpi='$CONTRIB_DIR/mpi' $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR"
@@ -98,6 +102,7 @@ buildMoab() {
 # checking for /volatile/cgm-master.r1081-sersh/cgm.make... no
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
 # CTK does not need netcdf
+    MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_SER_DIR' --with-netcdf='$NETCDF_SER_DIR'"
     MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
 # DagMc does not need netcdf
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
@@ -130,12 +135,22 @@ buildMoab() {
     makejargs="$MOAB_MAKEJ_ARGS"
   fi
 
-# Python static build for composers
-  local otherargsvar=`genbashvar MOAB_${FORPYTHON_STATIC_BUILD}`_OTHER_ARGS
+# Configure and build serial
+  if bilderConfig $makerargs $moabcmakearg moab ser "$MOAB_SER_CONFIG_ARGS $MOAB_SER_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab ser "$makejargs" "$MOAB_ENV"
+  fi
+
+# Python static (pyc on unixish, pycmd on Windows) build for composers
+# Cannot use FORPYTHON_STATIC_BUILD, as that resolves to ser on unixish
+  local pycstbuild=pyc
+  if [[ `uname` =~ CYGWIN ]]; then
+    pycstbuild=pycmd
+  fi
+  local otherargsvar=`genbashvar MOAB_${pycstbuild}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
 # Configure and build serial
-  if bilderConfig $makerargs $moabcmakearg moab $FORPYTHON_STATIC_BUILD "$MOAB_PYST_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab $FORPYTHON_STATIC_BUILD "$makejargs" "$MOAB_ENV"
+  if bilderConfig $makerargs $moabcmakearg moab $pycstbuild "$MOAB_PYST_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab $pycstbuild "$makejargs" "$MOAB_ENV"
   fi
 
 # Python shared build for dagmc

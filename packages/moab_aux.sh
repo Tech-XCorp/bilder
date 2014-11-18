@@ -20,11 +20,18 @@ setMoabTriggerVars() {
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_REPO_BRANCH_STD=master
   MOAB_REPO_BRANCH_EXP=master
+  if test -z "$MOAB_DESIRED_BUILDS"; then
+# Static serial and parallel builds needed for ulixes,
 # Python static build needed for composers
 # Python shared build for dagmc
-# Parallel build needed for ulixes,
-  MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS:-"${FORPYTHON_STATIC_BUILD},${FORPYTHON_STATIC_BUILD},par"}
-  computeBuilds moab
+    MOAB_DESIRED_BUILDS=ser,par
+    computeBuilds moab
+    if ! [[ `uname` =~ CYGWIN ]]; then
+# Neither pycmd nor pycsh working on Windows
+      addPycstBuild moab
+      addPycshBuild moab
+    fi
+  fi
   MOAB_DEPS=autotools,cgm,netcdf
   if [[ $MOAB_BUILDS =~ par ]]; then
     MOAB_DEPS=$MOAB_DEPS,trilinos

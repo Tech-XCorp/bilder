@@ -21,7 +21,10 @@ setCgmTriggerVars() {
   CGM_REPO_TAG_EXP=master
 # FORPYTHON_STATIC_BUILD: Composers
 # FORPYTHON_SHARED_BUILD: Dagsolid
-  CGM_BUILDS=${CGM_BUILDS:-"${FORPYTHON_STATIC_BUILD},${FORPYTHON_SHARED_BUILD}"}
+# Neither pycmd nor pycsh working on Windows
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    CGM_BUILDS=${CGM_BUILDS:-"${FORPYTHON_STATIC_BUILD},${FORPYTHON_SHARED_BUILD}"}
+  fi
   CGM_DEPS=oce,cmake
 }
 setCgmTriggerVars
