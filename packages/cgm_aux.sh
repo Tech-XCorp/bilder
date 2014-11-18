@@ -37,7 +37,7 @@ setCgmTriggerVars
 
 # Find the directory containing the OCE cmake files
 findCgm() {
-  findPackage Cgm cubit_facet "$BLDR_INSTALL_DIR" pycsh sersh
+  findPackage Cgm cgm "$BLDR_INSTALL_DIR" pycsh sersh
   findPycshDir Cgm
 }
 
