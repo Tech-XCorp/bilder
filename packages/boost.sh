@@ -225,6 +225,14 @@ installBoost() {
     local instargs="`deref BOOST_${BLD}_ADDL_ARGS` `deref BOOST_${BLD}_OTHER_ARGS`"
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
+# Fix installation name on Darwin
+      case `uname`-$bld in
+        Darwin-sersh)
+          for lib in $CONTRIB_DIR/boost-$BOOST_BLDRVERSION-$bld/libboost*.dylib; do
+            install_name_tool -id $lib $lib
+          done
+          ;;
+      esac
     fi
   done
 }
