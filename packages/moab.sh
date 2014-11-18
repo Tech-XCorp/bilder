@@ -44,7 +44,7 @@ setMoabNonTriggerVars
 buildMoab() {
 
 # Whether using cmake
-  # MOAB_USE_CMAKE=true
+  MOAB_USE_CMAKE=true
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
