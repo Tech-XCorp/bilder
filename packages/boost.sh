@@ -56,9 +56,17 @@ fixBoost() {
       cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
     fi
     if test -n "$cxxversfx"; then
-      cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : g++-$cxxversfx ;/' tools/build/v2/user-config.jam"
-      techo "$cmd"
-      eval "$cmd"
+      local userconfigfile=
+      if test -f tools/build/v2/user-config.jam; then
+        userconfigfile=tools/build/v2/user-config.jam
+      elif test -f tools/build/example/user-config.jam; then
+        userconfigfile=tools/build/example/user-config.jam
+      fi
+      if test -n "$userconfigfile"; then
+        cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : g++-$cxxversfx ;/' $userconfigfile"
+        techo "$cmd"
+        eval "$cmd"
+      fi
     fi
   fi
   case $bld in
@@ -226,10 +234,15 @@ installBoost() {
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
 # Fix installation name on Darwin
+      echo "Working on `uname`-$bld."
+      local lib=
       case `uname`-$bld in
         Darwin-sersh)
-          for lib in $CONTRIB_DIR/boost-$BOOST_BLDRVERSION-$bld/libboost*.dylib; do
-            install_name_tool -id $lib $lib
+          techo "Fixing libraries in $CONTRIB_DIR/boost-${BOOST_BLDRVERSION}$sfx/lib."
+          for lib in $CONTRIB_DIR/boost-${BOOST_BLDRVERSION}$sfx/lib/libboost*.dylib; do
+            cmd="install_name_tool -id $lib $lib"
+            techo "$cmd"
+            $cmd
           done
           ;;
       esac
