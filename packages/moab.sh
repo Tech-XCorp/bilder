@@ -78,6 +78,9 @@ buildMoab() {
   local MOAB_PAR_CONFIG_ARGS=
   if $MOAB_USE_CMAKE; then
     MOAB_SER_CONFIG_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"
+    if [[ `uname` =~ CYGWIN ]]; then
+      MOAB_SER_CONFIG_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS"
+    fi
     MOAB_PYST_CONFIG_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_PYSH_CONFIG_ARGS="$enable_shared $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_PAR_CONFIG_ARGS="$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"
@@ -141,10 +144,11 @@ buildMoab() {
   fi
 
 # Python static (pyc on unixish, pycmd on Windows) build for composers
-# Cannot use FORPYTHON_STATIC_BUILD, as that resolves to ser on unixish
+# Cannot use FORPYTHON_STATIC_BUILD on unixish where it can resolve to ser,
+# giving two ser builds.
   local pycstbuild=pyc
   if [[ `uname` =~ CYGWIN ]]; then
-    pycstbuild=pycmd
+    pycstbuild=$FORPYTHON_STATIC_BUILD
   fi
   local otherargsvar=`genbashvar MOAB_${pycstbuild}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
