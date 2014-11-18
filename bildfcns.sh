@@ -2575,12 +2575,12 @@ findPackage() {
       continue
     fi
     adirval=`(cd $adirval; pwd -P)`
-    techo "adirval = $adirval"
+    techo -2 "adirval = $adirval"
     alibdirval=
     for libsubdir in lib64 Win64/lib lib; do
-      techo "Looking for $adirval/$libsubdir"
+      techo -2 "Looking for $adirval/$libsubdir"
       if test -d $adirval/$libsubdir; then
-        techo "Found."
+        techo -2 "Found."
         alibdirval=`(cd $adirval/$libsubdir; pwd -P)`
         break
       else
