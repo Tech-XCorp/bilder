@@ -25,12 +25,12 @@ setMoabTriggerVars() {
 # Python static build needed for composers
 # Python shared build for dagmc
     MOAB_DESIRED_BUILDS=ser,par
-    computeBuilds moab
-    if ! [[ `uname` =~ CYGWIN ]]; then
+  fi
+  computeBuilds moab
+  if ! [[ `uname` =~ CYGWIN ]]; then
 # Neither pycmd nor pycsh working on Windows
-      addPycstBuild moab
-      addPycshBuild moab
-    fi
+    addPycstBuild moab
+    addPycshBuild moab
   fi
   MOAB_DEPS=autotools,cgm,netcdf
   if [[ $MOAB_BUILDS =~ par ]]; then
