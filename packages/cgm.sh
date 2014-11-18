@@ -47,6 +47,7 @@ setCgmNonTriggerVars
 buildCgm() {
 
 # Whether using cmake
+  CGM_USE_CMAKE=true
   CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
