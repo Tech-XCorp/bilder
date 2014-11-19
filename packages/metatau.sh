@@ -8,33 +8,29 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in metatau_aux.sh
 #
 ######################################################################
 
-METATAU_BLDRVERSION=${METATAU_BLDRVERSION:-"2.21.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/metatau_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-METATAU_BUILDS=${METATAU_BUILDS:-"par"}
-METATAU_DEPS=$MPI_BUILD
-METATAU_UMASK=002
+setMetatauNonTriggerVars() {
+  METATAU_UMASK=002
+}
+setMetatauNonTriggerVars
 
 ######################################################################
 #
-# Add to paths
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/tau/bin
-
-######################################################################
-#
-# Launch metatau builds.
+# Launch builds
 #
 ######################################################################
 
@@ -48,7 +44,7 @@ buildMetatau() {
 
 ######################################################################
 #
-# Test metatau
+# Test
 #
 ######################################################################
 
@@ -58,7 +54,7 @@ testMetatau() {
 
 ######################################################################
 #
-# Install metatau
+# Install
 #
 ######################################################################
 
