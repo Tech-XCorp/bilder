@@ -261,8 +261,8 @@ installMatplotlib() {
         for j in $PYTHON_SITEPKGSDIR/${i}*; do
           setOpenPerms ${j}
         done
-      else
-        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
+#      else
+#        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
       fi
     done
   fi
