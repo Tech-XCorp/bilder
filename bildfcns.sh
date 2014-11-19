@@ -3465,7 +3465,7 @@ updateRepo() {
   cmd=:
   local branchvar=
   if $BUILD_EXPERIMENTAL; then
-    branchvar=`genbashvar $1`_UPSTREAM_BRANCH
+    branchvar=`genbashvar $1`_REPO_BRANCH_EXP
   else
     branchvar=`genbashvar $1`_REPO_BRANCH_STD
   fi
