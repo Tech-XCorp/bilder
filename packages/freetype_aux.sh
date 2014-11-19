@@ -31,8 +31,10 @@ findFreetype() {
   shift $(($OPTIND - 1))
 
 # Look for freetype in contrib
-  findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
-  findPycshDir Freetype
+  if ! $SYSTEM_ONLY; then
+    findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
+    findPycshDir Freetype
+  fi
 
 # If not found, we look in $DIRLIST 
   if test -z "$FREETYPE_SERSH_DIR"; then
@@ -91,49 +93,4 @@ setFreetypeTriggerVars() {
   FREETYPE_DEPS=
 }
 setFreetypeTriggerVars
-
-######################################################################
-#
-# Find freetype root directory.  Deprecated.
-#
-# Named args (must come first):
-# -s  Look in system directories only
-#
-######################################################################
-
-findFreetypeRootdir() {
-# Parse options
-  set -- "$@"
-  OPTIND=1
-  local SYSTEM_ONLY=false
-  while getopts "s" arg; do
-    case $arg in
-      s) SYSTEM_ONLY=true;;
-    esac
-  done
-  shift $(($OPTIND - 1))
-# Look for freetype in contrib
-  if ! $SYSTEM_ONLY; then
-    local ftdir=
-    for bld in sersh sermd; do
-      if test -e $CONTRIB_DIR/freetype-$bld; then
-        ftdir=`(cd $CONTRIB_DIR/freetype-$bld; pwd -P)`
-        break
-      fi
-    done
-  fi
-# OSX puts freetype under the X11 location, which may be in more than one place.
-  if test -z "$ftdir"; then
-    for dir in $DIRLIST; do
-      if test -d $dir/include/freetype2; then
-        ftdir=$dir
-        break
-      fi
-    done
-  fi
-  if test -n "$ftdir" && [[ `uname` =~ CYGWIN ]]; then
-    ftdir=`cygpath -am $ftdir`
-  fi
-  echo $ftdir
-}
 
