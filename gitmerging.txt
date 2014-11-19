@@ -2,7 +2,7 @@ MERGING FROM A REMOTE REPO
 
 NOTE: When working with github, one must have git-1.7.10 or later.
 
-$Id$
+  $Id$
 
 Make sure you have a remote to what you want to merge from using
 
@@ -11,6 +11,8 @@ Make sure you have a remote to what you want to merge from using
 If not, add one, e.g.,
 
   git remote add upstream https://github.com/svalinn/DAGMC.git
+
+This is the 
 
 Make sure you are on the right branch
 

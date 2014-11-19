@@ -17,9 +17,10 @@
 
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_REPO_BRANCH_STD=master
   MOAB_REPO_BRANCH_EXP=master
+  MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
+  MOAB_UPSTREAM_BRANCH=master
   if test -z "$MOAB_DESIRED_BUILDS"; then
 # Static serial and parallel builds needed for ulixes,
 # Python static build needed for composers

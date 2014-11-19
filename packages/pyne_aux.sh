@@ -17,9 +17,10 @@
 
 setPyneTriggerVars() {
   PYNE_REPO_URL=https://github.com/Tech-XCorp/pyne.git
-  PYNE_UPSTREAM_URL=https://github.com/pyne/pyne.git
   PYNE_REPO_BRANCH_STD=develop
   PYNE_REPO_BRANCH_EXP=develop
+  PYNE_UPSTREAM_URL=https://github.com/pyne/pyne.git
+  PYNE_UPSTREAM_BRANCH=develop
   PYNE_BUILDS=pycsh
 # http://pyne.io/install.html
   PYNE_DEPS=moab,tables,hdf5,cython,scipy,numpy,cmake
