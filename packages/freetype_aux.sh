@@ -31,7 +31,7 @@ findFreetype() {
   shift $(($OPTIND - 1))
 
 # Look for freetype in contrib
-  if ! $SYSTEM_ONLY; then
+  if $SYSTEM_ONLY; then
     findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
     findPycshDir Freetype
   fi
