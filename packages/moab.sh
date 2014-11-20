@@ -44,7 +44,8 @@ setMoabNonTriggerVars
 buildMoab() {
 
 # Whether using cmake
-  MOAB_USE_CMAKE=true
+  # MOAB_USE_CMAKE=true
+  MOAB_USE_CMAKE=false
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
@@ -52,7 +53,10 @@ buildMoab() {
   local moabcmakearg=
   local enable_shared=
   if $MOAB_USE_CMAKE; then
+    techo "Building MOAB with cmake."
     moabcmakearg=-c
+  else
+    techo "Building MOAB with autotools."
   fi
 
 # Get moab from repo, determine whether to build
