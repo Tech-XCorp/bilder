@@ -46,7 +46,7 @@ setMuparserTriggerVars
 findMuparser() {
   findContribPackage muparser muparser ser
   if [[ `uname` =~ CYGWIN ]]; then
-    local sershbuilds=`(cd $CONTRIB_DIR; \ls -d muparser-v*-{sersh,pycsh})`
+    local sershbuilds=`(cd $CONTRIB_DIR; \ls -d muparser-v*-{sersh,pycsh} 2>/dev/null)`
     if test -n "$sershbuilds"; then
       for i in $sershbuilds; do
         local dlls=`(cd $CONTRIB_DIR/$i; \ls bin/*.dll 2>/dev/null)`
