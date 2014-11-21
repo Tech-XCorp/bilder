@@ -70,9 +70,10 @@ mkTplLibConfig() {
     local TPL=$1
     local tplDir=$2
     local tplLibName=${@:3:20}
-    local tplConfig="-D${TPL}_INCLUDE_DIRS:PATH='${tplDir}/include' -D${TPL}_LIBRARY_DIRS:PATH='${tplDir}/lib' -D${TPL}_LIBRARY_NAMES:STRING='$tplLibName''
+    local tplConfig="-D${TPL}_INCLUDE_DIRS:PATH='${tplDir}/include' -D${TPL}_LIBRARY_DIRS:PATH='${tplDir}/lib' -D${TPL}_LIBRARY_NAMES:STRING='$tplLibName'"
     echo $tplConfig
 }
+
 getTriTPLs() {
   local buildtype=${1}
   local parflag=${buildtype:0:3}     # This converts sercplx to ser
