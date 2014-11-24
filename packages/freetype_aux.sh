@@ -15,46 +15,47 @@
 #
 ######################################################################
 
-DIRLIST="/opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11"
 
 findFreetype() {
+  local DIRLIST="/opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11"
+  local CHECK_SYSTEM=false
 
 # Parse options
   set -- "$@"
   OPTIND=1
-  local SYSTEM_ONLY=false
   while getopts "s" arg; do
     case $arg in
-      s) SYSTEM_ONLY=true;;
+      s) CHECK_SYSTEM=true;;
     esac
   done
   shift $(($OPTIND - 1))
 
+  if $CHECK_SYSTEM; then
+    if test -z "$FREETYPE_SERSH_DIR"; then
+      for dir in $DIRLIST; do
+        if test -d $dir/include/freetype2; then
+          FREETYPE_PYCSH_DIR=$dir
+          break
+        fi
+      done
+    fi
+  fi
+
 # Look for freetype in contrib
-  if $SYSTEM_ONLY; then
+  if test -z "$FREETYPE_PYCSH_DIR"; then
     findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
     findPycshDir Freetype
   fi
 
-# If not found, we look in $DIRLIST 
-  if test -z "$FREETYPE_SERSH_DIR"; then
-    for dir in $DIRLIST; do
-      if test -d $dir/include/freetype2; then
-        FREETYPE_PYCSH_DIR=$dir
-        break
-      fi
-    done
+  if test -n "$FREETYPE_PYCSH_DIR"; then
+    if [[ `uname` =~ CYGWIN ]]; then
+      FREETYPE_PYCSH_DIR=`cygpath -am $FREETYPE_PYCSH_DIR`
+    fi
+    CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
+    CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
+    printvar CMAKE_FREETYPE_PYCSH_DIR_ARG
+    printvar CONFIG_FREETYPE_PYCSH_DIR_ARG
   fi
-  if test -z "$FREETYPE_PYCSH_DIR"; then
-    return
-  fi
-  if [[ `uname` =~ CYGWIN ]]; then
-    FREETYPE_PYCSH_DIR=`cygpath -am $FREETYPE_PYCSH_DIR`
-  fi
-  CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
-  CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
-  printvar CMAKE_FREETYPE_PYCSH_DIR_ARG
-  printvar CONFIG_FREETYPE_PYCSH_DIR_ARG
 }
 
 ######################################################################
