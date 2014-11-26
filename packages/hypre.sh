@@ -41,14 +41,6 @@ buildHypre() {
     return 1
   fi
 
-  if bilderConfig -c hypre ser "-DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-ser $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"; then
-    bilderBuild hypre ser
-  fi
-
-  if bilderConfig -c hypre sersh "-DHYPRE_SHARED:BOOL=ON -DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-sersh $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"; then
-    bilderBuild hypre sersh
-  fi
-
   if bilderConfig -c hypre par "-DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"; then
     bilderBuild hypre par
   fi

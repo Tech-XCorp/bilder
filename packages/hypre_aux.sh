@@ -19,11 +19,10 @@ setHypreTriggerVars() {
   HYPRE_BLDRVERSION_STD=${HYPRE_BLDRVERSION_STD:-"2.8.3a"}
   HYPRE_BLDRVERSION_EXP=${HYPRE_BLDRVERSION_EXP:-"2.9.0b"}
   if test -z "$HYPRE_BUILDS"; then
-# Leaving serial build in case non-PETSc package needs it
-    HYPRE_BUILDS=ser,par
+    HYPRE_BUILDS=par
     case `uname` in
       CYGWIN* | Darwin) ;;
-      *) HYPRE_BUILDS="${HYPRE_BUILDS},sersh,parsh";;
+      *) HYPRE_BUILDS="${HYPRE_BUILDS},parsh";;
     esac
   fi
   HYPRE_DEPS=cmake,atlas,lapack,clapack_cmake
