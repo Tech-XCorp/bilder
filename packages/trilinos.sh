@@ -152,6 +152,14 @@ buildTrilinos() {
 # This requires the parcomm builds of superlu, which then does not include parmetis
 #
 # The packages
+  case `uname` in
+     CYGWIN* | Darwin) 
+       local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
+       ;;
+     *) 
+       local TPL_PACKAGELIST="HYPRE MUMPS SuperLU SuperLUDist"
+       ;;
+  esac
   # Generic configuration
   local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF -DTPL_ENABLE_Boost:STRING=ON"
 
@@ -161,8 +169,8 @@ buildTrilinos() {
 
   # Turn on external packages.  getTriTPLs figures out which ones are
   # par and which ones are ser
-  triTplSerArgs=`getTriTPLs ser "HYPRE MUMPS SuperLU SuperLUDist"`
-  triTplParArgs=`getTriTPLs par "HYPRE MUMPS SuperLU SuperLUDist"`
+  triTplSerArgs=`getTriTPLs ser $TPL_PACKAGELIST`
+  triTplParArgs=`getTriTPLs par $TPL_PACKAGELIST`
 
   # if $BUILD_EXPERIMENTAL; then
     TRILINOS_SERCOMMSH_ADDL_ARGS="$TRILINOS_SERCOMMSH_ADDL_ARGS -DTrilinos_ENABLE_PyTrilinos:STRING=ON"
