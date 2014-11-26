@@ -16,7 +16,7 @@
 ######################################################################
 
 setSuperluTriggerVars() {
-  SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-"4.1"}
+  SUPERLU_BLDRVERSION=${SUPERLU_BLDRVERSION:-"4.3"}
   if test -z "$SUPERLU_BUILDS"; then
     SUPERLU_BUILDS=ser
     case `uname` in
