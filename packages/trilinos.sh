@@ -161,7 +161,8 @@ buildTrilinos() {
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
        ;;
      Linux)
-       local TPL_PACKAGELIST="HYPRE MUMPS SuperLU SuperLUDist"
+       local TPL_PACKAGELIST="SuperLU SuperLUDist"
+       $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
        ;;
   esac
 # Generic configuration
