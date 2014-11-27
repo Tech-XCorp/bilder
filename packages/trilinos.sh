@@ -164,21 +164,22 @@ buildTrilinos() {
        local TPL_PACKAGELIST="HYPRE MUMPS SuperLU SuperLUDist"
        ;;
   esac
-  # Generic configuration
+# Generic configuration
   local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF -DTPL_ENABLE_Boost:STRING=ON"
 
-  # Turn on the internal packages
-  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex Phalanx NOX EpetraExt Epetra Triutils Teuchos Ifpack Amesos2"
+# Turn on the internal packages
+  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex Phalanx NOX EpetraExt Epetra Triutils Teuchos Ifpack"
+  if test `uname` = Linux; then
+    triPkgs="$triPkgs Amesos2"
+  fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
-  # Turn on external packages.  getTriTPLs figures out which ones are
-  # par and which ones are ser
+# Turn on external packages.  getTriTPLs figures out which ones are
+# par and which ones are ser
   triTplSerArgs=`getTriTPLs ser $TPL_PACKAGELIST`
   triTplParArgs=`getTriTPLs par $TPL_PACKAGELIST`
 
-  # if $BUILD_EXPERIMENTAL; then
-    TRILINOS_SERCOMMSH_ADDL_ARGS="$TRILINOS_SERCOMMSH_ADDL_ARGS -DTrilinos_ENABLE_PyTrilinos:STRING=ON"
-  # fi
+  TRILINOS_SERCOMMSH_ADDL_ARGS="$TRILINOS_SERCOMMSH_ADDL_ARGS -DTrilinos_ENABLE_PyTrilinos:STRING=ON"
 
 # Add in the locations by build
   TRILINOS_SERCOMM_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS $triCommonArgs $triTplSerArgs"
