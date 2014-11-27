@@ -153,10 +153,14 @@ buildTrilinos() {
 #
 # The packages
   case `uname` in
-     CYGWIN* | Darwin) 
+     CYGWIN*)
        local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
        ;;
-     *) 
+     Darwin)
+# JRC: Mumps not building on Darwin for me
+       local TPL_PACKAGELIST="SuperLU SuperLUDist"
+       ;;
+     Linux)
        local TPL_PACKAGELIST="HYPRE MUMPS SuperLU SuperLUDist"
        ;;
   esac

@@ -1,23 +1,33 @@
 #!/bin/bash
 #
-# Version and build information for mumps
+# Build information for mumps
 #
 # $Id$
 #
 ######################################################################
 
-MUMPS_BLDRVERSION=${MUMPS_BLDRVERSION:-"4.10.0"}
-
 ######################################################################
 #
-# Other values
+# Trigger variables set in mumps_aux.sh
 #
 ######################################################################
 
-# Reset down below.  See notes in ptsolvedocs.sh
-MUMPS_BUILDS=${MUMPS_BUILDS:-"ser,par"}
-MUMPS_DEPS=cmake
-MUMPS_UMASK=002
+mydir=`dirname $BASH_SOURCE`
+source $mydir/mumps_aux.sh
+
+######################################################################
+#
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
+
+setMumpsNonTriggerVars() {
+  HYPRE_UMASK=002
+  MUMPS_UMASK=002
+}
+setMumpsNonTriggerVars
 
 #####################################################################
 #
@@ -50,7 +60,7 @@ buildMumps() {
 ######################################################################
 
 testMumps() {
-    echo " No testing for mumps"
+  techo "Not testing mumps."
 }
 
 ######################################################################
