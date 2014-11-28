@@ -70,12 +70,18 @@ getTriPackages() {
   done
   echo $triPkgArgs
 }
+
 mkTplLibConfig() {
     local TPL=$1
     local tplDir=$2
-    local tplLibName=${@:3:20}
-    local tplConfig="-D${TPL}_INCLUDE_DIRS:PATH='${tplDir}/include' -D${TPL}_LIBRARY_DIRS:PATH='${tplDir}/lib' -D${TPL}_LIBRARY_NAMES:STRING='$tplLibName'"
-    echo $tplConfig
+    if test -e $tplDir; then
+      if [[ `uname` =~ CYGWIN ]]; then
+        tplDir=`cygpath -am $tplDir`
+      fi
+      local tplLibName=${@:3:20}
+      local tplConfig="-D${TPL}_INCLUDE_DIRS:PATH='${tplDir}/include' -D${TPL}_LIBRARY_DIRS:PATH='${tplDir}/lib' -D${TPL}_LIBRARY_NAMES:STRING='$tplLibName'"
+      echo $tplConfig
+    fi
 }
 
 getTriTPLs() {
@@ -86,9 +92,8 @@ getTriTPLs() {
   local tplArgs=""
   for TPL in $TPLs; do
     addlArgs=""
-    argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
     case "$TPL" in
-      HYPRE) 
+      HYPRE)
         if test "$parflag" == "ser"; then
           continue  # parallel only
         else
@@ -96,7 +101,7 @@ getTriTPLs() {
         fi
         tplLibName="HYPRE"
         ;;
-      SuperLU) 
+      SuperLU)
         if test "$parflag" == "ser"; then
           tplDir=$CONTRIB_DIR/superlu
         else
@@ -105,7 +110,7 @@ getTriTPLs() {
         fi
         tplLibName="superlu"
         ;;
-      SuperLUDist) 
+      SuperLUDist)
         if test "$parflag" == "ser"; then
           continue  # parallel only
         else
@@ -117,7 +122,7 @@ getTriTPLs() {
 #       -DTPL_ENABLE_SuperLUDist:BOOL=ON \
 #       -DSuperLUDist_INCLUDE_DIRS:PATH='/scr_sandybridge/kruger/contrib/superlu_dist-2.5-parcomm/include'
 #       -DSuperLUDist_LIBRARY_DIRS:PATH='/scr_sandybridge/kruger/contrib/superlu_dist-2.5-parcomm/lib'
-#       -DSuperLUDist_LIBRARY_NAMES:STRING='superlu_dist' 
+#       -DSuperLUDist_LIBRARY_NAMES:STRING='superlu_dist'
       MUMPS)
         tplLibName='cmumps;zmumps;smumps;dmumps;mumps_common;pord'
         if test "$parflag" == "ser"; then
@@ -136,8 +141,11 @@ getTriTPLs() {
         fi
         ;;
     esac
-    local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
-    tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
+    if test -e $tplDir; then
+      argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
+      local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
+      tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
+    fi
   done
   echo $tplArgs
   return
