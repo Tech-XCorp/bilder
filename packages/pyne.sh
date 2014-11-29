@@ -46,11 +46,9 @@ buildPyne() {
 
 # This is a new case for Bilder: a repo for a python module.
 
-# Debug
-  techo "PATH = $PATH."
-
 # Build/install
   PYNE_ARGS="--hdf5=$HDF5_PYCSH_DIR --moab=$MOAB_PYCSH_DIR"
+  PYNE_ENV="$DISTUTILS_NOLV_ENV"
   bilderDuBuild pyne "$PYNE_ARGS" "$PYNE_ENV"
 
 }
