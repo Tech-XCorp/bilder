@@ -14,27 +14,31 @@ If not, add one, e.g.,
 
 This is the PKG_UPSTREAM_URL in the pkg_aux.sh file.
 
+Set the working branch:
+
+  wbranch=(develop | master)
+
 Make sure you are on the right branch
 
-  git checkout develop
+  git checkout $wbranch
 
 If you do not yet have it, fetch the branch you want to merge
 
-  git fetch upstream develop:upstream-develop
-  git branch --set-upstream-to=upstream/develop upstream-develop
+  git fetch upstream $wbranch:upstream-$wbranch
+  git branch --set-upstream-to=upstream/$wbranch upstream-$wbranch
 
 If you already have it, switch to it and pull
 
-  git checkout upstream-develop
+  git checkout upstream-$wbranch
   git pull
 
 Move back to develop branch
 
-  git checkout develop
+  git checkout $wbranch
 
 Now merge that in.
 
-  git merge upstream-develop
+  git merge upstream-$wbranch
 
 Commit and push:
 

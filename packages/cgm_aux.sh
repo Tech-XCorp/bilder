@@ -17,8 +17,10 @@
 
 setCgmTriggerVars() {
   CGM_REPO_URL=https://bitbucket.org/cadg4/cgm.git
+  CGM_REPO_BRANCH_STD=master
+  CGM_REPO_BRANCH_EXP=master
   CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
-  CGM_REPO_TAG_EXP=master
+  CGM_UPSTREAM_BRANCH=master
 # FORPYTHON_STATIC_BUILD: Composers
 # FORPYTHON_SHARED_BUILD: Dagsolid
 # Neither pycmd nor pycsh working on Windows
