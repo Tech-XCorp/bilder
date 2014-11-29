@@ -69,7 +69,8 @@ buildDagMc() {
 # Moab found from config file
   DAGMC_ADDL_ARGS="-DMOAB_CMAKE_CONFIG:PATH='$MOAB_SERSH_CMAKE_DIR'"
 # Geant found from build directory
-  DAGMC_ADDL_ARGS="$DAGMC_ADDL_ARGS -DBUILD_GEANT4=ON -DGEANT4_DIR:PATH='$BUILD_DIR/geant4-$GEANT4_BLDRVERSION/sersh'"
+  # DAGMC_ADDL_ARGS="$DAGMC_ADDL_ARGS -DBUILD_GEANT4=ON -DGEANT4_DIR:PATH='$BUILD_DIR/geant4-$GEANT4_BLDRVERSION/sersh'"
+  DAGMC_ADDL_ARGS="$DAGMC_ADDL_ARGS -DBUILD_GEANT4=ON -DGEANT4_DIR:PATH='$GEANT4_SERSH_CMAKE_DIR'"
 
 # If not all dependencies right on Windows, need nmake
   local makerargs=

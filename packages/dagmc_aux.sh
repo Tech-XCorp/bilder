@@ -17,8 +17,8 @@
 
 setDagMcTriggerVars() {
   DAGMC_REPO_URL=https://github.com/Tech-XCorp/DAGMC.git
-  DAGMC_REPO_BRANCH_STD=develop
-  DAGMC_REPO_BRANCH_EXP=develop
+  DAGMC_REPO_BRANCH_STD=dev1
+  DAGMC_REPO_BRANCH_EXP=dev1
   DAGMC_UPSTREAM_URL=https://github.com/svalinn/DAGMC.git
   DAGMC_UPSTREAM_BRANCH=develop
   DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
