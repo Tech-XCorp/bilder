@@ -50,7 +50,8 @@ buildPyne() {
   techo "PATH = $PATH."
 
 # Build/install
-  bilderDuBuild pyne "--hdf5=$HDF5_PYCSH_DIR --moab=$MOAB_PYCSH_DIR" "$PYNE_ENV"
+  PYNE_ARGS="--hdf5=$HDF5_PYCSH_DIR --moab=$MOAB_PYCSH_DIR"
+  bilderDuBuild pyne "$PYNE_ARGS" "$PYNE_ENV"
 
 }
 
