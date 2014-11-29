@@ -26,9 +26,9 @@ setTrilinosTriggerVars() {
   TRILINOS_BLDRVERSION_EXP=11.10.2
 # Can add builds in package file only if no add builds defined.
   if test -z "$TRILINOS_DESIRED_BUILDS"; then
-    TRILINOS_DESIRED_BUILDS="serbare,parbare,sercomm,parcomm"
+    TRILINOS_DESIRED_BUILDS="sercomm,parcomm"
     case `uname` in
-      Darwin | Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},serbaresh,parbaresh,sercommsh,parcommsh,serfull,parfull,serfullsh,parfullsh";;
+      Darwin | Linux) TRILINOS_DESIRED_BUILDS="${TRILINOS_DESIRED_BUILDS},sercommsh,parcommsh";;
     esac
   fi
 # Can remove builds based on OS here, as this decides what can build.

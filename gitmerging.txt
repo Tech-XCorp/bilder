@@ -12,7 +12,7 @@ If not, add one, e.g.,
 
   git remote add upstream https://github.com/svalinn/DAGMC.git
 
-This is the 
+This is the PKG_UPSTREAM_URL in the pkg_aux.sh file.
 
 Make sure you are on the right branch
 
