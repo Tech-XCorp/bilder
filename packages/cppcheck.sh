@@ -43,7 +43,7 @@ buildCppcheck() {
     if [[ `uname` =~ CYGWIN ]]; then
       makerargs="-m build.bat"
     fi
-    bilderBuild -kD -m ./bootstrap.py cppcheck ser
+    bilderBuild -kD $makerargs cppcheck ser
   fi
 }
 
