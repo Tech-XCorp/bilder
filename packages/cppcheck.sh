@@ -85,7 +85,7 @@ installCppcheck() {
     cmd="/usr/bin/install -m775 cfg/* $instdir/cfg"
     techo "$cmd"
     $cmd
-    cmd="(cd $CONTRIB/bin; ln -sf ../cppcheck-${CPPCHECK_BLDRVERSION}-ser/bin/cppcheck$exesfx cppcheck$exesfx )"
+    cmd="(cd $CONTRIB_DIR/bin; ln -sf ../cppcheck-${CPPCHECK_BLDRVERSION}-ser/bin/cppcheck$exesfx cppcheck$exesfx )"
     techo "$cmd"
     eval "$cmd"
   fi
