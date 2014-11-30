@@ -37,13 +37,15 @@ setCppcheckNonTriggerVars
 buildCppcheck() {
   CPPCHECK_CONFIG_METHOD=none
   if bilderUnpack -i cppcheck; then
+# create cfg subdir
+    local instdir=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser
+    cmd="/usr/bin/install -d -m775 $instdir/cfg"
+    techo "$cmd"
+    $cmd
 # No configure step, so must set build dir
     CPPCHECK_SER_BUILD_DIR=$BUILD_DIR/cppcheck-$CPPCHECK_BLDRVERSION/ser
     local makerargs=
-    if [[ `uname` =~ CYGWIN ]]; then
-      makerargs="-m build.bat"
-    fi
-    bilderBuild -kD $makerargs cppcheck ser
+    bilderBuild -kD $makerargs cppcheck ser "CFG=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser/cfg"
   fi
 }
 
@@ -71,9 +73,21 @@ installCppcheck() {
     exesfx=.exe
   fi
   if bilderInstall -L -m ":" cppcheck ser; then
-    local cmd="/usr/bin/install -m775 $BUILD_DIR/cppcheck-$CPPCHECK_BLDRVERSION/ser/cppcheck${exesfx} $CONTRIB_DIR/bin"
+    local cmd=
+    local instdir=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser
+    cmd="/usr/bin/install -d -m775 $instdir/bin/subdir"
     techo "$cmd"
     $cmd
+    cd $BUILD_DIR/cppcheck-$CPPCHECK_BLDRVERSION/ser
+    cmd="/usr/bin/install -m775 cppcheck${exesfx} $instdir/bin"
+    techo "$cmd"
+    $cmd
+    cmd="/usr/bin/install -m775 cfg/* $instdir/cfg"
+    techo "$cmd"
+    $cmd
+    cmd="(cd $CONTRIB/bin; ln -sf ../cppcheck-${CPPCHECK_BLDRVERSION}-ser/bin/cppcheck$exesfx cppcheck$exesfx )"
+    techo "$cmd"
+    eval "$cmd"
   fi
 }
 
