@@ -45,7 +45,7 @@ buildCppcheck() {
 # No configure step, so must set build dir
     CPPCHECK_SER_BUILD_DIR=$BUILD_DIR/cppcheck-$CPPCHECK_BLDRVERSION/ser
     local makerargs=
-    bilderBuild -kD $makerargs cppcheck ser "CFG=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser/cfg"
+    bilderBuild -kD $makerargs cppcheck ser "CFGDIR=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser/cfg HAVE_RULES=yes"
   fi
 }
 
