@@ -2,7 +2,7 @@
 #
 # Trigger vars and find information
 #
-# $Id: metatau_aux.sh 1438 2014-05-25 13:26:28Z jrobcary $
+# $Id$
 #
 ######################################################################
 

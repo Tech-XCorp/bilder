@@ -2,7 +2,7 @@
 #
 # Trigger vars and find information
 #
-# $Id: autotools_aux.sh 1840 2014-11-05 09:59:48Z jrobcary $
+# $Id$
 #
 ######################################################################
 

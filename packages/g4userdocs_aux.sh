@@ -2,7 +2,7 @@
 #
 # Trigger vars and find information
 #
-# $Id: g4userdocs_aux.sh 1250 2014-06-24 23:14:32Z cary $
+# $Id$
 #
 ######################################################################
 

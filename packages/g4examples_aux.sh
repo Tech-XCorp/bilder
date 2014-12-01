@@ -2,7 +2,7 @@
 #
 # Trigger vars and find information
 #
-# $Id: g4examples_aux.sh 1248 2014-06-24 21:40:50Z cary $
+# $Id$
 #
 ######################################################################
 
