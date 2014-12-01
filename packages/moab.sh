@@ -44,12 +44,12 @@ setMoabNonTriggerVars
 buildMoab() {
 
 # Whether using cmake
-  # MOAB_USE_CMAKE=true
-  MOAB_USE_CMAKE=false
-  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
-  if [[ `uname` =~ CYGWIN ]]; then
-    MOAB_USE_CMAKE=true
-  fi
+  MOAB_USE_CMAKE=true
+  #MOAB_USE_CMAKE=false
+  #MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
+  #if [[ `uname` =~ CYGWIN ]]; then
+  #  MOAB_USE_CMAKE=true
+  #fi
   local moabcmakearg=
   local enable_shared=
   if $MOAB_USE_CMAKE; then
@@ -100,6 +100,8 @@ buildMoab() {
 # OCE always brought in shared
     MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS $OCE_PYCSH_CMAKE_DIR_ARG"
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS $OCE_PYCSH_CMAKE_DIR_ARG"
+    MOAB_SER_CONFIG_ARGS="${MOAB_SER_CONFIG_ARGS} -DMOAB_USE_CGM:BOOL=FALSE -DMOAB_USE_HDF:BOOL=TRUE -DMOAB_USE_NETCDF:BOOL=TRUE"
+    MOAB_SER_CONFIG_ARGS="${MOAB_SER_CONFIG_ARGS} -DHDF5_DIR:PATH='${HDF5_SER_DIR}' -DNetCDF_DIR:PATH='${NETCDF_SER_DIR}'"
   else
 # Moab cannot use recent vtk
 # Moab cannot use recent cgm

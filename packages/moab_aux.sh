@@ -33,7 +33,7 @@ setMoabTriggerVars() {
     addPycstBuild moab
     addPycshBuild moab
   fi
-  MOAB_DEPS=autotools,cgm,netcdf
+  MOAB_DEPS=cmake,hdf5,netcdf
   if [[ $MOAB_BUILDS =~ par ]]; then
     MOAB_DEPS=$MOAB_DEPS,trilinos
   fi
