@@ -53,8 +53,6 @@ findFreetype() {
     fi
     CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
     CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
-    printvar CMAKE_FREETYPE_PYCSH_DIR_ARG
-    printvar CONFIG_FREETYPE_PYCSH_DIR_ARG
   fi
 }
 
