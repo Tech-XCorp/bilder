@@ -57,9 +57,11 @@ findLibpng() {
     if [[ `uname` =~ CYGWIN ]]; then
       LIBPNG_PYCSH_DIR=`cygpath -am $LIBPNG_PYCSH_DIR`
     fi
-    CMAKE_LIBPNG_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$LIBPNG_PYCSH_DIR'"
-    CONFIG_LIBPNG_PYCSH_DIR_ARG="--with-freetype-dir='$LIBPNG_PYCSH_DIR'"
+    CMAKE_LIBPNG_PYCSH_DIR_ARG="-DPng_ROOT_DIR:PATH='$LIBPNG_PYCSH_DIR'"
+    CONFIG_LIBPNG_PYCSH_DIR_ARG="--with-libpng-dir='$LIBPNG_PYCSH_DIR'"
   fi
+  printvar CMAKE_LIBPNG_PYCSH_DIR_ARG
+  printvar CONFIG_LIBPNG_PYCSH_DIR_ARG
 
 }
 
