@@ -15,7 +15,6 @@
 #
 ######################################################################
 
-
 findFreetype() {
   local DIRLIST="/opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11"
   local CHECK_SYSTEM=false
@@ -54,6 +53,7 @@ findFreetype() {
     CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
     CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
   fi
+
 }
 
 ######################################################################

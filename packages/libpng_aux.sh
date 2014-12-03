@@ -46,6 +46,21 @@ findLibpng() {
     printvar CMAKE_LIBPNG_SERSH_DIR_ARG
     printvar CONFIG_LIBPNG_SERSH_DIR_ARG
   fi
+
+# Look for freetype in contrib
+  if test -z "$LIBPNG_PYCSH_DIR"; then
+    findPackage Libpng png"$CONTRIB_DIR" pycsh sersh
+    findPycshDir Libpng
+  fi
+
+  if test -n "$LIBPNG_PYCSH_DIR"; then
+    if [[ `uname` =~ CYGWIN ]]; then
+      LIBPNG_PYCSH_DIR=`cygpath -am $LIBPNG_PYCSH_DIR`
+    fi
+    CMAKE_LIBPNG_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$LIBPNG_PYCSH_DIR'"
+    CONFIG_LIBPNG_PYCSH_DIR_ARG="--with-freetype-dir='$LIBPNG_PYCSH_DIR'"
+  fi
+
 }
 
 ######################################################################
