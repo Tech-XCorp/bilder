@@ -39,7 +39,7 @@ derefpath() {
 # 1: holds the value
 #
 dblslash() {
-  echo `echo "$1" | sed 's?\\\\?\\\\\\\\?g'`
+  echo "`echo "$1" | sed 's?\\\\?\\\\\\\\?g'`"
 }
 
 #
