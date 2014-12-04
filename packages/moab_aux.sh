@@ -52,7 +52,9 @@ findMoab() {
   techo
   findPycshDir Moab
   findPycstDir Moab
-  addtopathvar PATH ${MOAB_PYCSH_DIR}/bin
+  if test -n "$MOAB_PYCSH_DIR"; then
+    addtopathvar PATH ${MOAB_PYCSH_DIR}/bin
+  fi
   techo
 # Find cmake configuration directories
   for bld in $srchbuilds; do

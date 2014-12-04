@@ -7921,6 +7921,9 @@ buildChain() {
     else
       techo -2 "NOTE: [$FUNCNAME] ${auxfile} not found."
     fi
+    if [[ `uname` =~ CYGWIN ]] && echo "$PATH" | egrep -q "(^|:)/bin:"; then
+      techo -2 "WARNING: [$FUNCNAME] After $auxfile, /bin in path."
+    fi
   done
 
 # Ensure 2 blank lines in between examining packages.
