@@ -58,7 +58,7 @@ findFreetype() {
 # If freetype has no builds, libpng_aux.sh will not be sourced, and
 # findLibpng will not be called, so cover that possibility here.
   if test -z "$CMAKE_LIBPNG_PYCSH_DIR_ARG"; then
-    if ! declare -f findLibpng; then
+    if ! declare -f findLibpng 1>/dev/null; then
       source $BILDER_DIR/packages/libpng_aux.sh
     fi
     findLibpng
