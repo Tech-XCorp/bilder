@@ -35,8 +35,6 @@ setMumpsNonTriggerVars
 #
 ######################################################################
 
-#$CMAKE_LINLIB_SER_ARGS
-
 buildMumps() {
   if test -d $PROJECT_DIR/mumps; then
     getVersion mumps
