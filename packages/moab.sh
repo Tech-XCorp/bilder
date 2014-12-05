@@ -131,7 +131,7 @@ buildMoab() {
   local MOAB_ENV=
 
 # When not all dependencies right on Windows, need nmake
-  local makerargs=
+  local makerargs="-m :"
   local makejargs=
   if [[ `uname` =~ CYGWIN ]]; then
     makerargs="-m nmake"
@@ -191,5 +191,9 @@ testMoab() {
 
 installMoab() {
   bilderInstallAll moab
+  # Sersh build of moab needs hdf5 library installed, but moab does not install it.
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    cp $HDF5_PYCSH_DIR/lib/libhdf5.* $BLDR_INSTALL_DIR/moab-sersh/lib
+  fi
 }
 
