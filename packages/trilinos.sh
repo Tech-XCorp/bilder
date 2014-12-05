@@ -149,37 +149,46 @@ buildTrilinos() {
 
 #
 # The comm builds enable anything with a commercially acceptable license.
-# This requires the parcomm builds of superlu, which then does not include parmetis
+# This requires the parcomm builds of superlu, which then does not
+# include parmetis.
 #
-# The packages
-  case `uname` in
-     CYGWIN*)
-       local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
-       ;;
-     Darwin)
-# JRC: Mumps not building on Darwin for me
-       local TPL_PACKAGELIST="SuperLU SuperLUDist"
-       ;;
-     Linux)
-       local TPL_PACKAGELIST="SuperLU SuperLUDist"
-       $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
-       ;;
-  esac
 # Generic configuration
   local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF -DTPL_ENABLE_Boost:STRING=ON"
 
-# Turn on the internal packages
+# Internal packages
   local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex Phalanx NOX EpetraExt Epetra Triutils Teuchos Ifpack"
   if test `uname` = Linux; then
     triPkgs="$triPkgs Amesos2"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
+# Potential external packages
+  case `uname` in
+     CYGWIN*)
+       local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
+       ;;
+     Darwin)
+       local TPL_PACKAGELIST="SuperLU SuperLUDist"
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
+# Mumps does not build on Darwin, so following has no effect
+       TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
+       ;;
+     Linux)
+       local TPL_PACKAGELIST="SuperLU SuperLUDist"
+# 11.12.1 builds with hypre on Linux
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
+# 11.12.1 does not build serial with mumps on Linux
+       TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
+       ;;
+  esac
+  techo -2 "TPL_PACKAGELIST = $TPL_PACKAGELIST"
+
 # Turn on external packages.  getTriTPLs figures out which ones are
 # par and which ones are ser
   triTplSerArgs=`getTriTPLs ser $TPL_PACKAGELIST`
   triTplParArgs=`getTriTPLs par $TPL_PACKAGELIST`
-  # techo "triTplSerArgs = $triTplSerArgs."
+  techo -2 "triTplSerArgs = $triTplSerArgs."
+  techo -2 "triTplParArgs = $triTplParArgs."
 
   TRILINOS_SERCOMMSH_ADDL_ARGS="$TRILINOS_SERCOMMSH_ADDL_ARGS -DTrilinos_ENABLE_PyTrilinos:STRING=ON"
 

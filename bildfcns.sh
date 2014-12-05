@@ -1234,7 +1234,7 @@ getVersion() {
 #     applied patches, I believe that your repo could get a different number
 #     for the same code tree or the same number for a different code tree. (SG)
     if ! rev=`git rev-list HEAD | wc -l | awk '{print $1}'`; then
-      techo "Git rev-list failed.  In path?  Returning."
+      techo "Git rev-list failed.  In path? Returning."
       cd $origdir
       return 1
     fi
@@ -1247,7 +1247,7 @@ getVersion() {
   elif test "$repotype" == "HG"; then
     techo "Getting the current version of $1 at `date +%F-%T`."
     if ! rev=`hg id -n`; then
-      techo "Hg failed.  In path?  Returning."
+      techo "Hg failed.  In path? Returning."
       cd $origdir
       return 1
     fi
@@ -1379,10 +1379,10 @@ fi
     if test -d $instdir/$instsubdir; then
 # This implies default installation subdir
       if ! test -f $instdir/$instsubdir/$patchname; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname is missing.  Rebuilding."
+        techo -2 "Patch $instdir/$instsubdir/$patchname is missing. Rebuilding."
         dopatch=true
       elif ! $BILDER_DIFF -q $instdir/$instsubdir/$patchname $patchval; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ.  Rebuilding."
+        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ. Rebuilding."
         dopatch=true
       else
         techo -2 "Patch up to date."
@@ -1584,9 +1584,9 @@ fi
 # Look for all requested installations, if all present, return.
   for i in `echo $2 | tr ',' ' '`; do
     if isInstalled -i $instdir $1-$i; then
-      techo "Package $1-$i is installed."
+      techo -2 "Package $1-$i is installed."
     else
-      techo "Package $1-$i is not installed."
+      techo -2 "Package $1-$i is not installed."
       return 1
     fi
   done
@@ -1668,7 +1668,7 @@ shouldInstall() {
   local forcevar=`genbashvar ${ucproj}`_FORCEBUILD
   local forceval=`deref $forcevar`
   if test $forceval; then
-    techo "Forcing build $ucproj from the command line. Proceeding with next step."
+    techo "Forcing build $ucproj from the command line. Rebuilding."
     return 0
   fi
 
@@ -1676,22 +1676,22 @@ shouldInstall() {
   local dir=$instdir
 # if installations.txt does not exist, then we should install (anything).
   if test ! -f $dir/installations.txt; then
-    techo "File $dir/installations.txt does not exist.  Proceeding with next step."
+    techo "File $dir/installations.txt does not exist. Rebuilding."
     return 0
   fi
 
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
-  techo -2 "Last installed ${proj} was $pkgline"
+  techo "Last install: '$pkgline'"
   if test -z "$pkgline"; then
-    techo "Package $proj not found in $dir/installations.txt.  Proceeding with next step."
+    techo "Package $proj not found in $dir/installations.txt. Rebuilding."
     return 0
   fi
 
   local verpkgline=`grep ^${1}- $dir/installations.txt | tail -1`
   techo -2 "Last Installed $1 was $verpkgline."
   if ! test "$pkgline" = "$verpkgline"; then
-    techo "Last installed version of package $proj not the requested ... rebuilding."
+    techo "Last installed version of package $proj not the requested. Rebuilding."
     return 0
   fi
 
@@ -1705,7 +1705,7 @@ shouldInstall() {
   if test -z "$pkgScriptRev" -o "$pkgScriptRev" = unknown; then
     pkgScriptRev=0
   fi
-  techo "A build of $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
+  techo -2 "A build of $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
 
 # Find earliest date of any of the builds in any of the directories.
 # NOT IMPLEMENTED YET.
@@ -1713,16 +1713,16 @@ shouldInstall() {
 # See whether installation is older than package file.
 # For packages like Python, $proj will be Python, but the package script will
 # be python.sh, so we use $lcproj.
-  techo -n "Script ${lcproj}.sh in $dir/installations.txt was r$pkgScriptRevStr, now r$currentPkgScriptRev"
+  techo -n "Script ${lcproj}.sh in $dir/installations.txt was r$pkgScriptRevStr, now r$currentPkgScriptRev."
   if test $currentPkgScriptRev -gt $pkgScriptRev; then
     if $BUILD_IF_NEWER_PKGFILE; then
-      techo "... rebuilding."
+      techo " Rebuilding."
       return 0
     else
-      techo "... not causing rebuild because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
+      techo " Not causing rebuild because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
     fi
   else
-    techo "... not a reason to rebuild."
+    techo " Not a reason to rebuild."
   fi
 
   techo -2 "Bilder using `which sort` to do sorting."
@@ -1737,7 +1737,7 @@ shouldInstall() {
     local latedate=`(echo $pkgdate; echo $conffiledate) | sort -r | head -1`
     latedate=`echo $latedate | sed 's/ .*$//'`
     if test "$latedate" != $pkgdate; then
-      techo "Configuration $projconf changed more recently than $proj.  Rebuilding."
+      techo "Configuration $projconf changed more recently than $proj. Rebuilding."
       return 0
     fi
   fi
@@ -1746,7 +1746,7 @@ shouldInstall() {
   local lastdepdate=
   local lastdep=
   if test -n "$3"; then
-    techo "Package $1 depends on $3."
+    techo -2 "Package $1 depends on $3."
     for dep in `echo $3 | tr ',' ' '`; do
 # Search for depline in install and contrib dirs
       local depdate=
@@ -1779,10 +1779,10 @@ shouldInstall() {
       local latedate=`(echo $pkgdate; echo $lastdepdate) | sort -r | head -1`
       latedate=`echo $latedate | sed 's/ .*$//'`
       if test "$latedate" != "$pkgdate"; then
-        techo "Dependency $lastdep installed more recently than $proj.  Rebuilding."
+        techo "Dependency $lastdep installed more recently than $proj. Rebuilding."
         return 0
       else
-        techo "Package $proj of some version installed more recently than all dependencies."
+        techo "Package $proj installed more recently than all dependencies. Not a reason to rebuild."
       fi
     else
       techo "None of the dependencies found in Bilder installation locations."
@@ -1806,36 +1806,39 @@ shouldInstall() {
        tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
        tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
        if test "$tstlastdate" = "$pkgdate"; then
-         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding ${proj}. Proceed to next step."
+         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding."
          return 0
        else
          techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
        fi
      else
-       techo "Tests for package ${proj} not installed.  Rebuilding package ${proj} and testing. Proceed to next step."
+       techo "Tests for package ${proj} not installed. Need to build to run tests. Rebuilding."
        return 0
      fi
   fi
 
 # If all builds younger than $BILDER_WAIT_DAYS, do not rebuild
   if ! isBuildTime $proj $builds $instdir; then
+    techo "Build is younger than BILDER_WAIT_DAYS."
+    techo "Not building ${proj}."
     return 1
   fi
 
 # Now look for builds of this particular version
-  techo "Checking for installation of '$builds' builds of $1."
+  techo -2  "Checking for installation of all builds '$builds' of $1."
   if areAllInstalled -i $instdirs $1 $builds; then
     if test -n "$builds"; then
-      techo "$builds builds of $1 installed."
+      techo "Verified that all builds of $1 installed."
     else
       techo "Package $1 is installed."
     fi
+    techo "Not building ${proj}."
     return 1      # false
   fi
   if test -n "$builds"; then
-    techo "One or more of $builds build(s) of $1 not installed."
+    techo "One or more of builds of $1 not installed. Rebuilding."
   else
-    techo "Package $1 is not installed."
+    techo "Package $1 is not installed. Rebuilding."
   fi
   return 0  # true
 
@@ -2811,8 +2814,6 @@ setDefaultPkgVars() {
 #
 findBlasLapack() {
 
-  techo " ---------------------------------------"
-  techo " -------> Executing findBlasLapack <--------"
 
   USE_ATLAS=${USE_ATLAS:-"false"}
   USE_PTSOLVE_LITE=${USE_PTSOLVE_LITE:-"false"}
@@ -2832,7 +2833,7 @@ findBlasLapack() {
     lapack_libs=`deref SYSTEM_LAPACK_${BLD}_LIB`
     blas_libs=`deref SYSTEM_BLAS_${BLD}_LIB`
     if test -n "$lapack_libs" -a -n "$blas_libs"; then
-      techo "Setting lapack and blas using SYSTEM_LAPACK_${BLD}_LIB = $lapack_libs and SYSTEM_BLAS_${BLD}_LIB = $blas_libs."
+      techo -2 "Setting lapack and blas using SYSTEM_LAPACK_${BLD}_LIB = $lapack_libs and SYSTEM_BLAS_${BLD}_LIB = $blas_libs."
       eval LAPACK_${BLD}_LIBS="\"$lapack_libs\""
       eval BLAS_${BLD}_LIBS="\"$blas_libs\""
     fi
@@ -2946,7 +2947,7 @@ findBlasLapack() {
 
 # If still not found, try some system locations under /usr
   if test `uname` = Linux; then
-    techo "Seeking blas and lapack in $SYS_LIBSUBDIRS under /usr."
+    techo -2 "Seeking blas and lapack in $SYS_LIBSUBDIRS under /usr."
     for BLD in SER SERSH; do
       for lib in blas lapack; do
         local sfx=
@@ -2971,7 +2972,7 @@ findBlasLapack() {
         done
         if test -n "$varval"; then
           eval $varname=$varval
-          techo "$varname = $varval found."
+          techo -2 "$varname = $varval found."
         else
           techo "WARNING: [$FUNCNAME] Problem finding blas,lapack. $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
         fi
@@ -3045,7 +3046,6 @@ findBlasLapack() {
   fi
 
 # Print out results
-  techo " -------> Results of findBlasLapack <--------"
   for BLD in SER SERSH PYCSH BEN; do
     techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
     techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
@@ -3362,7 +3362,7 @@ getPkg() {
               terminate
             fi
           else
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir).  Remove?"
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir). Remove?"
             terminate
           fi
           if test $numtarballs -gt 1; then
@@ -3610,7 +3610,7 @@ bilderUnpack() {
 
 # Remaining args
   local builds=$2
-  techo "Determining whether to unpack $1."
+  techo -2 "Determining whether to unpack $1."
 
 # Record start time
   local starttimevar=`genbashvar $1`_START_TIME
@@ -3674,7 +3674,7 @@ bilderUnpack() {
     instdirsval=$CONTRIB_DIR
     eval $instdirsvar=$instdirsval
   fi
-  techo "bilderUnpack: $instdirsvar = $instdirsval."
+  techo -2 "bilderUnpack: $instdirsvar = $instdirsval."
 
 # See whether should install
   if shouldInstall -I $instdirsval $1-$verval "$builds" $DEPS; then
@@ -3778,7 +3778,7 @@ bilderUnpack() {
           fi
 #
           (cd $BUILD_DIR/$1-$verval/$i; cmd="patch $patchlev $patchargs <$patchval"; techo "In $PWD: $cmd"; patch $patchlev $patchargs <$patchval >$BUILD_DIR/$1-$verval/$i/patch.out 2>&1)
-          techo "Package $1-$i patched.  Results in $BUILD_DIR/$1-$verval/$i/patch.out."
+          techo "Package $1-$i patched. Results in $BUILD_DIR/$1-$verval/$i/patch.out."
           if grep -qi fail $BUILD_DIR/$1-$verval/$i/patch.out; then
             grep -i fail $BUILD_DIR/$1-$verval/$i/patch.out | sed 's/^/WARNING: [$FUNCNAME] /' >$BUILD_DIR/$1-$verval/$i/patch.fail
             cat $BUILD_DIR/$1-$verval/$i/patch.fail | tee -a $LOGFILE
@@ -3915,7 +3915,7 @@ bilderPreconfig() {
     if declare -f bilderGetTestData 1>/dev/null 2>&1; then
       bilderGetTestData $1
     else
-      techo "WARNING: [$FUNCNAME] function bilderGetTestData not defined.  Requested by $1."
+      techo "WARNING: [$FUNCNAME] function bilderGetTestData not defined. Requested by $1."
       if test -n "$BILDER_CONFDIR"; then
         techo "WARNING: [$FUNCNAME] It should be defined in $BILDER_CONFDIR/bilderrc."
       else
@@ -4854,6 +4854,7 @@ addActionToLists() {
 # 4: (optional) environment variables for the build
 #
 # Named args (must come first):
+# -D        Do not run make depend
 # -k        Keep old build, do not make clean
 # -m <exec> Use <exec> instead of make (unix) or jom (Windows)
 # -S        Execute build in source directory, but assume out-of-source build
@@ -7171,7 +7172,7 @@ writeStepRes (){
     echo "$2 failures: $4" >>$SUMMARY
     echo $4 | tr ' ' '\n' > $BUILD_DIR/${1}.failures
   else
-     # Leave old formatting as reference.  Remove 10/01/2012.
+     # Leave old formatting as reference. Remove 10/01/2012.
      # local lcln=`echo $2 | tr 'A-Z' 'a-z'`
      # echo "No $lcln failed." >>$SUMMARY
     echo "$2 failures: None" >>$SUMMARY
@@ -7825,8 +7826,8 @@ buildChain() {
       let i++
     done
     techo ""
-    techo "  Bilder examining $pkg"
-    techo "===================${equalsend}"
+    techo "  Bilder examining $pkg (`date +%F-%T`)"
+    techo "========================================${equalsend}"
 
     cd $PROJECT_DIR # Make sure at top
 
@@ -7846,6 +7847,8 @@ buildChain() {
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exitOnError
     fi
+    techo "Package: '$pkgfile'"
+
 
 # Look for commands and execute
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
@@ -7855,7 +7858,6 @@ buildChain() {
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exitOnError
     fi
-    techo "Using package file: $pkgfile"
     if declare -f $cmd 1>/dev/null; then
       techo "$cmd already known."
     else
@@ -7869,58 +7871,62 @@ buildChain() {
 # Determine the full list of builds
     local bldsvar=`genbashvar ${pkg}`_BUILDS
     local bldsval=`deref $bldsvar | tr ',' ' '`
-    techo "$bldsvar = $bldsval."
+    techo "Builds are $bldsvar = $bldsval."
     dobuild=true
     if test -z "$bldsval" -o "$bldsval" = NONE; then
       dobuild=false
     fi
+# Call buildPackageName
     if $dobuild; then
-      techo "--------> Executing $cmd <--------"
+      techo ""
+      techo "EXECUTING $cmd"
       $cmd
-      techo "---------------------------------${dashend}"
     else
-      techo "No builds for $pkg.  Will not call $cmd."
+      techo "No builds for $pkg.  Will not call build, test, or install methods."
     fi
+# Call testPackageName
     cmd=`grep -i "^ *test${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if $dobuild; then
       if test -n "$cmd"; then
-        techo "--------> Executing $cmd <--------"
+        techo ""
+        techo "EXECUTING $cmd"
         $cmd
-        techo "--------------------------------${dashend}"
       else
         techo -2 "WARNING: [$NOTE] test method for $pkg not found."
       fi
     fi
+# Call installPackageName
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Install method for $pkg not found."
       exitOnError
     fi
     if $dobuild; then
-      techo "--------> Executing $cmd <--------"
-# See whether findpkg method exists.  If so, execute.
+      techo ""
+      techo "EXECUTING $cmd"
       $cmd
-      techo "--------------------------------${dashend}"
     fi
-# Now find
+# Call findPackageName method if exists.
     # techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
       # techo "${auxfile} found."
       cmd=`grep -i "^ *find${pkg} *()" $auxfile | sed 's/(.*$//'`
       if test -n "$cmd"; then
-        techo "--------> Executing $cmd <--------"
+        techo ""
+        techo "EXECUTING $cmd"
         $cmd
-        techo "-----------------------------------${dashend}"
       else
         techo "NOTE: [$FUNCNAME] find$pkg not found in ${auxfile}."
       fi
     else
       techo -2 "NOTE: [$FUNCNAME] ${auxfile} not found."
     fi
+    if [[ `uname` =~ CYGWIN ]] && echo "$PATH" | egrep -q "(^|:)/bin:"; then
+      techo -2 "WARNING: [$FUNCNAME] After $auxfile, /bin in path."
+    fi
   done
 
-# Trying to trace down a de-installation of numpy
-  # printInstallationStatus numpy $CONTRIB_DIR buildChain-end
-
+# Ensure 2 blank lines in between examining packages.
+  techo ""
 }
 

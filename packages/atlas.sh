@@ -13,6 +13,7 @@
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
+ATLAS_INSTALLED=false
 source $mydir/atlas_aux.sh
 
 ######################################################################
@@ -271,7 +272,6 @@ testAtlas() {
 ######################################################################
 
 installAtlas() {
-  ATLAS_INSTALLED=false
   rm -f $CONTRIB_DIR/atlas-$ATLAS_BLDRVERSION-ser/lib/*.so
   for bld in `echo $ATLAS_BUILDS | tr ',' ' '`; do
     if bilderInstall -r atlas $bld; then

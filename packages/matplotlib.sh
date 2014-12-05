@@ -121,9 +121,9 @@ buildMatplotlib() {
   fi
 
 # Find dependencies and construct the basedirs variable needed for setup
-  # techo "Looking for freetype."
+  techo -2 "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
-  # techo "freetypedir = $freetypedir."
+  techo -2 "freetypedir = $freetypedir."
   if test -z "${freetypedir}"; then
     case `uname` in
       Darwin)
@@ -134,20 +134,21 @@ buildMatplotlib() {
         ;;
     esac
   fi
-  # techo "Looking for libpng."
+  techo -2 "Looking for libpng."
   local libpngdir=`findMatplotlibDepDir libpng png.h png`
-  # techo "libpngdir = $libpngdir."
-  # techo "Looking for zlib."
+  techo -2 "libpngdir = $libpngdir."
+  techo -2 "Looking for zlib."
   local zlibdir=
   case `uname` in
     CYGWIN*) zlibdir=`findMatplotlibDepDir zlib zlib.h zlib`;;
     *)       zlibdir=`findMatplotlibDepDir zlib zlib.h z`;;
   esac
-  # techo "zlibdir = $zlibdir."
+  techo -2 "zlibdir = $zlibdir."
+
+# Construct basedirs for substitution in setupext.py
   local basedirs=
   for dir in "$freetypedir" "$libpngdir" "$zlibdir"; do
     if test -n "$dir" && ! echo $basedirs | grep -q "'$dir'"; then
-      # if ! [[ "$dir" =~ /usr ]]; then
       if ! test "$dir" = /usr; then
         basedirs="$basedirs '$dir',"
       fi
@@ -159,13 +160,19 @@ buildMatplotlib() {
     basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
   fi
   printvar basedirs
+
+# setup.cfg does not want quotes
+  basedirsnq=`echo $basedirs | sed "s/'//g"`
+  printvar basedirsnq
+
+# Fix up files in package
   cd $BUILD_DIR/matplotlib-$MATPLOTLIB_BLDRVERSION
 
-# Fix appropriate file
+# Below (obsolete) shows how to patch setupext.py
+if false; then
   case `uname` in
     CYGWIN*)
 # CYGWIN does not listen to setup.cfg
-      echo "sed -i.bak -e \"/^ *'win32' *:/s?'win32_static',?$basedirs?\" setupext.py"
       sed -i.bak -e "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
       ;;
     Linux)
@@ -174,9 +181,13 @@ buildMatplotlib() {
       sed -i.bak -e "/^ *'gnu0' *:/s?\[?[$basedirs?" setupext.py
       ;;
     *)
-      sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirs?" <setup.cfg.template >setup.cfg
+      sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirsnq?" <setup.cfg.template >setup.cfg
       ;;
   esac
+fi
+
+# Fix setup.cfg
+  sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirsnq?" <setup.cfg.template >setup.cfg
 
 # Accumulate link flags for modules, and make ATLAS modifications.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",

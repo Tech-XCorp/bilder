@@ -39,7 +39,7 @@ derefpath() {
 # 1: holds the value
 #
 dblslash() {
-  echo `echo "$1" | sed 's?\\\\?\\\\\\\\?g'`
+  echo "`echo "$1" | sed 's?\\\\?\\\\\\\\?g'`"
 }
 
 #
@@ -771,24 +771,9 @@ runnrRun() {
     techo "Looking for $BILDER_LOGDIR/$scriptbase.subj and $BILDER_LOGDIR/$scriptbase.end"
 
     if $dotail; then
-if false; then
-# File might not show up immediately
-      local count=0
-      while ! test -f $BILDER_LOGDIR/$scriptbase.log; do
-        sleep 1
-        count=`expr $count + 1`
-        if test $count -ge 60; then
-          break
-        fi
-      done
-      if test $count -lt 60; then
-        tail -f $BILDER_LOGDIR/$scriptbase.log &
-        tailpid=$!
-      fi
-else
-      tail -f $PROJECT_DIR/$scriptbase.out$outnum &
+# use tail -F which will wait for the file if it isn't there
+      tail -F $PROJECT_DIR/$scriptbase.out$outnum &
       tailpid=$!
-fi
     fi
 
     local completed=true

@@ -49,6 +49,7 @@ buildMumps() {
     bilderBuild mumps ser
   fi
   if bilderConfig mumps par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $MUMPS_PAR_OTHER_ARGS $CMAKE_LINLIB_SER_ARGS"; then
+
     bilderBuild mumps par
   fi
 }

@@ -15,8 +15,8 @@
 #
 ######################################################################
 
-
 findFreetype() {
+
   local DIRLIST="/opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11"
   local CHECK_SYSTEM=false
 
@@ -53,9 +53,17 @@ findFreetype() {
     fi
     CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
     CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
-    printvar CMAKE_FREETYPE_PYCSH_DIR_ARG
-    printvar CONFIG_FREETYPE_PYCSH_DIR_ARG
   fi
+
+# If freetype has no builds, libpng_aux.sh will not be sourced, and
+# findLibpng will not be called, so cover that possibility here.
+  if test -z "$CMAKE_LIBPNG_PYCSH_DIR_ARG"; then
+    if ! declare -f findLibpng 1>/dev/null; then
+      source $BILDER_DIR/packages/libpng_aux.sh
+    fi
+    findLibpng
+  fi
+
 }
 
 ######################################################################
@@ -91,7 +99,7 @@ setFreetypeTriggerVars() {
   if test -n "$FREETYPE_BUILDS"; then
     addPycshBuild freetype
   fi
-  FREETYPE_DEPS=
+  FREETYPE_DEPS=libpng
 }
 setFreetypeTriggerVars
 
