@@ -21,7 +21,8 @@ setHypreTriggerVars() {
   if test -z "$HYPRE_BUILDS"; then
     HYPRE_BUILDS=par
     case `uname` in
-      CYGWIN* | Darwin);;
+      CYGWIN*) ;;
+      Darwin) HYPRE_BUILDS="${HYPRE_BUILDS},parsh";;
       Linux) HYPRE_BUILDS="${HYPRE_BUILDS},parsh";;
     esac
   fi
