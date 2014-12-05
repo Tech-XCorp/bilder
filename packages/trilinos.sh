@@ -170,13 +170,11 @@ buildTrilinos() {
      Darwin)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
        TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
-# 11.12.1 does not build with mumps on Darwin
-       # $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
+# Mumps does not build on Darwin, so following has no effect
        TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
        ;;
      Linux)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
-       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
 # 11.12.1 does not build with hypre on Linux
        $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
 # 11.12.1 does not build with mumps on Linux
