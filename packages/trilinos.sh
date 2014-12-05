@@ -171,7 +171,8 @@ buildTrilinos() {
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
        TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
 # 11.12.1 does not build with mumps on Darwin
-       $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
+       # $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
+       TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
        ;;
      Linux)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
@@ -182,14 +183,14 @@ buildTrilinos() {
        $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
        ;;
   esac
-  techo "TPL_PACKAGELIST = $TPL_PACKAGELIST MUMPS"
+  techo -2 "TPL_PACKAGELIST = $TPL_PACKAGELIST"
 
 # Turn on external packages.  getTriTPLs figures out which ones are
 # par and which ones are ser
   triTplSerArgs=`getTriTPLs ser $TPL_PACKAGELIST`
   triTplParArgs=`getTriTPLs par $TPL_PACKAGELIST`
-  techo "triTplSerArgs = $triTplSerArgs."
-  techo "triTplParArgs = $triTplParArgs."
+  techo -2 "triTplSerArgs = $triTplSerArgs."
+  techo -2 "triTplParArgs = $triTplParArgs."
 
   TRILINOS_SERCOMMSH_ADDL_ARGS="$TRILINOS_SERCOMMSH_ADDL_ARGS -DTrilinos_ENABLE_PyTrilinos:STRING=ON"
 
