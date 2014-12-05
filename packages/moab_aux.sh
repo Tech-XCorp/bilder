@@ -17,8 +17,8 @@
 
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_REPO_BRANCH_STD=master
-  MOAB_REPO_BRANCH_EXP=master
+  MOAB_REPO_BRANCH_STD=fixAddScimake
+  MOAB_REPO_BRANCH_EXP=fixAddScimake
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH=master
   if test -z "$MOAB_DESIRED_BUILDS"; then
@@ -26,13 +26,16 @@ setMoabTriggerVars() {
 # Python static build needed for composers
 # Python shared build for dagmc
     MOAB_DESIRED_BUILDS=ser,par
+    if [[ `uname` =~ CYGWIN ]]; then
+      MOAB_DESIRED_BUILDS="${MOAB_DESIRED_BUILDS},sermd"
+    fi
   fi
   computeBuilds moab
-  if ! [[ `uname` =~ CYGWIN ]]; then
+#  if ! [[ `uname` =~ CYGWIN ]]; then
 # Neither pycmd nor pycsh working on Windows
     addPycstBuild moab
     addPycshBuild moab
-  fi
+#  fi
   MOAB_DEPS=cmake,hdf5,netcdf
   if [[ $MOAB_BUILDS =~ par ]]; then
     MOAB_DEPS=$MOAB_DEPS,trilinos

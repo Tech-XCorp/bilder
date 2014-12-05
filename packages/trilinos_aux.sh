@@ -60,7 +60,7 @@ setTrilinosTriggerVars
 ######################################################################
 
 findTrilinos() {
-  :
+  findContribPackage Trilinos trilinos sercomm parcomm sercommsh parcommsh
 }
 
 getTriPackages() {
