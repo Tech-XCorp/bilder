@@ -17,7 +17,11 @@
 
 setMumpsTriggerVars() {
   MUMPS_BLDRVERSION=${MUMPS_BLDRVERSION:-"4.10.0"}
-  test `uname` = Linux && MUMPS_BUILDS=${MUMPS_BUILDS:-"ser,par"}
+  case `uname` in
+# ser not building on Darwin
+    Darwin) MUMPS_BUILDS=${MUMPS_BUILDS:-"par"};
+    Linux) MUMPS_BUILDS=${MUMPS_BUILDS:-"ser,par"};
+  esac
   MUMPS_DEPS=cmake
 }
 setMumpsTriggerVars
