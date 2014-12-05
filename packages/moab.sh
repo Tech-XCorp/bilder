@@ -131,7 +131,7 @@ buildMoab() {
   local MOAB_ENV=
 
 # When not all dependencies right on Windows, need nmake
-  local makerargs="-m :"
+  local makerargs=
   local makejargs=
   if [[ `uname` =~ CYGWIN ]]; then
     makerargs="-m nmake"
