@@ -108,11 +108,14 @@ getTriTPLs() {
       MUMPS)
         tplLibName='cmumps;zmumps;smumps;dmumps;mumps_common;pord'
         if test "$parflag" == "ser"; then
-          tplLibName="${tplLibName};seq"
-          if test -e $CONTRIB_DIR/mumps; then
-            tplDir=$CONTRIB_DIR/mumps
-          elif test -e $BLDR_INSTALL_DIR/mumps; then
-            tplDir=$BLDR_INSTALL_DIR/mumps
+# Experimental trilinos not building serial with Mumps on Linux
+          if ! $BUILD_EXPERIMENTAL || ! test `uname` = Linux; then
+            tplLibName="${tplLibName};seq"
+            if test -e $CONTRIB_DIR/mumps; then
+              tplDir=$CONTRIB_DIR/mumps
+            elif test -e $BLDR_INSTALL_DIR/mumps; then
+              tplDir=$BLDR_INSTALL_DIR/mumps
+            fi
           fi
         else
           if test -e $CONTRIB_DIR/mumps-par; then
