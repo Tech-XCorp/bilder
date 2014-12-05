@@ -159,10 +159,11 @@ buildTrilinos() {
      Darwin)
 # JRC: Mumps not building on Darwin for me
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
        ;;
      Linux)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
-       $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
        ;;
   esac
 # Generic configuration
