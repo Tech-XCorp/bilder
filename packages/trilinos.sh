@@ -175,8 +175,8 @@ buildTrilinos() {
        ;;
      Linux)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
-# 11.12.1 does not build with hypre on Linux
-       $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
+# 11.12.1 builds with hypre on Linux
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
 # 11.12.1 does not build with mumps on Linux
        $BUILD_EXPERIMENTAL || TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
        ;;
