@@ -149,14 +149,12 @@ installOce() {
       for ocelib in $ocelibs; do
         # Fix all refs to other OCE libs in this OCE library
         for refocelib in $ocelibs; do
-	  echo "Fixing OCE references in $ocelib"
           install_name_tool -change  $ocelibdir/$refocelib $refocelib $ocelib
         done
         hasft=`otool -L $ocelib | grep freetype`
         if test -n "$hasft"; then
           libname=`echo $hasft | sed 's/^.*libfreetype/libfreetype/' | sed 's/dylib.*$/dylib/'`
           fullpath=`echo $hasft | sed 's/^	//' | sed 's/dylib.*$/dylib/'`
-          echo "Fixing freetype reference '$freetypelib' in '$ocelib'"
           install_name_tool -change $fullpath $libname $ocelib
         fi
       done
