@@ -17,7 +17,6 @@
 
 findFreetype() {
 
-  local DIRLIST="/opt/homebrew /opt/homebrew/opt/freetype /opt/X11 /usr/X11R6 /usr/X11"
   local CHECK_SYSTEM=false
 
 # Parse options
@@ -31,14 +30,10 @@ findFreetype() {
   shift $(($OPTIND - 1))
 
   if $CHECK_SYSTEM; then
-    if test -z "$FREETYPE_SERSH_DIR"; then
-      for dir in $DIRLIST; do
-        if test -d $dir/include/freetype2; then
-          FREETYPE_PYCSH_DIR=$dir
-          break
-        fi
-      done
-    fi
+    local freetypeconfig=`which freetype-config`
+    local freetypedir=`$freetypeconfig --prefix`
+    techo "Using freetype from $freetypedir."
+    FREETYPE_PYCSH_DIR=$freetypedir
   fi
 
 # Look for freetype in contrib
@@ -53,6 +48,7 @@ findFreetype() {
     fi
     CMAKE_FREETYPE_PYCSH_DIR_ARG="-DFreeType_ROOT_DIR:PATH='$FREETYPE_PYCSH_DIR'"
     CONFIG_FREETYPE_PYCSH_DIR_ARG="--with-freetype-dir='$FREETYPE_PYCSH_DIR'"
+    printvar CMAKE_FREETYPE_PYCSH_DIR_ARG
   fi
 
 # If freetype has no builds, libpng_aux.sh will not be sourced, and
