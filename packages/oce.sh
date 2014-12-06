@@ -136,5 +136,40 @@ testOce() {
 
 installOce() {
   bilderInstallAll oce
+
+  # Fixup library references removing references to full paths
+  # to install directory for both OCE libs and the freetype lib.
+  # Also install freetype lib with OCE.
+  local ocelibdir="$CONTRIB_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD/lib"
+  case `uname` in
+    CYGWIN*)
+      ;;
+    Darwin)
+      ocelibs=`ls  $ocelibdir/*.dylib`
+      for ocelib in $ocelibs; do
+        # Fix all refs to other OCE libs in this OCE library
+        for refocelib in $ocelibs; do
+	  echo "Fixing OCE references in $ocelib"
+          install_name_tool -change  $ocelibdir/$refocelib $refocelib $ocelib
+        done
+        hasft=`otool -L $ocelib | grep freetype`
+        if test -n "$hasft"; then
+          libname=`echo $hasft | sed 's/^.*libfreetype/libfreetype/' | sed 's/dylib.*$/dylib/'`
+          fullpath=`echo $hasft | sed 's/^	//' | sed 's/dylib.*$/dylib/'`
+          echo "Fixing freetype reference '$freetypelib' in '$ocelib'"
+          install_name_tool -change $fullpath $libname $ocelib
+        fi
+      done
+      # Installing the freetype lib so that it is there in case OCE
+      # library is copied into a distribution later.
+      freetypeshdir=$FREETYPE_PYCSH_DIR/lib
+      freetypeshlib=libfreetype.6.dylib
+      installRelShlib $freetypeshlib $ocelibdir $freetypeshdir 
+      ;;
+    Linux)
+      ;;
+  esac  
+
+
 }
 
