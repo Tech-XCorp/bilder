@@ -108,7 +108,8 @@ buildMoab() {
 # CTK does not need netcdf
     MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_SER_DIR' --with-netcdf='$NETCDF_SER_DIR'"
     MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
-# DagMc does not need netcdf
+# Do not add netcdf here as neither DagMc nor the composers need this, and
+# if added it creates an installation problem.
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
 # Build parallel with netcdf to get exodus reader
     MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_PAR_DIR'"
