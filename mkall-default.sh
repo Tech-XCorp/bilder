@@ -105,14 +105,14 @@ $cmd
 processArg() {
   case "$arg" in
     b) BUILD_DIR=$OPTARG;;
-    c) ALL_USER_INSTALL=true;;
+    c) MULTI_USER_INSTALL=true;;
     C) USE_COMMON_INSTDIRS=false;;
     E) EXTRA_ARGS="$EXTRA_ARGS $OPTARG";;
     f) EXTRA_ARG_FILE="$OPTARG";;
     g) COMPKEY="gnu";;
     H) hostnm=$OPTARG;;
     h) defaultsUsage 0;;
-    i) INSTDIR_IS_INTERNAL=true;;
+    i) REPODIR_IS_INTERNAL=true;;
     j) MKJMAX=$OPTARG;;
     I) INSTALL_IN_HOME=true;;
     k) COMMON_CONTRIB=true;;
@@ -135,9 +135,9 @@ processArg() {
 BILDER_ARGS=
 BILDER_NOBUILD_FILE=".nobuild"
 COMMON_CONTRIB=false
-ALL_USER_INSTALL=false
+MULTI_USER_INSTALL=false
 EXTRA_ARG_FILE=".extra_args"
-INSTDIR_IS_INTERNAL=false
+REPODIR_IS_INTERNAL=false
 INSTALL_IN_HOME=false
 INST_SUBDIR=
 unset MKJMAX
@@ -220,10 +220,10 @@ END
 chmod a+x $REDO_SCRIPT
 
 # Make consistent
-if $ALL_USER_INSTALL; then
+if $MULTI_USER_INSTALL; then
   COMMON_CONTRIB=true
 fi
-if $COMMON_CONTRIB || $INSTDIR_IS_INTERNAL; then
+if $COMMON_CONTRIB || $REPODIR_IS_INTERNAL; then
   USE_COMMON_INSTDIRS=false
 fi
 
