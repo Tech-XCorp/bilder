@@ -4102,6 +4102,7 @@ rminterlibdeps() {
 # -S <time> maximum seconds a test is allowed to take
 # -t do not record failure if $IGNORE_TEST_RESULTS is true
 # -T top of sourcedir for configuring
+# -V use checker/scan-build if found
 # -y do not use --prefix in configure command at all
 #
 # Returns
@@ -4138,11 +4139,12 @@ bilderConfig() {
   local srcsubdir=
   local testsecs=
   local usecmake=false
+  local use_scan_build=false
   local webdocs=false  # By default, we do not build documentation for the web
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cC:d:fgiI:ylm:np:Pq:rsS:tT:" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:np:Pq:rsS:tT:V" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
@@ -4164,6 +4166,7 @@ bilderConfig() {
       S) testsecs="$OPTARG";;
       t) recordfailure=false;;
       T) srcsubdir="$OPTARG";;
+      V) use_scan_build=true;;
       y) noprefix=true; inplace=true;;
     esac
   done
@@ -4176,6 +4179,11 @@ bilderConfig() {
 # Get the version
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
+
+# If scan-build not found set use_scan_build to false
+  if ! which scan-build 2>/dev/null; then
+    use_scan_build=false
+  fi
 
 # Determine if repo or tarball build. Tarball builds are always built
 # with CMake build type = Release, whereas repo builds are RelWithDebInfo
@@ -4485,6 +4493,9 @@ bilderConfig() {
   local cmvar=`genbashvar $1`_CONFIG_METHOD
   eval $cmvar=$cmval
   techo "Configuration of type $cmval."
+  case cmval in
+    autotools | cmake) $use_scan_build && configexec="scan-build $configexec";;
+  esac
 
 # Strip the builddir from configcmdin if -s and -m options specified
   if test -n "$configcmdin" && $stripbuilddir; then
@@ -4857,7 +4868,7 @@ addActionToLists() {
 # -D        Do not run make depend
 # -k        Keep old build, do not make clean
 # -m <exec> Use <exec> instead of make (unix) or jom (Windows)
-# -S        Execute build in source directory, but assume out-of-source build
+# -V        use checker/scan-build if found
 #
 # Return 0 if a build launched
 #
@@ -4875,6 +4886,7 @@ bilderBuild() {
   local bildermake
   local makeclean=true
   local makedepend=true
+  local use_scan_build=false
 # Parse options
 # This syntax is needed to keep parameters quoted
   set -- "$@"
@@ -4884,6 +4896,7 @@ bilderBuild() {
       D) makedepend=false;;
       k) makeclean=false;;
       m) bildermake="$OPTARG";;
+      V) use_scan_build=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -4898,6 +4911,11 @@ bilderBuild() {
 # Get the build directory
   local builddirvar=`genbashvar $1-$2`_BUILD_DIR
   local builddir=`deref $builddirvar`
+
+# If scan-build not found set use_scan_build to false
+  if ! which scan-build 2>/dev/null; then
+    use_scan_build=false
+  fi
 
 # Check that we are building.  Must not be turned off, and last
 # result must have been good and configuration file must exist
@@ -4943,6 +4961,9 @@ bilderBuild() {
     techo "$bildermake -i depend"
     $bildermake -i depend 1>depend.txt 2>&1
   fi
+
+# Put scan-build in front
+  $use_scan_build && bildermake="scan-build $bildermake"
 
 # make all
   local envprefix=
