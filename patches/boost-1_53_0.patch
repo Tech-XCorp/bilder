@@ -1,6 +1,6 @@
 diff -ruN boost-1_53_0/boost/config/compiler/nvcc.hpp boost-1_53_0-new/boost/config/compiler/nvcc.hpp
---- boost-1_53_0/boost/config/compiler/nvcc.hpp	2011-03-07 05:07:30.000000000 -0800
-+++ boost-1_53_0-new/boost/config/compiler/nvcc.hpp	2014-02-05 12:24:57.000000000 -0800
+--- boost-1_53_0/boost/config/compiler/nvcc.hpp	2011-03-07 06:07:30.000000000 -0700
++++ boost-1_53_0-new/boost/config/compiler/nvcc.hpp	2014-12-07 06:12:17.000000000 -0700
 @@ -26,3 +26,8 @@
  #include <boost/config/compiler/visualc.hpp>
  
@@ -11,8 +11,8 @@ diff -ruN boost-1_53_0/boost/config/compiler/nvcc.hpp boost-1_53_0-new/boost/con
 +#endif
 +
 diff -ruN boost-1_53_0/boost/config/user.hpp boost-1_53_0-new/boost/config/user.hpp
---- boost-1_53_0/boost/config/user.hpp	2004-01-10 04:10:00.000000000 -0800
-+++ boost-1_53_0-new/boost/config/user.hpp	2014-02-05 12:25:20.000000000 -0800
+--- boost-1_53_0/boost/config/user.hpp	2004-01-10 05:10:00.000000000 -0700
++++ boost-1_53_0-new/boost/config/user.hpp	2014-12-07 06:12:17.000000000 -0700
 @@ -108,7 +108,7 @@
  // build variant will be automatically selected and linked against, 
  // simply by the act of including one of that library's headers.  
@@ -23,8 +23,8 @@ diff -ruN boost-1_53_0/boost/config/user.hpp boost-1_53_0-new/boost/config/user.
  // BOOST_WHATEVER_NO_LIB: Tells the config system not to automatically 
  // select which library to link against for library "whatever", 
 diff -ruN boost-1_53_0/boost/cstdint.hpp boost-1_53_0-new/boost/cstdint.hpp
---- boost-1_53_0/boost/cstdint.hpp	2012-12-11 06:42:26.000000000 -0800
-+++ boost-1_53_0-new/boost/cstdint.hpp	2014-02-05 12:24:57.000000000 -0800
+--- boost-1_53_0/boost/cstdint.hpp	2012-12-11 07:42:26.000000000 -0700
++++ boost-1_53_0-new/boost/cstdint.hpp	2014-12-07 06:12:17.000000000 -0700
 @@ -41,7 +41,10 @@
  // so we disable use of stdint.h when GLIBC does not define __GLIBC_HAVE_LONG_LONG.
  // See https://svn.boost.org/trac/boost/ticket/3548 and http://sources.redhat.com/bugzilla/show_bug.cgi?id=10990
@@ -38,8 +38,8 @@ diff -ruN boost-1_53_0/boost/cstdint.hpp boost-1_53_0-new/boost/cstdint.hpp
  // The following #include is an implementation artifact; not part of interface.
  # ifdef __hpux
 diff -ruN boost-1_53_0/boost/math/special_functions/sinc.hpp boost-1_53_0-new/boost/math/special_functions/sinc.hpp
---- boost-1_53_0/boost/math/special_functions/sinc.hpp	2009-01-07 08:37:59.000000000 -0800
-+++ boost-1_53_0-new/boost/math/special_functions/sinc.hpp	2014-02-05 12:24:57.000000000 -0800
+--- boost-1_53_0/boost/math/special_functions/sinc.hpp	2009-01-07 09:37:59.000000000 -0700
++++ boost-1_53_0-new/boost/math/special_functions/sinc.hpp	2014-12-07 06:12:17.000000000 -0700
 @@ -67,7 +67,7 @@
              static T const    taylor_2_bound = sqrt(taylor_0_bound);
              static T const    taylor_n_bound = sqrt(taylor_2_bound);
@@ -66,9 +66,22 @@ diff -ruN boost-1_53_0/boost/math/special_functions/sinc.hpp boost-1_53_0-new/bo
                      {
                          // approximation by taylor series in x at 0 up to order 4
                          result += (x2*x2)/static_cast<T>(120);
+diff -ruN boost-1_53_0/libs/filesystem/src/operations.cpp boost-1_53_0-new/libs/filesystem/src/operations.cpp
+--- boost-1_53_0/libs/filesystem/src/operations.cpp	2012-08-13 06:49:12.000000000 -0600
++++ boost-1_53_0-new/libs/filesystem/src/operations.cpp	2014-12-07 06:13:03.000000000 -0700
+@@ -1408,7 +1408,8 @@
+     //   "http://man7.org/linux/man-pages/man2/fchmodat.2.html"
+ #   if defined(AT_FDCWD) && defined(AT_SYMLINK_NOFOLLOW) \
+       && !(defined(__SUNPRO_CC) || defined(sun)) \
+-      && !(defined(linux) || defined(__linux) || defined(__linux__))
++      && !(defined(linux) || defined(__linux) || defined(__linux__)) \
++      && !(defined(__APPLE__))
+       if (::fchmodat(AT_FDCWD, p.c_str(), mode_cast(prms),
+            !(prms & symlink_perms) ? 0 : AT_SYMLINK_NOFOLLOW))
+ #   else  // fallback if fchmodat() not supported
 diff -ruN boost-1_53_0/tools/build/v2/tools/darwin.jam boost-1_53_0-new/tools/build/v2/tools/darwin.jam
---- boost-1_53_0/tools/build/v2/tools/darwin.jam	2012-04-25 20:35:55.000000000 -0700
-+++ boost-1_53_0-new/tools/build/v2/tools/darwin.jam	2014-02-05 12:24:57.000000000 -0800
+--- boost-1_53_0/tools/build/v2/tools/darwin.jam	2012-04-25 21:35:55.000000000 -0600
++++ boost-1_53_0-new/tools/build/v2/tools/darwin.jam	2014-12-07 06:12:17.000000000 -0700
 @@ -183,7 +183,7 @@
      #   archives in darwin is complicated.
      local archiver =
