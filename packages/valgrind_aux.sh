@@ -16,20 +16,21 @@
 ######################################################################
 
 setValgrindTriggerVars() {
-  VALGRIND_BLDRVERSION_STD=3.9.0
-  VALGRIND_BLDRVERSION_EXP=3.9.0
-  if [[ `uname` =~ Linux ]]; then
-    VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
-  fi
-  if [[ `uname` =~ Darwin ]]; then
-    case `uname -r` in
-      1[3-9]*)
-	VALGRIND_BLDRVERSION_STD=3.10.0
-	VALGRIND_BLDRVERSION_EXP=3.10.0
-	VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
-	;;
-    esac
-  fi
+  case `uname` in
+    Darwin)
+      VALGRIND_BLDRVERSION_STD=3.10.1
+      VALGRIND_BLDRVERSION_EXP=3.10.1
+      case `uname -r` in
+# Mavericks or later OSX 10.9
+        1[3-9]*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"};;
+      esac
+      ;;
+    Linux)
+      VALGRIND_BLDRVERSION_STD=3.9.0
+      VALGRIND_BLDRVERSION_EXP=3.10.1
+      VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
+      ;;
+  esac
   VALGRIND_DEPS=
 }
 setValgrindTriggerVars
