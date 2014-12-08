@@ -16,20 +16,25 @@
 ######################################################################
 
 setValgrindTriggerVars() {
-  VALGRIND_BLDRVERSION_STD=3.9.0
-  VALGRIND_BLDRVERSION_EXP=3.9.0
-  if [[ `uname` =~ Linux ]]; then
-    VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
-  fi
-  if [[ `uname` =~ Darwin ]]; then
-    case `uname -r` in
-      1[3-9]*)
-	VALGRIND_BLDRVERSION_STD=3.10.0
-	VALGRIND_BLDRVERSION_EXP=3.10.0
-	VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
-	;;
-    esac
-  fi
+  case `uname` in
+    Darwin)
+      if ! test -d /usr/include/mach; then
+        techo "WARNING: [$FUNCNAME] Install command line tools per http://sourceforge.net/p/bilder/wiki/Preparing\%20a\%20Darwin\%20machine\%20for\%20Bilder/."
+      fi
+      VALGRIND_BLDRVERSION_STD=3.10.1
+      VALGRIND_BLDRVERSION_EXP=3.10.1
+      case `uname -r` in
+# Mavericks or later OSX 10.9
+        # 1[3-9]*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"};;
+        1[3-9]*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"NONE"};;
+      esac
+      ;;
+    Linux)
+      VALGRIND_BLDRVERSION_STD=3.9.0
+      VALGRIND_BLDRVERSION_EXP=3.10.1
+      VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
+      ;;
+  esac
   VALGRIND_DEPS=
 }
 setValgrindTriggerVars

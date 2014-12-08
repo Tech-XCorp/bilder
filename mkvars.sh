@@ -297,6 +297,9 @@ for pkgdir in $pkgdirs; do
     if echo $builds | grep -q FORPYTHON_SHARED_BUILD; then
       builds=`echo $builds | sed 's/FORPYTHON_SHARED_BUILD//'`" sersh pycsh"
     fi
+    if echo $builds | grep -q FORPYTHON_STATIC_BUILD; then
+      builds=`echo $builds | sed 's/FORPYTHON_STATIC_BUILD//'`" ser sermd pycst"
+    fi
     builds=$(echo "$builds" | tr ' ' '\n' | sort -u | tr '\n' ' ')
     trimvar builds ' '
     echo $pkg has builds $builds. 1>&2

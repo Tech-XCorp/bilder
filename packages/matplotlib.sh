@@ -45,7 +45,7 @@ setMatplotlibNonTriggerVars
 #
 findMatplotlibDepDir() {
 # For some reason, need to go deeper for freetype and libpng
-  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/homebrew/opt/libpng /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11"
+  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/homebrew/opt/libpng /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11 /usr"
   local pkgdir=
   local libprefix=
   local incdirs="$4"
@@ -149,9 +149,7 @@ buildMatplotlib() {
   local basedirs=
   for dir in "$freetypedir" "$libpngdir" "$zlibdir"; do
     if test -n "$dir" && ! echo $basedirs | grep -q "'$dir'"; then
-      if ! test "$dir" = /usr; then
-        basedirs="$basedirs '$dir',"
-      fi
+      basedirs="$basedirs '$dir',"
     fi
   done
 # Escape even more backslashes to get through sed

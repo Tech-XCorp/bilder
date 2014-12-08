@@ -50,6 +50,7 @@ buildMoab() {
   #if [[ `uname` =~ CYGWIN ]]; then
   #  MOAB_USE_CMAKE=true
   #fi
+  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   local moabcmakearg=
   local enable_shared=
   if $MOAB_USE_CMAKE; then
@@ -97,7 +98,7 @@ buildMoab() {
 #
 # FORPYTHON_STATIC_BUILD needed by composers
   if $MOAB_USE_CMAKE; then
-    MOAB_GENCONFIG_ARGS="-DMOAB_USE_CGM:BOOL=FALSE"
+    MOAB_GENCONFIG_ARGS="-DMOAB_USE_CGM:BOOL=FALSE -DENABLE_IMESH:BOOL=TRUE"
 # OCE always brought in shared
     MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS $OCE_PYCSH_CMAKE_DIR_ARG ${MOAB_GENCONFIG_ARGS} -DHdf5_ROOT_DIR:PATH='${HDF5_PYCST_DIR}' -DNetCDF_DIR:PATH='${NETCDF_PYCST_DIR}'"
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS $OCE_PYCSH_CMAKE_DIR_ARG ${MOAB_GENCONFIG_ARGS} -DHdf5_ROOT_DIR:PATH='${HDF5_PYCSH_DIR}' -DNetCDF_DIR:PATH='${NETCDF_PYCSH_DIR}'"
@@ -111,7 +112,8 @@ buildMoab() {
 # CTK does not need netcdf
     MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_SER_DIR' --with-netcdf='$NETCDF_SER_DIR'"
     MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
-# DagMc does not need netcdf
+# Do not add netcdf here as neither DagMc nor the composers need this, and
+# if added it creates an installation problem.
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
 # Build parallel with netcdf to get exodus reader
     MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PAR_DIR' --with-netcdf='$NETCDF_PAR_DIR'"
@@ -194,5 +196,12 @@ testMoab() {
 
 installMoab() {
   bilderInstallAll moab
+# sersh build of moab needs hdf5 library installed, but moab does
+# not install it.
+# JRC: Why?  Applications need to collect all libs.  Libraries need not.
+# Test applications can have a library path modification script.
+  # if ! [[ `uname` =~ CYGWIN ]]; then
+    # cp $HDF5_PYCSH_DIR/lib/libhdf5.* $BLDR_INSTALL_DIR/moab-sersh/lib
+  # fi
 }
 

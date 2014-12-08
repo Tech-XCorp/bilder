@@ -374,6 +374,7 @@ fixCopiedHdf5() {
       ;;
 
     Darwin | Linux)
+      local cmd=
       if test `uname` = Darwin; then
         hdf5shdir=$HDF5_PYCSH_DIR/lib
         hdf5shlib=libhdf5.${HDF5_BLDRVERSION}.dylib
@@ -381,7 +382,12 @@ fixCopiedHdf5() {
         hdf5shdir=$HDF5_PYCSH_DIR/lib
         hdf5shlib=libhdf5.so.${HDF5_BLDRVERSION}
       fi
-      installRelShlib $hdf5shlib $instdir $hdf5shdir
+      cmd="rm -f $instdir/libhdf5.*"
+      techo "$cmd"
+      eval "$cmd"
+      cmd="installRelShlib $hdf5shlib $instdir $hdf5shdir"
+      techo "$cmd"
+      eval "$cmd"
       ;;
 
   esac

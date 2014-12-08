@@ -603,13 +603,19 @@ case $CXX in
     O3_FLAG='-O3'
     ;;
   *)
-    O3_FLAG='-O3'
-    case `uname` in
-      MINGW*)
-        unset PIC_FLAG
+# Try to determine from --version on wrapper
+    verline=`$CXX --version | head -1`
+    case "$verline" in
+      *icpc*)
+        PIC_FLAG=-fPIE
+        O3_FLAG='-O3'
+        ;;
+      *g++*)
+        PIC_FLAG=-fPIC
+        O3_FLAG='-O3'
         ;;
       *)
-        PIC_FLAG=${PIC_FLAG:-"-fPIC"}
+        techo "WARNING: pic and opt3 flags not known for $CXX."
         ;;
     esac
     ;;

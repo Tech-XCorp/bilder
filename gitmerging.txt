@@ -22,12 +22,12 @@ Make sure you are on the right branch
 
   git checkout $wbranch
 
-If you do not yet have it, fetch the branch you want to merge
+If you do not yet have the branch you want to merge, fetch it.
 
   git fetch upstream $wbranch:upstream-$wbranch
   git branch --set-upstream-to=upstream/$wbranch upstream-$wbranch
 
-If you already have it, switch to it and pull
+Switch to the branch you want to merge and pull
 
   git checkout upstream-$wbranch
   git pull
