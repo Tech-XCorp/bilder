@@ -193,9 +193,12 @@ testMoab() {
 
 installMoab() {
   bilderInstallAll moab
-  # Sersh build of moab needs hdf5 library installed, but moab does not install it.
-  if ! [[ `uname` =~ CYGWIN ]]; then
-    cp $HDF5_PYCSH_DIR/lib/libhdf5.* $BLDR_INSTALL_DIR/moab-sersh/lib
-  fi
+# sersh build of moab needs hdf5 library installed, but moab does
+# not install it.
+# JRC: Why?  Applications need to collect all libs.  Libraries need not.
+# Test applications can have a library path modification script.
+  # if ! [[ `uname` =~ CYGWIN ]]; then
+    # cp $HDF5_PYCSH_DIR/lib/libhdf5.* $BLDR_INSTALL_DIR/moab-sersh/lib
+  # fi
 }
 
