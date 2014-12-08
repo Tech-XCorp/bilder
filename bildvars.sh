@@ -614,6 +614,9 @@ case $CXX in
         PIC_FLAG=-fPIC
         O3_FLAG='-O3'
         ;;
+      *)
+        techo "WARNING: pic and opt3 flags not known for $CXX."
+        ;;
     esac
     ;;
 esac
