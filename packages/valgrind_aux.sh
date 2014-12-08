@@ -25,7 +25,8 @@ setValgrindTriggerVars() {
       VALGRIND_BLDRVERSION_EXP=3.10.1
       case `uname -r` in
 # Mavericks or later OSX 10.9
-        1[3-9]*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"};;
+        # 1[3-9]*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"};;
+        1[3-9]*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"NONE"};;
       esac
       ;;
     Linux)
