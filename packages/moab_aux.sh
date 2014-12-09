@@ -39,6 +39,9 @@ setMoabTriggerVars() {
   MOAB_DEPS=cmake,hdf5,netcdf
   if [[ $MOAB_BUILDS =~ par ]]; then
     MOAB_DEPS=$MOAB_DEPS,trilinos
+    if test -z "$TRILINOS_DESIRED_BUILDS"; then
+      TRILINOS_BUILDS=sercommio,parcommio
+    fi
   fi
 }
 setMoabTriggerVars
