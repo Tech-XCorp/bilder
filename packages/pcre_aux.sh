@@ -16,9 +16,10 @@
 ######################################################################
 
 setPcreTriggerVars() {
-  PCRE_BLDRVERSION=${PCRE_BLDRVERSION:-"8.20"}
+  PCRE_BLDRVERSION_STD=${PCRE_BLDRVERSION:-"8.20"}
+  PCRE_BLDRVERSION_EXP=${PCRE_BLDRVERSION:-"8.36"}
   PCRE_BUILDS=${PCRE_BUILDS:-"ser"}
-  PCRE_DEPS=
+  PCRE_DEPS=cmake
 }
 setPcreTriggerVars
 
@@ -29,6 +30,8 @@ setPcreTriggerVars
 ######################################################################
 
 findPcre() {
+  findPackage Pcre pcre "$CONTRIB_DIR" ser
+  findPycstDir Pcre
   addtopathvar PATH $CONTRIB_DIR/pcre/bin
 }
 
