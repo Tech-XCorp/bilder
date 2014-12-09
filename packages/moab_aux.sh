@@ -40,6 +40,8 @@ setMoabTriggerVars() {
   if [[ $MOAB_BUILDS =~ par ]]; then
     MOAB_DEPS=$MOAB_DEPS,trilinos
     if test -z "$TRILINOS_DESIRED_BUILDS"; then
+      TRILINOS_DESIRED_BUILDS=sercommio,parcommio
+    else
       TRILINOS_BUILDS=sercommio,parcommio
     fi
   fi
