@@ -102,11 +102,11 @@ buildOce() {
 
 # OCE does not have all dependencies right on Windows, so needs nmake
   local makerargs=
-  local makejargs=
+  local makejargs="$OCE_MAKEJ_ARGS"
   if [[ `uname` =~ CYGWIN ]]; then
     makerargs="-m nmake"
-  else
-    makejargs="$OCE_MAKEJ_ARGS"
+  # else
+    # makejargs="$OCE_MAKEJ_ARGS"
   fi
 
 # Configure and build
