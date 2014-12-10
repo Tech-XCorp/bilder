@@ -15,25 +15,21 @@
 #
 ######################################################################
 
-setMatplotlibTriggerVars() {
-  MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.3.1"}
-  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.4.2"}
-  MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
-  MATPLOTLIB_DEPS=pyparsing,numpy,Python,libpng,freetype
-  case `uname` in
-    Darwin) ;;
-    *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
-  esac
+setPyparsingTriggerVars() {
+  PYPARSING_BLDRVERSION_STD=${PYPARSING_BLDRVERSION_STD:-"1.5.7"}
+  PYPARSING_BLDRVERSION_EXP=${PYPARSING_BLDRVERSION_EXP:-"1.5.7"}
+  PYPARSING_BUILDS=${PYPARSING_BUILDS:-"pycsh"}
+  PYPARSING_DEPS=Python
 }
-setMatplotlibTriggerVars
+setPyparsingTriggerVars
 
 ######################################################################
 #
-# Find matplotlib
+# Find pyparsing
 #
 ######################################################################
 
-findMatplotlib() {
+findPyparsing() {
   :
 }
 
