@@ -103,11 +103,11 @@ buildOce() {
 # OCE does not have all dependencies right on Windows, so needs nmake
   local makerargs=
   local makejargs=
-  # if [[ `uname` =~ CYGWIN ]]; then
-    # makerargs="-m nmake"
-  # else
+  if [[ `uname` =~ CYGWIN ]]; then
+    makerargs="-m nmake"
+  else
     makejargs="$OCE_MAKEJ_ARGS"
-  # fi
+  fi
 
 # Configure and build
   local otherargsvar=`genbashvar OCE_${QT_BUILD}`_OTHER_ARGS
