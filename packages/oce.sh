@@ -89,16 +89,23 @@ buildOce() {
   fi
 # Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
+  local shlinkflags=
   case `uname` in
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
       ;;
     Linux)
-      if test -n "$FREETYPE_PYCSH_DIR"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS  -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$FREETYPE_PYCSH_DIR/lib'"
+      local shrpath=XORIGIN:XORIGIN/../lib
+      if test -n "$FREETYPE_PYCSH_DIR" -a "$FREETYPE_PYCSH_DIR" != /usr; then
+        shrpath="$shrpath:$FREETYPE_PYCSH_DIR/lib"
       fi
+      shlinkflags="-Wl,-rpath,$shrpath"
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
       ;;
   esac
+  if test -n "$shlinkflags"; then
+    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
+  fi
 
 # OCE does not have all dependencies right on Windows, so needs nmake
   local makerargs=
