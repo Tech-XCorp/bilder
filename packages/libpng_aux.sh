@@ -53,7 +53,7 @@ findLibpng() {
     findPycshDir Libpng
   fi
 
-  if test -n "$LIBPNG_PYCSH_DIR"; then
+  if test -n "$LIBPNG_PYCSH_DIR" -a "$LIBPNG_PYCSH_DIR" != /usr; then
     addtopathvar PATH $LIBPNG_PYCSH_DIR/bin
     if [[ `uname` =~ CYGWIN ]]; then
       LIBPNG_PYCSH_DIR=`cygpath -am $LIBPNG_PYCSH_DIR`
