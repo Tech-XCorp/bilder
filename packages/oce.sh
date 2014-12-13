@@ -117,12 +117,7 @@ buildOce() {
 
 # Do not clean or will remove Precompiled.obj in the build dirs.
   local buildargs="-k"
-  local makejargs=
-  # if [[ `uname` =~ CYGWIN ]]; then
-    # buildargs="$buildargs -m nmake"
-  # else
-    makejargs="$OCE_MAKEJ_ARGS"
-  # fi
+  local makejargs="$OCE_MAKEJ_ARGS"
 
 # Configure and build
   local otherargsvar=`genbashvar OCE_${QT_BUILD}`_OTHER_ARGS
