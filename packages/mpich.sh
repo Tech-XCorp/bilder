@@ -75,5 +75,6 @@ testMpich() {
 # Set umask to allow only group to use
 installMpich() {
   bilderInstallAll mpich
+  (cd $CONTRIB_DIR; rmall mpi mpich; ln -sf mpich-static mpich; ln -s mpich mpi)
 }
 
