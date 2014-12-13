@@ -93,7 +93,7 @@ buildOce() {
 # Set other args, env
   local OCE_ENV=
   if test -n "$FREETYPE_PYCSH_DIR"; then
-    OCE_ENV="FREETYPE_DIR=$FREETYPE_PYCSH_DIR"
+    OCE_ENV="FREETYPE_DIR='$FREETYPE_PYCSH_DIR'"
   fi
 # Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
@@ -115,20 +115,30 @@ buildOce() {
     OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
   fi
 
-# OCE does not have all dependencies right on Windows, so needs nmake
-  local makerargs=
+# Do not clean or will remove Precompiled.obj in the build dirs.
+  local buildargs="-k"
   local makejargs=
-  if [[ `uname` =~ CYGWIN ]]; then
-    makerargs="-m nmake"
-  else
+  # if [[ `uname` =~ CYGWIN ]]; then
+    # buildargs="$buildargs -m nmake"
+  # else
     makejargs="$OCE_MAKEJ_ARGS"
-  fi
+  # fi
 
 # Configure and build
   local otherargsvar=`genbashvar OCE_${QT_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $makerargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
-    bilderBuild $makerargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
+  if bilderConfig $buildargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
+# On windows, prepare the pre-compiled headers
+    if [[ `uname` =~ CYGWIN ]]; then
+      local precompiledout=$BUILD_DIR/oce/$OCE_BUILD/precompiled.out
+      rm -f $precompiledout
+      for i in $BUILD_DIR/oce/$OCE_BUILD/adm/cmake/*; do
+        cmd="(cd $i; jom Precompiled.obj >>$precompiledout 2>&1)"
+        techo "$cmd"
+        eval "$cmd"
+      done
+    fi
+    bilderBuild $buildargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
   fi
 
 }
