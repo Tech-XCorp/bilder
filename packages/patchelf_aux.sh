@@ -30,6 +30,6 @@ setPatchelfTriggerVars
 ######################################################################
 
 findPatchelf() {
-  addtopathvar PATH $CONTRIB_DIR/bin
+  : # addtopathvar PATH $CONTRIB_DIR/bin
 }
 

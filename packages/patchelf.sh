@@ -35,11 +35,6 @@ setPatchelfNonTriggerVars
 ######################################################################
 
 buildPatchelf() {
-# If executable not found, under prefix, needs installing
-  if ! test -x $CONTRIB_DIR/bin/patchelf; then
-    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR patchelf,ser
-  fi
-# Build
   if ! bilderUnpack patchelf; then
     return
   fi
@@ -65,5 +60,9 @@ testPatchelf() {
 ######################################################################
 
 installPatchelf() {
-  bilderInstall -m make patchelf ser autotools
+  if bilderInstall patchelf ser; then
+    local cmd="(cd $CONTRIB_DIR/bin; ln -sf ../patchelf/bin/patchelf .)"
+    techo "$cmd"
+    eval "$cmd"
+  fi
 }
