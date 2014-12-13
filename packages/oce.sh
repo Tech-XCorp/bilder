@@ -39,6 +39,14 @@ setOceNonTriggerVars
 #
 buildOce() {
 
+# Remove old tpaviot repo to move to ours
+  if (cd $PROJECT_DIR/oce; git remote -v | grep "^origin\t" | grep -q tpaviot); then
+    techo "NOTE: [$FUNCNAME] Removing clone of tpaviot repo."
+    cmd="rm -rf $PROJECT_DIR/oce"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
 # Get oce from repo and remove any detritus
   updateRepo oce
   rm -f $PROJECT_DIR/oce/CMakeLists.txt.{orig,rej}
