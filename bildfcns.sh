@@ -6497,6 +6497,8 @@ EOF
       techo -2 "$starttimevar = $starttimeval"
       local endtimeval=`date +%s`
       local buildtime=`expr $endtimeval - $starttimeval`
+      local buildtimevar=`genbashvar $1-$2`_BUILD_TIME
+      eval $buildtimevar=$buildtime
       techo "Package $1-$2 took `myTime $buildtime` to build and install." | tee -a $BILDER_LOGDIR/timers.txt
 
 # Copy the package/installer to the depot dir
@@ -7088,6 +7090,8 @@ EOF
     local starttimeval=`deref $starttimevar`
     local endtimeval=`date +%s`
     local buildtime=`expr $endtimeval - $starttimeval`
+    local buildtimevar=`genbashvar $1`_BUILD_TIME
+    eval $buildtimevar=$buildtime
     techo "Package $1 took $buildtime seconds to build and install." | tee -a $BILDER_LOGDIR/timers.txt
   else
     echo FAILURE >>$BUILD_DIR/$1-${verval}/$install_txt
@@ -7453,9 +7457,13 @@ EOF
   if test -s $BILDER_LOGDIR/versions.txt; then
     echo VERSIONS >>$SUMMARY
     cat $BILDER_LOGDIR/versions.txt >>$SUMMARY
-#    cat $BILDER_LOGDIR/versions.txt | while read vline; do
-#      addHtmlLine 4 "$vline" BLACK $ABSTRACT
-#    done
+    echo >>$SUMMARY
+  fi
+
+# Add timing information
+  if test -s $BILDER_LOGDIR/timers.txt; then
+    echo TIMING >>$SUMMARY
+    cat $BILDER_LOGDIR/timers.txt >>$SUMMARY
     echo >>$SUMMARY
   fi
 
