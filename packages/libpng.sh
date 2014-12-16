@@ -55,11 +55,11 @@ buildLibpng() {
       ;;
   esac
 
-  if bilderConfig -c libpng sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_SERSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-    bilderBuild libpng sersh "" "$DISTUTILS_NOLV_ENV"
+  if bilderConfig -c libpng sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_SERSH_OTHER_ARGS" "" ""; then
+    bilderBuild libpng sersh "" ""
   fi
-  if bilderConfig -c libpng pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_PYCSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-    bilderBuild libpng pycsh "" "$DISTUTILS_NOLV_ENV"
+  if bilderConfig -c libpng pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $LIBPNG_ADDL_ARGS $LIBPNG_PYCSH_OTHER_ARGS" "" ""; then
+    bilderBuild libpng pycsh "" ""
   fi
 
 }
