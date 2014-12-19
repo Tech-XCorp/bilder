@@ -115,14 +115,10 @@ buildOce() {
     OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
   fi
 
-# Do not clean or will remove Precompiled.obj in the build dirs.
-  local buildargs="-k"
-  local makejargs="$OCE_MAKEJ_ARGS"
-
 # Configure and build
   local otherargsvar=`genbashvar OCE_${QT_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $buildargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
+  if bilderConfig oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
 # On windows, prepare the pre-compiled headers
     if [[ `uname` =~ CYGWIN ]]; then
       local precompiledout=$BUILD_DIR/oce/$OCE_BUILD/precompiled.out
@@ -133,7 +129,8 @@ buildOce() {
         eval "$cmd"
       done
     fi
-    bilderBuild $buildargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
+# Do not do make clean, as that undoes the making of precompiled headers
+    bilderBuild -k oce $OCE_BUILD "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
 }
