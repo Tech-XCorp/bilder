@@ -22,7 +22,7 @@ setDoxygenTriggerVars() {
     CYGWIN*) ;;
     *) DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-"ser"};;
   esac
-  DOXYGEN_DEPS=
+  DOXYGEN_DEPS=graphviz
 }
 setDoxygenTriggerVars
 

@@ -19,7 +19,8 @@ setXzTriggerVars() {
   XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
   XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
   XZ_BUILDS=${XZ_BUILDS:-"ser"}
-  XZ_DEPS=doxygen
+# Removing this as creates a circular dependency through graphviz
+  # XZ_DEPS=doxygen
 }
 setXzTriggerVars
 
