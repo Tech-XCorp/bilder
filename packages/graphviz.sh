@@ -41,7 +41,7 @@ buildGraphviz() {
     return 1
   fi
 
-  if bilderConfig -c graphviz ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_PAR"; then
+  if bilderConfig graphviz ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_PAR --enable-static"; then
     bilderBuild graphviz ser
   fi
 

@@ -36,6 +36,8 @@ setGraphvizTriggerVars
 ######################################################################
 
 findGraphviz() {
-  :
+  if test -x $CONTRIB_DIR/graphviz/bin/dot; then
+    (cd $CONTRIB_DIR/bin; ln -s ../graphviz/bin/dot .)
+  fi
 }
 
