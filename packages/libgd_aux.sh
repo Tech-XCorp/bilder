@@ -28,7 +28,7 @@ findLibgd() {
     *)
       local libgdconfig=`which gdlib-config`
       if test -z "$libgdconfig"; then
-        techo "WARNING: [$FUNCNAME] libgd not found by bilder. Please install on system.  PATH = $PATH."
+        techo "WARNING: [$FUNCNAME] libgd not found by bilder. Please install gd-devel or gd-dev on Linux, or gd with homebrew on OSX.
       else
         local libgdlibdir=`$libgdconfig --libdir`
         local libgddir=`(cd $libgdlibdir/..; pwd -P)`
