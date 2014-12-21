@@ -1828,7 +1828,7 @@ shouldInstall() {
   techo -2  "Checking for installation of all builds '$builds' of $1."
   if areAllInstalled -i $instdirs $1 $builds; then
     if test -n "$builds"; then
-      techo "Verified that all builds of $1 installed."
+      techo "Verified that all builds of $1 are installed."
     else
       techo "Package $1 is installed."
     fi
@@ -2536,7 +2536,7 @@ findPackage() {
   else
     targetBlds=`deref $buildsvar | tr ',' ' '`
   fi
-  techo "$buildsvar = $targetBlds"
+  techo -2 "$buildsvar = $targetBlds"
   trimvar targetBlds ' '
   if test -z "$targetBlds"; then
     techo "WARNING: [$FUNCNAME] No builds for $1. Returning."
