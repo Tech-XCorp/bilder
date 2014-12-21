@@ -30,7 +30,8 @@ findLibgd() {
       if test -z "$libgdconfig"; then
         techo "WARNING: [$FUNCNAME] libgd not found by bilder. Please install on system.  PATH = $PATH."
       else
-        local libgddir=`$libgdconfig --prefix`
+        local libgdlibdir=`$libgdconfig --libdir`
+        local libgddir=`(cd $libgdlibdir/..; pwd -P)`
         techo "Using libgd from $libgddir."
         LIBGD_SERSH_DIR=$libgddir
       fi
@@ -45,11 +46,13 @@ findLibgd() {
     CONFIG_LIBGD_SERSH_DIR_ARG="--with-libgd-dir='$LIBGD_SERSH_DIR'"
     printvar CMAKE_LIBGD_SERSH_DIR_ARG
     printvar CONFIG_LIBGD_SERSH_DIR_ARG
+  else
+    findPackage Libgd gd "$CONTRIB_DIR" sersh
   fi
 
 # Look for libgd in contrib
   if test -z "$LIBGD_PYCSH_DIR"; then
-    findPackage Libgd gd"$CONTRIB_DIR" pycsh sersh
+    findPackage Libgd gd "$CONTRIB_DIR" pycsh
     findPycshDir Libgd
   fi
 
