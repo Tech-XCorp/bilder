@@ -40,8 +40,10 @@ buildGraphviz() {
   if ! bilderUnpack graphviz; then
     return 1
   fi
-
-  if bilderConfig graphviz ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_PAR --enable-static"; then
+# --with-gdincludedir=/contrib/libgd-2.1.0-ser/include --with-gdlibdir=/contrib/libgd-2.1.0-ser/lib
+# One can find gdlib as above, but that does not get the features, which
+# requires gdlib-config.
+  if bilderConfig graphviz ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_PAR --enable-static $GRAPHVIZ_OTHER_ARGS"; then
     bilderBuild graphviz ser
   fi
 

@@ -25,7 +25,7 @@ setGraphvizTriggerVars() {
       Linux) GRAPHVIZ_BUILDS="ser";;
     esac
   fi
-  GRAPHVIZ_DEPS=libtool
+  GRAPHVIZ_DEPS=libgd,libtool
 }
 setGraphvizTriggerVars
 
@@ -37,7 +37,7 @@ setGraphvizTriggerVars
 
 findGraphviz() {
   if test -x $CONTRIB_DIR/graphviz/bin/dot; then
-    (cd $CONTRIB_DIR/bin; ln -s ../graphviz/bin/dot .)
+    (cd $CONTRIB_DIR/bin; ln -sf ../graphviz/bin/dot .)
   fi
 }
 
