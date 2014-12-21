@@ -40,7 +40,11 @@ buildLibgd() {
     return 1
   fi
 
-  if bilderConfig -c libgd ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"; then
+# We could build libgd with these flags, but we would still not have
+# gdlib-config, which graphviz needs to know the features of libgd.
+  # -DPNG_PNG_INCLUDE_DIR:PATH=/opt/homebrew/include \
+  # -DPNG_LIBRARY:FILEPATH=/opt/homebrew/lib/libpng16.dylib
+  if bilderConfig -c libgd ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LIBGD_SER_ADDL_ARGS $LIBGD_SER_OTHER_ARGS"; then
     bilderBuild libgd ser
   fi
 
