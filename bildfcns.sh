@@ -1682,7 +1682,11 @@ shouldInstall() {
 
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
-  techo "Last install: '$pkgline'"
+  if test -n "$pkgline"; then
+    techo "Last install: '$pkgline'"
+  else
+    techo "$proj never installed."
+  fi
   if test -z "$pkgline"; then
     techo "Package $proj not found in $dir/installations.txt. Rebuilding."
     return 0

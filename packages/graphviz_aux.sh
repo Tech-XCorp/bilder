@@ -25,7 +25,7 @@ setGraphvizTriggerVars() {
       Linux) GRAPHVIZ_BUILDS="ser";;
     esac
   fi
-  GRAPHVIZ_DEPS=libgd,libtool
+  GRAPHVIZ_DEPS=libgd,python,autotools
 }
 setGraphvizTriggerVars
 
