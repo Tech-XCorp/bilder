@@ -26,7 +26,7 @@ setOpenmpiTriggerVars() {
       esac
     fi
   fi
-  OPENMPI_DEPS=valgrind,doxygen,libtool,automake
+  OPENMPI_DEPS=valgrind,libtool,automake
 }
 setOpenmpiTriggerVars
 
