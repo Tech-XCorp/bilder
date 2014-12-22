@@ -270,9 +270,14 @@ runnrGetHostVars() {
           IS_64BIT=false
         fi
 # Get distro
-        local distroname=`lsb_release -is`
-        local distrover=`lsb_release -rs`
-        RUNNRSYSTEM=${distroname}${distrover}_${mach}
+        local linux_release=
+        if which lsb_release 2>/dev/null; then
+          linux_release="`lsb_release -is`"`lsb_release -rs`
+        else
+          techo "WARNING: [$FUNCNAME] lsb_release not found.  Install redhat-lsb."
+          linux_release=unknown
+        fi
+        RUNNRSYSTEM=${linux_release}_${mach}
         ;;
       *)
         echo "WARNING: RUNNRSYSTEM not known."
