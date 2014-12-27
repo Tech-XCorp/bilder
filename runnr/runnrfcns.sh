@@ -271,7 +271,7 @@ runnrGetHostVars() {
         fi
 # Get distro
         local linux_release=
-        if which lsb_release 2>/dev/null; then
+        if which lsb_release 1>/dev/null 2>&1; then
           linux_release="`lsb_release -is`"`lsb_release -rs`
         else
           techo "WARNING: [$FUNCNAME] lsb_release not found.  Install redhat-lsb."
