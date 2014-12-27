@@ -1,39 +1,32 @@
 #!/bin/bash
 #
-# Version and build information for mesa
+# Build information for mesa
 #
 # $Id$
 #
-# Repackage for bilder:
-#   tar xzf MesaLib-7.10.2.tar.gz:w
-#   mv Mesa-7.10.2 mesa-7.10.2
-#   tar czf mesa-7.10.2.tar.gz mesa-7.10.2
-#
 ######################################################################
 
 ######################################################################
 #
-# Version
+# Trigger variables set in mesa_aux.sh
 #
 ######################################################################
 
-MESA_BLDRVERSION=${MESA_BLDRVERSION:-"7.8.2"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/mesa_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$MESA_DESIRED_BUILDS"; then
-  case `uname`-`uname -r` in
-    CYGWIN* | Darwin-12*) ;;
-    *) MESA_DESIRED_BUILDS=mgl,os;;
-  esac
-fi
-computeBuilds mesa
-MESA_DEPS=
-MESA_UMASK=002
+setMesaNonTriggerVars() {
+  MESA_UMASK=002
+}
+setMesaNonTriggerVars
 
 ######################################################################
 #
@@ -54,6 +47,9 @@ MESA_UMASK=002
 # context and use MesaGL.  The two libraries will have a host of
 # duplicate symbols, and it is important that we pick up the ones
 # from OSMesa.
+#
+# JRC: This may no longer be needed except possibly for the case
+# of client server visit with bad Linux drivers.
 #
 ######################################################################
 
