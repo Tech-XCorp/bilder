@@ -610,7 +610,7 @@ case $CXX in
         PIC_FLAG=-fPIE
         O3_FLAG='-O3'
         ;;
-      *g++*)
+      *GCC*)
         PIC_FLAG=-fPIC
         O3_FLAG='-O3'
         ;;
@@ -620,6 +620,7 @@ case $CXX in
     esac
     ;;
 esac
+techo "PIC_FLAG=$PIC_FLAG"
 PYC_PIC_FLAG=-fPIC
 
 # Pipe flags
