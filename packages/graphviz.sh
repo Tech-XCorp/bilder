@@ -40,9 +40,22 @@ buildGraphviz() {
   if ! bilderUnpack graphviz; then
     return 1
   fi
-# --with-gdincludedir=/contrib/libgd-2.1.0-ser/include --with-gdlibdir=/contrib/libgd-2.1.0-ser/lib
-# One can find gdlib as above, but that does not get the features, which
-# requires gdlib-config.
+
+# Check for gd
+  case `uname` in
+    Darwin)
+      if ! test -f /opt/homebrew/include/gd.h; then
+        techo "WARNING: [$FUNCNAME] gd must be installed using homebrew."
+      fi
+      ;;
+    Linux)
+      if ! test -f /usr/include/gd.h; then
+        techo "WARNING: [$FUNCNAME] gd-{devel,dev} must be installed."
+      fi
+      ;;
+  esac
+
+# Configure and build
   local GRAPHVIZ_SER_ADDL_ARGS="--with-qt=no"
   if test `uname` = Linux; then
     GRAPHVIZ_SER_ADDL_ARGS="$GRAPHVIZ_SER_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
