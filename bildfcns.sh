@@ -2785,8 +2785,8 @@ setDefaultPkgVars() {
 #   {contrib atlas, contrib lapack} or {contrib ptsolve-lite}
 #   {atlas-clapack, clapack} or {ptsolve-lite}
 #
-# Useful ENV variables for controlling order: USE_ATLAS, USE_MKL, USE_PTSOLVE_LITE
-#  USE_CONTRIB_LAPACK
+# Useful ENV variables for controlling order: USE_ATLAS, USE_MKL,
+#  USE_PTSOLVE_LITE, USE_CONTRIB_LAPACK
 #
 # The goal is to assign values
 #   LINLIB_${BLD}_LIBS, the absolute paths to the libraries
@@ -2911,7 +2911,15 @@ findBlasLapack() {
   findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
   setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  if test `uname` = Linux -a -e /usr/lib64/liblapack.a; then
+# Old lapacks do not have some symbols, in which case we must use
+# the contrib lapack.
+    if ! nm /usr/lib/liblapack.a | grep slarra_; then
+      USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"true"}
+    fi
+  fi
   USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"false"}
+  techo -2 "USE_CONTRIB_LAPACK = $USE_CONTRIB_LAPACK."
   if $USE_CONTRIB_LAPACK; then
     for BLD in SER SERMD SERSH PYCSH BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
