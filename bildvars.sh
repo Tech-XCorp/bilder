@@ -606,8 +606,8 @@ case $CXX in
 # Try to determine from --version on wrapper
     verline=`$CXX --version | head -1`
     case "$verline" in
-      *icpc*)
-        PIC_FLAG=-fPIE
+      *ICC*)
+        PIC_FLAG=-fPIC
         O3_FLAG='-O3'
         ;;
       *GCC*)
