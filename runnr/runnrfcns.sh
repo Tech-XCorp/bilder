@@ -677,9 +677,18 @@ runnrRun() {
     techo "Submitted to queue at `date`.  RUNNR_QJOB = $RUNNR_QJOB. RUNNR_QJOB_NUM = $RUNNR_QJOB_NUM."
 
 # Wait for startup file
+# NOTE: A job can run in fewer than 10 seconds if BILDER_WAIT_DAYS hasn't
+# been satisfied, and therefore we would fail to notice that the status
+# was ever 'R'. To combat this, we lowered the sleep time to 4 seconds.
+# But we don't want to print out the job status every 4 (or even 10)
+# seconds for a queued job, so we print out periodically.
     local jobstatus=
+    local sleepinterval=4
+    local sleeptimer=0
+    local modresult=0
+
     until test "$jobstatus" = R; do
-      sleep 10
+      sleep $sleepinterval
       jobstatus=`qstat $RUNNR_QJOB | sed -n '3p' | sed 's/  */ /g' | cut -d ' ' -f 5`
       if [[ "$jobstatus" =~ "Unknown Job" ]]; then
         techo "Job, $RUNNR_QJOB, is unknown.  Quitting."
@@ -692,7 +701,10 @@ runnrRun() {
         unset RUNNR_JOB_PID
         exit 1
       fi
-      techo "jobstatus = $jobstatus at `date`."
+      if test `expr $sleeptimer % 300` = 0; then
+        techo "jobstatus = $jobstatus at `date`."
+      fi
+      sleeptimer=`expr $sleeptimer + $sleepinterval`
     done
     techo "Running at `date`. Job status is '$jobstatus'."
     local startsecs=`date +%s`
