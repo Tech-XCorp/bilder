@@ -53,7 +53,7 @@ addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 # Add parallel path now before absolute paths determined by getCombinedCompVars
-addtopathvar PATH $CONTRIB_DIR/openmpi/bin
+addtopathvar PATH $CONTRIB_DIR/mpi/bin
 techo "PATH = $PATH"
 
 ######################################################################
