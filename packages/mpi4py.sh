@@ -20,9 +20,9 @@ MPI4PY_BLDRVERSION=${MPI4PY_BLDRVERSION:-"1.2.2"}
 #
 ######################################################################
 
-MPI4PY_BUILDS=${MPI4PY_BUILDS:-"cc4py"}
+MPI4PY_BUILDS=${MPI4PY_BUILDS:-"pycsh"}
 # setuptools gets site-packages correct
-MPI4PY_DEPS=Python,openmpi
+MPI4PY_DEPS=Python,$MPI_BUILD
 MPI4PY_UMASK=002
 
 #####################################################################

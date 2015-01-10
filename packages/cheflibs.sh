@@ -140,8 +140,8 @@ buildCheflibs() {
       res=$?
       techo "bilderBuild of chef_libs par returned $res"
     fi
-#    if bilderConfig chef_libs cc4py "$CHEF_LIBS_CC4PY_OTHER_ARGS"; then
-#      bilderBuild chef_libs cc4py "$CHEF_LIBS_MAKE_ARGS"
+#    if bilderConfig chef_libs pycsh "$CHEF_LIBS_PYCSH_OTHER_ARGS"; then
+#      bilderBuild chef_libs pycsh "$CHEF_LIBS_MAKE_ARGS"
  #   fi
   fi
 

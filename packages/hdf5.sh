@@ -122,8 +122,8 @@ buildHdf5() {
   if bilderConfig -c hdf5 sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
     bilderBuild hdf5 sermd "$HDF5_MAKEJ_ARGS"
   fi
-  if bilderConfig -c hdf5 cc4py "-DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_CC4PY_ADDL_ARGS $HDF5_SHARED_ENABLE_FORTRAN $HDF5_CC4PY_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
-    bilderBuild hdf5 cc4py "$HDF5_MAKEJ_ARGS" "$DISTUTILS_NOLV_ENV"
+  if bilderConfig -c hdf5 pycsh "-DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_PYCSH_ADDL_ARGS $HDF5_SHARED_ENABLE_FORTRAN $HDF5_PYCSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
+    bilderBuild hdf5 pycsh "$HDF5_MAKEJ_ARGS" "$DISTUTILS_NOLV_ENV"
   fi
 
 }
@@ -225,7 +225,7 @@ installHdf5() {
 # just under bin.
 # Remove (-r) old installations.  This assumee that the shared libs
 # will subsequently be reinstalled if needed.
-  for bld in ser par sersh parsh sermd cc4py; do
+  for bld in ser par sersh parsh sermd pycsh; do
     if bilderInstall -p open -r hdf5 $bld; then
       hdf5installed=true
       instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld

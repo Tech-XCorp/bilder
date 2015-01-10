@@ -20,7 +20,7 @@ PYOPENCL_BLDRVERSION_STD=${PYOPENCL_BLDRVERSION_STD:-"2013.2"}
 #
 ######################################################################
 
-PYOPENCL_BUILDS=${PYOPENCL_BUILDS:-"cc4py"}
+PYOPENCL_BUILDS=${PYOPENCL_BUILDS:-"pycsh"}
 # DM 5/15/2014:
 # PyOpenCL depends on an OpenCL platform.  However, they're are many
 # different choices available and there is no reasonable default.

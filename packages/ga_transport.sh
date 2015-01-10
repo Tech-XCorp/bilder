@@ -20,7 +20,7 @@
 ######################################################################
 
 GA_TRANSPORT_BUILDS=${GA_TRANSPORT_BUILDS:-"ser,par"}
-GA_TRANSPORT_DEPS=openmpi,fciowrappers
+GA_TRANSPORT_DEPS=$MPI_BUILD,fciowrappers
 GA_TRANSPORT_UMASK=002
 
 ######################################################################

@@ -16,12 +16,13 @@
 ######################################################################
 
 setOceTriggerVars() {
-  OCE_REPO_URL=git://github.com/tpaviot/oce.git
-  OCE_UPSTREAM_URL=git://github.com/tpaviot/oce.git
-  OCE_REPO_BRANCH_STD=OCE-0.14.1
-  OCE_REPO_BRANCH_EXP=OCE-0.15
-  OCE_BUILD=$FORPYTHON_BUILD
-  OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_BUILD"}
+  OCE_REPO_URL=https://github.com/Tech-XCorp/oce.git
+  OCE_REPO_BRANCH_STD=OCE-0.15
+  OCE_REPO_BRANCH_EXP=OCE-0.16.1-txc
+  OCE_UPSTREAM_URL=https://github.com/tpaviot/oce.git
+  OCE_UPSTREAM_BRANCH=OCE-0.16.1
+  OCE_BUILD=$FORPYTHON_SHARED_BUILD
+  OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   OCE_DEPS=freetype,cmake
 }
 setOceTriggerVars
@@ -35,11 +36,11 @@ setOceTriggerVars
 findOce() {
 
 # Look for Oce in the install directory
-  findPackage Oce TKMath "$BLDR_INSTALL_DIR" cc4py sersh
-  findCc4pyDir Oce
+  findPackage Oce TKMath "$BLDR_INSTALL_DIR" pycsh sersh
+  findPycshDir Oce
 
 # Set root dir
-  local ocerootdir=$OCE_CC4PY_DIR
+  local ocerootdir=$OCE_PYCSH_DIR
   if test -z "$ocerootdir"; then
     return
   fi
@@ -80,10 +81,10 @@ findOce() {
   if [[ `uname` =~ CYGWIN ]]; then
     ocecmakedir=`cygpath -am $ocecmakedir`
   fi
-  OCE_CC4PY_CMAKE_DIR="$ocecmakedir"
-  OCE_CC4PY_CMAKE_DIR_ARG="-DOCE_DIR:PATH='$ocecmakedir'"
-  printvar OCE_CC4PY_CMAKE_DIR
-  printvar OCE_CC4PY_CMAKE_DIR_ARG
+  OCE_PYCSH_CMAKE_DIR="$ocecmakedir"
+  OCE_PYCSH_CMAKE_DIR_ARG="-DOCE_DIR:PATH='$ocecmakedir'"
+  printvar OCE_PYCSH_CMAKE_DIR
+  printvar OCE_PYCSH_CMAKE_DIR_ARG
 
 }
 

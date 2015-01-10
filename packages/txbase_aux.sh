@@ -26,8 +26,8 @@ setTxbaseTriggerVars() {
     fi
   fi
   computeBuilds txbase
-  addCc4pyBuild txbase
-  TXBASE_DEPS=hdf5,openmpi,boost,Python,cmake
+  addPycshBuild txbase
+  TXBASE_DEPS=hdf5,$MPI_BUILD,boost,Python,cmake
 }
 setTxbaseTriggerVars
 

@@ -21,7 +21,7 @@ PYGMENTS_BLDRVERSION_EXP=1.6
 #
 ######################################################################
 
-PYGMENTS_BUILDS=${PYGMENTS_BUILDS:-"cc4py"}
+PYGMENTS_BUILDS=${PYGMENTS_BUILDS:-"pycsh"}
 PYGMENTS_DEPS=setuptools,Python
 PYGMENTS_UMASK=002
 

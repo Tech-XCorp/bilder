@@ -1,0 +1,15 @@
+diff -ruN tbb-43_20140724oss-orig/build/macos.clang.inc tbb-43_20140724oss-new/build/macos.clang.inc
+--- tbb-43_20140724oss-orig/build/macos.clang.inc	2014-08-26 05:28:57.000000000 -0600
++++ tbb-43_20140724oss-new/build/macos.clang.inc	2014-09-27 08:37:11.000000000 -0600
+@@ -54,6 +54,11 @@
+ ifeq (libc++,$(stdlib))
+     CPLUS_FLAGS    += -stdlib=libc++
+     LIB_LINK_FLAGS += -stdlib=libc++
++else
++    ifeq (libstdc++,$(stdlib))
++      CPLUS_FLAGS    += -stdlib=libstdc++
++      LIB_LINK_FLAGS += -stdlib=libstdc++
++    endif
+ endif
+ 
+ CPP11_FLAGS = -std=c++11 -D_TBB_CPP0X

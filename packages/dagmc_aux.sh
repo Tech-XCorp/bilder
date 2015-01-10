@@ -17,11 +17,12 @@
 
 setDagMcTriggerVars() {
   DAGMC_REPO_URL=https://github.com/Tech-XCorp/DAGMC.git
+  DAGMC_REPO_BRANCH_STD=${DAGMC_REPO_BRANCH_STD:-"develop"}
+  DAGMC_REPO_BRANCH_EXP=${DAGMC_REPO_BRANCH_EXP:-"develop"}
   DAGMC_UPSTREAM_URL=https://github.com/svalinn/DAGMC.git
-  DAGMC_REPO_BRANCH_STD=develop
-  DAGMC_REPO_BRANCH_EXP=develop
-  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_BUILD,batlab"}
-  DAGMC_DEPS=geant4,moab,boost
+  DAGMC_UPSTREAM_BRANCH=develop
+  DAGMC_BUILDS=${DAGMC_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  DAGMC_DEPS=geant4,moab,boost,pyne,pytaps
 }
 setDagMcTriggerVars
 
@@ -34,7 +35,7 @@ setDagMcTriggerVars
 # Compute vars that help to find dagmc
 findDagMc() {
 # Look for DagMc in the contrib directory
-  findPackage DagMc dagsolid "$BLDR_INSTALL_DIR" cc4py sersh
-  findCc4pyDir DagMc
+  findPackage DagMc dagsolid "$BLDR_INSTALL_DIR" pycsh sersh
+  findPycshDir DagMc
 }
 

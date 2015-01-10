@@ -20,7 +20,7 @@ PANDAS_BLDRVERSION=${PANDAS_BLDRVERSION:-"0.6.1"}
 #
 ######################################################################
 
-PANDAS_BUILDS=${PANDAS_BUILDS:-"cc4py"}
+PANDAS_BUILDS=${PANDAS_BUILDS:-"pycsh"}
 # setuptools gets site-packages correct
 PANDAS_DEPS=Python,tables
 PANDAS_UMASK=002

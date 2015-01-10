@@ -23,7 +23,7 @@ TORNADO_BLDRVERSION_EXP=${TORNADO_BLDRVERSION_EXP:-"3.2"}
 ######################################################################
 
 setTornadoGlobalVars() {
-  TORNADO_BUILDS=${TORNADO_BUILDS:-"cc4py"}
+  TORNADO_BUILDS=${TORNADO_BUILDS:-"pycsh"}
   TORNADO_DEPS=setuptools,Python
   TORNADO_UMASK=002
 }

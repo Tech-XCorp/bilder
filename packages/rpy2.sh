@@ -20,7 +20,7 @@ RPY2_BLDRVERSION=${RPY2_BLDRVERSION:-"2.2.1"}
 #
 ######################################################################
 
-RPY2_BUILDS=${RPY2_BUILDS:-"cc4py"}
+RPY2_BUILDS=${RPY2_BUILDS:-"pycsh"}
 # setuptools gets site-packages correct
 RPY2_DEPS=setuptools,Python,r
 RPY2_UMASK=002

@@ -20,7 +20,7 @@ PETSC4PY_BLDRVERSION=${PETSC4PY_BLDRVERSION:-"1.2"}
 #
 ######################################################################
 
-PETSC4PY_BUILDS=${PETSC4PY_BUILDS:-"cc4py"}
+PETSC4PY_BUILDS=${PETSC4PY_BUILDS:-"pycsh"}
 # setuptools gets site-packages correct
 PETSC4PY_DEPS=setuptools,Python,petsc
 PETSC4PY_UMASK=002

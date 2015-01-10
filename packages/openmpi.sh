@@ -35,7 +35,6 @@ setOpenmpiNonTriggerVars
 ######################################################################
 
 buildOpenmpiAT() {
-
   if ! bilderUnpack openmpi; then
     return
   fi
@@ -64,46 +63,69 @@ EOF
       ;;
     Linux)
       OPENMPI_NODL_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-nodl/lib $SER_EXTRA_LDFLAGS'"
-      ;;
-  esac
-
-# With version 1.6.1, openmpi will stop in the middle of the build
-# unless one does --disable-vt.  One can restart it, and it continues.
-# Seems like an unregistered dependency.  Should try again after
-# bumping version.
-  case $OPENMPI_BLDRVERSION in
-    1.6.1)
-      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
-      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
+      OPENMPI_SHARED_ADDL_ARGS="--with-wrapper-ldflags='-Wl,-rpath,${CONTRIB_DIR}/openmpi-${OPENMPI_BLDRVERSION}-shared/lib $SER_EXTRA_LDFLAGS'"
       ;;
   esac
 
 # Set jmake args.  Observed to fail on magnus.colorado.edu for openmpi-1.6.1,
 # but then observed to work with --disable-vt
-if false; then
   local ompimakeflags="$SER_CONFIG_LDFLAGS"
   case $OPENMPI_BLDRVERSION in
-    1.6.1)
+    1.6.*)
+# With version 1.6.1, openmpi will stop in the middle of the build
+# with "library not found for -lmpi unless one has --disable-vt.
+      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
+      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
+      OPENMPI_SHARED_ADDL_ARGS="$OPENMPI_SHARED_ADDL_ARGS --disable-vt"
       case `uname`-`uname -r` in
-        # Darwin-1[12].*) ;;
-        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
+        Darwin-1[13].*) ;;
+        *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
       esac
       ;;
-    *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags" ;;
+    1.8.*)
+# Disabling vt can help build
+      OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
+      OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
+      OPENMPI_SHARED_ADDL_ARGS="$OPENMPI_SHARED_ADDL_ARGS --disable-vt"
+      case `uname`-`uname -r` in
+# make -j2 fails on Darwin-11.4.2 with ld: "library not found for -lmpi"
+# Restarting with just "make" succeeds.
+        Darwin-1[12].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+# make -j2 failed on one Darwin-13.3.0 machine but succeeded on another??
+# make -j2 succeeded on both with --disable-vt
+        Darwin-1[34].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+        Darwin-*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+# make -j2 failed on one Centos 6.3 machonewithout --disable-vt, succeeded with
+        Linux) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+      esac
+      ;;
+    *)
+      ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags"
+      ;;
   esac
-fi
 
+# Fix some flags
   local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
   trimvar ompcxxflags ' '
   ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
   if test -n "$FCFLAGS"; then
     ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
   fi
+
+#
+# The builds
+#
+
   if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
     bilderBuild openmpi nodl "$ompimakeflags"
   fi
+
   if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
     bilderBuild openmpi static "$ompimakeflags"
+  fi
+
+  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS"; then
+    bilderBuild openmpi shared "$ompimakeflags"
   fi
 
 }
@@ -176,26 +198,9 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
-  if bilderInstall openmpi nodl openmpi; then
-    if test -h $CONTRIB_DIR/mpi; then
-      rm -f $CONTRIB_DIR/mpi
-    fi
-    ln -s $CONTRIB_DIR/openmpi $CONTRIB_DIR/mpi
-# Allow rsh use
-    OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
-    if $OPENMPI_ALLOW_RSH; then
-      case $OPENMPI_BLDRVERSION in
-        1.3* | 1.4*)
-          echo "plm_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
-          ;;
-        *)
-          echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
-          ;;
-      esac
-    fi
-  fi
-  if bilderInstall openmpi static; then
-    :
-  fi
+  bilderInstallAll openmpi
+  (cd $CONTRIB_DIR; rmall mpi openmpi; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
+# This not needed for 1.8.X.  Not certain about 1.6.x.
+  # echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
 }
 

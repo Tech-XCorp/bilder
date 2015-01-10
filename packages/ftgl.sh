@@ -21,7 +21,7 @@ FTGL_BLDRVERSION=${FTGL_BLDRVERSION:-"2.1.3-rc5"}
 ######################################################################
 
 # Only the python build needed.
-FORPYTHON_BUILDS=${FORPYTHON_BUILDS:-"$FORPYTHON_BUILD"}
+FTGL_BUILDS=${FTGL_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
 FTGL_DEPS=freetype
 FTGL_UMASK=002
 
@@ -45,17 +45,17 @@ buildFtgl() {
   local ftconfigenv=
   if test -z "$ftconfigtype"; then
     ftconfigargs="--enable-shared --without-x"
-    if test -n "$FREETYPE_CC4PY_DIR"; then
-      ftconfigargs="$ftconfigargs --with-ft-prefix=$FREETYPE_CC4PY_DIR"
+    if test -n "$FREETYPE_PYCSH_DIR"; then
+      ftconfigargs="$ftconfigargs --with-ft-prefix=$FREETYPE_PYCSH_DIR"
     fi
   else
     ftconfigargs="-DBUILD_SHARED_LIBS:BOOL=TRUE"
-    if test -n "$FREETYPE_CC4PY_DIR"; then
-      ftconfigenv="FREETYPE_DIR=$FREETYPE_CC4PY_DIR"
+    if test -n "$FREETYPE_PYCSH_DIR"; then
+      ftconfigenv="FREETYPE_DIR=$FREETYPE_PYCSH_DIR"
     fi
   fi
-  if bilderConfig $ftconfigtype ftgl $FORPYTHON_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
-    bilderBuild ftgl $FORPYTHON_BUILD "" "ECHO=echo"
+  if bilderConfig $ftconfigtype ftgl $FORPYTHON_SHARED_BUILD "$ftconfigargs $FTGL_SER_OTHER_ARGS" "" "$ftconfigenv"; then
+    bilderBuild ftgl $FORPYTHON_SHARED_BUILD "" "ECHO=echo"
   fi
 }
 
@@ -76,7 +76,7 @@ testFtgl() {
 ######################################################################
 
 installFtgl() {
-  bilderInstall ftgl $FORPYTHON_BUILD "" "" "ECHO=echo"
+  bilderInstall ftgl $FORPYTHON_SHARED_BUILD "" "" "ECHO=echo"
   # techo "Quitting at the end of ftgl.sh."; exit
 }
 

@@ -25,10 +25,10 @@ setNcursesGlobalVars() {
   if [[ `uname` =~ Darwin ]]; then
     local dver=`uname -r | sed -e 's/\..*$//'`
     if test $dver -lt 11; then
-      NCURSES_BUILDS=${NCURSES_BUILDS:-"$FORPYTHON_BUILD"}
+      NCURSES_BUILDS=${NCURSES_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
     fi
   fi
-  NCURSES_BUILD=$FORPYTHON_BUILD
+  NCURSES_BUILD=$FORPYTHON_SHARED_BUILD
   NCURSES_DEPS=
 }
 setNcursesGlobalVars

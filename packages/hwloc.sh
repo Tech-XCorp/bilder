@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for hwloc
+# Build information for hwloc
 #
 # $Id$
 #
@@ -8,11 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in hwloc_aux.sh
 #
 ######################################################################
-HWLOC_BLDRVERSION=${HWLOC_BLDRVERSION:-"1.4.2"}
 
+mydir=`dirname $BASH_SOURCE`
+source $mydir/hwloc_aux.sh
+
+######################################################################
+#
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
+
+setHypreNonTriggerVars() {
+  HWLOC_UMASK=002
+}
+setHypreNonTriggerVars
 
 ######################################################################
 #
@@ -20,12 +34,7 @@ HWLOC_BLDRVERSION=${HWLOC_BLDRVERSION:-"1.4.2"}
 #
 ######################################################################
 
-if test -z "$HWLOC_BUILDS"; then
-  HWLOC_BUILDS=ser
-fi
-
 HWLOC_DEPS=autotools
-HWLOC_UMASK=002
 
 ######################################################################
 #
@@ -40,10 +49,11 @@ HWLOC_UMASK=002
 ######################################################################
 
 buildHwloc() {
-  if bilderUnpack hwloc; then
-    if bilderConfig hwloc ser; then
-      bilderBuild hwloc ser
-    fi
+  if ! bilderUnpack hwloc; then
+    return
+  fi
+  if bilderConfig hwloc ser; then
+    bilderBuild hwloc ser
   fi
 }
 
@@ -66,3 +76,4 @@ testHwloc() {
 installHwloc() {
   bilderInstall hwloc ser
 }
+

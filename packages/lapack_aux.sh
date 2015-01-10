@@ -28,18 +28,18 @@ setLapackTriggerVars() {
     case `uname`-$CC in
       CYGWIN*-mingw*)
         LAPACK_BUILDS=ser,sersh,sermd
-        addCc4pyBuild lapack
+        addPycshBuild lapack
         ;;
       CYGWIN*) # If this works, consolidate with above
         LAPACK_BUILDS=ser,sersh,sermd
-        addCc4pyBuild lapack
+        addPycshBuild lapack
         ;;
       Darwin-*) # Darwin has -framework Accelerate
         LAPACK_BUILDS=NONE
         ;;
       Linux-*)
         LAPACK_BUILDS=ser,sersh
-        addCc4pyBuild lapack
+        addPycshBuild lapack
         addBenBuild lapack
         ;;
     esac

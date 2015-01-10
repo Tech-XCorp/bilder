@@ -1,7 +1,50 @@
-Binary files qt3d/.git/index and qt3d_orig/.git/index differ
-diff -ur qt3d/src/threed/scene/qglscenenode.cpp qt3d_orig/src/threed/scene/qglscenenode.cpp
---- qt3d/src/threed/scene/qglscenenode.cpp	2014-06-04 16:54:11.000000000 -0600
-+++ qt3d_orig/src/threed/scene/qglscenenode.cpp	2014-06-04 16:55:58.000000000 -0600
+Binary files qt3d-orig/.git/index and qt3d/.git/index differ
+diff -ruN qt3d-orig/3rdparty/assimp/code/BlenderModifier.cpp qt3d/3rdparty/assimp/code/BlenderModifier.cpp
+--- qt3d-orig/3rdparty/assimp/code/BlenderModifier.cpp	2014-12-23 13:03:55.267009400 -0700
++++ qt3d/3rdparty/assimp/code/BlenderModifier.cpp	2014-12-23 13:08:36.761209400 -0700
+@@ -48,6 +48,10 @@
+ #include "SceneCombiner.h"
+ #include "Subdivision.h"
+ 
++#if (_MSC_VER >= 1700)
++#include <functional>
++#endif
++
+ using namespace Assimp;
+ using namespace Assimp::Blender;
+ 
+diff -ruN qt3d-orig/3rdparty/assimp/code/LWOAnimation.cpp qt3d/3rdparty/assimp/code/LWOAnimation.cpp
+--- qt3d-orig/3rdparty/assimp/code/LWOAnimation.cpp	2014-12-23 13:03:55.270009400 -0700
++++ qt3d/3rdparty/assimp/code/LWOAnimation.cpp	2014-12-23 13:09:00.056209400 -0700
+@@ -52,6 +52,10 @@
+ // internal headers
+ #include "LWOFileData.h"
+ 
++#if (_MSC_VER >= 1700)
++#include <functional>
++#endif
++
+ using namespace Assimp;
+ using namespace Assimp::LWO;
+ 
+diff -ruN qt3d-orig/3rdparty/assimp/code/Vertex.h qt3d/3rdparty/assimp/code/Vertex.h
+--- qt3d-orig/3rdparty/assimp/code/Vertex.h	2014-12-23 13:03:55.274009400 -0700
++++ qt3d/3rdparty/assimp/code/Vertex.h	2014-12-23 13:09:20.914209400 -0700
+@@ -40,6 +40,11 @@
+ /** @file Defines a helper class to represent an interleaved vertex */
+ #ifndef AI_VERTEX_H_INC
+ #define AI_VERTEX_H_INC
++
++#if (_MSC_VER >= 1700)
++#include <functional>
++#endif
++
+ namespace Assimp    {
+ 
+     ///////////////////////////////////////////////////////////////////////////
+diff -ruN qt3d-orig/src/threed/scene/qglscenenode.cpp qt3d/src/threed/scene/qglscenenode.cpp
+--- qt3d-orig/src/threed/scene/qglscenenode.cpp	2014-12-23 13:03:55.307009400 -0700
++++ qt3d/src/threed/scene/qglscenenode.cpp	2014-12-16 18:20:06.147585200 -0700
 @@ -354,6 +354,7 @@
  {
      Q_D(QGLSceneNode);
@@ -10,9 +53,9 @@ diff -ur qt3d/src/threed/scene/qglscenenode.cpp qt3d_orig/src/threed/scene/qglsc
      emit updated();
  }
  
-diff -ur qt3d/src/threed/viewing/qglview.cpp qt3d_orig/src/threed/viewing/qglview.cpp
---- qt3d/src/threed/viewing/qglview.cpp	2014-06-04 16:54:11.000000000 -0600
-+++ qt3d_orig/src/threed/viewing/qglview.cpp	2014-06-04 16:54:04.000000000 -0600
+diff -ruN qt3d-orig/src/threed/viewing/qglview.cpp qt3d/src/threed/viewing/qglview.cpp
+--- qt3d-orig/src/threed/viewing/qglview.cpp	2014-12-23 13:03:55.309009400 -0700
++++ qt3d/src/threed/viewing/qglview.cpp	2014-12-16 18:20:06.150585200 -0700
 @@ -52,6 +52,7 @@
  #include <QtCore/qtimer.h>
  #include <QtCore/qdatetime.h>

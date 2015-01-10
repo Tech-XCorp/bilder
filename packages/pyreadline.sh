@@ -23,7 +23,7 @@ PYREADLINE_BLDRVERSION=${PYREADLINE_BLDRVERSION:-"1.7.1"}
 
 if test -z "$PYREADLINE_BUILDS"; then
   if [[ `uname` =~ CYGWIN* ]]; then
-    PYREADLINE_BUILDS=cc4py
+    PYREADLINE_BUILDS=pycsh
   fi
 fi
 # setuptools gets site-packages correct

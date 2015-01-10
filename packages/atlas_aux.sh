@@ -19,7 +19,7 @@ setAtlasTriggerVars() {
   ATLAS_BLDRVERSION_STD=${ATLAS_BLDRVERSION_STD:-"3.10.1"}
 # Atlas 3.11.17 cannot be built with gcc 4.1.2 (the default on qalinux)
 # or gcc 4.2.4. Both compilers seg fault when building Atlas.
-  ATLAS_BLDRVERSION_EXP=${ATLAS_BLDRVERSION_EXP:-"3.10.1"}
+  ATLAS_BLDRVERSION_EXP=${ATLAS_BLDRVERSION_EXP:-"3.10.2"}
   if test -z "$ATLAS_BUILDS" && $BUILD_ATLAS; then
     case `uname` in
       CYGWIN*)
@@ -28,9 +28,9 @@ setAtlasTriggerVars() {
         else
           : # ATLAS_BUILDS=NONE
         fi
-        if ! isCcCc4py; then
+        if ! isCcPyc; then
 # Do this way, as ser contains sersh
-          ATLAS_BUILDS=${ATLAS_BUILDS},cc4py
+          ATLAS_BUILDS=${ATLAS_BUILDS},pycsh
         fi
         ATLAS_BUILDS=${ATLAS_BUILDS},clp
         ;;
@@ -39,11 +39,13 @@ setAtlasTriggerVars() {
         ;;
       Linux)
         ATLAS_BUILDS=ser,sersh
-        addCc4pyBuild atlas
+        addPycshBuild atlas
         # addBenBuild atlas # Have no ben build
         ;;
     esac
   fi
+# Below needed for determining installations prior to bilderPreconfig
+  computeVersion atlas
   trimvar ATLAS_BUILDS ','
 # Atlas no longer depends on lapack or clapack, as it builds them
   # ATLAS_DEPS=lapack
@@ -52,7 +54,7 @@ setAtlasTriggerVars
 
 ######################################################################
 #
-# Find xz
+# Find Atlas 
 #
 ######################################################################
 

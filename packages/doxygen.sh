@@ -38,7 +38,7 @@ buildDoxygen() {
   if ! bilderUnpack -i doxygen; then
     return
   fi
-  if bilderConfig -i -n -p - doxygen ser; then
+  if bilderConfig -i -n doxygen ser; then
     bilderBuild doxygen ser
   fi
 }
@@ -60,9 +60,9 @@ testDoxygen() {
 ######################################################################
 
 installDoxygen() {
-# Ignore installation errors.  Doxygen tries to set perms of /contrib/bin.
-  bilderInstall -p open doxygen ser "" "-i"
-# Because doxygen mucks with perms, have to reset
-  setOpenPerms $CONTRIB_DIR/bin
+  if bilderInstall -p open doxygen ser "" "-i"; then
+    mkdir -p $CONTRIB_DIR/bin
+    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen/bin/doxygen .)
+  fi
 }
 

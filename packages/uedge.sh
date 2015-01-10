@@ -32,7 +32,7 @@ if test -z "$UEDGE_BUILDS"; then
       ;;
   esac
 fi
-UEDGE_DEPS=facetsifc,txbase,fciowrappers,petsc,openmpi,metatau,babel,forthon,autotools
+UEDGE_DEPS=facetsifc,txbase,fciowrappers,petsc,$MPI_BUILD,metatau,babel,forthon,autotools
 UEDGE_UMASK=002
 
 ######################################################################

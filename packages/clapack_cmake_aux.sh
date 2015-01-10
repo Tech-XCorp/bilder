@@ -19,7 +19,7 @@ setCLapack_CmakeTriggerVars() {
   CLAPACK_CMAKE_BLDRVERSION=${CLAPACK_CMAKE_BLDRVERSION:-"3.2.1"}
   CLAPACK_CMAKE_BUILDS=${CLAPACK_CMAKE_BUILDS:-"NONE"}
   if test $CLAPACK_CMAKE_BUILDS != NONE; then
-    addCc4pyBuild clapack_lapack
+    addPycshBuild clapack_lapack
   fi
   CLAPACK_CMAKE_DEPS=cmake
 }

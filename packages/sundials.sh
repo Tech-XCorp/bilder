@@ -23,7 +23,7 @@ SUNDIALS_BLDRVERSION=${SUNDIALS_BLDRVERSION:-"2.4.0"}
 # SUNDIALS has both serial and parallel builds
 SUNDIALS_BUILDS=${SUNDIALS_BUILDS:-"ser,par"}
 addBenBuild sundials
-SUNDIALS_DEPS=openmpi
+SUNDIALS_DEPS=$MPI_BUILD
 
 ######################################################################
 #

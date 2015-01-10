@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for pyparsing
+# Build information for pyparsing
 #
 # $Id$
 #
@@ -8,22 +8,25 @@
 
 ######################################################################
 #
-# Version
-# Windows from http://www.pypyparsing.org/download/stable
+# Trigger variables set in pyparsing_aux.sh
 #
 ######################################################################
 
-PYPARSING_BLDRVERSION=${PYPARSING_BLDRVERSION:-"2.2.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/pyparsing_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-PYPARSING_BUILDS=${PYPARSING_BUILDS:-"cc4py"}
-PYPARSING_DEPS=
-PYPARSING_UMASK=002
+setPyparsingNonTriggerVars() {
+  :
+}
+setPyparsingNonTriggerVars
 
 ######################################################################
 #
@@ -32,25 +35,28 @@ PYPARSING_UMASK=002
 ######################################################################
 
 buildPyParsing() {
-  if bilderUnpack pyparsing; then
-    techo "Running bilderDuBuild for pyparsing."
+
+#
+  if ! bilderUnpack pyparsing; then
+    return
+  fi
 
 # Regularize name.  Already done by findContribPackage
-    PYPARSING_ENV="$DISTUTILS_NOLV_ENV"
-    case `uname`-$CC in
-      CYGWIN*-cl)
-        PYPARSING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        ;;
-      CYGWIN*-mingw*)
-        PYPARSING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
-        PYPARSING_ENV="PATH=/MinGW/bin:'$PATH'"
-        ;;
-      Linux)
-        PYPARSING_ARGS="--lflags=${RPATH_FLAG}$PYPARSING_HDF5_DIR/lib"
-        ;;
-    esac
-    bilderDuBuild -p pyparsing pyparsing "$PYPARSING_ARGS" "$PYPARSING_ENV"
-  fi
+  PYPARSING_ENV="$DISTUTILS_NOLV_ENV"
+  case `uname`-$CC in
+    CYGWIN*-cl)
+      PYPARSING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      ;;
+    CYGWIN*-mingw*)
+      PYPARSING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      PYPARSING_ENV="PATH=/MinGW/bin:'$PATH'"
+      ;;
+    Linux)
+      # PYPARSING_ARGS="--lflags=${RPATH_FLAG}$PYPARSING_HDF5_DIR/lib"
+      ;;
+  esac
+  bilderDuBuild -p pyparsing pyparsing "$PYPARSING_ARGS" "$PYPARSING_ENV"
+
 }
 
 ######################################################################

@@ -21,7 +21,7 @@
 ######################################################################
 
 if test -z "$FUSION_MACHINE_BUILDS" -o "$FUSION_MACHINE_BUILDS" != NONE; then
-  FUSION_MACHINE_BUILDS="cc4py"
+  FUSION_MACHINE_BUILDS="pycsh"
 fi
 FUSION_MACHINE_DEPS=numpy
 addtopathvar PATH $BLDR_INSTALL_DIR/fusion_machine/bin
@@ -40,9 +40,9 @@ buildFusion_machine() {
 # Configure and build serial and parallel
   getVersion fusion_machine
   if bilderPreconfig fusion_machine; then
-# cc4py build
-    if bilderConfig -c fusion_machine cc4py "$FUSION_MACHINE_OTHER_ARGS $CMAKE_SUPRA_SP_ARG" fusion_machine; then
-      bilderBuild fusion_machine cc4py "$FUSION_MACHINE_MAKEJ_ARGS"
+# pycsh build
+    if bilderConfig -c fusion_machine pycsh "$FUSION_MACHINE_OTHER_ARGS $CMAKE_SUPRA_SP_ARG" fusion_machine; then
+      bilderBuild fusion_machine pycsh "$FUSION_MACHINE_MAKEJ_ARGS"
     fi
   fi
 
@@ -67,5 +67,5 @@ testFusion_machine() {
 
 installFusion_machine() {
 # Install parallel first, then serial last to override utilities
-  bilderInstall fusion_machine cc4py fusion_machine
+  bilderInstall fusion_machine pycsh fusion_machine
 }

@@ -20,7 +20,7 @@ PYSYNTHDIAG_BLDRVERSION=${PYSYNTHDIAG_BLDRVERSION:-"0.9.8"}
 #
 ######################################################################
 
-PYSYNTHDIAG_BUILDS=${PYSYNTHDIAG_BUILDS:-"cc4py"}
+PYSYNTHDIAG_BUILDS=${PYSYNTHDIAG_BUILDS:-"pycsh"}
 PYSYNTHDIAG_DEPS=Python,numpy,scipy,tables,matplotlib,fusion_machine
 PYSYNTHDIAG_UMASK=002
 
@@ -44,8 +44,8 @@ buildPysynthdiag() {
 ## Configure and build serial and parallel
 #  getVersion pysynthdiag
 #  if bilderPreconfig pysynthdiag; then
-#      if bilderConfig -c pysynthdiag cc4py; then
-#        bilderBuild pysynthdiag cc4py
+#      if bilderConfig -c pysynthdiag pycsh; then
+#        bilderBuild pysynthdiag pycsh
 #      fi
 #  fi
 #
@@ -72,10 +72,10 @@ installPysynthdiag() {
 #  case `uname` in
 #    # Windows does not have a lib versus lib64 issue
 #    CYGWIN*)
-#      bilderInstall pysynthdiag cc4py
+#      bilderInstall pysynthdiag pycsh
 #      ;;
 #    *)
-#      bilderInstall -f pysynthdiag cc4py
+#      bilderInstall -f pysynthdiag pycsh
 #     techo " +++++++++++$PYTHON_SITEPKGSDIR =  ${PYTHON_SITEPKGSDIR}"
 #      ;;
 #  esac

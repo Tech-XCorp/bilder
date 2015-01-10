@@ -65,7 +65,7 @@ PYTHONOCC_BLDRVERSION=0.5
 #
 ######################################################################
 
-PYTHONOCC_BUILDS=${PYTHONOCC_BUILDS:-"cc4py"}
+PYTHONOCC_BUILDS=${PYTHONOCC_BUILDS:-"pycsh"}
 PYTHONOCC_DEPS=Python,atlas # Okay to have an unfound dependency
 
 ######################################################################

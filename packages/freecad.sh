@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for freecad.
+# Build information for freecad.
 #
 # To run this, for OS X:
 #  export DYLD_LIBRARY_PATH=/volatile/freecad/lib:/volatile/freecad/Mod/PartDesign:/contrib/boost-1_47_0-ser/lib:/volatile/oce-r747-ser/lib
@@ -11,30 +11,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in freecad_aux.sh
 #
 ######################################################################
 
-FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/freecad_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setFreecadGlobalVars() {
-# Only the python build needed.
-  FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_BUILD"}
-  FREECAD_BUILD=$FORPYTHON_BUILD
-  FREECAD_DEPS=pyside,shiboken,soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
-  FREECAD_UMASK=002
-  FREECAD_REPO_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
-  FREECAD_UPSTREAM_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
-  FREECAD_WEBSITE_URL=http://www.freecadweb.org/
-addtopathvar PATH $CONTRIB_DIR/freecad/bin
+setFreecadNonTriggerVars() {
+  :
 }
-setFreecadGlobalVars
+setFreecadNonTriggerVars
 
 ######################################################################
 #
@@ -184,7 +179,7 @@ installFreecad() {
   if bilderInstall freecad $FREECAD_BUILD; then
     case `uname` in
       Darwin | Linux)
-        libpathval="$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-$FREECAD_BUILD/lib:$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-$FREECAD_BUILD/Mod/PartDesign:$CONTRIB_DIR/oce-${OCE_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/xercesc-${XERCESC_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/boost-${BOOST_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/Coin-${COIN_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/pyside-${PYSIDE_BLDRVERSION}-$FORPYTHON_BUILD/lib:$CONTRIB_DIR/shiboken-${SHIBOKEN_BLDRVERSION}-$FORPYTHON_BUILD/lib"
+        libpathval="$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-$FREECAD_BUILD/lib:$BLDR_INSTALL_DIR/freecad-${FREECAD_BLDRVERSION}-$FREECAD_BUILD/Mod/PartDesign:$CONTRIB_DIR/oce-${OCE_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/xercesc-${XERCESC_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/boost-${BOOST_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/Coin-${COIN_BLDRVERSION}-$FREECAD_BUILD/lib:$CONTRIB_DIR/pyside-${PYSIDE_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib:$CONTRIB_DIR/shiboken-${SHIBOKEN_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib"
         case `uname` in
           Darwin) libpathvar=DYLD_LIBRARY_PATH;;
           Linux)

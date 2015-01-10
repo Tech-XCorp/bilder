@@ -41,8 +41,8 @@ buildSuda() {
     return
   fi
   getVersion suda
-  if bilderConfig -c suda $FORPYTHON_BUILD "-DGeant4_DIR:PATH='$GEANT4_SERSH_CMAKE_DIR' -DUSE_OCE_SHARED:BOOL=TRUE $CMAKE_SUPRA_SP_ARG"; then
-    bilderBuild suda $FORPYTHON_BUILD
+  if bilderConfig -c suda $FORPYTHON_SHARED_BUILD "-DGeant4_DIR:PATH='$GEANT4_SERSH_CMAKE_DIR' -DUSE_OCE_SHARED:BOOL=TRUE $CMAKE_SUPRA_SP_ARG"; then
+    bilderBuild suda $FORPYTHON_SHARED_BUILD
   fi
 }
 

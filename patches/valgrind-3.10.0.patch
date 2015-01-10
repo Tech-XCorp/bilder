@@ -1,0 +1,91 @@
+diff -ruN valgrind-3.10.0-clean/coregrind/Makefile.am valgrind-3.10.0-new/coregrind/Makefile.am
+--- valgrind-3.10.0-clean/coregrind/Makefile.am	2014-09-08 06:28:30.000000000 -0600
++++ valgrind-3.10.0-new/coregrind/Makefile.am	2014-09-26 08:21:17.000000000 -0600
+@@ -131,10 +131,10 @@
+         m_mach/thread_act.h \
+         m_mach/vm_map.h
+ mach_defs += \
+-	/usr/include/mach/mach_vm.defs \
+-        /usr/include/mach/task.defs \
+-        /usr/include/mach/thread_act.defs \
+-        /usr/include/mach/vm_map.defs
++	$(SDKROOT)/usr/include/mach/mach_vm.defs \
++        $(SDKROOT)/usr/include/mach/task.defs \
++        $(SDKROOT)/usr/include/mach/thread_act.defs \
++        $(SDKROOT)/usr/include/mach/vm_map.defs
+ endif
+ 
+ # Be careful w.r.t. parallel builds.  See section 27.9 of the automake info
+@@ -142,9 +142,9 @@
+ $(abs_builddir)/m_mach: 
+ 	mkdir -p $@
+ $(mach_user_srcs): $(mach_defs) $(abs_builddir)/m_mach
+-	(cd m_mach && mig $(mach_defs))
++	(cd m_mach && xcrun mig $(mach_defs))
+ $(mach_hdrs): $(mach_defs) $(mach_user_srcs) $(abs_builddir)/m_mach
+-	(cd m_mach && mig $(mach_defs))
++	(cd m_mach && xcrun mig $(mach_defs))
+ 
+ #----------------------------------------------------------------------------
+ # Headers
+@@ -643,7 +643,7 @@
+ 
+ BUILT_SOURCES += fixup_macho_loadcmds
+ fixup_macho_loadcmds: fixup_macho_loadcmds.c
+-	$(CC) -g -Wall -o $@ $<
++	$(CC) -g -Wall -o $@ $< $(CFLAGS)
+ 
+ CLEANFILES += fixup_macho_loadcmds
+ 
+diff -ruN valgrind-3.10.0-clean/coregrind/Makefile.in valgrind-3.10.0-new/coregrind/Makefile.in
+--- valgrind-3.10.0-clean/coregrind/Makefile.in	2014-09-11 03:15:32.000000000 -0600
++++ valgrind-3.10.0-new/coregrind/Makefile.in	2014-09-26 07:41:15.000000000 -0600
+@@ -105,10 +105,10 @@
+ @VGCONF_OS_IS_DARWIN_TRUE@        m_mach/vm_map.h
+ 
+ @VGCONF_OS_IS_DARWIN_TRUE@am__append_13 = \
+-@VGCONF_OS_IS_DARWIN_TRUE@	/usr/include/mach/mach_vm.defs \
+-@VGCONF_OS_IS_DARWIN_TRUE@        /usr/include/mach/task.defs \
+-@VGCONF_OS_IS_DARWIN_TRUE@        /usr/include/mach/thread_act.defs \
+-@VGCONF_OS_IS_DARWIN_TRUE@        /usr/include/mach/vm_map.defs
++@VGCONF_OS_IS_DARWIN_TRUE@	$(SDKROOT)/usr/include/mach/mach_vm.defs \
++@VGCONF_OS_IS_DARWIN_TRUE@        $(SDKROOT)/usr/include/mach/task.defs \
++@VGCONF_OS_IS_DARWIN_TRUE@        $(SDKROOT)/usr/include/mach/thread_act.defs \
++@VGCONF_OS_IS_DARWIN_TRUE@        $(SDKROOT)/usr/include/mach/vm_map.defs
+ 
+ @VGCONF_HAVE_PLATFORM_SEC_TRUE@am__append_14 = libcoregrind-@VGCONF_ARCH_SEC@-@VGCONF_OS@.a
+ @ENABLE_LINUX_TICKET_LOCK_PRIMARY_TRUE@am__append_15 = \
+@@ -7883,9 +7883,9 @@
+ $(abs_builddir)/m_mach: 
+ 	mkdir -p $@
+ $(mach_user_srcs): $(mach_defs) $(abs_builddir)/m_mach
+-	(cd m_mach && mig $(mach_defs))
++	(cd m_mach && xcrun mig $(mach_defs) )
+ $(mach_hdrs): $(mach_defs) $(mach_user_srcs) $(abs_builddir)/m_mach
+-	(cd m_mach && mig $(mach_defs))
++	(cd m_mach && xcrun mig $(mach_defs) )
+ 
+ #----------------------------------------------------------------------------
+ # General stuff
+@@ -7904,7 +7904,8 @@
+ 
+ uninstall-local: uninstall-noinst_PROGRAMS uninstall-noinst_DSYMS
+ @VGCONF_OS_IS_DARWIN_TRUE@fixup_macho_loadcmds: fixup_macho_loadcmds.c
+-@VGCONF_OS_IS_DARWIN_TRUE@	$(CC) -g -Wall -o $@ $<
++@VGCONF_OS_IS_DARWIN_TRUE@	$(CC) -g -Wall -o $@ $< $(CFLAGS)
++
+ 
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+diff -ruN valgrind-3.10.0-clean/coregrind/link_tool_exe_darwin.in valgrind-3.10.0-new/coregrind/link_tool_exe_darwin.in
+--- valgrind-3.10.0-clean/coregrind/link_tool_exe_darwin.in	2014-09-08 06:28:31.000000000 -0600
++++ valgrind-3.10.0-new/coregrind/link_tool_exe_darwin.in	2014-09-26 07:21:10.000000000 -0600
+@@ -138,7 +138,7 @@
+ 
+ 
+ # build the command line
+-my $cmd = "/usr/bin/ld";
++my $cmd = "xcrun ld";
+ 
+ $cmd = "$cmd -static";
+ 

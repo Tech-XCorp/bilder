@@ -31,7 +31,7 @@ setNumpyTriggerVars() {
   NUMPY_BLDRVERSION_STD=1.8.0
   NUMPY_BLDRVERSION_EXP=1.8.1
   computeVersion numpy
-  NUMPY_BUILDS=${NUMPY_BUILDS:-"cc4py"}
+  NUMPY_BUILDS=${NUMPY_BUILDS:-"pycsh"}
   NUMPY_DEPS=Python
   if $NUMPY_USE_ATLAS; then
     NUMPY_DEPS=$NUMPY_DEPS,atlas

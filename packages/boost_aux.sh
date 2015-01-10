@@ -16,19 +16,24 @@
 ######################################################################
 
 getBoostTriggerVars() {
-  BOOST_BLDRVERSION_STD=1_53_0
+  BOOST_BLDRVERSION_STD=1_57_0
 # 1_55_0 must be patched to build with NO_COMPRESSION:
 #   https://svn.boost.org/trac/boost/ticket/9156
 # Boost 1_55_0 does not build using gcc 4.1.2, nor does it seem to build
 # on Lion and Snow Leopard.
 # For now we're sticking with boost 1_53_0.
-  BOOST_BLDRVERSION_EXP=1_53_0
-  # BOOST_BLDRVERSION_EXP=1_55_0
-  if test -z "$BOOST_DESIRED_BUILDS"; then
-    BOOST_DESIRED_BUILDS=ser,sersh
+  # BOOST_BLDRVERSION_EXP=1_53_0
+  BOOST_BLDRVERSION_EXP=1_57_0
+  if test -z "$BOOST_BUILDS"; then
+    if test -z "$BOOST_DESIRED_BUILDS"; then
+      BOOST_DESIRED_BUILDS=ser,sersh
+    fi
+    if [[ `uname` =~ CYGWIN ]]; then
+      BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sermd
+    fi
+    computeBuilds boost
+    addPycshBuild boost
   fi
-  computeBuilds boost
-  addCc4pyBuild boost
 # It does not hurt to add deps that do not get built
 # (e.g., Python on Darwin and CYGWIN).
 # Only certain builds depend on Python.
@@ -36,16 +41,17 @@ getBoostTriggerVars() {
 }
 getBoostTriggerVars
 
+######################################################################
 #
-# Find the BOOST includes
+# Find boost
 #
+######################################################################
+
 findBoost() {
-  if test -L $CONTRIB_DIR/boost -o -d $CONTRIB_DIR/boost; then
-    local boostincdir=`(cd $CONTRIB_DIR/boost/include; pwd -P)`
-    if [[ `uname` =~ CYGWIN ]]; then
-      boostincdir=`cygpath -am $boostincdir`
-    fi
-    BOOST_INCDIR_ARG="-DBoost_INCLUDE_DIR='$boostincdir'"
+  local boost_lib_prefix=boost
+  if [[ `uname` =~ CYGWIN ]] && [[ "$BOOST_BUILD" == sersh ]]; then
+    boost_lib_prefix=libboost
   fi
+  findContribPackage Boost ${boost_lib_prefix}_math_tr1
 }
 

@@ -6,34 +6,53 @@
 #
 ######################################################################
 
-# Convenience package so that the components packages do not have to be
-# explicitly named.
+######################################################################
+#
+# Trigger variables set in autotools_aux.sh
+#
+######################################################################
 
-AUTOTOOLS_DEPS=libtool,automake,autoconf,m4
+mydir=`dirname $BASH_SOURCE`
+source $mydir/autotools_aux.sh
 
-# There are no actual builds, but we need to put something here to bilder
-# will follow the dependencies and build them.
-AUTOTOOLS_BUILDS=fake
+######################################################################
+#
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
 
-# If tools not installed under the libtool version, it needs rebuilding
-# to get them all installed in the same directory.
-# Libtool determines the installation prefix
-if test -z "$LIBTOOL_BLDRVERSION"; then
-  source $BILDER_DIR/packages/libtool.sh
-fi
-for adep in m4 autoconf automake; do
-  if ! test -x $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin/$adep; then
-    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR $adep,ser
-  fi
-done
+setAutotoolsNonTriggerVars() {
+  AUTOTOOLS_MASK=002
+}
+setAutotoolsNonTriggerVars
+
+######################################################################
+#
+# Launch autotools builds.
+#
+######################################################################
 
 buildAutotools() {
   :
 }
 
+######################################################################
+#
+# Test autotools 
+#
+######################################################################
+
 testAutotools() {
   echo "Not testing autotools."
 }
+
+######################################################################
+#
+# Install autotools 
+#
+######################################################################
 
 installAutotools() {
   :

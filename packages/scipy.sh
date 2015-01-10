@@ -26,7 +26,7 @@ setScipyGlobalVars() {
   if [[ `uname` =~ "CYGWIN" ]] && ! $NUMPY_WIN_USE_FORTRAN; then
     SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
   else
-    SCIPY_BUILDS=${SCIPY_BUILDS:-"cc4py"}
+    SCIPY_BUILDS=${SCIPY_BUILDS:-"pycsh"}
   fi
   SCIPY_DEPS=numpy,atlas
 }
@@ -75,12 +75,12 @@ buildScipy() {
   fi
 
 # Accumulate linkflags for modules
-  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # Determine whether to use atlas.  SciPy must go with NumPy in all things.
   if $NUMPY_USE_ATLAS; then
     techo "Building scipy with ATLAS."
-    techo "ATLAS_CC4PY_DIR = $ATLAS_CC4PY_DIR,  ATLAS_CC4PY_LIBDIR = $ATLAS_CC4PY_LIBDIR."
+    techo "ATLAS_PYCSH_DIR = $ATLAS_PYCSH_DIR,  ATLAS_PYCSH_LIBDIR = $ATLAS_PYCSH_LIBDIR."
   fi
 
 # Get env and args
@@ -94,7 +94,7 @@ buildScipy() {
       SCIPY_BUILD_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
       SCIPY_BUILD_ARGS="--fcompiler=gnu95 $SCIPY_BUILD_ARGS"
       if $NUMPY_USE_ATLAS; then
-        SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
+        SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_PYCSH_LIBDIR'"
       else
         local blslpcklibdir="$CONTRIB_LAPACK_SERMD_DIR"/lib
         blslpcklibdir=`cygpath -aw $blslpcklibdir | sed 's/\\\\/\\\\\\\\/g'`
@@ -111,8 +111,8 @@ buildScipy() {
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       SCIPY_ENV="PATH=$mingwdir:'$PATH'"
-      if test -n "$ATLAS_CC4PY_LIBDIR"; then
-        SCIPY_ENV="$SCIPY_ENV ATLAS='$ATLAS_CC4PY_LIBDIR'"
+      if test -n "$ATLAS_PYCSH_LIBDIR"; then
+        SCIPY_ENV="$SCIPY_ENV ATLAS='$ATLAS_PYCSH_LIBDIR'"
       else
         SCIPY_ENV="$SCIPY_ENV LAPACK='C:\winsame\contrib-mingw\lapack-${LAPACK_BLDRVERSION}-ser\lib' BLAS='C:\winsame\contrib-mingw\lapack-${LAPACK_BLDRVERSION}-ser\lib'"
       fi
@@ -138,7 +138,7 @@ buildScipy() {
       SCIPY_BUILD_ARGS="install --prefix='$NATIVE_CONTRIB_DIR'"
       ;;
     Linux-*)
-      local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-sersh/lib
+      local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
       SCIPY_ENV="$DISTUTILS_ENV $SCIPY_GFORTRAN BLAS='$LAPACK_LIB_DIR' LAPACK='$LAPACK_LIB_DIR'"
       linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
       ;;
@@ -163,7 +163,7 @@ buildScipy() {
   bilderDuBuild scipy "$SCIPY_BUILD_ARGS" "$SCIPY_ENV" "$SCIPY_CONFIG_ARGS"
 
 # On CYGWIN, build may have to be run twice
-  if [[ `uname` =~ CYGWIN ]] && ! waitAction -n scipy-cc4py; then
+  if [[ `uname` =~ CYGWIN ]] && ! waitAction -n scipy-pycsh; then
     cd $BUILD_DIR/scipy-$SCIPY_BLDRVERSION
     local buildscript=`ls *-build.sh`
     if test -z "$buildscript"; then
@@ -173,7 +173,7 @@ buildScipy() {
       local build_txt=`basename $buildscript .sh`.txt
       ./$buildscript >>$build_txt 2>&1 &
       pid=$!
-      addActionToLists scipy-cc4py $pid
+      addActionToLists scipy-pycsh $pid
     fi
   fi
 

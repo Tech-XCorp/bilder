@@ -20,7 +20,7 @@ TUTORIAL_PYTHON_BLDRVERSION=${TUTORIAL_PYTHON_BLDRVERSION:-"0.0.1"}
 #
 ######################################################################
 
-TUTORIAL_PYTHON_BUILDS=${TUTORIAL_PYTHON_BUILDS:-"cc4py"}
+TUTORIAL_PYTHON_BUILDS=${TUTORIAL_PYTHON_BUILDS:-"pycsh"}
 TUTORIAL_PYTHON_DEPS=
 
 #####################################################################
@@ -71,8 +71,8 @@ copyTutorialpython() {
 buildTutorialpython() {
   if bilderUnpack tutorial_python; then
 
-# cc4py build
-    if copyTutorialpython cc4py; then
+# pycsh build
+    if copyTutorialpython pycsh; then
 # Remove old-style installation
       cmd="rmall $CONTRIB_DIR/tutorial_python-${TUTORIAL_PYTHON_BLDRVERSION}"
       techo "$cmd"
@@ -81,7 +81,7 @@ buildTutorialpython() {
         $cmd
       fi
 # Make link to default
-      mkLink $CONTRIB_DIR tutorial_python-${TUTORIAL_PYTHON_BLDRVERSION}-cc4py tutorial_python
+      mkLink $CONTRIB_DIR tutorial_python-${TUTORIAL_PYTHON_BLDRVERSION}-pycsh tutorial_python
     fi
 
   fi

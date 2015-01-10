@@ -38,7 +38,7 @@ getHdf5TriggerVars() {
       ;;
     Linux) HDF5_BLDRVERSION_STD=1.8.12;;
   esac
-  HDF5_BLDRVERSION_EXP=1.8.12
+  HDF5_BLDRVERSION_EXP=1.8.13
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
@@ -49,16 +49,16 @@ getHdf5TriggerVars() {
         HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
         if test "$VISUALSTUDIO_VERSION" = "10"; then
 # Python built with VS9, so need hdf5 build for that
-          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,cc4py"
+          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,pycsh"
         fi
         ;;
     esac
   fi
   computeBuilds hdf5
-  addCc4pyBuild hdf5
+  addPycshBuild hdf5
 
 # Deps and other
-  HDF5_DEPS=openmpi,zlib,cmake,bzip2
+  HDF5_DEPS=${MPI_BUILD},zlib,cmake,bzip2
 
 }
 getHdf5TriggerVars
@@ -72,26 +72,27 @@ getHdf5TriggerVars
 findHdf5() {
 
 # Find installation directories
-  local builds="ser par"
-  findContribPackage Hdf5 hdf5 ser par
+  local srchbuilds="ser par"
   case `uname` in
     CYGWIN*)
-      builds="$builds sersh parsh sermd cc4py"
-      findContribPackage Hdf5 hdf5 sermd
+      srchbuilds="$srchbuilds sermd"
       case $HDF5_BLDRVERSION in
-        1.8.[0-9]) findContribPackage Hdf5 hdf5dll sersh parsh cc4py;;
-        *) findContribPackage Hdf5 hdf5 sersh parsh cc4py;;
+        1.8.[0-9]) findContribPackage Hdf5 hdf5dll sersh parsh pycsh;;
+        *) srchbuilds="$srchbuilds sersh parsh pycsh";;
       esac
       ;;
     *)
-      builds="$builds sersh parsh cc4py"
-      findContribPackage Hdf5 hdf5 sersh parsh cc4py
+      srchbuilds="$srchbuilds pycst sersh parsh pycsh"
       ;;
   esac
-  findCc4pyDir Hdf5
+  findContribPackage Hdf5 hdf5 $srchbuilds
+  techo
+  findPycstDir Hdf5
+  findPycshDir Hdf5
 
 # Find cmake configuration directories
-  for bld in $builds; do
+  techo
+  for bld in $srchbuilds; do
     local blddirvar=`genbashvar HDF5_${bld}`_DIR
     local blddir=`deref $blddirvar`
     if test -d "$blddir"; then

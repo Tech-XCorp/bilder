@@ -20,7 +20,7 @@ SIMPLEJSON_BLDRVERSION=${SIMPLEJSON_BLDRVERSION:-"2.1.3"}
 #
 ######################################################################
 
-SIMPLEJSON_BUILDS=${SIMPLEJSON_BUILDS:-"cc4py"}
+SIMPLEJSON_BUILDS=${SIMPLEJSON_BUILDS:-"pycsh"}
 SIMPLEJSON_DEPS=Python
 SIMPLEJSON_UMASK=002
 

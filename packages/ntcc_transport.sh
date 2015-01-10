@@ -21,7 +21,7 @@ NTCC_TRANSPORT_BLDRVERSION=${NTCC_TRANSPORT_BLDRVERSION:-"1.0.5-r1382"}
 ######################################################################
 
 NTCC_TRANSPORT_BUILDS=${NTCC_TRANSPORT_BUILDS:-"ser,par"}
-NTCC_TRANSPORT_DEPS=openmpi
+NTCC_TRANSPORT_DEPS=$MPI_BUILD
 NTCC_TRANSPORT_UMASK=002
 
 ######################################################################

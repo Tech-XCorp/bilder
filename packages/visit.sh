@@ -175,11 +175,11 @@ buildVisit() {
 # VisIt needs to find hdf5 netcdf Python Qt VTK
 #
 # Set unix style directories
-  local VISIT_HDF5_DIR="$HDF5_CC4PY_DIR"
-  local VISIT_NETCDF_DIR="$NETCDF_CC4PY_DIR"
+  local VISIT_HDF5_DIR="$HDF5_PYCSH_DIR"
+  local VISIT_NETCDF_DIR="$NETCDF_PYCSH_DIR"
   local VISIT_PYTHON_DIR="$PYTHON_DIR"
 # Find Vtk
-  local VISIT_VTK_DIR=$CONTRIB_DIR/VTK-$FORPYTHON_BUILD
+  local VISIT_VTK_DIR=$CONTRIB_DIR/VTK-$FORPYTHON_SHARED_BUILD
   techo "VISIT_VTK_DIR = $VISIT_VTK_DIR."
 # Get mixed (CYGWIN) or native (OTHER) paths.
 # VISIT_PYTHON_DIR is already mixed.
@@ -269,9 +269,14 @@ buildVisit() {
 
   esac
 
-# Build serial
-  if bilderConfig -S 60 -c visit $VISIT_SER_BUILD "-DBUILDNAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-${VISIT_SER_BUILD}' -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_ADDL_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
-    bilderBuild visit $VISIT_SER_BUILD "$VISIT_MAKE_ARGS" "$VISIT_ENV"
+# Only one of these serial builds will be chosen
+
+  if bilderConfig -S 60 -c visit sersh "-DBUILDNAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-sersh' -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_ADDL_ARGS $VISIT_SERSH_OTHER_ARGS" "" "$VISIT_ENV"; then
+    bilderBuild visit sersh "$VISIT_MAKE_ARGS" "$VISIT_ENV"
+  fi
+
+  if bilderConfig -S 60 -c visit pycsh "-DBUILDNAME:STRING='${RUNNRSYSTEM}-${BILDER_CHAIN}-pycsh' -DIGNORE_THIRD_PARTY_LIB_PROBLEMS:BOOL=ON -DVISIT_INSTALL_THIRD_PARTY:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $VISIT_PKG_ARGS $VISIT_OS_ARGS $VISIT_ADDL_ARGS $VISIT_PYCSH_OTHER_ARGS" "" "$VISIT_ENV"; then
+    bilderBuild visit pycsh "$VISIT_MAKE_ARGS" "$VISIT_ENV"
   fi
 
 # Build parallel doing optional builds
@@ -369,14 +374,20 @@ fixCopiedHdf5() {
       ;;
 
     Darwin | Linux)
+      local cmd=
       if test `uname` = Darwin; then
-        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shdir=$HDF5_PYCSH_DIR/lib
         hdf5shlib=libhdf5.${HDF5_BLDRVERSION}.dylib
       else
-        hdf5shdir=$HDF5_CC4PY_DIR/lib
+        hdf5shdir=$HDF5_PYCSH_DIR/lib
         hdf5shlib=libhdf5.so.${HDF5_BLDRVERSION}
       fi
-      installRelShlib $hdf5shlib $instdir $hdf5shdir
+      cmd="rm -f $instdir/libhdf5.*"
+      techo "$cmd"
+      eval "$cmd"
+      cmd="installRelShlib $hdf5shlib $instdir $hdf5shdir"
+      techo "$cmd"
+      eval "$cmd"
       ;;
 
   esac
@@ -498,7 +509,7 @@ installVisit() {
 
 # Fix installation libraries
 # Even parallel visit uses serial hdf5
-      local hdf5dirs="hdf5-cc4py hdf5-sersh hdf5"
+      local hdf5dirs="hdf5-pycsh hdf5-sersh hdf5"
       local hdf5rootdir=
       for hdf5dir in $hdf5dirs; do
         if test -d $CONTRIB_DIR/$hdf5dir/lib; then

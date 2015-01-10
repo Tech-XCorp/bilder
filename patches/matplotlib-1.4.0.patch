@@ -1,0 +1,25 @@
+diff -ruN matplotlib-1.4.0/lib/matplotlib/texmanager.py matplotlib-1.4.0-new/lib/matplotlib/texmanager.py
+--- matplotlib-1.4.0/lib/matplotlib/texmanager.py	2014-08-06 19:57:33.000000000 -0600
++++ matplotlib-1.4.0-new/lib/matplotlib/texmanager.py	2014-09-18 13:26:21.357370500 -0600
+@@ -213,8 +213,7 @@
+         while '\\usepackage{type1cm}' in cmd:
+             cmd.remove('\\usepackage{type1cm}')
+         cmd = '\n'.join(cmd)
+-        self._font_preamble = '\n'.join(['\\usepackage{type1cm}', cmd,
+-                                         '\\usepackage{textcomp}'])
++        self._font_preamble = '\n'.join([r'\usepackage{type1cm}', cmd])
+ 
+     def get_basefile(self, tex, fontsize, dpi=None):
+         """
+diff -ruN matplotlib-1.4.0/setupext.py matplotlib-1.4.0-new/setupext.py
+--- matplotlib-1.4.0/setupext.py	2014-08-25 19:38:13.000000000 -0600
++++ matplotlib-1.4.0-new/setupext.py	2014-09-18 13:22:15.911073400 -0600
+@@ -970,7 +970,7 @@
+         pkg_config.setup_extension(
+             ext, 'freetype2',
+             default_include_dirs=[
+-                'freetype2', 'lib/freetype2/include',
++                'include/freetype2', 'freetype2', 'lib/freetype2/include',
+                 'lib/freetype2/include/freetype2'],
+             default_library_dirs=[
+                 'freetype2/lib'],

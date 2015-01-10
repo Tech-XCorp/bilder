@@ -103,7 +103,7 @@ buildQt() {
       QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -system-libpng"
 
 # Need the following for phonon (and for webkit):
-#   glib
+#   glib (aka glib2 for the rpm)
 #   gstreamer-devel
 #   gstreamer-plugins-base-devel
 #   libxml2
@@ -144,7 +144,7 @@ buildQt() {
       if test -n "$incdir"; then
         QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
       else
-        techo "WARNING: [qt.sh] May need to install glib-devel."
+        techo "WARNING: [qt.sh] May need to install glib2-devel."
       fi
 # On different distros, this include directory can be in different places
       local glibbn=`basename $incdir`
@@ -164,7 +164,7 @@ buildQt() {
         QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir"
       else
         techo "WARNING: [qt.sh] glib word-size include dir not found."
-        techo "WARNING: [qt.sh] May need to install glib-devel."
+        techo "WARNING: [qt.sh] May need to install glib2-devel."
       fi
       local gstprobe=`find /usr/include -name gstappsrc.h`
       if test -z "$gstprobe"; then
@@ -184,7 +184,7 @@ buildQt() {
 
 # PyQt will not build on Linux when Qt is built without phonon, so restoring.
 # Phonon is also required for WebKit, which the composers need.
-# On Linux, this requires glib-devel and gstreamer-plugins-base-devel
+# On Linux, this requires glib2-devel and gstreamer-plugins-base-devel
   QT_WITH_PHONON=${QT_WITH_PHONON:-"true"}
   if ! $QT_WITH_PHONON; then
     techo "NOTE: Building Qt without phonon."

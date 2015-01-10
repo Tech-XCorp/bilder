@@ -20,7 +20,7 @@
 #
 ######################################################################
 
-IPS_BUILDS=${IPS_BUILDS:-"cc4py"}
+IPS_BUILDS=${IPS_BUILDS:-"pycsh"}
 if test -n "$DOCS_BUILDS"; then
   ips_docs="docs"
 else
@@ -43,8 +43,8 @@ buildIPS() {
   getVersion ips
   if bilderPreconfig ips; then
 # Serial build
-    if bilderConfig -c ips cc4py " $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $IPS_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG" ips; then
-      bilderBuild ips cc4py "all $ips_docs $IPS_MAKEJ_ARGS"
+    if bilderConfig -c ips pycsh " $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $IPS_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG" ips; then
+      bilderBuild ips pycsh "all $ips_docs $IPS_MAKEJ_ARGS"
     fi
   fi
 }
@@ -68,6 +68,6 @@ testIPS() {
 
 # Set umask to allow only group to use
 installIPS() {
-  bilderInstall ips cc4py ips
+  bilderInstall ips pycsh ips
 }
 

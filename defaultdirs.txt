@@ -1,0 +1,22 @@
+$Id$
+
+MULTI_USER_ROOT
+  Windows: /winsame
+  Unix:    /
+  Can be overridden on a site basis
+
+SINGLE_USER_ROOT
+  Windows: /winsame/$user
+  Unix:    /scr_$uqhost/$user if it exists, otherwise $home
+  Can be overridden on a site basis
+
+The important options are:
+
+    c) MULTI_USER_INSTALL=true;;
+    C) USE_COMMON_INSTDIRS=false;;
+    i) REPODIR_IS_INTERNAL=true;;
+    k) COMMON_CONTRIB=true;;
+    r) ROOTDIR_CVI=$OPTARG;;
+
+
+:1,$s/INSTALL_ROOTDIR/REPO_INSTROOT/g

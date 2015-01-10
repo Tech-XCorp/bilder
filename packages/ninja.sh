@@ -66,7 +66,7 @@ installNinja() {
   if [[ `uname` =~ CYGWIN ]]; then
     exesfx=.exe
   fi
-  if bilderInstall -m ":" ninja ser; then
+  if bilderInstall -L -m ":" ninja ser; then
     local cmd="/usr/bin/install -m775 $BUILD_DIR/ninja-$NINJA_BLDRVERSION/ser/ninja${exesfx} $CONTRIB_DIR/bin"
     techo "$cmd"
     $cmd

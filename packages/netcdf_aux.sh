@@ -25,7 +25,7 @@ setNetcdfTriggerVars() {
       CYGWIN*) ;; # par, sermd not building
       *) NETCDF_BUILDS=${NETCDF_BUILDS},par;;
     esac
-    addCc4pyBuild netcdf
+    addPycshBuild netcdf
   fi
   NETCDF_DEPS="hdf5,cmake"
 }
@@ -40,15 +40,21 @@ setNetcdfTriggerVars
 findNetcdf() {
 
 # Find installation directories
-  findContribPackage Netcdf netcdf ser sersh par cc4py
-  local builds="ser sersh cc4py"
+  findContribPackage Netcdf netcdf ser sersh par pycsh
+  local builds="ser pycst sersh pycsh"
   if [[ `uname` =~ CYGWIN ]]; then
     findContribPackage Netcdf netcdf sermd
     builds="$builds sermd"
   fi
-  findCc4pyDir Netcdf
+  techo
+
+# Don't try to find pycst build of netcdf because sermd doesn't build on
+# Windows. See above.
+  # findPycstDir Netcdf 
+  findPycshDir Netcdf
 
 # Find cmake configuration directories
+  techo
   for bld in $builds; do
     local blddirvar=`genbashvar NETCDF_${bld}`_DIR
     local blddir=`deref $blddirvar`

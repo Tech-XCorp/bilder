@@ -27,7 +27,7 @@ OPTIONS:
   -k # Keep this number of recent directories (defaults to 10000)
   -l   Remove broken links
   -r   Remove old installations
-  -s   Suffix to add to installation directories (eg, vs9)
+  -s   Suffix to add to installation directories (eg, '-vs9')
   -R   Remove from installations.txt any non present installation
 EOF
   exit $1
@@ -63,7 +63,7 @@ cleanInstallDir() {
     unset pkgs
     for i in $pkgcands; do
       case $i in
-        bin | gcc | lib | lib64 | share | *-cc4py | *-nopetsc | *-novisit | *-par | *-partau | *-visit | *.bak | *.csh | *.lnk| *.out | *.rmv | *.sh | *.tmp | *.txt)
+        bin | gcc | lib | lib64 | share | *-pycsh | *-nopetsc | *-novisit | *-par | *-partau | *-visit | *.bak | *.csh | *.lnk| *.out | *.rmv | *.sh | *.tmp | *.txt)
           ;;
         *)
           pkgs="$pkgs $i"
@@ -75,10 +75,10 @@ cleanInstallDir() {
     for i in $pkgs; do
 # Separate sorts or works on first field only.
 # Following depends on non versions (builds) being alpha only, so
-# others, like cc4py, have to be listed explicitly
+# others, like pycsh, have to be listed explicitly
 # Really want sort -V, but that is not present on all platforms
 # Try listing by modification time
-      \ls -1trd $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-cc4py//' -e "s/^-//" -e '/^$/d' | uniq >numversions_$i.txt
+      \ls -1trd $i-* 2>/dev/null | sed -e "s/^$i//" -e 's/\.lnk//' -e 's/-[[:alpha:]]*$//' -e 's/-pycsh//' -e "s/^-//" -e '/^$/d' | uniq >numversions_$i.txt
       numversions=`wc -l numversions_$i.txt | sed -e "s/numversions_$i.txt//" -e 's/  *//g'`
       case $i in
         bin | develdocs | include | lib | man | share | userdocs) continue;
@@ -109,6 +109,13 @@ cleanInstallDir() {
     return
   fi
 
+# Remove old cc4py installations
+  sed -i.bak '/cc4py/d' installations.txt
+# Remove other, site-specific installations
+  if declare -f cleanDirAddl 1>/dev/null 2>&1; then
+    cleanDirAddl
+  fi
+
 # Removing tarball packages.  Do as subshell so as not to change
 # nocaseglob in this shell.
   if $REMOVE_CONTRIB_PKGS; then
@@ -134,7 +141,7 @@ cleanInstallDir() {
 # Double versions
   rm -rf *-r[0-9]*-[0-9]*-* *-r[0-9]*\:[0-9]*-*
 # Remove python
-  sed -i.bak '/cc4py/d' installations.txt
+  sed -i.bak '/pycsh/d' installations.txt
 EOF
     chmod a+x rmtarballs.sh
     cmd="./rmtarballs.sh"
@@ -188,7 +195,7 @@ EOF
       ver=`echo $inst | sed -e "s/${pkg}-//" -e "s/-${build}\$//"`
       echo "Version in installations.txt is $ver."
       echo "$pkg-$ver is in installations.txt"
-      pv=`echo $LINE | sed 's/-cc4py.*$//'`
+      pv=`echo $LINE | sed 's/-pycsh.*$//'`
       echo "Found record for $pv in installations.txt."
       pkglc=`echo $pkg | tr 'A-Z' 'a-z'`
       pkgfile=
@@ -347,6 +354,21 @@ fi
   fi
 
 }
+
+# Look for bilderrc to find confdir
+mydir=`dirname $0`
+mydir=`(cd $mydir; pwd -P)`
+if test -z "$BILDER_CONFDIR"; then
+  brc=`\ls -1 $mydir/../bilderrc 2>/dev/null | head -1`
+  if test -n "$brc"; then
+    BILDER_CONFDIR=`dirname $brc`
+    BILDER_CONFDIR=`(cd $BILDER_CONFDIR; pwd -P)`
+  fi
+fi
+echo "BILDER_CONFDIR = $BILDER_CONFDIR"
+if test -f $BILDER_CONFDIR/cleaninstalls.sh; then
+  source $BILDER_CONFDIR/cleaninstalls.sh
+fi
 
 BASEDIR=
 DEBUG=false

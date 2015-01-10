@@ -21,8 +21,8 @@ ROOT_BLDRVERSION=${ROOT_BLDRVERSION:-"5.34.14"}
 ######################################################################
 
 setRootGlobalVars() {
-  ROOT_BUILD=${ROOT_BUILDS:-"$FORPYTHON_BUILD"}
-  ROOT_BUILDS=${ROOT_BUILDS:-"$FORPYTHON_BUILD"}
+  ROOT_BUILD=${ROOT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  ROOT_BUILDS=${ROOT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   ROOT_DEPS=cmake
 }
 setRootGlobalVars

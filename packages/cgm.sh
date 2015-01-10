@@ -46,14 +46,8 @@ setCgmNonTriggerVars
 #
 buildCgm() {
 
-# Get cgm from repo, determine whether to build
-  updateRepo cgm
-  getVersion cgm
-  if ! bilderPreconfig $cgmcmakearg cgm; then
-    return 1
-  fi
-
 # Whether using cmake
+  # CGM_USE_CMAKE=true
   CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
@@ -63,22 +57,19 @@ buildCgm() {
     cgmcmakearg=-c
   fi
 
-# Set other args, env
-  local CGM_ADDL_ARGS=
-  if $CGM_USE_CMAKE; then
-    CGM_ADDL_ARGS="$OCE_CC4PY_CMAKE_DIR_ARG"
-  else
-    CGM_ADDL_ARGS="--with-occ='$OCE_CC4PY_DIR'"
+# Get cgm from repo, determine whether to build
+  updateRepo cgm
+  getVersion cgm
+  if ! bilderPreconfig $cgmcmakearg cgm; then
+    return 1
   fi
 
 # Configure and build args
-  local otherargsvar=`genbashvar CGM_${CGM_BUILD}`_OTHER_ARGS
-  local otherargsval=`deref ${otherargsvar}`
   local CGM_CONFIG_ARGS=
   if $CGM_USE_CMAKE; then
-    CGM_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargsval"
+    CGM_CONFIG_ARGS="-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_PYCSH_CMAKE_DIR_ARG $CGM_ADDL_ARGS"
   else
-    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $CGM_ADDL_ARGS $otherargsval"
+    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR' $CGM_ADDL_ARGS"
   fi
 
 # When not all dependencies right on Windows, need nmake
@@ -90,9 +81,14 @@ buildCgm() {
     makejargs="$CGM_MAKEJ_ARGS"
   fi
 
+#
 # Configure and build
-  if bilderConfig $cgmcmakearg cgm $CGM_BUILD "$CGM_CONFIG_ARGS" "" "$CGM_ENV"; then
-    bilderBuild $makerargs cgm $CGM_BUILD "$makejargs" "$CGM_ENV"
+#
+# PYTHON_STATIC_BUILD for composers
+  local otherargsvar=`genbashvar CGM_${FORPYTHON_STATIC_BUILD}`_OTHER_ARGS
+  local otherargsval=`deref ${otherargsvar}`
+  if bilderConfig $cgmcmakearg cgm $FORPYTHON_STATIC_BUILD "$CGM_CONFIG_ARGS $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
+    bilderBuild $makerargs cgm $FORPYTHON_STATIC_BUILD "$makejargs" "$CGM_ENV"
   fi
 
 }

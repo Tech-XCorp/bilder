@@ -20,7 +20,7 @@ MAKO_BLDRVERSION=${MAKO_BLDRVERSION:-"0.3.6"}
 #
 ######################################################################
 
-MAKO_BUILDS=${MAKO_BUILDS:-"cc4py"}
+MAKO_BUILDS=${MAKO_BUILDS:-"pycsh"}
 MAKO_DEPS=Python,setuptools
 MAKO_UMASK=002
 

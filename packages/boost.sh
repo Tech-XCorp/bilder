@@ -38,6 +38,59 @@ setBoostNonTriggerVars
 #
 ######################################################################
 
+# Fix boost post unpacking
+fixBoost() {
+  if test `uname` != Darwin; then
+    return
+  fi
+  local bld=$1
+  local cxxbase=
+  case $bld in
+    pycsh) cxxbase=`basename $PYC_CXX`;;
+    *) cxxbase=`basename $CXX`;;
+  esac
+  if test $bld != pycsh; then
+    local cxxversfx=
+    if [[ "$cxxbase" =~ 'g++' ]]; then
+      echo "Executing sed."
+      cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
+    fi
+    if test -n "$cxxversfx"; then
+      local userconfigfile=
+      if test -f tools/build/v2/user-config.jam; then
+        userconfigfile=tools/build/v2/user-config.jam
+      elif test -f tools/build/example/user-config.jam; then
+        userconfigfile=tools/build/example/user-config.jam
+      fi
+      if test -n "$userconfigfile"; then
+        cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : g++-$cxxversfx ;/' $userconfigfile"
+        techo "$cmd"
+        eval "$cmd"
+      fi
+    fi
+  fi
+  case $bld in
+    sersh | pycsh)
+      local jamfile=
+      case $cxxbase in
+        clang++ | g++) jamfile=tools/build/v2/tools/clang-darwin.jam;;
+        g++-*) jamfile=tools/build/v2/tools/darwin.jam;;
+        icpc) jamfile=tools/build/v2/tools/icpc-darwin.jam;;
+      esac
+      if test -n "$jamfile"; then
+# Change install_name for osx to be an absolute path
+# For more information, see https://svn.boost.org/trac/boost/ticket/9141
+# (this is already being done in macports & homebrew):
+        local boost_prefix=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-$bld
+        techo "Setting install_name to ${boost_prefix}/lib in $jamfile."
+        sed -i .bak "s?-install_name \"?-install_name \"${boost_prefix}/lib/?" $jamfile
+      else
+        techo "WARNING: [$FUNCNAME] jamfile not known."
+      fi
+      ;;
+  esac
+}
+
 buildBoost() {
 
 # Process
@@ -52,53 +105,33 @@ buildBoost() {
 
 # Determine the toolset
   local toolsetarg_ser=
-  local toolsetarg_cc4py=
-  local stdlibargs=
+  local toolsetarg_pycsh=
+  local stdlibargs_ser=
   case `uname`-`uname -r` in
     CYGWIN*)
       if $IS_64BIT; then
         toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
       fi
       ;;
-    Darwin-13.*)
-      case $CXX in
-	*clang++)
-	  stdlibargs="cxxflags=-stdlib=libstdc++ linkflags=-stdlib=libstdc++"
-          toolsetarg_ser="toolset=clang"
-          jamfile=tools/build/v2/tools/clang-darwin.jam
-	  ;;
+    Darwin-*)
+      case `uname -r` in
+        1[3-9]*) stdlibargs_pycsh="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
       esac
-      ;;
-    Darwin-12.*)
-# Clang works for g++ as well on Darwin-12
+      toolsetarg_pycsh="toolset=clang"
       case $CXX in
         *clang++ | *g++)
+# g++ is clang++ on Darwin-11+
+          case `uname -r` in
+	    1[3-9]*) stdlibargs_ser="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
+          esac
           toolsetarg_ser="toolset=clang"
-          jamfile=tools/build/v2/tools/clang-darwin.jam
-          ;;
-        *icpc)
-          toolsetarg_ser="toolset=icpc"
-          jamfile=tools/build/v2/tools/icpc-darwin.jam
-          ;;
-      esac
-      ;;
-    Darwin-*)
-      case $CXX in
-        *clang++)
-          toolsetarg_ser="toolset=clang"
-          jamfile=tools/build/v2/tools/clang-darwin.jam
-          ;;
-        *g++)
-          jamfile=tools/build/v2/tools/darwin.jam
-          ;;
-        *icpc)
-          toolsetarg_ser="toolset=icpc"
-          jamfile=tools/build/v2/tools/icpc-darwin.jam
-          ;;
+	  ;;
+        *g++-*) ;; # toolsetarg_ser="toolset=`basename $CC`";;
+        *icpc) toolsetarg_ser="toolset=icpc";;
       esac
       ;;
     Linux-*)
-      toolsetarg_cc4py="toolset=gcc"
+      toolsetarg_pycsh="toolset=gcc"
       case $CXX in
         *g++) ;;
         *icpc) toolsetarg_ser="toolset=intel";;
@@ -107,10 +140,10 @@ buildBoost() {
       esac
       ;;
   esac
-  toolsetarg_cc4py=${toolsetarg_cc4py:-"$toolsetarg_ser"}
+  toolsetarg_pycsh=${toolsetarg_pycsh:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
-  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths ${stdlibargs}"
+  local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"
   local staticlinkargs="link=static"
   local sharedlinkargs="link=shared"
   local sermdlinkargs="link=static"  # Not yet used, but this should be right
@@ -122,11 +155,12 @@ buildBoost() {
       BOOST_ALL_ADDL_ARGS="address-model=64 $BOOST_ALL_ADDL_ARGS"
     fi
   fi
-# Only the shared and cc4py build boost python, as shared libs required.
+# Only the shared and pycsh build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags, which does not work with python.
-  BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
-  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
-  BOOST_CC4PY_ADDL_ARGS="$toolsetarg_cc4py $sharedlinkargs $BOOST_ALL_ADDL_ARGS"
+  BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
+  BOOST_PYCSH_ADDL_ARGS="$toolsetarg_pycsh $sharedlinkargs ${stdlibargs_pycsh} $BOOST_ALL_ADDL_ARGS"
   BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
 # When that is done, the below will be needed.
@@ -139,26 +173,24 @@ if false; then
 fi
 
   if bilderConfig -i boost ser; then
+# In-place build, so make compiler/os modifications now
+    fixBoost ser
     bilderBuild -m ./b2 boost ser "$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS stage"
   fi
 
+  if bilderConfig -i boost sermd; then
+    bilderBuild -m ./b2 boost sermd "$BOOST_SERMD_ADDL_ARGS $BOOST_SERMD_OTHER_ARGS stage"
+  fi
+
   if bilderConfig -i boost sersh; then
-# In-place build, so patch now
-# Change install_name for osx to be an absolute path
-# For more information, see https://svn.boost.org/trac/boost/ticket/9141
-# (this is already being done in macports & homebrew):
-    local BOOST_INSTALL_PREFIX=$CONTRIB_DIR/boost-$BOOST_BLDRVERSION-sersh
-    if test -n "$jamfile"; then
-      techo "Setting install_name to ${BOOST_INSTALL_PREFIX}/lib in $jamfile."
-      sed -i .bak "s?-install_name \"?-install_name \"${BOOST_INSTALL_PREFIX}/lib/?" $jamfile
-    elif test `uname` = Darwin; then
-      techo "WARNING: [$FUNCNAME] jamfile not known."
-    fi
+# In-place build, so make compiler/os modifications now
+    fixBoost sersh
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
   fi
 
-  if bilderConfig -i boost cc4py; then
-    bilderBuild -m ./b2 boost cc4py "$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS stage"
+  if bilderConfig -i boost pycsh; then
+    fixBoost pycsh
+    bilderBuild -m ./b2 boost pycsh "$BOOST_PYCSH_ADDL_ARGS $BOOST_PYCSH_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost ben; then
@@ -194,15 +226,26 @@ installBoost() {
 # For b2, installation directory must be added at install time,
 # and it is relative to the C: root.
     local sfx=
-    local instargs=
-    case $bld in
-      ser) instargs="$BOOST_SER_ADDL_ARGS $BOOST_SER_OTHER_ARGS";;
-      sersh) sfx=-sersh; instargs="$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS";;
-      cc4py) sfx=-cc4py; instargs="$BOOST_CC4PY_ADDL_ARGS $BOOST_CC4PY_OTHER_ARGS";;
-      ben) sfx=-cc4py; instargs="$BOOST_BEN_ADDL_ARGS $BOOST_BEN_OTHER_ARGS";;
-    esac
+    if test $bld != ser; then
+      sfx="-$bld"
+    fi
+    local BLD=`echo $bld | tr [a-z] [A-Z]`
+    local instargs="`deref BOOST_${BLD}_ADDL_ARGS` `deref BOOST_${BLD}_OTHER_ARGS`"
     if bilderInstall -m ./b2 boost $bld boost${sfx} "$instargs --prefix=$boost_mixed_instdir"; then
       setOpenPerms $boost_instdir
+# Fix installation name on Darwin
+      echo "Working on `uname`-$bld."
+      local lib=
+      case `uname`-$bld in
+        Darwin-sersh)
+          techo "Fixing libraries in $CONTRIB_DIR/boost-${BOOST_BLDRVERSION}$sfx/lib."
+          for lib in $CONTRIB_DIR/boost-${BOOST_BLDRVERSION}$sfx/lib/libboost*.dylib; do
+            cmd="install_name_tool -id $lib $lib"
+            techo "$cmd"
+            $cmd
+          done
+          ;;
+      esac
     fi
   done
 }

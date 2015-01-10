@@ -22,7 +22,7 @@ IPYTHON_BLDRVERSION_EXP=${IPYTHON_BLDRVERSION_EXP:-"1.2.1"}
 ######################################################################
 
 setIpythonGlobalVars() {
-  IPYTHON_BUILDS=${IPYTHON_BUILDS:-"cc4py"}
+  IPYTHON_BUILDS=${IPYTHON_BUILDS:-"pycsh"}
   IPYTHON_DEPS=Python,tornado,pyzmq,zeromq,pyreadline,readline,ncurses,matplotlib
   case `uname` in
     Darwin) ;;

@@ -53,7 +53,7 @@ addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 # Add parallel path now before absolute paths determined by getCombinedCompVars
-addtopathvar PATH $CONTRIB_DIR/openmpi/bin
+addtopathvar PATH $CONTRIB_DIR/mpi/bin
 techo "PATH = $PATH"
 
 ######################################################################
@@ -124,7 +124,7 @@ case `uname` in
     else
       techo "Correct sort, $mysort, found."
     fi
-    USE_ATLAS_CC4PY=true
+    USE_ATLAS_PYCSH=true
     case $CC in
       *cl)
 # Less efficient, but records these flags
@@ -195,7 +195,9 @@ case `uname` in
         F77=${F77:-"gfortran"}
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
+        if [[ $CXX =~ clang ]]; then
+          CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
+        fi
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
         # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
@@ -232,7 +234,7 @@ case `uname` in
         ;;
     esac
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-shared"}
-    USE_ATLAS_CC4PY=true
+    USE_ATLAS_PYCSH=true
     READLINK=readlink
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}
     SHOBJEXT=.so
@@ -241,7 +243,7 @@ case `uname` in
     ;;
 
 esac
-techo "Found $MAKEJ_TOTAL cores to build on."
+techo "Found $MAKEJ_TOTAL cores."
 IS_MINGW=${IS_MINGW:-"false"}
 
 ######################################################################
@@ -292,9 +294,17 @@ if ! [[ `uname` =~ CYGWIN ]]; then
   fi
 fi
 
+if $BUILD_MPIS; then
+  USE_MPI=${USE_MPI:-"openmpi-nodl"}
+  MPI_BUILD=`echo $USE_MPI | sed 's/-.*//'`
+fi
 # Parallel compilers
-MPICC=${MPICC:-"mpicc"}
-MPICXX=${MPICXX:-"mpicxx"}
+if test -z "$MPICC" && which mpicc 1>/dev/null 2>&1; then
+  MPICC=mpicc
+fi
+if test -z "$MPICXX" && which mpicxx 1>/dev/null 2>&1; then
+  MPICXX=mpicxx
+fi
 if test -z "$MPIFC" && which mpif90 1>/dev/null 2>&1; then
   MPIFC=mpif90
 fi
@@ -363,12 +373,27 @@ fi
 
 ######################################################################
 #
-# Need to know the python build before sourcing any package file
+# For python build.
 #
 ######################################################################
 
-FORPYTHON_BUILD=`getPythonBuild`
-techo -2 "FORPYTHON_BUILD = $FORPYTHON_BUILD."
+if isCcPyc; then
+  FORPYTHON_SHARED_BUILD=sersh
+  if [[ `uname` =~ CYGWIN ]]; then
+    FORPYTHON_STATIC_BUILD=sermd
+  else
+    FORPYTHON_STATIC_BUILD=ser
+  fi
+else
+  FORPYTHON_SHARED_BUILD=pycsh
+  if [[ `uname` =~ CYGWIN ]]; then
+    FORPYTHON_STATIC_BUILD=pycmd
+  else
+    FORPYTHON_STATIC_BUILD=pyc
+  fi
+fi
+techo -2 "FORPYTHON_SHARED_BUILD = $FORPYTHON_SHARED_BUILD."
+techo -2 "FORPYTHON_STATIC_BUILD = $FORPYTHON_STATIC_BUILD."
 
 ######################################################################
 #
@@ -413,12 +438,13 @@ fi
 #
 ######################################################################
 
-techo -2 "Testing mpicc."
-isMpich2=`mpicc -show 2>/dev/null | grep mpich2`
-if test -n "$isMpich2"; then
-  MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`
-  PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
-  PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
+if test -n "$MPICC"; then
+  isMpich2=`$MPICC -show 2>/dev/null | grep mpich2`
+  if test -n "$isMpich2"; then
+    MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`
+    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
+    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
+  fi
 fi
 
 ######################################################################
@@ -451,6 +477,10 @@ case `uname` in
     if test -e $CONTRIB_DIR/extras/lib; then
       PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_LIBRARY_PATH
       PYC_LD_RUN_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_RUN_PATH
+    fi
+    if test -e $CONTRIB_DIR/lib; then
+      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/lib:$PYC_LD_LIBRARY_PATH
+      PYC_LD_RUN_PATH=$CONTRIB_DIR/lib:$PYC_LD_RUN_PATH
     fi
     ;;
 esac
@@ -573,17 +603,24 @@ case $CXX in
     O3_FLAG='-O3'
     ;;
   *)
-    O3_FLAG='-O3'
-    case `uname` in
-      MINGW*)
-        unset PIC_FLAG
+# Try to determine from --version on wrapper
+    verline=`$CXX --version | head -1`
+    case "$verline" in
+      *ICC*)
+        PIC_FLAG=-fPIC
+        O3_FLAG='-O3'
+        ;;
+      *GCC*)
+        PIC_FLAG=-fPIC
+        O3_FLAG='-O3'
         ;;
       *)
-        PIC_FLAG=${PIC_FLAG:-"-fPIC"}
+        techo "WARNING: pic and opt3 flags not known for $CXX."
         ;;
     esac
     ;;
 esac
+techo "PIC_FLAG=$PIC_FLAG"
 PYC_PIC_FLAG=-fPIC
 
 # Pipe flags
@@ -686,50 +723,8 @@ MPI_FCFLAGS=${MPI_FCFLAGS:-"$FCFLAGS"}
 ######################################################################
 
 techo "Making the combined flags."
-for i in SER PYC PAR; do
-
-  case $i in
-    SER) unset varprfx;;
-    PAR) varprfx=MPI_;;
-    *) varprfx=${i}_;;
-  esac
-
-# Configure flags
-  unset CONFIG_COMPFLAGS_${i}
-  for j in C CXX F FC; do
-    oldval=`deref CONFIG_COMPFLAGS_${i}`
-    varname=${varprfx}${j}FLAGS
-    varval=`deref $varname`
-    if test -n "$varval"; then
-      eval "CONFIG_COMPFLAGS_${i}=\"$oldval ${j}FLAGS='$varval'\""
-    fi
-  done
-  trimvar ALL_${i}_FLAGS ' '
-
-# CMake flags
-  unset CMAKE_COMPFLAGS_${i}
-  for j in C CXX FC; do
-    case $j in
-      CC)
-       cmakecompname=C
-       ;;
-      FC)
-       cmakecompname=Fortran
-       ;;
-      *)
-       cmakecompname=$j
-       ;;
-    esac
-    oldval=`deref CMAKE_COMPFLAGS_${i}`
-    varname=${varprfx}${j}FLAGS
-    varval=`deref $varname`
-    if test -n "$varval"; then
-      eval "CMAKE_COMPFLAGS_${i}=\"$oldval -DCMAKE_${cmakecompname}_FLAGS:STRING='$varval'\""
-    fi
-  done
-  trimvar ALL_${i}_CMAKE_FLAGS ' '
-
-done
+getCombinedCompVars
+getCombinedCompFlagVars
 
 ######################################################################
 #
@@ -857,7 +852,7 @@ instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
-compvars="CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
+compvars="USE_MPI MPI_BUILD CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
 envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS"
@@ -865,7 +860,7 @@ testvars="BILDER_CTEST_MODEL"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
-othervars="USE_ATLAS_CC4PY DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
+othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
 
 techo ""
 techo "Environment settings:"
@@ -881,9 +876,9 @@ env >$BUILD_DIR/bilderenv.txt
 # Various cleanups
 
 # Remove incorrect installations
-# if isCcCc4py; then
-  # rm -rf $BLDR_INSTALL_DIR/*-cc4py $BLDR_INSTALL_DIR/*-cc4py.lnk  # Should be sersh
-  # rm -rf $CONTRIB_DIR/*-cc4py $CONTRIB_DIR/*-cc4py.lnk  # Should be sersh
+# if isCcPyc; then
+  # rm -rf $BLDR_INSTALL_DIR/*-pycsh $BLDR_INSTALL_DIR/*-pycsh.lnk  # Should be sersh
+  # rm -rf $CONTRIB_DIR/*-pycsh $CONTRIB_DIR/*-pycsh.lnk  # Should be sersh
 # fi
 
 # techo "WARNING: [bildvars.sh] Quitting at end of bildvars.sh."; exit

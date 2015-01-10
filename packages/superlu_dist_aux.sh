@@ -23,7 +23,7 @@ setSuperlu_DistTriggerVars() {
       Linux) SUPERLU_DIST_BUILDS="${SUPERLU_DIST_BUILDS},parsh,parcommsh"
     esac
   fi
-  SUPERLU_DIST_DEPS=cmake,openmpi,atlas,lapack,clapack_cmake
+  SUPERLU_DIST_DEPS=cmake,$MPI_BUILD,atlas,lapack,clapack_cmake
 # Add parmetis if there are only standard builds and no commercial builds
   if !(grep -q comm <<<$SUPERLU_DIST_BUILDS); then
     SUPERLU_DIST_DEPS=$SUPERLU_DIST_DEPS,parmetis
@@ -33,11 +33,12 @@ setSuperlu_DistTriggerVars
 
 ######################################################################
 #
-# Find oce
+# Find Superlu_Dist
 #
 ######################################################################
 
 findSuperlu_Dist() {
-  :
+# Here we adopt the names that trilinos uses
+  findContribPackage Superlu_Dist superlu_dist
 }
 

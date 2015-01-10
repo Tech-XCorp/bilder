@@ -1,0 +1,35 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 53396bd..bbb7c1a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -407,10 +407,29 @@ endif(OCE_VISU_DEP)
+ if(OCE_REQUIRES_FREETYPE)
+ 	## TKService requires FreeType
+ 	if(NOT OCE_USE_BUNDLE AND NOT OCE_USE_BUNDLE_SOURCE)
+-		find_package(Freetype REQUIRED)
++# FindFreetype.cmake no longer works with the freetype include dirs reorg,
++# so, we will find as much as we can and repair later
++                # find_package(Freetype REQUIRED)
++		find_package(Freetype)
+ 	else (NOT OCE_USE_BUNDLE AND NOT OCE_USE_BUNDLE_SOURCE)
+ 		find_library(FREETYPE_LIBRARY freetype)
+ 	endif(NOT OCE_USE_BUNDLE AND NOT OCE_USE_BUNDLE_SOURCE)
++# Repair
++        if (NOT FREETYPE_INCLUDE_DIRS)
++          set(FREETYPE_INCLUDE_DIRS)
++          if (FREETYPE_INCLUDE_DIR_ft2build)
++            set(FREETYPE_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIR_ft2build})
++          endif ()
++          if (FREETYPE_INCLUDE_DIR_freetype2)
++            set(FREETYPE_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIR_freetype2})
++          endif ()
++        endif ()
++        if (NOT FREETYPE_LIBRARIES AND FREETYPE_LIBRARY)
++          set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
++        endif ()
++        if (NOT FREETYPE_INCLUDE_DIRS OR NOT FREETYPE_LIBRARIES)
++          message(FATAL_ERROR "Unable to find freetype.")
++        endif ()
+ 
+ 	if(CMAKE_CONFIGURATION_TYPES OR NMAKE)
+ 		find_library(FREETYPE_LIBRARY_DEBUG freetyped "Location of freetype debug library")

@@ -45,7 +45,7 @@ setMatplotlibNonTriggerVars
 #
 findMatplotlibDepDir() {
 # For some reason, need to go deeper for freetype and libpng
-  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/homebrew/opt/libpng /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11"
+  local sysdirs="$CONTRIB_DIR /opt/homebrew/opt/freetype /opt/homebrew/opt/libpng /opt/homebrew /opt/X11 /usr/X11R6 /usr/X11 /usr"
   local pkgdir=
   local libprefix=
   local incdirs="$4"
@@ -55,7 +55,7 @@ findMatplotlibDepDir() {
     Darwin) libprefix=lib; libsfxs=dylib;;
     Linux) libprefix=lib; libsfxs=so;;
   esac
-  for j in $CONTRIB_DIR/$1-cc4py $CONTRIB_DIR/$1-sersh $CONTRIB_DIR/$1-sermd $sysdirs; do
+  for j in $CONTRIB_DIR/$1-pycsh $CONTRIB_DIR/$1-sersh $CONTRIB_DIR/$1-sermd $sysdirs; do
     local incdir=
     for i in $incdirs; do
       # techo "Looking for $j/$i/$2." 1>&2
@@ -90,7 +90,7 @@ findMatplotlibDepDir() {
     pkgdir=`(cd $pkgdir; pwd -P)`
     # techo "${1}dir = $pkgdir." 1>&2
     if [[ `uname` =~ CYGWIN ]]; then
-      pkgdir=`cygpath -am $pkgdir`
+      pkgdir=`cygpath -aw $pkgdir`
       # techo "After cygpath conversion, ${1}dir = $pkgdir." 1>&2
       pkgdir=`echo $pkgdir | sed 's/\\\\/\\\\\\\\/g'`
     fi
@@ -112,72 +112,86 @@ buildMatplotlib() {
 # and build with
 # env LDFLAGS="-m64 -pthread -shared -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib" python setup.py install --prefix=/gpfs/home/projects/facets/surveyor/contrib
 #
-# On Darwin, can get freetype using macports.  After installing that, do
-# sudo port install ImageMagick +no_x11
-# which gives a very useful package and freetype as well.
+# On Darwin, can get freetype using brew:
+# http://sourceforge.net/p/bilder/wiki/Preparing%20a%20Darwin%20machine%20for%20Bilder/
 
 # Get package, continue building if needed
   if ! bilderUnpack matplotlib; then
     return
   fi
 
-# Find dependencies and construct the basedirs variable needed for setupext.py
-  # techo "Looking for freetype."
+# Find dependencies and construct the basedirs variable needed for setup
+  techo -2 "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`
-  # techo "freetypedir = $freetypedir."
+  techo -2 "freetypedir = $freetypedir."
   if test -z "${freetypedir}"; then
     case `uname` in
       Darwin)
         techo "WARNING: [$FUNCNAME] freetype not found.  Install via homebrew."
         ;;
       Linux)
-        techo "WARNING: [$FUNCNAME] May need to install the -devel or -dev versions of libpng and/or freetype."
+        techo "WARNING: [$FUNCNAME] May need to install the -devel or -dev versions of freetype."
         ;;
     esac
   fi
-  # techo "Looking for libpng."
+  techo -2 "Looking for libpng."
   local libpngdir=`findMatplotlibDepDir libpng png.h png`
-  # techo "libpngdir = $libpngdir."
-  # techo "Looking for zlib."
+  techo -2 "libpngdir = $libpngdir."
+  techo -2 "Looking for zlib."
   local zlibdir=
   case `uname` in
     CYGWIN*) zlibdir=`findMatplotlibDepDir zlib zlib.h zlib`;;
     *)       zlibdir=`findMatplotlibDepDir zlib zlib.h z`;;
   esac
-  # techo "zlibdir = $zlibdir."
+  techo -2 "zlibdir = $zlibdir."
+
+# Construct basedirs for substitution in setupext.py
   local basedirs=
-  if test -n "$freetypedir"; then
-    basedirs="'$freetypedir',"
-  fi
-  if test -n "$libpngdir" && ! echo $basedirs | grep -q "'$libpngdir'"; then
-    basedirs="$basedirs '$libpngdir',"
-  fi
-  if test -n "$zlibdir" && ! echo $basedirs | grep -q "'$zlibdir'"; then
-    basedirs="$basedirs '$zlibdir',"
-  fi
-# Escape backslashes one more time to get through sed
+  for dir in "$freetypedir" "$libpngdir" "$zlibdir"; do
+    if test -n "$dir" && ! echo $basedirs | grep -q "'$dir'"; then
+      basedirs="$basedirs '$dir',"
+    fi
+  done
+# Escape even more backslashes to get through sed
   if [[ `uname` =~ CYGWIN ]]; then
     basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
+    basedirs=`echo $basedirs | sed 's/\\\\/\\\\\\\\/g'`
   fi
-  techo "basedirs = $basedirs."
+  printvar basedirs
+
+# setup.cfg does not want quotes
+  basedirsnq=`echo $basedirs | sed "s/'//g"`
+  printvar basedirsnq
+
+# Fix up files in package
   cd $BUILD_DIR/matplotlib-$MATPLOTLIB_BLDRVERSION
+
+# Below (obsolete) shows how to patch setupext.py
+if false; then
   case `uname` in
     CYGWIN*)
+# CYGWIN does not listen to setup.cfg
       sed -i.bak -e "/^ *'win32' *:/s?'win32_static',?$basedirs?" setupext.py
       ;;
-    Darwin)
-      sed -i.bak -e "/^ *'darwin' *:/s?\]?, $basedirs]?" setupext.py
-      ;;
     Linux)
-      sed -i.bak -e "/^ *'linux' *:/s?\] ?$basedirs]?" setupext.py
+# Linux does not listen to setup.cfg
+      sed -i.bak -e "/^ *'linux' *:/s?\[?[$basedirs?" setupext.py
+      sed -i.bak -e "/^ *'gnu0' *:/s?\[?[$basedirs?" setupext.py
+      ;;
+    *)
+      sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirsnq?" <setup.cfg.template >setup.cfg
       ;;
   esac
+fi
+
+# Fix setup.cfg
+  sed -e "/basedirlist *=/s?^# *??" -e "/basedirlist *=/s? *=.*? = $basedirsnq?" <setup.cfg.template >setup.cfg
 
 # Accumulate link flags for modules, and make ATLAS modifications.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
-  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # Compute args such that for
 #   Cygwin: build, install, and make packages all at once.
@@ -195,11 +209,21 @@ buildMatplotlib() {
       ;;
     Linux-*)
 # On hopper cannot include LD_LIBRARY_PATH
-      if test -n "$pngdir"; then
-        linkflags="$linkflags -Wl,-rpath,$pngdir/lib"
+      techo -2 "libpngdir = $libpngdir"
+      if test -n "$libpngdir" -a "$libpngdir" != /usr; then
+        if test -d $libpngdir/lib64; then
+          linkflags="$linkflags -Wl,-rpath,$libpngdir/lib64"
+        elif test -d $libpngdir/lib; then
+          linkflags="$linkflags -Wl,-rpath,$libpngdir/lib"
+        fi
       fi
-      if test -n "$freetypelibdir"; then
-        linkflags="$linkflags -Wl,-rpath,$freetypedir/lib"
+      techo -2 "freetypedir = $freetypedir"
+      if test -n "$freetypedir" -a "$freetypedir" != /usr; then
+        if test -d $freetypedir/lib64; then
+          linkflags="$linkflags -Wl,-rpath,$freetypedir/lib64"
+        elif test -d $freetypedir/lib; then
+          linkflags="$linkflags -Wl,-rpath,$freetypedir/lib"
+        fi
       fi
       ;;
     *)
@@ -256,8 +280,8 @@ installMatplotlib() {
         for j in $PYTHON_SITEPKGSDIR/${i}*; do
           setOpenPerms ${j}
         done
-      else
-        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
+#      else
+#        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
       fi
     done
   fi

@@ -44,7 +44,7 @@ buildPython() {
   if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
     setCc4pyAddlLdflags
   fi
-  local pyldflags="$CC4PY_ADDL_LDFLAGS"
+  local pyldflags="$PYCSH_ADDL_LDFLAGS"
   local pycppflags=
   case `uname` in
     Linux)
@@ -55,18 +55,18 @@ buildPython() {
         pyldflags="$pyldflags -L$preswd/lib"
         pycppflags="-I$preswd/include"
       fi
-      PYTHON_CC4PY_ADDL_ARGS="$PYTHON_CC4PY_ADDL_ARGS CFLAGSFORSHARED=-fPIC"
+      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS CFLAGSFORSHARED=-fPIC"
       ;;
   esac
   if test -n "$pyldflags"; then
-    PYTHON_CC4PY_ADDL_ARGS="$PYTHON_CC4PY_ADDL_ARGS LDFLAGS='$pyldflags'"
+    PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS LDFLAGS='$pyldflags'"
   fi
   if test -n "$pycppflags"; then
-    PYTHON_CC4PY_ADDL_ARGS="$PYTHON_CC4PY_ADDL_ARGS CPPFLAGS='$pycppflags'"
+    PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS CPPFLAGS='$pycppflags'"
   fi
   case $PYTHON_BLDRVERSION in
     2.6.*) ;;  # enable-unicode fails on 2.6.5
-    2.7.*) PYTHON_CC4PY_ADDL_ARGS="$PYTHON_CC4PY_ADDL_ARGS --enable-unicode=ucs4";;
+    2.7.*) PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS --enable-unicode=ucs4";;
   esac
 
 # just --enable-shared gives errors:
@@ -75,7 +75,7 @@ buildPython() {
 #  imageop  sunaudiodev
 #  To find the necessary bits, look in setup.py in detect_modules() for the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-  if bilderConfig Python $PYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_CC4PY_OTHER_ARGS $PYTHON_CC4PY_ADDL_ARGS"; then
+  if bilderConfig Python $PYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
     bilderBuild Python $PYTHON_BUILD
   fi
 

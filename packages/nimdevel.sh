@@ -21,7 +21,7 @@
 ######################################################################
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
-NIMDEVEL_DEPS=openmpi,netlib_lite,fciowrappers,superlu_dist3,superlu,cmake
+NIMDEVEL_DEPS=$MPI_BUILD,netlib_lite,fciowrappers,superlu_dist3,superlu,cmake
 # autotools for testing only
 NIMDEVEL_UMASK=002
 nimversion=nimdevel
@@ -117,31 +117,31 @@ buildNimdevel() {
   fi
 
   getVersion $nimversion
-  local NIMDEVEL_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE -DENABLE_IOLibs:BOOL=TRUE -DENABLE_Lapack:BOOL=TRUE $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"
-  local NIMDEVEL_SER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_IOLibs:BOOL=TRUE -DENABLE_Lapack:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"
+  local NIMDEVEL_PAR_ARGS="-DENABLE_PARALLEL:BOOL=TRUE -DTRAP_FP_EXCEPTIONS:BOOL=FALSE -DENABLE_IOLibs:BOOL=TRUE -DENABLE_Lapack:BOOL=TRUE $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"
+  local NIMDEVEL_SER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DTRAP_FP_EXCEPTIONS:BOOL=FALSE -DENABLE_IOLibs:BOOL=TRUE -DENABLE_Lapack:BOOL=TRUE $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_LINLIB_SER_ARGS $CMAKE_SUPRA_SP_ARG"
   if bilderPreconfig -c $nimversion; then
-    if bilderConfig $nimversion par "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS"; then
+    if bilderConfig $nimversion par "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS" $nimversion; then
       bilderBuild $nimversion par "$NIMDEVEL_MAKEJ_ARGS"
     fi
-    if bilderConfig $nimversion ser "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS"; then
+    if bilderConfig $nimversion ser "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS" $nimversion; then
       bilderBuild $nimversion ser "$NIMDEVEL_MAKEJ_ARGS"
     fi
     if bilderConfig $nimversion partau "-DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PARTAU_COMPILERS $CMAKE_COMPFLAGS_PAR $NIMDEVEL_PAR_OTHER_ARGS $CMAKE_LINLIB_BEN_ARGS $CMAKE_SUPRA_SP_ARG"; then
       bilderBuild $nimversion partau "$NIMDEVEL_PARTAU_BUILD_ENV" "$NIMDEVEL_MAKEJ_ARGS"
     fi
     if $BUILD_DEBUG; then
-      if bilderConfig $nimversion pardbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS"; then
+      if bilderConfig $nimversion pardbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_PAR_ARGS" $nimversion-dbg; then
         bilderBuild $nimversion pardbg "$NIMDEVEL_MAKEJ_ARGS"
       fi
-      if bilderConfig $nimversion serdbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS"; then
+      if bilderConfig $nimversion serdbg "-DDEBUG:BOOL=TRUE -DUSE_LE_SURFACE:BOOL=TRUE $NIMDEVEL_SER_ARGS" $nimversion-dbg; then
         bilderBuild $nimversion serdbg "$NIMDEVEL_MAKEJ_ARGS"
       fi
     fi
     if $NIMDEVEL_SURFORIG; then
-      if bilderConfig  $nimversion parsurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_PAR_ARGS"; then
+      if bilderConfig  $nimversion parsurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_PAR_ARGS" $nimversion-surf; then
         bilderBuild $nimversion parsurf "$NIMDEVEL_MAKEJ_ARGS"
       fi
-      if bilderConfig $nimversion sersurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_SER_ARGS"; then
+      if bilderConfig $nimversion sersurf "-DUSE_LE_SURFACE:BOOL=FALSE $NIMDEVEL_SER_ARGS" $nimversion-surf; then
         bilderBuild $nimversion sersurf "$NIMDEVEL_MAKEJ_ARGS"
       fi
     fi
@@ -165,16 +165,12 @@ testNimdevel() {
 ######################################################################
 
 installNimdevel() {
-  local NIMDEVEL_ALL_BUILDS="ser par serdbg pardbg partau sersurf parsurf"
-  for bld in $NIMDEVEL_ALL_BUILDS; do
-    if bilderInstall $nimversion $bld; then
-      local instdir=$BLDR_INSTALL_DIR/$nimversion-${NIMDEVEL_BLDRVERSION}-${bld}
-      setOpenPerms $instdir
-    fi
+  local nim_builds=`echo "$NIMDEVEL_BUILDS" | sed 's/,/ /g'`
+  for build in $nim_builds; do
+    bilderInstall -p open $nimversion $build
   done
 
-# Add to paths after install to resolve the correct version (use serial)
-  #addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion-par/bin
   addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/bin
-
+  addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/scripts
 }
+

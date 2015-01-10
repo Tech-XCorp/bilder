@@ -11,6 +11,7 @@ CONTRIB_DIR=/global/project/projectdirs/facets/edison/contrib-intel-13.0
 CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-gcc-4.7
 # Janus
 CONTRIB_DIR=/projects/cary/contrib-gcc-4.7
+CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-gcc-4.8
 
 exec() {
   echo $*
@@ -25,7 +26,6 @@ if $BUILD_GLIB2; then
   exec mkdir glib-2.36.4/ser
   exec cd glib-2.36.4/ser
 fi
-exit
 
 # gstreamer
 exec wget -N -nv http://gstreamer.freedesktop.org/src/gstreamer/gstreamer-0.10.22.tar.bz2

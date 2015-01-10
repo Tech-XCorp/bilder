@@ -38,9 +38,9 @@ fi
 setCoinGlobalVars() {
 # Only python builds needed.
   if test -z "$COIN_BUILDS"; then
-    COIN_BUILDS=${FORPYTHON_BUILD}
+    COIN_BUILDS=${FORPYTHON_SHARED_BUILD}
     if [[ `uname` =~ CYGWIN ]]; then
-      COIN_BUILDS=${COIN_BUILDS},${FORPYTHON_BUILD}dbg
+      COIN_BUILDS=${COIN_BUILDS},${FORPYTHON_SHARED_BUILD}dbg
     fi
   fi
   COIN_DEPS=qt
@@ -52,9 +52,9 @@ setCoinGlobalVars() {
   # COIN_CMAKE_ARG=-c # Goes with above repo only.
 # Needed to configure soqt
   if $COIN_USE_REPO; then
-    addtopathvar PATH $BLDR_INSTALL_DIR/coin-${FORPYTHON_BUILD}/bin
+    addtopathvar PATH $BLDR_INSTALL_DIR/coin-${FORPYTHON_SHARED_BUILD}/bin
   else
-    addtopathvar PATH $CONTRIB_DIR/Coin-${FORPYTHON_BUILD}/bin
+    addtopathvar PATH $CONTRIB_DIR/Coin-${FORPYTHON_SHARED_BUILD}/bin
   fi
 }
 setCoinGlobalVars
@@ -79,8 +79,8 @@ buildCoin() {
 
 # Remove other coin
     rm -rf $CONTRIB_DIR/{Coin,SoQt}-*
-    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR Coin,${FORPYTHON_BUILD}
-    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR SoQt,${FORPYTHON_BUILD}
+    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR Coin,${FORPYTHON_SHARED_BUILD}
+    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR SoQt,${FORPYTHON_SHARED_BUILD}
 
 # Try to get coin from repo
     if ! (cd $PROJECT_DIR; getCoin); then
@@ -113,8 +113,8 @@ buildCoin() {
 
 # Remove other coin, soqt
     rm -rf $BLDR_INSTALL_DIR/{coin,soqt}-*
-    $BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR coin,${FORPYTHON_BUILD}
-    $BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR soqt,${FORPYTHON_BUILD}
+    $BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR coin,${FORPYTHON_SHARED_BUILD}
+    $BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR soqt,${FORPYTHON_SHARED_BUILD}
 
 # Build from tarball
     if ! bilderUnpack Coin; then
@@ -160,15 +160,15 @@ buildCoin() {
     COMPILERS_COIN="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC "
   fi
 
-  local otherargsvar=`genbashvar COIN_${FORPYTHON_BUILD}`_OTHER_ARGS
+  local otherargsvar=`genbashvar COIN_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
-  if bilderConfig $COIN_CMAKE_ARGS $COIN_NAME $FORPYTHON_BUILD "$COMPILERS_COIN $COIN_ADDL_ARGS $otherargs" "" "$COIN_ENV"; then
-    bilderBuild $COIN_MAKER_ARGS $COIN_NAME $FORPYTHON_BUILD "" "$COIN_ENV"
+  if bilderConfig $COIN_CMAKE_ARGS $COIN_NAME $FORPYTHON_SHARED_BUILD "$COMPILERS_COIN $COIN_ADDL_ARGS $otherargs" "" "$COIN_ENV"; then
+    bilderBuild $COIN_MAKER_ARGS $COIN_NAME $FORPYTHON_SHARED_BUILD "" "$COIN_ENV"
   fi
 
 if false; then
-  if bilderConfig $COIN_NAME ${FORPYTHON_BUILD}dbg "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_DBG_ADDL_ARGS $COIN_CC4PY_OTHER_ARGS" "" "$COIN_ENV"; then
-    bilderBuild -m make $COIN_NAME ${FORPYTHON_BUILD}dbg "" "$COIN_ENV"
+  if bilderConfig $COIN_NAME ${FORPYTHON_SHARED_BUILD}dbg "CFLAGS='$COIN_CFLAGS' CXXFLAGS='$COIN_CXXFLAGS' $COIN_DBG_ADDL_ARGS $COIN_PYCSH_OTHER_ARGS" "" "$COIN_ENV"; then
+    bilderBuild -m make $COIN_NAME ${FORPYTHON_SHARED_BUILD}dbg "" "$COIN_ENV"
   fi
 fi
 

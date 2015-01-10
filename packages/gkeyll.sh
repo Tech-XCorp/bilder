@@ -24,7 +24,7 @@ if test -z "$GKEYLL_BUILDS"; then
   GKEYLL_BUILDS=ser,par
 fi
 # Deps include autotools for configuring tests
-GKEYLL_DEPS=lua,boost,luabind,txbase,petsc,openmpi,gsl
+GKEYLL_DEPS=lua,boost,luabind,txbase,petsc,$MPI_BUILD,gsl
 trimvar GKEYLL_DEPS ','
 
 ######################################################################

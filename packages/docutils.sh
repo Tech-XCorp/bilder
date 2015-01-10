@@ -21,7 +21,7 @@ DOCUTILS_BLDRVERSION=${DOCUTILS_BLDRVERSION:-"0.8.1"}
 #
 ######################################################################
 
-DOCUTILS_BUILDS=${DOCUTILS_BUILDS:-"cc4py"}
+DOCUTILS_BUILDS=${DOCUTILS_BUILDS:-"pycsh"}
 DOCUTILS_DEPS=
 
 ######################################################################
@@ -34,7 +34,7 @@ buildDocutils() {
 # If cannot import roman, which comes with docutils, then reinstall
   if ! python -c "import roman" 2>/dev/null; then
     techo "Cannot import roman.  Will rebuild docutils."
-    cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR docutils,cc4py"
+    cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR docutils,pycsh"
     techo "$cmd"
     $cmd
   fi

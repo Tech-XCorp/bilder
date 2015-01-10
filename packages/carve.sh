@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for carve
+# Build information for carve
 #
 # $Id$
 #
@@ -8,42 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in carve_aux.sh
 #
 ######################################################################
 
-case `uname`-`uname -r` in
-  CYGWIN* | Darwin-11.*) CARVE_BLDRVERSION_STD=1.4.0;;
-  *) CARVE_BLDRVERSION_STD=1.4.0;;
-esac
-CARVE_BLDRVERSION_EXP=1.4.0
+mydir=`dirname $BASH_SOURCE`
+source $mydir/carve_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-# Carve builds only shared
-CARVE_BUILD=$FORPYTHON_BUILD
-CARVE_DESIRED_BUILDS=${CARVE_DESIRED_BUILDS:-"$FORPYTHON_BUILD"}
-computeBuilds carve
-CARVE_DEPS=cmake,mercurial
-CARVE_UMASK=002
-CARVE_REPO_URL=https://code.google.com/r/cary-carve4bilder
-CARVE_UPSTREAM_URL=https://code.google.com/p/carve
-# Cloned at 475:be054bc7ed86
-# Pulled in changes via
-cat >/dev/null <<EOF
-hg pull -r tip https://code.google.com/p/carve
-hg merge tip
-hg commit -m "Commit changes from remote repo."
-hg push
-EOF
-# Changes now in cary-carve4bilder
-
-# Blender maintains carve in the repo
-#   https://svn.blender.org/svnroot/bf-blender/trunk/blender/extern/carve
+setCarveNonTriggerVars() {
+  CARVE_UMASK=002
+}
+setCarveNonTriggerVars
 
 ######################################################################
 #
@@ -115,7 +98,6 @@ buildCarve() {
   fi
 
 # Carve compilers
-  #CARVE_COMPILERS="-DCMAKE_C_COMPILER:FILEPATH='$PYC_CC' -DCMAKE_CXX_COMPILER:FILEPATH='$PYC_CXX'"
   CARVE_COMPILERS="$CMAKE_COMPILERS_PYC"
   case `uname`-`uname -r` in
     Darwin-13.*)
@@ -127,8 +109,8 @@ buildCarve() {
   esac
 
 # Build the shared libs
-  if bilderConfig carve $FORPYTHON_BUILD "-DCARVE_WITH_GUI:BOOL=FALSE -DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CARVE_COMPILERS $CARVE_COMPFLAGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE -DCARVE_GTEST_TESTS:BOOL=FALSE $CARVE_SERSH_OTHER_ARGS"; then
-    bilderBuild carve $FORPYTHON_BUILD "$CARVE_MAKEJ_ARGS"
+  if bilderConfig carve $FORPYTHON_SHARED_BUILD "-DCARVE_WITH_GUI:BOOL=FALSE -DBUILD_SHARED_LIBS:BOOL=TRUE -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CARVE_COMPILERS $CARVE_COMPFLAGS -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=TRUE -DCARVE_GTEST_TESTS:BOOL=FALSE $CARVE_SERSH_OTHER_ARGS"; then
+    bilderBuild carve $FORPYTHON_SHARED_BUILD "$CARVE_MAKEJ_ARGS"
   fi
 
 }
@@ -150,10 +132,10 @@ testCarve() {
 ######################################################################
 
 installCarve() {
-  if bilderInstall -p -r carve $FORPYTHON_BUILD; then
+  if bilderInstall -p -r carve $FORPYTHON_SHARED_BUILD; then
     case `uname` in
       Darwin)
-        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-$FORPYTHON_BUILD/bin
+        cd $CARVE_SERSH_INSTALL_DIR/carve-${CARVE_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin
         for i in *; do
 # Needs to be more general by finding the name of the library
           cmd="install_name_tool -change libcarve.2.0.dylib @rpath/libcarve.2.0.dylib $i"

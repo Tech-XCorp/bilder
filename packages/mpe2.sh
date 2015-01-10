@@ -27,7 +27,7 @@ if test -z "$MPE2_BUILDS"; then
     MPE2_BUILDS=nodl
   fi
 fi
-MPE2_DEPS=openmpi,valgrind,doxygen
+MPE2_DEPS=$MPI_BUILD,valgrind,doxygen
 MPE2_UMASK=002
 
 ######################################################################

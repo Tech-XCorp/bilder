@@ -1,0 +1,86 @@
+diff -ruN cmake-3.0.0-orig/Modules/FindCUDA.cmake cmake-3.0.0-new/Modules/FindCUDA.cmake
+--- cmake-3.0.0-orig/Modules/FindCUDA.cmake	2014-06-09 09:46:52.000000000 -0600
++++ cmake-3.0.0-new/Modules/FindCUDA.cmake	2014-10-03 14:46:55.000000000 -0600
+@@ -891,6 +891,7 @@
+         arg STREQUAL "EXCLUDE_FROM_ALL" OR
+         arg STREQUAL "STATIC" OR
+         arg STREQUAL "SHARED" OR
++        arg STREQUAL "OBJECT" OR
+         arg STREQUAL "MODULE"
+         )
+       list(APPEND ${_cmake_options} ${arg})
+@@ -1501,9 +1502,11 @@
+   # variable will have been defined.
+   CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS("${link_file}" ${cuda_target} "${_options}" "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
+ 
+-  target_link_libraries(${cuda_target}
+-    ${CUDA_LIBRARIES}
+-    )
++  if(NOT "${_cmake_options}" STREQUAL "OBJECT")
++    target_link_libraries(${cuda_target}
++      ${CUDA_LIBRARIES}
++      )
++  endif()
+ 
+   # We need to set the linker language based on what the expected generated file
+   # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
+diff -ruN cmake-3.0.0-orig/Modules/FindFreetype.cmake cmake-3.0.0-new/Modules/FindFreetype.cmake
+--- cmake-3.0.0-orig/Modules/FindFreetype.cmake	2014-06-09 09:46:52.000000000 -0600
++++ cmake-3.0.0-new/Modules/FindFreetype.cmake	2014-10-03 14:46:55.000000000 -0600
+@@ -82,6 +82,22 @@
+   PATH_SUFFIXES include/freetype2 include
+ )
+ 
++if(NOT FREETYPE_INCLUDE_DIR_freetype2)
++  find_path(FREETYPE_INCLUDE_DIR_freetype2 freetype2/config/ftheader.h
++    HINTS
++      ENV FREETYPE_DIR
++    PATHS
++      /usr/X11R6
++      /usr/local/X11R6
++      /usr/local/X11
++      /usr/freeware
++      ENV GTKMM_BASEPATH
++      [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]
++      [HKEY_LOCAL_MACHINE\\SOFTWARE\\gtkmm\\2.4;Path]
++    PATH_SUFFIXES include/freetype2 include
++  )
++endif()
++
+ find_library(FREETYPE_LIBRARY
+   NAMES freetype libfreetype freetype219
+   HINTS
+diff -ruN cmake-3.0.0-orig/Modules/Platform/Linux.cmake cmake-3.0.0-new/Modules/Platform/Linux.cmake
+--- cmake-3.0.0-orig/Modules/Platform/Linux.cmake	2014-06-09 09:46:52.000000000 -0600
++++ cmake-3.0.0-new/Modules/Platform/Linux.cmake	2014-10-03 14:46:55.000000000 -0600
+@@ -2,7 +2,7 @@
+ set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath,")
+ set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG_SEP ":")
+ set(CMAKE_SHARED_LIBRARY_RPATH_LINK_C_FLAG "-Wl,-rpath-link,")
+-set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname,")
++set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
+ set(CMAKE_EXE_EXPORTS_C_FLAG "-Wl,--export-dynamic")
+ 
+ # Shared libraries with no builtin soname may not be linked safely by
+diff -ruN cmake-3.0.0-orig/Modules/Platform/Linux-Intel-C.cmake cmake-3.0.0-new/Modules/Platform/Linux-Intel-C.cmake
+--- cmake-3.0.0-orig/Modules/Platform/Linux-Intel-C.cmake	2014-06-09 09:46:52.000000000 -0600
++++ cmake-3.0.0-new/Modules/Platform/Linux-Intel-C.cmake	2014-10-03 14:46:55.000000000 -0600
+@@ -1,3 +1,5 @@
+ include(Platform/Linux-Intel)
++# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
++set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
+ __linux_compiler_intel(C)
+ set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
+diff -ruN cmake-3.0.0-orig/Modules/Platform/Linux-Intel.cmake cmake-3.0.0-new/Modules/Platform/Linux-Intel.cmake
+--- cmake-3.0.0-orig/Modules/Platform/Linux-Intel.cmake	2014-06-09 09:46:52.000000000 -0600
++++ cmake-3.0.0-new/Modules/Platform/Linux-Intel.cmake	2014-10-03 14:46:55.000000000 -0600
+@@ -38,7 +38,8 @@
+ 
+   # We pass this for historical reasons.  Projects may have
+   # executables that use dlopen but do not set ENABLE_EXPORTS.
+-  set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
++# This causes build failure on hopper (Cray)
++  # set(CMAKE_SHARED_LIBRARY_LINK_${lang}_FLAGS "-rdynamic")
+ 
+   if(XIAR)
+     # INTERPROCEDURAL_OPTIMIZATION

@@ -20,7 +20,7 @@ SCITOOLS_BLDRVERSION=${SCITOOLS_BLDRVERSION:-"0.8"}
 #
 ######################################################################
 
-SCITOOLS_BUILDS=${SCITOOLS_BUILDS:-"cc4py"}
+SCITOOLS_BUILDS=${SCITOOLS_BUILDS:-"pycsh"}
 SCITOOLS_DEPS=docutils,Pygments,Imaging,setuptools,MathJax,Python
 SCITOOLS_UMASK=002
 

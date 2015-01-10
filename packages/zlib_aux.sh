@@ -22,7 +22,7 @@ setZlibTriggerVars() {
     if [[ `uname` =~ CYGWIN ]]; then
       ZLIB_DESIRED_BUILDS=${ZLIB_DESIRED_BUILDS:-"ser,sersh,sermd"}
       computeBuilds zlib
-      addCc4pyBuild zlib
+      addPycshBuild zlib
     fi
   fi
   ZLIB_DEPS=cmake
@@ -37,8 +37,10 @@ setZlibTriggerVars
 
 findZlib() {
 # This is needed for Windows to get the right dll
-  findContribPackage zlib zlib sersh cc4py
-  findCc4pyDir zlib
-  addtopathvar PATH $CONTRIB_DIR/zlib-${FORPYTHON_BUILD}/bin
+  if [[ `uname` =~ CYGWIN ]]; then
+    findContribPackage zlib zlib sersh pycsh
+    findPycshDir zlib
+    addtopathvar PATH $CONTRIB_DIR/zlib-${FORPYTHON_SHARED_BUILD}/bin
+  fi
 }
 

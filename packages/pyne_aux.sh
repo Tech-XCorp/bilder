@@ -17,12 +17,13 @@
 
 setPyneTriggerVars() {
   PYNE_REPO_URL=https://github.com/Tech-XCorp/pyne.git
-  PYNE_UPSTREAM_URL=https://github.com/pyne/pyne.git
   PYNE_REPO_BRANCH_STD=develop
   PYNE_REPO_BRANCH_EXP=develop
-  PYNE_BUILDS=cc4py
+  PYNE_UPSTREAM_URL=https://github.com/pyne/pyne.git
+  PYNE_UPSTREAM_BRANCH=develop
+  PYNE_BUILDS=pycsh
 # http://pyne.io/install.html
-  PYNE_DEPS=tables,hdf5,cython,scipy,numpy,cmake
+  PYNE_DEPS=moab,tables,hdf5,cython,scipy,numpy,cmake
 # For docs, later...
   # PYNE_DEPS=prettytable,breathe,scisphinx,sphinx,$PYNE_DEPS
 }
@@ -35,6 +36,9 @@ setPyneTriggerVars
 ######################################################################
 
 findPyne() {
-  :
+  case `uname` in
+    Darwin) addtopathvar DYLD_LIBRARY_PATH $CONTRIB_DIR/lib;;
+    Linux) addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/lib;;
+  esac
 }
 

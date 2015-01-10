@@ -17,12 +17,12 @@
 
 setMatplotlibTriggerVars() {
   MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.3.1"}
-  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.3.1"}
-  MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"cc4py"}
-  MATPLOTLIB_DEPS=numpy,Python,libpng,freetype
+  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.4.2"}
+  MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
+  MATPLOTLIB_DEPS=pyparsing,numpy,Python,libpng,freetype
   case `uname` in
     Darwin) ;;
-    *) MATPLOTLIB_DEPS=${MATPLOTLIB_DEPS},pyqt ;;
+    *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
   esac
 }
 setMatplotlibTriggerVars

@@ -202,8 +202,9 @@ mkLink() {
     fi
   fi
   if $unix; then
-    techo "(cd $1; rmall $3; ln -s $2 $3)"
-    (cd $1; rmall $3; ln -s $2 $3)
+    cmd="(cd $1; rmall $3; ln -s $2 $3)"
+    techo "$cmd"
+    eval "$cmd"
   fi
 }
 
@@ -693,7 +694,21 @@ checkDirWritable() {
 # Check for unknown version installations
   local unks=`(cd $dir; ls -d *unknown* 2>/dev/null)`
   if test -n "$unks"; then
-    techo "WARNING: [$FUNCNAME] Found unknown installations, $unks, in $dir."
+    techo "WARNING: [$FUNCNAME] $dir has unknown installations, $unks."
+  fi
+
+# Check for cc4py builds
+  local c4pys=`(cd $dir; ls -d *-cc4py 2>/dev/null)`
+  if test -n "$c4pys"; then
+    techo "WARNING: [$FUNCNAME] $dir has cc4py installations, $c4pys."
+    techo "WARNING: [$FUNCNAME] Trunk builds no longer needs these."
+  fi
+
+# Check for cc4py builds
+  local shctks=`(cd $dir; ls -d *composer*-sersh 2>/dev/null)`
+  if test -n "$shctks"; then
+    techo "WARNING: [$FUNCNAME] $dir has sersh composer installations, $shctks."
+    techo "WARNING: [$FUNCNAME] Trunk builds no longer needs these."
   fi
 
 }
@@ -727,18 +742,6 @@ rmVals() {
   done
   trimvar vals ','
   eval ${var}=$vals
-}
-
-#
-# Determine the python build: sersh if compiler is the one used to
-# compiler python, cc4py otherwise.
-#
-getPythonBuild() {
-  if isCcCc4py; then
-    echo sersh
-  else
-    echo cc4py
-  fi
 }
 
 #
@@ -1231,7 +1234,7 @@ getVersion() {
 #     applied patches, I believe that your repo could get a different number
 #     for the same code tree or the same number for a different code tree. (SG)
     if ! rev=`git rev-list HEAD | wc -l | awk '{print $1}'`; then
-      techo "Git rev-list failed.  In path?  Returning."
+      techo "Git rev-list failed.  In path? Returning."
       cd $origdir
       return 1
     fi
@@ -1244,7 +1247,7 @@ getVersion() {
   elif test "$repotype" == "HG"; then
     techo "Getting the current version of $1 at `date +%F-%T`."
     if ! rev=`hg id -n`; then
-      techo "Hg failed.  In path?  Returning."
+      techo "Hg failed.  In path? Returning."
       cd $origdir
       return 1
     fi
@@ -1376,10 +1379,10 @@ fi
     if test -d $instdir/$instsubdir; then
 # This implies default installation subdir
       if ! test -f $instdir/$instsubdir/$patchname; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname is missing.  Rebuilding."
+        techo -2 "Patch $instdir/$instsubdir/$patchname is missing. Rebuilding."
         dopatch=true
       elif ! $BILDER_DIFF -q $instdir/$instsubdir/$patchname $patchval; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ.  Rebuilding."
+        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ. Rebuilding."
         dopatch=true
       else
         techo -2 "Patch up to date."
@@ -1388,11 +1391,15 @@ fi
       techo -2 "Patch $instdir/$instsubdir not present.  Patch cannot be checked."
     fi
     if $dopatch; then
-      cd $origdir
+      # Commenting this out because $origdir is not set and it seems like we
+      # never used cd in this method previously.
+      #cd $origdir
       return 1
     fi
   fi
-  cd $origdir
+  # Commenting this out because $origdir is not set and it seems like we
+  # never used cd in this method previously.
+  #cd $origdir
   return 0
 
 }
@@ -1483,7 +1490,7 @@ mkConfigScript() {
   local configure_txt=$1-$2-$3-config.txt
 # Make sure all scripts have the exact same length for sed below
   echo >> $configscript
-  if egrep -q "(^|/)cmake('| )" $configure_txt; then
+  if egrep -q "(^|/)(cmake|ctest)('| )" $configure_txt; then
     echo "# Clear cmake cache to ensure a clean configure." >> $configscript
     echo "rm -rf CMakeFiles CMakeCache.txt" >> $configscript
     echo >> $configscript
@@ -1577,9 +1584,9 @@ fi
 # Look for all requested installations, if all present, return.
   for i in `echo $2 | tr ',' ' '`; do
     if isInstalled -i $instdir $1-$i; then
-      techo "Package $1-$i is installed."
+      techo -2 "Package $1-$i is installed."
     else
-      techo "Package $1-$i is not installed."
+      techo -2 "Package $1-$i is not installed."
       return 1
     fi
   done
@@ -1661,7 +1668,7 @@ shouldInstall() {
   local forcevar=`genbashvar ${ucproj}`_FORCEBUILD
   local forceval=`deref $forcevar`
   if test $forceval; then
-    techo "Forcing build $ucproj from the command line. Proceeding with next step."
+    techo "Forcing build $ucproj from the command line. Rebuilding."
     return 0
   fi
 
@@ -1669,15 +1676,26 @@ shouldInstall() {
   local dir=$instdir
 # if installations.txt does not exist, then we should install (anything).
   if test ! -f $dir/installations.txt; then
-    techo "File $dir/installations.txt does not exist.  Proceeding with next step."
+    techo "File $dir/installations.txt does not exist. Rebuilding."
     return 0
   fi
 
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
-  techo -2 "pkgline = $pkgline."
+  if test -n "$pkgline"; then
+    techo "Last install: '$pkgline'"
+  else
+    techo "$proj never installed."
+  fi
   if test -z "$pkgline"; then
-    techo "Package $proj not found in $dir/installations.txt.  Proceeding with next step."
+    techo "Package $proj not found in $dir/installations.txt. Rebuilding."
+    return 0
+  fi
+
+  local verpkgline=`grep ^${1}- $dir/installations.txt | tail -1`
+  techo -2 "Last Installed $1 was $verpkgline."
+  if ! test "$pkgline" = "$verpkgline"; then
+    techo "Last installed version of package $proj not the requested. Rebuilding."
     return 0
   fi
 
@@ -1691,7 +1709,7 @@ shouldInstall() {
   if test -z "$pkgScriptRev" -o "$pkgScriptRev" = unknown; then
     pkgScriptRev=0
   fi
-  techo "A build of $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
+  techo -2 "A build of $proj last installed at $pkgdate (${lcproj}.sh script at r$pkgScriptRevStr) into $dir."
 
 # Find earliest date of any of the builds in any of the directories.
 # NOT IMPLEMENTED YET.
@@ -1699,16 +1717,16 @@ shouldInstall() {
 # See whether installation is older than package file.
 # For packages like Python, $proj will be Python, but the package script will
 # be python.sh, so we use $lcproj.
-  techo -n "Script ${lcproj}.sh in $dir/installations.txt was r$pkgScriptRevStr, now r$currentPkgScriptRev"
+  techo -n "Script ${lcproj}.sh in $dir/installations.txt was r$pkgScriptRevStr, now r$currentPkgScriptRev."
   if test $currentPkgScriptRev -gt $pkgScriptRev; then
     if $BUILD_IF_NEWER_PKGFILE; then
-      techo "... rebuilding."
+      techo " Rebuilding."
       return 0
     else
-      techo "... not causing rebuild because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
+      techo " Not causing rebuild because BUILD_IF_NEWER_PKGFILE = $BUILD_IF_NEWER_PKGFILE."
     fi
   else
-    techo "... not a reason to rebuild."
+    techo " Not a reason to rebuild."
   fi
 
   techo -2 "Bilder using `which sort` to do sorting."
@@ -1723,7 +1741,7 @@ shouldInstall() {
     local latedate=`(echo $pkgdate; echo $conffiledate) | sort -r | head -1`
     latedate=`echo $latedate | sed 's/ .*$//'`
     if test "$latedate" != $pkgdate; then
-      techo "Configuration $projconf changed more recently than $proj.  Rebuilding."
+      techo "Configuration $projconf changed more recently than $proj. Rebuilding."
       return 0
     fi
   fi
@@ -1732,7 +1750,7 @@ shouldInstall() {
   local lastdepdate=
   local lastdep=
   if test -n "$3"; then
-    techo "Package $1 depends on $3."
+    techo -2 "Package $1 depends on $3."
     for dep in `echo $3 | tr ',' ' '`; do
 # Search for depline in install and contrib dirs
       local depdate=
@@ -1765,10 +1783,10 @@ shouldInstall() {
       local latedate=`(echo $pkgdate; echo $lastdepdate) | sort -r | head -1`
       latedate=`echo $latedate | sed 's/ .*$//'`
       if test "$latedate" != "$pkgdate"; then
-        techo "Dependency $lastdep installed more recently than $proj.  Rebuilding."
+        techo "Dependency $lastdep installed more recently than $proj. Rebuilding."
         return 0
       else
-        techo "Package $proj of some version installed more recently than all dependencies."
+        techo "Package $proj installed more recently than all dependencies. Not a reason to rebuild."
       fi
     else
       techo "None of the dependencies found in Bilder installation locations."
@@ -1792,36 +1810,39 @@ shouldInstall() {
        tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
        tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
        if test "$tstlastdate" = "$pkgdate"; then
-         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding ${proj}. Proceed to next step."
+         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding."
          return 0
        else
          techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
        fi
      else
-       techo "Tests for package ${proj} not installed.  Rebuilding package ${proj} and testing. Proceed to next step."
+       techo "Tests for package ${proj} not installed. Need to build to run tests. Rebuilding."
        return 0
      fi
   fi
 
 # If all builds younger than $BILDER_WAIT_DAYS, do not rebuild
   if ! isBuildTime $proj $builds $instdir; then
+    techo "Build is younger than BILDER_WAIT_DAYS."
+    techo "Not building ${proj}."
     return 1
   fi
 
 # Now look for builds of this particular version
-  techo "Checking for installation of '$builds' builds of $1."
+  techo -2  "Checking for installation of all builds '$builds' of $1."
   if areAllInstalled -i $instdirs $1 $builds; then
     if test -n "$builds"; then
-      techo "$builds builds of $1 installed."
+      techo "Verified that all builds of $1 are installed."
     else
       techo "Package $1 is installed."
     fi
+    techo "Not building ${proj}."
     return 1      # false
   fi
   if test -n "$builds"; then
-    techo "One or more of $builds build(s) of $1 not installed."
+    techo "One or more of builds of $1 not installed. Rebuilding."
   else
-    techo "Package $1 is not installed."
+    techo "Package $1 is not installed. Rebuilding."
   fi
   return 0  # true
 
@@ -1929,7 +1950,7 @@ isCcGcc() {
 # Returns whether CC contains a compiler that can compile
 # Python modules.
 #
-isCcCc4py() {
+isCcPyc() {
 # JRC: vs10 does differ from vs9 in stdint
   # if [[ `uname` =~ CYGWIN ]]; then
 # All compilers appear to work.
@@ -1942,17 +1963,20 @@ isCcCc4py() {
 }
 
 #
-# Add in cc4py build.  Done to packages that will be used by python.
+# Add a build.
+# Used for packages that need to be compiled consistent with Python
 #
 # Args:
 # 1: the package to add it to
+# 2: if this build not present add the build. $3
+# 3: the build to add
 #
 # Named args (must come first):
-# -f forces addition of cc4py build, as needed for Darwin
+# -f forces addition of $3 build, as needed for Darwin
 #
-# return whether added cc4py to the build
+# return whether added $3 to the build
 #
-addCc4pyBuild() {
+addBuild() {
 
 # Defaults
   local forceadd=false
@@ -1971,15 +1995,15 @@ addCc4pyBuild() {
 # Find builds
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
-# Force addition if no sersh build
-  if ! echo $buildsval | egrep -q "(^|,)sersh($|,)"; then
+# Force addition if no $2 build
+  if ! echo $buildsval | egrep -q "(^|,)$2($|,)"; then
     forceadd=true
   fi
 # Add builds
   if test "$buildsval" != NONE; then
-    if $forceadd || ! isCcCc4py; then
-      if ! echo "$buildsval" | egrep -q "(^|,)cc4py($|,)"; then
-        buildsval=$buildsval,cc4py
+    if $forceadd || ! isCcPyc; then
+      if ! echo "$buildsval" | egrep -q "(^|,)$2($|,)"; then
+        buildsval=$buildsval,$2
         trimvar buildsval ,
         eval $buildsvar=$buildsval
         buildsval=`deref $buildsvar`
@@ -1988,6 +2012,71 @@ addCc4pyBuild() {
     fi
   fi
   return 1
+}
+
+#
+# Add a pycsh build if appropriate.
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pycsh build, as needed for Darwin
+#
+# return whether added pycsh to the build
+addPycshBuild() {
+  addBuild $* sersh pycsh
+  return $?
+}
+
+#
+# Add a pycmd build if appropriate.
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pycmd build, as needed for Darwin
+#
+# return whether added pycmd to the build
+addPycmdBuild() {
+  addBuild $* sermd pycmd
+  return $?
+}
+
+#
+# Add a pyc build if appropriate.
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pyc build, as needed for Darwin
+#
+# return whether added pyc to the build
+addPycBuild() {
+  addBuild $* ser pyc
+  return $?
+}
+
+#
+# Add the appropriate static build for python
+#
+# Args:
+# 1: the package to add it to
+#
+# Named args (must come first):
+# -f forces addition of pyc build, as needed for Darwin
+#
+# return whether added pyc to the build
+addPycstBuild() {
+  if [[ `uname` =~ CYGWIN ]]; then
+    addPycmdBuild $*
+    return $?
+  else
+    addPycBuild $*
+    return $?
+  fi
 }
 
 #
@@ -2140,9 +2229,9 @@ setDistutilsEnv() {
 
 # Finish up
   DISTUTILS_NOLV_ENV="$DISTUTILS_ENV"
-  # DISTUTILS_ENV="$DISTUTILS_ENV $LINLIB_CC4PY_ENV $LDVARS_ENV"
+  # DISTUTILS_ENV="$DISTUTILS_ENV $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV="$DISTUTILS_ENV $LDVARS_ENV"
-  # DISTUTILS_ENV2="$DISTUTILS_ENV2 $LINLIB_CC4PY_ENV $LDVARS_ENV"
+  # DISTUTILS_ENV2="$DISTUTILS_ENV2 $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV2="$DISTUTILS_ENV2 $LDVARS_ENV"
   trimvar DISTUTILS_ENV ' '
   trimvar DISTUTILS_NOLV_ENV ' '
@@ -2167,7 +2256,7 @@ findParallelFcComps() {
 }
 
 #
-# Compute combined vars
+# Compute combined compiler vars
 #
 getCombinedCompVars() {
 
@@ -2255,6 +2344,59 @@ getCombinedCompVars() {
     techo -2 "CMAKE_COMPILERS_$i = $val."
   done
   techo -2 "The combined compiler variables have been set."
+
+}
+
+#
+# Compute combined compiler flag vars
+#
+getCombinedCompFlagVars() {
+
+  techo "Making the combined flags."
+  for i in SER PYC PAR; do
+
+    case $i in
+      SER) unset varprfx;;
+      PAR) varprfx=MPI_;;
+      *) varprfx=${i}_;;
+    esac
+
+# autotools flags
+    unset CONFIG_COMPFLAGS_${i}
+    for j in C CXX F FC; do
+      oldval=`deref CONFIG_COMPFLAGS_${i}`
+      varname=${varprfx}${j}FLAGS
+      varval=`deref $varname`
+      if test -n "$varval"; then
+        eval "CONFIG_COMPFLAGS_${i}=\"$oldval ${j}FLAGS='$varval'\""
+      fi
+    done
+    trimvar ALL_${i}_FLAGS ' '
+
+# CMake flags
+    unset CMAKE_COMPFLAGS_${i}
+    for j in C CXX FC; do
+      case $j in
+        CC)
+         cmakecompname=C
+         ;;
+        FC)
+         cmakecompname=Fortran
+         ;;
+        *)
+         cmakecompname=$j
+         ;;
+      esac
+      oldval=`deref CMAKE_COMPFLAGS_${i}`
+      varname=${varprfx}${j}FLAGS
+      varval=`deref $varname`
+      if test -n "$varval"; then
+        eval "CMAKE_COMPFLAGS_${i}=\"$oldval -DCMAKE_${cmakecompname}_FLAGS:STRING='$varval'\""
+      fi
+    done
+    trimvar ALL_${i}_CMAKE_FLAGS ' '
+
+  done
 
 }
 
@@ -2356,19 +2498,22 @@ findLibraries() {
 #     package.sh bilder script, but pkgname is the installation dir start.
 # 2:  Library name to look for
 # 3:  The directory to look in
-# 4-: The different builds to look for
+# 4: The different builds to look for.  If empty, use the _BUILDS variable.
 #
 # Named args (must come first):
+# -i include subdir.  Defaults to include.
 # -p Variable name prefix
 #
 findPackage() {
 
   local nameprefix=
+  local incsubdir=include
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "p:" arg; do
+  while getopts "i:p:" arg; do
     case $arg in
+      i) incsubdir=$2;;
       p) nameprefix=$2;;
     esac
   done
@@ -2388,28 +2533,39 @@ findPackage() {
     techo "[$FUNCNAME] usage: $FUNCNAME pkgname libname instdir BUILDS"
   fi
   local pkgnameprefix=${nameprefix}${pkgnameuc}
-  while test -n "$1"; do
-    local targetBlds="$targetBlds $1"
-    shift
-  done
+  local buildsvar=${pkgnameuc}_BUILDS
+  local targetBlds=`deref $buildsvar | tr ',' ' '`
+  if test -n "$*"; then
+    targetBlds="$*"
+  else
+    targetBlds=`deref $buildsvar | tr ',' ' '`
+  fi
+  techo -2 "$buildsvar = $targetBlds"
   trimvar targetBlds ' '
-  techo "Seeking $pkgnamelc with builds $targetBlds as system definition or in $INSTDIR."
+  if test -z "$targetBlds"; then
+    techo "WARNING: [$FUNCNAME] No builds for $1. Returning."
+    return
+  fi
+  techo "Seeking $pkgnamelc with builds, $targetBlds, as system definition or in $INSTDIR."
 
 # For each build, find the specified library
-  local BLD
-  local adirvar
-  local adirval
-  local alibvar
-  local alibval
-  local alibdirval
   eval HAVE_${pkgnameprefix}_ANY=false
   for bld in $targetBlds; do
 
+    techo
+
+    local adirval=
+    local alibval=
+    local alibdirval=
+    local aincdirval=
+
 # Set variable names
-    BLD=`echo $bld | tr 'a-z' 'A-Z'`
+    local BLD=`echo $bld | tr 'a-z' 'A-Z'`
     sysadirvar=SYSTEM_${pkgnameprefix}_${BLD}_DIR
     adirvar=${pkgnameprefix}_${BLD}_DIR
     alibvar=${pkgnameprefix}_${BLD}_LIB
+    alibdirvar=${pkgnameprefix}_${BLD}_LIBDIR
+    aincdirvar=${pkgnameprefix}_${BLD}_INCDIR
 
 # First look in system
     adirval=`deref $sysadirvar`
@@ -2424,30 +2580,35 @@ findPackage() {
           adirval=${dir}
           break
         fi
-        techo "$dir not found."
+        # techo "$dir not found."
       done
     fi
     if test -z "$adirval"; then
-      techo "${pkgnameprefix}_${BLD}_DIR not found for any case."
+      techo "${pkgnameprefix}_${BLD}_DIR not found for any case, $pkgname, $pkgnameuc, $pkgnamelc."
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
     fi
-    techo "adirval = $adirval"
-    alibdirval=${adirval}/lib
-    if test -d $alibdirval; then
-      alibdirval=`(cd $alibdirval; pwd -P)`
-    elif test -d $adirval/lib64; then
-      alibdirval=`(cd $adirval/lib64; pwd -P)`
-    elif test -n "$adirval" -a -d "$adirval"; then
+    adirval=`(cd $adirval; pwd -P)`
+    techo -2 "adirval = $adirval"
+    alibdirval=
+    for libsubdir in lib64 Win64/lib lib; do
+      techo -2 "Looking for $adirval/$libsubdir"
+      if test -d $adirval/$libsubdir; then
+        techo -2 "Found."
+        alibdirval=`(cd $adirval/$libsubdir; pwd -P)`
+        break
+      else
+        techo "$adirval/$libsubdir not present."
+      fi
+    done
+    if test -n "$alibdirval"; then
+      techo "Found library directory, $alibdirval."
       techo "Using $adirvar = $adirval."
       eval HAVE_${pkgnameprefix}_$BLD=true
     else
-      techo "Directory $adirvar not set, and $alibdirval not found. Setting HAVE_${pkgnameprefix}_$BLD to false."
+      techo "Library subdir not found for $adirval. Setting HAVE_${pkgnameprefix}_$BLD to false."
       eval HAVE_${pkgnameprefix}_$BLD=false
       continue
-    fi
-    if test -n "$alibdirval"; then
-      techo "Found library directory, $alibdirval."
     fi
 
 # Look for the library
@@ -2468,16 +2629,24 @@ findPackage() {
       fi
     fi
 
+# Look for the includes
+    if test -d $adirval/$incsubdir; then
+      aincdirval=`(cd $adirval/$incsubdir; pwd -P)`
+    fi
+
 # Set variables accordingly
     if $havelib; then
-      eval $adirvar=`(cd $alibdirval/..; pwd -P)`
-      eval HAVE_${pkgnameprefix}_${BLD}=true
-      adirval=`deref $adirvar`
-      eval ${pkgnameprefix}_${BLD}_LIBDIR=$alibdirval
-      eval $alibvar=$alibval
       techo "Package ${pkgnameprefix}_${BLD} found."
+      eval HAVE_${pkgnameprefix}_${BLD}=true
+      eval $adirvar="$adirval"
+      eval $adirvar=`(cd $adirval; pwd -P)`
+      eval $alibvar=$alibval
+      eval $alibdirvar=$alibdirval
+      eval $aincdirvar=$aincdirval
       printvar $adirvar
       printvar $alibvar
+      printvar $alibdirvar
+      printvar $aincdirvar
     elif test -n "$adirval"; then
       techo "Library, ${PKG_LIBNAME}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."
@@ -2486,38 +2655,42 @@ findPackage() {
       eval HAVE_${pkgnameprefix}_$BLD=false
     fi
 
-# Set cmake and config args
-    adirvar=${pkgnameprefix}_${BLD}_DIR
+# Set config arg
     adirval=`deref $adirvar`
+    if test -n "$adirval"; then
+      eval CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG=--with-${pkgnamelc}-dir=$adirval
+    fi
+    val=`deref CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG`
+    techo "CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
+
+# Set cmake arg
     local adirvalcmake=
     local alibdirvalcmake=
+    local aincdirvalcmake=
     case `uname` in
       CYGWIN*)
-        if test -n "$adirval"; then
-          adirvalcmake=`cygpath -am $adirval`
-        fi
-        if test -n "$alibdirval"; then
-          alibdirvalcmake=`cygpath -am $alibdirval`
-        fi
+        test -n "$adirval" && adirvalcmake=`cygpath -am $adirval`
+        test -n "$alibdirval" && alibdirvalcmake=`cygpath -am $alibdirval`
+        test -n "$aincdirval" && aincdirvalcmake=`cygpath -am $aincdirval`
         ;;
       *)
         adirvalcmake="$adirval"
         alibdirvalcmake="$alibdirval"
+        aincdirvalcmake="$aincdirval"
         ;;
     esac
     eval CMAKE_${pkgnameprefix}_${BLD}_DIR=$adirvalcmake
     eval CMAKE_${pkgnameprefix}_${BLD}_LIBDIR=$alibdirvalcmake
+    eval CMAKE_${pkgnameprefix}_${BLD}_INCDIR=$aincdirvalcmake
+    printvar CMAKE_${pkgnameprefix}_${BLD}_DIR
+    printvar CMAKE_${pkgnameprefix}_${BLD}_LIBDIR
+    printvar CMAKE_${pkgnameprefix}_${BLD}_INCDIR
     if test -n "$adirvalcmake"; then
 # cmake moving too root_dir
       eval CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG=-D${pkgname}_ROOT_DIR:PATH=$adirvalcmake
     fi
     val=`deref CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG`
     techo "CMAKE_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
-    if test -n "$adirval"; then
-      eval CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG=--with-${pkgnamelc}-dir=$adirval
-    fi
-    val=`deref CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG`
-    techo "CONFIG_${pkgnameprefix}_${BLD}_DIR_ARG = $val"
 
 # Set any
     local havepkg=`deref HAVE_${pkgnameprefix}_$BLD`
@@ -2537,9 +2710,10 @@ findPackage() {
 # 1: The name of the package
 #    (appropriately capitalized, pkgnamelc to be a package.sh bilder script)
 # 2: Library name to look for
-# 3: different builds to look for
+# 3: different builds to look for.  If empty, use the _BUILDS variable.
 #
 # Named args (must come first):
+# -i The include subdir
 # -p Variable name prefix
 #
 findContribPackage() {
@@ -2547,8 +2721,9 @@ findContribPackage() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "p:" arg; do
+  while getopts "i:p:" arg; do
     case $arg in
+      i) preargs="$preargs -i $2";;
       p) preargs="$preargs -p $2";;
     esac
   done
@@ -2603,13 +2778,21 @@ setDefaultPkgVars() {
 }
 
 #
-# Find blas and lapack in various forms for the builds, ser, cc4py, and ben.
+# Find blas and lapack in various forms for the builds, ser, pycsh, and ben.
+#
+# The favored configuration args in order:
+#   {system}  or {MKL}   # See note below
+#   {contrib atlas, contrib lapack} or {contrib ptsolve-lite}
+#   {atlas-clapack, clapack} or {ptsolve-lite}
+#
+# Useful ENV variables for controlling order: USE_ATLAS, USE_MKL,
+#  USE_PTSOLVE_LITE, USE_CONTRIB_LAPACK
 #
 # The goal is to assign values
 #   LINLIB_${BLD}_LIBS, the absolute paths to the libraries
 #   CMAKE_LINLIB_${BLD}_ARGS, the cmake args for finding those libraries
 #   CONFIG_LINLIB_${BLD}_ARGS, the autotools args for finding those libraries
-# where BLD = SER, SERMD for CLAPACK, CC4PY, BEN, and
+# where BLD = SER, SERMD for CLAPACK, PYCSH, BEN, and
 #   LAPACK_${BLD}_${VAR}
 #   BLAS_${BLD}_${VAR}
 # where VAR is one of DIR, LIBRARY_DIRS, LIBRARY_NAMES
@@ -2621,15 +2804,24 @@ setDefaultPkgVars() {
 # found, but they are there.  In this case they remain
 # unset and packages should find.
 #
+# ptsolve-lite is a pure fortran version of blas/lapack that is
+# much faster to build.  It is not as high performance as atlas, but
+# for many applications, it's preferred (blas,lapack required but not
+# critical to performance).
+# The environment variables are PTSOLVE_LITE_*
+#
+# MKL is a unique beast because it's tightly coupled to the Intel compilers.
+# In this case, it acts more like a system library than a "contributed" library
+#
+# This method is a pretty verbose method as it shows all possible choices
+#  and then the one used is shown at the end.
+#
 findBlasLapack() {
 
-  techo "----------------------------------------"
-  techo "--------> Executing findBlasLapack <--------"
-# The favored configuration args in order:
-#   system
-#   contrib atlas, contrib lapack
-#   atlas-clapack, clapack
+
   USE_ATLAS=${USE_ATLAS:-"false"}
+  USE_PTSOLVE_LITE=${USE_PTSOLVE_LITE:-"false"}
+  USE_MKL=${USE_MKL:-"false"}
 
 # Temps
   local lapack_libs=
@@ -2641,11 +2833,11 @@ findBlasLapack() {
 #
 
 # Use system libraries if defined
-  for BLD in SER SERSH CC4PY BEN; do
+  for BLD in SER SERSH PYCSH BEN; do
     lapack_libs=`deref SYSTEM_LAPACK_${BLD}_LIB`
     blas_libs=`deref SYSTEM_BLAS_${BLD}_LIB`
     if test -n "$lapack_libs" -a -n "$blas_libs"; then
-      techo "Setting lapack and blas using SYSTEM_LAPACK_${BLD}_LIB = $lapack_libs and SYSTEM_BLAS_${BLD}_LIB = $blas_libs."
+      techo -2 "Setting lapack and blas using SYSTEM_LAPACK_${BLD}_LIB = $lapack_libs and SYSTEM_BLAS_${BLD}_LIB = $blas_libs."
       eval LAPACK_${BLD}_LIBS="\"$lapack_libs\""
       eval BLAS_${BLD}_LIBS="\"$blas_libs\""
     fi
@@ -2654,11 +2846,11 @@ findBlasLapack() {
   done
 
 # Find atlas build, but use it only if requested.
-  findContribPackage ATLAS atlas cc4py ben clp sersh ser
+  findContribPackage ATLAS atlas pycsh ben clp sersh ser
 # Set defaults
-  setDefaultPkgVars ATLAS "SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars ATLAS "SER SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  for BLD in CC4PY BEN SERSH SER; do
+  setDefaultPkgVars ATLAS "SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars ATLAS "SER SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  for BLD in PYCSH BEN SERSH SER; do
     techo -2 "ATLAS_${BLD}_DIR = `deref ATLAS_${BLD}_DIR`."
     techo -2 "ATLAS_${BLD}_LIB = `deref ATLAS_${BLD}_LIB`."
     techo -2 "ATLAS_${BLD}_LIBDIR = `deref ATLAS_${BLD}_LIBDIR`."
@@ -2666,8 +2858,8 @@ findBlasLapack() {
     techo -2 "CONFIG_ATLAS_${BLD}_DIR_ARG = `deref CONFIG_ATLAS_${BLD}_DIR_ARG`."
   done
 # Compute vars
-  USE_ATLAS_CC4PY=${USE_ATLAS_CC4PY:-"true"}
-  for BLD in SER SERSH CC4PY BEN CLP; do
+  USE_ATLAS_PYCSH=${USE_ATLAS_PYCSH:-"true"}
+  for BLD in SER SERSH PYCSH BEN CLP; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveatlas=`deref HAVE_ATLAS_$BLD`
@@ -2687,13 +2879,49 @@ findBlasLapack() {
     techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
   done
 
+# Find ptsolve_lite build, but use it only if requested.
+# plite builds both shared and static simultaneously
+  findContribPackage PTSOLVE_LITE lapack ser
+# Set defaults
+  setDefaultPkgVars PTSOLVE_LITE "SER SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  for BLD in PYCSH BEN SER SERDBG; do
+    techo -2 "PTSOLVE_LITE_${BLD}_DIR = `deref PTSOLVE_LITE_${BLD}_DIR`."
+    techo -2 "PTSOLVE_LITE_${BLD}_LIB = `deref PTSOLVE_LITE_${BLD}_LIB`."
+    techo -2 "PTSOLVE_LITE_${BLD}_LIBDIR = `deref PTSOLVE_LITE_${BLD}_LIBDIR`."
+    techo -2 "CMAKE_PTSOLVE_LITE_${BLD}_DIR_ARG = `deref CMAKE_PTSOLVE_LITE_${BLD}_DIR_ARG`."
+    techo -2 "CONFIG_PTSOLVE_LITE_${BLD}_DIR_ARG = `deref CONFIG_PTSOLVE_LITE_${BLD}_DIR_ARG`."
+  done
+# Compute vars
+  USE_PTSOLVE_LITE_PYCSH=${USE_PTSOLVE_LITE_PYCSH:-"false"}
+  for BLD in SER SERDBG PYCSH BEN; do
+    local haveplite=`deref HAVE_PTSOLVE_LITE_$BLD`
+    local useplite=`deref USE_PTSOLVE_LITE_$BLD`
+    useplite=${useplite:-"$USE_PTSOLVE_LITE"}
+    useplite=${useplite:-"false"}
+    if $useplite && $haveplite; then
+      local plitelibdir=`deref PTSOLVE_LITE_${BLD}_DIR`/lib
+      eval LAPACK_${BLD}_LIBS="\"-L$plitelibdir -llapack\""
+      eval BLAS_${BLD}_LIBS="\"-L$plitelibdir -lblas\""
+    fi
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
+  done
+
 # Find the lapack in the contrib dir, but use it only if requested.
-  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh cc4py ben
-  setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH CC4PY" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH CC4PY BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
+  setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  if test `uname` = Linux -a -e /usr/lib64/liblapack.a; then
+# Old lapacks do not have some symbols, in which case we must use
+# the contrib lapack.
+    if ! nm /usr/lib/liblapack.a | grep slarra_; then
+      USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"true"}
+    fi
+  fi
   USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"false"}
+  techo -2 "USE_CONTRIB_LAPACK = $USE_CONTRIB_LAPACK."
   if $USE_CONTRIB_LAPACK; then
-    for BLD in SER SERMD SERSH CC4PY BEN; do
+    for BLD in SER SERMD SERSH PYCSH BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       local havecontlp=`deref HAVE_CONTRIB_LAPACK_$BLD`
@@ -2714,8 +2942,8 @@ findBlasLapack() {
   fi
 
 # Find clapack.  Use it if found and not defined.
-  findContribPackage clapack_cmake lapack ser sermd cc4py ben
-  for BLD in SER SERMD SERSH CC4PY BEN; do
+  findContribPackage clapack_cmake lapack ser sermd pycsh ben
+  for BLD in SER SERMD SERSH PYCSH BEN; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
     local haveclp=`deref HAVE_CLAPACK_CMAKE_$BLD`
@@ -2731,7 +2959,7 @@ findBlasLapack() {
 
 # If still not found, try some system locations under /usr
   if test `uname` = Linux; then
-    techo "Seeking blas and lapack in $SYS_LIBSUBDIRS under /usr."
+    techo -2 "Seeking blas and lapack in $SYS_LIBSUBDIRS under /usr."
     for BLD in SER SERSH; do
       for lib in blas lapack; do
         local sfx=
@@ -2756,7 +2984,7 @@ findBlasLapack() {
         done
         if test -n "$varval"; then
           eval $varname=$varval
-          techo "$varname = $varval found."
+          techo -2 "$varname = $varval found."
         else
           techo "WARNING: [$FUNCNAME] Problem finding blas,lapack. $varname empty and lib${lib}.$sfx not found.  May need to install $lib-$pkgtype."
         fi
@@ -2773,19 +3001,36 @@ findBlasLapack() {
     done
   fi
 
+# If MKL requested, then use it
+  if test -n $USE_MKL; then
+   if $USE_MKL; then
+    # MKL doesn't separate blas and lapack?
+    MKL_DIR=${MKL_DIR:-${MKLROOT}}
+    MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
+    MKL_LAPACK_LIBS="-lmkl_lapack"
+    for BLD in SER SERMD SERSH PYCSH BEN; do
+      eval LAPACK_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_LAPACK_LIBS}\""
+      eval BLAS_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_BLAS_LIBS}\""
+    done
+    techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
+    techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
+   fi
+  fi
+
 # Ben defaults to ser
   LAPACK_BEN_LIBS=${LAPACK_BEN_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_BEN_LIBS=${BLAS_BEN_LIBS:-"$BLAS_SER_LIBS"}
+# sersh defaults to ser
+  LAPACK_SERSH_LIBS=${LAPACK_SERSH_LIBS:-"$LAPACK_SER_LIBS"}
+  BLAS_SERSH_LIBS=${BLAS_SERSH_LIBS:-"$BLAS_SER_LIBS"}
 # Cc4py defaults to sersh, then ser
-  LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SERSH_LIBS"}
-  BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SERSH_LIBS"}
-  LAPACK_CC4PY_LIBS=${LAPACK_CC4PY_LIBS:-"$LAPACK_SER_LIBS"}
-  BLAS_CC4PY_LIBS=${BLAS_CC4PY_LIBS:-"$BLAS_SER_LIBS"}
+  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SERSH_LIBS"}
+  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SERSH_LIBS"}
 
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
   if ! test `uname` = Darwin; then
-    for BLD in SER SERSH CC4PY BEN; do
+    for BLD in SER SERSH PYCSH BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       eval LINLIB_${BLD}_LIBS="\"$lapack_libs $blas_libs\""
@@ -2813,7 +3058,7 @@ findBlasLapack() {
   fi
 
 # Print out results
-  for BLD in SER SERSH CC4PY BEN; do
+  for BLD in SER SERSH PYCSH BEN; do
     techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
     techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
     techo "CONFIG_LINLIB_${BLD}_ARGS = `deref CONFIG_LINLIB_${BLD}_ARGS`."
@@ -2828,62 +3073,134 @@ findBlasLapack() {
 # The linear library env is needed for numpy and scipy only.
 # BLAS and LAPACK define the dirs they are in, and then numpy
 # checks for mkl, acml, ...
-  LINLIB_CC4PY_ENV=
+  LINLIB_PYCSH_ENV=
   for PKG in LAPACK BLAS; do
-    local libdir=`deref ${PKG}_CC4PY_LIBRARY_DIRS | sed 's/ .*$//'`
+    local libdir=`deref ${PKG}_PYCSH_LIBRARY_DIRS | sed 's/ .*$//'`
     if test -n "$libdir"; then
       if [[ `uname` =~ CYGWIN ]]; then
         libdir=`cygpath -aw "$libdir"`
       fi
-      LINLIB_CC4PY_ENV="$LINLIB_CC4PY_ENV $PKG='$libdir'"
+      LINLIB_PYCSH_ENV="$LINLIB_PYCSH_ENV $PKG='$libdir'"
     fi
   done
-  trimvar LINLIB_CC4PY_ENV ' '
-  techo "LINLIB_CC4PY_ENV = $LINLIB_CC4PY_ENV."
+  trimvar LINLIB_PYCSH_ENV ' '
+  techo "LINLIB_PYCSH_ENV = $LINLIB_PYCSH_ENV."
   setDistutilsEnv
   # techo "Quitting after setDistutilsEnv."; exit
 
 }
 
 #
-# Find a the cc4py build of a package that may be in the contrib dir
-# by using that value, or sersh if not present, then ser
+# Find a the build of a package that may be in the contrib dir
+# allowing for alternate builds to fit the role
+#
+# by using that value, then ser if not windows,
+# and sermd if windows
+#
+# Args:
+# 1: The name of the package (should be a package.sh bilder script)
+# 2: The name of build to be set
+# *: Fallback builds that can be used
+#
+findAltPkgDir() {
+
+# Get name of package
+  local pkgname=$1
+  if test -z "$1"; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] package not set."
+    terminate
+  fi
+  local pkgnameuc=`echo $1 | tr 'a-z./-' 'A-Z___'`
+  shift
+
+# Name of desired build
+  desbld=$1
+  if test -z "$1"; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] desired build not set."
+    terminate
+  fi
+  local desblduc=`echo $1 | tr 'a-z./-' 'A-Z___'`
+  shift
+
+# Try given name
+  local val=`deref ${pkgnameuc}_${desblduc}_DIR`
+
+# Names of fallback builds
+  local fallbacks="$*"
+  if test -z "$val" -a -z "$fallbacks"; then
+    TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Neither ${pkgnameuc}_${desbld}_DIR nor fallback builds set."
+    terminate
+  fi
+
+# Work through fallback builds
+  if test -z $val; then
+    techo "Looking for alternate builds for $pkgname-$desbld."
+    for bld in $fallbacks; do
+      local blduc=`echo $bld | tr 'a-z./-' 'A-Z___'`
+      val=`deref ${pkgnameuc}_${blduc}_DIR`
+      if test -n "$val"; then
+        eval ${pkgnameuc}_${desblduc}_DIR="$val"
+        printvar ${pkgnameuc}_${desblduc}_DIR
+        break
+      else
+        techo "${pkgnameuc}_${blduc}_DIR not set."
+      fi
+    done
+  fi
+  if test -z "$val"; then
+    techo "WARNING: [$FUNCNAME] Cannot find ${desbld} build of ${pkgnameuc}."
+    return
+  fi
+
+# Set configure variables
+  # techo "${pkgnameuc}_${desblduc}_DIR = `deref ${pkgnameuc}_${desblduc}_DIR`."
+  eval CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
+  # techo "CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CONFIG_${pkgnameuc}_${desblduc}_DIR_ARG`."
+  case `uname` in
+    CYGWIN*) val=`cygpath -am $val`;;
+  esac
+  eval CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
+  # techo "CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG = `deref CMAKE_${pkgnameuc}_${desblduc}_DIR_ARG`."
+
+}
+
+#
+# Find a the pycst build of a package that may be in the contrib dir
+# by using that value, then ser if not windows,
+# and sermd if windows
 #
 # Args:
 # 1: The name of the package (should be a package.sh bilder script)
 #
-findCc4pyDir() {
+findPycstDir() {
 
-# Get name of package
-  if test -n "$1"; then
-    local pkgname=$1
-    local pkgnameuc=`echo $1 | tr 'a-z./-' 'A-Z___'`
-    local pkgnamelc=`echo $1 | tr 'A-Z./' 'a-z__'`
-    shift
+  local fallbacks=
+  if [[ `uname` =~ CYGWIN ]]; then
+    fallbacks="sermd"
+  else
+    fallbacks="ser"
   fi
+  findAltPkgDir $1 pycst $fallbacks
 
-# Look through names
-  local val=`deref ${pkgnameuc}_CC4PY_DIR`
+}
 
-# If explicit build not found, then it is the shared, then the serial
-  if test -z "$val"; then
-    eval ${pkgnameuc}_CC4PY_DIR=`deref ${pkgnameuc}_SERSH_DIR`
-    val=`deref ${pkgnameuc}_CC4PY_DIR`
+#
+# Find a the pycsh build of a package that may be in the contrib dir
+# by using that value, or sersh if not present, then ser if not windows,
+# and sermd if windows
+#
+# Args:
+# 1: The name of the package (should be a package.sh bilder script)
+#
+findPycshDir() {
+
+  local fallbacks=
+  if [[ `uname` =~ CYGWIN ]]; then
+    fallbacks="sersh sermd"
+  else
+    fallbacks="sersh ser"
   fi
-  if test -z "$val"; then
-    eval ${pkgnameuc}_CC4PY_DIR=`deref ${pkgnameuc}_SER_DIR`
-    val=`deref ${pkgnameuc}_CC4PY_DIR`
-  fi
-  techo "${pkgnameuc}_CC4PY_DIR = `deref ${pkgnameuc}_CC4PY_DIR`."
-  eval CONFIG_${pkgnameuc}_CC4PY_DIR_ARG="--with-${pkgnamelc}-dir='$val'"
-  techo "CONFIG_${pkgnameuc}_CC4PY_DIR_ARG = `deref CONFIG_${pkgnameuc}_CC4PY_DIR_ARG`."
-  if test -n "$val"; then
-    case `uname` in
-      CYGWIN*) val=`cygpath -am $val`;;
-    esac
-  fi
-  eval CMAKE_${pkgnameuc}_CC4PY_DIR_ARG="-D${pkgname}_ROOT_DIR:PATH='$val'"
-  techo "CMAKE_${pkgnameuc}_CC4PY_DIR_ARG = `deref CMAKE_${pkgnameuc}_CC4PY_DIR_ARG`."
+  findAltPkgDir $1 pycsh $fallbacks
 
 }
 
@@ -3057,7 +3374,7 @@ getPkg() {
               terminate
             fi
           else
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir).  Remove?"
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir). Remove?"
             terminate
           fi
           if test $numtarballs -gt 1; then
@@ -3216,19 +3533,20 @@ updateRepo() {
   eval "$cmd"
 
 # Determine whether changesets are available
-  rm -f chgsets
   upurlvar=`genbashvar $pkg`_UPSTREAM_URL
   upurlval=`deref $upurlvar`
   if test -n "$upurlval"; then
     case $scmexec in
-      hg) hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>chgsets;;
-      git) git fetch && git log ..origin/$branchval 2>/dev/null 1>chgsets;;
+      hg) hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>bilder_chgsets;;
+      git) git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets;;
     esac
-    if test -s chgsets; then
-      techo "WARNING: Changesets available for $pkg from $upurlval."
+    if test -s bilder_chgsets; then
+      techo "WARNING: [$FUNCNAME] Changesets available for $pkg from $upurlval:"
+      cat bilder_chgsets | tee -a $LOGFILE
     else
       techo "No changesets available for $pkg from $upurlval."
     fi
+    rm -f bilder_chgsets
   fi
 
 # Return to project dir
@@ -3305,7 +3623,7 @@ bilderUnpack() {
 
 # Remaining args
   local builds=$2
-  techo "Determining whether to unpack $1."
+  techo -2 "Determining whether to unpack $1."
 
 # Record start time
   local starttimevar=`genbashvar $1`_START_TIME
@@ -3369,7 +3687,7 @@ bilderUnpack() {
     instdirsval=$CONTRIB_DIR
     eval $instdirsvar=$instdirsval
   fi
-  techo "bilderUnpack: $instdirsvar = $instdirsval."
+  techo -2 "bilderUnpack: $instdirsvar = $instdirsval."
 
 # See whether should install
   if shouldInstall -I $instdirsval $1-$verval "$builds" $DEPS; then
@@ -3473,7 +3791,7 @@ bilderUnpack() {
           fi
 #
           (cd $BUILD_DIR/$1-$verval/$i; cmd="patch $patchlev $patchargs <$patchval"; techo "In $PWD: $cmd"; patch $patchlev $patchargs <$patchval >$BUILD_DIR/$1-$verval/$i/patch.out 2>&1)
-          techo "Package $1-$i patched.  Results in $BUILD_DIR/$1-$verval/$i/patch.out."
+          techo "Package $1-$i patched. Results in $BUILD_DIR/$1-$verval/$i/patch.out."
           if grep -qi fail $BUILD_DIR/$1-$verval/$i/patch.out; then
             grep -i fail $BUILD_DIR/$1-$verval/$i/patch.out | sed 's/^/WARNING: [$FUNCNAME] /' >$BUILD_DIR/$1-$verval/$i/patch.fail
             cat $BUILD_DIR/$1-$verval/$i/patch.fail | tee -a $LOGFILE
@@ -3610,7 +3928,7 @@ bilderPreconfig() {
     if declare -f bilderGetTestData 1>/dev/null 2>&1; then
       bilderGetTestData $1
     else
-      techo "WARNING: [$FUNCNAME] function bilderGetTestData not defined.  Requested by $1."
+      techo "WARNING: [$FUNCNAME] function bilderGetTestData not defined. Requested by $1."
       if test -n "$BILDER_CONFDIR"; then
         techo "WARNING: [$FUNCNAME] It should be defined in $BILDER_CONFDIR/bilderrc."
       else
@@ -3683,10 +4001,13 @@ bilderPreconfig() {
     preconfigaction=${preconfigaction:-"autoreconf -fi"}
   fi
 
+# Commenting out the below because value printed was wrong, and the existing
+# comment is unclear, and nothing is done with the information computed.
+#
 # Is there a patch?  Not going further, as not clear that we want this.
-  local patchvar=`genbashvar $1`_PATCH
-  local patchfile=`deref ${patchvar}`
-  techo "$patchvar = $patchval"
+# local patchvar=`genbashvar $1`_PATCH
+# local patchfile=`deref ${patchvar}`
+# techo "$patchvar = $patchval"
 
 # If no preconfigure action, compute make -j value and return
   if test -z "$preconfigaction"; then
@@ -3794,6 +4115,7 @@ rminterlibdeps() {
 # -S <time> maximum seconds a test is allowed to take
 # -t do not record failure if $IGNORE_TEST_RESULTS is true
 # -T top of sourcedir for configuring
+# -V use checker/scan-build if found
 # -y do not use --prefix in configure command at all
 #
 # Returns
@@ -3830,11 +4152,12 @@ bilderConfig() {
   local srcsubdir=
   local testsecs=
   local usecmake=false
+  local use_scan_build=false
   local webdocs=false  # By default, we do not build documentation for the web
 # Parse options
   set -- "$@" # This syntax is needed to keep parameters quoted
   OPTIND=1
-  while getopts "b:B:cC:d:fgiI:ylm:np:Pq:rsS:tT:" arg; do
+  while getopts "b:B:cC:d:fgiI:ylm:np:Pq:rsS:tT:V" arg; do
     case $arg in
       b) buildsubdir="$OPTARG";;
       B) buildsubdir="$OPTARG"; build_inplace=true;;
@@ -3856,6 +4179,7 @@ bilderConfig() {
       S) testsecs="$OPTARG";;
       t) recordfailure=false;;
       T) srcsubdir="$OPTARG";;
+      V) use_scan_build=true;;
       y) noprefix=true; inplace=true;;
     esac
   done
@@ -3868,6 +4192,11 @@ bilderConfig() {
 # Get the version
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
+
+# If scan-build not found set use_scan_build to false
+  if ! which scan-build 2>/dev/null; then
+    use_scan_build=false
+  fi
 
 # Determine if repo or tarball build. Tarball builds are always built
 # with CMake build type = Release, whereas repo builds are RelWithDebInfo
@@ -3931,8 +4260,12 @@ bilderConfig() {
       if shouldInstall -I $instdirval $1-$verval $2 $DEPS; then
         dobuildval=true
         techo "Package $1-$verval-$2 is a candidate for configuring since a dependency rebuilt or $1-$verval not installed."
+      else
+        techo "Not configuring since $1-$verval-$2 already installed in $instdirval."
       fi
     fi
+  else
+    techo "Not configuring since $2 build not in $buildsvar = $buildsval."
   fi
 # Store result
   local dobuildvar=`genbashvar $1-$2`_DOBUILD
@@ -3941,7 +4274,6 @@ bilderConfig() {
 # If not building, return 99.
 # the config file.
   if ! $dobuildval; then
-    techo "Not configuring since $1-$verval-$2 already installed in $instdirval, or $2 not in $buildsvar = $buildsval."
     return 99
   fi
 
@@ -3971,8 +4303,6 @@ bilderConfig() {
   local fullinstalldir=
   if test $instsubdirval != '-'; then
     fullinstalldir=$instdirval/`deref $instsubdirvar`
-  else
-    fullinstalldir=$instdirval
   fi
   techo -2 "Full installation directory is $fullinstalldir."
 
@@ -4073,12 +4403,14 @@ bilderConfig() {
     # configure in place and build out of place.  To work with multiple
     # compiler options, it's often better to checkout into the BUILD_DIR
     # to keep compiler combinations separate.  So first check to see if
-    # this is the case 
+    # this is the case
     if test -f $BUILD_DIR/$1/configure; then
       configexec="$BUILD_DIR/$1/configure"
     else
       configexec="$PROJECT_DIR/$1/configure"
     fi
+    techo -2 "Using this configure: $configexec."
+    test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     cmval=petsc
     inplace=true
   elif test -n "$configcmdin"; then
@@ -4109,7 +4441,7 @@ bilderConfig() {
     elif test -f $builddir/../configure; then
 # Usual autotools out-of-place build
       configexec="$builddir/../configure"
-      configargs="--prefix=$fullinstalldir"
+      test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
       cmval=autotools
 # If configure is a python script, then use the cygwin python.
       if head -1 $configexec | egrep -q python; then
@@ -4120,11 +4452,13 @@ bilderConfig() {
     elif test -f $builddir/configure; then
 # Possible in-place build, e.g., doxygen
       configexec="$builddir/configure"
-	cmval=autotools
-      if $noequals; then
-        configargs="--prefix $fullinstalldir"
-      else
-        configargs="--prefix=$fullinstalldir"
+      cmval=autotools
+      if test -n "$fullinstalldir"; then
+        if $noequals; then
+          configargs="--prefix $fullinstalldir"
+        else
+          configargs="--prefix=$fullinstalldir"
+        fi
       fi
     elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
 # CMake is always out of place
@@ -4138,13 +4472,13 @@ bilderConfig() {
   elif test -f $PROJECT_DIR/$1/configure -a -f $PROJECT_DIR/$1/configure.ac; then
 # Repo, autotools
     configexec="$PROJECT_DIR/$1/$srcsubdir/configure"
-    configargs="--prefix=$fullinstalldir"
+    test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     cmval=autotools
   elif test -f $PROJECT_DIR/$1/$srcsubdir/configure; then
 # Repo but not configure.ac: Most likely petsc
     if test -f $PROJECT_DIR/$1/configure; then
       configexec="$PROJECT_DIR/$1/configure"
-      configargs="--prefix=$fullinstalldir"
+      test -n "$fullinstalldir" && configargs="--prefix=$fullinstalldir"
     fi
   elif test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
 # Repo, CMake
@@ -4172,6 +4506,9 @@ bilderConfig() {
   local cmvar=`genbashvar $1`_CONFIG_METHOD
   eval $cmvar=$cmval
   techo "Configuration of type $cmval."
+  case cmval in
+    autotools | cmake) $use_scan_build && configexec="scan-build $configexec";;
+  esac
 
 # Strip the builddir from configcmdin if -s and -m options specified
   if test -n "$configcmdin" && $stripbuilddir; then
@@ -4194,6 +4531,7 @@ bilderConfig() {
         else
           builddir=$PROJECT_DIR/$1
         fi
+        techo -2 "Using this builddir for petsc: $builddir"
       elif test -d $PROJECT_DIR/$1; then
 # In place build from repo
         builddir=$PROJECT_DIR/$1
@@ -4224,7 +4562,7 @@ bilderConfig() {
 # has been created.
 #
   unset cmd
-  if test $RM_BUILD; then
+  if $RM_BUILD; then
     techo -2 "Removing old builds..."
     if test "$cmval" = cmake -a "$inplace" = false; then
       cmd="rmall *"
@@ -4256,7 +4594,7 @@ bilderConfig() {
 # Remove previous install if requested and installdir exists
 #
   techo -2 "fullinstalldir = $fullinstalldir."
-  if test -d $fullinstalldir -a "$rminstall" = true; then
+  if test -n "$fullinstalldir" -a -d "$fullinstalldir" -a "$rminstall" = true; then
     techo "removing fullinstalldir"
     rmall $fullinstalldir
   fi
@@ -4280,14 +4618,13 @@ bilderConfig() {
       configargs="${configargs} '${profilename}'"
       ;;
     cmake)
-      case `uname` in
-        CYGWIN*)
-          cmakeinstdir=`cygpath -am $fullinstalldir`
-          ;;
-        *)
-          cmakeinstdir="$fullinstalldir"
-          ;;
-      esac
+      local cmakeinstdir=
+      if test -n "$fullinstalldir"; then
+        case `uname` in
+          CYGWIN*) cmakeinstdir=`cygpath -am $fullinstalldir`;;
+          *) cmakeinstdir="$fullinstalldir";;
+        esac
+      fi
       if test -f $PROJECT_DIR/$1/$srcsubdir/CMakeLists.txt; then
         srcarg=`(cd $PROJECT_DIR/$1/$srcsubdir; pwd -P)`
       elif test -f $builddir/../$srcsubdir/CMakeLists.txt; then
@@ -4314,7 +4651,8 @@ bilderConfig() {
         hasscimake=true
       fi
 # Some options are always chosen
-      configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
+      test -n "$cmakeinstdir" && configargs="$configargs -DCMAKE_INSTALL_PREFIX:PATH=$cmakeinstdir"
+      configargs="$configargs -DCMAKE_BUILD_TYPE:STRING=$cmakebuildtype -DCMAKE_COLOR_MAKEFILE:BOOL=FALSE $CMAKE_LIBRARY_PATH_ARG"
       if test $VERBOSITY -ge 1; then
         configargs="$configargs -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE"
       fi
@@ -4540,9 +4878,10 @@ addActionToLists() {
 # 4: (optional) environment variables for the build
 #
 # Named args (must come first):
+# -D        Do not run make depend
 # -k        Keep old build, do not make clean
 # -m <exec> Use <exec> instead of make (unix) or jom (Windows)
-# -S        Execute build in source directory, but assume out-of-source build
+# -V        use checker/scan-build if found
 #
 # Return 0 if a build launched
 #
@@ -4560,6 +4899,7 @@ bilderBuild() {
   local bildermake
   local makeclean=true
   local makedepend=true
+  local use_scan_build=false
 # Parse options
 # This syntax is needed to keep parameters quoted
   set -- "$@"
@@ -4569,6 +4909,7 @@ bilderBuild() {
       D) makedepend=false;;
       k) makeclean=false;;
       m) bildermake="$OPTARG";;
+      V) use_scan_build=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -4583,6 +4924,11 @@ bilderBuild() {
 # Get the build directory
   local builddirvar=`genbashvar $1-$2`_BUILD_DIR
   local builddir=`deref $builddirvar`
+
+# If scan-build not found set use_scan_build to false
+  if ! which scan-build 2>/dev/null; then
+    use_scan_build=false
+  fi
 
 # Check that we are building.  Must not be turned off, and last
 # result must have been good and configuration file must exist
@@ -4628,6 +4974,9 @@ bilderBuild() {
     techo "$bildermake -i depend"
     $bildermake -i depend 1>depend.txt 2>&1
   fi
+
+# Put scan-build in front
+  $use_scan_build && bildermake="scan-build $bildermake"
 
 # make all
   local envprefix=
@@ -5548,6 +5897,7 @@ installRelShlib() {
 # -b <builds>  Builds that could have been tested
 # -h           Whether builds have tests
 # -n <tests>   Name of tests if not found from lower-casing $2
+# -I 	       Ignore test results
 #
 # Return true if should be installed
 #
@@ -5557,13 +5907,15 @@ shouldInstallTestedPkg() {
 # Parse options
   local hasbuildtests=false
   local tstsnm=
+  local localIgnore=false;
   set -- "$@"
   OPTIND=1
-  while getopts "b:hn:" arg; do
+  while getopts "b:hn:I" arg; do
     case $arg in
       b) builds="$OPTARG";;
       h) hasbuildtests=true;;
       n) tstsnm="$OPTARG";;
+      I) localIgnore=true;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -5611,7 +5963,7 @@ shouldInstallTestedPkg() {
           fi
         elif test "$resval" != 0; then
           techo "shouldInstallTestedPkg: $pkgname-$bld $tsttype failed."
-          if $IGNORE_TEST_RESULTS; then
+          if $IGNORE_TEST_RESULTS || $localIgnore; then
             techo "Ignoring $tsttype result of $pkgname-$bld in determining whether to install."
           else
             installPkg=false
@@ -5800,8 +6152,10 @@ bilderInstall() {
     local hs=`echo $hostids | tr ',' ' '`
     for h in $hs; do
       if [[ $FQMAILHOST =~ "$h" ]]; then
-        techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm'. Host in list [$hostids]."
-        setGroup=true
+        if groups | egrep -q "(^| )${grpnm}( |$)"; then
+          techo -2 "NOTE: [$FUNCNAME] Will set group of $1-$2 to '$grpnm'. Host in list [$hostids]."
+          setGroup=true
+        fi
         break
       fi
     done
@@ -5902,10 +6256,10 @@ bilderInstall() {
       fi
     else
       instsubdirbase=$1
-      if test -d $instdirval/$1-$verval-$2; then
-        instsubdirval=$1-$verval-$2
-      elif test -d $instdirval/$1-$verval; then
+      if test -d $instdirval/$1-$verval; then
         instsubdirval=$1-$verval
+      else
+        instsubdirval=$1-$verval-$2
       fi
     fi
     techo -2 "instsubdirval = $instsubdirval."
@@ -5998,12 +6352,10 @@ bilderInstall() {
 # Set umask, install, restore umask
     local umaskvar=`genbashvar $1`_UMASK
     local umaskval=`deref $umaskvar`
-    if test -z "$umaskval"; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] $umaskvar not set."
-      terminate
-    fi
     local origumask=`umask`
-    umask $umaskval
+    if test -n "$umaskval"; then
+      umask $umaskval
+    fi
 
 # Create installation script, as gets env correct when there are spaces
     local installscript=$FQMAILHOST-$1-$2-install.sh
@@ -6020,7 +6372,7 @@ EOF
     chmod ug+x $installscript
 # Use the installation script
     install_txt=$FQMAILHOST-$1-$2-install.txt
-    techo "Installing $1-$2 in $PWD using $installscript at `date +%F-%T`." | tee $install_txt
+    techo "Installing $1-$2 from $PWD using $installscript at `date +%F-%T`." | tee $install_txt
     techo "$installscript" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
     RESULT=$?
@@ -6038,24 +6390,35 @@ EOF
       esac
 
 # Fix perms according to umask.  Is this needed anymore?
-      if test -d $instdirval/$instsubdirval; then
-        techo "Setting permissions according to umask."
-        case $umaskval in
-          000? | 00? | ?)  # printing format can vary.
-  # For case where directories end up not being owned by installer
-            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            ;;
-        esac
-        case $umaskval in
-          0002 | 002 | 2)
-  # For case where directories end up not being owned by installer
-            cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
-            techo "$cmd"
-            eval "$cmd"
-            ;;
-        esac
+      if test -n "$perms"; then
+        techo "Perms specified, so not setting permissions according to umask."
+      else
+        if test -n "$umaskval"; then
+          techo "umask specified as $umaskval."
+          if test -d $instdirval/$instsubdirval; then
+            techo "Setting permissions according to umask."
+            case $umaskval in
+              000? | 00? | ?)  # printing format can vary.
+      # For case where directories end up not being owned by installer
+                cmd="find $instdirval/$instsubdirval -user $USER -exec chmod g+wX '{}' \;"
+                techo "$cmd"
+                eval "$cmd"
+                ;;
+            esac
+            case $umaskval in
+              0002 | 002 | 2)
+      # For case where directories end up not being owned by installer
+                cmd="find $instdirval/$instsubdirval -user $USER -exec chmod o+rX '{}' \;"
+                techo "$cmd"
+                eval "$cmd"
+                ;;
+            esac
+          else
+            techo "$instdirval/$instsubdirval not found, so not setting perms according to umask."
+          fi
+        else
+          techo "umask not specified, so not setting perms accoring to umask."
+        fi
       fi
 
 # Fix group if requested
@@ -6113,7 +6476,7 @@ EOF
           $cmd
         fi
       else
-        techo "WARNING: [$FUNCNAME] Configure script not found for package $1."
+        techo "NOTE: [$FUNCNAME] Configure script not found for package $1."
       fi
 
 # Remove old installations.
@@ -6146,6 +6509,8 @@ EOF
       techo -2 "$starttimevar = $starttimeval"
       local endtimeval=`date +%s`
       local buildtime=`expr $endtimeval - $starttimeval`
+      local buildtimevar=`genbashvar $1-$2`_BUILD_TIME
+      eval $buildtimevar=$buildtime
       techo "Package $1-$2 took `myTime $buildtime` to build and install." | tee -a $BILDER_LOGDIR/timers.txt
 
 # Copy the package/installer to the depot dir
@@ -6329,6 +6694,7 @@ bilderInstallAll() {
 # -i ignore the tests of builds when calling install, comma-separated list
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -t do not install test pkg
+# -I ignore test results--passed on to shouldInstallTestedPkg()
 #
 # Return true if should be installed
 #
@@ -6344,15 +6710,18 @@ bilderInstallTestedPkg() {
   local removePkg=false
   local removearg=
   local testinstall=false
+  local ignoreTestResultsArg=
+
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bi:n:t" arg; do
+  while getopts "bi:n:tI" arg; do
     case $arg in
       b) hasbuildtests=true;;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
       n) tstsnm="$OPTARG";;
       t) testinstall=true;;
+      I) ignoreTestResultsArg=-I;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -6387,7 +6756,7 @@ bilderInstallTestedPkg() {
 # Check if should install based on tests passing, and if so then go ahead
 # and install all builds (except the ignored builds) as well as the tests.
   if test -n "$tstdblds"; then
-    if shouldInstallTestedPkg -b "$tstdblds" $sitpargs $1 $2; then
+    if shouldInstallTestedPkg $ignoreTestResultsArg -b "$tstdblds" $sitpargs $1 $2; then
       techo "All $1 builds and tests passed or failures ignored."
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
@@ -6510,7 +6879,7 @@ bilderDuBuild() {
 
 # If not yet asked to install check dependencies
   techo -2 "doBuild = $doBuild"
-  if shouldInstall -I $instdirval $1-$verval cc4py $DEPS; then
+  if shouldInstall -I $instdirval $1-$verval pycsh $DEPS; then
     doBuild=true
   fi
   techo -2 "doBuild = $doBuild"
@@ -6524,7 +6893,7 @@ bilderDuBuild() {
   cd $PROJECT_DIR
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
-  local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+  local builddirvar=`genbashvar $1-pycsh`_BUILD_DIR
   local builddirval=
   if test -d $PROJECT_DIR/$1; then
     builddirval=$PROJECT_DIR/$1
@@ -6537,30 +6906,30 @@ bilderDuBuild() {
     TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Unable to cd to $builddirval."
     terminate
   fi
-  local bilderaction_resfile=bilderbuild-$1-cc4py.res
+  local bilderaction_resfile=bilderbuild-$1-pycsh.res
   rm -f $bilderaction_resfile
   rm -rf build/*
-  local build_txt=$FQMAILHOST-$1-cc4py-build.txt
+  local build_txt=$FQMAILHOST-$1-pycsh-build.txt
   techo "Building $1 in $PWD with output going to $build_txt." | tee $build_txt
   if test "$2" = '-'; then
     unset buildargs
   else
     buildargs="$2"
   fi
-  local buildscript=$FQMAILHOST-$1-cc4py-build.sh
+  local buildscript=$FQMAILHOST-$1-pycsh-build.sh
   cmd="env $3 python setup.py $4 build $buildargs"
   cat >$buildscript <<EOF
 #!/bin/bash
 $cmd
 res=\$?
-echo Build of $1-cc4py completed with result = \$res.
+echo Build of $1-pycsh completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
 EOF
   sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $buildscript
   # rm ${buildscript}.bak
   chmod ug+x $buildscript
-  techo "Building $1-cc4py in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
+  techo "Building $1-pycsh in $PWD using $buildscript at `date +%F-%T`." | tee -a $build_txt
   techo ./$buildscript | tee -a $build_txt
   techo "$cmd" | tee -a $build_txt
   ./$buildscript >>$build_txt 2>&1 &
@@ -6571,7 +6940,7 @@ EOF
   fi
 
 # Record build
-  addActionToLists $1-cc4py $pid
+  addActionToLists $1-pycsh $pid
   return 0
 
 }
@@ -6620,10 +6989,10 @@ bilderDuInstall() {
   local vervar=`genbashvar $1`_BLDRVERSION
   local verval=`deref $vervar`
   # techo -2 "$vervar = $verval."
-  # local installstrval=$1-$verval-cc4py
+  # local installstrval=$1-$verval-pycsh
 
 # Wait on the build.  waitAction writes SUCCESS or FAILURE.
-  if ! waitAction $1-cc4py; then
+  if ! waitAction $1-pycsh; then
     return 1
   fi
 
@@ -6646,10 +7015,10 @@ bilderDuInstall() {
   fi
 
 # Clean out the output
-  local builddirvar=`genbashvar $1-cc4py`_BUILD_DIR
+  local builddirvar=`genbashvar $1-pycsh`_BUILD_DIR
   local builddirval=`deref $builddirvar`
   cd $builddirval
-  local install_txt=$FQMAILHOST-$1-cc4py-install.txt
+  local install_txt=$FQMAILHOST-$1-pycsh-install.txt
   rm -f $install_txt
 
   local res
@@ -6680,20 +7049,20 @@ bilderDuInstall() {
     fi
 
 # Create installation script, as gets env correct when there are spaces
-    local installscript=$FQMAILHOST-$1-cc4py-install.sh
+    local installscript=$FQMAILHOST-$1-pycsh-install.sh
     techo "Creating installation script, $installscript in directory `pwd -P`."
     cat >$installscript << EOF
 #!/bin/bash
 $cmd
 res=\$?
-echo Installation of $1-cc4py completed with result = \$res.
+echo Installation of $1-pycsh completed with result = \$res.
 echo \$res >bilderinstall.res
 exit \$res
 EOF
     chmod ug+x $installscript
     sed -i.bak -f "$BILDER_DIR"/addnewlinesdu.sed $installscript
 # Use the installation script
-    techo "Installing $1-cc4py in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
+    techo "Installing $1-pycsh in $PWD using $installscript at `date +%F-%T`." | tee -a $install_txt
     techo ./$installscript | tee -a $install_txt
     techo "$cmd" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
@@ -6706,7 +7075,7 @@ EOF
 # Do the installation
   if test $RESULT = 0; then
     echo SUCCESS >>$install_txt
-    recordInstallation $instdirval $1 $verval cc4py
+    recordInstallation $instdirval $1 $verval pycsh
     chmod a+rX $PYTHON_SITEPKGSDIR/..
     chmod a+rX $PYTHON_SITEPKGSDIR
     if test -e $PYTHON_SITEPKGSDIR/$dupkg; then
@@ -6733,6 +7102,8 @@ EOF
     local starttimeval=`deref $starttimevar`
     local endtimeval=`date +%s`
     local buildtime=`expr $endtimeval - $starttimeval`
+    local buildtimevar=`genbashvar $1`_BUILD_TIME
+    eval $buildtimevar=$buildtime
     techo "Package $1 took $buildtime seconds to build and install." | tee -a $BILDER_LOGDIR/timers.txt
   else
     echo FAILURE >>$BUILD_DIR/$1-${verval}/$install_txt
@@ -6839,7 +7210,7 @@ writeStepRes (){
     echo "$2 failures: $4" >>$SUMMARY
     echo $4 | tr ' ' '\n' > $BUILD_DIR/${1}.failures
   else
-     # Leave old formatting as reference.  Remove 10/01/2012.
+     # Leave old formatting as reference. Remove 10/01/2012.
      # local lcln=`echo $2 | tr 'A-Z' 'a-z'`
      # echo "No $lcln failed." >>$SUMMARY
     echo "$2 failures: None" >>$SUMMARY
@@ -7098,9 +7469,13 @@ EOF
   if test -s $BILDER_LOGDIR/versions.txt; then
     echo VERSIONS >>$SUMMARY
     cat $BILDER_LOGDIR/versions.txt >>$SUMMARY
-#    cat $BILDER_LOGDIR/versions.txt | while read vline; do
-#      addHtmlLine 4 "$vline" BLACK $ABSTRACT
-#    done
+    echo >>$SUMMARY
+  fi
+
+# Add timing information
+  if test -s $BILDER_LOGDIR/timers.txt; then
+    echo TIMING >>$SUMMARY
+    cat $BILDER_LOGDIR/timers.txt >>$SUMMARY
     echo >>$SUMMARY
   fi
 
@@ -7428,8 +7803,10 @@ buildChain() {
   shift $(($OPTIND - 1))
 
 # Determine the packages to build
-  local buildpkgs=`echo $* | sed -e 's/ /,/g' -e 's?/??g'`
+  local buildpkgs=`echo $* | sed -e 's/  */,/g' -e 's?/??g'`
+  removedups buildpkgs ','
   trimvar buildpkgs ','
+  # echo "buildpkgs = $buildpkgs."
   echo $buildpkgs >$PROJECT_DIR/lastbuildpkgs.txt
 
   if ! $analyzeonly; then
@@ -7491,8 +7868,8 @@ buildChain() {
       let i++
     done
     techo ""
-    techo "  Bilder Examining $pkg"
-    techo "===================${equalsend}"
+    techo "  Bilder examining $pkg (`date +%F-%T`)"
+    techo "========================================${equalsend}"
 
     cd $PROJECT_DIR # Make sure at top
 
@@ -7512,6 +7889,8 @@ buildChain() {
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exitOnError
     fi
+    techo "Package: '$pkgfile'"
+
 
 # Look for commands and execute
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
@@ -7521,7 +7900,6 @@ buildChain() {
       techo "$TERMINATE_ERROR_MSG" 1>&2
       exitOnError
     fi
-    techo "Using package file: $pkgfile"
     if declare -f $cmd 1>/dev/null; then
       techo "$cmd already known."
     else
@@ -7535,59 +7913,63 @@ buildChain() {
 # Determine the full list of builds
     local bldsvar=`genbashvar ${pkg}`_BUILDS
     local bldsval=`deref $bldsvar | tr ',' ' '`
-    techo "$bldsvar = $bldsval."
+    techo "Builds are $bldsvar = $bldsval."
     dobuild=true
     if test -z "$bldsval" -o "$bldsval" = NONE; then
       dobuild=false
     fi
+# Call buildPackageName
     if $dobuild; then
-      techo "--------> Executing $cmd <--------"
+      techo ""
+      techo "EXECUTING $cmd"
       $cmd
-      techo "---------------------------------${dashend}"
     else
-      techo "No builds for $pkg.  Will not call $cmd."
+      techo "No builds for $pkg.  Will not call build, test, or install methods."
     fi
+# Call testPackageName
     cmd=`grep -i "^ *test${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if $dobuild; then
       if test -n "$cmd"; then
-        techo "--------> Executing $cmd <--------"
+        techo ""
+        techo "EXECUTING $cmd"
         $cmd
-        techo "--------------------------------${dashend}"
       else
         techo -2 "WARNING: [$NOTE] test method for $pkg not found."
       fi
     fi
+# Call installPackageName
     cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Install method for $pkg not found."
       exitOnError
     fi
     if $dobuild; then
-      techo "--------> Executing $cmd <--------"
-# See whether findpkg method exists.  If so, execute.
+      techo ""
+      techo "EXECUTING $cmd"
       $cmd
-      techo "--------------------------------${dashend}"
     fi
-# Now find
+# Call findPackageName method if exists.
     # techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
       # techo "${auxfile} found."
       cmd=`grep -i "^ *find${pkg} *()" $auxfile | sed 's/(.*$//'`
       if test -n "$cmd"; then
-        techo "--------> Executing $cmd <--------"
+        techo ""
+        techo "EXECUTING $cmd"
         $cmd
-        techo "-----------------------------------${dashend}"
       else
         techo "NOTE: [$FUNCNAME] find$pkg not found in ${auxfile}."
       fi
     else
       techo -2 "NOTE: [$FUNCNAME] ${auxfile} not found."
     fi
+    if [[ `uname` =~ CYGWIN ]] && echo "$PATH" | egrep -q "(^|:)/bin:"; then
+      techo -2 "WARNING: [$FUNCNAME] After $auxfile, /bin in path."
+    fi
   done
 
-# Trying to trace down a de-installation of numpy
-  # printInstallationStatus numpy $CONTRIB_DIR buildChain-end
-
+# Ensure 2 blank lines in between examining packages.
+  techo ""
 }
 
 

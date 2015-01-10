@@ -20,7 +20,7 @@ TINKERER_BLDRVERSION=${TINKERER_BLDRVERSION:-"0.3b"}
 #
 ######################################################################
 
-TINKERER_BUILDS=${TINKERER_BUILDS:-"cc4py"}
+TINKERER_BUILDS=${TINKERER_BUILDS:-"pycsh"}
 TINKERER_DEPS=sphinx
 TINKERER_UMASK=002
 

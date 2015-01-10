@@ -47,8 +47,8 @@ setQtTriggerVars() {
       ;;
   esac
   QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.6"}
-  QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_BUILD"}
-  QT_BUILD=$FORPYTHON_BUILD
+  QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  QT_BUILD=$FORPYTHON_SHARED_BUILD
   QT_DEPS=bzip2
 }
 setQtTriggerVars
@@ -130,15 +130,15 @@ findQt() {
   else
     libname=QtCore
   fi
-  findContribPackage Qt $libname sersh cc4py
+  findContribPackage Qt $libname sersh pycsh
   techo "QT_SERSH_DIR = $QT_SERSH_DIR."
-  findCc4pyDir Qt
-  if test -n "$QT_CC4PY_DIR"; then
-    techo "QT_CC4PY_DIR = $QT_CC4PY_DIR."
+  findPycshDir Qt
+  if test -n "$QT_PYCSH_DIR"; then
+    techo "QT_PYCSH_DIR = $QT_PYCSH_DIR."
   else
     findContribPackage Qt $libname ser
   fi
-  local qtdir=$QT_CC4PY_DIR
+  local qtdir=$QT_PYCSH_DIR
   qtdir=${qtdir:-"$QT_SER_DIR"}
   if test -n "$qtdir"; then
     techo "Qt found in $CONTRIB_DIR."

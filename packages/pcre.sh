@@ -35,13 +35,30 @@ setPcreNonTriggerVars
 ######################################################################
 
 buildPcre() {
+
+# Check whether to install
   if ! bilderUnpack pcre; then
     return
   fi
-# PCRE built with cmake does not install pcre-config, which swig needs.
-  if bilderConfig pcre ser; then
+
+# Whether using cmake
+  if [[ `uname` =~ CYGWIN ]]; then
+    PCRE_USE_CMAKE=true
+  fi
+# PCRE-8.20 built with cmake does not install pcre-config, which swig needs.
+  PCRE_USE_CMAKE=${PCRE_USE_CMAKE:-"false"}
+  local pcrecmakearg=
+  if $PCRE_USE_CMAKE; then
+    techo "Building PCRE with cmake."
+    pcrecmakearg=-c
+  else
+    techo "Building PCRE with autotools."
+  fi
+
+  if bilderConfig $pcrecmakearg pcre ser; then
     bilderBuild pcre ser
   fi
+
 }
 
 ######################################################################

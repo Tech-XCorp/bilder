@@ -17,16 +17,16 @@
 
 setOpenmpiTriggerVars() {
   OPENMPI_BLDRVERSION_STD=1.6.5
-  OPENMPI_BLDRVERSION_EXP=1.8.1
+  OPENMPI_BLDRVERSION_EXP=1.8.2
   if test -z "$OPENMPI_BUILDS"; then
     if $BUILD_MPIS; then
       case `uname` in
-        CYGWIN*) OPENMPI_BUILDS=nodl ;;
-        *) OPENMPI_BUILDS=nodl,static ;;
+        CYGWIN*) OPENMPI_BUILDS=nodl;;
+        *) OPENMPI_BUILDS=nodl,static,shared;;
       esac
     fi
   fi
-  OPENMPI_DEPS=valgrind,doxygen,libtool,automake
+  OPENMPI_DEPS=valgrind,libtool,automake
 }
 setOpenmpiTriggerVars
 
@@ -38,12 +38,33 @@ setOpenmpiTriggerVars
 
 findOpenmpi() {
 # Obtain correct mpi compiler names after bildall.sh is called
-  addtopathvar PATH $CONTRIB_DIR/openmpi/bin
-  MPICC=`basename "$MPICC"`
-  MPICXX=`basename "$MPICXX"`
-  MPIFC=`basename "$MPIFC"`
-  MPIF77=`basename "$MPIF77"`
-  findParallelFcComps
-  getCombinedCompVars
+  if [[ "$USE_MPI" =~ openmpi ]] && test -d $CONTRIB_DIR/$USE_MPI/bin; then
+    addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
+    local openmpidir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
+    for c in MPICC MPICXX MPIFC MPIF77; do
+      case $c in
+        MPIFC) MPIFC=$openmpidir/mpif90;;
+        *) exe=`echo $c | tr '[:upper:]' '[:lower:]'`; eval $c=$openmpidir/$exe;;
+      esac
+      exe=`deref $c`
+      if ! test -x $exe; then
+        techo "WARNING: $exe not found."
+      fi
+      printvar $c
+    done
+    OPENMPI_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
+    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$OPENMPI_LIBDIR"
+    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$OPENMPI_LIBDIR"
+    printvar PAR_EXTRA_LDFLAGS
+    printvar PAR_EXTRA_LT_LDFLAGS
+    getCombinedCompVars
+# Clean up bad links
+    for i in $CONTRIB_DIR/openmpi*; do
+      badlinks=`(cd $i; \ls -d openmpi* 2>/dev/null)`
+      if test -n "$badlinks"; then
+        badlinks=`(cd $i; rm -f openmpi*)`
+      fi
+    done
+  fi
 }
 

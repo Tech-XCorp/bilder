@@ -39,17 +39,16 @@ buildPyne() {
 # Get pyne from repo, determine whether to build
   updateRepo pyne
   getVersion pyne
+  PYNE_INSTALL_DIRS=$CONTRIB_DIR
   if ! bilderPreconfig pyne; then
     return 1
   fi
 
 # This is a new case for Bilder: a repo for a python module.
 
-# Compute args
-  local PYNE_ARGS=
-  PYNE_ARGS="$PYNE_ARGS --hdf5='$HDF5_SERSH_DIR'"
-
 # Build/install
+  PYNE_ARGS="--hdf5=$HDF5_PYCSH_DIR --moab=$MOAB_PYCSH_DIR"
+  PYNE_ENV="$DISTUTILS_NOLV_ENV"
   bilderDuBuild pyne "$PYNE_ARGS" "$PYNE_ENV"
 
 }
@@ -74,7 +73,7 @@ installPyne() {
 
 # Install library if not present, make link if needed
   if bilderDuInstall $instopts pyne "$PYNE_ARGS" "$PYNE_ENV"; then
-    :
+    (cd $PROJECT_DIR/pyne; ./scripts/nuc_data_make)
   fi
 
 }

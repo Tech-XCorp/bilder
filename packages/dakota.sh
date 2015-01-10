@@ -27,7 +27,7 @@ DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
 #   2. On Darwin lapack build is skipped because system lapack/blas is used.
 #   3. boostdevel used for pure boost builds with all enabled including MPI
 #      Default boost can be used for Dakota
-DAKOTA_DEPS=lapack,boost,openmpi,cmake
+DAKOTA_DEPS=lapack,boost,$MPI_BUILD,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 ######################################################################

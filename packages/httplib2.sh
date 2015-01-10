@@ -20,7 +20,7 @@ HTTPLIB2_BLDRVERSION=${HTTPLIB2_BLDRVERSION:-"0.7.4"}
 #
 ######################################################################
 
-HTTPLIB2_BUILDS=${HTTPLIB2_BUILDS:-"cc4py"}
+HTTPLIB2_BUILDS=${HTTPLIB2_BUILDS:-"pycsh"}
 HTTPLIB2_DEPS=Python
 
 ######################################################################

@@ -21,7 +21,7 @@ LXML_BLDRVERSION=${LXML_BLDRVERSION:-"3.3.0"}
 #
 ######################################################################
 
-LXML_BUILDS=${LXML_BUILDS:-"cc4py"}
+LXML_BUILDS=${LXML_BUILDS:-"pycsh"}
 LXML_DEPS=
 LXML_UMASK=002
 

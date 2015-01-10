@@ -39,7 +39,7 @@ derefpath() {
 # 1: holds the value
 #
 dblslash() {
-  echo `echo "$1" | sed 's?\\\\?\\\\\\\\?g'`
+  echo "`echo "$1" | sed 's?\\\\?\\\\\\\\?g'`"
 }
 
 #
@@ -64,6 +64,29 @@ trimvar() {
   local varval
   eval varval=\"`deref $varname`\"
   varval=`echo $varval | sed -e "s/${trimchar}${trimchar}/${trimchar}/g" -e "s/^${trimchar}//" -e "s/${trimchar}\$//"`
+  eval $varname="\"$varval\""
+}
+
+#
+# Remove duplicates separated by some char and blanks
+#
+# Args:
+# 1: The variable to modify
+# 2: The separator char
+#
+removedups() {
+  local varname=$1
+  local sepchar="$2"
+  local varval0=
+  eval varval0=\"`deref $varname`\"
+  varval0=`echo $varval0 | sed -e "s/${sepchar}/ /g"`
+  local varval=
+  for i in $varval0; do
+    if ! echo $varval | egrep -q "(^|,)${i}(,|$)"; then
+      varval=${varval}${sepchar}${i}
+    fi
+  done
+  trimvar varval "$sepchar"
   eval $varname="\"$varval\""
 }
 
@@ -247,9 +270,14 @@ runnrGetHostVars() {
           IS_64BIT=false
         fi
 # Get distro
-        local distroname=`lsb_release -is`
-        local distrover=`lsb_release -rs`
-        RUNNRSYSTEM=${distroname}${distrover}_${mach}
+        local linux_release=
+        if which lsb_release 1>/dev/null 2>&1; then
+          linux_release="`lsb_release -is`"`lsb_release -rs`
+        else
+          techo "WARNING: [$FUNCNAME] lsb_release not found.  Install redhat-lsb."
+          linux_release=unknown
+        fi
+        RUNNRSYSTEM=${linux_release}_${mach}
         ;;
       *)
         echo "WARNING: RUNNRSYSTEM not known."
@@ -649,9 +677,18 @@ runnrRun() {
     techo "Submitted to queue at `date`.  RUNNR_QJOB = $RUNNR_QJOB. RUNNR_QJOB_NUM = $RUNNR_QJOB_NUM."
 
 # Wait for startup file
+# NOTE: A job can run in fewer than 10 seconds if BILDER_WAIT_DAYS hasn't
+# been satisfied, and therefore we would fail to notice that the status
+# was ever 'R'. To combat this, we lowered the sleep time to 4 seconds.
+# But we don't want to print out the job status every 4 (or even 10)
+# seconds for a queued job, so we print out periodically.
     local jobstatus=
+    local sleepinterval=4
+    local sleeptimer=0
+    local modresult=0
+
     until test "$jobstatus" = R; do
-      sleep 10
+      sleep $sleepinterval
       jobstatus=`qstat $RUNNR_QJOB | sed -n '3p' | sed 's/  */ /g' | cut -d ' ' -f 5`
       if [[ "$jobstatus" =~ "Unknown Job" ]]; then
         techo "Job, $RUNNR_QJOB, is unknown.  Quitting."
@@ -664,7 +701,10 @@ runnrRun() {
         unset RUNNR_JOB_PID
         exit 1
       fi
-      techo "jobstatus = $jobstatus at `date`."
+      if test `expr $sleeptimer % 300` = 0; then
+        techo "jobstatus = $jobstatus at `date`."
+      fi
+      sleeptimer=`expr $sleeptimer + $sleepinterval`
     done
     techo "Running at `date`. Job status is '$jobstatus'."
     local startsecs=`date +%s`
@@ -748,24 +788,9 @@ runnrRun() {
     techo "Looking for $BILDER_LOGDIR/$scriptbase.subj and $BILDER_LOGDIR/$scriptbase.end"
 
     if $dotail; then
-if false; then
-# File might not show up immediately
-      local count=0
-      while ! test -f $BILDER_LOGDIR/$scriptbase.log; do
-        sleep 1
-        count=`expr $count + 1`
-        if test $count -ge 60; then
-          break
-        fi
-      done
-      if test $count -lt 60; then
-        tail -f $BILDER_LOGDIR/$scriptbase.log &
-        tailpid=$!
-      fi
-else
-      tail -f $PROJECT_DIR/$scriptbase.out$outnum &
+# use tail -F which will wait for the file if it isn't there
+      tail -F $PROJECT_DIR/$scriptbase.out$outnum &
       tailpid=$!
-fi
     fi
 
     local completed=true

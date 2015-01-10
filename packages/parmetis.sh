@@ -25,7 +25,7 @@ if test -z "$PARMETIS_BUILDS"; then
     Linux) PARMETIS_BUILDS=par,parsh;;
   esac
 fi
-PARMETIS_DEPS=${PARMETIS_DEPS:-"cmake,openmpi"}
+PARMETIS_DEPS=${PARMETIS_DEPS:-"cmake,$MPI_BUILD"}
 PARMETIS_UMASK=002
 
 ######################################################################

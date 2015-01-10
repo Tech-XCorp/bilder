@@ -17,7 +17,7 @@
 
 setVsreaderTriggerVars() {
   if test -z "$VSREADER_BUILDS"; then
-    VSREADER_BUILDS=${FORPYTHON_BUILD}
+    VSREADER_BUILDS=${FORPYTHON_SHARED_BUILD}
     if [[ `uname` =~ CYGWIN ]]; then
       VSREADER_BUILDS="${VSREADER_BUILDS},sermd"
     fi

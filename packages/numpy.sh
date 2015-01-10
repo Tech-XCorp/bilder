@@ -125,20 +125,20 @@ buildNumpy() {
       ;;
 
     CYGWIN*-*mingw*)
-      lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blslpckdir="$LAPACK_CC4PY_DIR"/
+      lapacknames=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
+      blasnames=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
+      blslpckdir="$LAPACK_PYCSH_DIR"/
       blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
       blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
       blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
       ;;
 
     Linux-*)
-      lapacknames=`echo $LAPACK_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blasnames=`echo $BLAS_CC4PY_LIBRARY_NAMES | sed 's/ /, /g'`
-      blslpcklibdir="$LAPACK_CC4PY_DIR"/lib
-      blslpckincdir="$LAPACK_CC4PY_DIR"/include
-      blslpckdir="$LAPACK_CC4PY_DIR"/
+      lapacknames=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
+      blasnames=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
+      blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
+      blslpckincdir="$LAPACK_PYCSH_DIR"/include
+      blslpckdir="$LAPACK_PYCSH_DIR"/
       ;;
 
   esac
@@ -165,7 +165,7 @@ buildNumpy() {
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
-  local linkflags="$CC4PY_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
+  local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # For Cygwin, build, install, and make packages all at once.
 # For others, just build.
@@ -217,7 +217,7 @@ buildNumpy() {
       NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
       ;;
     Linux-*)
-	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_CC4PY_DIR}/lib"
+	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
       # Handle the case where PYC_FC may not be in path
       NUMPY_ARGS="--fcompiler=`basename ${PYC_FC}`"
       local fcpath=`dirname ${PYC_FC}`

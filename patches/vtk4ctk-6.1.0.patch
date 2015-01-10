@@ -1,0 +1,36 @@
+diff -ruN vtk4ctk-6.1.0/CMakeLists.txt vtk4ctk-6.1.0-new/CMakeLists.txt
+--- vtk4ctk-6.1.0/CMakeLists.txt	2014-01-22 08:55:41.000000000 -0700
++++ vtk4ctk-6.1.0-new/CMakeLists.txt	2014-12-27 12:58:37.809986228 -0700
+@@ -16,6 +16,7 @@
+ project(VTK)
+ 
+ # Objective-C++ compile flags, future CMake versions might make this obsolete
++IF(FALSE)
+ IF(APPLE)
+   # Being a library, VTK may be linked in either GC (garbage collected)
+   # processes or non-GC processes.  Default to "GC supported" so that both
+@@ -24,6 +25,7 @@
+   SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
+   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
+ ENDIF(APPLE)
++ENDIF()
+ 
+ set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+ set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
+diff -ruN vtk4ctk-6.1.0/patch.out vtk4ctk-6.1.0-new/patch.out
+--- vtk4ctk-6.1.0/patch.out	1969-12-31 17:00:00.000000000 -0700
++++ vtk4ctk-6.1.0-new/patch.out	2014-12-27 12:58:37.809986228 -0700
+@@ -0,0 +1 @@
++patching file CMakeLists.txt
+diff -ruN vtk4ctk-6.1.0/Rendering/OpenGL/vtkXOpenGLRenderWindow.cxx vtk4ctk-6.1.0-new/Rendering/OpenGL/vtkXOpenGLRenderWindow.cxx
+--- vtk4ctk-6.1.0/Rendering/OpenGL/vtkXOpenGLRenderWindow.cxx	2014-01-22 08:55:41.000000000 -0700
++++ vtk4ctk-6.1.0-new/Rendering/OpenGL/vtkXOpenGLRenderWindow.cxx	2014-12-27 13:35:09.226799606 -0700
+@@ -27,7 +27,7 @@
+ 
+ // define GLX_GLXEXT_LEGACY to prevent glx.h to include glxext.h provided by
+ // the system
+-//#define GLX_GLXEXT_LEGACY
++#define GLX_GLXEXT_LEGACY
+ #include "GL/glx.h"
+ 
+ #include "vtkgl.h"

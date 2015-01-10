@@ -23,7 +23,7 @@ PYZMQ_BLDRVERSION_EXP=${PYZMQ_BLDRVERSION_EXP:-"14.1.0"}
 
 setPyzmqGlobalVars() {
   if ! [[ `uname` =~ CYGWIN ]]; then
-    PYZMQ_BUILDS=${PYZMQ_BUILDS:-"cc4py"}
+    PYZMQ_BUILDS=${PYZMQ_BUILDS:-"pycsh"}
   fi
 # setuptools gets site-packages correct
   PYZMQ_DEPS=setuptools,Python,zeromq,Cython
@@ -46,9 +46,9 @@ buildPyzmq() {
 # Build away
   PYZMQ_ENV="$DISTUTILS_ENV"
   techo -2 "PYZMQ_ENV = $PYZMQ_ENV"
-  PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
+  PYZMQ_ARGS="build_ext --inplace --zmq=$CONTRIB_DIR/zeromq-$FORPYTHON_SHARED_BUILD"
   if [[ `uname` =~ Linux ]]; then
-    PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-$FORPYTHON_BUILD"
+    PYZMQ_ARG="$PYZMQ_ARGS --rpath=$CONTRIB_DIR/zeromq-$FORPYTHON_SHARED_BUILD"
   fi
   bilderDuBuild pyzmq "$PYZMQ_ARGS" "$PYZMQ_ENV"
 

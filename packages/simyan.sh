@@ -20,7 +20,7 @@
 #
 ######################################################################
 if test -z "$SIMYAN_BUILDS" -o "$SIMYAN_BUILDS" != NONE; then
-    SIMYAN_BUILDS="cc4py"
+    SIMYAN_BUILDS="pycsh"
 fi
 SIMYAN_DEPS=numpy,dakota
 
@@ -44,8 +44,8 @@ buildSimyan() {
 
   SIMYAN_MACHINE_ARGS="-DMPIRUN:STRING=aprun -DNODE_DETECTION:STRING=manual -DCORES_PER_NODE:INTEGER=4 -DSOCKETS_PER_NODE:INTEGER=2 -DNODE_ALLOCATION_MODE:SHARED=shared"
       # Parallel build
-      if bilderConfig -c simyan cc4py "$CMAKE_COMPILERS_PYC $SIMYAN_OTHER_ARGS $SIMYAN_MACHINE_ARGS $CMAKE_SUPRA_SP_ARG" simyan; then
-	  bilderBuild simyan cc4py "$SIMYAN_MAKEJ_ARGS"
+      if bilderConfig -c simyan pycsh "$CMAKE_COMPILERS_PYC $SIMYAN_OTHER_ARGS $SIMYAN_MACHINE_ARGS $CMAKE_SUPRA_SP_ARG" simyan; then
+	  bilderBuild simyan pycsh "$SIMYAN_MAKEJ_ARGS"
       fi
 
   fi
@@ -83,7 +83,7 @@ installSimyan() {
   esac
 
 # Install parallel first, then serial last to override utilities
-  bilderInstall simyan cc4py simyan
+  bilderInstall simyan pycsh simyan
 
 # Revert umask
   umask $um
