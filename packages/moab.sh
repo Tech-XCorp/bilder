@@ -46,10 +46,10 @@ buildMoab() {
 # Whether using cmake
   #MOAB_USE_CMAKE=true
   #MOAB_USE_CMAKE=false
+  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
   fi
-  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
   local moabcmakearg=
   local enable_shared=
   if $MOAB_USE_CMAKE; then
