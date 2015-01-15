@@ -49,7 +49,7 @@ case $UQMAILHOST in
 
   hopper*)
     ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
+    LAPACK_BUILDS=""
 # System linear algebra libraries.  mc12 (Magny-Cours) for Hopper.
 # These are used together.  Not really the right division by name, but with
 # these definitions one gets the libraries in the right order.
