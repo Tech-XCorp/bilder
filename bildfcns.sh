@@ -2650,6 +2650,7 @@ findPackage() {
     elif test -n "$adirval"; then
       techo "Library, ${PKG_LIBNAME}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."
+      eval ${pkgnameprefix}_${BLD}_DIR="$adirval"
     else
       techo "Package ${pkgnameprefix}_${BLD} not set or found."
       eval HAVE_${pkgnameprefix}_$BLD=false
