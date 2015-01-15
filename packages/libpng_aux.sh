@@ -14,15 +14,15 @@
 
 findLibpng() {
 
-# Look for libpng-sersh in contrib directory on windows and linux, but
-# on mac we look for it in certain system places
+# Look for libpng-sersh in contrib directory on windows, but
+# on mac and linux we use pkg-config
   case `uname` in
     CYGWIN*)
       findPackage Libpng png "$CONTRIB_DIR" sersh
       if test -n "$LIBPNG_SERSH_DIR"; then
         LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
       else
-        techo "WARNING: libpng not found. May have failed to build."
+        techo "WARNING: libpng not found."
       fi
       ;;
     *)
@@ -47,13 +47,14 @@ findLibpng() {
     printvar CONFIG_LIBPNG_SERSH_DIR_ARG
   fi
 
-# Look for freetype in contrib
+# Look for libpng in contrib
   if test -z "$LIBPNG_PYCSH_DIR"; then
     findPackage Libpng png"$CONTRIB_DIR" pycsh sersh
     findPycshDir Libpng
   fi
 
-  if test -n "$LIBPNG_PYCSH_DIR"; then
+  if test -n "$LIBPNG_PYCSH_DIR" -a "$LIBPNG_PYCSH_DIR" != /usr; then
+    addtopathvar PATH $LIBPNG_PYCSH_DIR/bin
     if [[ `uname` =~ CYGWIN ]]; then
       LIBPNG_PYCSH_DIR=`cygpath -am $LIBPNG_PYCSH_DIR`
     fi
@@ -83,7 +84,9 @@ setLibpngTriggerVars() {
       ;;
   esac
   computeBuilds libpng
-# No need to add pycsh build, as pure C
+  if [[ `uname` =~ CYGWIN ]]; then
+    addPycshBuild libpng
+  fi
   LIBPNG_DEPS=zlib,cmake
 }
 setLibpngTriggerVars

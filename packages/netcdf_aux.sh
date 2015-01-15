@@ -47,7 +47,10 @@ findNetcdf() {
     builds="$builds sermd"
   fi
   techo
-  findPycstDir Netcdf
+
+# Don't try to find pycst build of netcdf because sermd doesn't build on
+# Windows. See above.
+  # findPycstDir Netcdf 
   findPycshDir Netcdf
 
 # Find cmake configuration directories

@@ -11,9 +11,9 @@ setGeant4TriggerVars() {
 # Use commands like this to change:
   # GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.3"}
 # Make sure to repack to Bilder conventions:
-#  tar xzf geant4.10.00.p03.tar.gz 
+#  tar xzf geant4.10.00.p03.tar.gz
 #  mv geant4.10.00p03 geant4-10.0.3
-#  tar czf geant4-10.0.3.tar.gz  geant4-10.0.3
+#  env COPYFILE_DISABLE=true tar czf geant4-10.0.3.tar.gz  geant4-10.0.3
 # and then add the above tarball to svnpkgs
 # p03 is recommended for GRAS
   #GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}

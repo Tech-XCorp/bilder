@@ -15,22 +15,21 @@
 #
 ######################################################################
 
-setXzTriggerVars() {
-  XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
-  XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
-  XZ_BUILDS=${XZ_BUILDS:-"ser"}
-# Removing this as creates a circular dependency through graphviz
-  # XZ_DEPS=doxygen
+setPyparsingTriggerVars() {
+  PYPARSING_BLDRVERSION_STD=${PYPARSING_BLDRVERSION_STD:-"1.5.7"}
+  PYPARSING_BLDRVERSION_EXP=${PYPARSING_BLDRVERSION_EXP:-"1.5.7"}
+  PYPARSING_BUILDS=${PYPARSING_BUILDS:-"pycsh"}
+  PYPARSING_DEPS=Python
 }
-setXzTriggerVars
+setPyparsingTriggerVars
 
 ######################################################################
 #
-# Find xz
+# Find pyparsing
 #
 ######################################################################
 
-findXz() {
-  addtopathvar PATH $CONTRIB_DIR/xz/bin
+findPyparsing() {
+  :
 }
 

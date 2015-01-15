@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for pcre
+# Build information for libgd
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in pcre_aux.sh
+# Trigger variables set in libgd_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/pcre_aux.sh
+source $mydir/libgd_aux.sh
 
 ######################################################################
 #
@@ -23,61 +23,50 @@ source $mydir/pcre_aux.sh
 #
 ######################################################################
 
-setPcreNonTriggerVars() {
-  PCRE_UMASK=002
+setLibgdNonTriggerVars() {
+  LIBGD_UMASK=002
 }
-setPcreNonTriggerVars
+setLibgdNonTriggerVars
 
 ######################################################################
 #
-# Launch pcre builds.
+# Launch libgd builds.
 #
 ######################################################################
 
-buildPcre() {
+buildLibgd() {
 
-# Check whether to install
-  if ! bilderUnpack pcre; then
-    return
+  if ! bilderUnpack libgd; then
+    return 1
   fi
 
-# Whether using cmake
-  if [[ `uname` =~ CYGWIN ]]; then
-    PCRE_USE_CMAKE=true
-  fi
-# PCRE-8.20 built with cmake does not install pcre-config, which swig needs.
-  PCRE_USE_CMAKE=${PCRE_USE_CMAKE:-"false"}
-  local pcrecmakearg=
-  if $PCRE_USE_CMAKE; then
-    techo "Building PCRE with cmake."
-    pcrecmakearg=-c
-  else
-    techo "Building PCRE with autotools."
-  fi
-
-  if bilderConfig $pcrecmakearg pcre ser; then
-    bilderBuild pcre ser
+# We could build libgd with these flags, but we would still not have
+# gdlib-config, which graphviz needs to know the features of libgd.
+  # -DPNG_PNG_INCLUDE_DIR:PATH=/opt/homebrew/include \
+  # -DPNG_LIBRARY:FILEPATH=/opt/homebrew/lib/libpng16.dylib
+  if bilderConfig -c libgd ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LIBGD_SER_ADDL_ARGS $LIBGD_SER_OTHER_ARGS"; then
+    bilderBuild libgd ser
   fi
 
 }
 
 ######################################################################
 #
-# Test pcre
+# Test libgd
 #
 ######################################################################
 
-testPcre() {
-  techo "Not testing pcre."
+testLibgd() {
+  techo "Not testing libgd."
 }
 
 ######################################################################
 #
-# Install pcre
+# Install libgd
 #
 ######################################################################
 
-installPcre() {
-  bilderInstall -r pcre ser
+installLibgd() {
+  bilderInstallAll libgd
 }
 

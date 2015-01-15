@@ -209,11 +209,21 @@ fi
       ;;
     Linux-*)
 # On hopper cannot include LD_LIBRARY_PATH
-      if test -n "$pngdir"; then
-        linkflags="$linkflags -Wl,-rpath,$pngdir/lib"
+      techo -2 "libpngdir = $libpngdir"
+      if test -n "$libpngdir" -a "$libpngdir" != /usr; then
+        if test -d $libpngdir/lib64; then
+          linkflags="$linkflags -Wl,-rpath,$libpngdir/lib64"
+        elif test -d $libpngdir/lib; then
+          linkflags="$linkflags -Wl,-rpath,$libpngdir/lib"
+        fi
       fi
-      if test -n "$freetypelibdir"; then
-        linkflags="$linkflags -Wl,-rpath,$freetypedir/lib"
+      techo -2 "freetypedir = $freetypedir"
+      if test -n "$freetypedir" -a "$freetypedir" != /usr; then
+        if test -d $freetypedir/lib64; then
+          linkflags="$linkflags -Wl,-rpath,$freetypedir/lib64"
+        elif test -d $freetypedir/lib; then
+          linkflags="$linkflags -Wl,-rpath,$freetypedir/lib"
+        fi
       fi
       ;;
     *)

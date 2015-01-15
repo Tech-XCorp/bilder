@@ -39,6 +39,14 @@ setOceNonTriggerVars
 #
 buildOce() {
 
+# Remove old tpaviot repo to move to ours
+  if (cd $PROJECT_DIR/oce 2>/dev/null; git remote -v | grep "^origin\t" | grep -q tpaviot); then
+    techo "NOTE: [$FUNCNAME] Removing clone of tpaviot repo."
+    cmd="rm -rf $PROJECT_DIR/oce"
+    techo "$cmd"
+    eval "$cmd"
+  fi
+
 # Get oce from repo and remove any detritus
   updateRepo oce
   rm -f $PROJECT_DIR/oce/CMakeLists.txt.{orig,rej}
@@ -85,35 +93,44 @@ buildOce() {
 # Set other args, env
   local OCE_ENV=
   if test -n "$FREETYPE_PYCSH_DIR"; then
-    OCE_ENV="FREETYPE_DIR=$FREETYPE_PYCSH_DIR"
+    OCE_ENV="FREETYPE_DIR='$FREETYPE_PYCSH_DIR'"
   fi
 # Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
+  local shlinkflags=
   case `uname` in
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
       ;;
     Linux)
-      if test -n "$FREETYPE_PYCSH_DIR"; then
-        OCE_ADDL_ARGS="$OCE_ADDL_ARGS  -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$FREETYPE_PYCSH_DIR/lib'"
+      local shrpath=XORIGIN:XORIGIN/../lib
+      if test -n "$FREETYPE_PYCSH_DIR" -a "$FREETYPE_PYCSH_DIR" != /usr; then
+        shrpath="$shrpath:$FREETYPE_PYCSH_DIR/lib"
       fi
+      shlinkflags="-Wl,-rpath,$shrpath"
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
       ;;
   esac
-
-# OCE does not have all dependencies right on Windows, so needs nmake
-  local makerargs=
-  local makejargs=
-  if [[ `uname` =~ CYGWIN ]]; then
-    makerargs="-m nmake"
-  else
-    makejargs="$OCE_MAKEJ_ARGS"
+  if test -n "$shlinkflags"; then
+    OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
   fi
 
 # Configure and build
   local otherargsvar=`genbashvar OCE_${QT_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $makerargs oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
-    bilderBuild $makerargs oce $OCE_BUILD "$makejargs" "$OCE_ENV"
+  if bilderConfig oce $OCE_BUILD "-DOCE_INSTALL_INCLUDE_DIR:STRING=include $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_ADDL_ARGS $otherargsval" "" "$OCE_ENV"; then
+# On windows, prepare the pre-compiled headers
+    if [[ `uname` =~ CYGWIN ]]; then
+      local precompiledout=$BUILD_DIR/oce/$OCE_BUILD/precompiled.out
+      rm -f $precompiledout
+      for i in $BUILD_DIR/oce/$OCE_BUILD/adm/cmake/*; do
+        cmd="(cd $i; jom Precompiled.obj >>$precompiledout 2>&1)"
+        techo "$cmd"
+        eval "$cmd"
+      done
+    fi
+# Do not do make clean, as that undoes the making of precompiled headers
+    bilderBuild -k oce $OCE_BUILD "$OCE_MAKEJ_ARGS" "$OCE_ENV"
   fi
 
 }

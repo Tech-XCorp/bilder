@@ -15,22 +15,29 @@
 #
 ######################################################################
 
-setXzTriggerVars() {
-  XZ_BLDRVERSION_STD=${XZ_BLDRVERSION_STD:-"5.0.3"}
-  XZ_BLDRVERSION_EXP=${XZ_BLDRVERSION_EXP:-"5.0.3"}
-  XZ_BUILDS=${XZ_BUILDS:-"ser"}
-# Removing this as creates a circular dependency through graphviz
-  # XZ_DEPS=doxygen
+setGraphvizTriggerVars() {
+  GRAPHVIZ_BLDRVERSION_STD=${GRAPHVIZ_BLDRVERSION_STD:-"2.38.0"}
+  GRAPHVIZ_BLDRVERSION_EXP=${GRAPHVIZ_BLDRVERSION_EXP:-"2.38.0"}
+  if test -z "$GRAPHVIZ_BUILDS"; then
+    case `uname` in
+      CYGWIN*) ;;
+      Darwin) GRAPHVIZ_BUILDS="ser";;
+      Linux) GRAPHVIZ_BUILDS="ser";;
+    esac
+  fi
+  GRAPHVIZ_DEPS=libgd,python,autotools
 }
-setXzTriggerVars
+setGraphvizTriggerVars
 
 ######################################################################
 #
-# Find xz
+# Find graphviz
 #
 ######################################################################
 
-findXz() {
-  addtopathvar PATH $CONTRIB_DIR/xz/bin
+findGraphviz() {
+  if test -x $CONTRIB_DIR/graphviz/bin/dot; then
+    (cd $CONTRIB_DIR/bin; ln -sf ../graphviz/bin/dot .)
+  fi
 }
 

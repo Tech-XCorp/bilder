@@ -1682,7 +1682,11 @@ shouldInstall() {
 
 # If not present in installations.txt, then rebuild
   local pkgline=`grep ^${proj}- $dir/installations.txt | tail -1`
-  techo "Last install: '$pkgline'"
+  if test -n "$pkgline"; then
+    techo "Last install: '$pkgline'"
+  else
+    techo "$proj never installed."
+  fi
   if test -z "$pkgline"; then
     techo "Package $proj not found in $dir/installations.txt. Rebuilding."
     return 0
@@ -1828,7 +1832,7 @@ shouldInstall() {
   techo -2  "Checking for installation of all builds '$builds' of $1."
   if areAllInstalled -i $instdirs $1 $builds; then
     if test -n "$builds"; then
-      techo "Verified that all builds of $1 installed."
+      techo "Verified that all builds of $1 are installed."
     else
       techo "Package $1 is installed."
     fi
@@ -2536,7 +2540,7 @@ findPackage() {
   else
     targetBlds=`deref $buildsvar | tr ',' ' '`
   fi
-  techo "$buildsvar = $targetBlds"
+  techo -2 "$buildsvar = $targetBlds"
   trimvar targetBlds ' '
   if test -z "$targetBlds"; then
     techo "WARNING: [$FUNCNAME] No builds for $1. Returning."
@@ -2782,8 +2786,8 @@ setDefaultPkgVars() {
 #   {contrib atlas, contrib lapack} or {contrib ptsolve-lite}
 #   {atlas-clapack, clapack} or {ptsolve-lite}
 #
-# Useful ENV variables for controlling order: USE_ATLAS, USE_MKL, USE_PTSOLVE_LITE
-#  USE_CONTRIB_LAPACK
+# Useful ENV variables for controlling order: USE_ATLAS, USE_MKL,
+#  USE_PTSOLVE_LITE, USE_CONTRIB_LAPACK
 #
 # The goal is to assign values
 #   LINLIB_${BLD}_LIBS, the absolute paths to the libraries
@@ -2908,7 +2912,15 @@ findBlasLapack() {
   findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
   setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  if test `uname` = Linux -a -e /usr/lib64/liblapack.a; then
+# Old lapacks do not have some symbols, in which case we must use
+# the contrib lapack.
+    if ! nm /usr/lib/liblapack.a | grep slarra_; then
+      USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"true"}
+    fi
+  fi
   USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"false"}
+  techo -2 "USE_CONTRIB_LAPACK = $USE_CONTRIB_LAPACK."
   if $USE_CONTRIB_LAPACK; then
     for BLD in SER SERMD SERSH PYCSH BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
@@ -6498,6 +6510,8 @@ EOF
       techo -2 "$starttimevar = $starttimeval"
       local endtimeval=`date +%s`
       local buildtime=`expr $endtimeval - $starttimeval`
+      local buildtimevar=`genbashvar $1-$2`_BUILD_TIME
+      eval $buildtimevar=$buildtime
       techo "Package $1-$2 took `myTime $buildtime` to build and install." | tee -a $BILDER_LOGDIR/timers.txt
 
 # Copy the package/installer to the depot dir
@@ -7089,6 +7103,8 @@ EOF
     local starttimeval=`deref $starttimevar`
     local endtimeval=`date +%s`
     local buildtime=`expr $endtimeval - $starttimeval`
+    local buildtimevar=`genbashvar $1`_BUILD_TIME
+    eval $buildtimevar=$buildtime
     techo "Package $1 took $buildtime seconds to build and install." | tee -a $BILDER_LOGDIR/timers.txt
   else
     echo FAILURE >>$BUILD_DIR/$1-${verval}/$install_txt
@@ -7454,9 +7470,13 @@ EOF
   if test -s $BILDER_LOGDIR/versions.txt; then
     echo VERSIONS >>$SUMMARY
     cat $BILDER_LOGDIR/versions.txt >>$SUMMARY
-#    cat $BILDER_LOGDIR/versions.txt | while read vline; do
-#      addHtmlLine 4 "$vline" BLACK $ABSTRACT
-#    done
+    echo >>$SUMMARY
+  fi
+
+# Add timing information
+  if test -s $BILDER_LOGDIR/timers.txt; then
+    echo TIMING >>$SUMMARY
+    cat $BILDER_LOGDIR/timers.txt >>$SUMMARY
     echo >>$SUMMARY
   fi
 
