@@ -47,7 +47,7 @@ buildMoab() {
   #MOAB_USE_CMAKE=true
   #MOAB_USE_CMAKE=false
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
-  if [[ `uname` =~ CYGWIN ]]; then
+  if [[ ! `uname` =~ CYGWIN ]]; then
     MOAB_USE_CMAKE=true
   fi
   local moabcmakearg=
