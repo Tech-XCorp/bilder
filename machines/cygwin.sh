@@ -189,6 +189,7 @@ if $IS_64_BIT; then
   getVsPaths 9
   getVsPaths 10
   getVsPaths 11
+  getVsPaths 12
 else
   PATH_VS9="/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/IDE:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/Tools:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v3.5:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v2.0.50727:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v6.0A/bin"
   INCLUDE_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\include;"
@@ -286,6 +287,27 @@ setVs11Vars() {
   $TECHO "setVs11Vars... LIBPATH = $LIBPATH"
 }
 
+setVs12Vars() {
+# Remove old from PATH
+# if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
+# a needed colon.
+  if test -n "$MINGW_BINDIR"; then
+    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%" -e "s%:$MINGW_BINDIR%%"`
+  else
+    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
+  fi
+# Add new
+  PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS12:/cygdrive%"`:$MINGW_BINDIR
+  export INCLUDE=`echo "$INCLUDE_VS12" | sed -e 's/\\\\/\\\\\\\\/g'`
+  export LIB=`echo "$LIB_VS12" | sed -e 's/\\\\/\\\\\\\\/g'`
+  export LIBPATH=`echo "$LIBPATH_VS12" | sed -e 's/\\\\/\\\\\\\\/g'`
+  $TECHO "setVs12Vars... Adding Visual Studio 12 variables to environment."
+  $TECHO "setVs12Vars... PATH = $PATH"
+  $TECHO "setVs12Vars... INCLUDE = $INCLUDE"
+  $TECHO "setVs12Vars... LIB = $LIB"
+  $TECHO "setVs12Vars... LIBPATH = $LIBPATH"
+}
+
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
 if test -n "$hasvisstudio"; then
   $TECHO "Found a Visual Studio in your path.  Not adding."
@@ -304,6 +326,12 @@ else
     fi
   fi
   case "$VISUALSTUDIO_VERSION" in
+    12)
+      nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio 12.0/VC/BIN:"`
+      if test -z "$nopathvisstudio"; then
+        setVs12Vars
+      fi
+      ;;
     11)
       nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio 11.0/VC/BIN:"`
       if test -z "$nopathvisstudio"; then
