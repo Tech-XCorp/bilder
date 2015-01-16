@@ -76,10 +76,12 @@ PYC_F77=${PYC_F77:-"gfortran"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-MPICC=${MPICC:-"mpiicc"}
-MPICXX=${MPICXX:-"mpiicpc"}
-MPIFC=${MPIFC:-"mpiifort"}
-MPIF77=${MPIF77:-"mpiifort"}
+# Note: None of the CMake tests work with the Intel MPI wrappers, so we have to
+# use the compilers directory and add the link line by hand. Your mileage may vary
+MPICC=${MPICC:-"icc"}
+MPICXX=${MPICXX:-"icpc"}
+MPIFC=${MPIFC:-"ifort"}
+MPIF77=${MPIF77:-"ifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
@@ -104,11 +106,11 @@ CXXFLAGS=${CXXFLAGS:-"-mkl -O3"}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
 
 # Parallel
-if false; then
-MPI_CFLAGS=${MPI_CFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpicxx -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5 .0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+if true; then
+MPI_CFLAGS=${MPI_CFLAGS:-"-I$IMPI_INSTALL_DIR/intel64/include -L$IMPI_INSTALL_DIR/intel64/lib/release -L$IMPI_INSTALL_DIR/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-I$IMPI_INSTALL_DIR/intel64/include -L$IMPI_INSTALL_DIR/intel64/lib/release -L$IMPI_INSTALL_DIR/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -lmpicxx -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-I$IMPI_INSTALL_DIR/intel64/include -I$IMPI_INSTALL_DIR/intel64/include -L$IMPI_INSTALL_DIR/intel64/lib/release -L$IMPI_INSTALL_DIR/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_FFLAGS=${MPI_FFLAGS:-"-I$IMPI_INSTALL_DIR/intel64/include -I$IMPI_INSTALL_DIR/intel64/include -L$IMPI_INSTALL_DIR/intel64/lib/release -L$IMPI_INSTALL_DIR/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5 .0/intel64/lib/release -Xlinker -rpath -Xlinker $IMPI_INSTALL_DIR/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
 fi
 
 # Linear algebra libraries:
