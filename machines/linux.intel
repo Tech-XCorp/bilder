@@ -32,9 +32,9 @@ fi
 # Assume structure follows from ICC_INSTALL_DIR
 if test -n "$ICC_INSTALL_DIR"; then
   SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
-  SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
+  SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64/libmkl_core.a"}
   SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$ICC_INSTALL_DIR/mkl/include/intel64"}
-  SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64"}
+  SYSTEM_LAPACK_SER_LIB=${SYSTEM_LAPACK_SER_LIB:-"$ICC_INSTALL_DIR/mkl/lib/intel64/libmkl_core.a"}
   source $ICC_INSTALL_DIR/bin/compilervars.sh intel64
 else
   TERMINATE_ERROR_MSG="ERROR: [linux.intel] Intel compilers not found."
