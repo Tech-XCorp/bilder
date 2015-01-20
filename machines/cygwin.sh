@@ -208,6 +208,8 @@ else
   LIBPATH_VS11="C:\Windows\Microsoft.NET\Framework\v4.0.30319;C:\Windows\Microsoft.NET\Framework\v3.5;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
 fi
 
+allVersions="12 11 10 9"
+
 # Set the environments
 FULLPATH_VS9=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
 FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
@@ -221,91 +223,41 @@ FULLPATH_VS11=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%"`
 FULLPATH_VS11=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`
 ENV_VS11="PATH='$MINGW_BINDIR:$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
 # $TECHO "ENV_VS11 = \"$ENV_VS11\""
+FULLPATH_VS12=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
+FULLPATH_VS12=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS12:/cygdrive%"`
+ENV_VS12="PATH='$MINGW_BINDIR:$FULLPATH_VS12' VS120COMNTOOLS='C:\Program Files\Microsoft Visual Studio 12.0\Common7\Tools' INCLUDE='$INCLUDE_VS12' LIB='$LIB_VS12' LIBPATH='$LIBPATH_VS12'"
+# $TECHO "ENV_VS12 = \"$ENV_VS12\""
 
-setVs9Vars() {
+setVsVars() {
+# $1 = visual studio version
 # Remove old from PATH
 # if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
 # a needed colon.
+  sedStr=sed
+  for ver in $allVersions; do
+    if test $ver != $1; then
+      sedStr="$sedStr -e \"s%:\$PATH_VS${ver}:%:%\""
+    fi
+  done
+
   if test -n "$MINGW_BINDIR"; then
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%" -e "s%:$MINGW_BINDIR%%"`
-  else
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
+    sedStr="$sedStr -e \"s%:\$MINGW_BINDIR%%\""
   fi
+
+  echo $PATH | eval $sedStr
+
 # Add new
-  $TECHO "setVs9Vars... Adding Visual Studio 9 variables to environment."
-  $TECHO "setVs9Vars... before PATH = $PATH"
-  PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`:$MINGW_BINDIR
+  $TECHO "setVsVars... Adding Visual Studio $1 variables to environment."
+  $TECHO "setVsVars... before PATH = $PATH"
+  PATH=`echo $PATH | sed "s%:/cygdrive%:\`deref PATH_VS$1\`:/cygdrive%"`:$MINGW_BINDIR
 # Do we need to make sure /usr/bin is before /cygdrive/c/Windows/system32?
-  export INCLUDE="$INCLUDE_VS9"
-  export LIB="$LIB_VS9"
-  export LIBPATH="$LIBPATH_VS9"
-  $TECHO "setVs9Vars... after PATH = $PATH"
-  $TECHO "setVs9Vars... INCLUDE = $INCLUDE"
-  $TECHO "setVs9Vars... LIB = $LIB"
-  $TECHO "setVs9Vars... LIBPATH = $LIBPATH"
-}
-
-setVs10Vars() {
-# Remove old from PATH
-# if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
-# a needed colon.
-  if test -n "$MINGW_BINDIR"; then
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS11:%:%" -e "s%:$MINGW_BINDIR%%"`
-  else
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS11:%:%"`
-  fi
-# Add new
-  PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS10:/cygdrive%"`:$MINGW_BINDIR
-  export INCLUDE=`echo "$INCLUDE_VS10" | sed -e 's/\\\\/\\\\\\\\/g'`
-  export LIB=`echo "$LIB_VS10" | sed -e 's/\\\\/\\\\\\\\/g'`
-  export LIBPATH=`echo "$LIBPATH_VS10" | sed -e 's/\\\\/\\\\\\\\/g'`
-  $TECHO "setVs10Vars... Adding Visual Studio 10 variables to environment."
-  $TECHO "setVs10Vars... PATH = $PATH"
-  $TECHO "setVs10Vars... INCLUDE = $INCLUDE"
-  $TECHO "setVs10Vars... LIB = $LIB"
-  $TECHO "setVs10Vars... LIBPATH = $LIBPATH"
-}
-
-setVs11Vars() {
-# Remove old from PATH
-# if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
-# a needed colon.
-  if test -n "$MINGW_BINDIR"; then
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$MINGW_BINDIR%%"`
-  else
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%"`
-  fi
-# Add new
-  PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`:$MINGW_BINDIR
-  export INCLUDE=`echo "$INCLUDE_VS11" | sed -e 's/\\\\/\\\\\\\\/g'`
-  export LIB=`echo "$LIB_VS11" | sed -e 's/\\\\/\\\\\\\\/g'`
-  export LIBPATH=`echo "$LIBPATH_VS11" | sed -e 's/\\\\/\\\\\\\\/g'`
-  $TECHO "setVs11Vars... Adding Visual Studio 11 variables to environment."
-  $TECHO "setVs11Vars... PATH = $PATH"
-  $TECHO "setVs11Vars... INCLUDE = $INCLUDE"
-  $TECHO "setVs11Vars... LIB = $LIB"
-  $TECHO "setVs11Vars... LIBPATH = $LIBPATH"
-}
-
-setVs12Vars() {
-# Remove old from PATH
-# if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
-# a needed colon.
-  if test -n "$MINGW_BINDIR"; then
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%" -e "s%:$MINGW_BINDIR%%"`
-  else
-    PATH=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
-  fi
-# Add new
-  PATH=`echo $PATH | sed "s%:/cygdrive%:$PATH_VS12:/cygdrive%"`:$MINGW_BINDIR
-  export INCLUDE=`echo "$INCLUDE_VS12" | sed -e 's/\\\\/\\\\\\\\/g'`
-  export LIB=`echo "$LIB_VS12" | sed -e 's/\\\\/\\\\\\\\/g'`
-  export LIBPATH=`echo "$LIBPATH_VS12" | sed -e 's/\\\\/\\\\\\\\/g'`
-  $TECHO "setVs12Vars... Adding Visual Studio 12 variables to environment."
-  $TECHO "setVs12Vars... PATH = $PATH"
-  $TECHO "setVs12Vars... INCLUDE = $INCLUDE"
-  $TECHO "setVs12Vars... LIB = $LIB"
-  $TECHO "setVs12Vars... LIBPATH = $LIBPATH"
+  export INCLUDE="`deref INCLUDE_VS$1`"
+  export LIB="`deref LIB_VS$1`"
+  export LIBPATH="`deref LIBPATH_VS$1`"
+  $TECHO "setVsVars... after PATH = $PATH"
+  $TECHO "setVsVars... INCLUDE = $INCLUDE"
+  $TECHO "setVsVars... LIB = $LIB"
+  $TECHO "setVsVars... LIBPATH = $LIBPATH"
 }
 
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
@@ -314,46 +266,22 @@ if test -n "$hasvisstudio"; then
 else
   if test -z "$VISUALSTUDIO_VERSION"; then
 # Use VS 11 if present
-    if test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio 11.0/Common7/IDE"; then
-      VISUALSTUDIO_VERSION=11
-      $TECHO "Found Visual Studio 11."
-    elif test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio 10.0/Common7/IDE"; then
-      VISUALSTUDIO_VERSION=10
-      $TECHO "Found Visual Studio 10."
-    elif test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio 9.0/Common7/IDE"; then
-      VISUALSTUDIO_VERSION=9
-      $TECHO "Found Visual Studio 9."
-    fi
+    for ver in $allVersions; do
+      if test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio ${ver}.0/Common7/IDE"; then
+        VISUALSTUDIO_VERSION=$ver
+        $TECHO "Found Visual Studio $ver"
+	break
+      fi
+    done
   fi
-  case "$VISUALSTUDIO_VERSION" in
-    12)
-      nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio 12.0/VC/BIN:"`
+  if test -n "$VISUALSTUDIO_VERSION"; then
+    nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio ${VISUALSTUDIO_VERSION}.0/VC/BIN:"`
       if test -z "$nopathvisstudio"; then
-        setVs12Vars
+        setVsVars ${VISUALSTUDIO_VERSION}
       fi
-      ;;
-    11)
-      nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio 11.0/VC/BIN:"`
-      if test -z "$nopathvisstudio"; then
-        setVs11Vars
-      fi
-      ;;
-    10)
-      nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio 10.0/VC/BIN:"`
-      if test -z "$nopathvisstudio"; then
-        setVs10Vars
-      fi
-      ;;
-    9)
-      nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio 9.0/VC/BIN:"`
-      if test -z "$nopathvisstudio"; then
-        setVs9Vars
-      fi
-      ;;
-    *)
+  else
       $TECHO "WARNING: Visual Studio not found and not in path."
-      ;;
-  esac
+  fi
 fi
 
 # Determine a path variable for atlas by removing dirs with parens.
