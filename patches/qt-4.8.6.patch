@@ -1,6 +1,6 @@
 diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/kernel/qeventdispatcher_mac.mm
 --- qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm	2014-04-10 08:37:12.000000000 -1000
-+++ qt-4.8.6-new/src/gui/kernel/qeventdispatcher_mac.mm	2015-01-20 12:57:35.000000000 -1000
++++ qt-4.8.6-new/src/gui/kernel/qeventdispatcher_mac.mm	2015-01-20 14:42:34.000000000 -1000
 @@ -558,7 +558,6 @@
  
      // In case we end up recursing while we now process events, make sure
@@ -47,7 +47,19 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
  
                  if (!d->interrupt && session == d->currentModalSessionCached) {
                      // Someone called [NSApp stopModal:] from outside the event
-@@ -626,8 +652,17 @@
+@@ -609,6 +635,11 @@
+                     // 'session' as well. As a result, we need to restart all internal sessions:
+                     d->temporarilyStopAllModalSessions();
+                 }
++
++                // Clean up the modal session list, call endModalSession.
++                if (d->cleanupModalSessionsNeeded) {
++                    d->cleanupModalSessions();
++                }
+             } else {
+                 d->nsAppRunCalledByQt = true;
+                 QBoolBlocker execGuard(d->currentExecIsNSAppRun, true);
+@@ -626,13 +657,26 @@
                      // to use cocoa's native way of running modal sessions:
                      if (flags & QEventLoop::WaitForMoreEvents)
                          qt_mac_waitForMoreModalSessionEvents();
@@ -66,7 +78,16 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
                          // INVARIANT: Someone called [NSApp stopModal:] from outside the event
                          // dispatcher (e.g to stop a native dialog). But that call wrongly stopped
                          // 'session' as well. As a result, we need to restart all internal sessions:
-@@ -823,6 +858,7 @@
+                         d->temporarilyStopAllModalSessions();
+                     }
++                    // Clean up the modal session list, call endModalSession.
++                    if (d->cleanupModalSessionsNeeded) {
++                        d->cleanupModalSessions();
++                    }
+                     retVal = true;
+                 } else do {
+                     // Dispatch all non-user events (but que non-user events up for later). In
+@@ -823,6 +867,7 @@
          if (info.session) {
              [NSApp endModalSession:info.session];
              info.session = 0;
@@ -74,7 +95,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
          }
      }
      currentModalSessionCached = 0;
-@@ -923,12 +959,15 @@
+@@ -923,12 +968,15 @@
              currentModalSessionCached = info.session;
              break;
          }
@@ -91,7 +112,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
      }
  
      updateChildrenWorksWhenModal();
-@@ -937,6 +976,8 @@
+@@ -937,6 +985,8 @@
  
  void QEventDispatcherMacPrivate::beginModalSession(QWidget *widget)
  {
@@ -100,7 +121,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
      // Add a new, empty (null), NSModalSession to the stack.
      // It will become active the next time QEventDispatcher::processEvents is called.
      // A QCocoaModalSessionInfo is considered pending to become active if the widget pointer 
-@@ -958,16 +999,20 @@
+@@ -958,16 +1008,20 @@
      // when we stop the _current_ modal session (which is the session on top of
      // the stack, and might not belong to 'widget'). 
      int stackSize = cocoaModalSessionStack.size();
@@ -123,7 +144,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
              }
          }
      }
-@@ -1044,8 +1089,9 @@
+@@ -1044,8 +1098,9 @@
      }
  
  #ifdef QT_MAC_USE_COCOA
@@ -134,7 +155,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
  #endif
  
      if (d->interrupt) {
-@@ -1055,8 +1101,9 @@
+@@ -1055,8 +1110,9 @@
              // [NSApplication run] is running the event loop, we
              // delayed stopping it until now (to let cocoa process 
              // pending cocoa events first).
