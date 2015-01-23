@@ -84,10 +84,10 @@ setFreetypeTriggerVars() {
 # Build on Linux or Darwin only if not found in system
       findFreetype -s
       if test -z "$FREETYPE_PYCSH_DIR"; then
-        techo "WARNING: [$FUNCNAME] System freetype not found.  Will build if out of date, but better to install system version and remove contrib version to prevent incompatibility."
+        techo "WARNING: [$FUNCNAME] System freetype not found. Will examine for building. Recommend installing system version and removing contrib version to prevent incompatibility."
         FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
       elif [[ `freetype-config --ftversion` =~ '2.[0-2]' ]]; then
-        techo "NOTE: [$FUNCNAME] System freetype found but too old.  Building."
+        techo "NOTE: [$FUNCNAME] System freetype found but too old. Will examine for building. Recommend upgrading if possible."
         FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
       else
         techo "System freetype found in $FREETYPE_PYCSH_DIR, will not build."
