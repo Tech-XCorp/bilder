@@ -56,12 +56,12 @@ buildGraphviz() {
   esac
 
 # Configure and build
-  local GRAPHVIZ_SER_ADDL_ARGS="--with-qt=no"
+  local GRAPHVIZ_PYC_ADDL_ARGS="--with-qt=no"
   if test `uname` = Linux; then
-    GRAPHVIZ_SER_ADDL_ARGS="$GRAPHVIZ_SER_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
+    GRAPHVIZ_PYC_ADDL_ARGS="$GRAPHVIZ_PYC_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
   fi
-  if bilderConfig graphviz ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_PAR --enable-static $GRAPHVIZ_SER_ADDL_ARGS $GRAPHVIZ_SER_OTHER_ARGS"; then
-    bilderBuild graphviz ser
+  if bilderConfig graphviz pyc "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PAR --enable-static $GRAPHVIZ_PYC_ADDL_ARGS $GRAPHVIZ_PYC_OTHER_ARGS"; then
+    bilderBuild graphviz pyc
   fi
 
 }
