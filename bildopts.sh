@@ -214,7 +214,7 @@ setBilderOptions() {
   SEND_ABSTRACT=false
   SVNUP=false
   SVNUP_PKGS=true # Whether to svn up pkgs
-  TARBALL_BUILD_TYPE=Release
+  TARBALL_BUILD_TYPE=${TARBALL_BUILD_TYPE:-"Release"}
   TESTING_DEVELDOCS=${TESTING_DEVELDOCS:-"false"}
   TESTING=false
   USE_INTERNAL_TXPP=false
