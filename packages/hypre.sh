@@ -40,12 +40,19 @@ buildHypre() {
   if ! bilderUnpack hypre; then
     return 1
   fi
+  local HYPRE_PAR_ADDL_ARGS=
+  local HYPRE_PARSH_ADDL_ARGS=
+  case `uname` in
+    Darwin)
+      HYPRE_PARSH_ADDL_ARGS="-DCMAKE_INSTALL_NAME_DIR:STRING='$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-parsh/lib'"
+      ;;
+  esac
 
-  if bilderConfig -c hypre par "-DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"; then
+  if bilderConfig -c hypre par "-DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HYPRE_PAR_ADDL_ARGS $HYPRE_PAR_OTHER_ARGS"; then
     bilderBuild hypre par
   fi
 
-  if bilderConfig -c hypre parsh "-DHYPRE_SHARED:BOOL=ON -DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-parsh $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"; then
+  if bilderConfig -c hypre parsh "-DHYPRE_SHARED:BOOL=ON -DHYPRE_INSTALL_PREFIX:PATH=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-parsh $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HYPRE_PARSH_ADDL_ARGS $HYPRE_PARSH_OTHER_ARGS"; then
     bilderBuild hypre parsh
   fi
 
