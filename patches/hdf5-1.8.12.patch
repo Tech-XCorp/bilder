@@ -1,7 +1,23 @@
 diff -ruN hdf5-1.8.12/CMakeLists.txt hdf5-1.8.12-new/CMakeLists.txt
 --- hdf5-1.8.12/CMakeLists.txt	2013-11-21 08:14:04.000000000 -0700
-+++ hdf5-1.8.12-new/CMakeLists.txt	2014-06-27 07:43:36.000000000 -0600
-@@ -664,9 +664,9 @@
++++ hdf5-1.8.12-new/CMakeLists.txt	2015-01-23 17:01:52.195435543 -0700
+@@ -467,6 +467,7 @@
+ # break into groups (from the config/gnu-flags file)
+ #-----------------------------------------------------------------------------
+ IF (NOT MSVC)
++  IF (CMAKE_COMPILER_IS_GNUCC)
+     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline")
+     # Append warning flags
+     # Don't use the '-Wtraditional' flag, we're way past having K&R C code
+@@ -525,6 +526,7 @@
+ 
+     # Append more extra warning flags that only gcc 4.7+ know about
+     SET (H5_CFLAGS5 "${H5_CFLAGS5} -Wstack-usage=8192 -Wvector-operation-performance -Wsuggest-attribute=pure -Wsuggest-attribute=noreturn")
++  ENDIF (CMAKE_COMPILER_IS_GNUCC)
+ ENDIF (NOT MSVC)
+   
+ #-----------------------------------------------------------------------------
+@@ -664,9 +666,9 @@
  # Parallel IO usage requires MPI to be Linked and Included
  IF (H5_HAVE_PARALLEL)
    SET (LINK_LIBS ${LINK_LIBS} ${MPI_C_LIBRARIES})
@@ -16,7 +32,7 @@ diff -ruN hdf5-1.8.12/CMakeLists.txt hdf5-1.8.12-new/CMakeLists.txt
  SET (DEFAULT_API_VERSION "v18")
 diff -ruN hdf5-1.8.12/config/cmake/ConfigureChecks.cmake hdf5-1.8.12-new/config/cmake/ConfigureChecks.cmake
 --- hdf5-1.8.12/config/cmake/ConfigureChecks.cmake	2013-11-21 08:14:03.000000000 -0700
-+++ hdf5-1.8.12-new/config/cmake/ConfigureChecks.cmake	2014-06-27 07:48:00.000000000 -0600
++++ hdf5-1.8.12-new/config/cmake/ConfigureChecks.cmake	2015-01-23 15:42:31.967307109 -0700
 @@ -123,6 +123,7 @@
  
  SET (WINDOWS)
@@ -48,13 +64,55 @@ diff -ruN hdf5-1.8.12/config/cmake/ConfigureChecks.cmake hdf5-1.8.12-new/config/
    IF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
      SET (H5_HAVE_GETCONSOLESCREENBUFFERINFO 1)
    ENDIF (NOT UNIX AND NOT CYGWIN AND NOT MINGW)
-@@ -638,7 +641,9 @@
+@@ -216,12 +219,22 @@
+ IF (NOT WINDOWS)
+   CHECK_LIBRARY_EXISTS_CONCAT ("m" ceil     H5_HAVE_LIBM)
+   CHECK_LIBRARY_EXISTS_CONCAT ("dl" dlopen     H5_HAVE_LIBDL)
+-  CHECK_LIBRARY_EXISTS_CONCAT ("ws2_32" WSAStartup  H5_HAVE_LIBWS2_32)
+-  CHECK_LIBRARY_EXISTS_CONCAT ("wsock32" gethostbyname H5_HAVE_LIBWSOCK32)
++  if (NOT ${CMAKE_C_COMPILER} MATCHES "mpiicc")
++    CHECK_LIBRARY_EXISTS_CONCAT ("ws2_32" WSAStartup  H5_HAVE_LIBWS2_32)
++    CHECK_LIBRARY_EXISTS_CONCAT ("wsock32" gethostbyname H5_HAVE_LIBWSOCK32)
++  else()
++    SET (H5_HAVE_LIBWS2_32:INTERNAL 0)
++      SET (H5_HAVE_LIBWSOCK32:INTERNAL 0)
++  endif()
+ ENDIF (NOT WINDOWS)
+ 
+-CHECK_LIBRARY_EXISTS_CONCAT ("ucb"    gethostname  H5_HAVE_LIBUCB)
+-CHECK_LIBRARY_EXISTS_CONCAT ("socket" connect      H5_HAVE_LIBSOCKET)
++if (NOT ${CMAKE_C_COMPILER} MATCHES "mpiicc" AND NOT WINDOWS)
++  CHECK_LIBRARY_EXISTS_CONCAT ("ucb"    gethostname  H5_HAVE_LIBUCB)
++  CHECK_LIBRARY_EXISTS_CONCAT ("socket" connect      H5_HAVE_LIBSOCKET)
++  else()
++    SET (H5_HAVE_LIBUCB:INTERNAL 0)
++      SET (H5_HAVE_LIBSOCKET:INTERNAL 0)
++endif()
+ CHECK_LIBRARY_EXISTS ("c" gethostbyname "" NOT_NEED_LIBNSL)
+ 
+ IF (NOT NOT_NEED_LIBNSL)
+@@ -623,7 +636,11 @@
+   CHECK_FUNCTION_EXISTS (gettextinfo       H5_HAVE_GETTEXTINFO)
+   CHECK_FUNCTION_EXISTS (_scrsize          H5_HAVE__SCRSIZE)
+   IF (NOT CYGWIN AND NOT MINGW)
+-    CHECK_FUNCTION_EXISTS (GetConsoleScreenBufferInfo    H5_HAVE_GETCONSOLESCREENBUFFERINFO)
++    IF (NOT ${CMAKE_C_COMPILER} MATCHES "mpiicc")
++      CHECK_FUNCTION_EXISTS (GetConsoleScreenBufferInfo    H5_HAVE_GETCONSOLESCREENBUFFERINFO)
++    ELSE ()
++      set(H5_HAVE_GETCONSOLESCREENBUFFERINFO:INTERNAL 0)
++    ENDIF ()
+   ENDIF (NOT CYGWIN AND NOT MINGW)
+   CHECK_SYMBOL_EXISTS (TIOCGWINSZ "sys/ioctl.h" H5_HAVE_TIOCGWINSZ)
+   CHECK_SYMBOL_EXISTS (TIOCGETD   "sys/ioctl.h" H5_HAVE_TIOCGETD)
+@@ -638,7 +655,11 @@
  CHECK_FUNCTION_EXISTS (frexpf            H5_HAVE_FREXPF)
  CHECK_FUNCTION_EXISTS (frexpl            H5_HAVE_FREXPL)
  
 -CHECK_FUNCTION_EXISTS (gethostname       H5_HAVE_GETHOSTNAME)
 +IF (NOT MINGW)
 +  CHECK_FUNCTION_EXISTS (gethostname       H5_HAVE_GETHOSTNAME)
++ELSE ()
++  set(H5_HAVE_GETHOSTNAME:INTERNAL 0)
 +ENDIF ()
  CHECK_FUNCTION_EXISTS (getpwuid          H5_HAVE_GETPWUID)
  CHECK_FUNCTION_EXISTS (getrusage         H5_HAVE_GETRUSAGE)
@@ -693,7 +751,7 @@ diff -ruN hdf5-1.8.12/config/cmake/FindMPI.cmake hdf5-1.8.12-new/config/cmake/Fi
 -endforeach()
 diff -ruN hdf5-1.8.12/fortran/src/CMakeLists.txt hdf5-1.8.12-new/fortran/src/CMakeLists.txt
 --- hdf5-1.8.12/fortran/src/CMakeLists.txt	2013-11-21 08:14:04.000000000 -0700
-+++ hdf5-1.8.12-new/fortran/src/CMakeLists.txt	2014-06-27 07:50:05.000000000 -0600
++++ hdf5-1.8.12-new/fortran/src/CMakeLists.txt	2015-01-23 15:28:41.344642553 -0700
 @@ -117,6 +117,11 @@
      ${HDF5_F90_SRC_SOURCE_DIR}/H5Tf.c
      ${HDF5_F90_SRC_SOURCE_DIR}/H5Zf.c
