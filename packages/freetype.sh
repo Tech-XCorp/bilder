@@ -103,7 +103,9 @@ installFreetype() {
 # Matplotlib overrides any parameters for location of freetype if
 # freetype-config is in one's path.  So old system gets preferred to contrib.
 # This puts last installed freetype-config first in path.
-          (cd $CONTRIB_DIR/bin; ln -sf $CONTRIB_DIR/freetype-$bld/freetype-config .)
+          cmd="(cd $CONTRIB_DIR/bin; ln -sf $CONTRIB_DIR/freetype-$bld/bin/freetype-config .)"
+          techo "$cmd"
+          eval "$cmd"
           ;;
       esac
     fi
