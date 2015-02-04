@@ -50,7 +50,7 @@ buildLibssh() {
       LIBSSH_COMPFLAGS_PYC="$CMAKE_COMPFLAGS_PYC"
       buildargs="-m nmake"
       local zlibsershdir=`cygpath -am $ZLIB_SERSH_DIR`
-      LIBSSH_SERSH_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$zlibsershdir/include -DZLIB_LIBRARY:PATH=$zlibsershdir/lib/zlib.lib"
+      LIBSSH_SER_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$zlibsershdir/include -DZLIB_LIBRARY:PATH=$zlibsershdir/lib/zlib.lib"
       local zlibpycshdir=`cygpath -am $ZLIB_PYCSH_DIR`
       LIBSSH_PYCSH_ADDL_ARGS="-DZLIB_INCLUDE_DIR:PATH=$zlibpycshdir/include -DZLIB_LIBRARY:PATH=$zlibpycshdir/lib/zlib.lib"
       ;;
@@ -65,6 +65,8 @@ buildLibssh() {
           LIBSSH_COMPFLAGS_PYC="$CMAKE_COMPFLAGS_PYC"
           ;;
       esac
+      LIBSSH_SER_ADDL_ARGS="-DCMAKE_INSTALL_NAME_DIR:PATH='${CONTRIB_DIR}/libssh-${LIBSSH_BLDRVERSION}-ser/lib'"
+      LIBSSH_PYCSH_ADDL_ARGS="-DCMAKE_INSTALL_NAME_DIR:PATH='${CONTRIB_DIR}/libssh-${LIBSSH_BLDRVERSION}-pycsh/lib'"
       ;;
     Linux)
       LIBSSH_COMPFLAGS_SER="$CMAKE_COMPFLAGS_SER"
@@ -73,8 +75,6 @@ buildLibssh() {
       ;;
   esac
 
-  LIBSSH_SER_ADDL_ARGS="${LIBSSH_ALL_ADDL_ARGS} -DCMAKE_INSTALL_NAME_DIR:PATH='${CONTRIB_DIR}/libssh-${LIBSSH_BLDRVERSION}-ser/lib'"
-  LIBSSH_PYCSH_ADDL_ARGS="${LIBSSH_ALL_ADDL_ARGS} -DCMAKE_INSTALL_NAME_DIR:PATH='${CONTRIB_DIR}/libssh-${LIBSSH_BLDRVERSION}-pycsh/lib'"
 
 # configure and launch builds
   if bilderConfig -c libssh ser "-DWITH_STATIC_LIB:BOOL=TRUE $CMAKE_COMPILERS_SER $LIBSSH_COMPFLAGS_SER $LIBSSH_ALL_ADDL_ARGS $LIBSSH_SER_ADDL_ARGS $LIBSSH_SER_OTHER_ARGS"; then
