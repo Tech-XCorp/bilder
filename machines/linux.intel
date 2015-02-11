@@ -105,10 +105,10 @@ CXXFLAGS=${CXXFLAGS:-"-mkl -O3"}
 
 # Parallel
 if false; then
-MPI_CFLAGS=${MPI_CFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpicxx -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-I/usr/local/intel//impi/5.0.1.035/intel64/include -I/usr/local/intel//impi/5.0.1.035/intel64/include -L/usr/local/intel//impi/5.0.1.035/intel64/lib/release -L/usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib/release -Xlinker -rpath -Xlinker /usr/local/intel//impi/5.0.1.035/intel64/lib -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5 .0/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/mpi-rt/5.0/intel64/lib -lmpifort -lmpi -lmpigi -ldl -lrt -lpthread -mkl -fpic"}
+MPI_CFLAGS=${MPI_CFLAGS:-"-fpic"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-fpic"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-fpic"}
+MPI_FFLAGS=${MPI_FFLAGS:-"-fpic"}
 fi
 
 # Linear algebra libraries:
