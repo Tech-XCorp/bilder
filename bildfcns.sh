@@ -7267,6 +7267,7 @@ EOF
     trimvar $i ' '
   done
   local failed=true
+set -x
   if $TERMINATE_REQUESTED; then
     EMAIL_SUBJECT="FAILED (killed)."
     if test -n "$pidsKilled"; then
@@ -7310,11 +7311,16 @@ EOF
       EMAIL_SUBJECT="$EMAIL_SUBJECT - Tests: $testSuccesses"
     fi
     EMAIL_SUBJECT="$EMAIL_SUBJECT."
+  elif test -n "$buildSuccesses"; then
+    EMAIL_SUBJECT="SUCCESS"
+    failed=false
+    EMAIL_SUBJECT="$EMAIL_SUBJECT - Builds: $buildSuccesses (see WARNING)"
   else
     EMAIL_SUBJECT="Nothing built or tested.  Appears all up to date."
   fi
   echo "$EMAIL_SUBJECT" >>$SUMMARY
   echo >>$SUMMARY
+set +x
 
 # Add lines to abstract
   local statusfound=
