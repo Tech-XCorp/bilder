@@ -86,10 +86,10 @@ MPIF77=${MPIF77:-"mpiifort"}
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-mkl -O3"}
-CXXFLAGS=${CXXFLAGS:-"-mkl -O3"}
-# FCFLAGS=${FCFLAGS:-""}
-# FFLAGS=${FFLAGS:-""}
+CFLAGS=${CFLAGS:-"-fpic"}
+CXXFLAGS=${CXXFLAGS:-"-fpic"}
+FCFLAGS=${FCFLAGS:-"-fpic"}
+FFLAGS=${FFLAGS:-"-fpic"}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -104,12 +104,12 @@ CXXFLAGS=${CXXFLAGS:-"-mkl -O3"}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
 
 # Parallel
-if false; then
-MPI_CFLAGS=${MPI_CFLAGS:-"-fpic"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-fpic"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-fpic"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-fpic"}
-fi
+#if false; then
+MPI_CFLAGS=${MPI_CFLAGS:-"-mt_mpi"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mt_mpi"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-mt_mpi"}
+MPI_FFLAGS=${MPI_FFLAGS:-"-mt_mpi"}
+#fi
 
 # Linear algebra libraries:
 # All should be a full path to the library.
