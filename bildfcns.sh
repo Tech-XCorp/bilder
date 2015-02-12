@@ -7267,7 +7267,6 @@ EOF
     trimvar $i ' '
   done
   local failed=true
-set -x
   if $TERMINATE_REQUESTED; then
     EMAIL_SUBJECT="FAILED (killed)."
     if test -n "$pidsKilled"; then
@@ -7320,7 +7319,6 @@ set -x
   fi
   echo "$EMAIL_SUBJECT" >>$SUMMARY
   echo >>$SUMMARY
-set +x
 
 # Add lines to abstract
   local statusfound=
