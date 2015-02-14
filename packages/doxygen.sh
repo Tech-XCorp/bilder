@@ -62,7 +62,7 @@ testDoxygen() {
 installDoxygen() {
   if bilderInstall -p open doxygen pyc "" "-i"; then
     mkdir -p $CONTRIB_DIR/bin
-    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen/bin/doxygen .)
+    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen-pyc/bin/doxygen .)
   fi
 }
 
