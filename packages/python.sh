@@ -70,10 +70,10 @@ buildPython() {
   esac
 
 # just --enable-shared gives errors:
-#  Failed to find the necessary bits to build these modules:
-#  _tkinter bsddb185    dl
-#  imageop  sunaudiodev
-#  To find the necessary bits, look in setup.py in detect_modules() for the module's name.
+# Failed to find the necessary bits to build these modules:
+#   _tkinter bsddb185 dl imageop sunaudiodev
+# To find the necessary bits, look in setup.py in detect_modules() for
+# the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
   if bilderConfig Python $PYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
     bilderBuild Python $PYTHON_BUILD
