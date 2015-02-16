@@ -1253,7 +1253,8 @@ getVersion() {
     fi
     branch=`hg branch`
     hash=`hg id -i`
-    rev=${branch}.r${rev}.${hash}
+    # rev=${branch}.r${rev}.${hash}
+    rev=${branch}.r${rev}
   elif test -z "$repotype"; then
     techo "Directory $repodir is not a repository, assuming exported"
     rev="exported"
