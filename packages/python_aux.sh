@@ -18,6 +18,15 @@
 setPythonTriggerVars() {
   PYTHON_BLDRVERSION_STD=2.7.3
   PYTHON_BLDRVERSION_EXP=2.7.7
+  case `uname` in
+    CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then
+               PYTHON_BLDRVERSION_STD=2.7.9.win64
+	       PYTHON_BUILDS=$FORPYTHON_SHARED_BUILD
+             fi
+             ;;
+          *) PYTHON_DEPS=chrpath,sqlite,bzip2
+             ;;
+  esac
   computeVersion Python
 # Export so available to setinstald.sh
   export PYTHON_BLDRVERSION
@@ -27,8 +36,8 @@ setPythonTriggerVars() {
     PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   fi
   PYTHON_BUILD=$FORPYTHON_SHARED_BUILD
-  PYTHON_DEPS=chrpath,sqlite,bzip2
 }
+
 setPythonTriggerVars
 
 ######################################################################

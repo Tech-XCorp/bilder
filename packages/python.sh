@@ -40,6 +40,13 @@ buildPython() {
     return
   fi
 
+  case `uname` in 
+    CYGWIN*) techo "No build needed for Windows."
+             cd Python-2.7.9
+             ./python-install.sh 
+             return;;
+  esac
+
 # Set up flags
   if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
     setCc4pyAddlLdflags
