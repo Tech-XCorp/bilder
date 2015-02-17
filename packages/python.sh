@@ -36,14 +36,15 @@ setPythonNonTriggerVars
 
 buildPython() {
 
-  if ! bilderUnpack Python; then
+  if ! bilderUnpack -i Python; then
     return
   fi
 
   case `uname` in 
     CYGWIN*) techo "No build needed for Windows."
-             cd Python-2.7.9
-             ./python-install.sh 
+	     if bilderConfig -C : Python sersh; then
+               bilderBuild -D -k -m ./python-install.sh Python sersh
+             fi
              return;;
   esac
 
@@ -105,6 +106,10 @@ testPython() {
 ######################################################################
 
 installPython() {
+  case `uname` in
+    CYGWIN*) bilderInstall -L Python sersh python
+             ;;
+  esac
   if bilderInstall -r Python $PYTHON_BUILD python; then
     case `uname` in
       Linux)
