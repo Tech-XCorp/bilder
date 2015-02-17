@@ -58,7 +58,7 @@ buildPython() {
     Linux)
 # Ensure python can find its own library and any libraries linked into contrib
       pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
-	if cd $CONTRIB_DIR/sqlite-sersh; then
+      if cd $CONTRIB_DIR/sqlite-pyc; then
         local preswd=`pwd -P`
         pyldflags="$pyldflags -L$preswd/lib"
         pycppflags="-I$preswd/include"
