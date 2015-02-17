@@ -51,7 +51,7 @@ buildPython() {
     return
   fi
 
-  if cygwinVS12; then
+  if $cygwinVS12; then
     techo "No build needed for Windows. Installing from tarball."
     if bilderConfig -C : Python sersh; then
       bilderBuild -D -k -m ./python-install.sh Python sersh
@@ -118,8 +118,11 @@ testPython() {
 
 installPython() {
   case `uname` in
-    CYGWIN*) bilderInstall -L Python sersh python
-             ;;
+    CYGWIN*) if test -n "$PYTHON_SERSH_BUILD_DIR"; then
+               waitAction Python-sersh
+               recordInstallation $CONTRIB_DIR Python $PYTHON_BLDRVERSION sersh
+             fi
+             return;;
   esac
   if bilderInstall -r Python $PYTHON_BUILD python; then
     case `uname` in
