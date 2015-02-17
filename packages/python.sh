@@ -35,18 +35,29 @@ setPythonNonTriggerVars
 ######################################################################
 
 buildPython() {
+  local cygwinVS12=false
+  local inplace=
+  
+  # Cygwin VS12 needs in place "build" of Python, which is really just
+  # an install of an already-built version.
+  case `uname` in
+    CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then
+	       cygwinVS12=true
+               inplace=-i
+             fi;;
+  esac
 
-  if ! bilderUnpack -i Python; then
+  if ! bilderUnpack $inplace Python; then
     return
   fi
 
-  case `uname` in 
-    CYGWIN*) techo "No build needed for Windows."
-	     if bilderConfig -C : Python sersh; then
-               bilderBuild -D -k -m ./python-install.sh Python sersh
-             fi
-             return;;
-  esac
+  if cygwinVS12; then
+    techo "No build needed for Windows. Installing from tarball."
+    if bilderConfig -C : Python sersh; then
+      bilderBuild -D -k -m ./python-install.sh Python sersh
+    fi
+    return
+  fi
 
 # Set up flags
   if declare -f setCc4pyAddlLdflags 1>/dev/null 2>&1; then
