@@ -68,7 +68,7 @@ buildPython() {
   case `uname` in
     Linux)
 # Ensure python can find its own library and any libraries linked into contrib
-      pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
+      pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
       if cd $CONTRIB_DIR/sqlite-$FORPYTHON_SHARED_BUILD; then
         local preswd=`pwd -P`
         pyldflags="$pyldflags -L$preswd/lib"
@@ -129,9 +129,9 @@ installPython() {
       Linux)
 # Fix rpath if known how
 	if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/bin/python${PYTHON_MAJMIN}
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib/libpython${PYTHON_MAJMIN}.so
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/libpython${PYTHON_MAJMIN}.so
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
 	fi
         ;;
     esac
