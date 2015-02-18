@@ -60,8 +60,8 @@ buildGraphviz() {
   if test `uname` = Linux; then
     GRAPHVIZ_PYC_ADDL_ARGS="$GRAPHVIZ_PYC_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
   fi
-  if bilderConfig graphviz pyc "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PAR --enable-static $GRAPHVIZ_PYC_ADDL_ARGS $GRAPHVIZ_PYC_OTHER_ARGS"; then
-    bilderBuild graphviz pyc
+  if bilderConfig graphviz $FORPYTHON_STATIC_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PAR --enable-static $GRAPHVIZ_PYC_ADDL_ARGS $GRAPHVIZ_PYC_OTHER_ARGS"; then
+    bilderBuild graphviz $FORPYTHON_STATIC_BUILD
   fi
 
 }

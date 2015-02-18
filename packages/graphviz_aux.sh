@@ -21,8 +21,7 @@ setGraphvizTriggerVars() {
   if test -z "$GRAPHVIZ_BUILDS"; then
     case `uname` in
       CYGWIN*) ;;
-      Darwin) GRAPHVIZ_BUILDS="pyc";;
-      Linux) GRAPHVIZ_BUILDS="pyc";;
+      Darwin | Linux) GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
     esac
   fi
   GRAPHVIZ_DEPS=libgd,python,autotools

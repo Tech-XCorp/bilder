@@ -389,7 +389,7 @@ else
   if [[ `uname` =~ CYGWIN ]]; then
     FORPYTHON_STATIC_BUILD=pycmd
   else
-    FORPYTHON_STATIC_BUILD=pyc
+    FORPYTHON_STATIC_BUILD=pycst
   fi
 fi
 techo -2 "FORPYTHON_SHARED_BUILD = $FORPYTHON_SHARED_BUILD."

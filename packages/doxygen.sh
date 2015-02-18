@@ -38,8 +38,8 @@ buildDoxygen() {
   if ! bilderUnpack -i doxygen; then
     return
   fi
-  if bilderConfig -i -n doxygen pyc; then
-    bilderBuild doxygen pyc
+  if bilderConfig -i -n doxygen $FORPYTHON_STATIC_BUILD; then
+    bilderBuild doxygen $FORPYTHON_STATIC_BUILD
   fi
 }
 
@@ -60,7 +60,7 @@ testDoxygen() {
 ######################################################################
 
 installDoxygen() {
-  if bilderInstall -p open doxygen pyc "" "-i"; then
+  if bilderInstall -p open doxygen $FORPYTHON_STATIC_BUILD "" "-i"; then
     mkdir -p $CONTRIB_DIR/bin
     (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen-pyc/bin/doxygen .)
   fi
