@@ -94,8 +94,8 @@ buildPython() {
 # To find the necessary bits, look in setup.py in detect_modules() for
 # the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-  if bilderConfig Python $PYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
-    bilderBuild Python $PYTHON_BUILD
+  if bilderConfig Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
+    bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
 
 }
@@ -124,7 +124,7 @@ installPython() {
              fi
              return;;
   esac
-  if bilderInstall -r Python $PYTHON_BUILD python; then
+  if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
       Linux)
 # Fix rpath if known how

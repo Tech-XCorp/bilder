@@ -35,7 +35,6 @@ setPythonTriggerVars() {
   if test `uname` = Linux; then
     PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   fi
-  PYTHON_BUILD=$FORPYTHON_SHARED_BUILD
 }
 
 setPythonTriggerVars
