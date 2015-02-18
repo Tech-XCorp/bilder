@@ -140,7 +140,7 @@ getTriTPLs() {
         if test "$parflag" == "ser"; then
           continue  # parallel only
         else
-          tplDir=$CONTRIB_DIR/superlu_dist-parcomm
+          tplDir=$CONTRIB_DIR/superlu_dist-par
         fi
         tplLibName="superlu_dist"
         addlArgs="-DTPL_ENABLE_SuperLUDist_Without_ParMETIS:BOOL=TRUE"
