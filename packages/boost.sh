@@ -145,7 +145,7 @@ buildBoost() {
 # These args are actually to bilderBuild
   local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"
   local staticlinkargs="link=static"
-  local sharedlinkargs="link=shared"
+  local sharedlinkargs="link=shared define=BOOST_TEST_DYN_LINK"
   local sermdlinkargs="link=static"  # Not yet used, but this should be right
   if [[ `uname` =~ CYGWIN ]]; then
     staticlinkargs="runtime-link=static $staticlinkargs"

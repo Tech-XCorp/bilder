@@ -1253,7 +1253,8 @@ getVersion() {
     fi
     branch=`hg branch`
     hash=`hg id -i`
-    rev=${branch}.r${rev}.${hash}
+    # rev=${branch}.r${rev}.${hash}
+    rev=${branch}.r${rev}
   elif test -z "$repotype"; then
     techo "Directory $repodir is not a repository, assuming exported"
     rev="exported"
@@ -4645,8 +4646,6 @@ bilderConfig() {
         hasctest=true
         start_ctest=$srcarg/Start.ctest
         techo "Found $srcarg/Start.ctest.  ctest can be used."
-      else
-        techo "(Sci)Start.ctest not found under $srcarg/{scimake,.}.  ctest cannot be used."
       fi
       if test -d $srcarg/scimake; then
         hasscimake=true
@@ -7313,6 +7312,10 @@ EOF
       EMAIL_SUBJECT="$EMAIL_SUBJECT - Tests: $testSuccesses"
     fi
     EMAIL_SUBJECT="$EMAIL_SUBJECT."
+  elif test -n "$buildSuccesses"; then
+    EMAIL_SUBJECT="SUCCESS"
+    failed=false
+    EMAIL_SUBJECT="$EMAIL_SUBJECT - Builds: $buildSuccesses (see WARNING)"
   else
     EMAIL_SUBJECT="Nothing built or tested.  Appears all up to date."
   fi

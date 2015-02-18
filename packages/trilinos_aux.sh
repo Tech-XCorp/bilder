@@ -46,8 +46,8 @@ setTrilinosTriggerVars() {
     TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"
   fi
   case `uname` in
-     CYGWIN* | Darwin) ;;
-     *) TRILINOS_DEPS="hypre,${TRILINOS_DEPS}";;
+     CYGWIN*) ;;
+     *) TRILINOS_DEPS="hypre,mumps,${TRILINOS_DEPS}";;
   esac
 
 }

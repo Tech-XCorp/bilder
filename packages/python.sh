@@ -35,8 +35,27 @@ setPythonNonTriggerVars
 ######################################################################
 
 buildPython() {
+  local cygwinVS12=false
+  local inplace=
 
-  if ! bilderUnpack Python; then
+  # Cygwin VS12 needs in place "build" of Python, which is really just
+  # an install of an already-built version.
+  case `uname` in
+    CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then
+	       cygwinVS12=true
+               inplace=-i
+             fi;;
+  esac
+
+  if ! bilderUnpack $inplace Python; then
+    return
+  fi
+
+  if $cygwinVS12; then
+    techo "No build needed for Windows. Installing from tarball."
+    if bilderConfig -C : Python sersh; then
+      bilderBuild -D -k -m ./python-install.sh Python sersh
+    fi
     return
   fi
 
@@ -49,8 +68,8 @@ buildPython() {
   case `uname` in
     Linux)
 # Ensure python can find its own library and any libraries linked into contrib
-      pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
-	if cd $CONTRIB_DIR/sqlite-sersh; then
+      pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
+      if cd $CONTRIB_DIR/sqlite-$FORPYTHON_SHARED_BUILD; then
         local preswd=`pwd -P`
         pyldflags="$pyldflags -L$preswd/lib"
         pycppflags="-I$preswd/include"
@@ -70,13 +89,13 @@ buildPython() {
   esac
 
 # just --enable-shared gives errors:
-#  Failed to find the necessary bits to build these modules:
-#  _tkinter bsddb185    dl
-#  imageop  sunaudiodev
-#  To find the necessary bits, look in setup.py in detect_modules() for the module's name.
+# Failed to find the necessary bits to build these modules:
+#   _tkinter bsddb185 dl imageop sunaudiodev
+# To find the necessary bits, look in setup.py in detect_modules() for
+# the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-  if bilderConfig Python $PYTHON_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
-    bilderBuild Python $PYTHON_BUILD
+  if bilderConfig Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
+    bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
 
 }
@@ -98,14 +117,21 @@ testPython() {
 ######################################################################
 
 installPython() {
-  if bilderInstall -r Python $PYTHON_BUILD python; then
+  case `uname` in
+    CYGWIN*) if test -n "$PYTHON_SERSH_BUILD_DIR"; then
+               waitAction Python-sersh
+               recordInstallation $CONTRIB_DIR Python $PYTHON_BLDRVERSION sersh
+             fi
+             return;;
+  esac
+  if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
       Linux)
 # Fix rpath if known how
 	if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/bin/python${PYTHON_MAJMIN}
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib/libpython${PYTHON_MAJMIN}.so
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$PYTHON_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/libpython${PYTHON_MAJMIN}.so
+	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
 	fi
         ;;
     esac

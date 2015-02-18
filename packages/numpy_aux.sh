@@ -28,8 +28,13 @@
 ######################################################################
 
 setNumpyTriggerVars() {
-  NUMPY_BLDRVERSION_STD=1.8.0
+  NUMPY_BLDRVERSION_STD=1.8.1
   NUMPY_BLDRVERSION_EXP=1.8.1
+
+  if [[ `uname` =~ CYGWIN ]] && test $VISUALSTUDIO_VERSION = 12; then
+    NUMPY_BLDRVERSION_STD=1.9.1
+  fi
+
   computeVersion numpy
   NUMPY_BUILDS=${NUMPY_BUILDS:-"pycsh"}
   NUMPY_DEPS=Python

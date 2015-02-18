@@ -20,7 +20,7 @@ setDoxygenTriggerVars() {
   DOXYGEN_BLDRVERSION_EXP=${DOXYGEN_BLDRVERSION_EXP:-"1.8.8"}
   case `uname` in
     CYGWIN*) ;;
-    *) DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-"ser"};;
+    *) DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
   esac
   DOXYGEN_DEPS=graphviz
 }

@@ -1,0 +1,266 @@
+diff --git a/src/gui/kernel/qcocoaview_mac.mm b/src/gui/kernel/qcocoaview_mac.mm
+index f7cb21f..cf3764a 100644
+--- a/src/gui/kernel/qcocoaview_mac.mm
++++ b/src/gui/kernel/qcocoaview_mac.mm
+@@ -188,6 +188,46 @@ extern "C" {
+ #ifdef ALIEN_DEBUG
+ static int qCocoaViewCount = 0;
+ #endif
++@implementation MyNSOpenGLLayer
++
++- (id)initWithFormat:(NSOpenGLPixelFormat *)pixelFormat context:(NSOpenGLContext *)context
++{
++    [pixelFormat retain];
++    [context retain];
++    openGLPixelFormat = pixelFormat;
++    openGLContext = context;
++    self = [super init];
++    return self;
++}
++- (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask
++{
++    //NSLog(@"openGLPixelFormatForDisplayMask %@ retainCount %d",openGLPixelFormat, [openGLPixelFormat retainCount]);
++    [openGLPixelFormat retain];
++    return [openGLPixelFormat autorelease];
++}
++
++- (NSOpenGLContext *)openGLContextForPixelFormat:(NSOpenGLPixelFormat *)pixelFormat
++{
++    //NSLog(@"openGLContextForPixelFormat %@ retainCount %d",openGLContext, [openGLContext retainCount]);
++    [openGLContext retain];
++    return [openGLContext autorelease];
++}
++
++- (void)cleanupContext
++{
++    [openGLPixelFormat release];
++    [openGLContext release];
++    openGLPixelFormat = nil;
++    openGLContext = nil;
++}
++
++- (void)dealloc
++{
++    [self cleanupContext];
++    [super dealloc];
++}
++
++@end
+
+ @implementation QT_MANGLE_NAMESPACE(QCocoaView)
+
+@@ -207,6 +247,7 @@ static int qCocoaViewCount = 0;
+     composing = false;
+     sendKeyEvents = true;
+     [self setHidden:YES];
++    hasOpenGLLayer = false;
+     return self;
+ }
+
+@@ -428,7 +469,6 @@ static int qCocoaViewCount = 0;
+     --qCocoaViewCount;
+     qDebug() << "qCocoaViewCount is" << qCocoaViewCount;
+ #endif
+-
+     [super dealloc];
+ }
+
+@@ -465,6 +505,11 @@ static int qCocoaViewCount = 0;
+     } else {
+         [self setNeedsDisplay:YES];
+     }
++    if (hasOpenGLLayer) {
++        NSOpenGLContext *openGLContext = [(NSOpenGLLayer *)[self layer] openGLContext];
++        [openGLContext makeCurrentContext];
++        [openGLContext update];
++    }
+
+     // Make sure the opengl context is updated on resize.
+     if (qwidgetprivate && qwidgetprivate->isGLWidget) {
+@@ -472,6 +517,20 @@ static int qCocoaViewCount = 0;
+         QEvent event(QEvent::MacGLWindowChange);
+         qApp->sendEvent(qwidget, &event);
+     }
++
++}
++
++- (CALayer *)makeBackingLayer {
++    QVariant pixelFormat= qwidget->property("NSOpenGLPixelFormat");
++    QVariant context = qwidget->property("NSOpenGLContext");
++    if (context.isValid()) {
++        hasOpenGLLayer = true;
++        NSOpenGLPixelFormat* glPixelFormat = (NSOpenGLPixelFormat*)pixelFormat.toULongLong();
++        NSOpenGLContext *glContext  = (NSOpenGLContext *)context.toULongLong();
++        return [[[MyNSOpenGLLayer alloc] initWithFormat:glPixelFormat context:glContext] autorelease];
++    } else {
++        return [super makeBackingLayer];
++    }
+ }
+
+ - (void)drawRect:(NSRect)aRect
+@@ -505,7 +564,9 @@ static int qCocoaViewCount = 0;
+ 	    QRect tmpRect = QRect(rects[i].origin.x, rects[i].origin.y, rects[i].size.width, rects[i].size.height);
+ 	    qrgn += tmpRect;
+ 	}
+-
++        if (!count) {
++            qrgn += qrect;
++        }
+         if (!qwidget->isWindow() && !qobject_cast<QAbstractScrollArea *>(qwidget->parent())) {
+             const QRegion &parentMask = qwidget->window()->mask();
+             if (!parentMask.isEmpty()) {
+@@ -1077,8 +1138,13 @@ static int qCocoaViewCount = 0;
+
+ - (void) qt_clearQWidget
+ {
++    CALayer *layer = [self layer];
++    if (layer != nil  && [layer isKindOfClass:[MyNSOpenGLLayer class]]) {
++        [(MyNSOpenGLLayer *)layer cleanupContext];
++    }
+     qwidget = 0;
+     qwidgetprivate = 0;
++
+ }
+
+ - (BOOL)qt_leftButtonIsRightButton
+diff --git a/src/gui/kernel/qcocoaview_mac_p.h b/src/gui/kernel/qcocoaview_mac_p.h
+index 33aaa24..16afa24 100644
+--- a/src/gui/kernel/qcocoaview_mac_p.h
++++ b/src/gui/kernel/qcocoaview_mac_p.h
+@@ -88,6 +88,7 @@ Q_GUI_EXPORT
+     bool sendKeyEvents;
+     QString *composingText;
+     NSInteger dragEnterSequence;
++    bool hasOpenGLLayer;
+ }
+ - (id)initWithQWidget:(QWidget *)widget widgetPrivate:(QWidgetPrivate *)widgetprivate;
+ - (void) finishInitWithQWidget:(QWidget *)widget widgetPrivate:(QWidgetPrivate *)widgetprivate;
+@@ -109,4 +110,16 @@ Q_GUI_EXPORT
+ + (DnDParams*)currentMouseEvent;
+
+ @end
++
++@interface MyNSOpenGLLayer : NSOpenGLLayer {
++    NSOpenGLPixelFormat *openGLPixelFormat;
++    NSOpenGLContext *openGLContext;
++}
++- (id)initWithFormat:(NSOpenGLPixelFormat *)pixelFormat context:(NSOpenGLContext *)context;
++- (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask;
++- (NSOpenGLContext *)openGLContextForPixelFormat:(NSOpenGLPixelFormat *)pixelFormat;
++- (void)cleanupContext;
++@end
++
++
+ #endif
+diff --git a/src/gui/kernel/qwidget_mac.mm b/src/gui/kernel/qwidget_mac.mm
+index 4b45abd..d592476 100644
+--- a/src/gui/kernel/qwidget_mac.mm
++++ b/src/gui/kernel/qwidget_mac.mm
+@@ -3398,6 +3398,7 @@ void QWidgetPrivate::show_sys()
+         // Make sure that we end up sending a repaint event to
+         // the widget if the window has been visible one before:
+         [qt_mac_get_contentview_for(window) setNeedsDisplay:YES];
++        [qt_mac_get_contentview_for(window) setWantsLayer:YES];
+ #endif
+         if(qt_mac_is_macsheet(q)) {
+             qt_event_request_showsheet(q);
+@@ -3827,7 +3828,10 @@ void QWidgetPrivate::raise_sys()
+     } else {
+         NSView *view = qt_mac_nativeview_for(q);
+         NSView *parentView = [view superview];
++        [NSAnimationContext beginGrouping];
++        [[NSAnimationContext currentContext] setDuration:0];
+         [parentView sortSubviewsUsingFunction:compareViews2Raise context:reinterpret_cast<void *>(view)];
++        [NSAnimationContext endGrouping];
+     }
+ #else
+     if(q->isWindow()) {
+@@ -3867,7 +3871,10 @@ void QWidgetPrivate::lower_sys()
+     } else {
+         NSView *view = qt_mac_nativeview_for(q);
+         NSView *parentView = [view superview];
++        [NSAnimationContext beginGrouping];
++        [[NSAnimationContext currentContext] setDuration:0];
+         [parentView sortSubviewsUsingFunction:compareViews2Lower context:reinterpret_cast<void *>(view)];
++        [NSAnimationContext endGrouping];
+     }
+ #else
+     if(q->isWindow()) {
+@@ -3914,7 +3921,10 @@ void QWidgetPrivate::stackUnder_sys(QWidget *w)
+     }
+     viewOrder[myView] = viewOrder[wView] - 1;
+
++    [NSAnimationContext beginGrouping];
++    [[NSAnimationContext currentContext] setDuration:0];
+     [parentView sortSubviewsUsingFunction:compareViews2StackUnder context:reinterpret_cast<void *>(&viewOrder)];
++    [NSAnimationContext endGrouping];
+ #else
+     QWidget *p = q->parentWidget();
+     if(!p || p != w->parentWidget())
+diff --git a/src/opengl/qgl.cpp b/src/opengl/qgl.cpp
+index e0030ad..01c87a6 100644
+--- a/src/opengl/qgl.cpp
++++ b/src/opengl/qgl.cpp
+@@ -3789,6 +3789,10 @@ void QGLWidget::updateGL()
+ {
+     if (updatesEnabled())
+         glDraw();
++#if defined(Q_WS_MAC)
++    Q_D(QGLWidget);
++    d->updateGL_sys();
++#endif
+ }
+
+
+diff --git a/src/opengl/qgl_mac.mm b/src/opengl/qgl_mac.mm
+index 4d7532e..1385269 100644
+--- a/src/opengl/qgl_mac.mm
++++ b/src/opengl/qgl_mac.mm
+@@ -319,6 +319,11 @@ bool QGLContext::chooseContext(const QGLContext *shareContext)
+         }
+     }
+     d->cx = ctx;
++    if (d->paintDevice->devType() == QInternal::Widget) {
++        QWidget *w = (QWidget *)d->paintDevice;
++        w->setProperty("NSOpenGLPixelFormat", QVariant((qulonglong)(d->vi)));
++        w->setProperty("NSOpenGLContext", QVariant((qulonglong)(d->cx)));
++    }
+     if (shareContext && shareContext->d_func()->cx) {
+         QGLContext *share = const_cast<QGLContext *>(shareContext);
+         d->sharing = true;
+@@ -700,8 +705,8 @@ void QGLContext::updatePaintDevice()
+         // ideally we would use QWidget::isVisible(), but we get "invalid drawable" errors
+         if (![(NSWindow *)qt_mac_window_for(w) isVisible])
+             return;
+-        if ([static_cast<NSOpenGLContext *>(d->cx) view] != view && ![view isHidden])
+-            [static_cast<NSOpenGLContext *>(d->cx) setView:view];
++//        if ([static_cast<NSOpenGLContext *>(d->cx) view] != view && ![view isHidden])
++//            [static_cast<NSOpenGLContext *>(d->cx) setView:view];
+     } else if (d->paintDevice->devType() == QInternal::Pixmap) {
+         const QPixmap *pm = static_cast<const QPixmap *>(d->paintDevice);
+         [static_cast<NSOpenGLContext *>(d->cx) setOffScreen:qt_mac_pixmap_get_base(pm)
+@@ -978,6 +983,12 @@ void QGLWidgetPrivate::updatePaintDevice()
+     q->update();
+ }
+
++void QGLWidgetPrivate::updateGL_sys()
++{
++    Q_Q(QGLWidget);
++    NSView *view = qt_mac_nativeview_for(q);
++    [[view layer] setNeedsDisplay];
++}
+ #endif
+
+ QT_END_NAMESPACE
+diff --git a/src/opengl/qgl_p.h b/src/opengl/qgl_p.h
+index 45f8f30..b16463a 100644
+--- a/src/opengl/qgl_p.h
++++ b/src/opengl/qgl_p.h
+@@ -201,6 +201,7 @@ public:
+ #elif defined(Q_WS_MAC)
+     QGLContext *olcx;
+     void updatePaintDevice();
++    void updateGL_sys();
+ #elif defined(Q_WS_QWS)
+     QWSGLWindowSurface *wsurf;
+ #endif
