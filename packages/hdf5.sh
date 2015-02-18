@@ -158,6 +158,27 @@ moveHdf5Tools() {
   fi
 }
 
+# Fix the shared installations rpaths
+#
+# 1: The build
+#
+fixHdf5SharedInst() {
+
+  bld=$1
+  local instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
+  local libdir=$instdir/lib
+  local bindir=$instdir/lib
+
+# Fix the libraries
+  if declare -f bilderFixRpath 1>/dev/null 2>&1; then
+    bilderFixRpath $libdir
+    for exe in `\ls $bindary`; do
+      bilderFixRpath $exe
+    done
+  fi
+
+}
+
 # Fix the HDF5 liblib problem
 #
 # 1: The build
@@ -201,6 +222,7 @@ fixHdf5Libs() {
   bld=$1
   case $bld in
     ser | par | sermd) fixHdf5StaticLibs $bld;;
+    *sh) fixHdf5SharedInst $bld;;
   esac
 }
 
