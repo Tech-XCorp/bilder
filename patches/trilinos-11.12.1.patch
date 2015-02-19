@@ -244,6 +244,30 @@ diff -ruN trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/include/exodus
  
  #ifndef NC_INT64
  #error "NetCDF version 4.1.2 or later is required."
+diff -ruN trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/src/ex_create_par.c trilinos-11.12.1-new/packages/seacas/libraries/exodus/cbind/src/ex_create_par.c
+--- trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/src/ex_create_par.c	2014-10-08 15:14:28.000000000 -0600
++++ trilinos-11.12.1-new/packages/seacas/libraries/exodus/cbind/src/ex_create_par.c	2014-12-05 02:38:04.543868633 -0700
+@@ -127,7 +127,7 @@
+ #include <assert.h>
+ #include <mpi.h>
+ 
+-#include "netcdf_par.h"
++#include "netcdf.h"
+ #include "exodusII.h"
+ #include "exodusII_int.h"
+ 
+diff -ruN trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/src/ex_open_par.c trilinos-11.12.1-new/packages/seacas/libraries/exodus/cbind/src/ex_open_par.c
+--- trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/src/ex_open_par.c	2014-10-08 15:14:28.000000000 -0600
++++ trilinos-11.12.1-new/packages/seacas/libraries/exodus/cbind/src/ex_open_par.c	2014-12-05 02:38:04.543868633 -0700
+@@ -58,7 +58,7 @@
+ #include "exodusII.h"                   // for exerrval, ex_err, etc
+ #include "exodusII_int.h"               // for EX_FATAL, etc
+ #include "netcdf.h"                     // for NC_NOERR, NC_GLOBAL, etc
+-#include "netcdf_par.h"                 // for nc_open_par
++//#include "netcdf_par.h"                 // for nc_open_par
+ 
+ 
+ /*!  
 diff -ruN trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.12.1-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
 --- trilinos-11.12.1/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-10-08 15:14:28.000000000 -0600
 +++ trilinos-11.12.1-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2014-12-05 02:38:04.543868633 -0700

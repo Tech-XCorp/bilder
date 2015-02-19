@@ -122,7 +122,7 @@ $TECHO2 "After /usr/bin move, PATH = $PATH."
 getVsPaths() {
   local vsver=$1
   $TECHO "Looking for tools for Visual Studio ${vsver}."
-  if ! test -d "/cygdrive/c/Program Files/Microsoft Visual Studio ${vsver}.0"; then
+  if ! test -d "/cygdrive/c/${programfiles}/Microsoft Visual Studio ${vsver}.0"; then
     $TECHO "Microsoft Visual Studio ${vsver}.0 is not installed.  Will not set associated variables."
     return 1
   fi
@@ -145,6 +145,12 @@ getVsPaths() {
   arch=x86
   if $IS_64_BIT; then
     arch=amd64
+    if ! test -d "/cygdrive/c/${programfiles}/Microsoft Visual Studio ${vsver}.0/VC/bin/${arch}"; then
+      # In VS12 Express there is no amd64 but there is x86_amd64 a 32 bit compiler
+      # which compiles 64bit executables.  The x86_amd64 compiler is limited to
+      # using less than 4G memory during compile time.
+      arch=x86_amd64
+    fi
   fi
 
   cat >$workdir/getvs${vsver}vars.bat <<EOF
