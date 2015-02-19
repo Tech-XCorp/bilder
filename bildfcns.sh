@@ -1969,7 +1969,7 @@ isCcPyc() {
 #
 # Args:
 # 1: the package to add it to
-# 2: if this build not present add the build. $3
+# 2: if this build not present add the build, $3
 # 3: the build to add
 #
 # Named args (must come first):
@@ -2003,8 +2003,8 @@ addBuild() {
 # Add builds
   if test "$buildsval" != NONE; then
     if $forceadd || ! isCcPyc; then
-      if ! echo "$buildsval" | egrep -q "(^|,)$2($|,)"; then
-        buildsval=$buildsval,$2
+      if ! echo "$buildsval" | egrep -q "(^|,)$3($|,)"; then
+        buildsval=$buildsval,$3
         trimvar buildsval ,
         eval $buildsvar=$buildsval
         buildsval=`deref $buildsvar`
@@ -2046,17 +2046,17 @@ addPycmdBuild() {
 }
 
 #
-# Add a pyc build if appropriate.
+# Add a pycst build if appropriate.
 #
 # Args:
 # 1: the package to add it to
 #
 # Named args (must come first):
-# -f forces addition of pyc build, as needed for Darwin
+# -f forces addition of pycst build, as needed for Darwin
 #
 # return whether added pyc to the build
 addPycBuild() {
-  addBuild $* ser pyc
+  addBuild $* ser pycst
   return $?
 }
 
