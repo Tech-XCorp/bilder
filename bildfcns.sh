@@ -461,6 +461,90 @@ getCompFlagsPrefix() {
 }
 
 #
+# Add the default compiler flags for serial and pyc.
+#
+addDefaultCompFlags() {
+
+# Determine the FLAGS for each compiler
+  for pre in "" PYC_; do
+    local cxxcomp=`deref ${pre}CXX`
+    local cxxbase=
+# In case of wrapper, determine base from that
+    local verline=`$cxxcomp --version | head -1`
+    case "$verline" in
+      *ICC*) cxxbase=icpc;;
+      *GCC*) cxxbase=g++;;
+    esac
+# If not determined, use base name
+    local cxxbase=${cxxbase:-"`basename ${cxxcomp}`"}
+    case $cxxbase in
+      clang* | g++*)
+        eval ${pre}PIC_FLAG=-fPIC
+        eval ${pre}PIPE_FLAG=-pipe
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      cl*)
+        eval unset ${pre}PIC_FLAG
+        eval unset ${pre}PIPE_FLAG
+        eval unset ${pre}O3_FLAG
+        ;;
+      icpc*)
+        eval ${pre}PIC_FLAG=-fPIC
+        eval ${pre}PIPE_FLAG=-pipe
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      mingw*)
+        eval unset ${pre}PIC_FLAG
+        eval unset ${pre}PIPE_FLAG
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      path*)
+        eval ${pre}PIC_FLAG=-fPIC
+        eval unset ${pre}PIPE_FLAG
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      xl*)
+        eval ${pre}PIC_FLAG="-qpic=large"
+        eval unset ${pre}PIPE_FLAG
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      *)
+        techo "WARNING: pic and opt3 flags not known for $cxxcomp."
+        ;;
+    esac
+    techo "${pre}PIC_FLAG = `deref ${pre}PIC_FLAG`"
+    techo "${pre}PIPE_FLAG = `deref ${pre}PIPE_FLAG`"
+    techo "${pre}O3_FLAG = `deref ${pre}O3_FLAG`"
+  done
+
+# Always add pic and pipe flags
+  for pre in "" PYC_; do
+    for i in CC CXX F77 FC; do
+      if [[ $i =~ ^C ]] && $USE_CCXX_PIC_FLAG || [[ $i =~ ^F ]] && $USE_FORTRAN_PIC_FLAG; then
+        local compval=`deref ${pre}$i`
+        if test -n "$compval"; then
+          local flagsprfx=`getCompFlagsPrefix $i`
+          local flagsname=${pre}${flagsprfx}FLAGS
+          local flagsval=`deref ${flagsname}`
+          local picflag=`deref ${pre}PIC_FLAG`
+          if test -n "$picflag" && ! echo $flagsval | grep -- "$picflag"; then
+            flagsval="$flagsval $picflag"
+          fi
+          local pipeflag=`deref ${pre}PIPE_FLAG`
+          if test -n "$pipeflag" && ! echo $flagsval | grep -- "$pipeflag"; then
+            flagsval="$flagsval $pipeflag"
+          fi
+          trimvar flagsval ' '
+          eval $flagsname="\"$flagsval\""
+          techo "$flagsname = \"$flagsval\""
+        fi
+      fi
+    done
+  done
+
+}
+
+#
 # Get the top build directory for a package of a version
 #
 # Args:

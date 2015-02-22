@@ -88,6 +88,7 @@ elif test -f $BILDER_DIR/machines/$FQMAILHOST; then
 else
   techo "No host specific variables file to source."
 fi
+# techo "CXXFLAGS = $CXXFLAGS"
 # techo "Quitting in bildinit.sh."; exit
 
 # Set BILDER_SVN before going further

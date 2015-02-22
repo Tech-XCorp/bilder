@@ -195,9 +195,11 @@ case `uname` in
         F77=${F77:-"gfortran"}
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep libc++; then
+        # echo "CXXFLAGS = $CXXFLAGS"
+        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
           CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
         fi
+        # echo "CXXFLAGS = $CXXFLAGS"
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
         # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
@@ -583,119 +585,9 @@ findParallelFcComps
 #
 ######################################################################
 
-# PIC and optimization flags
-techo "Setting default pic and optimization flags."
-for pre in "" "PYC_"; do
-  cxxcomp=`deref ${pre}CXX`
-  case $cxxcomp in
-    *cl*)
-      eval unset ${pre}PIC_FLAG
-      eval unset ${pre}O3_FLAG
-      ;;
-    mingw*)
-      eval unset ${pre}PIC_FLAG
-      eval ${pre}O3_FLAG='-O3'
-      ;;
-    *path*)
-      eval ${pre}PIC_FLAG=-fPIC
-      eval ${pre}O3_FLAG='-O3'
-      ;;
-    *xl*)
-      eval ${pre}PIC_FLAG="-qpic=large"
-      eval ${pre}PIC_FLAG='-O3'
-      ;;
-    *)
-  # Try to determine from --version on wrapper
-      verline=`$cxxcomp --version | head -1`
-      case "$verline" in
-        *ICC*)
-          eval ${pre}PIC_FLAG=-fPIC
-          eval ${pre}O3_FLAG='-O3'
-          ;;
-        *GCC*)
-          eval ${pre}PIC_FLAG=-fPIC
-          eval ${pre}O3_FLAG='-O3'
-          ;;
-        *)
-          techo "WARNING: pic and opt3 flags not known for $cxxcomp."
-          ;;
-      esac
-      ;;
-  esac
-done
-
-# Pipe flags
-case $CC in
-  /*/gcc* | gcc* | /*/clang | clang*)
-    CFLAGS="$CFLAGS -pipe"
-    CXXFLAGS="$CXXFLAGS -pipe"
-    FLAGS="$FLAGS -pipe"
-    F77LAGS="$F77LAGS -pipe"
-    ;;
-esac
-
-# Add pic and pipe flags for gcc compilers
-if [[ $PYC_CC =~ gcc ]] && ! [[ $PYC_CC =~ mingw ]]; then
-  if test -n "$PYC_CFLAGS"; then
-    PYC_CFLAGS="$PYC_CFLAGS -pipe -fPIC"
-    PYC_CXXFLAGS="$PYC_CXXFLAGS -pipe -fPIC"
-  else
-    PYC_CFLAGS="-pipe -fPIC"
-    PYC_CXXFLAGS="-pipe -fPIC"
-  fi
-fi
-if [[ $PYC_FC =~ gfortran ]] && ! [[ $PYC_FC =~ mingw ]]; then
-  if test -n "$PYC_FFLAGS"; then
-    PYC_FFLAGS="$PYC_FFLAGS -pipe -fPIC"
-    PYC_FCFLAGS="$PYC_FCFLAGS -pipe -fPIC"
-  else
-    PYC_FFLAGS="-pipe -fPIC"
-    PYC_FCFLAGS="-pipe -fPIC"
-  fi
-fi
-
-######################################################################
-#
-# Add pic flags to all flags
-#
-######################################################################
-
-# Add PIC flags on flag basis
 USE_CCXX_PIC_FLAG=${USE_CCXX_PIC_FLAG:-"true"}
 USE_FORTRAN_PIC_FLAG=${USE_FORTRAN_PIC_FLAG:-"true"}
-if test -n "$PIC_FLAG"; then
-# PIC flags and fortran are always more problematic.  We probably
-# need a more robust mechanism for determining when it is OK, and when
-# it is not.  Should it be a machines file?  Just an individual build
-# issue? etc.  I don't know for sure, but for now, just remove.
-#
-# Kills Linux build, so putting in an incremental fix: allow disabling
-# for Fortran on a per-machine basis by setting USE_FORTRAN_PIC_FLAG=false.
-  for i in SER MPI; do
-    case $i in
-      SER) unset varprfx;;
-      *) varprfx=${i}_;;
-    esac
-    unset piccomps
-    if $USE_CCXX_PIC_FLAG; then
-      techo "Adding pic flags for C and C++."
-      piccomps="C CXX"
-    fi
-    if $USE_FORTRAN_PIC_FLAG; then
-      techo "Adding pic flags for Fortran."
-      piccomps="$piccomps F FC"
-    fi
-    trimvar piccomps ' '
-    if test -n "$piccomps"; then
-      for j in $piccomps; do
-        varname=${varprfx}${j}FLAGS
-        varval=`deref $varname`
-        eval "$varname='$varval $PIC_FLAG'"
-        trimvar $varname ' '
-      done
-    fi
-  done
-fi
+addDefaultCompFlags
 
 ######################################################################
 #
