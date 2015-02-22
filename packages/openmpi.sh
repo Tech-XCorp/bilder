@@ -105,7 +105,10 @@ EOF
   esac
 
 # Fix some flags
-  local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
+# Need to start building for C++11 to use threads
+  local ompcxxflags="$CXXFLAGS"
+# Below definitely not needed with experimental version
+  # local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
   trimvar ompcxxflags ' '
   ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
   if test -n "$FCFLAGS"; then
