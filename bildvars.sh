@@ -195,7 +195,7 @@ case `uname` in
         F77=${F77:-"gfortran"}
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        if [[ $CXX =~ clang ]]; then
+        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep libc++; then
           CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
         fi
         PYC_CC=${PYC_CC:-"clang"}
