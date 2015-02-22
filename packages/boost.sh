@@ -71,12 +71,20 @@ fixBoost() {
   fi
   case $bld in
     sersh | pycsh)
+      local jamdir=
+      if test -d tools/build/v2/tools; then
+        jamdir=tools/build/v2/tools
+      elif test -d tools/build/src/tools; then
+        jamdir=tools/build/src/tools
+      fi
       local jamfile=
-      case $cxxbase in
-        clang++ | g++) jamfile=tools/build/v2/tools/clang-darwin.jam;;
-        g++-*) jamfile=tools/build/v2/tools/darwin.jam;;
-        icpc) jamfile=tools/build/v2/tools/icpc-darwin.jam;;
-      esac
+      if test -n "$jamdir"; then
+        case $cxxbase in
+          clang++ | g++) jamfile=$jamdir/clang-darwin.jam;;
+          g++-*) jamfile=$jamdir/darwin.jam;;
+          icpc) jamfile=$jamdir/icpc-darwin.jam;;
+        esac
+      fi
       if test -n "$jamfile"; then
 # Change install_name for osx to be an absolute path
 # For more information, see https://svn.boost.org/trac/boost/ticket/9141
