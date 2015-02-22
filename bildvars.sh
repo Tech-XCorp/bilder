@@ -585,43 +585,44 @@ findParallelFcComps
 
 # PIC and optimization flags
 techo "Setting default pic and optimization flags."
-case $CXX in
-  *cl*)
-    unset PIC_FLAG
-    unset O3_FLAG
-    ;;
-  mingw*)
-    unset PIC_FLAG
-    O3_FLAG='-O3'
-    ;;
-  *path*)
-    PIC_FLAG=-fPIC
-    O3_FLAG='-O3'
-    ;;
-  *xl*)
-    PIC_FLAG=${PIC_FLAG:-"-qpic=large"}
-    O3_FLAG='-O3'
-    ;;
-  *)
-# Try to determine from --version on wrapper
-    verline=`$CXX --version | head -1`
-    case "$verline" in
-      *ICC*)
-        PIC_FLAG=-fPIC
-        O3_FLAG='-O3'
-        ;;
-      *GCC*)
-        PIC_FLAG=-fPIC
-        O3_FLAG='-O3'
-        ;;
-      *)
-        techo "WARNING: pic and opt3 flags not known for $CXX."
-        ;;
-    esac
-    ;;
-esac
-techo "PIC_FLAG=$PIC_FLAG"
-PYC_PIC_FLAG=-fPIC
+for pre in "" "PYC_"; do
+  cxxcomp=`deref ${pre}CXX`
+  case $cxxcomp in
+    *cl*)
+      eval unset ${pre}PIC_FLAG
+      eval unset ${pre}O3_FLAG
+      ;;
+    mingw*)
+      eval unset ${pre}PIC_FLAG
+      eval ${pre}O3_FLAG='-O3'
+      ;;
+    *path*)
+      eval ${pre}PIC_FLAG=-fPIC
+      eval ${pre}O3_FLAG='-O3'
+      ;;
+    *xl*)
+      eval ${pre}PIC_FLAG="-qpic=large"
+      eval ${pre}PIC_FLAG='-O3'
+      ;;
+    *)
+  # Try to determine from --version on wrapper
+      verline=`$cxxcomp --version | head -1`
+      case "$verline" in
+        *ICC*)
+          eval ${pre}PIC_FLAG=-fPIC
+          eval ${pre}O3_FLAG='-O3'
+          ;;
+        *GCC*)
+          eval ${pre}PIC_FLAG=-fPIC
+          eval ${pre}O3_FLAG='-O3'
+          ;;
+        *)
+          techo "WARNING: pic and opt3 flags not known for $cxxcomp."
+          ;;
+      esac
+      ;;
+  esac
+done
 
 # Pipe flags
 case $CC in
@@ -630,13 +631,6 @@ case $CC in
     CXXFLAGS="$CXXFLAGS -pipe"
     FLAGS="$FLAGS -pipe"
     F77LAGS="$F77LAGS -pipe"
-    ;;
-esac
-case $CXX in
-  /*/clang++ | clang++*)
-# Already done above.
-    # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-    # CXXFLAGS="$CXXFLAGS -stdlib=libc++"
     ;;
 esac
 
