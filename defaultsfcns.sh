@@ -32,9 +32,8 @@ setBilderOsVars() {
     Darwin)
       if test -n "$MACHINEFILE"; then
         machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
-        if test -n "$machsfx"; then
-          # CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/$machsfx"}
-          # INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/$machsfx"}
+        if test -n "$machsfx" -a -z "$ROOTDIR_CVI"; then
+# Opt is there from homebrew
           CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
           INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
           INSTALL_SUBDIR_SFX=-$machsfx
