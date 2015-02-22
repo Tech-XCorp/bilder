@@ -56,7 +56,7 @@
 
 # Serial
 # CFLAGS=${CFLAGS:-""}
-CXXFLAGS=${CXXFLAGS:-"-stdlib=libc++"}
+CXXFLAGS=${CXXFLAGS:-"-std=c++11 -stdlib=libc++"}
 # FCFLAGS=${FCFLAGS:-""}
 # FFLAGS=${FFLAGS:-""}
 
