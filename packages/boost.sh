@@ -114,16 +114,12 @@ buildBoost() {
       fi
       ;;
     Darwin-*)
-      case `uname -r` in
-        1[3-9]*) stdlibargs_pycsh="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
-      esac
+      stdlibargs_pycsh="cxxflags='$PYC_CXXFLAGS' linkflags='$PYC_CXXFLAGS'"
       toolsetarg_pycsh="toolset=clang"
+      stdlibargs_ser="cxxflags='$CXXFLAGS' linkflags='$CXXFLAGS'"
       case $CXX in
         *clang++ | *g++)
 # g++ is clang++ on Darwin-11+
-          case `uname -r` in
-	    1[3-9]*) stdlibargs_ser="cxxflags='-stdlib=libstdc++' linkflags='-stdlib=libstdc++'";;
-          esac
           toolsetarg_ser="toolset=clang"
 	  ;;
         *g++-*) ;; # toolsetarg_ser="toolset=`basename $CC`";;

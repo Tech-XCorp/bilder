@@ -2041,7 +2041,7 @@ isCcPyc() {
 # All compilers appear to work.
     # return 0
   # fi
-  if test "$CC" = "$PYC_CC"; then
+  if test "$CC" = "$PYC_CC" -a "$CXXFLAGS" = "$PYC_CXXFLAGS"; then
     return 0
   fi
   return 1
