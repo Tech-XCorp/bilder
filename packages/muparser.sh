@@ -53,7 +53,9 @@ buildMuparser() {
 # and then manually installing the includes and library
       MUPARSER_SER_MAKE_ARGS="muparser.lib -f../build/makefile.vcmt"
       MUPARSER_SERMD_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
+      MUPARSER_PYCST_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
       MUPARSER_SERSH_MAKE_ARGS="muparser.dll -f../build/makefile.vc SHARED=1"
+      MUPARSER_PYCSH_MAKE_ARGS="muparser.dll -f../build/makefile.vc SHARED=1"
       configargs="-C :"  # Use no configure executable
       makerargs="-m nmake"
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/ser/obj/vc_static_rel"
@@ -62,7 +64,13 @@ buildMuparser() {
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/sermd/obj/vc_static_rel"
       techo "$cmd"
       $cmd
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/pycst/obj/vc_static_rel"
+      techo "$cmd"
+      $cmd
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/sersh/obj/vc_shared_rel"
+      techo "$cmd"
+      $cmd
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/pycsh/obj/vc_shared_rel"
       techo "$cmd"
       $cmd
       ;;
