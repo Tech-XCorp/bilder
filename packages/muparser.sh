@@ -72,6 +72,8 @@ buildMuparser() {
 
 # The builds
 # Removing LDFLAGS='$CXXFLAGS', which fails on Darwin
+  local ldflags=
+  local ldflagsvar=
   if bilderConfig $configargs muparser ser "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MUPARSER_SER_OTHER_ARGS"; then
     bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
   fi
@@ -80,6 +82,14 @@ buildMuparser() {
   fi
   if bilderConfig $configargs muparser sersh "--enable-shared=yes $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MUPARSER_SERSH_OTHER_ARG"; then
     bilderBuild $makerargs muparser sersh "$MUPARSER_SERSH_MAKE_ARGS"
+  fi
+  ldflags=`echo $PYC_CXXFLAGS`
+  ldflagsvar="LDFLAGS='$ldflags'"
+  if bilderConfig $configargs muparser pycsh  "--enable-shared=yes $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ldflagsvar $MUPARSER_PYCSH_OTHER_ARG"; then
+    bilderBuild $makerargs muparser pycsh "$MUPARSER_PYCSH_MAKE_ARGS"
+  fi
+  if bilderConfig $configargs muparser pycst  "--enable-shared=no $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ldflagsvar $MUPARSER_PYCST_OTHER_ARG"; then
+    bilderBuild $makerargs muparser pycst "$MUPARSER_PYCST_MAKE_ARGS"
   fi
 
 }
@@ -134,15 +144,6 @@ installMuparser() {
           $cmd
         fi
         cmd="cp $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/include/* $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/include/"
-        techo "$cmd"
-        $cmd
-      fi
-    else
-# Should remove only if a build was attempted and failed to install
-# Disable for now.
-      if false; then
-      # if [[ `uname` =~ CYGWIN ]]; then
-        cmd="rm -rf $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld"
         techo "$cmd"
         $cmd
       fi
