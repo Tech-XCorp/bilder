@@ -2106,7 +2106,7 @@ addBuild() {
 # 1: the package to add it to
 #
 # Named args (must come first):
-# -f forces addition of pycsh build, as needed for Darwin
+# -f forces addition of pycsh build
 #
 # return whether added pycsh to the build
 addPycshBuild() {
@@ -2121,7 +2121,7 @@ addPycshBuild() {
 # 1: the package to add it to
 #
 # Named args (must come first):
-# -f forces addition of pycmd build, as needed for Darwin
+# -f forces addition of pycmd build
 #
 # return whether added pycmd to the build
 addPycmdBuild() {
@@ -2136,7 +2136,7 @@ addPycmdBuild() {
 # 1: the package to add it to
 #
 # Named args (must come first):
-# -f forces addition of pycst build, as needed for Darwin
+# -f forces addition of pycst build
 #
 # return whether added pyc to the build
 addPycBuild() {

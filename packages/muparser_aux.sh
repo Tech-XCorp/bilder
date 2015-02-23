@@ -28,12 +28,14 @@ setMuparserTriggerVars() {
     MUPARSER_BUILDS=ser
     case `uname` in
 # Can now build muparser dll, but do we need it?
-      CYGWIN*) MUPARSER_BUILDS="${MUPARSER_BUILDS},sermd,sersh";;
-      Darwin | Linux) MUPARSER_BUILDS="${MUPARSER_BUILDS},sersh";;
+      CYGWIN*) MUPARSER_BUILDS="${MUPARSER_BUILDS},sermd";;
+      Darwin | Linux)
+        MUPARSER_BUILDS="${MUPARSER_BUILDS},sersh"
+        addPycshBuild muparser
+        ;;
     esac
   fi
   addPycstBuild muparser
-  addPycshBuild muparser
   MUPARSER_DEPS=m4
 }
 setMuparserTriggerVars
