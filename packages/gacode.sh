@@ -44,11 +44,15 @@ buildGacodeCM() {
   fi
 
   if test $res = 0; then
-    if bilderConfig gacode ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED:BOOL=FALSE $CMAKE_SUPRA_SP_ARG $GACODE_SER_OTHER_ARGS"; then
+    case `uname` in 
+     Linux)
+      GACODE_EXTRA_LIBS="LIBS=-ldl"
+    esac
+    if bilderConfig gacode ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED:BOOL=FALSE $CMAKE_SUPRA_SP_ARG $GACODE_SER_OTHER_ARGS" gacode $GACODE_EXTRA_LIBS; then
       bilderBuild gacode ser
     fi
 # We can get funny MPI crashes if gacode built shared for parallel?
-    if bilderConfig gacode par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DBUILD_SHARED:BOOL=FALSE -DENABLE_PARALLEL:BOOL=TRUE $CMAKE_SUPRA_SP_ARG $GACODE_PAR_OTHER_ARGS"; then
+    if bilderConfig gacode par "$CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DBUILD_SHARED:BOOL=FALSE -DENABLE_PARALLEL:BOOL=TRUE $CMAKE_SUPRA_SP_ARG $GACODE_PAR_OTHER_ARGS" gacode $GACODE_EXTRA_LIBS; then
       bilderBuild gacode par
     fi
   fi

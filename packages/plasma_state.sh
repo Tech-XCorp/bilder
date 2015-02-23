@@ -77,9 +77,19 @@ buildPlasma_state() {
     fi
 
     local PS_MAKE_COMPILERS_BEN="CC='\$(abs_top_builddir)/txutils/cc' CXX='\$(abs_top_builddir)/txutils/cxx' FC='\$(abs_top_builddir)/txutils/f90' F77='\$(abs_top_builddir)/txutils/f77'"
-
+    
+    if [ -z "$MDSPLUS_LIBDIR" ]; then
+      PLASMA_STATE_MDS="--disable-mdsplus"
+    else  
+      PLASMA_STATE_MDS="--with-mdsplus-libdir=$MDSPLUS_LIBDIR"
+    fi
+    
+    case `uname` in 
+     Linux)
+      PLASMA_STATE_EXTRA_LIBS="LIBS=-ldl"
+    esac
 # Build everything
-    if bilderConfig plasma_state ser "$CONFIG_COMPILERS_SER $PS_COMPFLAGS_SER $PLASMA_STATE_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+    if bilderConfig plasma_state ser "$CONFIG_COMPILERS_SER $PS_COMPFLAGS_SER $PLASMA_STATE_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG $PLASMA_STATE_MDS" plasma_state $PLASMA_STATE_EXTRA_LIBS ;then
       bilderBuild plasma_state ser "$PS_MAKE_COMPILERS_SER $PLASMA_STATE_MAKE_ARGS"
     fi
     if bilderConfig plasma_state ben "$CONFIG_COMPILERS_BEN $PS_COMPFLAGS_PAR --enable-back-end-node $PLASMA_STATE_BEN_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then

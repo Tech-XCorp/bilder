@@ -19,7 +19,7 @@
 #
 ######################################################################
 
-NUBEAM_BUILDS=${NUBEAM_BUILDS:-"par"}
+NUBEAM_BUILDS=${NUBEAM_BUILDS:-"ser,par"}
 NUBEAM_DEPS=plasma_state,pspline,netlib_lite,netcdf,hdf5
 NUBEAM_UMASK=002
 
