@@ -146,18 +146,24 @@ buildMoab() {
     bilderBuild $makerargs moab ser "$makejargs" "$MOAB_ENV"
   fi
 
-# Python static (pyc on unixish, pycmd on Windows) build for composers
+if false; then
+# Python static (pycst on unixish, pycmd on Windows) build for composers
 # Cannot use FORPYTHON_STATIC_BUILD on unixish where it can resolve to ser,
 # giving two ser builds.
-  local pycstbuild=pyc
+  local pycstbuild=pycst
   if [[ `uname` =~ CYGWIN ]]; then
     pycstbuild=$FORPYTHON_STATIC_BUILD
   fi
   local otherargsvar=`genbashvar MOAB_${pycstbuild}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
-# Configure and build serial
-  if bilderConfig $makerargs $moabcmakearg moab $pycstbuild "$MOAB_PYST_CONFIG_ARGS $otherargs" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab $pycstbuild "$makejargs" "$MOAB_ENV"
+fi
+
+# Configure and build python serial
+  if bilderConfig $makerargs $moabcmakearg moab pycst "$MOAB_PYST_CONFIG_ARGS $MOAB_PYCST_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab pycst "$makejargs" "$MOAB_ENV"
+  fi
+  if bilderConfig $makerargs $moabcmakearg moab pycmd "$MOAB_PYST_CONFIG_ARGS $MOAB_PYCMD_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab pycmd "$makejargs" "$MOAB_ENV"
   fi
 
 # Python shared build for dagmc
