@@ -470,7 +470,7 @@ addDefaultCompFlags() {
     local cxxcomp=`deref ${pre}CXX`
     local cxxbase=
 # In case of wrapper, determine base from that
-    local verline=`$cxxcomp --version | head -1`
+    local verline=`$cxxcomp --version 2>/dev/null | head -1`
     case "$verline" in
       *ICC*) cxxbase=icpc;;
       *GCC*) cxxbase=g++;;
@@ -512,9 +512,9 @@ addDefaultCompFlags() {
         techo "WARNING: pic and opt3 flags not known for $cxxcomp."
         ;;
     esac
-    techo "${pre}PIC_FLAG = `deref ${pre}PIC_FLAG`"
-    techo "${pre}PIPE_FLAG = `deref ${pre}PIPE_FLAG`"
-    techo "${pre}O3_FLAG = `deref ${pre}O3_FLAG`"
+    techo -2 "${pre}PIC_FLAG = `deref ${pre}PIC_FLAG`"
+    techo -2 "${pre}PIPE_FLAG = `deref ${pre}PIPE_FLAG`"
+    techo -2 "${pre}O3_FLAG = `deref ${pre}O3_FLAG`"
   done
 
 # Always add pic and pipe flags
@@ -536,7 +536,7 @@ addDefaultCompFlags() {
           fi
           trimvar flagsval ' '
           eval $flagsname="\"$flagsval\""
-          techo "$flagsname = \"$flagsval\""
+          techo -2 "$flagsname = \"$flagsval\""
         fi
       fi
     done
