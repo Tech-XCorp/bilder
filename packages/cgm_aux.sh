@@ -23,7 +23,7 @@ setCgmTriggerVars() {
   CGM_UPSTREAM_BRANCH=master
 # FORPYTHON_STATIC_BUILD: Composers
 # FORPYTHON_SHARED_BUILD: Dagsolid
-# Neither pycmd nor pycsh working on Windows
+# Neither pycst nor pycsh working on Windows
   if ! [[ `uname` =~ CYGWIN ]]; then
     CGM_BUILDS=${CGM_BUILDS:-"${FORPYTHON_STATIC_BUILD},${FORPYTHON_SHARED_BUILD}"}
   fi

@@ -387,12 +387,11 @@ if isCcPyc; then
     FORPYTHON_STATIC_BUILD=ser
   fi
 else
+# Below: shared with pyc compilers
   FORPYTHON_SHARED_BUILD=pycsh
-  if [[ `uname` =~ CYGWIN ]]; then
-    FORPYTHON_STATIC_BUILD=pycmd
-  else
-    FORPYTHON_STATIC_BUILD=pycst
-  fi
+# Below, Unix: serial with PYC compilers.
+# Below, Windows: serial with PYC compilers, shared runtime.
+  FORPYTHON_STATIC_BUILD=pycst
 fi
 techo -2 "FORPYTHON_SHARED_BUILD = $FORPYTHON_SHARED_BUILD."
 techo -2 "FORPYTHON_STATIC_BUILD = $FORPYTHON_STATIC_BUILD."

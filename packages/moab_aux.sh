@@ -29,7 +29,7 @@ setMoabTriggerVars() {
   fi
   computeBuilds moab
   if ! [[ `uname` =~ CYGWIN ]]; then
-# Neither pycmd nor pycsh working on Windows
+# Neither pycst nor pycsh working on Windows
     addPycstBuild moab
     addPycshBuild moab
   fi

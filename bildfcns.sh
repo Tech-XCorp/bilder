@@ -2115,36 +2115,6 @@ addPycshBuild() {
 }
 
 #
-# Add a pycmd build if appropriate.
-#
-# Args:
-# 1: the package to add it to
-#
-# Named args (must come first):
-# -f forces addition of pycmd build
-#
-# return whether added pycmd to the build
-addPycmdBuild() {
-  addBuild $* sermd pycmd
-  return $?
-}
-
-#
-# Add a pycst build if appropriate.
-#
-# Args:
-# 1: the package to add it to
-#
-# Named args (must come first):
-# -f forces addition of pycst build
-#
-# return whether added pyc to the build
-addPycBuild() {
-  addBuild $* ser pycst
-  return $?
-}
-
-#
 # Add the appropriate static build for python
 #
 # Args:
@@ -2155,13 +2125,8 @@ addPycBuild() {
 #
 # return whether added pyc to the build
 addPycstBuild() {
-  if [[ `uname` =~ CYGWIN ]]; then
-    addPycmdBuild $*
-    return $?
-  else
-    addPycBuild $*
-    return $?
-  fi
+  addBuild $* ser pycst
+  return $?
 }
 
 #
