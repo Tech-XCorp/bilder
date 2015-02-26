@@ -32,6 +32,7 @@ getBoostTriggerVars() {
       BOOST_DESIRED_BUILDS=$BOOST_DESIRED_BUILDS,sermd
     fi
     computeBuilds boost
+    addPycstBuild boost
     addPycshBuild boost
   fi
 # It does not hurt to add deps that do not get built

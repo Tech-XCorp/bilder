@@ -42,19 +42,16 @@ getHdf5TriggerVars() {
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
-    HDF5_DESIRED_BUILDS=ser,par,sersh
+    HDF5_DESIRED_BUILDS=ser,sersh,par
 # No need for parallel shared, as MPI executables are built static.
     case `uname`-${BILDER_CHAIN} in
       CYGWIN*)
         HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
-        if test "$VISUALSTUDIO_VERSION" = "10"; then
-# Python built with VS9, so need hdf5 build for that
-          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,pycsh"
-        fi
         ;;
     esac
   fi
   computeBuilds hdf5
+  addPycstBuild hdf5
   addPycshBuild hdf5
 
 # Deps and other

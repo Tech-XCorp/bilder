@@ -2125,7 +2125,11 @@ addPycshBuild() {
 #
 # return whether added pyc to the build
 addPycstBuild() {
-  addBuild $* ser pycst
+  if [[ `uname` =~ CYGWIN ]]; then
+    addBuild $* sermd pycst
+  else
+    addBuild $* ser pycst
+  fi
   return $?
 }
 
