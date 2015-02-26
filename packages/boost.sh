@@ -113,6 +113,7 @@ buildBoost() {
 
 # Determine the toolset
   local toolsetarg_ser=
+  local toolsetarg_pycst=
   local toolsetarg_pycsh=
   local stdlibargs_ser=
   case `uname`-`uname -r` in
@@ -122,6 +123,8 @@ buildBoost() {
       fi
       ;;
     Darwin-*)
+      stdlibargs_pycst="cxxflags='$PYC_CXXFLAGS' linkflags='$PYC_CXXFLAGS'"
+      toolsetarg_pycst="toolset=clang"
       stdlibargs_pycsh="cxxflags='$PYC_CXXFLAGS' linkflags='$PYC_CXXFLAGS'"
       toolsetarg_pycsh="toolset=clang"
       stdlibargs_ser="cxxflags='$CXXFLAGS' linkflags='$CXXFLAGS'"
@@ -144,6 +147,7 @@ buildBoost() {
       esac
       ;;
   esac
+  toolsetarg_pycst=${toolsetarg_pycst:-"$toolsetarg_ser"}
   toolsetarg_pycsh=${toolsetarg_pycsh:-"$toolsetarg_ser"}
 
 # These args are actually to bilderBuild
@@ -164,6 +168,7 @@ buildBoost() {
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} $BOOST_ALL_ADDL_ARGS"
   BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
+  BOOST_PYCST_ADDL_ARGS="$toolsetarg_pycst $sermdlinkargs --without-python ${stdlibargs_pycst} $BOOST_ALL_ADDL_ARGS"
   BOOST_PYCSH_ADDL_ARGS="$toolsetarg_pycsh $sharedlinkargs ${stdlibargs_pycsh} $BOOST_ALL_ADDL_ARGS"
   BOOST_BEN_ADDL_ARGS="$toolsetarg_ser $staticlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
 # Boost is meant to be built at the top, with different build and stage dirs.
@@ -190,6 +195,11 @@ fi
 # In-place build, so make compiler/os modifications now
     fixBoost sersh
     bilderBuild -m ./b2 boost sersh "$BOOST_SERSH_ADDL_ARGS $BOOST_SERSH_OTHER_ARGS stage"
+  fi
+
+  if bilderConfig -i boost pycst; then
+    fixBoost pycst
+    bilderBuild -m ./b2 boost pycst "$BOOST_PYCST_ADDL_ARGS $BOOST_PYCST_OTHER_ARGS stage"
   fi
 
   if bilderConfig -i boost pycsh; then
