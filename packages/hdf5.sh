@@ -97,13 +97,24 @@ buildHdf5() {
       HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
       ;;
     Linux)
-      HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='-Wl,-rpath,XORIGIN:XORIGIN/../lib' -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='-Wl,-rpath,XORIGIN:XORIGIN/../lib' -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-      HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='-Wl,-rpath,XORIGIN:XORIGIN/../lib' -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS
+# Hasry: Above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SER_EXTRA_LDFLAGS"
+# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SERSH_EXTRA_LDFLAGS -Wl,-rpath,XORIGIN:XORIGIN/../lib'"
+# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
+# Works!
+      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
+      HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
       ;;
   esac
 
+if false; then
 # gfortran needs to add rpath stuff in EXTRA_LDFLAGS
+# Does this work?
   for BLD in SER PAR SERSH PARSH; do
     xval=`deref ${BLD}_EXTRA_LDFLAGS`
     if test -n "$xval"; then
@@ -111,6 +122,7 @@ buildHdf5() {
       eval HDF5_${BLD}_ADDL_ARGS="\"$aval -DCMAKE_EXE_LINKER_FLAGS:STRING='$xval'\""
     fi
   done
+fi
 
 # Separating builds for all platforms as required on Windows and this
 # gives simplification
