@@ -84,6 +84,7 @@ buildHdf5() {
 
 # Shared: For Linux, add origin to rpath, do not strip rpath
   local HDF5_SER_ADDL_ARGS=
+  local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PAR_ADDL_ARGS=
   local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PARSH_ADDL_ARGS=
@@ -106,24 +107,13 @@ buildHdf5() {
       # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SERSH_EXTRA_LDFLAGS -Wl,-rpath,XORIGIN:XORIGIN/../lib'"
 # Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
       # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
-# Hasry: Works!  Ivy fails because non system compiler
+# Hasry: Works!  Ivy fails because non system compiler.
       HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
-      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
-      HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
+# Ivy: Works!
+      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
+      HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
   esac
-
-if false; then
-# gfortran needs to add rpath stuff in EXTRA_LDFLAGS
-# Does this work?
-  for BLD in SER PAR SERSH PARSH; do
-    xval=`deref ${BLD}_EXTRA_LDFLAGS`
-    if test -n "$xval"; then
-      aval=`deref HDF5_${BLD}_ADDL_ARGS`
-      eval HDF5_${BLD}_ADDL_ARGS="\"$aval -DCMAKE_EXE_LINKER_FLAGS:STRING='$xval'\""
-    fi
-  done
-fi
 
 # Separating builds for all platforms as required on Windows and this
 # gives simplification
@@ -291,3 +281,4 @@ installHdf5() {
   done
 
 }
+
