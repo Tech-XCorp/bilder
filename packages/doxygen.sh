@@ -63,8 +63,8 @@ installDoxygen() {
   if bilderInstall -p open doxygen $FORPYTHON_STATIC_BUILD "" "-i"; then
     mkdir -p $CONTRIB_DIR/bin
     local instsfx=
-    test $FORPYTHON_STATIC_BUILD != ser && instsfx=$FORPYTHON_STATIC_BUILD
-    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen-$instsfx/bin/doxygen .)
+    test $FORPYTHON_STATIC_BUILD != ser && instsfx="-${FORPYTHON_STATIC_BUILD}"
+    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen${instsfx}/bin/doxygen .)
   fi
 }
 
