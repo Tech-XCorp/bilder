@@ -35,8 +35,11 @@ setGraphvizTriggerVars
 ######################################################################
 
 findGraphviz() {
-  if test -x $CONTRIB_DIR/graphviz/bin/dot; then
-    (cd $CONTRIB_DIR/bin; ln -sf ../graphviz/bin/dot .)
+# Not needed, done at installation
+if false; then
+  if test -x $CONTRIB_DIR/graphviz-${FORPYTHON_STATIC_BUILD}/bin/dot; then
+    (cd $CONTRIB_DIR/bin; ln -sf ../graphviz-${FORPYTHON_STATIC_BUILD}/bin/dot .)
   fi
+fi
 }
 
