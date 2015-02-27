@@ -177,13 +177,15 @@ fixHdf5SharedInst() {
   bld=$1
   local instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
   local libdir=$instdir/lib
-  local bindir=$instdir/lib
+  local bindir=$instdir/bin
 
 # Fix the libraries
   if declare -f bilderFixRpath 1>/dev/null 2>&1; then
     bilderFixRpath $libdir
-    for exe in `\ls $bindary`; do
-      bilderFixRpath $exe
+    for exe in `\ls $bindir | tr '\n' ' '`; do
+      if test -x $bindir/$exe; then
+        bilderFixRpath $bindir/$exe
+      fi
     done
   fi
 
