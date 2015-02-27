@@ -85,7 +85,9 @@ testGraphviz() {
 installGraphviz() {
   if bilderInstallAll graphviz "  -p open"; then
     mkdir -p $CONTRIB_DIR/bin
-    (cd $CONTRIB_DIR/bin; rm -f dot; ln -s ../graphviz-$FORPYTHON_STATIC_BUILD/bin/dot .)
+    local instsfx=
+    test $FORPYTHON_STATIC_BUILD != ser && instsfx=$FORPYTHON_STATIC_BUILD
+    (cd $CONTRIB_DIR/bin; rm -f dot; ln -s ../graphviz-$instsfx/bin/dot .)
   fi
 }
 
