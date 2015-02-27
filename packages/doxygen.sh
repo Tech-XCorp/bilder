@@ -62,7 +62,7 @@ testDoxygen() {
 installDoxygen() {
   if bilderInstall -p open doxygen $FORPYTHON_STATIC_BUILD "" "-i"; then
     mkdir -p $CONTRIB_DIR/bin
-    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen-pyc/bin/doxygen .)
+    (cd $CONTRIB_DIR/bin; rm -f doxygen; ln -s ../doxygen-$FORPYTHON_STATIC_BUILD/bin/doxygen .)
   fi
 }
 
