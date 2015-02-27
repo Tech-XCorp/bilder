@@ -439,7 +439,7 @@ fi
 #
 ######################################################################
 
-if test -n "$MPICC"; then
+if test `uname` = Linux -a -n "$MPICC"; then
   isMpich2=`$MPICC -show 2>/dev/null | grep mpich2`
   if test -n "$isMpich2"; then
     MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`

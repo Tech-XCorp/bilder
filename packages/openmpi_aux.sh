@@ -53,8 +53,12 @@ findOpenmpi() {
       printvar $c
     done
     OPENMPI_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
-    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$OPENMPI_LIBDIR"
-    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$OPENMPI_LIBDIR"
+    if test `uname` = Linux; then
+      PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$OPENMPI_LIBDIR"
+      PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$OPENMPI_LIBDIR"
+    fi
+    trimvar PAR_EXTRA_LDFLAGS ' '
+    trimvar PAR_EXTRA_LT_LDFLAGS ' '
     printvar PAR_EXTRA_LDFLAGS
     printvar PAR_EXTRA_LT_LDFLAGS
     getCombinedCompVars
