@@ -24,32 +24,6 @@ diff -ruN cmake-3.0.2/Modules/FindCUDA.cmake cmake-3.0.2-new/Modules/FindCUDA.cm
  
    # We need to set the linker language based on what the expected generated file
    # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
-diff -ruN cmake-3.0.2/Modules/FindFreetype.cmake cmake-3.0.2-new/Modules/FindFreetype.cmake
---- cmake-3.0.2/Modules/FindFreetype.cmake	2014-09-11 07:24:00.000000000 -0600
-+++ cmake-3.0.2-new/Modules/FindFreetype.cmake	2014-12-08 09:09:03.831781764 -0700
-@@ -82,6 +82,22 @@
-   PATH_SUFFIXES include/freetype2 include
- )
- 
-+if(NOT FREETYPE_INCLUDE_DIR_freetype2)
-+  find_path(FREETYPE_INCLUDE_DIR_freetype2 freetype2/config/ftheader.h
-+    HINTS
-+      ENV FREETYPE_DIR
-+    PATHS
-+      /usr/X11R6
-+      /usr/local/X11R6
-+      /usr/local/X11
-+      /usr/freeware
-+      ENV GTKMM_BASEPATH
-+      [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]
-+      [HKEY_LOCAL_MACHINE\\SOFTWARE\\gtkmm\\2.4;Path]
-+    PATH_SUFFIXES include/freetype2 include
-+  )
-+endif()
-+
- find_library(FREETYPE_LIBRARY
-   NAMES freetype libfreetype freetype219
-   HINTS
 diff -ruN cmake-3.0.2/Modules/Platform/Linux.cmake cmake-3.0.2-new/Modules/Platform/Linux.cmake
 --- cmake-3.0.2/Modules/Platform/Linux.cmake	2014-09-11 07:24:00.000000000 -0600
 +++ cmake-3.0.2-new/Modules/Platform/Linux.cmake	2014-12-08 09:09:03.831781764 -0700
