@@ -18,7 +18,7 @@
 setOceTriggerVars() {
   OCE_REPO_URL=https://github.com/Tech-XCorp/oce.git
   OCE_REPO_BRANCH_STD=${OCE_REPO_BRANCH_STD:-"OCE-0.15"}
-  OCE_REPO_BRANCH_EXP=OCE-0.16.1-txc
+  OCE_REPO_BRANCH_EXP=${OCE_REPO_BRANCH_EXP:-"OCE-0.16.1-txc"}
   OCE_UPSTREAM_URL=https://github.com/tpaviot/oce.git
   OCE_UPSTREAM_BRANCH=OCE-0.16.1
   OCE_BUILD=$FORPYTHON_SHARED_BUILD
