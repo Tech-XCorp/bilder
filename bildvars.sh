@@ -203,7 +203,9 @@ case `uname` in
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
         # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
-        PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
+        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
+          PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
+        fi
         ;;
     esac
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}	# For 10.5 and higher
