@@ -55,6 +55,12 @@ buildGraphviz() {
       ;;
   esac
 
+# Look for graphviz perl problem
+  if echo $PYC_CXXFLAGS | grep -- -std=c++11; then
+    techo "NOTE: If graphviz fails to build, consider applying the patch,
+bilder/extras/osxperl.patch in /System/Library/Perl/5.16/darwin-thread-multi-2level/CORE with -p1"
+  fi
+
 # Configure and build
   local GRAPHVIZ_PYC_ADDL_ARGS="--with-qt=no"
   if test `uname` = Linux; then
