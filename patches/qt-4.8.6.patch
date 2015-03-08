@@ -1,6 +1,6 @@
 diff -ruN qt-4.8.6/src/corelib/global/qglobal.cpp qt-4.8.6-new/src/corelib/global/qglobal.cpp
 --- qt-4.8.6/src/corelib/global/qglobal.cpp	2014-04-10 12:37:11.000000000 -0600
-+++ qt-4.8.6-new/src/corelib/global/qglobal.cpp	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/corelib/global/qglobal.cpp	2015-03-08 04:49:48.930928473 -0600
 @@ -1185,6 +1185,7 @@
      \value MV_10_7     OS X 10.7
      \value MV_10_8     OS X 10.8
@@ -31,7 +31,7 @@ diff -ruN qt-4.8.6/src/corelib/global/qglobal.cpp qt-4.8.6-new/src/corelib/globa
      return QSysInfo::MV_Unknown;
 diff -ruN qt-4.8.6/src/corelib/global/qglobal.h qt-4.8.6-new/src/corelib/global/qglobal.h
 --- qt-4.8.6/src/corelib/global/qglobal.h	2014-04-10 12:37:11.000000000 -0600
-+++ qt-4.8.6-new/src/corelib/global/qglobal.h	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/corelib/global/qglobal.h	2015-03-08 04:49:48.930928473 -0600
 @@ -304,31 +304,69 @@
  #endif
  
@@ -132,9 +132,48 @@ diff -ruN qt-4.8.6/src/corelib/global/qglobal.h qt-4.8.6-new/src/corelib/global/
      };
      static const MacVersion MacintoshVersion;
  #endif
+diff -ruN qt-4.8.6/src/corelib/tools/qsharedpointer_impl.h qt-4.8.6-new/src/corelib/tools/qsharedpointer_impl.h
+--- qt-4.8.6/src/corelib/tools/qsharedpointer_impl.h	2014-04-10 12:37:11.000000000 -0600
++++ qt-4.8.6-new/src/corelib/tools/qsharedpointer_impl.h	2015-03-08 04:51:50.802229808 -0600
+@@ -819,7 +819,7 @@
+ template <class X, class T>
+ Q_INLINE_TEMPLATE QSharedPointer<X> qSharedPointerCast(const QSharedPointer<T> &src)
+ {
+-    register X *ptr = static_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
++    X *ptr = static_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
+     return QtSharedPointer::copyAndSetPointer(ptr, src);
+ }
+ template <class X, class T>
+@@ -831,7 +831,7 @@
+ template <class X, class T>
+ Q_INLINE_TEMPLATE QSharedPointer<X> qSharedPointerDynamicCast(const QSharedPointer<T> &src)
+ {
+-    register X *ptr = dynamic_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
++    X *ptr = dynamic_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
+     if (!ptr)
+         return QSharedPointer<X>();
+     return QtSharedPointer::copyAndSetPointer(ptr, src);
+@@ -845,7 +845,7 @@
+ template <class X, class T>
+ Q_INLINE_TEMPLATE QSharedPointer<X> qSharedPointerConstCast(const QSharedPointer<T> &src)
+ {
+-    register X *ptr = const_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
++    X *ptr = const_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
+     return QtSharedPointer::copyAndSetPointer(ptr, src);
+ }
+ template <class X, class T>
+@@ -865,7 +865,7 @@
+ template <class X, class T>
+ Q_INLINE_TEMPLATE QSharedPointer<X> qSharedPointerObjectCast(const QSharedPointer<T> &src)
+ {
+-    register X *ptr = qobject_cast<X *>(src.data());
++    X *ptr = qobject_cast<X *>(src.data());
+     return QtSharedPointer::copyAndSetPointer(ptr, src);
+ }
+ template <class X, class T>
 diff -ruN qt-4.8.6/src/gui/dialogs/qcolordialog_mac.mm qt-4.8.6-new/src/gui/dialogs/qcolordialog_mac.mm
 --- qt-4.8.6/src/gui/dialogs/qcolordialog_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/dialogs/qcolordialog_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/dialogs/qcolordialog_mac.mm	2015-03-08 04:49:48.930928473 -0600
 @@ -318,7 +318,7 @@
          // It's important that the modal event loop is stopped before
          // we accept/reject QColorDialog, since QColorDialog has its
@@ -177,7 +216,7 @@ diff -ruN qt-4.8.6/src/gui/dialogs/qcolordialog_mac.mm qt-4.8.6-new/src/gui/dial
          QTimer::singleShot(1, q, SLOT(_q_macRunNativeAppModalPanel()));
 diff -ruN qt-4.8.6/src/gui/dialogs/qfiledialog_mac.mm qt-4.8.6-new/src/gui/dialogs/qfiledialog_mac.mm
 --- qt-4.8.6/src/gui/dialogs/qfiledialog_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/dialogs/qfiledialog_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/dialogs/qfiledialog_mac.mm	2015-03-08 04:49:48.930928473 -0600
 @@ -229,7 +229,7 @@
      if ([mSavePanel respondsToSelector:@selector(close)])
          [mSavePanel close];
@@ -202,7 +241,7 @@ diff -ruN qt-4.8.6/src/gui/dialogs/qfiledialog_mac.mm qt-4.8.6-new/src/gui/dialo
          QTimer::singleShot(1, q, SLOT(_q_macRunNativeAppModalPanel()));
 diff -ruN qt-4.8.6/src/gui/dialogs/qfontdialog_mac.mm qt-4.8.6-new/src/gui/dialogs/qfontdialog_mac.mm
 --- qt-4.8.6/src/gui/dialogs/qfontdialog_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/dialogs/qfontdialog_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/dialogs/qfontdialog_mac.mm	2015-03-08 04:49:48.930928473 -0600
 @@ -230,7 +230,7 @@
      mAppModal = true;
      NSWindow *ourPanel = [mStolenContentView window];
@@ -245,7 +284,7 @@ diff -ruN qt-4.8.6/src/gui/dialogs/qfontdialog_mac.mm qt-4.8.6-new/src/gui/dialo
          QTimer::singleShot(1, q, SLOT(_q_macRunNativeAppModalPanel()));
 diff -ruN qt-4.8.6/src/gui/kernel/qapplication_mac.mm qt-4.8.6-new/src/gui/kernel/qapplication_mac.mm
 --- qt-4.8.6/src/gui/kernel/qapplication_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qapplication_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qapplication_mac.mm	2015-03-08 04:49:48.931928450 -0600
 @@ -468,7 +468,7 @@
          image = static_cast<NSImage *>(qt_mac_create_nsimage(pixmap));
      }
@@ -309,57 +348,9 @@ diff -ruN qt-4.8.6/src/gui/kernel/qapplication_mac.mm qt-4.8.6-new/src/gui/kerne
              if (QWidget *tmp_w = qt_mac_find_window(wp))
                  app->setActiveWindow(tmp_w);
          }
-diff -ruN qt-4.8.6/src/gui/kernel/qcocoaapplication_mac.mm qt-4.8.6-new/src/gui/kernel/qcocoaapplication_mac.mm
---- qt-4.8.6/src/gui/kernel/qcocoaapplication_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qcocoaapplication_mac.mm	2015-02-04 12:20:46.000000000 -0700
-@@ -147,7 +147,7 @@
-     if ([event type] == NSApplicationDefined) {
-         switch ([event subtype]) {
-             case QtCocoaEventSubTypePostMessage:
--                [NSApp QT_MANGLE_NAMESPACE(qt_sendPostedMessage):event];
-+                [[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_sendPostedMessage):event];
-                 return true;
-             default:
-                 break;
-@@ -174,7 +174,7 @@
-     // be called instead of sendEvent if redirection occurs.
-     // 'self' will then be an instance of NSApplication
-     // (and not QNSApplication)
--    if (![NSApp QT_MANGLE_NAMESPACE(qt_filterEvent):event])
-+    if (![[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_filterEvent):event])
-         [self QT_MANGLE_NAMESPACE(qt_sendEvent_original):event];
- }
- 
-@@ -182,7 +182,7 @@
- {
-     // This method will be called if
-     // no redirection occurs
--    if (![NSApp QT_MANGLE_NAMESPACE(qt_filterEvent):event])
-+    if (![[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_filterEvent):event])
-         [super sendEvent:event];
- }
- 
-@@ -194,7 +194,7 @@
-     // visible on screen. Note: If Qt is used as a plugin, Qt will not use a 
-     // native menu bar. Hence, we will also not need to do any redirection etc. as 
-     // we do with sendEvent.
--    [[NSApp QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
-+    [[[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
- }
- 
- @end
-@@ -203,7 +203,7 @@
- 
- void qt_redirectNSApplicationSendEvent()
- {
--    if ([NSApp isMemberOfClass:[QT_MANGLE_NAMESPACE(QNSApplication) class]]) {
-+    if ([[NSApplication sharedApplication] isMemberOfClass:[QT_MANGLE_NAMESPACE(QNSApplication) class]]) {
-         // No need to change implementation since Qt
-         // already controls a subclass of NSApplication
-         return;
 diff -ruN qt-4.8.6/src/gui/kernel/qcocoaapplicationdelegate_mac.mm qt-4.8.6-new/src/gui/kernel/qcocoaapplicationdelegate_mac.mm
 --- qt-4.8.6/src/gui/kernel/qcocoaapplicationdelegate_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qcocoaapplicationdelegate_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qcocoaapplicationdelegate_mac.mm	2015-03-08 04:49:48.932928428 -0600
 @@ -122,7 +122,7 @@
      [dockMenu release];
      [qtMenuLoader release];
@@ -432,7 +423,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qcocoaapplicationdelegate_mac.mm qt-4.8.6-new/
  @end
 diff -ruN qt-4.8.6/src/gui/kernel/qcocoaapplicationdelegate_mac_p.h qt-4.8.6-new/src/gui/kernel/qcocoaapplicationdelegate_mac_p.h
 --- qt-4.8.6/src/gui/kernel/qcocoaapplicationdelegate_mac_p.h	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qcocoaapplicationdelegate_mac_p.h	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qcocoaapplicationdelegate_mac_p.h	2015-03-08 04:49:48.932928428 -0600
 @@ -113,7 +113,7 @@
      QApplicationPrivate *qtPrivate;
      NSMenu *dockMenu;
@@ -451,9 +442,57 @@ diff -ruN qt-4.8.6/src/gui/kernel/qcocoaapplicationdelegate_mac_p.h qt-4.8.6-new
  - (void)getUrl:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent;
  @end
  #endif
+diff -ruN qt-4.8.6/src/gui/kernel/qcocoaapplication_mac.mm qt-4.8.6-new/src/gui/kernel/qcocoaapplication_mac.mm
+--- qt-4.8.6/src/gui/kernel/qcocoaapplication_mac.mm	2014-04-10 12:37:12.000000000 -0600
++++ qt-4.8.6-new/src/gui/kernel/qcocoaapplication_mac.mm	2015-03-08 04:49:48.931928450 -0600
+@@ -147,7 +147,7 @@
+     if ([event type] == NSApplicationDefined) {
+         switch ([event subtype]) {
+             case QtCocoaEventSubTypePostMessage:
+-                [NSApp QT_MANGLE_NAMESPACE(qt_sendPostedMessage):event];
++                [[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_sendPostedMessage):event];
+                 return true;
+             default:
+                 break;
+@@ -174,7 +174,7 @@
+     // be called instead of sendEvent if redirection occurs.
+     // 'self' will then be an instance of NSApplication
+     // (and not QNSApplication)
+-    if (![NSApp QT_MANGLE_NAMESPACE(qt_filterEvent):event])
++    if (![[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_filterEvent):event])
+         [self QT_MANGLE_NAMESPACE(qt_sendEvent_original):event];
+ }
+ 
+@@ -182,7 +182,7 @@
+ {
+     // This method will be called if
+     // no redirection occurs
+-    if (![NSApp QT_MANGLE_NAMESPACE(qt_filterEvent):event])
++    if (![[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_filterEvent):event])
+         [super sendEvent:event];
+ }
+ 
+@@ -194,7 +194,7 @@
+     // visible on screen. Note: If Qt is used as a plugin, Qt will not use a 
+     // native menu bar. Hence, we will also not need to do any redirection etc. as 
+     // we do with sendEvent.
+-    [[NSApp QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
++    [[[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
+ }
+ 
+ @end
+@@ -203,7 +203,7 @@
+ 
+ void qt_redirectNSApplicationSendEvent()
+ {
+-    if ([NSApp isMemberOfClass:[QT_MANGLE_NAMESPACE(QNSApplication) class]]) {
++    if ([[NSApplication sharedApplication] isMemberOfClass:[QT_MANGLE_NAMESPACE(QNSApplication) class]]) {
+         // No need to change implementation since Qt
+         // already controls a subclass of NSApplication
+         return;
 diff -ruN qt-4.8.6/src/gui/kernel/qcocoamenuloader_mac.mm qt-4.8.6-new/src/gui/kernel/qcocoamenuloader_mac.mm
 --- qt-4.8.6/src/gui/kernel/qcocoamenuloader_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qcocoamenuloader_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qcocoamenuloader_mac.mm	2015-03-08 04:49:48.932928428 -0600
 @@ -92,8 +92,8 @@
      // 'Quit' item. When changing menu bar (e.g when switching between
      // windows with different menu bars), we never recreate this menu, but
@@ -518,7 +557,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qcocoamenuloader_mac.mm qt-4.8.6-new/src/gui/k
      }
 diff -ruN qt-4.8.6/src/gui/kernel/qcocoasharedwindowmethods_mac_p.h qt-4.8.6-new/src/gui/kernel/qcocoasharedwindowmethods_mac_p.h
 --- qt-4.8.6/src/gui/kernel/qcocoasharedwindowmethods_mac_p.h	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qcocoasharedwindowmethods_mac_p.h	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qcocoasharedwindowmethods_mac_p.h	2015-03-08 04:49:48.932928428 -0600
 @@ -143,7 +143,7 @@
  {
      // This function is called from the quit item in the menubar when this window
@@ -548,7 +587,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qcocoasharedwindowmethods_mac_p.h qt-4.8.6-new
          modifiers = qt_cocoaDragOperation2QtModifiers(nsActions);
 diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/kernel/qeventdispatcher_mac.mm
 --- qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qeventdispatcher_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qeventdispatcher_mac.mm	2015-03-08 04:49:48.932928428 -0600
 @@ -461,7 +461,7 @@
      if (pt)
          [pt sendEvent:event];
@@ -750,7 +789,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qeventdispatcher_mac.mm qt-4.8.6-new/src/gui/k
      deleteLater();
 diff -ruN qt-4.8.6/src/gui/kernel/qt_cocoa_helpers_mac.mm qt-4.8.6-new/src/gui/kernel/qt_cocoa_helpers_mac.mm
 --- qt-4.8.6/src/gui/kernel/qt_cocoa_helpers_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qt_cocoa_helpers_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qt_cocoa_helpers_mac.mm	2015-03-08 04:49:48.933928406 -0600
 @@ -1697,7 +1697,7 @@
      NSEvent *e = [NSEvent otherEventWithType:NSApplicationDefined
          location:NSZeroPoint modifierFlags:0 timestamp:0 windowNumber:0
@@ -771,7 +810,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qt_cocoa_helpers_mac.mm qt-4.8.6-new/src/gui/k
  
 diff -ruN qt-4.8.6/src/gui/kernel/qt_mac_p.h qt-4.8.6-new/src/gui/kernel/qt_mac_p.h
 --- qt-4.8.6/src/gui/kernel/qt_mac_p.h	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qt_mac_p.h	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qt_mac_p.h	2015-03-08 04:49:48.933928406 -0600
 @@ -75,6 +75,62 @@
  
  #include <Carbon/Carbon.h>
@@ -837,7 +876,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qt_mac_p.h qt-4.8.6-new/src/gui/kernel/qt_mac_
  class QDragMoveEvent;
 diff -ruN qt-4.8.6/src/gui/kernel/qwidget_mac.mm qt-4.8.6-new/src/gui/kernel/qwidget_mac.mm
 --- qt-4.8.6/src/gui/kernel/qwidget_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/kernel/qwidget_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/kernel/qwidget_mac.mm	2015-03-08 04:49:48.933928406 -0600
 @@ -220,7 +220,7 @@
  static NSDrawer *qt_mac_drawer_for(const QWidget *widget)
  {
@@ -894,7 +933,7 @@ diff -ruN qt-4.8.6/src/gui/kernel/qwidget_mac.mm qt-4.8.6-new/src/gui/kernel/qwi
          QPoint qlocal, qglobal;
 diff -ruN qt-4.8.6/src/gui/styles/qmacstyle_mac.mm qt-4.8.6-new/src/gui/styles/qmacstyle_mac.mm
 --- qt-4.8.6/src/gui/styles/qmacstyle_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/styles/qmacstyle_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/styles/qmacstyle_mac.mm	2015-03-08 04:49:48.934928384 -0600
 @@ -780,7 +780,7 @@
              if (!GetThemeMenuBarHeight(&size))
                  ret = QSize(-1, size);
@@ -931,7 +970,7 @@ diff -ruN qt-4.8.6/src/gui/styles/qmacstyle_mac.mm qt-4.8.6-new/src/gui/styles/q
                  if (lw <= 0)
 diff -ruN qt-4.8.6/src/gui/util/qsystemtrayicon_mac.mm qt-4.8.6-new/src/gui/util/qsystemtrayicon_mac.mm
 --- qt-4.8.6/src/gui/util/qsystemtrayicon_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/util/qsystemtrayicon_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/util/qsystemtrayicon_mac.mm	2015-03-08 04:49:48.934928384 -0600
 @@ -536,7 +536,7 @@
  #ifndef QT_MAC_USE_COCOA
                  const short scale = GetMBarHeight();
@@ -943,7 +982,7 @@ diff -ruN qt-4.8.6/src/gui/util/qsystemtrayicon_mac.mm qt-4.8.6-new/src/gui/util
                  [item setImage: nsimage];
 diff -ruN qt-4.8.6/src/gui/widgets/qcocoamenu_mac.mm qt-4.8.6-new/src/gui/widgets/qcocoamenu_mac.mm
 --- qt-4.8.6/src/gui/widgets/qcocoamenu_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/widgets/qcocoamenu_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/widgets/qcocoamenu_mac.mm	2015-03-08 04:49:48.934928384 -0600
 @@ -202,7 +202,7 @@
       static SEL selForOFCP = NSSelectorFromString(@"orderFrontCharacterPalette:");
       if (index == -1 && selForOFCP == actionSelector) {
@@ -955,7 +994,7 @@ diff -ruN qt-4.8.6/src/gui/widgets/qcocoamenu_mac.mm qt-4.8.6-new/src/gui/widget
       return index;
 diff -ruN qt-4.8.6/src/gui/widgets/qmenu_mac.mm qt-4.8.6-new/src/gui/widgets/qmenu_mac.mm
 --- qt-4.8.6/src/gui/widgets/qmenu_mac.mm	2014-04-10 12:37:12.000000000 -0600
-+++ qt-4.8.6-new/src/gui/widgets/qmenu_mac.mm	2015-02-04 12:20:46.000000000 -0700
++++ qt-4.8.6-new/src/gui/widgets/qmenu_mac.mm	2015-03-08 04:49:48.935928362 -0600
 @@ -179,7 +179,7 @@
  {
  #ifdef QT_MAC_USE_COCOA
