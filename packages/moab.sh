@@ -70,7 +70,7 @@ buildMoab() {
 # ser BUILD needed by ulixes
   local MOAB_SER_CONFIG_ARGS=
 # FORPYTHON_STATIC_BUILD needed by composers
-  local MOAB_PYST_CONFIG_ARGS=
+  local MOAB_PYCST_CONFIG_ARGS=
 # FORPYTHON_SHARED_BUILD needed by dagmc
   local MOAB_PYSH_CONFIG_ARGS=
 # par BUILD needed by ulixes
@@ -80,12 +80,12 @@ buildMoab() {
     if [[ `uname` =~ CYGWIN ]]; then
       MOAB_SER_CONFIG_ARGS="$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TARBALL_NODEFLIB_FLAGS"
     fi
-    MOAB_PYST_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
+    MOAB_PYCST_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_PYSH_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE -DCMAKE_INSTALL_NAME_DIR='${BLDR_INSTALL_DIR}/moab-${MOAB_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib' $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_PAR_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"
   else
     MOAB_SER_CONFIG_ARGS="--enable-static --disable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER"
-    MOAB_PYST_CONFIG_ARGS="--enable-static --disable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
+    MOAB_PYCST_CONFIG_ARGS="--enable-static --disable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     MOAB_PYSH_CONFIG_ARGS="--disable-static --enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     MOAB_PAR_CONFIG_ARGS="--with-mpi='$CONTRIB_DIR/mpi' --enable-static --disable-shared $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR"
   fi
@@ -98,7 +98,7 @@ buildMoab() {
 # OCE always brought in shared
 # MOAB uses root dirs for dirs.
     MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_SER_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_SER_DIR'"
-    MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PYCST_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
+    MOAB_PYCST_CONFIG_ARGS="$MOAB_PYCST_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PYCST_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PYCSH_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
     MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PAR_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_PAR_DIR'"
   else
@@ -108,7 +108,7 @@ buildMoab() {
 # configure: error: /volatile/cgm-master.r1081-sersh : not a configured CGM
 # CTK does not need netcdf
     MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_SER_DIR' --with-netcdf='$NETCDF_SER_DIR'"
-    MOAB_PYST_CONFIG_ARGS="$MOAB_PYST_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
+    MOAB_PYCST_CONFIG_ARGS="$MOAB_PYCST_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCST_DIR'"
 # Do not add netcdf here as neither DagMc nor the composers need this, and
 # if added it creates an installation problem.
     MOAB_PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS --enable-dagmc --without-vtk --with-hdf5='$HDF5_PYCSH_DIR'"
@@ -146,14 +146,9 @@ buildMoab() {
     bilderBuild $makerargs moab ser "$makejargs" "$MOAB_ENV"
   fi
 
-# Configure and build serial
-  if bilderConfig $makerargs $moabcmakearg moab ser "$MOAB_SER_CONFIG_ARGS $MOAB_SER_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab ser "$makejargs" "$MOAB_ENV"
-  fi
-
 # Configure and build python serial
 # Cannot use FORPYTHON_STATIC_BUILD on unixish where it can resolve to ser,
-  if bilderConfig $makerargs $moabcmakearg moab pycst "$MOAB_PYST_CONFIG_ARGS $MOAB_PYCST_OTHER_ARGS" "" "$MOAB_ENV"; then
+  if bilderConfig $makerargs $moabcmakearg moab pycst "$MOAB_PYCST_CONFIG_ARGS $MOAB_PYCST_OTHER_ARGS" "" "$MOAB_ENV"; then
     bilderBuild $makerargs moab pycst "$makejargs" "$MOAB_ENV"
   fi
 
