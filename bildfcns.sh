@@ -6728,11 +6728,11 @@ EOF
 bilderInstallAll() {
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
-  local res = 0
+  local res=0
   for bld in `echo $buildsval | tr ',' ' '`; do
     bilderInstall $2 $1 $bld
     if test $? != 0; then
-      res = $?
+      res=$?
     fi
   done
   return $res
