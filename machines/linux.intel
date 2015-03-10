@@ -46,9 +46,10 @@ echo "mpiccdir = $mpiccdir"
 addtopathvar PATH $mpiccdir
 
 # Find mkl
-mkldir=`(cd $inteldir/mkl/lib/intel64 2>/dev/null; pwd -P)`
-if ! test -z $mkldir; then
-  echo "$inteldir/mkl/lib/intel64 not found.  No mkl.  Quitting."
+ipath=`dirname $ipath`
+mkldir=`(cd $ipath/mkl/lib/intel64 2>/dev/null; pwd -P)`
+if ! test -d $mkldir; then
+  echo "$ipath/mkl/lib/intel64 not found.  No mkl.  Quitting."
   terminate
 fi
 SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$mkldir/include"}
