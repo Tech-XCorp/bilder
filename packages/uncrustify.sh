@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for uncrustify
+# Build information for uncrustify
 #
 # $Id$
 #
@@ -8,24 +8,26 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in uncrustify_aux.sh
 #
 ######################################################################
 
-UNCRUSTIFY_BLDRVERSION=${UNCRUSTIFY_BLDRVERSION:-"0.60"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/uncrustify_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-case `uname` in
-  CYGWIN) ;;
-  *) UNCRUSTIFY_BUILDS=${UNCRUSTIFY_BUILDS:-"ser"};;
-esac
-UNCRUSTIFY_DEPS=
-UNCRUSTIFY_UMASK=002
+setUncrustifyNonTriggerVars() {
+  HYPRE_UMASK=002
+  UNCRUSTIFY_UMASK=002
+}
+setUncrustifyNonTriggerVars
 
 ######################################################################
 #
@@ -34,10 +36,11 @@ UNCRUSTIFY_UMASK=002
 ######################################################################
 
 buildUncrustify() {
-  if bilderUnpack uncrustify; then
-    if bilderConfig uncrustify ser; then
-      bilderBuild uncrustify ser
-    fi
+  if ! bilderUnpack uncrustify; then
+    return
+  fi
+  if bilderConfig uncrustify ser; then
+    bilderBuild uncrustify ser
   fi
 }
 
