@@ -27,6 +27,7 @@ setBilderOsVars() {
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
       machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
       INSTALL_SUBDIR_SFX=-$machsfx
+      echo "CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
       ;;
 
     Darwin)
@@ -82,17 +83,23 @@ setBilderDirsVars() {
 # Contrib/tarball location
 #------------------
 
-  # echo "computing contribdir"
+  echo "computing contribdir"
   if test -z "$CONTRIB_DIR"; then
     if $COMMON_CONTRIB; then
-      CONTRIB_DIR=$CONTRIB_ROOTDIR
-      if test -n "$ROOTDIR_CVI" && [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        CONTRIB_DIR=$ROOTDIR_CVI/$CONTRIB_DIR
+# The below works on windows
+      if test -n "$ROOTDIR_CVI"; then
+        if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+          CONTRIB_DIR=$ROOTDIR_CVI
+        else
+          CONTRIB_DIR=$CONTRIB_ROOTDIR/$ROOTDIR_CVI
+        fi
+      else
+        CONTRIB_DIR=$CONTRIB_ROOTDIR
       fi
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
+    echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
     if $USE_COMMON_INSTDIRS; then
       CONTRIB_DIR=$CONTRIB_DIR/software${INSTALL_SUBDIR_SFX}
     else
@@ -104,7 +111,7 @@ setBilderDirsVars() {
     fi
   fi
   CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
-  # echo "CONTRIB_DIR = $CONTRIB_DIR"
+  echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
 # Install location
@@ -112,9 +119,15 @@ setBilderDirsVars() {
 
   if test -z "$BLDR_INSTALL_DIR"; then
     if $COMMON_CONTRIB; then
-      BLDR_INSTALL_DIR=$INSTALL_ROOTDIR
-      if test -n "$ROOTDIR_CVI" && [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        BLDR_INSTALL_DIR=$ROOTDIR_CVI/$BLDR_INSTALL_DIR
+# The below works on windows
+      if test -n "$ROOTDIR_CVI"; then
+        if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+          BLDR_INSTALL_DIR=$ROOTDIR_CVI
+        else
+          BLDR_INSTALL_DIR=$INSTALL_ROOTDIR/$ROOTDIR_CVI
+        fi
+      else
+        BLDR_INSTALL_DIR=$BLDR_INSTALL_ROOTDIR
       fi
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
