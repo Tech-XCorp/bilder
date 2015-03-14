@@ -119,7 +119,9 @@ setBilderDirsVars() {
 #------------------
 
   if test -z "$BLDR_INSTALL_DIR"; then
+    # echo "COMMON_CONTRIB = $COMMON_CONTRIB"
     if $COMMON_CONTRIB; then
+      # echo "ROOTDIR_CVI = $ROOTDIR_CVI"
 # The below works on windows
       if test -n "$ROOTDIR_CVI"; then
         if [[ $ROOTDIR_CVI =~ ^/ ]]; then
@@ -128,11 +130,12 @@ setBilderDirsVars() {
           BLDR_INSTALL_DIR=$INSTALL_ROOTDIR/$ROOTDIR_CVI
         fi
       else
-        BLDR_INSTALL_DIR=$BLDR_INSTALL_ROOTDIR
+        BLDR_INSTALL_DIR=$INSTALL_ROOTDIR
       fi
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
+    # echo "After COMMON_CONTRIB, BLDR_INSTALL_DIR = $BLDR_INSTALL_DIR"
     if $USE_COMMON_INSTDIRS; then
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/software${INSTALL_SUBDIR_SFX}
     elif $REPODIR_IS_INTERNAL; then
