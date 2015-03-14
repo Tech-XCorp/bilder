@@ -106,9 +106,9 @@ setBilderDirsVars() {
       CONTRIB_DIR=$CONTRIB_DIR/contrib${INSTALL_SUBDIR_SFX}
     fi
     CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
-    if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
-    fi
+    # if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
+      # CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
+    # fi
   fi
   CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
   echo "CONTRIB_DIR = $CONTRIB_DIR"
@@ -140,9 +140,9 @@ setBilderDirsVars() {
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/volatile${INSTALL_SUBDIR_SFX}
       SCRIPT_ADDL_ARGS="-r $SCRIPT_ADDL_ARGS"
     fi
-    if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
-    fi
+    # if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
+      # BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
+    # fi
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
   fi
 
