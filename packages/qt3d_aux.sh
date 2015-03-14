@@ -19,7 +19,7 @@ setQt3dTriggerVars() {
   if test -d qt3d; then
     isgit=`(cd qt3d; git remote -v | grep git://)`
     if test -n "$isgit"; then
-      techo "git protocol no longer working at gitorius.  Changing."
+      techo "WARNING: [$FUNCNAME] git protocol no longer working at gitorius.  Moving qt3d to qt3d-git and getting qt3d using https."
       mv qt3d qt3d-git
     fi
   fi
