@@ -94,7 +94,7 @@ buildPython() {
 # To find the necessary bits, look in setup.py in detect_modules() for
 # the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-  if bilderConfig Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_OTHER_ARGS $PYTHON_PYCSH_ADDL_ARGS"; then
+  if bilderConfig Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
     bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
 
