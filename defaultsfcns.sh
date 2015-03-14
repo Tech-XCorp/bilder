@@ -26,18 +26,19 @@ setBilderOsVars() {
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
       machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
-      INSTALL_SUBDIR_SFX=-$machsfx
-      echo "CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
+      test -n "$machsfx" && INSTALL_SUBDIR_SFX=-$machsfx
+      # echo "CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
       ;;
 
     Darwin)
       if test -n "$MACHINEFILE"; then
         machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
-        if test -n "$machsfx" -a -z "$ROOTDIR_CVI"; then
-# Opt is there from homebrew
-          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
-          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
+        if test -n "$machsfx"; then
           INSTALL_SUBDIR_SFX=-$machsfx
+          if ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
+            CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
+            INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
+          fi
         fi
       fi
       ;;
@@ -99,7 +100,7 @@ setBilderDirsVars() {
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
+    # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
     if $USE_COMMON_INSTDIRS; then
       CONTRIB_DIR=$CONTRIB_DIR/software${INSTALL_SUBDIR_SFX}
     else
@@ -110,7 +111,7 @@ setBilderDirsVars() {
       # CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
     # fi
   fi
-  CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
+  # CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
   echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
