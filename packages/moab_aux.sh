@@ -23,9 +23,9 @@ setMoabTriggerVars() {
   MOAB_UPSTREAM_BRANCH=master
   if test -z "$MOAB_DESIRED_BUILDS"; then
 # Static serial and parallel builds needed for ulixes,
-# Python static build needed for composers
+# Python shared build needed for composers
 # Python shared build for dagmc
-    MOAB_DESIRED_BUILDS=ser,par
+    MOAB_DESIRED_BUILDS=ser,sersh,par
   fi
   computeBuilds moab
   if ! [[ `uname` =~ CYGWIN ]]; then

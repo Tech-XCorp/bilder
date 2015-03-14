@@ -152,7 +152,7 @@ buildMoab() {
     bilderBuild $makerargs moab pycst "$makejargs" "$MOAB_ENV"
   fi
 
-# Python shared build for dagmc
+# Python shared build for composers
   local otherargsvar=`genbashvar MOAB_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
 # Configure and build serial
