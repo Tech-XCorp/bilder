@@ -1880,30 +1880,31 @@ shouldInstall() {
     techo "Package $1 has no dependencies."
   fi
 
-# Check to see if release build and tests were installed after the last package build; if not, rebuild.
+# Check to see if release build and tests were installed after the last
+# package build; if not, rebuild.
   local dir=$instdir
   local tstvar=`genbashvar ${ucproj}`_TESTNAME
   local tstval=`deref $tstvar`
   if $CREATE_RELEASE && $TESTING && test -n "$tstval"; then
-     local tstdepdate=
-     local tstlastdate=
-     local tstdepline=
-     lctst=`echo ${tstval} | tr A-Z a-z`
-     local tstdepline=`grep ^${lctst}- $dir/installations.txt | tail -1`
-     if test -n "$tstdepline"; then
-       techo -2 "$lctst installation found in $dir/installations.txt."
-       tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
-       tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
-       if test "$tstlastdate" = "$pkgdate"; then
-         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding."
+    local tstdepdate=
+    local tstlastdate=
+    local tstdepline=
+    lctst=`echo ${tstval} | tr A-Z a-z`
+    local tstdepline=`grep ^${lctst}- $dir/installations.txt | tail -1`
+    if test -n "$tstdepline"; then
+      techo -2 "$lctst installation found in $dir/installations.txt."
+      tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
+      tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
+      if test "$tstlastdate" = "$pkgdate"; then
+        techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding."
          return 0
-       else
-         techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
-       fi
-     else
-       techo "Tests for package ${proj} not installed. Need to build to run tests. Rebuilding."
-       return 0
-     fi
+      else
+        techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
+      fi
+    else
+      techo "Tests for package ${proj} not installed. Need to build to run tests. Rebuilding."
+      return 0
+    fi
   fi
 
 # If all builds younger than $BILDER_WAIT_DAYS, do not rebuild
