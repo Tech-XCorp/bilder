@@ -1926,7 +1926,7 @@ shouldInstall() {
     return 1      # false
   fi
   if test -n "$builds"; then
-    techo "One or more of builds of $1 not installed. Rebuilding."
+    techo "One or more of builds of $1 needs (re)installation. Rebuilding."
   else
     techo "Package $1 is not installed. Rebuilding."
   fi
