@@ -1464,10 +1464,10 @@ fi
     if test -d $instdir/$instsubdir; then
 # This implies default installation subdir
       if ! test -f $instdir/$instsubdir/$patchname; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname is missing. Rebuilding."
+        techo "Patch $instdir/$instsubdir/$patchname is missing. Rebuilding."
         dopatch=true
       elif ! $BILDER_DIFF -q $instdir/$instsubdir/$patchname $patchval; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ. Rebuilding."
+        techo "Patch $instdir/$instsubdir/$patchname and $patchval differ. Rebuilding."
         dopatch=true
       else
         techo -2 "Patch up to date."
