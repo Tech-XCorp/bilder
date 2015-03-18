@@ -17,16 +17,16 @@
 
 setQt3dTriggerVars() {
   if test -d qt3d; then
-    isgit=`(cd qt3d; git remote -v | grep git://)`
-    if test -n "$isgit"; then
-      techo "WARNING: [$FUNCNAME] git protocol no longer working at gitorius.  Moving qt3d to qt3d-git and getting qt3d using https."
-      mv qt3d qt3d-git
+    isgitorius=`(cd qt3d; git remote -v | grep -q gitorius)`
+    if test -n "$isgitorious"; then
+      techo "WARNING: [$FUNCNAME] Official repo moved from gitorius to qt.io.  Moving qt3d directory to qt3d-gitorious and getting qt3d using https from code.qt.io."
+      mv qt3d qt3d-gitorious
     fi
   fi
-  QT3D_REPO_URL=https://gitorious.org/qt/qt3d.git
+  QT3D_REPO_URL=https://code.qt.io/git/qt/qt3d.git
   QT3D_REPO_BRANCH_STD=qt4
   QT3D_REPO_BRANCH_EXP=qt4
-  QT3D_UPSTREAM_URL=https://gitorious.org/qt/qt3d.git
+  QT3D_UPSTREAM_URL=https://code.qt.io/git/qt/qt3d.git
   QT3D_UPSTREAM_BRANCH=qt4  # The only choice
 # Qt is built the same way as python
   QT3D_BUILD=$FORPYTHON_SHARED_BUILD
