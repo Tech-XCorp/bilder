@@ -35,17 +35,26 @@ setBilderOsVars() {
         machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
         if test -n "$machsfx"; then
           INSTALL_SUBDIR_SFX=-$machsfx
-          if ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
-            CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
-            INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
-          fi
         fi
+      fi
+      if test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
+        CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
+        INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
       fi
       ;;
 
     Linux)
       if uname -a | grep -q Ubuntu; then
         MACHINEFILE=${MACHINEFILE:-"ubuntu-x86_64"}
+      fi
+      if test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
+        if test -d /scr_${UQMAILHOST}/$USER; then
+          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/scr_${UQMAILHOST}/$USER"}
+          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/scr_${UQMAILHOST}/$USER"}
+        elif test -d /bilder; then
+          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/bilder"}
+          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/bilder"}
+        fi
       fi
       ;;
 
