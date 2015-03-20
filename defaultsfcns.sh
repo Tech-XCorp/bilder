@@ -37,7 +37,7 @@ setBilderOsVars() {
           INSTALL_SUBDIR_SFX=-$machsfx
         fi
       fi
-      if test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
+      if test -n "$machsfx" || test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
         CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
         INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
       fi
