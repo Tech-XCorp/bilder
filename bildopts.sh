@@ -188,7 +188,7 @@ setBilderOptions() {
   BUILD_DIR=$PROJECT_DIR/builds
   BUILD_EXPERIMENTAL=false
   BUILD_IF_NEWER_PKGFILE=true
-  BUILD_INSTALLERS=false
+  BUILD_INSTALLERS=${BUILD_INSTALLERS=-"false"}
   BUILD_MPIS=false
   BUILD_OPTIONAL=false
   BUILD_TARBALLS=true
@@ -207,7 +207,7 @@ setBilderOptions() {
   JUST_GET_PACKAGES=false
   MAX_THREADS=false
   NOBUILD=false
-  POST2DEPOT=true
+  POST2DEPOT=${POST2DEPOT:-"true"}
   REMOVE_OLD=false
   REPO_BUILD_TYPE=${REPO_BUILD_TYPE:-"RelWithDebInfo"}
   RM_BUILD=true
