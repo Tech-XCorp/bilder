@@ -109,6 +109,7 @@ setBilderDirsVars() {
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
+    CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
     # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
     if $USE_COMMON_INSTDIRS; then
       CONTRIB_DIR=$CONTRIB_DIR/software${INSTALL_SUBDIR_SFX}
@@ -116,11 +117,7 @@ setBilderDirsVars() {
       CONTRIB_DIR=$CONTRIB_DIR/contrib${INSTALL_SUBDIR_SFX}
     fi
     CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
-    # if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
-      # CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
-    # fi
   fi
-  # CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
   echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
@@ -144,6 +141,7 @@ setBilderDirsVars() {
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
+    BLDR_INSTALL_DIR=`(cd $BLDR_INSTALL_DIR; pwd -P)`
     # echo "After COMMON_CONTRIB, BLDR_INSTALL_DIR = $BLDR_INSTALL_DIR"
     if $USE_COMMON_INSTDIRS; then
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/software${INSTALL_SUBDIR_SFX}
@@ -159,6 +157,7 @@ setBilderDirsVars() {
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
   fi
 
+# Add any subdir
   if test -n "$INST_SUBDIR"; then
     CONTRIB_DIR=$CONTRIB_DIR/$INST_SUBDIR
     BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$INST_SUBDIR
