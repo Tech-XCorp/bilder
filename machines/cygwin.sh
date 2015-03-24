@@ -122,7 +122,7 @@ $TECHO2 "After /usr/bin move, PATH = $PATH."
 getVsPaths() {
   local vsver=$1
   $TECHO "Looking for tools for Visual Studio ${vsver}."
-  if ! test -d "/cygdrive/c/Program Files/Microsoft Visual Studio ${vsver}.0"; then
+  if ! test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio ${vsver}.0"; then
     $TECHO "Microsoft Visual Studio ${vsver}.0 is not installed.  Will not set associated variables."
     return 1
   fi
@@ -138,13 +138,13 @@ getVsPaths() {
   fi
   local vscomntools=`deref VS${vsver}0COMNTOOLS`
   $TECHO "VS${vsver}0COMNTOOLS = $vscomntools."
-  if [[ `uname` =~ WOW ]] && ! [[ "$vscomntools" =~ "(x86)" ]]; then
-    $TECHO "WARNING: 64 bit Windows, but VS${vsver}0COMNTOOLS does not contain (x86)."
-  fi
 
   arch=x86
   if $IS_64_BIT; then
     arch=amd64
+    if ! [[ "$vscomntools" =~ "(x86)" ]]; then
+      $TECHO "WARNING: 64 bit Windows, but VS${vsver}0COMNTOOLS does not contain (x86)."
+    fi
   fi
 
   cat >$workdir/getvs${vsver}vars.bat <<EOF
