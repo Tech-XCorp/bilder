@@ -37,7 +37,7 @@ setBilderOsVars() {
           INSTALL_SUBDIR_SFX=-$machsfx
         fi
       fi
-      if test -n "$machsfx" || test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
+      if test -n "$machsfx" || (test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]] ); then
         CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
         INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
       fi
@@ -93,10 +93,11 @@ setBilderDirsVars() {
 # Contrib/tarball location
 #------------------
 
-  echo "computing contribdir"
+  # echo "Computing contribdir.  CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
   if test -z "$CONTRIB_DIR"; then
     if $COMMON_CONTRIB; then
-# The below works on windows
+      # echo "COMMON_CONTRIB = $COMMON_CONTRIB"
+      # echo "ROOTDIR_CVI = $ROOTDIR_CVI"
       if test -n "$ROOTDIR_CVI"; then
         if [[ $ROOTDIR_CVI =~ ^/ ]]; then
           CONTRIB_DIR=$ROOTDIR_CVI
@@ -106,10 +107,13 @@ setBilderDirsVars() {
       else
         CONTRIB_DIR=$CONTRIB_ROOTDIR
       fi
+      # echo "After ROOTDIR_CVI , CONTRIB_DIR = $CONTRIB_DIR"
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
+    if test -n "$CONTRIB_DIR"; then
+      CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
+    fi
     # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
     if $USE_COMMON_INSTDIRS; then
       CONTRIB_DIR=$CONTRIB_DIR/software${INSTALL_SUBDIR_SFX}
@@ -118,7 +122,7 @@ setBilderDirsVars() {
     fi
     CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
   fi
-  echo "CONTRIB_DIR = $CONTRIB_DIR"
+  # echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
 # Install location
@@ -141,7 +145,9 @@ setBilderDirsVars() {
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    BLDR_INSTALL_DIR=`(cd $BLDR_INSTALL_DIR; pwd -P)`
+    if test -n "$BLDR_INSTALL_DIR"; then
+      BLDR_INSTALL_DIR=`(cd $BLDR_INSTALL_DIR; pwd -P)`
+    fi
     # echo "After COMMON_CONTRIB, BLDR_INSTALL_DIR = $BLDR_INSTALL_DIR"
     if $USE_COMMON_INSTDIRS; then
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/software${INSTALL_SUBDIR_SFX}
