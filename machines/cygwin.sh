@@ -171,7 +171,7 @@ EOF
     cygpath -au "$line": >> $workdir/path_${vsver}.txt
   done
   if test -f $workdir/path_${vsver}.txt; then
-    PATH_CYG=`cat $workdir/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
+    local PATH_CYG=`cat $workdir/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
   fi
   rm -f $workdir/path_${vsver}.txt
   eval PATH_VS${vsver}="\"$PATH_CYG\""
