@@ -161,7 +161,7 @@ echo INCLUDE_VS${vsver}="%INCLUDE%"
 EOF
   (cd $workdir; cmd /c getvs${vsver}vars.bat | tr -d '\r' >vs${vsver}vars.sh)
   source $workdir/vs${vsver}vars.sh
-  # rm -f $workdir/vs${vsver}vars.sh $workdir/getvs${vsver}vars.bat
+  rm -f $workdir/vs${vsver}vars.sh $workdir/getvs${vsver}vars.bat
 
 # Get the path difference
   local PATHOLDM=`echo "$PATHOLD" | sed -e 's?\\\\?/?g'`
@@ -169,14 +169,14 @@ EOF
   local PATH_VAL=`echo "$PATHNEWM" | sed -e "s?$PATHOLDM??g"`
 
 # Convert paths to cygwin
-  # rm -f $workdir/path_${vsver}.txt
+  rm -f $workdir/path_${vsver}.txt
   echo "$PATH_VAL" | tr ';' '\n' | sed '/^$/d' | while read line; do
     cygpath -au "$line": >> $workdir/path_${vsver}.txt
   done
   if test -f $workdir/path_${vsver}.txt; then
     local PATH_CYG=`cat $workdir/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
   fi
-  # rm -f $workdir/path_${vsver}.txt
+  rm -f $workdir/path_${vsver}.txt
   eval PATH_VS${vsver}="\"$PATH_CYG\""
   echo PATH_VS${vsver} = `deref PATH_VS${vsver}`
 # Double slashes on other paths
