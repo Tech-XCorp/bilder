@@ -21,6 +21,7 @@ setPythonTriggerVars() {
   case `uname` in
     CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then
                PYTHON_BLDRVERSION_STD=2.7.9.win64
+               PYTHON_BLDRVERSION_EXP=2.7.9.win64
 	       PYTHON_BUILDS=$FORPYTHON_SHARED_BUILD
              fi
              ;;
