@@ -54,7 +54,7 @@ buildPython() {
   if $cygwinVS12; then
     techo "No build needed for Windows. Installing from tarball."
     if bilderConfig -C : Python sersh; then
-      bilderBuild -D -k -m ./python-install.sh Python sersh
+      bilderBuild -D -k -m "./python-install.sh $CONTRIB_DIR" Python sersh
     fi
     return
   fi
@@ -119,8 +119,7 @@ testPython() {
 installPython() {
   case `uname` in
     CYGWIN*) if test -n "$PYTHON_SERSH_BUILD_DIR"; then
-               waitAction Python-sersh
-               recordInstallation $CONTRIB_DIR Python $PYTHON_BLDRVERSION sersh
+               bilderInstall -m : Python $FORPYTHON_SHARED_BUILD python
              fi
              return;;
   esac
