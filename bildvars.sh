@@ -191,8 +191,13 @@ case `uname` in
       1[3-9].*)
         CC=${CC:-"clang"}
         CXX=${CXX:-"clang++"}
-        FC=${FC:-"gfortran"}
-        F77=${F77:-"gfortran"}
+        if which gfortran 1>/dev/null 2>&1; then
+          FC=${FC:-"gfortran"}
+          F77=${F77:-"gfortran"}
+        elif which gfortran-4.9 1>/dev/null 2>&1; then
+          FC=${FC:-"gfortran-4.9"}
+          F77=${F77:-"gfortran-4.9"}
+        fi
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
         # echo "CXXFLAGS = $CXXFLAGS"
