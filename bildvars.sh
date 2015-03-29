@@ -211,6 +211,8 @@ case `uname` in
         if [[ $CXX =~ clang ]] && ! echo $PYC_CXXFLAGS | grep stdlib; then
           PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
         fi
+        PYC_FC=${PYC_FC:-"$FC"}
+        PYC_F77=${PYC_F77:-"$F77"}
         ;;
     esac
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}	# For 10.5 and higher
