@@ -268,7 +268,7 @@ if test -n "$hasvisstudio"; then
   $TECHO "Found a Visual Studio in your path.  Not adding."
 else
   if test -z "$VISUALSTUDIO_VERSION"; then
-# Use VS 11 if present
+# Try all versions, starting with latest first
     for ver in $allVersions; do
       if test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio ${ver}.0/Common7/IDE"; then
         VISUALSTUDIO_VERSION=$ver
