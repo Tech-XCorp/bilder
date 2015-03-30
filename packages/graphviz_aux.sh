@@ -25,8 +25,9 @@ setGraphvizTriggerVars() {
         if grep -q '"SV' /System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/perl.h; then
           techo "WARNING: [$FUNCNAME] /System/Library/Perl/5.18/darwin-thread-multi-2level needs to be patched with bilder/extras/osxperl.patch."
         else
-          GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
+          GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"}
         fi
+        ;;
       Linux) GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
     esac
   fi
