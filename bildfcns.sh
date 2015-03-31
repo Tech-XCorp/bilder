@@ -1287,7 +1287,7 @@ getVersion() {
   local branch=
   local hash=
   if test "$repotype" == "SVN"; then
-    techo -2 "Getting version of $repodir  at `date +%F-%T`."
+    techo -2 "Getting version of $repodir at `date +%F-%T`."
     rev=`bilderSvnversion $lastChangedArg`
 
 # svnversion -c is likely to return a complex version such as 1535:2091 and
