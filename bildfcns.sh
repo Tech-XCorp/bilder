@@ -5636,13 +5636,19 @@ bilderRunTests() {
     $cmd
     res=$?
     # techo "waitAction returned $res."
+    # DWS: Don't understand how $res ($?) could ever be empty.
+    # DWS: How could something not be built here other than if
+    # it failed to configure (in which case waitAction returns
+    # a 99). Added "(or failed to configure)" to handle case
+    # where no builds configure and we were previously trying
+    # to run tests.
     if test -z "$res" -o "$res" = 99; then
-      techo "$pkgname-$bld not built."
-      # if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo "Continuing."
+      if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo "$pkgname-$bld build skipped due to '-i $bld'"
         continue
-      # fi
-      # tbFailures="$tbFailures $bld"
+      fi
+      techo "$pkgname-$bld failed to configure."
+      tbFailures="$tbFailures $bld"
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
       tbFailures="$tbFailures $bld"
@@ -5656,6 +5662,8 @@ bilderRunTests() {
       untestedBuildReason="it has no per-build tests"
     elif ! $testingval; then
       untestedBuildReason="testing is turned off"
+    elif echo $tbFailures | grep -w $bld; then
+      untestedBuildReason="$bld failed to configure/build"
     fi
 
     if test -n "$untestedBuildReason"; then
@@ -5800,7 +5808,7 @@ EOF
   fi
 
   if test -n "$tbFailures"; then
-    techo "Not running $pkgname tests. One or more tested builds '$tbFailures' not built."
+    techo "Not calling build$2 for $pkgname because one or more tested builds ($tbFailures) not built."
     return
   fi
   if test ! $testingval; then
