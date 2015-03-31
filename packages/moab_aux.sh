@@ -23,16 +23,14 @@ setMoabTriggerVars() {
   MOAB_UPSTREAM_BRANCH=master
   if test -z "$MOAB_DESIRED_BUILDS"; then
 # Static serial and parallel builds needed for ulixes,
+    MOAB_DESIRED_BUILDS=ser,par
 # Python shared build needed for composers
-# Python shared build for dagmc
-    MOAB_DESIRED_BUILDS=ser,sersh,par
+# Python shared build needed for dagmc
+    if ! [[ `uname` =~ CYGWIN ]]; then
+      MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
+    fi
   fi
   computeBuilds moab
-  if ! [[ `uname` =~ CYGWIN ]]; then
-# Neither pycst nor pycsh working on Windows
-    addPycstBuild moab
-    addPycshBuild moab
-  fi
   MOAB_DEPS=autotools,cgm,netcdf
   if [[ $MOAB_BUILDS =~ par ]]; then
     MOAB_DEPS=$MOAB_DEPS,trilinos

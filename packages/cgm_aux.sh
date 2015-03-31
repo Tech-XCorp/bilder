@@ -21,6 +21,16 @@ setCgmTriggerVars() {
   CGM_REPO_BRANCH_EXP=master
   CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
   CGM_UPSTREAM_BRANCH=master
+  if test -z "$CGM_DESIRED_BUILDS"; then
+# Static serial and parallel builds needed for ulixes,
+    CGM_DESIRED_BUILDS=ser
+# Python shared build needed for composers
+# Python shared build needed for dagmc
+    if ! [[ `uname` =~ CYGWIN ]]; then
+      CGM_DESIRED_BUILDS=${CGM_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
+    fi
+  fi
+  computeBuilds moab
 # FORPYTHON_STATIC_BUILD: Composers
 # FORPYTHON_SHARED_BUILD: Dagsolid
 # Neither pycst nor pycsh working on Windows
