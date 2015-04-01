@@ -2,6 +2,9 @@
 #
 # Trigger vars and find information
 #
+# Using qt3d-1.0 now, but if we need to change:
+# http://qt-project.org/wiki/Using_3D_engines_with_Qt
+#
 # $Id$
 #
 ######################################################################
