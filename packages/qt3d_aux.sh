@@ -20,14 +20,22 @@
 
 setQt3dTriggerVars() {
   if test -d qt3d; then
-    isgitorious=`(cd qt3d; git remote -v | grep gitorious)`
+    local isgitorious=`(cd qt3d; git remote -v | grep gitorious)`
+    local goodrepo=true
     if test -n "$isgitorious"; then
-      techo "WARNING: [$FUNCNAME] Official repo moved from gitorius to qt.io."
-      techo "WARNING: [$FUNCNAME] If https://code.qt.io/git/qt/qt3d.git works, move this repo aside."
-      # mv qt3d qt3d-gitorious
+      goodrepo=false
+    fi
+    local isqtio=`(cd qt3d; git remote -v | grep code.qt.io)`
+    if test -n "$isqtio"; then
+      goodrepo=false
+    fi
+    if ! $goodrepo; then
+      techo "WARNING: [$FUNCNAME] Qt3D repos absent from gitorius and qt.io."
+      techo "WARNING: [$FUNCNAME] Using https://github.com/Tech-XCorp/qt3d.git."
+      mv qt3d qt3d-bad
     fi
   fi
-  QT3D_REPO_URL=https://code.qt.io/git/qt/qt3d.git
+  QT3D_REPO_URL=https://github.com/Tech-XCorp/qt3d.git
   QT3D_REPO_BRANCH_STD=qt4
   QT3D_REPO_BRANCH_EXP=qt4
   QT3D_UPSTREAM_URL=https://code.qt.io/git/qt/qt3d.git
