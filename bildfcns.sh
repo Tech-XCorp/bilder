@@ -3575,8 +3575,12 @@ updateRepo() {
     if test -d $pkg; then rm -rf $pkg.sav; mv $pkg $pkg.sav; fi
     cmd="$scmexec clone $pkgurl $pkg"
     techo "$cmd"
-    $cmd
-    cd $pkg
+    if $cmd; then
+      cd $pkg
+    else
+      techo "ERROR: [$FUNCNAME] '$cmd' failed."
+      terminate
+    fi
   fi
 
 # Make sure on tag
@@ -3586,14 +3590,25 @@ updateRepo() {
   esac
   techo "$cmd"
   eval "$cmd"
+  if ! eval "$cmd"; then
+    techo "WARNING: [$FUNCNAME] '$cmd' failed."
+  fi
 
 # Determine whether changesets are available
   upurlvar=`genbashvar $pkg`_UPSTREAM_URL
   upurlval=`deref $upurlvar`
   if test -n "$upurlval"; then
     case $scmexec in
-      hg) hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>bilder_chgsets;;
-      git) git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets;;
+      hg)
+        if ! hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>bilder_chgsets; then
+          techo "WARNING: [$FUNCNAME] 'hg incoming $CARVE_UPSTREAM_URL' failed."
+        fi
+        ;;
+      git)
+        if ! git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets; then
+          techo "WARNING: [$FUNCNAME] 'git fetch && git log ..origin/$branchval' failed."
+        fi
+        ;;
     esac
     if test -s bilder_chgsets; then
       techo "WARNING: [$FUNCNAME] Changesets available for $pkg from $upurlval:"
