@@ -22,8 +22,9 @@ setQt3dTriggerVars() {
   if test -d qt3d; then
     isgitorious=`(cd qt3d; git remote -v | grep gitorious)`
     if test -n "$isgitorious"; then
-      techo "WARNING: [$FUNCNAME] Official repo moved from gitorius to qt.io.  Moving qt3d directory to qt3d-gitorious and getting qt3d using https from code.qt.io."
-      mv qt3d qt3d-gitorious
+      techo "WARNING: [$FUNCNAME] Official repo moved from gitorius to qt.io."
+      techo "WARNING: [$FUNCNAME] If https://code.qt.io/git/qt/qt3d.git works, move this repo aside."
+      # mv qt3d qt3d-gitorious
     fi
   fi
   QT3D_REPO_URL=https://code.qt.io/git/qt/qt3d.git
