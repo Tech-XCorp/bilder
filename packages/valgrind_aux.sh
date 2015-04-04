@@ -19,7 +19,7 @@ setValgrindTriggerVars() {
   case `uname` in
     Darwin)
       if ! test -d /usr/include/mach; then
-        techo "WARNING: [$FUNCNAME] Install command line tools per http://sourceforge.net/p/bilder/wiki/Preparing\%20a\%20Darwin\%20machine\%20for\%20Bilder/."
+        techo "WARNING: [$FUNCNAME] Install command line tools per "'http://sourceforge.net/p/bilder/wiki/Preparing\%20a\%20Darwin\%20machine\%20for\%20Bilder'"/."
       fi
       VALGRIND_BLDRVERSION_STD=3.10.1
       VALGRIND_BLDRVERSION_EXP=3.10.1
