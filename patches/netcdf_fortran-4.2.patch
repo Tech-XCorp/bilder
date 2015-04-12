@@ -1,6 +1,6 @@
-diff -ruN netcdf-fortran-4.2/configure netcdf-fortran-4.2-new/configure
---- netcdf-fortran-4.2/configure	2011-10-03 08:10:43.000000000 -0600
-+++ netcdf-fortran-4.2-new/configure	2015-04-12 13:57:29.000000000 -0600
+diff -ruN netcdf_fortran-4.2/configure netcdf_fortran-4.2-new/configure
+--- netcdf_fortran-4.2/configure	2011-10-03 08:10:43.000000000 -0600
++++ netcdf_fortran-4.2-new/configure	2015-04-12 14:09:03.000000000 -0600
 @@ -17356,7 +17356,7 @@
  $as_echo "#define pgiFortran 1" >>confdefs.h
  
@@ -10,9 +10,9 @@ diff -ruN netcdf-fortran-4.2/configure netcdf-fortran-4.2-new/configure
               if (gfortran --version | grep '(GCC 4.1.' || gfortran --version | grep '(GCC 4.0.'); then
  
  $as_echo "#define gFortran 1" >>confdefs.h
-diff -ruN netcdf-fortran-4.2/configure.ac netcdf-fortran-4.2-new/configure.ac
---- netcdf-fortran-4.2/configure.ac	2011-10-03 08:10:14.000000000 -0600
-+++ netcdf-fortran-4.2-new/configure.ac	2015-04-12 13:57:20.000000000 -0600
+diff -ruN netcdf_fortran-4.2/configure.ac netcdf_fortran-4.2-new/configure.ac
+--- netcdf_fortran-4.2/configure.ac	2011-10-03 08:10:14.000000000 -0600
++++ netcdf_fortran-4.2-new/configure.ac	2015-04-12 14:09:10.000000000 -0600
 @@ -231,7 +231,7 @@
           pgf95|pgf90|pgf77|ifort*|lf90|lf95)
              AC_DEFINE(pgiFortran, [1], [Turned on by netCDF configure.])
