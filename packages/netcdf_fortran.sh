@@ -60,16 +60,16 @@ buildNetcdf_fortran() {
   test -n "$MPIFC" && NETCDF_FORTRAN_PAR_ADDL_ARGS="FC=$MPIFC ${NETCDF_FORTRAN_PAR_ADDL_ARGS}"
 
 # Serial build
-  if bilderConfig netcdf_fortran ser "--prefix=${NETCDF_SER_DIR} --disable-shared --enable-static $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_FORTRAN_SER_ADDL_ARGS $NETCDF_FORTRAN_SER_OTHER_ARGS"; then
+  if bilderConfig netcdf_fortran ser "-p ${NETCDF_SER_DIR} --disable-shared --enable-static $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_FORTRAN_SER_ADDL_ARGS $NETCDF_FORTRAN_SER_OTHER_ARGS"; then
     bilderBuild netcdf_fortran ser
   fi
 
-  if bilderConfig netcdf_fortran sersh "--prefix=${NETCDF_SERSH_DIR} --disable-shared --enable-static $CONFIG_COMPILERS_SERSH $CONFIG_COMPFLAGS_SERSH $MINGW_RC_COMPILER_FLAG $NETCDF_FORTRAN_SERSH_ADDL_ARGS $NETCDF_FORTRAN_SERSHOTHER_ARGS"; then
+  if bilderConfig netcdf_fortran sersh "-p ${NETCDF_SERSH_DIR} --disable-shared --enable-static $CONFIG_COMPILERS_SERSH $CONFIG_COMPFLAGS_SERSH $MINGW_RC_COMPILER_FLAG $NETCDF_FORTRAN_SERSH_ADDL_ARGS $NETCDF_FORTRAN_SERSHOTHER_ARGS"; then
     bilderBuild netcdf_fortran sersh
   fi
 
 # Parallel build
-  if bilderConfig netcdf_fortran par "--prefix=${NETCDF_PAR_DIR} --disable-shared --enable-static $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $MINGW_RC_COMPILER_FLAG $NETCDF_FORTRAN_PAR_ADDL_ARGS $NETCDF_FORTRAN_PAR_OTHER_ARGS"; then
+  if bilderConfig netcdf_fortran par "-p ${NETCDF_PAR_DIR} --disable-shared --enable-static $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $MINGW_RC_COMPILER_FLAG $NETCDF_FORTRAN_PAR_ADDL_ARGS $NETCDF_FORTRAN_PAR_OTHER_ARGS"; then
     bilderBuild netcdf_fortran par
   fi
 
