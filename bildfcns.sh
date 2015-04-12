@@ -6571,6 +6571,7 @@ EOF
           techo -2 "installerbase = $installerbase."
           local ending=
           local OS=`uname`
+          local sfx=
           case $OS in
             CYGWIN*)
               if $IS_64BIT; then
@@ -6579,10 +6580,15 @@ EOF
                 endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip"
               fi
               ;;
-            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
-            Linux) endings="-Linux64.tar.gz -Linux64-glibc${GLIBC_VERSION}.tar.gz -Linux32.tar.gz -Linux32-glibc${GLIBC_VERSION}.tar.gz";;
+            Darwin)
+              endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz"
+              sfx=dmg
+              ;;
+            Linux)
+              endings="-Linux64.tar.gz -Linux64-glibc${GLIBC_VERSION}.tar.gz -Linux32.tar.gz -Linux32-glibc${GLIBC_VERSION}.tar.gz"
+              sfx=tar.gz
+              ;;
           esac
-          local sfx=
           for ending in $endings; do
             techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
             installer=`(shopt -s nocaseglob; \ls ${installerbase}-*${ending} 2>/dev/null)`
@@ -6591,8 +6597,8 @@ EOF
               installer=`(shopt -s nocaseglob; \ls ${installerbase}*${ending} 2>/dev/null)`
             fi
             if test -n "$installer"; then
-              sfx=`echo $ending | sed 's/^[^\.]*\.//'`
               techo "NOTE: [$FUNCNAME] Installer = '${installer}'"
+              sfx=${sfx:-"`echo $ending | sed 's/^[^\.]*\.//'`"}
               break
             fi
           done
