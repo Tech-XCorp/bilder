@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for pspline
+# Build information for pspline
 #
 # $Id$
 #
@@ -8,30 +8,31 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in pspline_aux.sh
 #
 ######################################################################
 
-PSPLINE_BLDRVERSION=${PSPLINE_BLDRVERSION:-"1.1.1-r67+1118"}
-# PSPLINE_BLDRVERSION=${PSPLINE_BLDRVERSION:-"2012-11-04"}
-
+mydir=`dirname $BASH_SOURCE`
+source $mydir/pspline_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-PSPLINE_BUILDS=${PSPLINE_BUILDS:-"ser,par"}
-addBenBuild pspline
-PSPLINE_DEPS=cmake,fciowrappers
+setPsplineNonTriggerVars() {
+  PSPLINE_MASK=002
+}
+setPsplineNonTriggerVars
 
 ######################################################################
 #
 # Launch pspline builds.
 #
 ######################################################################
-
 
 # Build pspline using cmake
 buildPsplineCM() {
@@ -97,9 +98,6 @@ testPspline() {
 ######################################################################
 
 installPspline() {
-  bilderInstall pspline ser pspline
-  bilderInstall pspline par pspline-par
-  bilderInstall pspline ben pspline-ben
-  # techo exit; exit
+  bilderInstallAll pspline
 }
 

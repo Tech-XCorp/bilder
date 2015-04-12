@@ -60,8 +60,8 @@ buildPlasma_state() {
     esac
 
 # Use compiler wrappers for actual make
-# Looks like this was for building on LCFs but as of Mar 29 2014 the compiler 
-# wrappers no longer exist (?) Pletzer. 
+# Looks like this was for building on LCFs but as of Mar 29 2014 the compiler
+# wrappers no longer exist (?) Pletzer.
     local PS_MAKE_COMPILERS_SER=""
     if test -f '\$abs_top_builddir)/txutils/cc'; then
        PS_MAKE_COMPILERS_SER="CC='\$(abs_top_builddir)/txutils/cc'"
@@ -77,14 +77,14 @@ buildPlasma_state() {
     fi
 
     local PS_MAKE_COMPILERS_BEN="CC='\$(abs_top_builddir)/txutils/cc' CXX='\$(abs_top_builddir)/txutils/cxx' FC='\$(abs_top_builddir)/txutils/f90' F77='\$(abs_top_builddir)/txutils/f77'"
-    
+
     if [ -z "$MDSPLUS_LIBDIR" ]; then
       PLASMA_STATE_MDS="--disable-mdsplus"
-    else  
+    else
       PLASMA_STATE_MDS="--with-mdsplus-libdir=$MDSPLUS_LIBDIR"
     fi
-    
-    case `uname` in 
+
+    case `uname` in
      Linux)
       PLASMA_STATE_EXTRA_LIBS="LIBS=-ldl"
     esac
