@@ -2,6 +2,8 @@
 #
 # Version and find information for netcdf_fortran
 #
+# Repacked netcdf-fortran as netcdf_fortran for version issues.
+#
 # $Id$
 #
 ######################################################################
