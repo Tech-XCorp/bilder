@@ -26,7 +26,7 @@ getNetcdf_fortranVersion
 findNetcdf_fortran() {
 
 # Find installation directories
-  findContribPackage Netcdf-fortran netcdff ser sersh par
+  findContribPackage Netcdf_fortran netcdff ser sersh par
   local builds="ser sersh pycsh"
   # if [[ `uname` =~ CYGWIN ]]; then
     # findContribPackage Netcdf_fortran netcdf_fortran sermd
