@@ -56,7 +56,8 @@ buildPlasma_state() {
         PS_COMPFLAGS_PAR="$CONFIG_COMPFLAGS_PAR --with-optimization=minimal"
         ;;
       *)
-        PS_COMPFLAGS_SER="$CONFIG_COMPFLAGS_SER"
+        PS_COMPFLAGS_SER="$CFLAGS='$CFLAGS -Wno-return-type' $CXXFLAGS='$CXXFLAGS -Wno-return-type' FCFLAGS='$FCFLAGS -fno-range-check'"
+        PS_COMPFLAGS_SER="$CFLAGS='$MPI_CFLAGS -Wno-return-type' $CXXFLAGS='$MPI_CXXFLAGS -Wno-return-type' FCFLAGS='$MPI_FCFLAGS -fno-range-check'"
         PS_COMPFLAGS_PAR="$CONFIG_COMPFLAGS_PAR"
         ;;
     esac
