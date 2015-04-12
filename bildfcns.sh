@@ -1389,25 +1389,6 @@ isPatched() {
   done
   shift $(($OPTIND - 1))
 
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -i)
-        instdir="$2"
-        shift
-        ;;
-      -s)
-        instsubdir="$2"
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-    shift
-  done
-fi
-
   local installation=$1
 
 # Determine subdir (actually link) from installation
@@ -1519,13 +1500,15 @@ isInstalled() {
 
 # Determine installation directory
   local instdirs=
+  local instsubdir=
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "i:I:" arg; do
+  while getopts "i:I:s:" arg; do
     case $arg in
       i) instdirs="$OPTARG";;
       I) instdirs="$OPTARG";;
+      s) instsubdir="$OPTARG";;
     esac
   done
   shift $(($OPTIND - 1))
@@ -1539,6 +1522,7 @@ isInstalled() {
       if test -n "$hasit"; then
 # Look for patch up to date
         local args="-i $idir"
+        test -n "$instsubdir" && args="$args -s $instsubdir"
         if ! isPatched $args $installation; then
           return 1
         fi
@@ -1642,21 +1626,6 @@ areAllInstalled() {
     esac
   done
   shift $(($OPTIND - 1))
-
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -i)
-        instdir=$2
-        shift
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-  done
-fi
 
 # If no builds, just check short name
   if test -z "$2"; then
