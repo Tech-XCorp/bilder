@@ -6611,7 +6611,7 @@ EOF
               fi
               ;;
             Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
-            Linux) endings="-Linux64.tar.gz -Linux64-gpu.tar.gz -Linux32.tar.gz";;
+            Linux) endings="-Linux64.tar.gz -Linux64-glibc${GLIBC_VERSION}.tar.gz -Linux32.tar.gz -Linux32-glibc${GLIBC_VERSION}.tar.gz";;
           esac
           local sfx=
           for ending in $endings; do
