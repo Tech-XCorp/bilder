@@ -5078,8 +5078,9 @@ _
        ;;
     *)
        cat <<_ >> $buildscript
-echo $bildermake $buildargs
-$bildermake $buildargs
+cmd="$bildermake $buildargs"
+echo "\$cmd"
+\$cmd
 res=\$?
 _
        ;;
