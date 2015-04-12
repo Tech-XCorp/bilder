@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for Plasma_state
+# Build information for Plasma_state
 #
 # $Id$
 #
@@ -8,23 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in plasma_state_aux.sh
 #
 ######################################################################
 
-PLASMA_STATE_BLDRVERSION=${PLASMA_STATE_BLDRVERSION:-"2.7.0-r214"}
-PLASMA_STATE_TAR_BLDRVERSION=${PLASMA_STATE_TAR_BLDRVERSION:-"1.0.2"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/plasma_state_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-"ser"}
-addBenBuild plasma_state
-PLASMA_STATE_DEPS=pspline,netlib_lite,netcdf,hdf5
-PLASMA_STATE_UMASK=002
+setPlasma_stateNonTriggerVars() {
+  PLASMA_STATE_MASK=002
+}
+setPlasma_stateNonTriggerVars
 
 ######################################################################
 #
