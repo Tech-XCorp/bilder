@@ -44,7 +44,7 @@ buildM4() {
   if ! bilderUnpack m4; then
     return
   fi
-  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION m4 ser; then
+  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION m4 ser "CFLAGS='$CFLAGS -fgnu89-inline'"; then
     bilderBuild -m make m4 ser
   fi
 }
