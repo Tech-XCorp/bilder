@@ -18,10 +18,10 @@
 setMpichTriggerVars() {
   MPICH_BLDRVERSION_STD=3.0.4
   MPICH_BLDRVERSION_EXP=3.1.2
-  MPICH_DEPS=libtool,automake
-  if [[ "$USE_MPI" =~ mpich ]]  && ! [[ `uname` =~ CYGWIN ]]; then
+  if $BUILD_MPIS && test -z "$MPICH_BUILDS" && [[ $USE_MPI =~ mpich ]]; then
     MPICH_BUILDS=static,shared
   fi
+  MPICH_DEPS=libtool,automake
 }
 setMpichTriggerVars
 

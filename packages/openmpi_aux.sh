@@ -18,13 +18,11 @@
 setOpenmpiTriggerVars() {
   OPENMPI_BLDRVERSION_STD=1.6.5
   OPENMPI_BLDRVERSION_EXP=1.8.4
-  if test -z "$OPENMPI_BUILDS"; then
-    if $BUILD_MPIS; then
-      case `uname` in
-        CYGWIN*) OPENMPI_BUILDS=nodl;;
-        *) OPENMPI_BUILDS=nodl,static,shared;;
-      esac
-    fi
+  if $BUILD_MPIS && test -z "$OPENMPI_BUILDS" && [[ $USE_MPI =~ openmpi ]]; then
+    case `uname` in
+      CYGWIN*) OPENMPI_BUILDS=nodl;;
+      *) OPENMPI_BUILDS=nodl,static,shared;;
+    esac
   fi
   OPENMPI_DEPS=valgrind,libtool,automake
 }

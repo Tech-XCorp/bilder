@@ -111,7 +111,7 @@ setBilderDirsVars() {
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    if test -n "$CONTRIB_DIR"; then
+    if test -d "$CONTRIB_DIR"; then
       CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
     fi
     # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
@@ -145,7 +145,7 @@ setBilderDirsVars() {
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
-    if test -n "$BLDR_INSTALL_DIR"; then
+    if test -d "$BLDR_INSTALL_DIR"; then
       BLDR_INSTALL_DIR=`(cd $BLDR_INSTALL_DIR; pwd -P)`
     fi
     # echo "After COMMON_CONTRIB, BLDR_INSTALL_DIR = $BLDR_INSTALL_DIR"
