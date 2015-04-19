@@ -905,13 +905,19 @@ addtopathvar() {
   local bpvar=BILDER_$1
   local bpval=`deref $bpvar | sed "s?$addpath??g"`
   if test "$3" = "after"; then
-    eval $1="'${pathval}${sep}${addpath}'"
-    eval BILDER_ADDED_${1}="'${bildersaveval}${sep}${addpath}'"
-    eval $bpvar="'${bpval}${sep}${addpath}'"
+# Add after if not already at end
+    if ! [[ "${pathval}" =~ "${addpath}$" ]]; then
+      eval $1="'${pathval}${sep}${addpath}'"
+      eval BILDER_ADDED_${1}="'${bildersaveval}${sep}${addpath}'"
+      eval $bpvar="'${bpval}${sep}${addpath}'"
+    fi
   else
-    eval $1="'${addpath}${sep}${pathval}'"
-    eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
-    eval $bpvar="'${addpath}${sep}${bpval}'"
+# Add before if not already at beginning
+    if ! [[ "${pathval}" =~ "^${addpath}$" ]]; then
+      eval $1="'${addpath}${sep}${pathval}'"
+      eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
+      eval $bpvar="'${addpath}${sep}${bpval}'"
+    fi
   fi
   eval trimvar $1 "'${sep}'"
   eval trimvar BILDER_ADDED_${1} "'${sep}'"
