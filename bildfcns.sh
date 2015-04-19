@@ -2206,13 +2206,13 @@ setDistutilsEnv() {
 # will have to assemble what they need.
 # DISTUTILS_ENV defines the compiler and flags separately.
 # DISTUTILS_ENV2 defines the compiler and flags together, so the flags
-#  can be added by each package.
+# can be added by each package.
 
   unset DISTUTILS_ENV
   unset DISTUTILS_ENV2
   case `uname` in
     CYGWIN*)
-      DISTUTILS_ENV="$ENV_VS PYTHONPATH='$PYTHONPATH'"
+      DISTUTILS_ENV="$ENV_VS"
       ;;
     *)
       for i in CC CXX F77 FC; do
@@ -2251,15 +2251,19 @@ setDistutilsEnv() {
     fi
   fi
 
-# Finish up
+# Add in pythonpath, so that unambiguous when rerunning the build script
+  DISTUTILS_ENV="$DISTUTILS_ENV PYTHOPATH='$PYTHONPATH'"
+  DISTUTILS_ENV2="$DISTUTILS_ENV2 PYTHOPATH='$PYTHONPATH'"
+# Combine vars
   DISTUTILS_NOLV_ENV="$DISTUTILS_ENV"
-  # DISTUTILS_ENV="$DISTUTILS_ENV $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV="$DISTUTILS_ENV $LDVARS_ENV"
-  # DISTUTILS_ENV2="$DISTUTILS_ENV2 $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV2="$DISTUTILS_ENV2 $LDVARS_ENV"
-  trimvar DISTUTILS_ENV ' '
-  trimvar DISTUTILS_NOLV_ENV ' '
-  trimvar DISTUTILS_ENV2 ' '
+
+  pyenvvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_PYCSH_ENV"
+  for i in $pyenvvars; do
+    trimvar $i ' '
+    printvar $i
+  done
 
 }
 
@@ -3109,8 +3113,11 @@ findBlasLapack() {
   done
   trimvar LINLIB_PYCSH_ENV ' '
   techo "LINLIB_PYCSH_ENV = $LINLIB_PYCSH_ENV."
+
+#
+# Set distutils env now that LINLIB_PYCSH_ENV is known
+#
   setDistutilsEnv
-  # techo "Quitting after setDistutilsEnv."; exit
 
 }
 

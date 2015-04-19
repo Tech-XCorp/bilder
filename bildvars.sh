@@ -749,7 +749,6 @@ source $BILDER_DIR/mkvars.sh
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
 compvars="USE_MPI MPI_BUILD CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
-envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS"
 testvars="BILDER_CTEST_MODEL"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
@@ -759,7 +758,7 @@ othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD
 
 techo ""
 techo "Environment settings:"
-completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars BILDER_CHAIN $allvars $linalgargs $compvars $flagvars $envvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
+completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars BILDER_CHAIN $allvars $linalgargs $compvars $flagvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
   trimvar $i ' '
   printvar $i

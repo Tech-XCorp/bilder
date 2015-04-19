@@ -163,6 +163,11 @@ if ! $NO_PYTHON; then
   export PYTHONPATH
 fi
 
+#
+# Set distutils env now that PYTHONPATH is known
+#
+setDistutilsEnv
+
 ######################################################################
 #
 # If fortran is gfortran4, create a link to gfortran in the bilder
