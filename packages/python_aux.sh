@@ -47,8 +47,8 @@ setPythonTriggerVars
 ######################################################################
 
 findPython() {
-  source $BILDER_DIR/bilderpy.sh
   addtopathvar PATH $CONTRIB_DIR/python/bin
+  source $BILDER_DIR/bilderpy.sh
   if test `uname` = Linux; then
     addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
   fi
