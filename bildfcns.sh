@@ -2206,6 +2206,7 @@ getPkgRepos() {
 #
 setDistutilsEnv() {
 
+# For Linux/OS X:
 # For some distutils packages, the flags should be with the compiler,
 # so as not to overwrite the package flags.  This apparently varies,
 # so here we set them separately, and packages that need them together
@@ -2213,12 +2214,14 @@ setDistutilsEnv() {
 # DISTUTILS_ENV defines the compiler and flags separately.
 # DISTUTILS_ENV2 defines the compiler and flags together, so the flags
 # can be added by each package.
+# For Windows, these are the same
 
   unset DISTUTILS_ENV
   unset DISTUTILS_ENV2
   case `uname` in
     CYGWIN*)
       DISTUTILS_ENV="$ENV_VS"
+      DISTUTILS_ENV2="$ENV_VS"
       ;;
     *)
       for i in CC CXX F77 FC; do
@@ -2258,8 +2261,8 @@ setDistutilsEnv() {
   fi
 
 # Add in pythonpath, so that unambiguous when rerunning the build script
-  DISTUTILS_ENV="$DISTUTILS_ENV PYTHOPATH='$PYTHONPATH'"
-  DISTUTILS_ENV2="$DISTUTILS_ENV2 PYTHOPATH='$PYTHONPATH'"
+  DISTUTILS_ENV="$DISTUTILS_ENV PYTHONPATH='$PYTHONPATH'"
+  DISTUTILS_ENV2="$DISTUTILS_ENV2 PYTHONPATH='$PYTHONPATH'"
 # Combine vars
   DISTUTILS_NOLV_ENV="$DISTUTILS_ENV"
   DISTUTILS_ENV="$DISTUTILS_ENV $LDVARS_ENV"
