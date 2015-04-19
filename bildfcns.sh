@@ -2212,7 +2212,7 @@ setDistutilsEnv() {
   unset DISTUTILS_ENV2
   case `uname` in
     CYGWIN*)
-      DISTUTILS_ENV="$ENV_VS9"
+      DISTUTILS_ENV="$ENV_VS PYTHONPATH='$PYTHONPATH'"
       ;;
     *)
       for i in CC CXX F77 FC; do

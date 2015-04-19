@@ -257,6 +257,13 @@ setVsVars() {
   export INCLUDE="`deref INCLUDE_VS$1`"
   export LIB="`deref LIB_VS$1`"
   export LIBPATH="`deref LIBPATH_VS$1`"
+  case $1 in
+    9 | 1[01]) export ENV_VS="`deref ENV_VS$1`" ;;
+    12) export ENV_VS="`deref ENV_VS$1`" ;;
+    *)
+      $TECHO "ERROR: [$FUNCNAME] ENV not known for Visual Studio $1."
+      ;;
+  esac
   $TECHO "setVsVars... after PATH = $PATH"
   $TECHO "setVsVars... INCLUDE = $INCLUDE"
   $TECHO "setVsVars... LIB = $LIB"
