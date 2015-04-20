@@ -5065,7 +5065,7 @@ _
        cat <<_ >> $buildscript
 cmd="$bildermake $buildargs"
 echo "\$cmd"
-\$cmd
+eval \$cmd
 res=\$?
 _
        ;;
