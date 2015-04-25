@@ -31,7 +31,8 @@ setGraphvizTriggerVars() {
       Linux) GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
     esac
   fi
-  GRAPHVIZ_DEPS=libgd,python,autotools
+# pkgconfig is needed to get pkg.m4, which is needed upon autoreconf.
+  GRAPHVIZ_DEPS=libgd,python,pkgconfig,autotools
 }
 setGraphvizTriggerVars
 
