@@ -35,10 +35,6 @@ setPkgconfigNonTriggerVars
 ######################################################################
 
 buildPkgconfig() {
-# If executable not found, under prefix, needs installing
-  if ! test -x $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin/pkgconfig; then
-    $BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR pkgconfig,ser
-  fi
 # Build
   if ! bilderUnpack pkgconfig; then
     return
@@ -66,7 +62,7 @@ testPkgconfig() {
 
 installPkgconfig() {
 # pkgconfig installation dies if this is present, as it will not replace it.
-  rm -f $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin/x86_64-unknown-linux-gnu-pkg-config
+  (cd $CONTRIB_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin; rm -f *-pkg-config)
   bilderInstall -m make pkgconfig ser autotools
 }
 
