@@ -32,7 +32,7 @@ setGraphvizTriggerVars() {
     esac
   fi
 # pkgconfig is needed to get pkg.m4, which is needed upon autoreconf.
-  GRAPHVIZ_DEPS=libgd,python,pkgconfig,autotools
+  GRAPHVIZ_DEPS=libgd,Python,pkgconfig,autotools
 }
 setGraphvizTriggerVars
 

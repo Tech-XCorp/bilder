@@ -56,7 +56,7 @@ findLibgd() {
     findPycshDir Libgd
   fi
 
-  if test -n "$LIBGD_PYCSH_DIR" -a "$LIBGD_PYCSH_DIR" != /usr; then
+  if test -n "$LIBGD_PYCSH_DIR" -a "$LIBGD_PYCSH_DIR" != /usr -a "$LIBGD_PYCSH_DIR" != /; then
     addtopathvar PATH $LIBGD_PYCSH_DIR/bin
     if [[ `uname` =~ CYGWIN ]]; then
       LIBGD_PYCSH_DIR=`cygpath -am $LIBGD_PYCSH_DIR`

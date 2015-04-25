@@ -7968,7 +7968,6 @@ buildChain() {
     fi
     techo "Package: '$pkgfile'"
 
-
 # Look for commands and execute
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
