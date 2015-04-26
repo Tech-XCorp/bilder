@@ -18,7 +18,9 @@
 setPkgconfigTriggerVars() {
   PKGCONFIG_BLDRVERSION_STD=${PKGCONFIG_BLDRVERSION_STD:-"0.28"}
   PKGCONFIG_BLDRVERSION_EXP=${PKGCONFIG_BLDRVERSION_EXP:-"0.28"}
-  PKGCONFIG_BUILDS=${PKGCONFIG_BUILDS:-"ser"}
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    PKGCONFIG_BUILDS=${PKGCONFIG_BUILDS:-"ser"}
+  fi
   PKGCONFIG_DEPS=autoconf,m4,xz
   if test -z "$LIBTOOL_BLDRVERSION"; then
     source $BILDER_DIR/packages/libtool.sh
