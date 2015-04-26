@@ -1,27 +1,6 @@
-diff -ruN graphviz-2.38.0/cmd/Makefile.am graphviz-2.38.0-new/cmd/Makefile.am
---- graphviz-2.38.0/cmd/Makefile.am	2014-04-13 14:40:25.000000000 -0600
-+++ graphviz-2.38.0-new/cmd/Makefile.am	2015-04-18 12:10:10.000000000 -0600
-@@ -1,4 +1,4 @@
- # $Id$ $Revision$
- ## Process this file with automake to produce Makefile.in
- 
--SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle edgepaint
-+SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle
-diff -ruN graphviz-2.38.0/cmd/Makefile.in graphviz-2.38.0-new/cmd/Makefile.in
---- graphviz-2.38.0/cmd/Makefile.in	2014-04-13 14:41:50.000000000 -0600
-+++ graphviz-2.38.0-new/cmd/Makefile.in	2015-04-18 12:10:10.000000000 -0600
-@@ -480,7 +480,7 @@
- top_build_prefix = @top_build_prefix@
- top_builddir = @top_builddir@
- top_srcdir = @top_srcdir@
--SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle edgepaint
-+SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle
- all: all-recursive
- 
- .SUFFIXES:
 diff -ruN graphviz-2.38.0/cmd/edgepaint/Makefile.am graphviz-2.38.0-new/cmd/edgepaint/Makefile.am
 --- graphviz-2.38.0/cmd/edgepaint/Makefile.am	2014-04-13 14:40:25.000000000 -0600
-+++ graphviz-2.38.0-new/cmd/edgepaint/Makefile.am	2015-04-18 12:10:10.000000000 -0600
++++ graphviz-2.38.0-new/cmd/edgepaint/Makefile.am	2015-04-26 05:17:08.075647812 -0600
 @@ -5,6 +5,7 @@
  
  AM_CPPFLAGS = \
@@ -32,7 +11,7 @@ diff -ruN graphviz-2.38.0/cmd/edgepaint/Makefile.am graphviz-2.38.0-new/cmd/edge
  	-I$(top_srcdir)/lib/edgepaint \
 diff -ruN graphviz-2.38.0/cmd/edgepaint/Makefile.in graphviz-2.38.0-new/cmd/edgepaint/Makefile.in
 --- graphviz-2.38.0/cmd/edgepaint/Makefile.in	2014-04-13 14:41:51.000000000 -0600
-+++ graphviz-2.38.0-new/cmd/edgepaint/Makefile.in	2015-04-18 12:10:10.000000000 -0600
++++ graphviz-2.38.0-new/cmd/edgepaint/Makefile.in	2015-04-26 05:17:08.076647789 -0600
 @@ -521,6 +521,7 @@
  top_srcdir = @top_srcdir@
  AM_CPPFLAGS = \
@@ -41,25 +20,48 @@ diff -ruN graphviz-2.38.0/cmd/edgepaint/Makefile.in graphviz-2.38.0-new/cmd/edge
  	-I$(top_srcdir)/lib/sparse \
  	-I$(top_srcdir)/lib/sfdpgen \
  	-I$(top_srcdir)/lib/edgepaint \
+diff -ruN graphviz-2.38.0/cmd/Makefile.am graphviz-2.38.0-new/cmd/Makefile.am
+--- graphviz-2.38.0/cmd/Makefile.am	2014-04-13 14:40:25.000000000 -0600
++++ graphviz-2.38.0-new/cmd/Makefile.am	2015-04-26 05:17:08.074647834 -0600
+@@ -1,4 +1,4 @@
+ # $Id$ $Revision$
+ ## Process this file with automake to produce Makefile.in
+ 
+-SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle edgepaint
++SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle
+diff -ruN graphviz-2.38.0/cmd/Makefile.in graphviz-2.38.0-new/cmd/Makefile.in
+--- graphviz-2.38.0/cmd/Makefile.in	2014-04-13 14:41:50.000000000 -0600
++++ graphviz-2.38.0-new/cmd/Makefile.in	2015-04-26 05:17:08.075647812 -0600
+@@ -480,7 +480,7 @@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle edgepaint
++SUBDIRS = dot tools gvpr lefty lneato dotty smyrna gvmap gvedit mingle
+ all: all-recursive
+ 
+ .SUFFIXES:
 diff -ruN graphviz-2.38.0/configure graphviz-2.38.0-new/configure
 --- graphviz-2.38.0/configure	2014-04-13 14:41:48.000000000 -0600
-+++ graphviz-2.38.0-new/configure	2015-04-18 12:09:35.000000000 -0600
-@@ -27463,6 +27463,7 @@
++++ graphviz-2.38.0-new/configure	2015-04-26 05:20:02.075794826 -0600
+@@ -27463,6 +27463,8 @@
        if test -n "$GDLIB_CONFIG"; then
          GD_INCLUDES=`$GDLIB_CONFIG --includes`
          GD_LDFLAGS=`$GDLIB_CONFIG --ldflags | sed 's/-xarch=^ * //'`
-+        GD_LDFLAGS="$GD_LDFLAGS -L`$GDLIB_CONFIG --libdir`"
++        gdlibdirtmp=`$GDLIB_CONFIG --libdir`
++        test -n "$gdlibdirtmp" && GD_LDFLAGS="$GD_LDFLAGS -L$gdlibdirtmp"
          GD_LIBS=`$GDLIB_CONFIG --libs`
          GD_MAJORVERSION=`$GDLIB_CONFIG --majorversion`
          GD_MINORVERSION=`$GDLIB_CONFIG --minorversion`
 diff -ruN graphviz-2.38.0/configure.ac graphviz-2.38.0-new/configure.ac
 --- graphviz-2.38.0/configure.ac	2014-04-13 14:40:25.000000000 -0600
-+++ graphviz-2.38.0-new/configure.ac	2015-04-18 12:09:38.000000000 -0600
-@@ -2710,6 +2710,7 @@
++++ graphviz-2.38.0-new/configure.ac	2015-04-26 05:19:18.090768816 -0600
+@@ -2710,6 +2710,8 @@
        if test -n "$GDLIB_CONFIG"; then
          GD_INCLUDES=`$GDLIB_CONFIG --includes`
          GD_LDFLAGS=`$GDLIB_CONFIG --ldflags | sed 's/-xarch=[^ ]* //'`
-+        GD_LDFLAGS="$GD_LDFLAGS -L`$GDLIB_CONFIG --libdir`"
++        gdlibdirtmp=`$GDLIB_CONFIG --libdir`
++        test -n "$gdlibdirtmp" && GD_LDFLAGS="$GD_LDFLAGS -L$gdlibdirtmp"
          GD_LIBS=`$GDLIB_CONFIG --libs`
          GD_MAJORVERSION=`$GDLIB_CONFIG --majorversion`
          GD_MINORVERSION=`$GDLIB_CONFIG --minorversion`
