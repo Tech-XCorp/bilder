@@ -4833,7 +4833,10 @@ bilderConfig() {
     if test -n "$generator"; then
       configargs="$configargs -G '$generator'"
     fi
-    finalcmd="$configprefix '$configexec' $configargs $srcarg"
+    finalcmd="'$configexec' $configargs $srcarg"
+    if test -n "$configprefix"; then
+      finalcmd="$configprefix $finalcmd"
+    fi
   fi
 
 # Now add the environment variables
