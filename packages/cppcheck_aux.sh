@@ -18,9 +18,13 @@
 setCppcheckTriggerVars() {
   CPPCHECK_BLDRVERSION_STD=${CPPCHECK_BLDRVERSION_STD:-"1.68"}
   CPPCHECK_BLDRVERSION_EXP=${CPPCHECK_BLDRVERSION_EXP:-"1.68"}
-  if ! [[ `uname` =~ CYGWIN ]] && test -n "$GCC_MAJMIN"; then
-    if test $GCC_MAJOR -lt 4 -o $GCC_MAJOR = 4 -a $GCC_MINOR -lt 3; then
-      techo "WARNING: [$FUNCNAME] gcc version ($GCC_MAJMIN) insufficient to build cppcheck."
+  if ! [[ `uname` =~ CYGWIN ]]; then
+    if test -n "$GCC_MAJMIN"; then
+      if test $GCC_MAJOR -lt 4 -o $GCC_MAJOR = 4 -a $GCC_MINOR -lt 3; then
+        techo "WARNING: [$FUNCNAME] gcc version ($GCC_MAJMIN) insufficient to build cppcheck."
+      else
+        CPPCHECK_BUILDS=${CPPCHECK_BUILDS:-"ser"}
+      fi
     else
       CPPCHECK_BUILDS=${CPPCHECK_BUILDS:-"ser"}
     fi
