@@ -343,10 +343,10 @@ if test -z "$BILDER_CHAIN"; then
       case $ccbase in
         *mingw*)
           ccver=`$CC --version | sed -e 's/ 9.*$//'`
+          GCC_VERSION="$ccver"
           BILDER_CHAIN=MinGW
-          BILDER_CHAIN=${ccbase}${ccver}
           ;;
-        *icl.*)
+        *icl)
           BILDER_CHAIN=icl
           ;;
         *)
@@ -356,15 +356,15 @@ if test -z "$BILDER_CHAIN"; then
       esac
       ;;
     Darwin)
-      case $CC in
+      case $ccbase in
         clang)
           ccver=`clang --version | head -1 | sed -e 's/^.*clang-//' -e 's/).*$//'`
           ;;
         gcc)
           ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+          GCC_VERSION="$ccver"
           ;;
       esac
-      BILDER_CHAIN=${ccbase}${ccver}
       ;;
     Linux)
       case $ccbase in
@@ -374,11 +374,21 @@ if test -z "$BILDER_CHAIN"; then
         pgcc)
           BILDER_CHAIN=pgi
           ;;
-        *)
+        gcc)
           ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
-          BILDER_CHAIN=${ccbase}${ccver}
+          GCC_VERSION="$ccver"
           ;;
       esac
+      ;;
+  esac
+  case $ccbase in
+    clang | gcc | *mingw*)
+      if test -n "$GCC_VERSION"; then
+        GCC_MAJMIN=`echo $ccver | sed -e 's/\.[^\.]*$//'`
+        GCC_MAJOR=`echo $GCC_MAJMIN | sed -e 's/\.[^\.]*$//'`
+        GCC_MINOR=`echo $GCC_MAJMIN | sed -e 's/^[^\.]*\.//'`
+      fi
+      BILDER_CHAIN=${ccbase}${ccver}
       ;;
   esac
 fi
@@ -746,6 +756,7 @@ hostvars="USER BLDRHOSTID CPUINFO FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQ
 instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
+vervars="BILDER_CHAIN GCC_VERSION GCC_MAJMIN GCC_MAJOR GCC_MINOR SVN_BLDRVERSION BLDR_SVNVERSION"
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
 compvars="USE_MPI MPI_BUILD CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
@@ -754,11 +765,11 @@ testvars="BILDER_CTEST_MODEL"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="GLIBC_VERSION LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
-othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
+othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
 
 techo ""
 techo "Environment settings:"
-completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars BILDER_CHAIN $allvars $linalgargs $compvars $flagvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
+completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars $vervars $allvars $linalgargs $compvars $flagvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
   trimvar $i ' '
   printvar $i
