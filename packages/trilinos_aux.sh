@@ -65,9 +65,18 @@ findTrilinos() {
 
 getTriPackages() {
   local triPackages=$@
-  local triPkgArgs=""
+  local triPkgArgs=
   for pkg in $triPackages; do
     triPkgArgs="$triPkgArgs -DTrilinos_ENABLE_${pkg}:BOOL=ON"
+  done
+  echo $triPkgArgs
+}
+
+disableTriPackages() {
+  local triPackages=$@
+  local triPkgArgs=
+  for pkg in $triPackages; do
+    triPkgArgs="$triPkgArgs -DTrilinos_ENABLE_${pkg}:BOOL=OFF"
   done
   echo $triPkgArgs
 }

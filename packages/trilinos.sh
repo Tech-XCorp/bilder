@@ -162,6 +162,11 @@ buildTrilinos() {
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
+# Can't build Kokkos on Windows
+  case `uname` in
+     CYGWIN*) triCommonArgs="$triCommonArgs `disableTriPackages Kokkos`";;
+  esac
+
 # Potential external packages
   case `uname` in
      CYGWIN*)
