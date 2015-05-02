@@ -94,7 +94,5 @@ testMumps() {
 ######################################################################
 
 installMumps() {
-    for build in `echo $MUMPS_BUILDS | tr , " "`; do
-      bilderInstall -r mumps $build
-    done
+  bilderInstallAll mumps " -r"
 }
