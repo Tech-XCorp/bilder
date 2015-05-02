@@ -10,6 +10,7 @@ usage() {
 cat <<EOF
 Usage: $0 [options]
 Result sent to stdout
+  -D            Debug.  Leave temporary files around.
   -d <pkgdir> . comma-delimited list of directories containing package files.
                 Defaults to subdir, packages.
   -f <file> ... name of file to work from.
@@ -39,11 +40,13 @@ writevars() {
   done
 }
 
+debug=false
 pdirs=
 printglobals=true
 printkeep=true
-while getopts "d:f:GKh" arg; do
+while getopts "Dd:f:GKh" arg; do
   case "$arg" in
+    D) debug=true;;
     d) pdirs=$OPTARG;;
     f) sourcefile=$OPTARG;;
     h) usage; exit;;
@@ -51,6 +54,7 @@ while getopts "d:f:GKh" arg; do
     K) printkeep=false;;
   esac
 done
+sourcefile=${sourcefile:-"$1"}
 
 # All variables are defined below
 fccomps="HAVE_SER_FORTRAN HAVE_PAR_FORTRAN"
@@ -102,8 +106,8 @@ done
 # Source variables from the file
 if test -n "$sourcefile"; then
   if test -f $sourcefile; then
-    echo Sourcing $sourcefile >&2
-    sed  '/^# KEEP THIS$/,/^# END KEEP THIS$/d' <$sourcefile >tmp.sh
+    echo Sourcing $sourcefile keep section >&2
+    sed '/^# KEEP THIS$/,/^# END KEEP THIS$/d' <$sourcefile >tmp.sh
     source tmp.sh
     cp $sourcefile $sourcefile.bak
   else
@@ -131,6 +135,8 @@ cat <<END
 END
 
 # Grab the keep this section
+echo printkeep = $printkeep 1>&2
+echo sourcefile = $sourcefile 1>&2
 if $printkeep; then
   if test -n "$sourcefile"; then
     sed -n '/^# KEEP THIS$/,/^# END KEEP THIS$/p' <$sourcefile
@@ -363,6 +369,6 @@ for pkgdir in $pkgdirs; do
     fi
   done
   echo
-rm -f tmp.sh
+  $debug || rm -f tmp.sh
 done
 
