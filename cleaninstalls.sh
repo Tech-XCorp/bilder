@@ -260,21 +260,29 @@ EOF
           fi
           continue
           ;;
-        m4 | autoconf | automake | libtool)
+        m4 | autoconf | automake | libtool | pkgconfig)
           if test -z "$LIBTOOL_BLDRVERSION"; then
             source $bldrdir/packages/libtool.sh
           fi
-          bindir=$CLN_INSTALL_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin
-          if test -x $bindir/$pkglc; then
-            ver=`$bindir/$pkglc --version | head -1 | sed 's/^.* //'`
-            if [[ "$LINE" =~ $pkglc-$ver ]]; then
-              echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
-            else
-              echo "'$LINE'" does not match $pkglc-$ver
-            fi
-          else
-            echo "$pkglc not found."
-          fi
+          atdir=$CLN_INSTALL_DIR/autotools-lt-$LIBTOOL_BLDRVERSION
+          bindir=$atdir/bin
+          case $pkglc in
+            pkgconfig)
+              rm -rf $bindir/pkg-config $atdir/share/aclocal/pkg.m4
+              ;;
+            *)
+              if test -x $bindir/$pkglc; then
+                ver=`$bindir/$pkglc --version | head -1 | sed 's/^.* //'`
+                if [[ "$LINE" =~ $pkglc-$ver ]]; then
+                  echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+                else
+                  echo "'$LINE'" does not match $pkglc-$ver
+                fi
+              else
+                echo "$pkglc not found."
+              fi
+              ;;
+          esac
           continue
           ;;
         pyqt | qt3d | sip)
