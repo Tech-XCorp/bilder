@@ -37,6 +37,8 @@ case $UQMAILHOST in
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
+    SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
+    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
 
