@@ -139,6 +139,7 @@ buildBoost() {
       ;;
     Linux-*)
       toolsetarg_pycsh="toolset=gcc"
+      toolsetarg_pycst="toolset=gcc"
       case $CXX in
         *g++) ;;
         *icpc) toolsetarg_ser="toolset=intel";;
