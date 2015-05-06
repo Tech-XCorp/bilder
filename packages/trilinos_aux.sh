@@ -47,7 +47,13 @@ setTrilinosTriggerVars() {
   fi
   case `uname` in
      CYGWIN*) ;;
-     *) TRILINOS_DEPS="hypre,mumps,${TRILINOS_DEPS}";;
+     *)
+       if echo ${TRILINOS_DEPS} | grep -q "mumps" ; then
+         TRILINOS_DEPS="hypre,${TRILINOS_DEPS}"
+       else
+         TRILINOS_DEPS="hypre,mumps,${TRILINOS_DEPS}"
+       fi
+       ;;
   esac
 
 }
