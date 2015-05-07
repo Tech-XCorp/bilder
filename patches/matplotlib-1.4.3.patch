@@ -8,7 +8,7 @@ diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
 -            check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
 +            incdirs = get_include_dirs()
 +            for d in get_base_dirs():
-+              incdirs.append(os.path.join(d, 'include\\freetype2'))
++              incdirs.append(os.path.join(d, os.path.join('include','freetype2')))
 +            print_message("Potential incdirs are %s" %
 +              ', '.join(`x` for x in incdirs))
 +            check_include_file(incdirs, 'ft2build.h', 'freetype')
