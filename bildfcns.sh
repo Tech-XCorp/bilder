@@ -6507,7 +6507,7 @@ EOF
       local patchvar=`genbashvar $1`_PATCH
       local patchval=`deref $patchvar`
       if test -n "$patchval"; then
-        patchname=`basename $patchval`
+        local patchname=`basename $patchval`
         cmd="/usr/bin/install -m 664 $patchval $instdirval/$instsubdirval/$patchname"
         techo "$cmd"
         $cmd
@@ -7172,6 +7172,17 @@ EOF
 # Some python packages install executables
     setOpenPerms $CONTRIB_DIR/bin
     techo "Package $1 installed in $instdirval."
+
+# Install any patch
+    local patchvar=`genbashvar $1`_PATCH
+    local patchval=`deref $patchvar`
+    techo "Patch is '$patchval'."
+    if test -n "$patchval"; then
+      local patchname=`basename $patchval`
+      cmd="/usr/bin/install -m 664 $patchval $PYTHON_SITEPKGSDIR/$patchname"
+      techo "$cmd"
+      $cmd
+    fi
 
 # Rebuild time
     local starttimevar=`genbashvar $1`_START_TIME
