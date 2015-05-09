@@ -19,7 +19,7 @@
 # http://stackoverflow.com/questions/11972603/cmake-clang-and-cv11-on-os-x-10-8
 
 if ! which clang 1>/dev/null 2>&1; then
-  PATH="$PATH":/ProgramFilesX86/LLVM/bin
+  addtopathvar PATH /ProgramFilesX86/LLVM/bin
 fi
 if ! which clang 1>/dev/null 2>&1; then
   techo "Cannot find clang, quitting."
@@ -41,8 +41,8 @@ CXX=${CXX:-"clang++"}
 # F77=${F77:-""}
 
 # Python builds -- must use gcc for consistency.
-# PYC_CC=${PYC_CC:-""}
-# PYC_CXX=${PYC_CXX:-""}
+PYC_CC=${PYC_CC:-"cl"}
+PYC_CXX=${PYC_CXX:-"cl"}
 # PYC_FC=${PYC_FC:-""}
 # PYC_F77=${PYC_F77:-""}
 
@@ -53,8 +53,8 @@ CXX=${CXX:-"clang++"}
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-# MPICC=${MPICC:-""}
-# MPICXX=${MPICXX:-""}
+MPICC=${MPICC:-"clang"}
+MPICXX=${MPICXX:-"clang++"}
 # MPIFC=${MPIFC:-""}
 # MPIF77=${MPIF77:-""}
 
