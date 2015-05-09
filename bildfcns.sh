@@ -1571,7 +1571,7 @@ mkConfigScript() {
     echo >> $configscript
   fi
 # Prettify the configure script.  Darwin does not allow \n in substitutions,
-# so use mkConfigScript.sed, modified with package and version.
+# so use sed file, $sedfile, modified with package and version.
 # For lines containing a blank after an =, put quote after equals and at end.
 # Reduce successive quotes.
 # Remove (spuriously added) double quotes internal to single quotes
@@ -1583,7 +1583,7 @@ mkConfigScript() {
     sed -e "s/'\(.*\)\"\(.*\)'/'\1\2'/" |\
     sed -e '2,$s/^/  /' -e '1,$s/$/ \\/' -e '$s/ \\$//' >>$configscript
   chmod u+rx $configscript
-  if test $VERBOSITY -le 2; then
+  if test $VERBOSITY -lt 2; then
     rm -f $sedfile
   fi
 }
