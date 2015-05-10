@@ -9,6 +9,18 @@ diff -ruN trilinos-12.0.1/cmake/tribits/core/package_arch/TribitsCXX11Support.cm
         )
  
       ##
+diff -ruN trilinos-12.0.1/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake trilinos-12.0.1-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake
+--- trilinos-12.0.1/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-04-16 10:29:01.000000000 -0600
++++ trilinos-12.0.1-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-05-10 10:18:21.803030200 -0600
+@@ -1572,7 +1572,7 @@
+     ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE
+       -D_CRT_NONSTDC_NO_DEPRECATE  -D_SCL_SECURE_NO_WARNINGS)
+     INCLUDE_DIRECTORIES(
+-      ${${PROJECT_NAME}_TRIBITS_DIR}/common_tools/win_interface/include)
++      ${${PROJECT_NAME}_TRIBITS_DIR}/win_interface/include)
+   ENDIF()
+ 
+   IF (WIN32 AND NOT CYGWIN)
 diff -ruN trilinos-12.0.1/packages/amesos/CMakeLists.txt trilinos-12.0.1-new/packages/amesos/CMakeLists.txt
 --- trilinos-12.0.1/packages/amesos/CMakeLists.txt	2015-04-16 10:29:03.000000000 -0600
 +++ trilinos-12.0.1-new/packages/amesos/CMakeLists.txt	2015-05-10 07:29:09.494946000 -0600
