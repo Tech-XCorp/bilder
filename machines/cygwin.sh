@@ -286,11 +286,11 @@ else
   fi
   if test -n "$VISUALSTUDIO_VERSION"; then
     nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio ${VISUALSTUDIO_VERSION}.0/VC/BIN:"`
-      if test -z "$nopathvisstudio"; then
-        setVsVars ${VISUALSTUDIO_VERSION}
-      fi
+    if test -z "$nopathvisstudio"; then
+      setVsVars ${VISUALSTUDIO_VERSION}
+    fi
   else
-      $TECHO "WARNING: Visual Studio not found and not in path."
+    $TECHO "WARNING: Visual Studio not found and not in path."
   fi
 fi
 

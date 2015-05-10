@@ -122,10 +122,13 @@ getTriTPLs() {
 
     esac
     if test -n "$tplDir"; then
-      tplDir=`(cd $tplDir; pwd -P)`
-      argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
-      local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
-      tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
+      if cd $tplDir; then
+        tplDir=`pwd -P)`
+        argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
+        local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
+        tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
+        cd -
+      fi
     else
       techo "Not enabling $TPL as installation directory not found." 1>&2
     fi
@@ -168,6 +171,9 @@ buildTrilinos() {
   if test -n "$MIXED_PYTHON"; then
 # Needed to prevent use of python2.6 when both versions present
     TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DPYTHON_EXECUTABLE:FILEPATH=$MIXED_PYTHON"
+  fi
+  if [[ `uname` =~ CYGWIN ]] && test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
+    TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_CXX11_FLAGS=' '"
   fi
 
 # Determine Fortran flags, fortran-c interface, fortran extra link flags
