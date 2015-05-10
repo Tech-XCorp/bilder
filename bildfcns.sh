@@ -3102,12 +3102,12 @@ findBlasLapack() {
 
 # Print out results
   for BLD in SER SERSH PYCSH BEN; do
-    techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
-    techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
-    techo "CONFIG_LINLIB_${BLD}_ARGS = `deref CONFIG_LINLIB_${BLD}_ARGS`."
+    printvar LINLIB_${BLD}_LIBS
+    printvar CMAKE_LINLIB_${BLD}_ARGS
+    printvar CONFIG_LINLIB_${BLD}_ARGS
     for PKG in BLAS LAPACK; do
-      for VAR in DIR LIBRARY_DIRS LIBRARY_NAMES; do
-        techo "${PKG}_${BLD}_${VAR} = `deref ${PKG}_${BLD}_${VAR}`."
+      for VAR in DIR LIBRARY_DIRS LIBRARY_NAMES STATIC_LIBRARIES; do
+        printvar ${PKG}_${BLD}_${VAR}
       done
     done
   done
