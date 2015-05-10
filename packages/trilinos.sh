@@ -160,6 +160,10 @@ buildTrilinos() {
     return
   fi
 
+# Get major version for setting some vars
+  local TRILINOS_MAJORVER=`echo $TRILINOS_BLDRVERSION | sed 's/\..*$//'`
+  techo "TRILINOS_MAJORVER = $TRILINOS_MAJORVER."
+
 # Check for install_dir installation
   if test $CONTRIB_DIR != $BLDR_INSTALL_DIR -a -e $BLDR_INSTALL_DIR/trilinos; then
     techo "WARNING: trilinos is installed in $BLDR_INSTALL_DIR."
@@ -172,9 +176,6 @@ buildTrilinos() {
 # Needed to prevent use of python2.6 when both versions present
     TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DPYTHON_EXECUTABLE:FILEPATH=$MIXED_PYTHON"
   fi
-  if [[ `uname` =~ CYGWIN ]] && test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
-    TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_CXX11_FLAGS=' '"
-  fi
 
 # Determine Fortran flags, fortran-c interface, fortran extra link flags
   if test -z "$FC" -o -z "$LIBFORTRAN_DIR"; then
@@ -183,6 +184,9 @@ buildTrilinos() {
     local extralinkflags=
     extralinkflags="-L$LIBFORTRAN_DIR"
     case `uname`-`uname -r` in
+      CYGWIN*)
+        TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_ENABLE_Kokkos:BOOL=FALSE"
+        ;;
       Darwin-13.*)
         TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=TRUE"
         ;;
@@ -270,6 +274,10 @@ buildTrilinos() {
   local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex Phalanx NOX EpetraExt Epetra Triutils Teuchos Ifpack"
   if test `uname` = Linux; then
     triPkgs="$triPkgs Amesos2"
+  fi
+  BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
+  if $BUILD_TRILINOS_EXPERIMENTAL; then
+    triPkgs="$triPkgs SEACAS Zoltan"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
