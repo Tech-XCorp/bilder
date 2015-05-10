@@ -127,7 +127,7 @@ getTriTPLs() {
         argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
         local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
         tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
-        cd -
+        cd - 1>/dev/null
       fi
     else
       techo "Not enabling $TPL as installation directory not found." 1>&2
