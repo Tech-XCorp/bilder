@@ -284,6 +284,7 @@ buildTrilinos() {
 # Potential external packages
   case `uname` in
      CYGWIN*)
+       triCommonArgs="$triCommonArgs -DTrilinos_ENABLE_Kokkos:BOOL=OFF"
        local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
        ;;
      Darwin)
