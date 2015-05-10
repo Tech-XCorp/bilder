@@ -225,18 +225,3 @@ diff -ruN trilinos-12.0.1/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilino
  #  ifdef HAVE_TEUCHOS_COMPLEX
       template BLAS<long int, std::complex<float> >;
       template BLAS<long int, std::complex<double> >;
-diff -ruN trilinos-12.0.1/PackagesList.cmake trilinos-12.0.1-new/PackagesList.cmake
---- trilinos-12.0.1/PackagesList.cmake	2015-05-05 15:55:18.000000000 -0600
-+++ trilinos-12.0.1-new/PackagesList.cmake	2015-05-10 07:29:09.494946000 -0600
-@@ -146,9 +146,9 @@
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(TriKota Windows)
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Pamgen Windows)
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(STK Windows)
--TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(SEACAS Windows)
-+# TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(SEACAS Windows)
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Anasazi Windows)
--TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Zoltan Windows)
-+# TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Zoltan Windows)
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Isorropia Windows)
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Teko Windows)
- TRIBITS_DISABLE_PACKAGE_ON_PLATFORMS(Mesquite AIX)

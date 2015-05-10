@@ -282,13 +282,15 @@ buildTrilinos() {
   local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF -DTPL_ENABLE_Boost:STRING=ON"
 
 # Internal packages
-  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex Phalanx NOX EpetraExt Epetra Triutils Teuchos Ifpack"
+  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex NOX EpetraExt Epetra Triutils Teuchos Ifpack"
   if test `uname` = Linux; then
     triPkgs="$triPkgs Amesos2"
   fi
   BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
   if $BUILD_TRILINOS_EXPERIMENTAL; then
-    triPkgs="$triPkgs SEACAS Zoltan"
+    triPkgs="$triPkgs Phalanx SEACAS Zoltan"
+  elif $TRILINOS_MAJORVER -lt 12; then
+    triPkgs="$triPkgs Phalanx"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
