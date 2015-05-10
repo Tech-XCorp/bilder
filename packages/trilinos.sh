@@ -123,7 +123,7 @@ getTriTPLs() {
     esac
     if test -n "$tplDir"; then
       if cd $tplDir; then
-        tplDir=`pwd -P)`
+        tplDir=`pwd -P`
         argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
         local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
         tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
