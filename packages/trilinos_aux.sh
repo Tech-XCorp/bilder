@@ -27,8 +27,6 @@ setTrilinosTriggerVars() {
 # But it does not build Zoltan?
   # TRILINOS_BLDRVERSION_EXP=11.12.1
   TRILINOS_BLDRVERSION_EXP=11.14.3
-# 12.0.1 fails with
-#  C:\winsame\cary\vorpalall-vs12\builds\trilinos-12.0.1\packages\kokkos\core\src\impl\Kokkos_AllocationTracker.cpp(126) : error C3861: 'atomic_fetch_sub': identifier not found`
   # TRILINOS_BLDRVERSION_EXP=12.0.1
 # Can add builds in package file only if no add builds defined.
   if test -z "$TRILINOS_DESIRED_BUILDS"; then
@@ -48,7 +46,7 @@ setTrilinosTriggerVars() {
   TRILINOS_DEPS=${TRILINOS_DEPS:-"mumps,superlu_dist,boost,$MPI_BUILD,superlu,swig,numpy,atlas,lapack"}
 # commio builds depend on netcdf and hdf5.
 # Only add in if these builds are present.
-  if echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
+  if $BUILD_TRILINOS_EXPERIMENTAL || echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
     TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"
   fi
   case `uname` in

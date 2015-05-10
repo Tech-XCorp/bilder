@@ -147,6 +147,25 @@ diff -ruN trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H trilinos-
        }
  
        //! Returns the number of rows in the matrix
+diff -ruN trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c
+--- trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c	2015-04-17 13:01:29.000000000 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c	2015-05-10 12:23:18.850007600 -0600
+@@ -36,10 +36,15 @@
+  * at Sandia National Laboratories under US Department of Energy        *
+  * contract DE-AC04-76DP00789 and is copyrighted by Sandia Corporation. */
+ 
++#ifdef _MSC_VER
++#include   <time.h>
++#else
+ #include   <sys/time.h>
++#include   <ctime>
+ #if !defined(__CYGWIN__)
+ #include   <sys/resource.h>
+ #endif
++#endif
+ 
+ double    seconds(void)
+ {
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-04-17 13:05:05.000000000 -0600
 +++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-05-10 09:46:36.158660200 -0600

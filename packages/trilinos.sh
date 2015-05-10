@@ -100,6 +100,15 @@ getTriTPLs() {
         fi
         ;;
 
+      Netcdf)
+        if test "$parflag" == "ser"; then
+          tplDir=$CONTRIB_DIR/netcdf
+        else
+          continue  # serial only
+        fi
+        tplLibName="netcdf"
+        ;;
+
       SuperLU)
         if test "$parflag" == "ser"; then
           tplDir=$CONTRIB_DIR/superlu
@@ -185,6 +194,8 @@ buildTrilinos() {
     extralinkflags="-L$LIBFORTRAN_DIR"
     case `uname`-`uname -r` in
       CYGWIN*)
+# Below for
+#  C:\winsame\cary\vorpalall-vs12\builds\trilinos-12.0.1\packages\kokkos\core\src\impl\Kokkos_AllocationTracker.cpp(126) : error C3861: 'atomic_fetch_sub': identifier not found`
         TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_ENABLE_Kokkos:BOOL=FALSE"
         ;;
       Darwin-13.*)
@@ -282,10 +293,14 @@ buildTrilinos() {
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
 # Potential external packages
+  local TPL_PACKAGELIST=
   case `uname` in
      CYGWIN*)
        triCommonArgs="$triCommonArgs -DTrilinos_ENABLE_Kokkos:BOOL=OFF"
-       local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
+       TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
+       if $BUILD_TRILINOS_EXPERIMENTAL; then
+         TPL_PACKAGELIST="$TPL_PACKAGELIST Netcdf"
+       fi
        ;;
      Darwin)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
