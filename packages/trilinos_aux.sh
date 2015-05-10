@@ -26,8 +26,10 @@ setTrilinosTriggerVars() {
 # 11.12.1 is the last version to configure and build with vs12
 # But it does not build Zoltan?
   # TRILINOS_BLDRVERSION_EXP=11.12.1
-  # TRILINOS_BLDRVERSION_EXP=11.14.3
-  TRILINOS_BLDRVERSION_EXP=12.0.1
+  TRILINOS_BLDRVERSION_EXP=11.14.3
+# 12.0.1 fails with
+#  C:\winsame\cary\vorpalall-vs12\builds\trilinos-12.0.1\packages\kokkos\core\src\impl\Kokkos_AllocationTracker.cpp(126) : error C3861: 'atomic_fetch_sub': identifier not found`
+  # TRILINOS_BLDRVERSION_EXP=12.0.1
 # Can add builds in package file only if no add builds defined.
   if test -z "$TRILINOS_DESIRED_BUILDS"; then
     TRILINOS_DESIRED_BUILDS="sercomm,parcomm"

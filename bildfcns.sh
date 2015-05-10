@@ -3077,12 +3077,12 @@ findBlasLapack() {
         findLibraries BLAS_${BLD} "$blas_libs"
         eval CONFIG_LINLIB_${BLD}_ARGS="\"--with-lapack-lib='$lapack_libs' --with-blas-lib='$blas_libs' --with-lapack='$lapack_libs' --with-blas='$blas_libs'\""
         local lapack_libdirs=`deref LAPACK_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
-        if [[ `uname` =~ CYGWIN ]] && test -n "$lapack_libdirs"; the
+        if [[ `uname` =~ CYGWIN ]] && test -n "$lapack_libdirs"; then
           lapack_libdirs=`cygpath -am $lapack_libdirs`
         fi
         local lapack_libnames=`deref LAPACK_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
         local blas_libdirs=`deref BLAS_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
-        if [[ `uname` =~ CYGWIN ]] && test -n "$blas_libdirs"; the
+        if [[ `uname` =~ CYGWIN ]] && test -n "$blas_libdirs"; then
           blas_libdirs=`cygpath -am $blas_libdirs`
         fi
         local blas_libnames=`deref BLAS_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
