@@ -14,9 +14,17 @@
 # These contents are not sourced or changed on a file update, but
 # they are sourced for an actual build.
 
-# This file changes stdlib to libc++ for Darwin, which seems to
+# This file changes stdlib to libc++, which seems to
 # be the only way to get std::thread.
 # http://stackoverflow.com/questions/11972603/cmake-clang-and-cv11-on-os-x-10-8
+
+if ! which clang 1>/dev/null 2>&1; then
+  addtopathvar PATH /ProgramFilesX86/LLVM/bin
+fi
+if ! which clang 1>/dev/null 2>&1; then
+  techo "Cannot find clang, quitting."
+  terminate
+fi
 
 # END KEEP THIS
 
@@ -27,14 +35,14 @@
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-# CC=${CC:-""}
-# CXX=${CXX:-""}
+CC=${CC:-"clang"}
+CXX=${CXX:-"clang++"}
 # FC=${FC:-""}
 # F77=${F77:-""}
 
 # Python builds -- must use gcc for consistency.
-# PYC_CC=${PYC_CC:-""}
-# PYC_CXX=${PYC_CXX:-""}
+PYC_CC=${PYC_CC:-"cl"}
+PYC_CXX=${PYC_CXX:-"cl"}
 # PYC_FC=${PYC_FC:-""}
 # PYC_F77=${PYC_F77:-""}
 
@@ -45,8 +53,8 @@
 # BENF77=${BENF77:-""}
 
 # Parallel compilers:
-# MPICC=${MPICC:-""}
-# MPICXX=${MPICXX:-""}
+MPICC=${MPICC:-"clang"}
+MPICXX=${MPICXX:-"clang++"}
 # MPIFC=${MPIFC:-""}
 # MPIF77=${MPIF77:-""}
 

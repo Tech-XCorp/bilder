@@ -86,7 +86,7 @@ buildNumpy() {
   local blslpckdir=
   case `uname`-"$CC" in
 
-    CYGWIN*-*cl*)
+    CYGWIN*-*cl | CYGWIN*-*cl.exe)
       lapacknames=lapack
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # Worked with 1.6.x, but may not be working with 1.8.X

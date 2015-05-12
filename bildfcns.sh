@@ -1571,7 +1571,7 @@ mkConfigScript() {
     echo >> $configscript
   fi
 # Prettify the configure script.  Darwin does not allow \n in substitutions,
-# so use mkConfigScript.sed, modified with package and version.
+# so use sed file, $sedfile, modified with package and version.
 # For lines containing a blank after an =, put quote after equals and at end.
 # Reduce successive quotes.
 # Remove (spuriously added) double quotes internal to single quotes
@@ -1583,7 +1583,7 @@ mkConfigScript() {
     sed -e "s/'\(.*\)\"\(.*\)'/'\1\2'/" |\
     sed -e '2,$s/^/  /' -e '1,$s/$/ \\/' -e '$s/ \\$//' >>$configscript
   chmod u+rx $configscript
-  if test $VERBOSITY -le 2; then
+  if test $VERBOSITY -lt 2; then
     rm -f $sedfile
   fi
 }
@@ -3077,8 +3077,14 @@ findBlasLapack() {
         findLibraries BLAS_${BLD} "$blas_libs"
         eval CONFIG_LINLIB_${BLD}_ARGS="\"--with-lapack-lib='$lapack_libs' --with-blas-lib='$blas_libs' --with-lapack='$lapack_libs' --with-blas='$blas_libs'\""
         local lapack_libdirs=`deref LAPACK_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
+        if [[ `uname` =~ CYGWIN ]] && test -n "$lapack_libdirs"; then
+          lapack_libdirs=`cygpath -am $lapack_libdirs`
+        fi
         local lapack_libnames=`deref LAPACK_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
         local blas_libdirs=`deref BLAS_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
+        if [[ `uname` =~ CYGWIN ]] && test -n "$blas_libdirs"; then
+          blas_libdirs=`cygpath -am $blas_libdirs`
+        fi
         local blas_libnames=`deref BLAS_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
         eval CMAKE_LINLIB_${BLD}_ARGS="\"-DLAPACK_LIBRARY_NAMES:STRING='$lapack_libnames' -DBLAS_LIBRARY_NAMES:STRING='$blas_libnames'\""
         local cmakeargs=
@@ -3096,12 +3102,12 @@ findBlasLapack() {
 
 # Print out results
   for BLD in SER SERSH PYCSH BEN; do
-    techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
-    techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
-    techo "CONFIG_LINLIB_${BLD}_ARGS = `deref CONFIG_LINLIB_${BLD}_ARGS`."
+    printvar LINLIB_${BLD}_LIBS
+    printvar CMAKE_LINLIB_${BLD}_ARGS
+    printvar CONFIG_LINLIB_${BLD}_ARGS
     for PKG in BLAS LAPACK; do
-      for VAR in DIR LIBRARY_DIRS LIBRARY_NAMES; do
-        techo "${PKG}_${BLD}_${VAR} = `deref ${PKG}_${BLD}_${VAR}`."
+      for VAR in DIR LIBRARY_DIRS LIBRARY_NAMES STATIC_LIBRARIES; do
+        printvar ${PKG}_${BLD}_${VAR}
       done
     done
   done
@@ -6507,7 +6513,7 @@ EOF
       local patchvar=`genbashvar $1`_PATCH
       local patchval=`deref $patchvar`
       if test -n "$patchval"; then
-        patchname=`basename $patchval`
+        local patchname=`basename $patchval`
         cmd="/usr/bin/install -m 664 $patchval $instdirval/$instsubdirval/$patchname"
         techo "$cmd"
         $cmd
@@ -7172,6 +7178,17 @@ EOF
 # Some python packages install executables
     setOpenPerms $CONTRIB_DIR/bin
     techo "Package $1 installed in $instdirval."
+
+# Install any patch
+    local patchvar=`genbashvar $1`_PATCH
+    local patchval=`deref $patchvar`
+    techo "Patch is '$patchval'."
+    if test -n "$patchval"; then
+      local patchname=`basename $patchval`
+      cmd="/usr/bin/install -m 664 $patchval $PYTHON_SITEPKGSDIR/$patchname"
+      techo "$cmd"
+      $cmd
+    fi
 
 # Rebuild time
     local starttimevar=`genbashvar $1`_START_TIME

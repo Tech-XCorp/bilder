@@ -34,6 +34,123 @@ setTrilinosNonTriggerVars
 #
 ######################################################################
 
+#
+#  Helper functions.  Here because if they change, the build has changed
+#
+getTriPackages() {
+  local triPackages=$@
+  local triPkgArgs=""
+  for pkg in $triPackages; do
+    triPkgArgs="$triPkgArgs -DTrilinos_ENABLE_${pkg}:BOOL=ON"
+  done
+  echo $triPkgArgs
+}
+
+mkTplLibConfig() {
+    local TPL=$1
+    local tplDir=$2
+    if test -e $tplDir; then
+      if [[ `uname` =~ CYGWIN ]]; then
+        tplDir=`cygpath -am $tplDir`
+      fi
+      local tplLibName=${@:3:20}
+      local tplConfig="-D${TPL}_INCLUDE_DIRS:PATH='${tplDir}/include' -D${TPL}_LIBRARY_DIRS:PATH='${tplDir}/lib' -D${TPL}_LIBRARY_NAMES:STRING='$tplLibName'"
+      echo $tplConfig
+    fi
+}
+
+getTriTPLs() {
+  local buildtype=${1}
+  local parflag=${buildtype:0:3}     # This converts sercplx to ser
+  local TPLs=${@:2:20}
+
+  local tplArgs=""
+  for TPL in $TPLs; do
+    tplDir=
+    addlArgs=""
+    case "$TPL" in
+
+      HYPRE)
+        if test "$parflag" == "ser"; then
+          continue  # parallel only
+        elif test -e $CONTRIB_DIR/hypre-parsh; then
+          tplDir=$CONTRIB_DIR/hypre-parsh
+        fi
+        tplLibName="HYPRE"
+        ;;
+
+      MUMPS)
+        tplLibName='cmumps;zmumps;smumps;dmumps;mumps_common;pord'
+        if test "$parflag" == "ser"; then
+# Experimental trilinos not building serial with Mumps on Linux
+          if ! $BUILD_EXPERIMENTAL || ! test `uname` = Linux; then
+            tplLibName="${tplLibName};seq"
+            if test -e $CONTRIB_DIR/mumps; then
+              tplDir=$CONTRIB_DIR/mumps
+            elif test -e $BLDR_INSTALL_DIR/mumps; then
+              tplDir=$BLDR_INSTALL_DIR/mumps
+            fi
+          fi
+        else
+          if test -e $CONTRIB_DIR/mumps-par; then
+            tplDir=$CONTRIB_DIR/mumps-par
+          elif test -e $BLDR_INSTALL_DIR/mumps-par; then
+            tplDir=$BLDR_INSTALL_DIR/mumps-par
+          fi
+        fi
+        ;;
+
+      Netcdf)
+        if test "$parflag" == "ser"; then
+          tplDir=$CONTRIB_DIR/netcdf
+        else
+          continue  # serial only
+        fi
+        tplLibName="netcdf"
+        ;;
+
+      SuperLU)
+        if test "$parflag" == "ser"; then
+          tplDir=$CONTRIB_DIR/superlu
+        else
+          continue  # serial only
+          # Note that I worry aboud duplicate symbols with dist
+        fi
+        tplLibName="superlu"
+        ;;
+
+      SuperLUDist)
+        if test "$parflag" == "ser"; then
+          continue  # parallel only
+        else
+          tplDir=$CONTRIB_DIR/superlu_dist-par
+        fi
+        tplLibName="superlu_dist"
+        addlArgs="-DTPL_ENABLE_SuperLUDist_Without_ParMETIS:BOOL=TRUE"
+        ;;
+
+    esac
+    if test -n "$tplDir"; then
+      if cd $tplDir; then
+        tplDir=`pwd -P`
+        argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
+        local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
+        tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
+        cd - 1>/dev/null
+      fi
+    else
+      techo "Not enabling $TPL as installation directory not found." 1>&2
+    fi
+  done
+
+  echo $tplArgs
+  return
+
+}
+
+#
+# Main method
+#
 buildTrilinos() {
    # Need the get functions
    source $mydir/trilinos_aux.sh
@@ -51,6 +168,10 @@ buildTrilinos() {
   if test $res != 0; then
     return
   fi
+
+# Get major version for setting some vars
+  local TRILINOS_MAJORVER=`echo $TRILINOS_BLDRVERSION | sed 's/\..*$//'`
+  techo "TRILINOS_MAJORVER = $TRILINOS_MAJORVER."
 
 # Check for install_dir installation
   if test $CONTRIB_DIR != $BLDR_INSTALL_DIR -a -e $BLDR_INSTALL_DIR/trilinos; then
@@ -72,6 +193,11 @@ buildTrilinos() {
     local extralinkflags=
     extralinkflags="-L$LIBFORTRAN_DIR"
     case `uname`-`uname -r` in
+      CYGWIN*)
+# Below for
+#  C:\winsame\cary\vorpalall-vs12\builds\trilinos-12.0.1\packages\kokkos\core\src\impl\Kokkos_AllocationTracker.cpp(126) : error C3861: 'atomic_fetch_sub': identifier not found`
+        TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_ENABLE_Kokkos:BOOL=FALSE"
+        ;;
       Darwin-13.*)
         TRILINOS_ALL_ADDL_ARGS="$TRILINOS_ALL_ADDL_ARGS -DTrilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=TRUE"
         ;;
@@ -99,9 +225,9 @@ buildTrilinos() {
 # Determine best choice for linalg libraries for static builds and add to vars
 #
 # Static linear algebra libraries
-  if test -n "$BLAS_STATIC_LIBRARIES" -a -n "$LAPACK_STATIC_LIBRARIES"; then
-    TRILINOS_STATIC_LINLIB_ARGS="-DTPL_BLAS_LIBRARIES:FILEPATH='`echo $BLAS_STATIC_LIBRARIES | tr ' ' ';'`'"
-    TRILINOS_STATIC_LINLIB_ARGS="$TRILINOS_STATIC_LINLIB_ARGS -DTPL_LAPACK_LIBRARIES:FILEPATH='`echo $LAPACK_STATIC_LIBRARIES | tr ' ' ';'`'"
+  if test -n "$BLAS_SER_STATIC_LIBRARIES" -a -n "$LAPACK_SER_STATIC_LIBRARIES"; then
+    TRILINOS_STATIC_LINLIB_ARGS="-DTPL_BLAS_LIBRARIES:FILEPATH='`echo $BLAS_SER_STATIC_LIBRARIES | tr ' ' ';'`'"
+    TRILINOS_STATIC_LINLIB_ARGS="$TRILINOS_STATIC_LINLIB_ARGS -DTPL_LAPACK_LIBRARIES:FILEPATH='`echo $LAPACK_SER_STATIC_LIBRARIES | tr ' ' ';'`'"
   else
     TRILINOS_STATIC_LINLIB_ARGS="$CMAKE_LINLIB_SER_ARGS"
   fi
@@ -156,16 +282,27 @@ buildTrilinos() {
   local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF -DTPL_ENABLE_Boost:STRING=ON"
 
 # Internal packages
-  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex Phalanx NOX EpetraExt Epetra Triutils Teuchos Ifpack"
+  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex NOX EpetraExt Epetra Triutils Teuchos Ifpack"
   if test `uname` = Linux; then
     triPkgs="$triPkgs Amesos2"
+  fi
+  BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
+  if $BUILD_TRILINOS_EXPERIMENTAL; then
+    triPkgs="$triPkgs Phalanx SEACAS Zoltan"
+  elif $TRILINOS_MAJORVER -lt 12; then
+    triPkgs="$triPkgs Phalanx"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
 # Potential external packages
+  local TPL_PACKAGELIST=
   case `uname` in
      CYGWIN*)
-       local TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
+       triCommonArgs="$triCommonArgs -DTrilinos_ENABLE_Kokkos:BOOL=OFF"
+       TPL_PACKAGELIST="MUMPS SuperLU SuperLUDist"
+       if $BUILD_TRILINOS_EXPERIMENTAL; then
+         TPL_PACKAGELIST="$TPL_PACKAGELIST Netcdf"
+       fi
        ;;
      Darwin)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"

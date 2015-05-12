@@ -1,0 +1,33 @@
+diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
+--- matplotlib-1.4.3/setupext.py	2015-02-15 22:46:36.000000000 -0500
++++ matplotlib-1.4.3-new/setupext.py	2015-05-07 01:10:38.000000000 -0400
+@@ -942,7 +942,12 @@
+ 
+     def check(self):
+         if sys.platform == 'win32':
+-            check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
++            incdirs = get_include_dirs()
++            for d in get_base_dirs():
++              incdirs.append(os.path.join(d, 'include\\freetype2'))
++            print_message("Potential incdirs are %s" %
++              ', '.join(`x` for x in incdirs))
++            check_include_file(incdirs, 'ft2build.h', 'freetype')
+             return 'Using unknown version found on system.'
+ 
+         status, output = getstatusoutput("freetype-config --ftversion")
+@@ -956,8 +961,14 @@
+         if version is None or 'No such file or directory\ngrep:' in version:
+             version = self.version_from_header()
+ 
++        try:
++          return self._check_for_pkg_config(
++            'freetype', 'ft2build.h',
++            min_version='2.3', version=version)
++        except: pass
++
+         return self._check_for_pkg_config(
+-            'freetype2', 'ft2build.h',
++            'freetype', 'freetype2/ft2build.h',
+             min_version='2.3', version=version)
+ 
+     def version_from_header(self):

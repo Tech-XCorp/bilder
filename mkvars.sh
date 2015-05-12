@@ -164,7 +164,7 @@ EOF
 
   cat <<EOF
 
-# Python builds -- must use gcc for consistency.
+# Python builds -- must use gcc or msvc for consistency.
 EOF
   writevars "$gcccomps"
 
