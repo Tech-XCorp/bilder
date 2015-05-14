@@ -22,7 +22,7 @@
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
 # don't include autotools -- for testing only
-NIMDEVEL_DEPS=$MPI_BUILD,netlib_lite,fciowrappers,superlu,cmake
+NIMDEVEL_DEPS=$MPI_BUILD,fciowrappers,superlu,cmake
 NIMDEVEL_UMASK=002
 nimversion=nimdevel
 
@@ -35,7 +35,7 @@ nimversion=nimdevel
 if $NIMDEVEL_WITH_OPENMP; then
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist4" # CUDA/OpenMP enabled
 else
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist3"
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}"netlib_lite,superlu_dist3"
 fi
 if $BUILD_DEBUG; then
   NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS}",serdbg,pardbg"
