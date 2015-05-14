@@ -45,3 +45,17 @@ Commit and push:
   git commit -am "MSG"
   git push
 
+
+
+CREATING A BRANCH FROM AN UPSTREAM TAG FOR MODIFYING
+
+# Get the tag
+  git fetch upstream OCE-0.17:upstream-OCE-0.17
+# Switch to it locally
+  git checkout OCE-0.17
+# Create local branch from it
+  git checkout -b OCE-0.17-txc
+# Push local branch to origin to have remote repo for mods
+  git push -u origin OCE-0.17-txc
+
+
