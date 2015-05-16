@@ -92,7 +92,7 @@ buildCgm() {
     bilderBuild $makerargs cgm $FORPYTHON_STATIC_BUILD "$makejargs" "$CGM_ENV"
   fi
 
-# PYTHON_STATIC_BUILD for dagsolid
+# PYTHON_SHARED_BUILD for dagsolid
   local otherargsvar=`genbashvar CGM_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
   if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "--enable-shared $CGM_CONFIG_ARGS $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
