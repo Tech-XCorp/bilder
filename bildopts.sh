@@ -87,7 +87,7 @@ BILDER OPTIONS
   -W <disable builds> Build without these packages (comma delimited list)
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
-  -z ................ Do not clean git or hg repos.
+  -z ................ Clean git or hg repos.
   -Z ................ Do not execute the definable bilderFinalAction.
 EOF
 
