@@ -149,16 +149,16 @@ PYC_CXX=${PYC_CXX:-"cl"}
 # pic flags are added later
 
 # Serial
-# CFLAGS=${CFLAGS:-""}
-# CXXFLAGS=${CXXFLAGS:-""}
+CFLAGS=${CFLAGS:-"/DWIN32 /D_WINDOWS /W3"}
+CXXFLAGS=${CXXFLAGS:-"/DWIN32 /D_WINDOWS /W3 /GR /EHsc"}
 # FCFLAGS=${FCFLAGS:-""}
 # FFLAGS=${FFLAGS:-""}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
 # PYC_MODFLAGS is for creating a module.
-# PYC_CFLAGS=${PYC_CFLAGS:-""}
-# PYC_CXXFLAGS=${PYC_CXXFLAGS:-""}
+PYC_CFLAGS=${PYC_CFLAGS:-"/DWIN32 /D_WINDOWS /W3"}
+PYC_CXXFLAGS=${PYC_CXXFLAGS:-"/DWIN32 /D_WINDOWS /W3 /GR /EHsc"}
 # PYC_FCFLAGS=${PYC_FCFLAGS:-""}
 # PYC_FFLAGS=${PYC_FFLAGS:-""}
 # PYC_LDFLAGS=${PYC_LDFLAGS:-""}
