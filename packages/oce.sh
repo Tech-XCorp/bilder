@@ -99,6 +99,15 @@ buildOce() {
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
   local shlinkflags=
   case `uname` in
+    CYGWIN*)
+# Bilder does not use oce bundle (precompiled dependencies), so cannot install
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_BUNDLE_AUTOINSTALL:BOOL=FALSE"
+# Not using precompiled headers allows use of jom on Windows.
+# This may allow removal of pch's just before build.
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_USE_PCH:BOOL=FALSE"
+# Below not needed, but it is true.
+      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_USE_BUNDLE:BOOL=FALSE"
+      ;;
     Darwin)
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
       ;;
