@@ -270,7 +270,7 @@ EOF
             pkgconfig) pkgbin=pkg-config;;
             *) pkgbin=$pkglc;;
           esac
-          if test -x $bindir/$pkglc; then
+          if test -x $bindir/$pkgbin; then
             ver=`$bindir/$pkgbin --version | head -1 | sed 's/^.* //'`
             if [[ "$LINE" =~ $pkglc-$ver ]]; then
               echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
