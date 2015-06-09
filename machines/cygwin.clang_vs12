@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: mkvars.sh 2007 2014-12-08 05:15:56Z jrobcary $
+# $Id$
 # /* vim: set filetype=sh : */
 #
 # Define variables.

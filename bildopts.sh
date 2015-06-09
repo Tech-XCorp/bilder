@@ -87,7 +87,7 @@ BILDER OPTIONS
   -W <disable builds> Build without these packages (comma delimited list)
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
-  -z ................ Do only a pull and not a clean from any git repo.
+  -z ................ Clean git or hg repos.
   -Z ................ Do not execute the definable bilderFinalAction.
 EOF
 
@@ -154,7 +154,7 @@ processBilderArgs() {
     w) BILDER_WAIT_DAYS=$OPTARG;;
     W) NOBUILD_PKGS=${NOBUILD_PKGS},$OPTARG;;
     X) BUILD_EXPERIMENTAL=true;;
-    z) CLEAN_GITHG_SUBREPOS=false;;
+    z) CLEAN_GITHG_SUBREPOS=true;;
     Z) DO_FINAL_ACTION=false;;
     2) techo "WARNING: -2 option will be removed Oct. 18, 2014. Use -FI instead."
        IS_SECOND_INSTALL=true;;
@@ -192,7 +192,6 @@ setBilderOptions() {
   BUILD_MPIS=false
   BUILD_OPTIONAL=false
   BUILD_TARBALLS=true
-  CLEAN_GITHG_SUBREPOS=true
   CLEAN_INSTALLS=
   CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
@@ -338,6 +337,7 @@ EOF
 
   BUILD_ATLAS=${BUILD_ATLAS:-"$BUILD_OPTIONAL"}
   NONSVNUP=${NONSVNUP:-"$SVNUP"}
+  CLEAN_GITHG_SUBREPOS=${CLEAN_GITHG_SUBREPOS:-"$SVNUP"}
 # Auxiliary variables
   TARBALL_BUILD_TYPE_LC=`echo $TARBALL_BUILD_TYPE | tr 'A-Z' 'a-z'`
   TARBALL_BUILD_TYPE_UC=`echo $TARBALL_BUILD_TYPE | tr 'a-z' 'A-Z'`

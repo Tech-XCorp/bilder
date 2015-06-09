@@ -44,7 +44,9 @@ buildM4() {
   if ! bilderUnpack m4; then
     return
   fi
-  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION m4 ser "CFLAGS='$CFLAGS -fgnu89-inline'"; then
+# Cannot add all cflags to m4, as there are no flags that correspond to
+# the cygwin build.
+  if bilderConfig -p autotools-lt-$LIBTOOL_BLDRVERSION m4 ser "CFLAGS='-fgnu89-inline'"; then
     bilderBuild -m make m4 ser
   fi
 }

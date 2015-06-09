@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: cygwin.vs11 1925 2014-11-19 18:50:57Z techxdws $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.

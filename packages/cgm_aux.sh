@@ -26,17 +26,12 @@ setCgmTriggerVars() {
     CGM_DESIRED_BUILDS=ser
 # Python shared build needed for composers
 # Python shared build needed for dagmc
+# Neither pycst nor pycsh working on Windows
     if ! [[ `uname` =~ CYGWIN ]]; then
       CGM_DESIRED_BUILDS=${CGM_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
     fi
   fi
-  computeBuilds moab
-# FORPYTHON_STATIC_BUILD: Composers
-# FORPYTHON_SHARED_BUILD: Dagsolid
-# Neither pycst nor pycsh working on Windows
-  if ! [[ `uname` =~ CYGWIN ]]; then
-    CGM_BUILDS=${CGM_BUILDS:-"${FORPYTHON_STATIC_BUILD},${FORPYTHON_SHARED_BUILD}"}
-  fi
+  computeBuilds cgm
   CGM_DEPS=oce,cmake
 }
 setCgmTriggerVars

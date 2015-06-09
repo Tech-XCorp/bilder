@@ -20,7 +20,8 @@ setMoabTriggerVars() {
   MOAB_REPO_BRANCH_STD=master
   MOAB_REPO_BRANCH_EXP=master
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
-  MOAB_UPSTREAM_BRANCH=master
+  MOAB_UPSTREAM_BRANCH_STD=master
+  MOAB_UPSTREAM_BRANCH_EXP=master
   if test -z "$MOAB_DESIRED_BUILDS"; then
 # Static serial and parallel builds needed for ulixes,
     MOAB_DESIRED_BUILDS=ser,par

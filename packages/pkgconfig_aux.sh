@@ -18,7 +18,7 @@
 setPkgconfigTriggerVars() {
   PKGCONFIG_BLDRVERSION_STD=${PKGCONFIG_BLDRVERSION_STD:-"0.28"}
   PKGCONFIG_BLDRVERSION_EXP=${PKGCONFIG_BLDRVERSION_EXP:-"0.28"}
-  if ! [[ `uname` =~ CYGWIN ]]; then
+  if ! [[ (`uname` =~ CYGWIN) || (`uname` =~ Darwin) ]]; then
     PKGCONFIG_BUILDS=${PKGCONFIG_BUILDS:-"ser"}
   fi
   PKGCONFIG_DEPS=autoconf,m4,xz

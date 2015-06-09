@@ -1,6 +1,6 @@
 diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindCUDA.cmake
 --- cmake-2.8.12.1/Modules/FindCUDA.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2015-03-03 08:26:44.567022884 -0700
++++ cmake-2.8.12.1-new/Modules/FindCUDA.cmake	2015-06-04 16:17:37.624059047 -0600
 @@ -852,6 +852,7 @@
          arg STREQUAL "EXCLUDE_FROM_ALL" OR
          arg STREQUAL "STATIC" OR
@@ -9,7 +9,19 @@ diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindC
          arg STREQUAL "MODULE"
          )
        list(APPEND ${_cmake_options} ${arg})
-@@ -1449,9 +1450,11 @@
+@@ -1376,6 +1377,11 @@
+       list(APPEND nvcc_flags -ccbin "\"${CUDA_HOST_COMPILER}\"")
+     endif()
+     set(flags)
++    set(important_host_flags)
++    _cuda_get_important_host_flags(important_host_flags ${CMAKE_${CUDA_C_OR_CXX}_FLAGS})
++    foreach(f ${important_host_flags})
++      list(APPEND flags -Xcompiler ${f})
++    endforeach()
+     foreach(config ${CUDA_configuration_types})
+       string(TOUPPER ${config} config_upper)
+       set(important_host_flags)
+@@ -1449,9 +1455,11 @@
    # variable will have been defined.
    CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS("${link_file}" ${cuda_target} "${_options}" "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
  
@@ -26,7 +38,7 @@ diff -ruN cmake-2.8.12.1/Modules/FindCUDA.cmake cmake-2.8.12.1-new/Modules/FindC
    # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
 diff -ruN cmake-2.8.12.1/Modules/FindFreetype.cmake cmake-2.8.12.1-new/Modules/FindFreetype.cmake
 --- cmake-2.8.12.1/Modules/FindFreetype.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/FindFreetype.cmake	2015-03-03 08:34:31.129691518 -0700
++++ cmake-2.8.12.1-new/Modules/FindFreetype.cmake	2015-06-04 16:17:37.610059121 -0600
 @@ -56,7 +56,10 @@
    PATH_SUFFIXES include/freetype2 include
  )
@@ -41,7 +53,7 @@ diff -ruN cmake-2.8.12.1/Modules/FindFreetype.cmake cmake-2.8.12.1-new/Modules/F
    PATHS
 diff -ruN cmake-2.8.12.1/Modules/Platform/Linux.cmake cmake-2.8.12.1-new/Modules/Platform/Linux.cmake
 --- cmake-2.8.12.1/Modules/Platform/Linux.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/Platform/Linux.cmake	2015-03-03 08:29:27.466415708 -0700
++++ cmake-2.8.12.1-new/Modules/Platform/Linux.cmake	2015-06-04 16:17:37.617059084 -0600
 @@ -2,7 +2,7 @@
  set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath,")
  set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG_SEP ":")
@@ -53,7 +65,7 @@ diff -ruN cmake-2.8.12.1/Modules/Platform/Linux.cmake cmake-2.8.12.1-new/Modules
  # Shared libraries with no builtin soname may not be linked safely by
 diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake
 --- cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake	2015-03-03 08:29:59.502706309 -0700
++++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel-C.cmake	2015-06-04 16:17:37.614059099 -0600
 @@ -1,2 +1,4 @@
  include(Platform/Linux-Intel)
 +# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
@@ -61,7 +73,7 @@ diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel-C.cmake cmake-2.8.12.1-new
  __linux_compiler_intel(C)
 diff -ruN cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake
 --- cmake-2.8.12.1/Modules/Platform/Linux-Intel.cmake	2013-11-05 12:07:22.000000000 -0700
-+++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake	2015-03-03 08:30:25.303134998 -0700
++++ cmake-2.8.12.1-new/Modules/Platform/Linux-Intel.cmake	2015-06-04 16:17:37.617059084 -0600
 @@ -38,7 +38,8 @@
  
    # We pass this for historical reasons.  Projects may have

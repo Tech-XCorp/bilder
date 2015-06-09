@@ -267,22 +267,19 @@ EOF
           atdir=$CLN_INSTALL_DIR/autotools-lt-$LIBTOOL_BLDRVERSION
           bindir=$atdir/bin
           case $pkglc in
-            pkgconfig)
-              rm -rf $bindir/pkg-config $atdir/share/aclocal/pkg.m4
-              ;;
-            *)
-              if test -x $bindir/$pkglc; then
-                ver=`$bindir/$pkglc --version | head -1 | sed 's/^.* //'`
-                if [[ "$LINE" =~ $pkglc-$ver ]]; then
-                  echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
-                else
-                  echo "'$LINE'" does not match $pkglc-$ver
-                fi
-              else
-                echo "$pkglc not found."
-              fi
-              ;;
+            pkgconfig) pkgbin=pkg-config;;
+            *) pkgbin=$pkglc;;
           esac
+          if test -x $bindir/$pkgbin; then
+            ver=`$bindir/$pkgbin --version | head -1 | sed 's/^.* //'`
+            if [[ "$LINE" =~ $pkglc-$ver ]]; then
+              echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
+            else
+              echo "'$LINE'" does not match $pkglc-$ver
+            fi
+          else
+            echo "$pkglc not found."
+          fi
           continue
           ;;
         pyqt | qt3d | sip)
