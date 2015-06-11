@@ -6606,7 +6606,7 @@ EOF
               fi
               ;;
             Darwin)
-              endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz"
+              endings="-MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -MacYosemite.dmg -Mac.dmg"
               sfx=dmg
               ;;
             Linux)
