@@ -23,7 +23,7 @@ getBoostTriggerVars() {
 # on Lion and Snow Leopard.
 # For now we're sticking with boost 1_53_0.
   # BOOST_BLDRVERSION_EXP=1_53_0
-  BOOST_BLDRVERSION_EXP=1_57_0
+  BOOST_BLDRVERSION_EXP=1_58_0
   if test -z "$BOOST_BUILDS"; then
     if test -z "$BOOST_DESIRED_BUILDS"; then
       BOOST_DESIRED_BUILDS=ser,sersh
