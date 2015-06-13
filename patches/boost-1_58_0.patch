@@ -1,0 +1,81 @@
+diff -ruN boost-1_58_0/boost/config/user.hpp boost-1_58_0-new/boost/config/user.hpp
+--- boost-1_58_0/boost/config/user.hpp	2015-03-24 12:27:48.000000000 -0600
++++ boost-1_58_0-new/boost/config/user.hpp	2015-06-12 20:09:37.000000000 -0600
+@@ -107,7 +107,7 @@
+ // build variant will be automatically selected and linked against, 
+ // simply by the act of including one of that library's headers.  
+ // This macro turns that feature off.
+-// #define BOOST_ALL_NO_LIB
++#define BOOST_ALL_NO_LIB
+  
+ // BOOST_WHATEVER_NO_LIB: Tells the config system not to automatically 
+ // select which library to link against for library "whatever", 
+diff -ruN boost-1_58_0/boost/math/special_functions/sinc.hpp boost-1_58_0-new/boost/math/special_functions/sinc.hpp
+--- boost-1_58_0/boost/math/special_functions/sinc.hpp	2015-03-24 07:05:53.000000000 -0600
++++ boost-1_58_0-new/boost/math/special_functions/sinc.hpp	2015-06-12 20:09:37.000000000 -0600
+@@ -47,7 +47,7 @@
+             T const    taylor_2_bound = tools::root_epsilon<T>();
+             T const    taylor_n_bound = tools::forth_root_epsilon<T>();
+ 
+-            if    (abs(x) >= taylor_n_bound)
++            if    (std::abs(x) >= taylor_n_bound)
+             {
+                 return(sin(x)/x);
+             }
+@@ -56,14 +56,14 @@
+                 // approximation by taylor series in x at 0 up to order 0
+                 T    result = static_cast<T>(1);
+ 
+-                if    (abs(x) >= taylor_0_bound)
++                if    (std::abs(x) >= taylor_0_bound)
+                 {
+                     T    x2 = x*x;
+ 
+                     // approximation by taylor series in x at 0 up to order 2
+                     result -= x2/static_cast<T>(6);
+ 
+-                    if    (abs(x) >= taylor_2_bound)
++                    if    (std::abs(x) >= taylor_2_bound)
+                     {
+                         // approximation by taylor series in x at 0 up to order 4
+                         result += (x2*x2)/static_cast<T>(120);
+diff -ruN boost-1_58_0/libs/filesystem/src/operations.cpp boost-1_58_0-new/libs/filesystem/src/operations.cpp
+--- boost-1_58_0/libs/filesystem/src/operations.cpp	2015-03-30 08:28:45.000000000 -0600
++++ boost-1_58_0-new/libs/filesystem/src/operations.cpp	2015-06-12 20:09:37.000000000 -0600
+@@ -1413,7 +1413,8 @@
+     //   "http://man7.org/linux/man-pages/man2/fchmodat.2.html"
+ #   if defined(AT_FDCWD) && defined(AT_SYMLINK_NOFOLLOW) \
+       && !(defined(__SUNPRO_CC) || defined(__sun) || defined(sun)) \
+-      && !(defined(linux) || defined(__linux) || defined(__linux__))
++      && !(defined(linux) || defined(__linux) || defined(__linux__)) \
++      && !(defined(__APPLE__))
+       if (::fchmodat(AT_FDCWD, p.c_str(), mode_cast(prms),
+            !(prms & symlink_perms) ? 0 : AT_SYMLINK_NOFOLLOW))
+ #   else  // fallback if fchmodat() not supported
+diff -ruN boost-1_58_0/libs/iostreams/build/Jamfile.v2 boost-1_58_0-new/libs/iostreams/build/Jamfile.v2
+--- boost-1_58_0/libs/iostreams/build/Jamfile.v2	2015-01-25 12:33:40.000000000 -0700
++++ boost-1_58_0-new/libs/iostreams/build/Jamfile.v2	2015-06-12 20:09:37.000000000 -0600
+@@ -159,8 +159,9 @@
+     : $(sources) 
+     : <link>shared:<define>BOOST_IOSTREAMS_DYN_LINK=1 
+       <define>BOOST_IOSTREAMS_USE_DEPRECATED
+-      [ ac.check-library /zlib//zlib : <library>/zlib//zlib
+-        <source>zlib.cpp <source>gzip.cpp ]
++      # [ ac.check-library /zlib//zlib : <library>/zlib//zlib
++      #   <source>zlib.cpp <source>gzip.cpp ]
++      #   See https://github.com/boostorg/iostreams/commit/dfb1f61c26b77556a1cca0654d08847cf87d26ae
+     :
+     : <link>shared:<define>BOOST_IOSTREAMS_DYN_LINK=1
+     ;
+diff -ruN boost-1_58_0/tools/build/src/tools/darwin.jam boost-1_58_0-new/tools/build/src/tools/darwin.jam
+--- boost-1_58_0/tools/build/src/tools/darwin.jam	2015-04-04 11:25:07.000000000 -0600
++++ boost-1_58_0-new/tools/build/src/tools/darwin.jam	2015-06-12 20:09:37.000000000 -0600
+@@ -187,7 +187,7 @@
+     #   archives in darwin is complicated.
+     local archiver =
+         [ common.get-invocation-command darwin
+-            : libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
++            : /usr/bin/libtool : [ feature.get-values <archiver> : $(options) ] : $(bin) : search-path ] ;
+     flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
+     if $(.debug-configuration)
+     {
