@@ -17,7 +17,7 @@
 
 setOpenmpiTriggerVars() {
   OPENMPI_BLDRVERSION_STD=1.6.5
-  OPENMPI_BLDRVERSION_EXP=1.8.4
+  OPENMPI_BLDRVERSION_EXP=1.8.6
   if $BUILD_MPIS && test -z "$OPENMPI_BUILDS" && [[ $USE_MPI =~ openmpi ]]; then
     case `uname` in
       CYGWIN*) OPENMPI_BUILDS=nodl;;
