@@ -35,10 +35,6 @@ setBilderOsVars() {
       machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
       if test -n "$machsfx"; then
         INSTALL_SUBDIR_SFX=-$machsfx
-# Hack so that USim will use mpich in a separate install location
-        if test $PROJECT_INSTSUBDIR = ulixes; then
-          INSTALL_SUBDIR_SFX=-${machsfx}-mpich
-        fi
       fi
       if test -n "$machsfx" || (test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]] ); then
         CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
