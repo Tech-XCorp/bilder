@@ -270,7 +270,7 @@ else
   if [ "\$1" == 'redo' ]; then
     echo "Executing \$cmd \$target"
     \$cmd \$target
-  if [ "\$1" == 'default' ]; then
+  elif [ "\$1" == 'default' ]; then
     echo "Executing \$cmd"
     \$cmd
   else
