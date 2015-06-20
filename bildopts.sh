@@ -235,13 +235,13 @@ setBilderOptions() {
     fi
     processBilderArgs $arg
   done
-# Now done outside the function call
+# Duplicated outside the function call for scoping
   BILDER_OPTIND=$OPTIND
   techo -2 "BILDER_OPTIND = $BILDER_OPTIND."
   shift $(($BILDER_OPTIND - 1))
   BILDER_TARGET="$*"
   techo "BILDER_TARGET = $BILDER_TARGET."
-  BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGETS//"`
+  BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGET//"`
   techo "BILDER_CMD = $BILDER_CMD"
 
 # Ensure BILDER_NAME defined
@@ -265,7 +265,7 @@ if [ \$# == 0 ]; then
   echo \$cmd \$target
   echo '#' To redo that run execute: ${BILDER_NAME}-redo.sh redo
   echo '#' To run with default targets, execute: ${BILDER_NAME}-redo.sh default
-  echo '#' To change targets, execute: ${BILDER_NAME}-redo.sh '<new targets>'
+  echo '#' To change targets, execute: ${BILDER_NAME}-redo.sh '<new target>'
 else
   if [ "\$1" == 'redo' ]; then
     echo "Executing \$cmd \$target"
