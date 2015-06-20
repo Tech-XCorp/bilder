@@ -59,6 +59,10 @@ buildPython() {
   local pyldflags="$PYCSH_ADDL_LDFLAGS"
   local pycppflags=
   case `uname` in
+    CYGWIN*)
+      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF"
+# Also need ZLIB_LIBRARY ZLIB_INCLUDE_DIR BZIP2_LIBRARIES
+      ;;
     Linux)
 # Ensure python can find its own library and any libraries linked into contrib
       pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
@@ -68,6 +72,10 @@ buildPython() {
         pycppflags="-I$preswd/include"
       fi
       PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS CC='$PYC_CC $PYC_CFLAGS' CFLAGSFORSHARED=-fPIC --enable-shared"
+      case $PYTHON_BLDRVERSION in
+        2.6.*) ;;  # enable-unicode fails on 2.6.5
+        2.7.*) PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS --enable-unicode=ucs4";;
+      esac
       ;;
   esac
   if test -n "$pyldflags"; then
@@ -76,10 +84,6 @@ buildPython() {
   if test -n "$pycppflags"; then
     PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS CPPFLAGS='$pycppflags'"
   fi
-  case $PYTHON_BLDRVERSION in
-    2.6.*) ;;  # enable-unicode fails on 2.6.5
-    2.7.*) PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS --enable-unicode=ucs4";;
-  esac
 
 # just --enable-shared gives errors:
 # Failed to find the necessary bits to build these modules:
