@@ -38,14 +38,12 @@ buildPython() {
 
 # Get python from either repo or unpack it
   local res=
-  local cmakearg=
   echo "VISUALSTUDIO_VERSION = $VISUALSTUDIO_VERSION"
   if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
     updateRepo python
     getVersion python
     bilderPreconfig python
     res=$?
-    cmakearg=-c
   else
     bilderUnpack Python
     res=$?
@@ -69,7 +67,7 @@ buildPython() {
         pyldflags="$pyldflags -L$preswd/lib"
         pycppflags="-I$preswd/include"
       fi
-      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS CFLAGSFORSHARED=-fPIC"
+      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS CC='$PYC_CC $PYC_CFLAGS' CFLAGSFORSHARED=-fPIC --enable-shared"
       ;;
   esac
   if test -n "$pyldflags"; then
@@ -91,7 +89,7 @@ buildPython() {
 # --enable-shared --enable-static gave both shared and static libs.
 # On Windows build is static and needs to go into contrib
   eval PYTHON_${FORPYTHON_SHARED_BUILD}_INSTALL_DIR=$CONTRIB_DIR
-  if bilderConfig $cmakearg Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
+  if bilderConfig -I $CONTRIB_DIR Python $FORPYTHON_SHARED_BUILD "$PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
     bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
 
@@ -114,14 +112,6 @@ testPython() {
 ######################################################################
 
 installPython() {
-  case `uname` in
-    CYGWIN*)
-      if test -n "$PYTHON_SERSH_BUILD_DIR"; then
-        bilderInstall -m : Python $FORPYTHON_SHARED_BUILD python
-      fi
-      return
-      ;;
-  esac
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
       Linux)

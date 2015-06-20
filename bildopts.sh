@@ -239,8 +239,8 @@ setBilderOptions() {
   BILDER_OPTIND=$OPTIND
   techo -2 "BILDER_OPTIND = $BILDER_OPTIND."
   shift $(($BILDER_OPTIND - 1))
-  BILDER_TARGETS="$*"
-  techo "BILDER_TARGETS = $BILDER_TARGETS."
+  BILDER_TARGET="$*"
+  techo "BILDER_TARGET = $BILDER_TARGET."
   BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGETS//"`
   techo "BILDER_CMD = $BILDER_CMD"
 
