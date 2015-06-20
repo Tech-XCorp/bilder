@@ -17,25 +17,29 @@
 
 setPythonTriggerVars() {
   PYTHON_BLDRVERSION_STD=2.7.3
-  PYTHON_BLDRVERSION_EXP=2.7.9
+  PYTHON_BLDRVERSION_EXP=2.7.10
   case `uname` in
-    CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then
-               PYTHON_BLDRVERSION_STD=2.7.9.win64
-               PYTHON_BLDRVERSION_EXP=2.7.9.win64
-	       PYTHON_BUILDS=$FORPYTHON_SHARED_BUILD
-             fi
-             ;;
-          *) PYTHON_DEPS=chrpath,sqlite,bzip2
-             ;;
+    CYGWIN*)
+      if test "$VISUALSTUDIO_VERSION" -ge 12; then
+        PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm
+        PYTHON_REPO_BRANCH_STD=master
+        PYTHON_REPO_BRANCH_EXP=master
+        PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
+        PYTHON_UPSTREAM_BRANCH_STD=master
+        PYTHON_UPSTREAM_BRANCH_EXP=master
+        PYTHON_BUILDS=$FORPYTHON_SHARED_BUILD
+        # PYTHON_DEPS=sqlite,bzip2,zlib
+        PYTHON_DEPS=bzip2,zlib,cmake
+      fi
+      ;;
+    Linux)
+      PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+      PYTHON_DEPS=chrpath,sqlite,bzip2
+      ;;
   esac
   computeVersion Python
 # Export so available to setinstald.sh
   export PYTHON_BLDRVERSION
-# Needed?
-  # PYTHON_MAJMIN=`echo $PYTHON_BLDRVERSION | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
-  if test `uname` = Linux; then
-    PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
-  fi
 }
 
 setPythonTriggerVars

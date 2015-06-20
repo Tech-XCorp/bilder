@@ -35,27 +35,21 @@ setPythonNonTriggerVars
 ######################################################################
 
 buildPython() {
+
   local cygwinVS12=false
   local inplace=
-
-  # Cygwin VS12 needs in place "build" of Python, which is really just
-  # an install of an already-built version.
+# Cygwin VS12 needs in place "build" of Python, which is really just
+# an install of an already-built version.
   case `uname` in
-    CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then
-	       cygwinVS12=true
-               inplace=-i
-             fi;;
+    CYGWIN*)
+      if test $VISUALSTUDIO_VERSION = 12; then
+        cygwinVS12=true
+        inplace=-i
+      fi
+      ;;
   esac
 
   if ! bilderUnpack $inplace Python; then
-    return
-  fi
-
-  if $cygwinVS12; then
-    techo "No build needed for Windows. Installing from tarball."
-    if bilderConfig -C : Python sersh; then
-      bilderBuild -D -k -m "./python-install.sh $CONTRIB_DIR" Python sersh
-    fi
     return
   fi
 
@@ -118,20 +112,22 @@ testPython() {
 
 installPython() {
   case `uname` in
-    CYGWIN*) if test -n "$PYTHON_SERSH_BUILD_DIR"; then
-               bilderInstall -m : Python $FORPYTHON_SHARED_BUILD python
-             fi
-             return;;
+    CYGWIN*)
+      if test -n "$PYTHON_SERSH_BUILD_DIR"; then
+        bilderInstall -m : Python $FORPYTHON_SHARED_BUILD python
+      fi
+      return
+      ;;
   esac
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
       Linux)
 # Fix rpath if known how
-	if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/libpython${PYTHON_MAJMIN}.so
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
-	fi
+        if declare -f bilderFixRpath 1>/dev/null 2>&1; then
+          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
+          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/libpython${PYTHON_MAJMIN}.so
+          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
+        fi
         ;;
     esac
   fi
