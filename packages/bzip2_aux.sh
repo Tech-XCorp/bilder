@@ -19,7 +19,7 @@ setBzip2TriggerVars() {
   BZIP2_BLDRVERSION=${BZIP2_BLDRVERSION:-"1.0.6"}
   if test -z "$BZIP2_BUILDS"; then
     if [[ `uname` =~ CYGWIN ]]; then
-      BZIP2_BUILDS=ser
+      BZIP2_BUILDS=ser,sermd
     fi
   fi
   BZIP2_DEPS=
@@ -33,6 +33,10 @@ setBzip2TriggerVars
 ######################################################################
 
 findBzip2() {
-  addtopathvar PATH $CONTRIB_DIR/bzip2/bin
+  if [[ `uname` =~ CYGWIN ]]; then
+    findContribPackage bzip2 bzip2 ser sermd
+    findPycshDir bzip2
+    addtopathvar PATH $CONTRIB_DIR/bzip2/bin
+  fi
 }
 

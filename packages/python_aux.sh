@@ -21,7 +21,7 @@ setPythonTriggerVars() {
   case `uname` in
     CYGWIN*)
       if test "$VISUALSTUDIO_VERSION" -ge 12; then
-        PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm
+        PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
         PYTHON_REPO_BRANCH_STD=master
         PYTHON_REPO_BRANCH_EXP=master
         PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git

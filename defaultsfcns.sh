@@ -25,8 +25,10 @@ setBilderOsVars() {
       INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/winsame"}
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
-      machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
-      test -n "$machsfx" && INSTALL_SUBDIR_SFX=-$machsfx
+      if test -z "$INSTALL_SUBDIR_SFX"; then
+        machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
+        test -n "$machsfx" && INSTALL_SUBDIR_SFX=-$machsfx
+      fi
       # echo "CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
       ;;
 

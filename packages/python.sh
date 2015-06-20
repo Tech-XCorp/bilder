@@ -36,20 +36,21 @@ setPythonNonTriggerVars
 
 buildPython() {
 
-  local cygwinVS12=false
-  local inplace=
-# Cygwin VS12 needs in place "build" of Python, which is really just
-# an install of an already-built version.
-  case `uname` in
-    CYGWIN*)
-      if test $VISUALSTUDIO_VERSION = 12; then
-        cygwinVS12=true
-        inplace=-i
-      fi
-      ;;
-  esac
-
-  if ! bilderUnpack $inplace Python; then
+# Get python from either repo or unpack it
+  local res=
+  local cmakearg=
+  echo "VISUALSTUDIO_VERSION = $VISUALSTUDIO_VERSION"
+  if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
+    updateRepo python
+    getVersion python
+    bilderPreconfig python
+    res=$?
+    cmakearg=-c
+  else
+    bilderUnpack Python
+    res=$?
+  fi
+  if test $res != 0; then
     return
   fi
 
@@ -88,7 +89,9 @@ buildPython() {
 # To find the necessary bits, look in setup.py in detect_modules() for
 # the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-  if bilderConfig Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
+# On Windows build is static and needs to go into contrib
+  eval PYTHON_${FORPYTHON_SHARED_BUILD}_INSTALL_DIR=$CONTRIB_DIR
+  if bilderConfig $cmakearg Python $FORPYTHON_SHARED_BUILD "CC='$PYC_CC $PYC_CFLAGS' --enable-shared $PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
     bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
 
