@@ -241,8 +241,10 @@ setBilderOptions() {
   shift $(($BILDER_OPTIND - 1))
   BILDER_TARGET="$*"
   techo "BILDER_TARGET = $BILDER_TARGET."
-  BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGET//"`
-  techo "BILDER_CMD = $BILDER_CMD"
+  if test -n "$BILDER_TARGET"; then
+    BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGET//"`
+    techo "BILDER_CMD = $BILDER_CMD"
+  fi
 
 # Ensure BILDER_NAME defined
 # Allow calling routine to specify the name
