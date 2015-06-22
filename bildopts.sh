@@ -273,13 +273,13 @@ fi
 if [ "\$1" == 'redo' ]; then
   echo "Executing \$cmd \$target"
   exec \$cmd \$target
-elif [ "\$1" == 'default' ]; then
+fi
+if [ "\$1" == 'default' ]; then
   echo "Executing \$cmd"
   exec \$cmd
-else
-  echo "Executing \$cmd \$1"
-  exec \$cmd \$1
 fi
+echo "Executing \$cmd \$1"
+exec \$cmd \$1
 EOF
     chmod a+x $PROJECT_DIR/${BILDER_NAME}-redo.sh
   fi
