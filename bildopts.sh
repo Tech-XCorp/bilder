@@ -268,17 +268,17 @@ if [ \$# == 0 ]; then
   echo '#' To redo that run execute: ${BILDER_NAME}-redo.sh redo
   echo '#' To run with default targets, execute: ${BILDER_NAME}-redo.sh default
   echo '#' To change targets, execute: ${BILDER_NAME}-redo.sh '<new target>'
+  exit 0
+fi
+if [ "\$1" == 'redo' ]; then
+  echo "Executing \$cmd \$target"
+  exec \$cmd \$target
+elif [ "\$1" == 'default' ]; then
+  echo "Executing \$cmd"
+  exec \$cmd
 else
-  if [ "\$1" == 'redo' ]; then
-    echo "Executing \$cmd \$target"
-    \$cmd \$target
-  elif [ "\$1" == 'default' ]; then
-    echo "Executing \$cmd"
-    \$cmd
-  else
-    echo "Executing \$cmd \$1"
-    \$cmd \$1
-  fi
+  echo "Executing \$cmd \$1"
+  exec \$cmd \$1
 fi
 EOF
     chmod a+x $PROJECT_DIR/${BILDER_NAME}-redo.sh
