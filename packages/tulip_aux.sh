@@ -16,7 +16,7 @@
 ######################################################################
 
 getTulipTriggerVars() {
-  TULIP_BLDRVERSION=${TULIP_BLDRVERSION:-"6.1.0"}
+  TULIP_BLDRVERSION=${TULIP_BLDRVERSION:-"4.6.0"}
   TULIP_BUILDS=${TULIP_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   TULIP_DEPS=qt,cmake
 }
