@@ -22,7 +22,7 @@
 
 setTrilinosTriggerVars() {
 # Versions
-  TRILINOS_BLDRVERSION_STD=11.4.3
+  TRILINOS_BLDRVERSION_STD=11.14.3
 # 11.12.1 is the last version to configure and build with vs12
 # But it does not build Zoltan?
   # TRILINOS_BLDRVERSION_EXP=11.12.1

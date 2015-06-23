@@ -16,7 +16,7 @@
 ######################################################################
 
 setPythonTriggerVars() {
-  PYTHON_BLDRVERSION_STD=2.7.3
+  PYTHON_BLDRVERSION_STD=2.7.9
   PYTHON_BLDRVERSION_EXP=2.7.9
   case `uname` in
     CYGWIN*) if test $VISUALSTUDIO_VERSION = 12; then

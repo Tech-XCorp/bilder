@@ -30,7 +30,7 @@ setValgrindTriggerVars() {
       esac
       ;;
     Linux)
-      VALGRIND_BLDRVERSION_STD=3.9.0
+      VALGRIND_BLDRVERSION_STD=3.10.1
       VALGRIND_BLDRVERSION_EXP=3.10.1
       VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
       ;;
