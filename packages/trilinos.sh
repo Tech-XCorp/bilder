@@ -144,8 +144,6 @@ getTriTPLs() {
   done
 
   echo $tplArgs
-  return
-
 }
 
 #
@@ -249,11 +247,16 @@ buildTrilinos() {
   fi
   TRILINOS_BEN_ADDL_ARGS="$TRILINOS_BEN_ADDL_ARGS $TRILINOS_BEN_LINLIB_ARGS"
   TRILINOS_BEN_ADDL_ARGS="$TRILINOS_BEN_ADDL_ARGS $TARBALL_NODEFLIB_FLAGS"
-# For these serial packages, parallel analogs are the same
-  TRILINOS_PAR_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS"
-  TRILINOS_PARSH_ADDL_ARGS="$TRILINOS_SERSH_ADDL_ARGS"
 
-#
+# Complex number support in parallel builds of Trilinos 11.14.3 is BROKEN
+# due to bad code in superlu_dist. Trilinos tried to hack its way around
+# the superlu_dist code, but what they did is not robust and fails to
+# compile in some cases.
+  TRILINOS_PAR_TURN_OFF_COMPLEX="-DHAVE_TEUCHOS_COMPLEX:BOOL=FALSE"
+# For these serial packages, parallel analogs are the same
+  TRILINOS_PAR_ADDL_ARGS="$TRILINOS_SER_ADDL_ARGS $TRILINOS_PAR_TURN_OFF_COMPLEX"
+  TRILINOS_PARSH_ADDL_ARGS="$TRILINOS_SERSH_ADDL_ARGS $TRILINOS_PAR_TURN_OFF_COMPLEX"
+
 # The bare builds are minimal: just compilers, linear libraries,
 # args applicable to all and to the particular builds
 #
