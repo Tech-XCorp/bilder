@@ -61,7 +61,9 @@ buildPython() {
   case `uname` in
     CYGWIN*)
       PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DZLIB_LIBRARY='$CMAKE_ZLIB_SERSH_LIBDIR/zlib.lib' -DZLIB_INCLUDE_DIR='$CMAKE_ZLIB_SERSH_INCDIR'"
-# Also need ZLIB_LIBRARY ZLIB_INCLUDE_DIR BZIP2_LIBRARIES
+# Also need BZIP2_LIBRARIES
+# Remove old build directory to repatch
+      rm -rf $BUILD_DIR/Python/*
       ;;
     Linux)
 # Ensure python can find its own library and any libraries linked into contrib
