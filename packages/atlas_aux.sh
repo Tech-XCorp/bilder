@@ -16,7 +16,7 @@
 ######################################################################
 
 setAtlasTriggerVars() {
-  ATLAS_BLDRVERSION_STD=${ATLAS_BLDRVERSION_STD:-"3.10.1"}
+  ATLAS_BLDRVERSION_STD=${ATLAS_BLDRVERSION_STD:-"3.10.2"}
 # Atlas 3.11.17 cannot be built with gcc 4.1.2 (the default on qalinux)
 # or gcc 4.2.4. Both compilers seg fault when building Atlas.
   ATLAS_BLDRVERSION_EXP=${ATLAS_BLDRVERSION_EXP:-"3.10.2"}

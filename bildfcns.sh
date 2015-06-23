@@ -6606,7 +6606,7 @@ EOF
               fi
               ;;
             Darwin)
-              endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz"
+              endings="-MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -MacYosemite.dmg -Mac.dmg"
               sfx=dmg
               ;;
             Linux)
@@ -6615,10 +6615,10 @@ EOF
               ;;
           esac
           for ending in $endings; do
-            techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
+            #techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
             installer=`(shopt -s nocaseglob; \ls ${installerbase}-*${ending} 2>/dev/null)`
             if test -z "$installer"; then
-              techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
+              #techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
               installer=`(shopt -s nocaseglob; \ls ${installerbase}*${ending} 2>/dev/null)`
             fi
             if test -n "$installer"; then

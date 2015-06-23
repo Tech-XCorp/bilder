@@ -16,10 +16,7 @@
 ######################################################################
 
 setCythonTriggerVars() {
-  CYTHON_BLDRVERSION_STD=0.19.2
-  if [[ `uname` =~ CYGWIN ]] && test $VISUALSTUDIO_VERSION = 12; then
-    CYTHON_BLDRVERSION_STD=0.20.1
-  fi
+  CYTHON_BLDRVERSION_STD=0.20.1
   CYTHON_BLDRVERSION_EXP=0.20.1
   CYTHON_BUILDS=${CYTHON_BUILDS:-"pycsh"}
   CYTHON_DEPS=Python

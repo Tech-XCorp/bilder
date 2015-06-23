@@ -230,13 +230,18 @@ fi
 if test -n "$FIXED_INSTALL_SUBDIR"; then
   case `uname` in
     CYGWIN*)
-      MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
+      MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"}
       machinesfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
       if [[ $machinesfx =~ mingw ]]; then
         machinesfx=mingw
       fi
       CONTRIB_DIR="/winsame/internal-${machinesfx}/${FIXED_INSTALL_SUBDIR}"
       BLDR_INSTALL_DIR="/winsame/internal-${machinesfx}/${FIXED_INSTALL_SUBDIR}"
+      ;;
+    Darwin)
+      MACHINEFILE=${MACHINEFILE:-"darwin.clangcxx11"}
+      CONTRIB_DIR="/internal/${FIXED_INSTALL_SUBDIR}"
+      BLDR_INSTALL_DIR="/internal/${FIXED_INSTALL_SUBDIR}"
       ;;
     *)
       CONTRIB_DIR="/internal/${FIXED_INSTALL_SUBDIR}"

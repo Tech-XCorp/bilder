@@ -24,18 +24,17 @@ setBilderOsVars() {
       CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/winsame"}
       INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/winsame"}
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
-      MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
+      MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"}
       machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
       test -n "$machsfx" && INSTALL_SUBDIR_SFX=-$machsfx
       # echo "CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
       ;;
 
     Darwin)
-      if test -n "$MACHINEFILE"; then
-        machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
-        if test -n "$machsfx"; then
-          INSTALL_SUBDIR_SFX=-$machsfx
-        fi
+      MACHINEFILE=${MACHINEFILE:-"darwin.clangcxx11"}
+      machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
+      if test -n "$machsfx"; then
+        INSTALL_SUBDIR_SFX=-$machsfx
       fi
       if test -n "$machsfx" || (test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]] ); then
         CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
