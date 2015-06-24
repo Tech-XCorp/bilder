@@ -252,6 +252,14 @@ for absdir in $absdirs; do
   else
     echo "No abstracts found in last $HOURS hours.<br>" >>allabs-${absdir}.html
   fi
+  echo "<br/>" >>allabs-${absdir}.html
+  echo "<br/>" >>allabs-${absdir}.html
+  echo "<hr/>" >>allabs-${absdir}.html
+  echo "<br/>" >>allabs-${absdir}.html
+  echo "<h2>Log:</h2>" >>allabs-${absdir}.html
+  echo "<pre>" >>allabs-${absdir}.html
+  cat "${workdir}/jenkinsabs.log" >>allabs-${absdir}.html
+  echo "</pre>" >>allabs-${absdir}.html
   echo "</html>" >>allabs-${absdir}.html
   if $istopdir; then
 # -a/-t passed, so email this file to the specified email address.
