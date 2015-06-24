@@ -51,7 +51,10 @@ setPythonTriggerVars
 ######################################################################
 
 findPython() {
-  addtopathvar PATH $CONTRIB_DIR/python/bin
+  case `uname` in
+    CYGWIN*) addtopathvar PATH $CONTRIB_DIR/python;;
+    *) addtopathvar PATH $CONTRIB_DIR/python/bin;;
+  esac
   source $BILDER_DIR/bilderpy.sh
   if test `uname` = Linux; then
     addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
