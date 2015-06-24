@@ -82,8 +82,8 @@ getTriTPLs() {
       MUMPS)
         tplLibName='cmumps;zmumps;smumps;dmumps;mumps_common;pord'
         if test "$parflag" == "ser"; then
-# Experimental trilinos not building serial with Mumps on Linux
-          if ! $BUILD_EXPERIMENTAL || ! test `uname` = Linux; then
+          # No mumps on Linux serial
+          if ! test `uname` = Linux; then
             tplLibName="${tplLibName};seq"
             if test -e $CONTRIB_DIR/mumps; then
               tplDir=$CONTRIB_DIR/mumps
@@ -319,18 +319,17 @@ buildTrilinos() {
        ;;
      Linux)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
-# 11.12.1 builds with hypre on Linux
-       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
-# 11.12.1 does not build serial with mumps on Linux
-       TPL_PACKAGELIST="$TPL_PACKAGELIST MUMPS"
+       # We don't want MUMPS in serial, but getTriTPLs knows that
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
        ;;
   esac
   techo -2 "TPL_PACKAGELIST = $TPL_PACKAGELIST"
 
-# Turn on external packages.  getTriTPLs figures out which ones are
+# Turn on external packages. getTriTPLs figures out which ones are
 # par and which ones are ser
   triTplSerArgs=`getTriTPLs ser $TPL_PACKAGELIST`
   triTplParArgs=`getTriTPLs par $TPL_PACKAGELIST`
+
   techo -2 "triTplSerArgs = $triTplSerArgs."
   techo -2 "triTplParArgs = $triTplParArgs."
 
