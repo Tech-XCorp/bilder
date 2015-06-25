@@ -8,6 +8,10 @@
 
 techo
 techo "Determining Python version."
+case `uname` in
+  CYGWIN*) addtopathvar PATH $CONTRIB_DIR/python;;
+  *) addtopathvar PATH $CONTRIB_DIR/python/bin;;
+esac
 # Make sure we get the built version
 addtopathvar PATH $CONTRIB_DIR/python/bin
 # Remove trailing carriage return on windows
