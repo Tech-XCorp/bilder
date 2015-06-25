@@ -235,9 +235,16 @@ setBilderOptions() {
     fi
     processBilderArgs $arg
   done
-# Now done outside the function call
+# Duplicated outside the function call for scoping
   BILDER_OPTIND=$OPTIND
   techo -2 "BILDER_OPTIND = $BILDER_OPTIND."
+  shift $(($BILDER_OPTIND - 1))
+  BILDER_TARGET="$*"
+  techo "BILDER_TARGET = $BILDER_TARGET."
+  if test -n "$BILDER_TARGET"; then
+    BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGET//"`
+    techo "BILDER_CMD = $BILDER_CMD"
+  fi
 
 # Ensure BILDER_NAME defined
 # Allow calling routine to specify the name
@@ -254,18 +261,25 @@ setBilderOptions() {
     cat >$PROJECT_DIR/${BILDER_NAME}-redo.sh <<EOF
 #!/bin/bash
 cmd="${BILDER_CMD}"
-if [ \$# == 0 ]; then
-  echo '#' To redo the last bilder run, execute the following command in $PROJECT_DIR
-  echo '#'   or execute ${BILDER_NAME}-redo.sh with 'run' option in $PROJECT_DIR
-  echo \$cmd
-else
-  if [ \$1 == 'run' ]; then
-    echo "Executing \$cmd"
-    \$cmd
-  else
-    echo Option argument not recognized
-  fi
+target="${BILDER_TARGET}"
+if [ \$# = 0 ]; then
+  echo '#' The last bilder run was
+  echo \$cmd \$target
+  echo '#' To redo that run execute: ${BILDER_NAME}-redo.sh redo
+  echo '#' To run with default targets, execute: ${BILDER_NAME}-redo.sh default
+  echo '#' To change targets, execute: ${BILDER_NAME}-redo.sh '<new target>'
+  exit 0
 fi
+if [ "\$1" = redo -o "\$1" = run ]; then
+  echo "Executing \$cmd \$target"
+  exec \$cmd \$target
+fi
+if [ "\$1" = default ]; then
+  echo "Executing \$cmd"
+  exec \$cmd
+fi
+echo "Executing \$cmd \$1"
+exec \$cmd \$1
 EOF
     chmod a+x $PROJECT_DIR/${BILDER_NAME}-redo.sh
   fi
