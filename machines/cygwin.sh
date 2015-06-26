@@ -205,12 +205,17 @@ setVsEnv() {
   done
   local pathvs=`deref PATH_VS${1}`
   fullpath=`echo $fullpath | sed "s%:/cygdrive%:$pathvs:/cygdrive%"`
-  local cmnvar=VS${1}0COMNTOOLS
-  local cmnval="C:\Program Files\Microsoft Visual Studio ${1}.0\Common7\Tools"
+  export PATH="$fullpath"
+  # local cmnvar=VS${1}0COMNTOOLS
+  # local cmnval="C:\Program Files\Microsoft Visual Studio ${1}.0\Common7\Tools"
   local inc=`deref INCLUDE_VS${1}`
+  export INCLUDE="$inc"
   local lib=`deref LIB_VS${1}`
+  export LIB="$lib"
   local libpath=`deref LIBPATH_VS${1}`
-  ENV_VS="PATH='$fullpath' $cmnvar='$cmnval' INCLUDE='$inc' LIB='$lib' LIBPATH='$libpath'"
+  export LIBPATH="$libpath"
+  # ENV_VS="PATH='$fullpath' $cmnvar='$cmnval' INCLUDE='$inc' LIB='$lib' LIBPATH='$libpath'"
+  ENV_VS="PATH='$PATH' INCLUDE='$INCLUDE' LIB='$LIB' LIBPATH='$LIBPATH'"
   $TECHO "ENV_VS = \"$ENV_VS\""
 }
 
