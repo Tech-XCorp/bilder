@@ -63,10 +63,10 @@ MPIF77=${MPIF77:-"mpixlf77_r"}
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-q64 -qlanglvl=redefmac"}
-CXXFLAGS=${CXXFLAGS:-"-q64 -qlanglvl=redefmac"}
-FCFLAGS=${FCFLAGS:-"-q64 -qextname=flush"}
-FFLAGS=${FFLAGS:-"-q64 -qextname=flush"}
+CFLAGS=${CFLAGS:-"-langlvl=redefmac"}
+CXXFLAGS=${CXXFLAGS:-"-qlanglvl=redefmac"}
+FCFLAGS=${FCFLAGS:-"-qextname=flush"}
+FFLAGS=${FFLAGS:-"-qextname=flush"}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -81,10 +81,10 @@ PYC_MODFLAGS=${PYC_MODFLAGS:-"-m64 -pthread -shared"}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
 
 # Parallel
-MPI_CFLAGS=${MPI_CFLAGS:-"-qlanglvl=redefmac"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-qlanglvl=redefmac"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-qextname=flush"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-qextname=flush"}
+MPI_CFLAGS=${MPI_CFLAGS:-"-qlanglvl=redefmac -qtune=qp -qarch=qp"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-qlanglvl=redefmac -qtune=qp -qarch=qp"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-qextname=flush -qtune=qp -qarch=qp -qessl"}
+MPI_FFLAGS=${MPI_FFLAGS:-"-qextname=flush -qtune=qp -qarch=qp -qessl"}
 
 # Linear algebra libraries:
 # All should be a full path to the library.
@@ -549,10 +549,10 @@ LAPACK_BUILDS=${LAPACK_BUILDS:-"ser,pycsh"}
 # MULASSIS_BUILDS=${MULASSIS_BUILDS:-""}
 # MULASSIS_SER_OTHER_ARGS=${MULASSIS_SER_OTHER_ARGS:-""}
 
-# MUMPS_BLDRVERSION=${MUMPS_BLDRVERSION:-""}
+MUMPS_BLDRVERSION=${MUMPS_BLDRVERSION:-"5.0.0"}
 # MUMPS_BUILDS=${MUMPS_BUILDS:-""}
-MUMPS_PAR_OTHER_ARGS=${MUMPS_PAR_OTHER_ARGS:-"-DCMAKE_Fortran_COMPILER:FILEPATH='$MPIF77'"}
-MUMPS_SER_OTHER_ARGS=${MUMPS_SER_OTHER_ARGS:-"-DCMAKE_Fortran_COMPILER:FILEPATH='$F77'"}
+MUMPS_PAR_OTHER_ARGS=${MUMPS_PAR_OTHER_ARGS:-"-DBUILD_EXECS:BOOL=FALSE -DBUILD_SHARED_LIBS:BOOL=FALSE -DCMAKE_Fortran_COMPILER:FILEPATH='$MPIF77'"}
+MUMPS_SER_OTHER_ARGS=${MUMPS_SER_OTHER_ARGS:-"-DBUILD_EXECS:BOOL=FALSE -DBUILD_SHARED_LIBS:BOOL=FALSE -DCMAKE_Fortran_COMPILER:FILEPATH='$F77' -DCMAKE_Fortran_FLAGS:STRING='-qextname=flush -qfixed=72'"}
 
 # MUPARSER_BLDRVERSION=${MUPARSER_BLDRVERSION:-""}
 # MUPARSER_BUILDS=${MUPARSER_BUILDS:-""}
