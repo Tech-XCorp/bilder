@@ -42,7 +42,8 @@ buildPython() {
   if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
     updateRepo python
     getVersion python
-    bilderPreconfig python
+# Always install in contrib dir for consistency
+    bilderPreconfig -I $CONTRIB_DIR Python
     res=$?
   else
     bilderUnpack Python
