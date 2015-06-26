@@ -12,8 +12,7 @@ case `uname` in
   CYGWIN*) addtopathvar PATH $CONTRIB_DIR/python;;
   *) addtopathvar PATH $CONTRIB_DIR/python/bin;;
 esac
-# Make sure we get the built version
-addtopathvar PATH $CONTRIB_DIR/python/bin
+techo -2 "PATH = $PATH"
 # Remove trailing carriage return on windows
 pymajver=`python -c "import sys;print sys.version[0]" | tr -d '\r'`
 techo "Python major version is '$pymajver'."
@@ -158,6 +157,8 @@ if ! $NO_PYTHON; then
 # If path already added, remove so as not to mix versions.
   echo "NATIVE_PYTHON_SITEPKGSDIR = $NATIVE_PYTHON_SITEPKGSDIR"
   unset BILDER_PYTHONPATH
+# Unset PYTHONPATH so that only the current one is found
+  unset PYTHONPATH
 # Below ensures the final sourced file is correct
   addtopathvar PYTHONPATH "$PYTHON_SITEPKGSDIR"
   case `uname` in
