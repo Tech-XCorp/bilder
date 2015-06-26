@@ -188,30 +188,11 @@ EOF
 
 allVersions="12 11 10 9"
 
-if $IS_64_BIT; then
-  for vsver in $allVersions; do
-    getVsPaths $vsver
-  done
-else
-# No longer supporting 32 bit
-if false; then
-  PATH_VS9="/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/IDE:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/Tools:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v3.5:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v2.0.50727:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v6.0A/bin"
-  INCLUDE_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\include;"
-  LIB_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\lib;"
-  LIBPATH_VS9="C:\Windows\Microsoft.NET\Framework\v3.5;C:\Windows\Microsoft.NET\Framework\v2.0.50727;C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\LIB;"
-# for MSVC10
-  PATH_VS10="/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/Common7/IDE/:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/VC/bin:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/Common7/Tools:/cygdrive/c/Windows/Microsoft.NET/Framework/v4.0.30319:/cygdrive/c/Windows/Microsoft.NET/Framework/v3.5:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v7.0A/bin/NETFX 4.0 Tools:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v7.0A/bin"
-  INCLUDE_VS10="C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v7.0A\include;"
-  LIB_VS10="C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v7.0A\lib;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib/amd64;"
-  LIBPATH_VS10="C:\Windows\Microsoft.NET\Framework\v4.0.30319;C:\Windows\Microsoft.NET\Framework\v3.5;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\LIB;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib/amd64;"
-
-# for MSVC11
-  PATH_VS11="/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/Common7/IDE/:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/VC/bin:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/Common7/Tools:/cygdrive/c/Windows/Microsoft.NET/Framework/v4.0.30319:/cygdrive/c/Windows/Microsoft.NET/Framework/v3.5:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v8.0A/bin/NETFX 4.0 Tools:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v8.0A/bin"
-  INCLUDE_VS11="C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v8.0A\include;"
-  LIB_VS11="C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v8.0A\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
-  LIBPATH_VS11="C:\Windows\Microsoft.NET\Framework\v4.0.30319;C:\Windows\Microsoft.NET\Framework\v3.5;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
-fi
-fi
+for vsver in $allVersions; do
+# This previously done for only 64 bit.  If we return to supporting 32-bit
+# windows, getVsPaths will have to be revisited.
+  getVsPaths $vsver
+done
 
 # Set the environment for a version of Visual Studio
 #
@@ -259,30 +240,6 @@ setVsEnvs() {
 #
 # 1: the version
 setVsVars() {
-
-if false; then
-# $1 = visual studio version
-# Remove old from PATH
-# if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
-# a needed colon.
-  sedStr=sed
-  for ver in $allVersions; do
-    if test $ver != $1; then
-      sedStr="$sedStr -e \"s%:\$PATH_VS${ver}:%:%\""
-    fi
-  done
-
-  if test -n "$MINGW_BINDIR"; then
-    sedStr="$sedStr -e \"s%:\$MINGW_BINDIR%%\""
-  fi
-
-  echo $PATH | eval $sedStr
-
-# Add new
-  $TECHO "setVsVars... Adding Visual Studio $1 variables to environment."
-  $TECHO "setVsVars... before PATH = $PATH"
-  PATH=`echo $PATH | sed "s%:/cygdrive%:\`deref PATH_VS$1\`:/cygdrive%"`:$MINGW_BINDIR
-fi
 
 # Set various paths
   setVsEnvs
