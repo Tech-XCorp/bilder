@@ -79,9 +79,10 @@ elif test -f /usr/bin/python2.5.exe; then
 fi
 
 # Make sure that /usr/bin and /bin are just after the Python bin dir
-# alexanda 2012-7-31: Changed this to above code that simply moves python to front of path
+# alexanda 2012-7-31: Changed this to above code that simply moves
+#   python to front of path
 # PATH="/cygdrive/c/Python26:$PATH"
-# JRC 20121111: This screwed me up.  I get my correct with my subversion
+# JRC 20121111: This screwed me up.  I get mine correct with my subversion
 # in front of my path, and then move /usr/bin later than python, so that
 # the correct subversion is unchanged.  Otherwise, svnversion looks modified.
 # Restoring for now.  What we need to figure out is why the qar machines
@@ -132,9 +133,6 @@ getVsPaths() {
   if echo $PATH | grep "Visual Studio ${vsver}"; then
     $TECHO "WARNING: Visual Studio ${vsver} already in your path."
     pathhasvs=true
-# Attempts to remove from path
-    # PATHVS=`echo $PATH | sed -e "s?^.*\(/cygdrive/c/Program Files/Microsoft Visual Studio ${vsver}\)?\1?" -e "s?\(Windows/v7.0A/bin\).*$?\1?"`
-    $TECHO "Temporary path = $PATH."
   fi
   local vscomntools=`deref VS${vsver}0COMNTOOLS`
   $TECHO "VS${vsver}0COMNTOOLS = $vscomntools."
@@ -188,12 +186,15 @@ EOF
   eval LIBPATH_VS${vsver}="\"$tmp\""
 }
 
+allVersions="12 11 10 9"
+
 if $IS_64_BIT; then
-  getVsPaths 9
-  getVsPaths 10
-  getVsPaths 11
-  getVsPaths 12
+  for vsver in $allVersions; do
+    getVsPaths $vsver
+  done
 else
+# No longer supporting 32 bit
+if false; then
   PATH_VS9="/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/IDE:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/Tools:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v3.5:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v2.0.50727:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v6.0A/bin"
   INCLUDE_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\include;"
   LIB_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\lib;"
@@ -210,28 +211,56 @@ else
   LIB_VS11="C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v8.0A\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
   LIBPATH_VS11="C:\Windows\Microsoft.NET\Framework\v4.0.30319;C:\Windows\Microsoft.NET\Framework\v3.5;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
 fi
+fi
 
-allVersions="12 11 10 9"
+# Set the environment for a version of Visual Studio
+#
+# 1: the version
+setVsEnv() {
+  local fullpath="$PATH"
+  for vsver in $allversions; do
+    rmpath=`deref PATH_VS$vsver`
+    fullpath=`echo $fullpath | sed -e "s%:$rmpath:%:%"`
+  done
+  local pathvs=`deref PATH_VS${1}`
+  fullpath=`echo $fullpath | sed "s%:/cygdrive%:$pathvs:/cygdrive%"`
+  local cmnvar=VS${1}0COMNTOOLS
+  local cmnval="C:\Program Files\Microsoft Visual Studio ${1}.0\Common7\Tools"
+  local inc=`deref INCLUDE_VS${1}`
+  local lib=`deref LIB_VS${1}`
+  local libpath=`deref LIBPATH_VS${1}`
+  ENV_VS="PATH='$fullpath' $cmnvar='$cmnval' INCLUDE='$inc' LIB='$lib' LIBPATH='$libpath'"
+  $TECHO "ENV_VS = \"$ENV_VS\""
+}
 
+if false; then
 # Set the environments
-FULLPATH_VS9=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
-FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
-ENV_VS9="PATH='$MINGW_BINDIR:$FULLPATH_VS9' VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
-# $TECHO "ENV_VS9 = \"$ENV_VS9\""
-FULLPATH_VS10=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS11:%:%"`
-FULLPATH_VS10=`echo $FULLPATH_VS10 | sed "s%:/cygdrive%:$PATH_VS10:/cygdrive%"`
-ENV_VS10="PATH='$MINGW_BINDIR:$FULLPATH_VS10' VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
-# $TECHO "ENV_VS10 = \"$ENV_VS10\""
-FULLPATH_VS11=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%"`
-FULLPATH_VS11=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`
-ENV_VS11="PATH='$MINGW_BINDIR:$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
-# $TECHO "ENV_VS11 = \"$ENV_VS11\""
-FULLPATH_VS12=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
-FULLPATH_VS12=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS12:/cygdrive%"`
-ENV_VS12="PATH='$MINGW_BINDIR:$FULLPATH_VS12' VS120COMNTOOLS='C:\Program Files\Microsoft Visual Studio 12.0\Common7\Tools' INCLUDE='$INCLUDE_VS12' LIB='$LIB_VS12' LIBPATH='$LIBPATH_VS12'"
-# $TECHO "ENV_VS12 = \"$ENV_VS12\""
+setVsEnvs() {
+  FULLPATH_VS9="$PATH"
+  for vsver in $allversions; do
+    rmpath=`deref PATH_VS$vsver`
+    FULLPATH_VS9=`echo $FULLPATH_VS9 | sed -e "s%:$rmpath:%:%"`
+  done
+  FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
+  ENV_VS9="PATH='$FULLPATH_VS9' VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
+  $TECHO "ENV_VS9 = \"$ENV_VS9\""
+  FULLPATH_VS10=`echo $FULLPATH_VS9 | sed -e "s%:$PATH_VS9:%:$PATH_VS10:%"`
+  ENV_VS10="PATH='$FULLPATH_VS10' VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
+  $TECHO "ENV_VS10 = \"$ENV_VS10\""
+  FULLPATH_VS11=`echo $FULLPATH_VS10 | sed -e "s%:$PATH_VS10:%:$PATH_VS11:%"`
+  ENV_VS11="PATH='$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
+  $TECHO "ENV_VS11 = \"$ENV_VS11\""
+  FULLPATH_VS12=`echo $FULLPATH_VS11 | sed -e "s%:$PATH_VS11:%:$PATH_VS12:%"`
+  ENV_VS12="PATH='$FULLPATH_VS12' VS120COMNTOOLS='C:\Program Files\Microsoft Visual Studio 12.0\Common7\Tools' INCLUDE='$INCLUDE_VS12' LIB='$LIB_VS12' LIBPATH='$LIBPATH_VS12'"
+  $TECHO "ENV_VS12 = \"$ENV_VS12\""
+}
 
+# Set the visual studio environment variables for a particular version
+#
+# 1: the version
 setVsVars() {
+
+if false; then
 # $1 = visual studio version
 # Remove old from PATH
 # if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
@@ -253,13 +282,17 @@ setVsVars() {
   $TECHO "setVsVars... Adding Visual Studio $1 variables to environment."
   $TECHO "setVsVars... before PATH = $PATH"
   PATH=`echo $PATH | sed "s%:/cygdrive%:\`deref PATH_VS$1\`:/cygdrive%"`:$MINGW_BINDIR
+fi
+
+# Set various paths
+  setVsEnvs
+
 # Do we need to make sure /usr/bin is before /cygdrive/c/Windows/system32?
   export INCLUDE="`deref INCLUDE_VS$1`"
   export LIB="`deref LIB_VS$1`"
   export LIBPATH="`deref LIBPATH_VS$1`"
   case $1 in
-    9 | 1[01]) export ENV_VS="`deref ENV_VS$1`" ;;
-    12) export ENV_VS="`deref ENV_VS$1`" ;;
+    9 | 1[012]) export ENV_VS="`deref ENV_VS$1`" ;;
     *)
       $TECHO "ERROR: [$FUNCNAME] ENV not known for Visual Studio $1."
       ;;
@@ -268,7 +301,9 @@ setVsVars() {
   $TECHO "setVsVars... INCLUDE = $INCLUDE"
   $TECHO "setVsVars... LIB = $LIB"
   $TECHO "setVsVars... LIBPATH = $LIBPATH"
+
 }
+fi
 
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
 if test -n "$hasvisstudio"; then
@@ -287,7 +322,7 @@ else
   if test -n "$VISUALSTUDIO_VERSION"; then
     nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio ${VISUALSTUDIO_VERSION}.0/VC/BIN:"`
     if test -z "$nopathvisstudio"; then
-      setVsVars ${VISUALSTUDIO_VERSION}
+      setVsEnv ${VISUALSTUDIO_VERSION}
     fi
   else
     $TECHO "WARNING: Visual Studio not found and not in path."

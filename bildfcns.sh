@@ -2220,6 +2220,7 @@ setDistutilsEnv() {
   unset DISTUTILS_ENV2
   case `uname` in
     CYGWIN*)
+      setVsEnv $VISUALSTUDIO_VERSION
       DISTUTILS_ENV="$ENV_VS"
       DISTUTILS_ENV2="$ENV_VS"
       ;;
