@@ -198,13 +198,25 @@ done
 #
 # 1: the version
 setVsEnv() {
-  local fullpath="$PATH"
-  for vsver in $allversions; do
+# Convert to consistent kind of path
+  local fullpath=`cygpath -aup "$PATH"`
+  # $TECHO "At start, fullpath = $fullpath"
+  for vsver in $allVersions; do
     local rmpath=`deref PATH_VS$vsver`
-    fullpath=`echo $fullpath | sed -e "s%:$rmpath:%:%"`
+    if test -n "$rmpath"; then
+      rmpath=`cygpath -aup "$rmpath"`
+      # $TECHO "Removing $rmpath"
+      fullpath=`echo $fullpath | sed -e "s%:$rmpath:%:%"`
+    fi
   done
   local pathvs=`deref PATH_VS${1}`
+  if test -z "$pathvs"; then
+    TERMINATE_ERROR_MSG="ERROR: [${FUNCNAME}] Visual Studio $1 not found."
+    terminate
+  fi
+  pathvs=`cygpath -aup "$pathvs"`
   fullpath=`echo $fullpath | sed "s%:/cygdrive%:$pathvs:/cygdrive%"`
+  # $TECHO "After sed, fullpath = $fullpath"
   export PATH="$fullpath"
   # local cmnvar=VS${1}0COMNTOOLS
   # local cmnval="C:\Program Files\Microsoft Visual Studio ${1}.0\Common7\Tools"
