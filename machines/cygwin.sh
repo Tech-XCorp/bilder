@@ -200,7 +200,7 @@ done
 setVsEnv() {
   local fullpath="$PATH"
   for vsver in $allversions; do
-    rmpath=`deref PATH_VS$vsver`
+    local rmpath=`deref PATH_VS$vsver`
     fullpath=`echo $fullpath | sed -e "s%:$rmpath:%:%"`
   done
   local pathvs=`deref PATH_VS${1}`
@@ -213,54 +213,6 @@ setVsEnv() {
   ENV_VS="PATH='$fullpath' $cmnvar='$cmnval' INCLUDE='$inc' LIB='$lib' LIBPATH='$libpath'"
   $TECHO "ENV_VS = \"$ENV_VS\""
 }
-
-if false; then
-# Set the environments
-setVsEnvs() {
-  FULLPATH_VS9="$PATH"
-  for vsver in $allversions; do
-    rmpath=`deref PATH_VS$vsver`
-    FULLPATH_VS9=`echo $FULLPATH_VS9 | sed -e "s%:$rmpath:%:%"`
-  done
-  FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
-  ENV_VS9="PATH='$FULLPATH_VS9' VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
-  $TECHO "ENV_VS9 = \"$ENV_VS9\""
-  FULLPATH_VS10=`echo $FULLPATH_VS9 | sed -e "s%:$PATH_VS9:%:$PATH_VS10:%"`
-  ENV_VS10="PATH='$FULLPATH_VS10' VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
-  $TECHO "ENV_VS10 = \"$ENV_VS10\""
-  FULLPATH_VS11=`echo $FULLPATH_VS10 | sed -e "s%:$PATH_VS10:%:$PATH_VS11:%"`
-  ENV_VS11="PATH='$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
-  $TECHO "ENV_VS11 = \"$ENV_VS11\""
-  FULLPATH_VS12=`echo $FULLPATH_VS11 | sed -e "s%:$PATH_VS11:%:$PATH_VS12:%"`
-  ENV_VS12="PATH='$FULLPATH_VS12' VS120COMNTOOLS='C:\Program Files\Microsoft Visual Studio 12.0\Common7\Tools' INCLUDE='$INCLUDE_VS12' LIB='$LIB_VS12' LIBPATH='$LIBPATH_VS12'"
-  $TECHO "ENV_VS12 = \"$ENV_VS12\""
-}
-
-# Set the visual studio environment variables for a particular version
-#
-# 1: the version
-setVsVars() {
-
-# Set various paths
-  setVsEnvs
-
-# Do we need to make sure /usr/bin is before /cygdrive/c/Windows/system32?
-  export INCLUDE="`deref INCLUDE_VS$1`"
-  export LIB="`deref LIB_VS$1`"
-  export LIBPATH="`deref LIBPATH_VS$1`"
-  case $1 in
-    9 | 1[012]) export ENV_VS="`deref ENV_VS$1`" ;;
-    *)
-      $TECHO "ERROR: [$FUNCNAME] ENV not known for Visual Studio $1."
-      ;;
-  esac
-  $TECHO "setVsVars... after PATH = $PATH"
-  $TECHO "setVsVars... INCLUDE = $INCLUDE"
-  $TECHO "setVsVars... LIB = $LIB"
-  $TECHO "setVsVars... LIBPATH = $LIBPATH"
-
-}
-fi
 
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
 if test -n "$hasvisstudio"; then
