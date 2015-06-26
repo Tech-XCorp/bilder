@@ -63,7 +63,7 @@ MPIF77=${MPIF77:-"mpixlf77_r"}
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-langlvl=redefmac"}
+CFLAGS=${CFLAGS:-"-qlanglvl=redefmac"}
 CXXFLAGS=${CXXFLAGS:-"-qlanglvl=redefmac"}
 FCFLAGS=${FCFLAGS:-"-qextname=flush"}
 FFLAGS=${FFLAGS:-"-qextname=flush"}
