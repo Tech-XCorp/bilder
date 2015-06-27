@@ -63,7 +63,7 @@ isBuildTime() {
   done
   shift $(($OPTIND - 1))
 
-  techo -2 "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
+  techo -2 "isBuildTime called with '$*' and ignorebuilds '$ignorebuilds'."
   if test -z "$2"; then
     return 1
   fi
@@ -366,7 +366,7 @@ bilderSvnCleanup() {
 # 1: the node
 #
 bilderSvnversion() {
-  # techo "bilderSvnversion called with args, $*." 1>&2
+  # techo -2 "bilderSvnversion called with '$*'."
   BLDR_SVNVERSION=${BLDR_SVNVERSION:-"svnversion"}
   local version=
   local numargs=$#
@@ -1668,7 +1668,7 @@ areAllInstalled() {
 #    CONTRIB_DIR that builds and or dependencies might be found.
 #
 shouldInstall() {
-  techo -2 "shouldInstall called with $*"
+  techo -2 "shouldInstall called with '$*'."
 
 # Determine installation directory
   local instdirs=
@@ -3659,7 +3659,7 @@ bilderUnpack() {
   if ! $USING_BUILD_CHAIN; then
     techo "bilderUnpack not using build chain."
   fi
-  techo -2 "bilderUnpack called with $*"
+  techo -2 "bilderUnpack called with '$*'."
 
 # Determine whether to force install
   local inplace=false   # Whether to build in place
@@ -3923,7 +3923,7 @@ bilderUnpack() {
 #
 bilderPreconfig() {
 
-  techo -2 "bilderPreconfig called with $*"
+  techo -2 "bilderPreconfig called with '$*'."
 
 # If just getting packages, nothing to do here.
   if $JUST_GET_PACKAGES; then
@@ -4187,7 +4187,7 @@ rminterlibdeps() {
 #
 bilderConfig() {
 
-  techo -2 "bilderConfig called with $*"
+  techo -2 "bilderConfig called with '$*'."
 
 # Default option values
   unset DEPS
@@ -5974,7 +5974,7 @@ installRelShlib() {
 # Return true if should be installed
 #
 shouldInstallTestedPkg() {
-  techo -2 "shouldInstallTestedPkg called with args: '$*'."
+  techo -2 "shouldInstallTestedPkg called with '$*'."
 
 # Parse options
   local hasbuildtests=false
@@ -6783,7 +6783,7 @@ bilderInstallAll() {
 #
 bilderInstallTestedPkg() {
 
-  techo -3 "bilderInstallTestedPkg called with args: '$*'."
+  techo -2 "bilderInstallTestedPkg called with '$*'."
 
 # Default option values
   local hasbuildtests=false
@@ -7043,7 +7043,7 @@ EOF
 #
 bilderDuInstall() {
 
-  techo -2 "bilderDuInstall called with '$*'"
+  techo -2 "bilderDuInstall called with '$*'."
 
 # Default option values
   local dupkg=
