@@ -19,10 +19,10 @@ setPythonTriggerVars() {
 
 # Determine how to get python
   if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
-    PYTHON_USE_GIT=true
+    PYTHON_USE_REPO=true
   fi
-  PYTHON_USE_GIT=${PYTHON_USE_GIT:-"false"}
-  if $PYTHON_USE_GIT; then
+  PYTHON_USE_REPO=${PYTHON_USE_REPO:-"false"}
+  if $PYTHON_USE_REPO; then
     PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
     PYTHON_REPO_BRANCH_STD=master
     PYTHON_REPO_BRANCH_EXP=master
@@ -38,7 +38,7 @@ setPythonTriggerVars() {
   export PYTHON_BLDRVERSION
   PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   PYTHON_DEPS=chrpath,sqlite,bzip2
-  if $PYTHON_USE_GIT; then
+  if $PYTHON_USE_REPO; then
     PYTHON_DEPS=$PYTHON_DEPS,cmake
   fi
 }

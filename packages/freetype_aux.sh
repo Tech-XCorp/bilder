@@ -73,8 +73,8 @@ findFreetype() {
 
 setFreetypeTriggerVars() {
 
-  FREETYPE_USE_GIT=${FREETYPE_USE_GIT:-"false"}
-  if $FREETYPE_USE_GIT; then
+  FREETYPE_USE_REPO=${FREETYPE_USE_REPO:-"false"}
+  if $FREETYPE_USE_REPO; then
     FREETYPE_REPO_URL=http://git.savannah.gnu.org/cgit/freetype/freetype2.git
     FREETYPE_REPO_BRANCH_STD=master
     FREETYPE_REPO_BRANCH_EXP=master
@@ -94,7 +94,7 @@ setFreetypeTriggerVars() {
       ;;
     Darwin | Linux)
 # Build on Linux or Darwin only if not found in system
-      if $FREETYPE_USE_GIT; then
+      if $FREETYPE_USE_REPO; then
         FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
       else
         findFreetype -s

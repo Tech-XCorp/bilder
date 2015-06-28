@@ -36,7 +36,7 @@ setFreetypeNonTriggerVars
 
 buildFreetype() {
 
-  if $FREETYPE_USE_GIT; then
+  if $FREETYPE_USE_REPO; then
     updateRepo freetype
     getVersion freetype
 # Always install in contrib dir for consistency

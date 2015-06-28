@@ -38,7 +38,7 @@ buildPython() {
 
 # Get python from either repo or unpack it
   local res=
-  if $PYTHON_USE_GIT; then
+  if $PYTHON_USE_REPO; then
     updateRepo python
     getVersion python
 # Always install in contrib dir for consistency

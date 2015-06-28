@@ -17,29 +17,27 @@
 
 setCoinTriggerVars() {
 
-  COIN_USE_GIT=${COIN_USE_GIT:-"false"}
-  if $COIN_USE_GIT; then
-# CMake fork: https://bitbucket.org/cbuehler/coin
-    COIN_REPO_URL=https://bitbucket.org/Coin3D/coin
-    COIN_REPO_BRANCH_STD=master
-    COIN_REPO_BRANCH_EXP=master
+  COIN_USE_REPO=${COIN_USE_REPO:-"false"}
+  if $COIN_USE_REPO; then
+    # COIN_REPO_URL=https://bitbucket.org/Coin3D/coin # original
+    COIN_REPO_URL=https://bitbucket.org/cbuehler/coin # cmake fork
+    COIN_CMAKE_ARGS=-c
+    COIN_NAME=coin
+    COIN_REPO_BRANCH_STD=default
+    COIN_REPO_BRANCH_EXP=default
     COIN_UPSTREAM_URL=https://bitbucket.org/Coin3D/coin
-    COIN_UPSTREAM_BRANCH_STD=master
-    COIN_UPSTREAM_BRANCH_EXP=master
+    COIN_UPSTREAM_BRANCH_STD=default
+    COIN_UPSTREAM_BRANCH_EXP=default
   else
     COIN_BLDRVERSION_STD=${COIN_BLDRVERSION_STD:-"3.1.3"}
     COIN_BLDRVERSION_EXP=${COIN_BLDRVERSION_EXP:-"3.1.3"}
+    COIN_NAME=Coin
   fi
-
-  if test -z "$COIN_BUILDS"; then
-    COIN_BUILDS=par
-    case `uname` in
-      CYGWIN*) ;;
-      Darwin) COIN_BUILDS="${COIN_BUILDS},parsh";;
-      Linux) COIN_BUILDS="${COIN_BUILDS},parsh";;
-    esac
-  fi
+  COIN_BUILDS=${FORPYTHON_SHARED_BUILD}
   COIN_DEPS=qt
+  if $COIN_USE_REPO; then
+    COIN_DEPS=$COIN_DEPS,cmake
+  fi
 
 }
 setCoinTriggerVars
