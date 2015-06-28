@@ -67,9 +67,11 @@ buildFreetype() {
   esac
 
 # pycsh always built shared
+  eval PYTHON_PYCSH_INSTALL_DIR=$CONTRIB_DIR
   if bilderConfig -c freetype pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_PYCSH_OTHER_ARGS"; then
     bilderBuild $FREETYPE_MAKE_ARGS freetype pycsh
   fi
+  eval PYTHON_SERSH_INSTALL_DIR=$CONTRIB_DIR
   if bilderConfig -c freetype sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_SERSH_OTHER_ARGS"; then
     bilderBuild $FREETYPE_MAKE_ARGS freetype sersh
   fi
