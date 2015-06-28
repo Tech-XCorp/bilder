@@ -23,9 +23,12 @@
 setSqliteTriggerVars() {
   SQLITE_BLDRVERSION_STD=${SQLITE_BLDRVERSION_STD:-"3080200"}
   SQLITE_BLDRVERSION_EXP=${SQLITE_BLDRVERSION_EXP:-"3081002"}
-  case `uname` in
-    Linux | Darwin) SQLITE_BUILDS=${SQLITE_BUILDS:-"$FORPYTHON_SHARED_BUILD"};;
-  esac
+# Apparently sqlite does build on Windows?
+  # case `uname` in
+  # Linux | Darwin)
+  SQLITE_BUILDS=${SQLITE_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  # ;;
+  # esac
   SQLITE_BUILD=$FORPYTHON_SHARED_BUILD
   SQLITE_DEPS=
 }
