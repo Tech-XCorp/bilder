@@ -72,6 +72,7 @@ findFreetype() {
 ######################################################################
 
 setFreetypeTriggerVars() {
+
   FREETYPE_USE_GIT=${FREETYPE_USE_GIT:-"false"}
   if $FREETYPE_USE_GIT; then
     FREETYPE_REPO_URL=http://git.savannah.gnu.org/cgit/freetype/freetype2.git
@@ -84,6 +85,7 @@ setFreetypeTriggerVars() {
     FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
     FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.6"}
   fi
+
 # freetype generally needed on windows
   case `uname` in
     CYGWIN*)
