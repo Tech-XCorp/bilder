@@ -36,6 +36,9 @@ setPythonTriggerVars() {
   computeVersion Python
 # Export so available to setinstald.sh
   export PYTHON_BLDRVERSION
+  case`uname` in
+    Linux | CYGWIN*) PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"};;
+  esac
   PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   PYTHON_DEPS=chrpath,sqlite,bzip2
   if $PYTHON_USE_REPO; then
