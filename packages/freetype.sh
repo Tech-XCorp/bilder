@@ -36,7 +36,16 @@ setFreetypeNonTriggerVars
 
 buildFreetype() {
 
-  if ! bilderUnpack freetype; then
+  if $FREETYPE_USE_GIT; then
+    updateRepo freetype
+    getVersion freetype
+# Always install in contrib dir for consistency
+    bilderPreconfig -I $CONTRIB_DIR freetype
+  else
+    bilderUnpack freetype
+    res=$?
+  fi
+  if test $res != 0; then
     return
   fi
 

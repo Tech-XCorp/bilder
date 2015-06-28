@@ -72,8 +72,18 @@ findFreetype() {
 ######################################################################
 
 setFreetypeTriggerVars() {
-  FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
-  FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.5.2"}
+  FREETYPE_USE_GIT=${FREETYPE_USE_GIT:-"false"}
+  if $FREETYPE_USE_GIT; then
+    FREETYPE_REPO_URL=http://git.savannah.gnu.org/cgit/freetype/freetype2.git
+    FREETYPE_REPO_BRANCH_STD=master
+    FREETYPE_REPO_BRANCH_EXP=master
+    FREETYPE_UPSTREAM_URL=http://git.savannah.gnu.org/cgit/freetype/freetype2.git
+    FREETYPE_UPSTREAM_BRANCH_STD=master
+    FREETYPE_UPSTREAM_BRANCH_EXP=master
+  else
+    FREETYPE_BLDRVERSION_STD=${FREETYPE_BLDRVERSION_STD:-"2.5.2"}
+    FREETYPE_BLDRVERSION_EXP=${FREETYPE_BLDRVERSION_EXP:-"2.6"}
+  fi
 # freetype generally needed on windows
   case `uname` in
     CYGWIN*)
@@ -82,15 +92,19 @@ setFreetypeTriggerVars() {
       ;;
     Darwin | Linux)
 # Build on Linux or Darwin only if not found in system
-      findFreetype -s
-      if test -z "$FREETYPE_PYCSH_DIR"; then
-        techo "WARNING: [$FUNCNAME] System freetype not found. Will examine for building. Recommend installing system version and removing contrib version to prevent incompatibility."
-        FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
-      elif [[ `freetype-config --ftversion` =~ '2.[0-2]' ]]; then
-        techo "NOTE: [$FUNCNAME] System freetype found but too old. Will examine for building. Recommend upgrading if possible."
+      if $FREETYPE_USE_GIT; then
         FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
       else
-        techo "System freetype found in $FREETYPE_PYCSH_DIR, will not build."
+        findFreetype -s
+        if test -z "$FREETYPE_PYCSH_DIR"; then
+          techo "WARNING: [$FUNCNAME] System freetype not found. Will examine for building. Recommend installing system version and removing contrib version to prevent incompatibility."
+          FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+        elif [[ `freetype-config --ftversion` =~ '2.[0-2]' ]]; then
+          techo "NOTE: [$FUNCNAME] System freetype found but too old. Will examine for building. Recommend upgrading if possible."
+          FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+        else
+          techo "System freetype found in $FREETYPE_PYCSH_DIR, will not build."
+        fi
       fi
       ;;
   esac
@@ -98,7 +112,7 @@ setFreetypeTriggerVars() {
   if test -n "$FREETYPE_BUILDS"; then
     addPycshBuild freetype
   fi
-  FREETYPE_DEPS=libpng
+  FREETYPE_DEPS=libpng,cmake
 }
 setFreetypeTriggerVars
 
