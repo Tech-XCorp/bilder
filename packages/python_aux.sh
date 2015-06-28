@@ -18,8 +18,10 @@
 setPythonTriggerVars() {
 
 # Determine how to get python
-  if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
-    PYTHON_USE_REPO=true
+  if test -n "$VISUALSTUDIO_VERSION"; then
+    if test "$VISUALSTUDIO_VERSION" -ge 12; then
+      PYTHON_USE_REPO=true
+    fi
   fi
   PYTHON_USE_REPO=${PYTHON_USE_REPO:-"false"}
   if $PYTHON_USE_REPO; then
@@ -36,7 +38,7 @@ setPythonTriggerVars() {
   computeVersion Python
 # Export so available to setinstald.sh
   export PYTHON_BLDRVERSION
-  case`uname` in
+  case `uname` in
     Linux | CYGWIN*) PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"};;
   esac
   PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
