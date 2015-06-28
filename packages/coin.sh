@@ -39,13 +39,15 @@ buildCoin() {
 # Get or preconfig git
   local res=0
   if $COIN_USE_REPO; then
+    COIN_NAME=coin
     updateRepo coin
     getVersion coin
 # Always install in contrib dir for consistency
     bilderPreconfig -p : -I $CONTRIB_DIR coin
     res=$?
   else
-    bilderUnpack coin
+    COIN_NAME=Coin
+    bilderUnpack Coin
     res=$?
   fi
   if test $res != 0; then
