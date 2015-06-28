@@ -16,30 +16,31 @@
 ######################################################################
 
 setPythonTriggerVars() {
-  PYTHON_BLDRVERSION_STD=2.7.9
-  PYTHON_BLDRVERSION_EXP=2.7.10
-  case `uname` in
-    CYGWIN*)
-      if test "$VISUALSTUDIO_VERSION" -ge 12; then
-        PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
-        PYTHON_REPO_BRANCH_STD=master
-        PYTHON_REPO_BRANCH_EXP=master
-        PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
-        PYTHON_UPSTREAM_BRANCH_STD=master
-        PYTHON_UPSTREAM_BRANCH_EXP=master
-        PYTHON_BUILDS=$FORPYTHON_SHARED_BUILD
-        # PYTHON_DEPS=sqlite,bzip2,zlib
-        PYTHON_DEPS=bzip2,zlib,cmake
-      fi
-      ;;
-    Linux)
-      PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
-      PYTHON_DEPS=chrpath,sqlite,bzip2
-      ;;
-  esac
+
+# Determine how to get python
+  if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
+    PYTHON_USE_GIT=true
+  fi
+  PYTHON_USE_GIT=${PYTHON_USE_GIT:-"false"}
+  if $PYTHON_USE_GIT; then
+    PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
+    PYTHON_REPO_BRANCH_STD=master
+    PYTHON_REPO_BRANCH_EXP=master
+    PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
+    PYTHON_UPSTREAM_BRANCH_STD=master
+    PYTHON_UPSTREAM_BRANCH_EXP=master
+  else
+    PYTHON_BLDRVERSION_STD=2.7.9
+    PYTHON_BLDRVERSION_EXP=2.7.10
+  fi
   computeVersion Python
 # Export so available to setinstald.sh
   export PYTHON_BLDRVERSION
+  PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  PYTHON_DEPS=chrpath,sqlite,bzip2
+  if $PYTHON_USE_GIT; then
+    PYTHON_DEPS=$PYTHON_DEPS,cmake
+  fi
 }
 
 setPythonTriggerVars

@@ -38,8 +38,7 @@ buildPython() {
 
 # Get python from either repo or unpack it
   local res=
-  echo "VISUALSTUDIO_VERSION = $VISUALSTUDIO_VERSION"
-  if test -n "$VISUALSTUDIO_VERSION" -a "$VISUALSTUDIO_VERSION" -ge 12; then
+  if $PYTHON_USE_GIT; then
     updateRepo python
     getVersion python
 # Always install in contrib dir for consistency
