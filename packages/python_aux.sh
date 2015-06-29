@@ -41,7 +41,6 @@ setPythonTriggerVars() {
   case `uname` in
     Linux | CYGWIN*) PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"};;
   esac
-  PYTHON_BUILDS=${PYTHON_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   PYTHON_DEPS=chrpath,sqlite,bzip2
   if $PYTHON_USE_REPO; then
     PYTHON_DEPS=$PYTHON_DEPS,cmake
