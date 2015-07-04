@@ -66,6 +66,12 @@ buildPython() {
       else
         PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DZLIB_LIBRARY='$CMAKE_ZLIB_SERSH_LIBDIR/zlib.lib' -DZLIB_INCLUDE_DIR='$CMAKE_ZLIB_SERSH_INCDIR'"
       fi
+# Need a sersh build of bzip2 before this can be implemented
+      if test -z "$CMAKE_BZIP2_SERSH_LIBDIR"; then
+        echo "WARNING: [$FUNCNAME] CMAKE_BZIP2_SERSH_LIBDIR not set."
+      else
+        PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBZIP2_LIBRARY='$CMAKE_BZIP2_SERSH_LIBDIR/bzip2.lib'"
+      fi
 # Also need BZIP2_LIBRARIES
 # Remove old build directory to repatch
       rm -rf $BUILD_DIR/Python/*
