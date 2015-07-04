@@ -65,11 +65,11 @@ buildNumexpr() {
 # build was successful.  One must do any removal then before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      NUMEXPR_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMEXPR_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       NUMEXPR_ENV="$DISTUTILS_ENV"
       ;;
     CYGWIN*-*mingw*)
-      NUMEXPR_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMEXPR_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       NUMEXPR_ENV="PATH=$mingwdir:'$PATH'"

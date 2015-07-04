@@ -45,10 +45,10 @@ buildPyParsing() {
   PYPARSING_ENV="$DISTUTILS_NOLV_ENV"
   case `uname`-$CC in
     CYGWIN*-cl)
-      PYPARSING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      PYPARSING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       ;;
     CYGWIN*-mingw*)
-      PYPARSING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      PYPARSING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       PYPARSING_ENV="PATH=/MinGW/bin:'$PATH'"
       ;;
     Linux)

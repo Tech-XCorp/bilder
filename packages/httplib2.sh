@@ -48,12 +48,12 @@ buildHttplib2() {
 
     case `uname`-$CC in
       CYGWIN*-cl)
-        HTTPLIB2_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+        HTTPLIB2_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
         HTTPLIB2_ENV_USED="$DISTUTILS_ENV"
         ;;
       CYGWIN*-*mingw*)
 # Have to install with build to get both prefix and compiler correct.
-        HTTPLIB2_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+        HTTPLIB2_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
         local mingwgcc=`which mingw32-gcc`
         local mingwdir=`dirname $mingwgcc`
         HTTPLIB2_ENV_USED="PATH=$mingwdir:'$PATH'"

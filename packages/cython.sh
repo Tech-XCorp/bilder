@@ -47,12 +47,12 @@ buildCython() {
   $cmd
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       CYTHON_ENV_USED="$DISTUTILS_ENV"
       ;;
     CYGWIN*-mingw*)
 # Have to install with build to get both prefix and compiler correct.
-      CYTHON_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      CYTHON_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       CYTHON_ENV_USED="PATH=$mingwdir:'$PATH'"

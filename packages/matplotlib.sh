@@ -199,10 +199,10 @@ fi
   MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       ;;
     CYGWIN*-mingw*)
-      MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       MATPLOTLIB_ENV="$MATPLOTLIB_ENV PATH=/MinGW/bin:'$PATH'"
       ;;
     Darwin-*)

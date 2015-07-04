@@ -79,11 +79,11 @@ buildTables() {
 # build was successful.  One must do any removal then before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       TABLES_ENV=`echo $DISTUTILS_NOLV_ENV | sed "s@PATH=@PATH=$HDF5_SERSH_DIR/bin:@"`
       ;;
     CYGWIN*-mingw*)
-      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       TABLES_ENV="PATH=/MinGW/bin:'$PATH'"
       ;;
 # For non-Cygwin builds, the build stage does not install.

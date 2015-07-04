@@ -49,12 +49,12 @@ buildImaging() {
 # Different targets for windows
   case `uname`-$CC in
     CYGWIN*-cl)
-      IMAGING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      IMAGING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       IMAGING_ENV="$DISTUTILS_ENV"
       ;;
     CYGWIN*-mingw*)
 # Have to install with build to get both prefix and compiler correct.
-      IMAGING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      IMAGING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       IMAGING_ENV="PATH=$mingwdir:'$PATH'"
