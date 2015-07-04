@@ -31,9 +31,12 @@ setPythonTriggerVars() {
     PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
     PYTHON_UPSTREAM_BRANCH_STD=master
     PYTHON_UPSTREAM_BRANCH_EXP=master
+# Do not create installer in this case, as it is not yet working.
+    BDIST_WININST_ARG=
   else
     PYTHON_BLDRVERSION_STD=2.7.9
     PYTHON_BLDRVERSION_EXP=2.7.10
+    BDIST_WININST_ARG=bdist_wininst
   fi
   computeVersion Python
 # Export so available to setinstald.sh

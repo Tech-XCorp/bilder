@@ -168,11 +168,7 @@ buildNumpy() {
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # For Cygwin, build, install, and make packages all at once, with
-# the latter if not building from a repo.
-  local BDIST_WININST_ARG=
-  if $PYTHON_USE_REPO
-    BDIST_WININST_ARG=bdist_wininst
-  fi
+# the latter if not building from a repo, as controlled by BDIST_WININST_ARG.
 # For others, just build.
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,
