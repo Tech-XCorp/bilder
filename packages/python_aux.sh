@@ -45,6 +45,9 @@ setPythonTriggerVars() {
   if $PYTHON_USE_REPO; then
     PYTHON_DEPS=$PYTHON_DEPS,cmake
   fi
+  if [[ `uname` =~ CYGWIN ]]; then
+    PYTHON_DEPS=$PYTHON_DEPS,zlib,bzip2
+  fi
 }
 
 setPythonTriggerVars
