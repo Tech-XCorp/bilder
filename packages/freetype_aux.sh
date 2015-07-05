@@ -73,7 +73,7 @@ findFreetype() {
 
 setFreetypeTriggerVars() {
 
-  if $BUILD_EXPERIMENTAL; then
+  if $BUILD_EXPERIMENTAL && [[ `uname` =~ CYGWIN ]] ; then
     FREETYPE_USE_REPO=${FREETYPE_USE_REPO:-"true"}
   else
     FREETYPE_USE_REPO=${FREETYPE_USE_REPO:-"false"}
