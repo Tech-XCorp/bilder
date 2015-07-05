@@ -38,8 +38,9 @@ findFreetype() {
 
 # Look for freetype in contrib
   if test -z "$FREETYPE_PYCSH_DIR"; then
-    findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh
+    findPackage Freetype freetype "$CONTRIB_DIR" pycsh sersh pycst sermd
     findPycshDir Freetype
+    findPycstDir Freetype
   fi
 
   if test -n "$FREETYPE_PYCSH_DIR"; then
