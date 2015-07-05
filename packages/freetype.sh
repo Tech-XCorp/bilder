@@ -106,7 +106,7 @@ testFreetype() {
 
 installFreetype() {
 
-  for bld in `echo $FREETYPE_BUILDS | sed 's/,/ /g'; do
+  for bld in `echo $FREETYPE_BUILDS | sed 's/,/ /g'`; do
     if bilderInstall freetype $bld; then
       instdir=$CONTRIB_DIR/freetype-${FREETYPE_BLDRVERSION}-$bld
       case `uname` in
