@@ -94,7 +94,7 @@ setFreetypeTriggerVars() {
   case `uname` in
     CYGWIN*)
       findFreetype
-      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sersh"}
+      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sermd"}
       ;;
     Darwin | Linux)
 # Build on Linux or Darwin only if not found in system
@@ -116,7 +116,10 @@ setFreetypeTriggerVars() {
   esac
   computeBuilds freetype
   if test -n "$FREETYPE_BUILDS"; then
-    addPycshBuild freetype
+    case `uname` in
+      CYGWIN*) addPycstBuild freetype;;
+      *) addPycshBuild freetype;;
+    esac
   fi
   FREETYPE_DEPS=libpng,cmake
 }
