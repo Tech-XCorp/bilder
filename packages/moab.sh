@@ -44,12 +44,6 @@ setMoabNonTriggerVars
 buildMoab() {
 
 # Whether using cmake
-  #MOAB_USE_CMAKE=true
-  #MOAB_USE_CMAKE=false
-  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
-  if [[ ! `uname` =~ CYGWIN ]]; then
-    MOAB_USE_CMAKE=true
-  fi
   local moabcmakearg=
   local enable_shared=
   if $MOAB_USE_CMAKE; then
@@ -84,12 +78,26 @@ buildMoab() {
     fi
     MOAB_PYCST_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
     MOAB_4PYSH_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=TRUE -DCMAKE_INSTALL_NAME_DIR='${BLDR_INSTALL_DIR}/moab-${MOAB_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib' $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC"
-    MOAB_PAR_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"
+    MOAB_PAR_CONFIG_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR -DENABLE_PARALLEL:BOOL=TRUE"
   else
     MOAB_SER_CONFIG_ARGS="--enable-static --disable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER"
     MOAB_PYCST_CONFIG_ARGS="--enable-static --disable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     MOAB_4PYSH_CONFIG_ARGS="--disable-static --enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC"
     MOAB_PAR_CONFIG_ARGS="--with-mpi='$CONTRIB_DIR/mpi' --enable-static --disable-shared $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR"
+  fi
+
+  local MOAB_ZOLTAN_ARGS=""
+  if echo "$MOAB_BUILDS" | grep -q "par"; then
+      # Pick parcommio as the default as that includes hdf5/netcdf/exodusII API's.
+      if test -n ${CMAKE_TRILINOS_PARCOMMIO_DIR}; then
+	  MOAB_ZOLTAN_ARGS="-DMOAB_USE_ZOLTAN:BOOL=TRUE -DZoltan_DIR=${CMAKE_TRILINOS_PARCOMMIO_DIR}"
+      elif test -n ${CMAKE_TRILINOS_PARCOMM_DIR}; then
+	  MOAB_ZOLTAN_ARGS="-DMOAB_USE_ZOLTAN:BOOL=TRUE -DZoltan_DIR=${CMAKE_TRILINOS_PARCOMM_DIR}"
+      elif test -n ${CMAKE_TRILINOS_PARFULL_DIR}; then
+	  MOAB_ZOLTAN_ARGS="-DMOAB_USE_ZOLTAN:BOOL=TRUE -DZoltan_DIR=${CMAKE_TRILINOS_PARFULL_DIR}"
+      else
+	  techo "moab.sh: par build requested, but none of trilinos-parcomm, trilinos-parcommio or trilinos-parfull found. Disabling Zoltan"
+      fi
   fi
 
 #
@@ -100,10 +108,17 @@ buildMoab() {
     MOAB_GENCONFIG_ARGS="-DMOAB_USE_CGM:BOOL=FALSE -DENABLE_IMESH:BOOL=TRUE"
 # OCE always brought in shared
 # MOAB uses root dirs for dirs.
-    MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_SER_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_SER_DIR'"
-    MOAB_PYCST_CONFIG_ARGS="$MOAB_PYCST_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PYCST_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
-    MOAB_4PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PYCSH_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
-    MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PAR_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_PAR_DIR'"
+    if echo "$MOAB_BUILD_SET" | grep -q "full"; then
+      MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_SER_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_SER_DIR' -DMOAB_USE_DAGMC:BOOL=ON -DMOAB_USE_CGM:BOOL=ON -DCGM_DIR='$CGM_SER_DIR' $OCE_SER_CMAKE_DIR_ARG"
+      MOAB_PYCST_CONFIG_ARGS="$MOAB_PYCST_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PYCST_DIR' -DMOAB_USE_DAGMC:BOOL=ON -DMOAB_USE_CGM:BOOL=ON -DCGM_DIR='$CGM_PYSH_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
+      MOAB_4PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PYCSH_DIR' -DMOAB_USE_DAGMC:BOOL=ON -DMOAB_USE_CGM:BOOL=ON -DCGM_DIR='$CGM_PYSH_DIR' $OCE_PYCSH_CMAKE_DIR_ARG"
+      MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PAR_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_PAR_DIR' $MOAB_ZOLTAN_ARGS -DMOAB_USE_DAGMC:BOOL=ON -DCGM_DIR='$CGM_SER_DIR' $OCE_SER_CMAKE_DIR_ARG"
+    else
+      MOAB_SER_CONFIG_ARGS="$MOAB_SER_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_SER_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_SER_DIR'"
+      MOAB_PYCST_CONFIG_ARGS="$MOAB_PYCST_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PYCST_DIR'"
+      MOAB_4PYSH_CONFIG_ARGS="$MOAB_PYSH_CONFIG_ARGS -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PYCSH_DIR'"
+      MOAB_PAR_CONFIG_ARGS="$MOAB_PAR_CONFIG_ARGS -DENABLE_IMESH:BOOL=TRUE -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PAR_DIR' -DMOAB_USE_NETCDF:BOOL=TRUE -DNetCDF_DIR='$NETCDF_PAR_DIR' $MOAB_ZOLTAN_ARGS"
+    fi
   else
 # Moab cannot use recent vtk
 # Moab cannot use recent cgm
@@ -143,27 +158,32 @@ buildMoab() {
     makejargs="$MOAB_MAKEJ_ARGS"
   fi
 
+  local moabBuildSet=""
+  if [[ $MOAB_BUILD_SET = lite ]]; then
+    moabBuildSet=Lite
+  fi
+
 # Configure and build serial
-  if bilderConfig $makerargs $moabcmakearg moab ser "$MOAB_SER_CONFIG_ARGS $MOAB_SER_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab ser "$makejargs" "$MOAB_ENV"
+  if bilderConfig $makerargs $moabcmakearg moab ser${moabBuildSet} "$MOAB_SER_CONFIG_ARGS $MOAB_SER_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab ser${moabBuildSet} "$makejargs" "$MOAB_ENV"
   fi
 
 # Configure and build python serial.  This may not be needed.
 # Cannot use FORPYTHON_STATIC_BUILD on unixish where it can resolve to ser,
-  if bilderConfig $makerargs $moabcmakearg moab pycst "$MOAB_PYCST_CONFIG_ARGS $MOAB_PYCST_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab pycst "$makejargs" "$MOAB_ENV"
+  if bilderConfig $makerargs $moabcmakearg moab pycst${moabBuildSet} "$MOAB_PYCST_CONFIG_ARGS $MOAB_PYCST_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab pycst${moabBuildSet} "$makejargs" "$MOAB_ENV"
   fi
 
 # Python shared build for composers.  Build with cmake.
   local otherargsvar=`genbashvar MOAB_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
-  if bilderConfig $makerargs -c moab $FORPYTHON_SHARED_BUILD "-DBUILD_SHARED_LIBS:BOOL=true $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DMOAB_USE_HDF:BOOL=TRUE -DHDF5_DIR:PATH='$HDF5_PYCSH_DIR' $OCE_PYCSH_CMAKE_DIR_ARG $otherargs" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab $FORPYTHON_SHARED_BUILD "$makejargs" "$MOAB_ENV"
+  if bilderConfig $makerargs -c moab $FORPYTHON_SHARED_BUILD${moabBuildSet} "-DBUILD_SHARED_LIBS:BOOL=true $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DMOAB_USE_HDF:BOOL=TRUE -DHdf5_ROOT_DIR:PATH='$HDF5_PYCSH_DIR' $OCE_PYCSH_CMAKE_DIR_ARG $otherargs" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab $FORPYTHON_SHARED_BUILD${moabBuildSet} "$makejargs" "$MOAB_ENV"
   fi
 
 # Configure and build parallel
-  if bilderConfig $makerargs $moabcmakearg moab par "$MOAB_PAR_CONFIG_ARGS $MOAB_PAR_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab par "$makejargs" "$MOAB_ENV"
+  if bilderConfig $makerargs $moabcmakearg moab par${moabBuildSet} "$MOAB_PAR_CONFIG_ARGS $MOAB_PAR_OTHER_ARGS" "" "$MOAB_ENV"; then
+    bilderBuild $makerargs moab par${moabBuildSet} "$makejargs" "$MOAB_ENV"
   fi
 
 }

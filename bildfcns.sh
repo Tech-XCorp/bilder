@@ -4819,7 +4819,7 @@ bilderConfig() {
 
 # Add specified args
   configargs="$configargs $3"
-  trimvar configargs ' '
+  #trimvar configargs ' '
 
 # Create final command
   local finalcmd=

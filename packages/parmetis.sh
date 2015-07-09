@@ -23,6 +23,7 @@ PARMETIS_BLDRVERSION=${PARMETIS_BLDRVERSION:-"4.0.3"}
 if test -z "$PARMETIS_BUILDS"; then
   case `uname` in
     Linux) PARMETIS_BUILDS=par,parsh;;
+    Darwin) PARMETIS_BUILDS=par;;
   esac
 fi
 PARMETIS_DEPS=${PARMETIS_DEPS:-"cmake,$MPI_BUILD"}
@@ -35,6 +36,7 @@ PARMETIS_UMASK=002
 ######################################################################
 
 buildParmetis() {
+  local PARMETIS_CMAKE_COMPFLAGS_PAR="$CMAKE_COMPFLAGS_PAR -I/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/sys/malloc.h"
   if bilderUnpack parmetis; then
     if bilderConfig parmetis par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $PARMETIS_PAR_OTHER_ARGS"; then
       bilderBuild parmetis par

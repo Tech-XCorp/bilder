@@ -44,13 +44,15 @@ setTrilinosTriggerVars() {
     Darwin) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},parbaresh,parfullsh,parcommsh;;
   esac
   computeBuilds trilinos
-
 # Add in superlu all the time.  May be needed elsewhere
   TRILINOS_DEPS=${TRILINOS_DEPS:-"mumps,superlu_dist,boost,$MPI_BUILD,superlu,swig,numpy,atlas,lapack"}
 # commio builds depend on netcdf and hdf5.
 # Only add in if these builds are present.
   if $BUILD_TRILINOS_EXPERIMENTAL || echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
     TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"
+  fi
+  if echo "$TRILINOS_BUILDS" | grep -q "zoltan" ; then
+    TRILINOS_DEPS="netcdf,hdf5,parmetis,${TRILINOS_DEPS}"
   fi
   case `uname` in
      CYGWIN*) ;;
@@ -73,6 +75,28 @@ setTrilinosTriggerVars
 ######################################################################
 
 findTrilinos() {
-  findContribPackage Trilinos trilinos sercomm parcomm  sercommio parcommio sercommsh parcommsh
+# This needs to be generalized to find the library associated with each package
+# requested in the build. For now, just find teuchos core as that always has to be built.
+  local srchbuilds="serbare parbare sercomm parcomm sercommio parcommio serfull parfull"
+  local srchbuilds="$srchbuilds serbaresh parbaresh sercommsh parcommsh sercommiosh parcommiosh"
+  findPackage Trilinos teuchoscore "$BLDR_INSTALL_DIR" $srchbuilds
+  techo
+# Find cmake configuration directories
+  for bld in $srcbuilds; do
+    local blddirvar=`genbashvar TRILINOS_${bld}`_DIR
+    local blddir=`deref $blddirvar`
+    if test -d "$blddir"; then
+      local dir=$blddir/lib/cmake
+      if [[ `uname` =~ CYGWIN ]]; then
+        dir=`cygpath -am $dir`
+      fi
+      local varname=`genbashvar TRILINOS_${bld}`_CMAKE_LIBDIR
+      eval $varname=$dir
+      printvar $varname
+      varname=`genbashvar TRILINOS_${bld}`_CMAKE_LIBDIR_ARG
+      eval $varname="\"-DTrilinos_ROOT_DIR:PATH='$dir'\""
+      printvar $varname
+    fi
+  done
 }
 
