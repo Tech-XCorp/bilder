@@ -26,8 +26,8 @@ setPythonTriggerVars() {
   PYTHON_USE_REPO=${PYTHON_USE_REPO:-"false"}
   if $PYTHON_USE_REPO; then
     PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
-    PYTHON_REPO_BRANCH_STD=master
-    PYTHON_REPO_BRANCH_EXP=master
+    PYTHON_REPO_BRANCH_STD=mastertxc # Our best working branch
+    PYTHON_REPO_BRANCH_EXP=master    # The branch that we do pull requests from
     PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
     PYTHON_UPSTREAM_BRANCH_STD=master
     PYTHON_UPSTREAM_BRANCH_EXP=master
