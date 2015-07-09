@@ -86,7 +86,7 @@ buildNumpy() {
   local blslpckdir=
   case `uname`-"$CC" in
 
-    CYGWIN*-*cl*)
+    CYGWIN*-*cl | CYGWIN*-*cl.exe)
       lapacknames=lapack
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # Worked with 1.6.x, but may not be working with 1.8.X
@@ -167,7 +167,8 @@ buildNumpy() {
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
-# For Cygwin, build, install, and make packages all at once.
+# For Cygwin, build, install, and make packages all at once, with
+# the latter if not building from a repo, as controlled by BDIST_WININST_ARG.
 # For others, just build.
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,
@@ -178,7 +179,7 @@ buildNumpy() {
 # build was successful.  Instead one must do any removal before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       NUMPY_ENV="$DISTUTILS_ENV"
       if $NUMPY_WIN_USE_FORTRAN && test -n "$PYC_FC"; then
         local fcbase=`basename "$PYC_FC"`
@@ -199,13 +200,13 @@ buildNumpy() {
       fi
       ;;
     CYGWIN*-*w64-mingw*)
-      NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which x86_64-w64-mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       NUMPY_ENV="PATH=$mingwdir:'$PATH'"
       ;;
     CYGWIN*-*mingw*)
-      NUMPY_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      NUMPY_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       NUMPY_ENV="PATH=$mingwdir:'$PATH'"

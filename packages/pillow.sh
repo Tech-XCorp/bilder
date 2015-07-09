@@ -49,12 +49,12 @@ buildPillow() {
 # Different targets for windows
   case `uname`-$CC in
     CYGWIN*-cl)
-      PILLOW_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      PILLOW_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       PILLOW_ENV="$DISTUTILS_ENV"
       ;;
     CYGWIN*-mingw*)
 # Have to install with build to get both prefix and compiler correct.
-      PILLOW_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      PILLOW_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       PILLOW_ENV="PATH=$mingwdir:'$PATH'"

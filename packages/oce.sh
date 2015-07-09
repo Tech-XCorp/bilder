@@ -82,24 +82,36 @@ buildOce() {
     fi
     OCE_INSTALL_DIR="$CONTRIB_DIR/oce-$OCE_BLDRVERSION-$OCE_BUILD"
   fi
-  OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$OCE_INSTALL_DIR -DCMAKE_INSTALL_NAME_DIR:PATH=$OCE_INSTALL_DIR/lib -DOCE_MULTITHREADED_BUILD:BOOL=FALSE -DOCE_TESTING:BOOL=FALSE"
+  OCE_ADDL_ARGS="-DOCE_INSTALL_PREFIX:PATH=$OCE_INSTALL_DIR -DCMAKE_INSTALL_NAME_DIR:PATH=$OCE_INSTALL_DIR/lib -DOCE_MULTITHREADED_BUILD:BOOL=FALSE -DOCE_TESTING:BOOL=TRUE"
 
 # Find freetype
-  if test -z "$FREETYPE_PYCSH_DIR"; then
+  if test -z "$FREETYPE_PYCST_DIR" -a -z "$FREETYPE_PYCSH_DIR"; then
     source $BILDER_DIR/packages/freetype_aux.sh
     findFreetype
   fi
 
 # Set other args, env
   local OCE_ENV=
-  if test -n "$FREETYPE_PYCSH_DIR"; then
-    OCE_ENV="FREETYPE_DIR='$FREETYPE_PYCSH_DIR'"
-  fi
 # Disabling X11 prevents build of TKMeshVS, needed for salomesh in freecad.
   # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_DISABLE_X11:BOOL=TRUE"
   local shlinkflags=
   case `uname` in
+    CYGWIN*)
+      if test -n "$FREETYPE_PYCST_DIR"; then
+        OCE_ENV="FREETYPE_DIR='$FREETYPE_PYCST_DIR'"
+      fi
+# Bilder does not use oce bundle (precompiled dependencies), so cannot install
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_BUNDLE_AUTOINSTALL:BOOL=FALSE"
+# Not using precompiled headers allows use of jom on Windows.
+# This may allow removal of pch's just before build.
+      OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_USE_PCH:BOOL=FALSE"
+# Below not needed, but it is true.
+      # OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_USE_BUNDLE:BOOL=FALSE"
+      ;;
     Darwin)
+      if test -n "$FREETYPE_PYCSH_DIR"; then
+        OCE_ENV="FREETYPE_DIR='$FREETYPE_PYCSH_DIR'"
+      fi
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DCMAKE_CXX_FLAGS='$PYC_CXXFLAGS'"
       ;;
     Linux)
@@ -163,31 +175,6 @@ installOce() {
       CYGWIN*)
         ;;
       Darwin)
-# JRC: Why is this being done?  It is the responsibility of the end
-# application to fix up its libraries.  The below makes the use of intermediate
-# applications more difficult, as they must now set DYLD_LIBRARY_PATH.
-# Also, if this pattern were followed, every library package would have
-# to change all libraries they depend on -- not scalable.
-if false; then
-        ocelibs=`ls  $ocelibdir/*.dylib`
-        for ocelib in $ocelibs; do
-          # Fix all refs to other OCE libs in this OCE library
-          for refocelib in $ocelibs; do
-            install_name_tool -change  $ocelibdir/$refocelib $refocelib $ocelib
-          done
-          hasft=`otool -L $ocelib | grep freetype`
-          if test -n "$hasft"; then
-            libname=`echo $hasft | sed 's/^.*libfreetype/libfreetype/' | sed 's/dylib.*$/dylib/'`
-            fullpath=`echo $hasft | sed 's/^	//' | sed 's/dylib.*$/dylib/'`
-            install_name_tool -change $fullpath $libname $ocelib
-          fi
-        done
-# Installing the freetype lib so that it is there in case OCE
-# library is copied into a distribution later.
-        freetypeshdir=$FREETYPE_PYCSH_DIR/lib
-        freetypeshlib=libfreetype.6.dylib
-        installRelShlib $freetypeshlib $ocelibdir $freetypeshdir
-fi
         ;;
       Linux)
         ;;

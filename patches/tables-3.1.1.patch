@@ -1,0 +1,72 @@
+diff -ruN tables-3.1.1/setup.py tables-3.1.1-new/setup.py
+--- tables-3.1.1/setup.py	2014-03-25 14:49:03.000000000 -0600
++++ tables-3.1.1-new/setup.py	2015-04-19 10:15:31.041908200 -0600
+@@ -358,20 +358,35 @@
+     }
+ elif os.name == 'nt':
+     _Package = WindowsPackage
+-    _platdep = {  # package tag -> platform-dependent components
++    HDF5_LIBNAMES_LACK_DLL = os.environ.get('HDF5_LIBNAMES_LACK_DLL', '')
++    if HDF5_LIBNAMES_LACK_DLL:
++      _platdep = {  # package tag -> platform-dependent components
++        'HDF5': ['hdf5', 'hdf5'],
++        'LZO2': ['lzo2', 'lzo2'],
++        'LZO': ['liblzo', 'lzo1'],
++        'BZ2': ['bzip2', 'bzip2'],
++        'BLOSC': ['blosc', 'blosc'],
++      }
++    else:
++      _platdep = {  # package tag -> platform-dependent components
+         'HDF5': ['hdf5dll', 'hdf5dll'],
+         'LZO2': ['lzo2', 'lzo2'],
+         'LZO': ['liblzo', 'lzo1'],
+         'BZ2': ['bzip2', 'bzip2'],
+         'BLOSC': ['blosc', 'blosc'],
+-    }
++      }
+ 
+     # Copy the next DLL's to binaries by default.
+     # Update these paths for your own system!
+-    dll_files = ['\\windows\\system\\zlib1.dll',
+-                 '\\windows\\system\\szip.dll',
+-                 ]
++# Bilder builds without compression
++    # dll_files = ['\\windows\\system\\zlib1.dll',
++                 # '\\windows\\system\\szip.dll',
++                 # ]
++    dll_files = []
+     if '--debug' in sys.argv:
++      if HDF5_LIBNAMES_LACK_DLL:
++        _platdep['HDF5'] = ['hdf5d', 'hdf5d']
++      else:
+         _platdep['HDF5'] = ['hdf5ddll', 'hdf5ddll']
+ 
+ hdf5_package = _Package("HDF5", 'HDF5', 'H5public', *_platdep['HDF5'])
+@@ -445,7 +460,10 @@
+ # variable to rebuild pytables
+ if not HDF5_DIR and os.name == 'nt':
+     import ctypes.util
+-    libdir = ctypes.util.find_library('hdf5dll.dll')
++    if HDF5_LIBNAMES_LACK_DLL:
++      libdir = ctypes.util.find_library('hdf5.dll')
++    else:
++      libdir = ctypes.util.find_library('hdf5dll.dll')
+     # Like 'C:\\Program Files\\HDF Group\\HDF5\\1.8.8\\bin\\hdf5dll.dll'
+     if libdir:
+         # Strip off the filename
+diff -ruN tables-3.1.1/tables/__init__.py tables-3.1.1-new/tables/__init__.py
+--- tables-3.1.1/tables/__init__.py	2014-03-25 14:49:03.000000000 -0600
++++ tables-3.1.1-new/tables/__init__.py	2015-04-19 10:24:19.758036800 -0600
+@@ -60,9 +60,10 @@
+     # In order to improve diagnosis of a common Windows dependency
+     # issue, we explicitly test that we can load the HDF5 dll before
+     # loading tables.utilsextensions.
+-    if not _load_library('hdf5dll.dll', ctypes.cdll.LoadLibrary):
++    if not _load_library('hdf5.dll', ctypes.cdll.LoadLibrary):
++      if not _load_library('hdf5dll.dll', ctypes.cdll.LoadLibrary):
+         raise ImportError(
+-            'Could not load "hdf5dll.dll", please ensure'
++            'Could not load "hdf5.dll" or "hdf5dll.dll", please ensure'
+             ' that it can be found in the system path')
+ 
+     # Some PyTables binary distributions place the dependency DLLs in the

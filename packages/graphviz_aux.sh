@@ -21,10 +21,18 @@ setGraphvizTriggerVars() {
   if test -z "$GRAPHVIZ_BUILDS"; then
     case `uname` in
       CYGWIN*) ;;
-      Darwin | Linux) GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
+      Darwin)
+        if grep -q '"SV' /System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/perl.h; then
+          techo "WARNING: [$FUNCNAME] /System/Library/Perl/5.18/darwin-thread-multi-2level needs to be patched with bilder/extras/osxperl.patch."
+        else
+          GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"}
+        fi
+        ;;
+      Linux) GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
     esac
   fi
-  GRAPHVIZ_DEPS=libgd,python,autotools
+# pkgconfig is needed to get pkg.m4, which is needed upon autoreconf.
+  GRAPHVIZ_DEPS=libgd,Python,pkgconfig,autotools
 }
 setGraphvizTriggerVars
 
@@ -35,8 +43,11 @@ setGraphvizTriggerVars
 ######################################################################
 
 findGraphviz() {
-  if test -x $CONTRIB_DIR/graphviz/bin/dot; then
-    (cd $CONTRIB_DIR/bin; ln -sf ../graphviz/bin/dot .)
+# Not needed, done at installation
+if false; then
+  if test -x $CONTRIB_DIR/graphviz-${FORPYTHON_STATIC_BUILD}/bin/dot; then
+    (cd $CONTRIB_DIR/bin; ln -sf ../graphviz-${FORPYTHON_STATIC_BUILD}/bin/dot .)
   fi
+fi
 }
 

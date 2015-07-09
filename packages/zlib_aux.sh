@@ -38,7 +38,7 @@ setZlibTriggerVars
 findZlib() {
 # This is needed for Windows to get the right dll
   if [[ `uname` =~ CYGWIN ]]; then
-    findContribPackage zlib zlib sersh pycsh
+    findContribPackage zlib zlib ser sermd sersh pycsh
     findPycshDir zlib
     addtopathvar PATH $CONTRIB_DIR/zlib-${FORPYTHON_SHARED_BUILD}/bin
   fi

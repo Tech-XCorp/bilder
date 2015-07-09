@@ -36,17 +36,22 @@ setCppcheckNonTriggerVars
 
 buildCppcheck() {
   CPPCHECK_CONFIG_METHOD=none
-  if bilderUnpack -i cppcheck; then
-# create cfg subdir
-    local instdir=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser
-    cmd="/usr/bin/install -d -m775 $instdir/cfg"
-    techo "$cmd"
-    $cmd
-# No configure step, so must set build dir
-    CPPCHECK_SER_BUILD_DIR=$BUILD_DIR/cppcheck-$CPPCHECK_BLDRVERSION/ser
-    local makerargs=
-    bilderBuild -kD $makerargs cppcheck ser "CFGDIR=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser/cfg HAVE_RULES=yes"
+  if ! bilderUnpack -i cppcheck; then
+    return
   fi
+# create cfg subdir
+  local instdir=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser
+  cmd="/usr/bin/install -d -m775 $instdir/cfg"
+  techo "$cmd"
+  $cmd
+# No configure step, so must set build dir
+  CPPCHECK_SER_BUILD_DIR=$BUILD_DIR/cppcheck-$CPPCHECK_BLDRVERSION/ser
+  local makerargs=
+  local cppcheckenv=
+  if [[ `uname` =~ Linux ]]; then
+    cppcheckenv="LD_RUN_PATH=$CONTRIB_DIR/pcre/lib"
+  fi
+  bilderBuild -kD $makerargs cppcheck ser "CFGDIR=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser/cfg HAVE_RULES=yes" "$cppcheckenv"
 }
 
 ######################################################################

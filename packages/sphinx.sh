@@ -37,7 +37,7 @@ setSphinxNonTriggerVars
 buildSphinx() {
 
 # Get sphinx, check for build need
-  if ! bilderUnpack sphinx; then
+  if ! bilderUnpack Sphinx; then
     return
   fi
 
@@ -53,7 +53,7 @@ buildSphinx() {
 # Build away
   SPHINX_ENV="$DISTUTILS_ENV"
   techo -2 SPHINX_ENV = $SPHINX_ENV
-  bilderDuBuild sphinx '-' "$SPHINX_ENV"
+  bilderDuBuild Sphinx '-' "$SPHINX_ENV"
 
 }
 
@@ -64,7 +64,7 @@ buildSphinx() {
 ######################################################################
 
 testSphinx() {
-  techo "Not testing sphinx."
+  techo "Not testing Sphinx."
 }
 
 ######################################################################
@@ -74,7 +74,7 @@ testSphinx() {
 ######################################################################
 
 installSphinx() {
-  if bilderDuInstall sphinx "" "$SPHINX_ENV"; then
+  if bilderDuInstall Sphinx "" "$SPHINX_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/easy-install.pth
     setOpenPerms $PYTHON_SITEPKGSDIR/Sphinx-*.egg
     setOpenPerms $PYTHON_SITEPKGSDIR/Jinja2-*.egg

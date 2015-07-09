@@ -16,9 +16,8 @@
 ######################################################################
 
 setCmakeTriggerVars() {
-  local stdVersion="2.8.12.1"
-  CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-${stdVersion}}
-  CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"3.0.2"}
+  CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"3.2.2"}
+  CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"3.2.2"}
   CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
   CMAKE_DEPS=
 }

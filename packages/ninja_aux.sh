@@ -16,8 +16,8 @@
 ######################################################################
 
 setNinjaTriggerVars() {
-  NINJA_BLDRVERSION_STD=${NINJA_BLDRVERSION_STD:-"1.4.0"}
-  NINJA_BLDRVERSION_EXP=${NINJA_BLDRVERSION_EXP:-"1.4.0"}
+  NINJA_BLDRVERSION_STD=${NINJA_BLDRVERSION_STD:-"1.5.3"}
+  NINJA_BLDRVERSION_EXP=${NINJA_BLDRVERSION_EXP:-"1.5.3"}
   NINJA_BUILDS=${NINJA_BUILDS:-"ser"}
   NINJA_DEPS=Python
 }

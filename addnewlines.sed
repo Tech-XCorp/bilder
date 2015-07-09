@@ -63,5 +63,7 @@ s/ \([[:graph:]]*@PACKAGE@-@VERSION@ \)/\
 s/' /'\
 /g
 # Put newline in front of absolute path
-s? /?\
-/?g
+# Cannot do this, as it breaks up Windows compiler options, like /O2
+# Ensure previous variable ends in "'" so caught be previous?
+# s? /?\
+# /?g

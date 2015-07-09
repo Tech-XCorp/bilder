@@ -24,27 +24,38 @@ setBilderOsVars() {
       CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/winsame"}
       INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/winsame"}
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
-      MACHINEFILE=${MACHINEFILE:-"cygwin.vs9"}
-      machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
-      INSTALL_SUBDIR_SFX=-$machsfx
+      MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"}
+      if test -z "$INSTALL_SUBDIR_SFX"; then
+        machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
+        test -n "$machsfx" && INSTALL_SUBDIR_SFX=-$machsfx
+      fi
+      # echo "CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
       ;;
 
     Darwin)
-      if test -n "$MACHINEFILE"; then
-        machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
-        if test -n "$machsfx"; then
-          # CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/$machsfx"}
-          # INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/$machsfx"}
-          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
-          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
-          INSTALL_SUBDIR_SFX=-$machsfx
-        fi
+      MACHINEFILE=${MACHINEFILE:-"darwin.clangcxx11"}
+      machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
+      if test -n "$machsfx"; then
+        INSTALL_SUBDIR_SFX=-$machsfx
+      fi
+      if test -n "$machsfx" || (test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]] ); then
+        CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/opt/"}
+        INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/opt/"}
       fi
       ;;
 
     Linux)
       if uname -a | grep -q Ubuntu; then
         MACHINEFILE=${MACHINEFILE:-"ubuntu-x86_64"}
+      fi
+      if test -n "$ROOTDIR_CVI" && ! [[ "$ROOTDIR_CVI" =~ ^/ ]]; then
+        if test -d /scr_${UQMAILHOST}/$USER; then
+          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/scr_${UQMAILHOST}/$USER"}
+          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/scr_${UQMAILHOST}/$USER"}
+        elif test -d /bilder; then
+          CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/bilder"}
+          INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/bilder"}
+        fi
       fi
       ;;
 
@@ -83,15 +94,26 @@ setBilderDirsVars() {
 # Contrib/tarball location
 #------------------
 
-  # echo "computing contribdir"
+  # echo "Computing contribdir.  CONTRIB_ROOTDIR = $CONTRIB_ROOTDIR"
   if test -z "$CONTRIB_DIR"; then
     if $COMMON_CONTRIB; then
-      CONTRIB_DIR=$CONTRIB_ROOTDIR
-      if test -n "$ROOTDIR_CVI" && [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        CONTRIB_DIR=$ROOTDIR_CVI/$CONTRIB_DIR
+      # echo "COMMON_CONTRIB = $COMMON_CONTRIB"
+      # echo "ROOTDIR_CVI = $ROOTDIR_CVI"
+      if test -n "$ROOTDIR_CVI"; then
+        if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+          CONTRIB_DIR=$ROOTDIR_CVI
+        else
+          CONTRIB_DIR=$CONTRIB_ROOTDIR/$ROOTDIR_CVI
+        fi
+      else
+        CONTRIB_DIR=$CONTRIB_ROOTDIR
       fi
+      # echo "After ROOTDIR_CVI , CONTRIB_DIR = $CONTRIB_DIR"
     else
       CONTRIB_DIR=${USERINST_ROOTDIR:-"$HOME"}
+    fi
+    if test -d "$CONTRIB_DIR"; then
+      CONTRIB_DIR=`(cd $CONTRIB_DIR; pwd -P)`
     fi
     # echo "After COMMON_CONTRIB, CONTRIB_DIR = $CONTRIB_DIR"
     if $USE_COMMON_INSTDIRS; then
@@ -100,11 +122,7 @@ setBilderDirsVars() {
       CONTRIB_DIR=$CONTRIB_DIR/contrib${INSTALL_SUBDIR_SFX}
     fi
     CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
-    if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        CONTRIB_DIR=$CONTRIB_DIR/$ROOTDIR_CVI
-    fi
   fi
-  CONTRIB_DIR=`echo $CONTRIB_DIR | sed 's?//?/?g'`
   # echo "CONTRIB_DIR = $CONTRIB_DIR"
 
 #------------------
@@ -112,14 +130,26 @@ setBilderDirsVars() {
 #------------------
 
   if test -z "$BLDR_INSTALL_DIR"; then
+    # echo "COMMON_CONTRIB = $COMMON_CONTRIB"
     if $COMMON_CONTRIB; then
-      BLDR_INSTALL_DIR=$INSTALL_ROOTDIR
-      if test -n "$ROOTDIR_CVI" && [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        BLDR_INSTALL_DIR=$ROOTDIR_CVI/$BLDR_INSTALL_DIR
+      # echo "ROOTDIR_CVI = $ROOTDIR_CVI"
+# The below works on windows
+      if test -n "$ROOTDIR_CVI"; then
+        if [[ $ROOTDIR_CVI =~ ^/ ]]; then
+          BLDR_INSTALL_DIR=$ROOTDIR_CVI
+        else
+          BLDR_INSTALL_DIR=$INSTALL_ROOTDIR/$ROOTDIR_CVI
+        fi
+      else
+        BLDR_INSTALL_DIR=$INSTALL_ROOTDIR
       fi
     else
       BLDR_INSTALL_DIR=${USERINST_ROOTDIR:-"$HOME"}
     fi
+    if test -d "$BLDR_INSTALL_DIR"; then
+      BLDR_INSTALL_DIR=`(cd $BLDR_INSTALL_DIR; pwd -P)`
+    fi
+    # echo "After COMMON_CONTRIB, BLDR_INSTALL_DIR = $BLDR_INSTALL_DIR"
     if $USE_COMMON_INSTDIRS; then
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/software${INSTALL_SUBDIR_SFX}
     elif $REPODIR_IS_INTERNAL; then
@@ -128,12 +158,13 @@ setBilderDirsVars() {
       BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/volatile${INSTALL_SUBDIR_SFX}
       SCRIPT_ADDL_ARGS="-r $SCRIPT_ADDL_ARGS"
     fi
-    if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
-        BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
-    fi
+    # if test -n "$ROOTDIR_CVI" && ! [[ $ROOTDIR_CVI =~ ^/ ]]; then
+      # BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$ROOTDIR_CVI
+    # fi
     BLDR_INSTALL_DIR=`echo $BLDR_INSTALL_DIR | sed 's?//?/?g'`
   fi
 
+# Add any subdir
   if test -n "$INST_SUBDIR"; then
     CONTRIB_DIR=$CONTRIB_DIR/$INST_SUBDIR
     BLDR_INSTALL_DIR=$BLDR_INSTALL_DIR/$INST_SUBDIR

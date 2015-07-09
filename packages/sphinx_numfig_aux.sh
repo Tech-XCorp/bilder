@@ -23,7 +23,7 @@
 setSphinx_numfigTriggerVars() {
   SPHINX_NUMFIG_BLDRVERSION=${SPHINX_NUMFIG_BLDRVERSION:-"r13"}
   SPHINX_NUMFIG_BUILDS=${SPHINX_NUMFIG_BUILDS:-"pycsh"}
-  SPHINX_NUMFIG_DEPS=sphinx
+  SPHINX_NUMFIG_DEPS=Sphinx
 }
 setSphinx_numfigTriggerVars
 

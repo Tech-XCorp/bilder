@@ -1,0 +1,12 @@
+diff -ruN pkgconfig-0.28/Makefile.am pkgconfig-0.28-new/Makefile.am
+--- pkgconfig-0.28/Makefile.am	2013-01-23 12:07:39.000000000 -0700
++++ pkgconfig-0.28-new/Makefile.am	2015-04-25 07:19:13.000000000 -0600
+@@ -39,7 +39,7 @@
+ if HOST_TOOL
+ host_tool = $(host)-pkg-config$(EXEEXT)
+ install-exec-hook:
+-	cd $(DESTDIR)$(bindir) && $(LN) pkg-config$(EXEEXT) $(host_tool)
++	cd $(DESTDIR)$(bindir) && $(LN) -f pkg-config$(EXEEXT) $(host_tool)
+ uninstall-hook:
+ 	cd $(DESTDIR)$(bindir) && rm -f $(host_tool)
+ endif

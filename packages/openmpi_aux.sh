@@ -17,14 +17,12 @@
 
 setOpenmpiTriggerVars() {
   OPENMPI_BLDRVERSION_STD=1.6.5
-  OPENMPI_BLDRVERSION_EXP=1.8.2
-  if test -z "$OPENMPI_BUILDS"; then
-    if $BUILD_MPIS; then
-      case `uname` in
-        CYGWIN*) OPENMPI_BUILDS=nodl;;
-        *) OPENMPI_BUILDS=nodl,static,shared;;
-      esac
-    fi
+  OPENMPI_BLDRVERSION_EXP=1.8.6
+  if $BUILD_MPIS && test -z "$OPENMPI_BUILDS" && [[ $USE_MPI =~ openmpi ]]; then
+    case `uname` in
+      CYGWIN*) OPENMPI_BUILDS=nodl;;
+      *) OPENMPI_BUILDS=nodl,static,shared;;
+    esac
   fi
   OPENMPI_DEPS=valgrind,libtool,automake
 }
@@ -53,8 +51,12 @@ findOpenmpi() {
       printvar $c
     done
     OPENMPI_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
-    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$OPENMPI_LIBDIR"
-    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$OPENMPI_LIBDIR"
+    if test `uname` = Linux; then
+      PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$OPENMPI_LIBDIR"
+      PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$OPENMPI_LIBDIR"
+    fi
+    trimvar PAR_EXTRA_LDFLAGS ' '
+    trimvar PAR_EXTRA_LT_LDFLAGS ' '
     printvar PAR_EXTRA_LDFLAGS
     printvar PAR_EXTRA_LT_LDFLAGS
     getCombinedCompVars

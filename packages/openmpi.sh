@@ -105,27 +105,33 @@ EOF
   esac
 
 # Fix some flags
-  local ompcxxflags=`echo $CXXFLAGS | sed 's/-std=c++11//g'`
+# Need to start building for C++11 to use threads
+  local ompcxxflags="$CXXFLAGS"
+# Below definitely not needed with experimental version
   trimvar ompcxxflags ' '
-  ompcompflags="CFLAGS='$CFLAGS' CXXFLAGS='$ompcxxflags'"
+# http://www.open-mpi.org/community/lists/users/2015/01/26134.php
+  ompcompflags="CFLAGS='$CFLAGS -fgnu89-inline' CXXFLAGS='$CXXFLAGS -fgnu89-inline'"
   if test -n "$FCFLAGS"; then
     ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
+  fi
+  if test -n "$LD_LIBRARY_PATH"; then
+    ompenv="LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
   fi
 
 #
 # The builds
 #
 
-  if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS"; then
-    bilderBuild openmpi nodl "$ompimakeflags"
+  if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS" "" "$ompenv"; then
+    bilderBuild openmpi nodl "$ompimakeflags" "$ompenv"
   fi
 
-  if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS"; then
-    bilderBuild openmpi static "$ompimakeflags"
+  if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS" "" "$ompenv"; then
+    bilderBuild openmpi static "$ompimakeflags" "$ompenv"
   fi
 
-  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS"; then
-    bilderBuild openmpi shared "$ompimakeflags"
+  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS" "" "$ompenv"; then
+    bilderBuild openmpi shared "$ompimakeflags" "$ompenv"
   fi
 
 }
@@ -198,9 +204,11 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
-  bilderInstallAll openmpi
-  (cd $CONTRIB_DIR; rmall mpi openmpi; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
-# This not needed for 1.8.X.  Not certain about 1.6.x.
-  # echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
+  if bilderInstallAll openmpi; then
+    (cd $CONTRIB_DIR; rmall mpi openmpi; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
+# This needed to allow overloading cores in 1.8.2
+    echo "rmaps_base_oversubscribe = true" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
+    echo "hwloc_base_binding_policy = core:overload-allowed" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
+  fi
 }
 

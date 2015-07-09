@@ -16,7 +16,7 @@
 ######################################################################
 
 setHypreTriggerVars() {
-  HYPRE_BLDRVERSION_STD=${HYPRE_BLDRVERSION_STD:-"2.8.3a"}
+  HYPRE_BLDRVERSION_STD=${HYPRE_BLDRVERSION_STD:-"2.9.0b"}
   HYPRE_BLDRVERSION_EXP=${HYPRE_BLDRVERSION_EXP:-"2.9.0b"}
   if test -z "$HYPRE_BUILDS"; then
     HYPRE_BUILDS=par

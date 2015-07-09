@@ -53,7 +53,9 @@ buildMuparser() {
 # and then manually installing the includes and library
       MUPARSER_SER_MAKE_ARGS="muparser.lib -f../build/makefile.vcmt"
       MUPARSER_SERMD_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
+      MUPARSER_PYCST_MAKE_ARGS="muparser.lib -f../build/makefile.vc"
       MUPARSER_SERSH_MAKE_ARGS="muparser.dll -f../build/makefile.vc SHARED=1"
+      MUPARSER_PYCSH_MAKE_ARGS="muparser.dll -f../build/makefile.vc SHARED=1"
       configargs="-C :"  # Use no configure executable
       makerargs="-m nmake"
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/ser/obj/vc_static_rel"
@@ -62,7 +64,13 @@ buildMuparser() {
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/sermd/obj/vc_static_rel"
       techo "$cmd"
       $cmd
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/pycst/obj/vc_static_rel"
+      techo "$cmd"
+      $cmd
       cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/sersh/obj/vc_shared_rel"
+      techo "$cmd"
+      $cmd
+      cmd="mkdir -p $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/pycsh/obj/vc_shared_rel"
       techo "$cmd"
       $cmd
       ;;
@@ -71,14 +79,25 @@ buildMuparser() {
   esac
 
 # The builds
-  if bilderConfig $configargs muparser ser "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER LDFLAGS='$CXXFLAGS' $MUPARSER_SER_OTHER_ARGS"; then
+# Have to declare library in LDFLAGS on Darwin
+  local ldflags=`echo $CXXFLAGS | sed 's/-std=c++11//'`
+  local ldflagsvar="LDFLAGS='$ldflags'"
+  if bilderConfig $configargs muparser ser "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ldflagsvar $MUPARSER_SER_OTHER_ARGS"; then
     bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sermd "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER LDFLAGS='$CXXFLAGS' $MUPARSER_SERMD_OTHER_ARGS"; then
+  if bilderConfig $configargs muparser sermd "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ldflagsvar $MUPARSER_SERMD_OTHER_ARGS"; then
     bilderBuild $makerargs muparser sermd "$MUPARSER_SERMD_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sersh "--enable-shared=yes $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER LDFLAGS='$CXXFLAGS' $MUPARSER_SERSH_OTHER_ARG"; then
+  if bilderConfig $configargs muparser sersh "--enable-shared=yes $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ldflagsvar $MUPARSER_SERSH_OTHER_ARG"; then
     bilderBuild $makerargs muparser sersh "$MUPARSER_SERSH_MAKE_ARGS"
+  fi
+  ldflags=`echo $PYC_CXXFLAGS`
+  ldflagsvar="LDFLAGS='$ldflags'"
+  if bilderConfig $configargs muparser pycsh  "--enable-shared=yes $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ldflagsvar $MUPARSER_PYCSH_OTHER_ARG"; then
+    bilderBuild $makerargs muparser pycsh "$MUPARSER_PYCSH_MAKE_ARGS"
+  fi
+  if bilderConfig $configargs muparser pycst  "--enable-shared=no $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ldflagsvar $MUPARSER_PYCST_OTHER_ARG"; then
+    bilderBuild $makerargs muparser pycst "$MUPARSER_PYCST_MAKE_ARGS"
   fi
 
 }
@@ -133,15 +152,6 @@ installMuparser() {
           $cmd
         fi
         cmd="cp $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/include/* $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/include/"
-        techo "$cmd"
-        $cmd
-      fi
-    else
-# Should remove only if a build was attempted and failed to install
-# Disable for now.
-      if false; then
-      # if [[ `uname` =~ CYGWIN ]]; then
-        cmd="rm -rf $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld"
         techo "$cmd"
         $cmd
       fi

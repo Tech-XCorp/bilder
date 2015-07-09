@@ -84,26 +84,36 @@ buildHdf5() {
 
 # Shared: For Linux, add origin to rpath, do not strip rpath
   local HDF5_SER_ADDL_ARGS=
+  local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PAR_ADDL_ARGS=
-  local HDF5_SERSH_ADDL_ARGS="-DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
-  local HDF5_PARSH_ADDL_ARGS="-DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
+  local HDF5_SERSH_ADDL_ARGS=
+  local HDF5_PARSH_ADDL_ARGS=
+  local HDF5_PYCSH_ADDL_ARGS=
   case `uname` in
+    Darwin)
+# Shared libs to know their installation names so that builds of
+# dependents link to this for installation to work without DYLD_LIBRARY_PATH
+      HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
+      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
+      HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
+      ;;
     Linux)
-      # HDF5_SER_ADDL_ARGS="$HDF5_SER_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-      # HDF5_PAR_ADDL_ARGS="$HDF5_PAR_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-      HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='-Wl,-rpath,\$ORIGIN' -DCMAKE_SKIP_RPATH:BOOL=ON -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-      HDF5_PARSH_ADDL_ARGS="-DCMAKE_SHARED_LINKER_FLAGS:STRING='-Wl,-rpath,\$ORIGIN' -DCMAKE_SKIP_RPATH:BOOL=ON $HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS
+# Hasry: Above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SER_EXTRA_LDFLAGS"
+# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SERSH_EXTRA_LDFLAGS -Wl,-rpath,XORIGIN:XORIGIN/../lib'"
+# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
+      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
+# Hasry: Works!  Ivy fails because non system compiler.
+      HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
+# Ivy: Works!
+      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
+      HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
   esac
-
-# gfortran needs to add rpath stuff in EXTRA_LDFLAGS
-  for BLD in SER PAR SERSH PARSH; do
-    xval=`deref ${BLD}_EXTRA_LDFLAGS`
-    if test -n "$xval"; then
-      aval=`deref HDF5_${BLD}_ADDL_ARGS`
-      eval HDF5_${BLD}_ADDL_ARGS="\"$aval -DCMAKE_EXE_LINKER_FLAGS:STRING='$xval'\""
-    fi
-  done
 
 # Separating builds for all platforms as required on Windows and this
 # gives simplification
@@ -122,7 +132,10 @@ buildHdf5() {
   if bilderConfig -c hdf5 sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
     bilderBuild hdf5 sermd "$HDF5_MAKEJ_ARGS"
   fi
-  if bilderConfig -c hdf5 pycsh "-DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_PYCSH_ADDL_ARGS $HDF5_SHARED_ENABLE_FORTRAN $HDF5_PYCSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
+  if bilderConfig -c hdf5 pycst "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_SHARED_ENABLE_FORTRAN $HDF5_PYCST_ADDL_ARGS $HDF5_PYCST_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
+    bilderBuild hdf5 pycst "$HDF5_MAKEJ_ARGS" "$DISTUTILS_NOLV_ENV"
+  fi
+  if bilderConfig -c hdf5 pycsh "-DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $HDF5_SHARED_ENABLE_FORTRAN $HDF5_PYCSH_ADDL_ARGS $HDF5_PYCSH_OTHER_ARGS" "" "$DISTUTILS_NOLV_ENV"; then
     bilderBuild hdf5 pycsh "$HDF5_MAKEJ_ARGS" "$DISTUTILS_NOLV_ENV"
   fi
 
@@ -167,13 +180,15 @@ fixHdf5SharedInst() {
   bld=$1
   local instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
   local libdir=$instdir/lib
-  local bindir=$instdir/lib
+  local bindir=$instdir/bin
 
 # Fix the libraries
   if declare -f bilderFixRpath 1>/dev/null 2>&1; then
     bilderFixRpath $libdir
-    for exe in `\ls $bindary`; do
-      bilderFixRpath $exe
+    for exe in `\ls $bindir | tr '\n' ' '`; do
+      if test -x $bindir/$exe; then
+        bilderFixRpath $bindir/$exe
+      fi
     done
   fi
 
@@ -247,7 +262,7 @@ installHdf5() {
 # just under bin.
 # Remove (-r) old installations.  This assumee that the shared libs
 # will subsequently be reinstalled if needed.
-  for bld in ser par sersh parsh sermd pycsh; do
+  for bld in `echo $HDF5_BUILDS | tr ',' ' '`; do
     if bilderInstall -p open -r hdf5 $bld; then
       hdf5installed=true
       instdir=$CONTRIB_DIR/hdf5-${HDF5_BLDRVERSION}-$bld
@@ -266,3 +281,4 @@ installHdf5() {
   done
 
 }
+

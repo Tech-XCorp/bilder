@@ -36,7 +36,7 @@ buildRst2pdf() {
 # Get env and args
     case `uname`-$CC in
       CYGWIN*-cl)
-        RST2PDF_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+        RST2PDF_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
         ;;
     esac
 # Builds

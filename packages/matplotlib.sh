@@ -55,7 +55,7 @@ findMatplotlibDepDir() {
     Darwin) libprefix=lib; libsfxs=dylib;;
     Linux) libprefix=lib; libsfxs=so;;
   esac
-  for j in $CONTRIB_DIR/$1-pycsh $CONTRIB_DIR/$1-sersh $CONTRIB_DIR/$1-sermd $sysdirs; do
+  for j in $CONTRIB_DIR/$1-sermd $CONTRIB_DIR/$1-pycsh $CONTRIB_DIR/$1-sersh $sysdirs; do
     local incdir=
     for i in $incdirs; do
       # techo "Looking for $j/$i/$2." 1>&2
@@ -199,10 +199,10 @@ fi
   MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       ;;
     CYGWIN*-mingw*)
-      MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+      MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       MATPLOTLIB_ENV="$MATPLOTLIB_ENV PATH=/MinGW/bin:'$PATH'"
       ;;
     Darwin-*)

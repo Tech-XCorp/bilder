@@ -22,8 +22,15 @@
 
 setTrilinosTriggerVars() {
 # Versions
-  TRILINOS_BLDRVERSION_STD=11.4.3
+  TRILINOS_BLDRVERSION_STD=11.14.3
+# 11.12.1 is the last version to configure and build with vs12
+# But it does not build Zoltan?
+  # TRILINOS_BLDRVERSION_EXP=11.12.1
   TRILINOS_BLDRVERSION_EXP=11.14.3
+# Below fails to compile
+# trilinos-12.0.1\packages\amesos\src\SuiteSparse\AMD\Source\amesos_amd_1.c
+# cl : Command line error D8021 : invalid numeric argument '/Wno-all'
+  # TRILINOS_BLDRVERSION_EXP=12.0.1
 # Can add builds in package file only if no add builds defined.
   if test -z "$TRILINOS_DESIRED_BUILDS"; then
     TRILINOS_DESIRED_BUILDS="sercomm,parcomm"
@@ -42,12 +49,18 @@ setTrilinosTriggerVars() {
   TRILINOS_DEPS=${TRILINOS_DEPS:-"mumps,superlu_dist,boost,$MPI_BUILD,superlu,swig,numpy,atlas,lapack"}
 # commio builds depend on netcdf and hdf5.
 # Only add in if these builds are present.
-  if echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
+  if $BUILD_TRILINOS_EXPERIMENTAL || echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
     TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"
   fi
   case `uname` in
      CYGWIN*) ;;
-     *) TRILINOS_DEPS="hypre,mumps,${TRILINOS_DEPS}";;
+     *)
+       if echo ${TRILINOS_DEPS} | grep -q "mumps" ; then
+         TRILINOS_DEPS="hypre,${TRILINOS_DEPS}"
+       else
+         TRILINOS_DEPS="hypre,mumps,${TRILINOS_DEPS}"
+       fi
+       ;;
   esac
 
 }
@@ -63,110 +76,3 @@ findTrilinos() {
   findContribPackage Trilinos trilinos sercomm parcomm  sercommio parcommio sercommsh parcommsh
 }
 
-getTriPackages() {
-  local triPackages=$@
-  local triPkgArgs=
-  for pkg in $triPackages; do
-    triPkgArgs="$triPkgArgs -DTrilinos_ENABLE_${pkg}:BOOL=ON"
-  done
-  echo $triPkgArgs
-}
-
-disableTriPackages() {
-  local triPackages=$@
-  local triPkgArgs=
-  for pkg in $triPackages; do
-    triPkgArgs="$triPkgArgs -DTrilinos_ENABLE_${pkg}:BOOL=OFF"
-  done
-  echo $triPkgArgs
-}
-
-mkTplLibConfig() {
-    local TPL=$1
-    local tplDir=$2
-    if test -e $tplDir; then
-      if [[ `uname` =~ CYGWIN ]]; then
-        tplDir=`cygpath -am $tplDir`
-      fi
-      local tplLibName=${@:3:20}
-      local tplConfig="-D${TPL}_INCLUDE_DIRS:PATH='${tplDir}/include' -D${TPL}_LIBRARY_DIRS:PATH='${tplDir}/lib' -D${TPL}_LIBRARY_NAMES:STRING='$tplLibName'"
-      echo $tplConfig
-    fi
-}
-
-getTriTPLs() {
-  local buildtype=${1}
-  local parflag=${buildtype:0:3}     # This converts sercplx to ser
-  local TPLs=${@:2:20}
-
-  local tplArgs=""
-  for TPL in $TPLs; do
-    tplDir=
-    addlArgs=""
-    case "$TPL" in
-
-      HYPRE)
-        if test "$parflag" == "ser"; then
-          continue  # parallel only
-        elif test -e $CONTRIB_DIR/hypre-parsh; then
-          tplDir=$CONTRIB_DIR/hypre-parsh
-        fi
-        tplLibName="HYPRE"
-        ;;
-
-      MUMPS)
-        tplLibName='cmumps;zmumps;smumps;dmumps;mumps_common;pord'
-        if test "$parflag" == "ser"; then
-# Experimental trilinos not building serial with Mumps on Linux
-          if ! $BUILD_EXPERIMENTAL || ! test `uname` = Linux; then
-            tplLibName="${tplLibName};seq"
-            if test -e $CONTRIB_DIR/mumps; then
-              tplDir=$CONTRIB_DIR/mumps
-            elif test -e $BLDR_INSTALL_DIR/mumps; then
-              tplDir=$BLDR_INSTALL_DIR/mumps
-            fi
-          fi
-        else
-          if test -e $CONTRIB_DIR/mumps-par; then
-            tplDir=$CONTRIB_DIR/mumps-par
-          elif test -e $BLDR_INSTALL_DIR/mumps-par; then
-            tplDir=$BLDR_INSTALL_DIR/mumps-par
-          fi
-        fi
-        ;;
-
-      SuperLU)
-        if test "$parflag" == "ser"; then
-          tplDir=$CONTRIB_DIR/superlu
-        else
-          continue  # serial only
-          # Note that I worry aboud duplicate symbols with dist
-        fi
-        tplLibName="superlu"
-        ;;
-
-      SuperLUDist)
-        if test "$parflag" == "ser"; then
-          continue  # parallel only
-        else
-          tplDir=$CONTRIB_DIR/superlu_dist-par
-        fi
-        tplLibName="superlu_dist"
-        addlArgs="-DTPL_ENABLE_SuperLUDist_Without_ParMETIS:BOOL=TRUE"
-        ;;
-
-    esac
-    if test -n "$tplDir"; then
-      tplDir=`(cd $tplDir; pwd -P)`
-      argOn="-DTPL_ENABLE_${TPL}:BOOL=ON"
-      local tplLibArgs=`mkTplLibConfig $TPL $tplDir $tplLibName`
-      tplArgs="$tplArgs $argOn $tplLibArgs $addlArgs"
-    else
-      techo "Not enabling $TPL as installation directory not found." 1>&2
-    fi
-  done
-
-  echo $tplArgs
-  return
-
-}

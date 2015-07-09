@@ -36,7 +36,16 @@ setFreetypeNonTriggerVars
 
 buildFreetype() {
 
-  if ! bilderUnpack freetype; then
+  if $FREETYPE_USE_REPO; then
+    updateRepo freetype
+    getVersion freetype
+# Always install in contrib dir for consistency
+    bilderPreconfig -I $CONTRIB_DIR freetype
+  else
+    bilderUnpack freetype
+    res=$?
+  fi
+  if test $res != 0; then
     return
   fi
 
@@ -57,10 +66,22 @@ buildFreetype() {
       ;;
   esac
 
-# pycsh always built shared
+# Static builds for windows
+  eval FREETYPE_PYCST_INSTALL_DIR=$CONTRIB_DIR
+  if bilderConfig -c freetype pycst "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $FREETYPE_ADDL_ARGS $FREETYPE_PYCST_OTHER_ARGS"; then
+    bilderBuild $FREETYPE_MAKE_ARGS freetype pycst
+  fi
+  eval FREETYPE_SERMD_INSTALL_DIR=$CONTRIB_DIR
+  if bilderConfig -c freetype sermd "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $FREETYPE_ADDL_ARGS $FREETYPE_SERMD_OTHER_ARGS"; then
+    bilderBuild $FREETYPE_MAKE_ARGS freetype sermd
+  fi
+
+# Shared builds for unix
+  eval FREETYPE_PYCSH_INSTALL_DIR=$CONTRIB_DIR
   if bilderConfig -c freetype pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_PYCSH_OTHER_ARGS"; then
     bilderBuild $FREETYPE_MAKE_ARGS freetype pycsh
   fi
+  eval FREETYPE_SERSH_INSTALL_DIR=$CONTRIB_DIR
   if bilderConfig -c freetype sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER -DBUILD_SHARED_LIBS:BOOL=ON $FREETYPE_ADDL_ARGS $FREETYPE_SERSH_OTHER_ARGS"; then
     bilderBuild $FREETYPE_MAKE_ARGS freetype sersh
   fi
@@ -85,7 +106,7 @@ testFreetype() {
 
 installFreetype() {
 
-  for bld in sersh pycsh; do
+  for bld in `echo $FREETYPE_BUILDS | sed 's/,/ /g'`; do
     if bilderInstall freetype $bld; then
       instdir=$CONTRIB_DIR/freetype-${FREETYPE_BLDRVERSION}-$bld
       case `uname` in

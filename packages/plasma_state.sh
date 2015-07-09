@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for Plasma_state
+# Build information for Plasma_state
 #
 # $Id$
 #
@@ -8,23 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in plasma_state_aux.sh
 #
 ######################################################################
 
-PLASMA_STATE_BLDRVERSION=${PLASMA_STATE_BLDRVERSION:-"2.7.0-r214"}
-PLASMA_STATE_TAR_BLDRVERSION=${PLASMA_STATE_TAR_BLDRVERSION:-"1.0.2"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/plasma_state_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-"ser"}
-addBenBuild plasma_state
-PLASMA_STATE_DEPS=pspline,netlib_lite,netcdf,hdf5
-PLASMA_STATE_UMASK=002
+setPlasma_stateNonTriggerVars() {
+  PLASMA_STATE_MASK=002
+}
+setPlasma_stateNonTriggerVars
 
 ######################################################################
 #
@@ -54,14 +56,15 @@ buildPlasma_state() {
         PS_COMPFLAGS_PAR="$CONFIG_COMPFLAGS_PAR --with-optimization=minimal"
         ;;
       *)
-        PS_COMPFLAGS_SER="$CONFIG_COMPFLAGS_SER"
+        PS_COMPFLAGS_SER="CFLAGS='$CFLAGS -Wno-return-type' CXXFLAGS='$CXXFLAGS -Wno-return-type' FCFLAGS='$FCFLAGS -fno-range-check'"
+        PS_COMPFLAGS_SER="CFLAGS='$MPI_CFLAGS -Wno-return-type' CXXFLAGS='$MPI_CXXFLAGS -Wno-return-type' FCFLAGS='$MPI_FCFLAGS -fno-range-check'"
         PS_COMPFLAGS_PAR="$CONFIG_COMPFLAGS_PAR"
         ;;
     esac
 
 # Use compiler wrappers for actual make
-# Looks like this was for building on LCFs but as of Mar 29 2014 the compiler 
-# wrappers no longer exist (?) Pletzer. 
+# Looks like this was for building on LCFs but as of Mar 29 2014 the compiler
+# wrappers no longer exist (?) Pletzer.
     local PS_MAKE_COMPILERS_SER=""
     if test -f '\$abs_top_builddir)/txutils/cc'; then
        PS_MAKE_COMPILERS_SER="CC='\$(abs_top_builddir)/txutils/cc'"
@@ -78,8 +81,18 @@ buildPlasma_state() {
 
     local PS_MAKE_COMPILERS_BEN="CC='\$(abs_top_builddir)/txutils/cc' CXX='\$(abs_top_builddir)/txutils/cxx' FC='\$(abs_top_builddir)/txutils/f90' F77='\$(abs_top_builddir)/txutils/f77'"
 
+    if [ -z "$MDSPLUS_LIBDIR" ]; then
+      PLASMA_STATE_MDS="--disable-mdsplus"
+    else
+      PLASMA_STATE_MDS="--with-mdsplus-libdir=$MDSPLUS_LIBDIR"
+    fi
+
+    case `uname` in
+     Linux)
+      PLASMA_STATE_EXTRA_LIBS="LIBS=-ldl"
+    esac
 # Build everything
-    if bilderConfig plasma_state ser "$CONFIG_COMPILERS_SER $PS_COMPFLAGS_SER $PLASMA_STATE_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
+    if bilderConfig plasma_state ser "$CONFIG_COMPILERS_SER $PS_COMPFLAGS_SER $PLASMA_STATE_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG $PLASMA_STATE_MDS" plasma_state $PLASMA_STATE_EXTRA_LIBS ;then
       bilderBuild plasma_state ser "$PS_MAKE_COMPILERS_SER $PLASMA_STATE_MAKE_ARGS"
     fi
     if bilderConfig plasma_state ben "$CONFIG_COMPILERS_BEN $PS_COMPFLAGS_PAR --enable-back-end-node $PLASMA_STATE_BEN_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then

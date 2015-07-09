@@ -260,13 +260,18 @@ EOF
           fi
           continue
           ;;
-        m4 | autoconf | automake | libtool)
+        m4 | autoconf | automake | libtool | pkgconfig)
           if test -z "$LIBTOOL_BLDRVERSION"; then
             source $bldrdir/packages/libtool.sh
           fi
-          bindir=$CLN_INSTALL_DIR/autotools-lt-$LIBTOOL_BLDRVERSION/bin
-          if test -x $bindir/$pkglc; then
-            ver=`$bindir/$pkglc --version | head -1 | sed 's/^.* //'`
+          atdir=$CLN_INSTALL_DIR/autotools-lt-$LIBTOOL_BLDRVERSION
+          bindir=$atdir/bin
+          case $pkglc in
+            pkgconfig) pkgbin=pkg-config;;
+            *) pkgbin=$pkglc;;
+          esac
+          if test -x $bindir/$pkgbin; then
+            ver=`$bindir/$pkgbin --version | head -1 | sed 's/^.* //'`
             if [[ "$LINE" =~ $pkglc-$ver ]]; then
               echo $LINE >>$CLN_INSTALL_DIR/installations.tmp
             else

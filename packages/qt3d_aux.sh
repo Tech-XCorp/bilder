@@ -2,6 +2,9 @@
 #
 # Trigger vars and find information
 #
+# Using qt3d-1.0 now, but if we need to change:
+# http://qt-project.org/wiki/Using_3D_engines_with_Qt
+#
 # $Id$
 #
 ######################################################################
@@ -16,10 +19,26 @@
 ######################################################################
 
 setQt3dTriggerVars() {
-  QT3D_REPO_URL=git://gitorious.org/qt/qt3d.git
+  if test -d qt3d; then
+    local isgitorious=`(cd qt3d; git remote -v | grep gitorious)`
+    local goodrepo=true
+    if test -n "$isgitorious"; then
+      goodrepo=false
+    fi
+    local isqtio=`(cd qt3d; git remote -v | grep code.qt.io)`
+    if test -n "$isqtio"; then
+      goodrepo=false
+    fi
+    if ! $goodrepo; then
+      techo "WARNING: [$FUNCNAME] Qt3D repos absent from gitorius and qt.io."
+      techo "WARNING: [$FUNCNAME] Using https://github.com/Tech-XCorp/qt3d.git."
+      mv qt3d qt3d-bad
+    fi
+  fi
+  QT3D_REPO_URL=https://github.com/Tech-XCorp/qt3d.git
   QT3D_REPO_BRANCH_STD=qt4
   QT3D_REPO_BRANCH_EXP=qt4
-  QT3D_UPSTREAM_URL=git://gitorious.org/qt/qt3d.git
+  QT3D_UPSTREAM_URL=https://code.qt.io/git/qt/qt3d.git
   QT3D_UPSTREAM_BRANCH=qt4  # The only choice
 # Qt is built the same way as python
   QT3D_BUILD=$FORPYTHON_SHARED_BUILD

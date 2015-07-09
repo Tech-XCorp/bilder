@@ -191,17 +191,28 @@ case `uname` in
       1[3-9].*)
         CC=${CC:-"clang"}
         CXX=${CXX:-"clang++"}
-        FC=${FC:-"gfortran"}
-        F77=${F77:-"gfortran"}
+        if which gfortran 1>/dev/null 2>&1; then
+          FC=${FC:-"gfortran"}
+          F77=${F77:-"gfortran"}
+        elif which gfortran-4.9 1>/dev/null 2>&1; then
+          FC=${FC:-"gfortran-4.9"}
+          F77=${F77:-"gfortran-4.9"}
+        fi
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        if [[ $CXX =~ clang ]]; then
+        # echo "CXXFLAGS = $CXXFLAGS"
+        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
           CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
         fi
+        # echo "CXXFLAGS = $CXXFLAGS"
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
         # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
-        PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
+        if [[ $CXX =~ clang ]] && ! echo $PYC_CXXFLAGS | grep stdlib; then
+          PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
+        fi
+        PYC_FC=${PYC_FC:-"$FC"}
+        PYC_F77=${PYC_F77:-"$F77"}
         ;;
     esac
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}	# For 10.5 and higher
@@ -212,6 +223,7 @@ case `uname` in
   Linux)
     ARCHIVER=ar
     CPUINFO=`grep "model name" /proc/cpuinfo | head -1 | sed 's/^.*:  *//'`
+    GLIBC_VERSION=`ldd --version | head -1 | sed 's/^.* //'`
     LIBEXT=.a
     LIBPREFIX=lib
     MAKEJ_TOTAL=`grep ^processor /proc/cpuinfo | wc -l`
@@ -331,10 +343,10 @@ if test -z "$BILDER_CHAIN"; then
       case $ccbase in
         *mingw*)
           ccver=`$CC --version | sed -e 's/ 9.*$//'`
+          GCC_VERSION="$ccver"
           BILDER_CHAIN=MinGW
-          BILDER_CHAIN=${ccbase}${ccver}
           ;;
-        *icl.*)
+        *icl)
           BILDER_CHAIN=icl
           ;;
         *)
@@ -344,15 +356,15 @@ if test -z "$BILDER_CHAIN"; then
       esac
       ;;
     Darwin)
-      case $CC in
+      case $ccbase in
         clang)
           ccver=`clang --version | head -1 | sed -e 's/^.*clang-//' -e 's/).*$//'`
           ;;
         gcc)
           ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+          GCC_VERSION="$ccver"
           ;;
       esac
-      BILDER_CHAIN=${ccbase}${ccver}
       ;;
     Linux)
       case $ccbase in
@@ -362,11 +374,21 @@ if test -z "$BILDER_CHAIN"; then
         pgcc)
           BILDER_CHAIN=pgi
           ;;
-        *)
+        gcc)
           ccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
-          BILDER_CHAIN=${ccbase}${ccver}
+          GCC_VERSION="$ccver"
           ;;
       esac
+      ;;
+  esac
+  case $ccbase in
+    clang | gcc | *mingw*)
+      if test -n "$GCC_VERSION"; then
+        GCC_MAJMIN=`echo $ccver | sed -e 's/\.[^\.]*$//'`
+        GCC_MAJOR=`echo $GCC_MAJMIN | sed -e 's/\.[^\.]*$//'`
+        GCC_MINOR=`echo $GCC_MAJMIN | sed -e 's/^[^\.]*\.//'`
+      fi
+      BILDER_CHAIN=${ccbase}${ccver}
       ;;
   esac
 fi
@@ -385,12 +407,11 @@ if isCcPyc; then
     FORPYTHON_STATIC_BUILD=ser
   fi
 else
+# Below: shared with pyc compilers
   FORPYTHON_SHARED_BUILD=pycsh
-  if [[ `uname` =~ CYGWIN ]]; then
-    FORPYTHON_STATIC_BUILD=pycmd
-  else
-    FORPYTHON_STATIC_BUILD=pycst
-  fi
+# Below, Unix: serial with PYC compilers.
+# Below, Windows: serial with PYC compilers, shared runtime.
+  FORPYTHON_STATIC_BUILD=pycst
 fi
 techo -2 "FORPYTHON_SHARED_BUILD = $FORPYTHON_SHARED_BUILD."
 techo -2 "FORPYTHON_STATIC_BUILD = $FORPYTHON_STATIC_BUILD."
@@ -438,7 +459,7 @@ fi
 #
 ######################################################################
 
-if test -n "$MPICC"; then
+if test `uname` = Linux -a -n "$MPICC"; then
   isMpich2=`$MPICC -show 2>/dev/null | grep mpich2`
   if test -n "$isMpich2"; then
     MPICH2_LIBDIR=`echo $isMpich2 | sed -e 's/^.*-L//' -e 's/ .*$//'`
@@ -583,125 +604,9 @@ findParallelFcComps
 #
 ######################################################################
 
-# PIC and optimization flags
-techo "Setting default pic and optimization flags."
-case $CXX in
-  *cl*)
-    unset PIC_FLAG
-    unset O3_FLAG
-    ;;
-  mingw*)
-    unset PIC_FLAG
-    O3_FLAG='-O3'
-    ;;
-  *path*)
-    PIC_FLAG=-fPIC
-    O3_FLAG='-O3'
-    ;;
-  *xl*)
-    PIC_FLAG=${PIC_FLAG:-"-qpic=large"}
-    O3_FLAG='-O3'
-    ;;
-  *)
-# Try to determine from --version on wrapper
-    verline=`$CXX --version | head -1`
-    case "$verline" in
-      *ICC*)
-        PIC_FLAG=-fPIC
-        O3_FLAG='-O3'
-        ;;
-      *GCC*)
-        PIC_FLAG=-fPIC
-        O3_FLAG='-O3'
-        ;;
-      *)
-        techo "WARNING: pic and opt3 flags not known for $CXX."
-        ;;
-    esac
-    ;;
-esac
-techo "PIC_FLAG=$PIC_FLAG"
-PYC_PIC_FLAG=-fPIC
-
-# Pipe flags
-case $CC in
-  /*/gcc* | gcc* | /*/clang | clang*)
-    CFLAGS="$CFLAGS -pipe"
-    CXXFLAGS="$CXXFLAGS -pipe"
-    FLAGS="$FLAGS -pipe"
-    F77LAGS="$F77LAGS -pipe"
-    ;;
-esac
-case $CXX in
-  /*/clang++ | clang++*)
-# Already done above.
-    # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-    # CXXFLAGS="$CXXFLAGS -stdlib=libc++"
-    ;;
-esac
-
-# Add pic and pipe flags for gcc compilers
-if [[ $PYC_CC =~ gcc ]] && ! [[ $PYC_CC =~ mingw ]]; then
-  if test -n "$PYC_CFLAGS"; then
-    PYC_CFLAGS="$PYC_CFLAGS -pipe -fPIC"
-    PYC_CXXFLAGS="$PYC_CXXFLAGS -pipe -fPIC"
-  else
-    PYC_CFLAGS="-pipe -fPIC"
-    PYC_CXXFLAGS="-pipe -fPIC"
-  fi
-fi
-if [[ $PYC_FC =~ gfortran ]] && ! [[ $PYC_FC =~ mingw ]]; then
-  if test -n "$PYC_FFLAGS"; then
-    PYC_FFLAGS="$PYC_FFLAGS -pipe -fPIC"
-    PYC_FCFLAGS="$PYC_FCFLAGS -pipe -fPIC"
-  else
-    PYC_FFLAGS="-pipe -fPIC"
-    PYC_FCFLAGS="-pipe -fPIC"
-  fi
-fi
-
-######################################################################
-#
-# Add pic flags to all flags
-#
-######################################################################
-
-# Add PIC flags on flag basis
 USE_CCXX_PIC_FLAG=${USE_CCXX_PIC_FLAG:-"true"}
 USE_FORTRAN_PIC_FLAG=${USE_FORTRAN_PIC_FLAG:-"true"}
-if test -n "$PIC_FLAG"; then
-# PIC flags and fortran are always more problematic.  We probably
-# need a more robust mechanism for determining when it is OK, and when
-# it is not.  Should it be a machines file?  Just an individual build
-# issue? etc.  I don't know for sure, but for now, just remove.
-#
-# Kills Linux build, so putting in an incremental fix: allow disabling
-# for Fortran on a per-machine basis by setting USE_FORTRAN_PIC_FLAG=false.
-  for i in SER MPI; do
-    case $i in
-      SER) unset varprfx;;
-      *) varprfx=${i}_;;
-    esac
-    unset piccomps
-    if $USE_CCXX_PIC_FLAG; then
-      techo "Adding pic flags for C and C++."
-      piccomps="C CXX"
-    fi
-    if $USE_FORTRAN_PIC_FLAG; then
-      techo "Adding pic flags for Fortran."
-      piccomps="$piccomps F FC"
-    fi
-    trimvar piccomps ' '
-    if test -n "$piccomps"; then
-      for j in $piccomps; do
-        varname=${varprfx}${j}FLAGS
-        varval=`deref $varname`
-        eval "$varname='$varval $PIC_FLAG'"
-        trimvar $varname ' '
-      done
-    fi
-  done
-fi
+addDefaultCompFlags
 
 ######################################################################
 #
@@ -851,20 +756,20 @@ hostvars="USER BLDRHOSTID CPUINFO FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQ
 instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
 pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
 source $BILDER_DIR/mkvars.sh
+vervars="BILDER_CHAIN GCC_VERSION GCC_MAJMIN GCC_MAJOR GCC_MINOR SVN_BLDRVERSION BLDR_SVNVERSION"
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
 compvars="USE_MPI MPI_BUILD CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
-envvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_ENV"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS"
 testvars="BILDER_CTEST_MODEL"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
-ldvars="LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
+ldvars="GLIBC_VERSION LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
-othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL SVN_BLDRVERSION BLDR_SVNVERSION"
+othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
 
 techo ""
 techo "Environment settings:"
-completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars BILDER_CHAIN $allvars $linalgargs $compvars $flagvars $envvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
+completevars="RUNNRSYSTEM $hostvars $instdirsvars $pathvars $vervars $allvars $linalgargs $compvars $flagvars $genvars $cmakevars $testvars $qtvars $mkjvars $ldvars $instvars $othervars"
 for i in $completevars; do
   trimvar $i ' '
   printvar $i

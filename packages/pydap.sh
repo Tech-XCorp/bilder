@@ -48,12 +48,12 @@ buildPydap() {
 
     case `uname`-$CC in
       CYGWIN*-cl)
-        PYDAP_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+        PYDAP_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
         PYDAP_ENV_USED="$DISTUTILS_ENV"
         ;;
       CYGWIN*-*mingw*)
 # Have to install with build to get both prefix and compiler correct.
-        PYDAP_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' bdist_wininst"
+        PYDAP_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
         local mingwgcc=`which mingw32-gcc`
         local mingwdir=`dirname $mingwgcc`
         PYDAP_ENV_USED="PATH=$mingwdir:'$PATH'"

@@ -63,7 +63,7 @@ isBuildTime() {
   done
   shift $(($OPTIND - 1))
 
-  techo -2 "isBuildTime called with $* and ignorebuilds = $ignorebuilds."
+  techo -2 "isBuildTime called with '$*' and ignorebuilds '$ignorebuilds'."
   if test -z "$2"; then
     return 1
   fi
@@ -366,7 +366,7 @@ bilderSvnCleanup() {
 # 1: the node
 #
 bilderSvnversion() {
-  # techo "bilderSvnversion called with args, $*." 1>&2
+  # techo -2 "bilderSvnversion called with '$*'."
   BLDR_SVNVERSION=${BLDR_SVNVERSION:-"svnversion"}
   local version=
   local numargs=$#
@@ -458,6 +458,90 @@ getCompFlagsPrefix() {
       ;;
   esac
   echo $flagsprfx
+}
+
+#
+# Add the default compiler flags for serial and pyc.
+#
+addDefaultCompFlags() {
+
+# Determine the FLAGS for each compiler
+  for pre in "" PYC_; do
+    local cxxcomp=`deref ${pre}CXX`
+    local cxxbase=
+# In case of wrapper, determine base from that
+    local verline=`$cxxcomp --version 2>/dev/null | head -1`
+    case "$verline" in
+      *ICC*) cxxbase=icpc;;
+      *GCC*) cxxbase=g++;;
+    esac
+# If not determined, use base name
+    local cxxbase=${cxxbase:-"`basename ${cxxcomp}`"}
+    case $cxxbase in
+      clang* | g++*)
+        eval ${pre}PIC_FLAG=-fPIC
+        eval ${pre}PIPE_FLAG=-pipe
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      cl*)
+        eval unset ${pre}PIC_FLAG
+        eval unset ${pre}PIPE_FLAG
+        eval unset ${pre}O3_FLAG
+        ;;
+      icpc*)
+        eval ${pre}PIC_FLAG=-fPIC
+        eval ${pre}PIPE_FLAG=-pipe
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      mingw*)
+        eval unset ${pre}PIC_FLAG
+        eval unset ${pre}PIPE_FLAG
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      path*)
+        eval ${pre}PIC_FLAG=-fPIC
+        eval unset ${pre}PIPE_FLAG
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      xl*)
+        eval ${pre}PIC_FLAG="-qpic=large"
+        eval unset ${pre}PIPE_FLAG
+        eval ${pre}O3_FLAG='-O3'
+        ;;
+      *)
+        techo "WARNING: pic and opt3 flags not known for $cxxcomp."
+        ;;
+    esac
+    techo -2 "${pre}PIC_FLAG = `deref ${pre}PIC_FLAG`"
+    techo -2 "${pre}PIPE_FLAG = `deref ${pre}PIPE_FLAG`"
+    techo -2 "${pre}O3_FLAG = `deref ${pre}O3_FLAG`"
+  done
+
+# Always add pic and pipe flags
+  for pre in "" PYC_; do
+    for i in CC CXX F77 FC; do
+      if [[ $i =~ ^C ]] && $USE_CCXX_PIC_FLAG || [[ $i =~ ^F ]] && $USE_FORTRAN_PIC_FLAG; then
+        local compval=`deref ${pre}$i`
+        if test -n "$compval"; then
+          local flagsprfx=`getCompFlagsPrefix $i`
+          local flagsname=${pre}${flagsprfx}FLAGS
+          local flagsval=`deref ${flagsname}`
+          local picflag=`deref ${pre}PIC_FLAG`
+          if test -n "$picflag" && ! echo $flagsval | grep -- "$picflag"; then
+            flagsval="$flagsval $picflag"
+          fi
+          local pipeflag=`deref ${pre}PIPE_FLAG`
+          if test -n "$pipeflag" && ! echo $flagsval | grep -- "$pipeflag"; then
+            flagsval="$flagsval $pipeflag"
+          fi
+          trimvar flagsval ' '
+          eval $flagsname="\"$flagsval\""
+          techo -2 "$flagsname = \"$flagsval\""
+        fi
+      fi
+    done
+  done
+
 }
 
 #
@@ -804,9 +888,9 @@ addtopathvar() {
 # Find absolute, resolved path, if it exists
   case `uname`-$1 in
     *-PATH)  # cygwin converts PATH and uses colon
-      # addpathcand may not exist *yet*, so `cd` won't work
-      #addpath=`(cd "$addpathcand" 2>/dev/null; pwd -P)`
-      addpath=$addpathcand
+# addpathcand may not exist *yet*, so `cd` won't work, in which case this
+# returns empty
+      addpath=`(cd "$addpathcand" 2>/dev/null && pwd -P)`
       ;;
     CYGWIN*)
       sep=";"
@@ -821,13 +905,19 @@ addtopathvar() {
   local bpvar=BILDER_$1
   local bpval=`deref $bpvar | sed "s?$addpath??g"`
   if test "$3" = "after"; then
-    eval $1="'${pathval}${sep}${addpath}'"
-    eval BILDER_ADDED_${1}="'${bildersaveval}${sep}${addpath}'"
-    eval $bpvar="'${bpval}${sep}${addpath}'"
+# Add after if not already at end
+    if ! [[ "${pathval}" =~ "${addpath}"$ ]]; then
+      eval $1="'${pathval}${sep}${addpath}'"
+      eval BILDER_ADDED_${1}="'${bildersaveval}${sep}${addpath}'"
+      eval $bpvar="'${bpval}${sep}${addpath}'"
+    fi
   else
-    eval $1="'${addpath}${sep}${pathval}'"
-    eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
-    eval $bpvar="'${addpath}${sep}${bpval}'"
+# Add before if not already at beginning
+    if ! [[ "${pathval}" =~ ^"${addpath}" ]]; then
+      eval $1="'${addpath}${sep}${pathval}'"
+      eval BILDER_ADDED_${1}="'${addpath}${sep}${bildersaveval}'"
+      eval $bpvar="'${addpath}${sep}${bpval}'"
+    fi
   fi
   eval trimvar $1 "'${sep}'"
   eval trimvar BILDER_ADDED_${1} "'${sep}'"
@@ -1203,7 +1293,7 @@ getVersion() {
   local branch=
   local hash=
   if test "$repotype" == "SVN"; then
-    techo -2 "Getting version of $repodir  at `date +%F-%T`."
+    techo -2 "Getting version of $repodir at `date +%F-%T`."
     rev=`bilderSvnversion $lastChangedArg`
 
 # svnversion -c is likely to return a complex version such as 1535:2091 and
@@ -1305,25 +1395,6 @@ isPatched() {
   done
   shift $(($OPTIND - 1))
 
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -i)
-        instdir="$2"
-        shift
-        ;;
-      -s)
-        instsubdir="$2"
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-    shift
-  done
-fi
-
   local installation=$1
 
 # Determine subdir (actually link) from installation
@@ -1380,10 +1451,10 @@ fi
     if test -d $instdir/$instsubdir; then
 # This implies default installation subdir
       if ! test -f $instdir/$instsubdir/$patchname; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname is missing. Rebuilding."
+        techo "Patch $instdir/$instsubdir/$patchname is missing. Rebuilding."
         dopatch=true
       elif ! $BILDER_DIFF -q $instdir/$instsubdir/$patchname $patchval; then
-        techo -2 "Patch $instdir/$instsubdir/$patchname and $patchval differ. Rebuilding."
+        techo "Patch $instdir/$instsubdir/$patchname and $patchval differ. Rebuilding."
         dopatch=true
       else
         techo -2 "Patch up to date."
@@ -1435,13 +1506,15 @@ isInstalled() {
 
 # Determine installation directory
   local instdirs=
+  local instsubdir=
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "i:I:" arg; do
+  while getopts "i:I:s:" arg; do
     case $arg in
       i) instdirs="$OPTARG";;
       I) instdirs="$OPTARG";;
+      s) instsubdir="$OPTARG";;
     esac
   done
   shift $(($OPTIND - 1))
@@ -1455,6 +1528,7 @@ isInstalled() {
       if test -n "$hasit"; then
 # Look for patch up to date
         local args="-i $idir"
+        test -n "$instsubdir" && args="$args -s $instsubdir"
         if ! isPatched $args $installation; then
           return 1
         fi
@@ -1497,7 +1571,7 @@ mkConfigScript() {
     echo >> $configscript
   fi
 # Prettify the configure script.  Darwin does not allow \n in substitutions,
-# so use mkConfigScript.sed, modified with package and version.
+# so use sed file, $sedfile, modified with package and version.
 # For lines containing a blank after an =, put quote after equals and at end.
 # Reduce successive quotes.
 # Remove (spuriously added) double quotes internal to single quotes
@@ -1509,7 +1583,7 @@ mkConfigScript() {
     sed -e "s/'\(.*\)\"\(.*\)'/'\1\2'/" |\
     sed -e '2,$s/^/  /' -e '1,$s/$/ \\/' -e '$s/ \\$//' >>$configscript
   chmod u+rx $configscript
-  if test $VERBOSITY -le 2; then
+  if test $VERBOSITY -lt 2; then
     rm -f $sedfile
   fi
 }
@@ -1559,21 +1633,6 @@ areAllInstalled() {
   done
   shift $(($OPTIND - 1))
 
-if false; then
-  while test -n "$1"; do
-    case "$1" in
-      -i)
-        instdir=$2
-        shift
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-  done
-fi
-
 # If no builds, just check short name
   if test -z "$2"; then
     if isInstalled -i $instdir $1; then
@@ -1609,7 +1668,7 @@ fi
 #    CONTRIB_DIR that builds and or dependencies might be found.
 #
 shouldInstall() {
-  techo -2 "shouldInstall called with $*"
+  techo -2 "shouldInstall called with '$*'."
 
 # Determine installation directory
   local instdirs=
@@ -1796,30 +1855,31 @@ shouldInstall() {
     techo "Package $1 has no dependencies."
   fi
 
-# Check to see if release build and tests were installed after the last package build; if not, rebuild.
+# Check to see if release build and tests were installed after the last
+# package build; if not, rebuild.
   local dir=$instdir
   local tstvar=`genbashvar ${ucproj}`_TESTNAME
   local tstval=`deref $tstvar`
   if $CREATE_RELEASE && $TESTING && test -n "$tstval"; then
-     local tstdepdate=
-     local tstlastdate=
-     local tstdepline=
-     lctst=`echo ${tstval} | tr A-Z a-z`
-     local tstdepline=`grep ^${lctst}- $dir/installations.txt | tail -1`
-     if test -n "$tstdepline"; then
-       techo -2 "$lctst installation found in $dir/installations.txt."
-       tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
-       tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
-       if test "$tstlastdate" = "$pkgdate"; then
-         techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding."
+    local tstdepdate=
+    local tstlastdate=
+    local tstdepline=
+    lctst=`echo ${tstval} | tr A-Z a-z`
+    local tstdepline=`grep ^${lctst}- $dir/installations.txt | tail -1`
+    if test -n "$tstdepline"; then
+      techo -2 "$lctst installation found in $dir/installations.txt."
+      tstdepdate=`(echo $tstdepline | awk '{ print $4 }'; echo $tstdepdate) | sort -r | head -1`
+      tstlastdate=`(echo $pkgdate; echo $tstdepdate) | sort -r | head -1`
+      if test "$tstlastdate" = "$pkgdate"; then
+        techo "Package $proj of some version installed more recently than its tests, ${lctst}. Rebuilding."
          return 0
-       else
-         techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
-       fi
-     else
-       techo "Tests for package ${proj} not installed. Need to build to run tests. Rebuilding."
-       return 0
-     fi
+      else
+        techo "Tests ${lctst} installed more recently than the package ${proj}. Not a reason to rebuild."
+      fi
+    else
+      techo "Tests for package ${proj} not installed. Need to build to run tests. Rebuilding."
+      return 0
+    fi
   fi
 
 # If all builds younger than $BILDER_WAIT_DAYS, do not rebuild
@@ -1841,7 +1901,7 @@ shouldInstall() {
     return 1      # false
   fi
   if test -n "$builds"; then
-    techo "One or more of builds of $1 not installed. Rebuilding."
+    techo "One or more of builds of $1 needs (re)installation. Rebuilding."
   else
     techo "Package $1 is not installed. Rebuilding."
   fi
@@ -1957,7 +2017,7 @@ isCcPyc() {
 # All compilers appear to work.
     # return 0
   # fi
-  if test "$CC" = "$PYC_CC"; then
+  if test "$CC" = "$PYC_CC" -a "$CXXFLAGS" = "$PYC_CXXFLAGS"; then
     return 0
   fi
   return 1
@@ -2022,41 +2082,11 @@ addBuild() {
 # 1: the package to add it to
 #
 # Named args (must come first):
-# -f forces addition of pycsh build, as needed for Darwin
+# -f forces addition of pycsh build
 #
 # return whether added pycsh to the build
 addPycshBuild() {
   addBuild $* sersh pycsh
-  return $?
-}
-
-#
-# Add a pycmd build if appropriate.
-#
-# Args:
-# 1: the package to add it to
-#
-# Named args (must come first):
-# -f forces addition of pycmd build, as needed for Darwin
-#
-# return whether added pycmd to the build
-addPycmdBuild() {
-  addBuild $* sermd pycmd
-  return $?
-}
-
-#
-# Add a pycst build if appropriate.
-#
-# Args:
-# 1: the package to add it to
-#
-# Named args (must come first):
-# -f forces addition of pycst build, as needed for Darwin
-#
-# return whether added pyc to the build
-addPycBuild() {
-  addBuild $* ser pycst
   return $?
 }
 
@@ -2072,12 +2102,11 @@ addPycBuild() {
 # return whether added pyc to the build
 addPycstBuild() {
   if [[ `uname` =~ CYGWIN ]]; then
-    addPycmdBuild $*
-    return $?
+    addBuild $* sermd pycst
   else
-    addPycBuild $*
-    return $?
+    addBuild $* ser pycst
   fi
+  return $?
 }
 
 #
@@ -2177,19 +2206,23 @@ getPkgRepos() {
 #
 setDistutilsEnv() {
 
+# For Linux/OS X:
 # For some distutils packages, the flags should be with the compiler,
 # so as not to overwrite the package flags.  This apparently varies,
 # so here we set them separately, and packages that need them together
 # will have to assemble what they need.
 # DISTUTILS_ENV defines the compiler and flags separately.
 # DISTUTILS_ENV2 defines the compiler and flags together, so the flags
-#  can be added by each package.
+# can be added by each package.
+# For Windows, these are the same
 
   unset DISTUTILS_ENV
   unset DISTUTILS_ENV2
   case `uname` in
     CYGWIN*)
-      DISTUTILS_ENV="$ENV_VS9"
+      setVsEnv $VISUALSTUDIO_VERSION
+      DISTUTILS_ENV="$ENV_VS"
+      DISTUTILS_ENV2="$ENV_VS"
       ;;
     *)
       for i in CC CXX F77 FC; do
@@ -2228,15 +2261,19 @@ setDistutilsEnv() {
     fi
   fi
 
-# Finish up
+# Add in pythonpath, so that unambiguous when rerunning the build script
+  DISTUTILS_ENV="$DISTUTILS_ENV PYTHONPATH='$PYTHONPATH'"
+  DISTUTILS_ENV2="$DISTUTILS_ENV2 PYTHONPATH='$PYTHONPATH'"
+# Combine vars
   DISTUTILS_NOLV_ENV="$DISTUTILS_ENV"
-  # DISTUTILS_ENV="$DISTUTILS_ENV $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV="$DISTUTILS_ENV $LDVARS_ENV"
-  # DISTUTILS_ENV2="$DISTUTILS_ENV2 $LINLIB_PYCSH_ENV $LDVARS_ENV"
   DISTUTILS_ENV2="$DISTUTILS_ENV2 $LDVARS_ENV"
-  trimvar DISTUTILS_ENV ' '
-  trimvar DISTUTILS_NOLV_ENV ' '
-  trimvar DISTUTILS_ENV2 ' '
+
+  pyenvvars="DISTUTILS_ENV DISTUTILS_ENV2 DISTUTILS_NOLV_ENV LINLIB_PYCSH_ENV"
+  for i in $pyenvvars; do
+    trimvar $i ' '
+    printvar $i
+  done
 
 }
 
@@ -3042,8 +3079,14 @@ findBlasLapack() {
         findLibraries BLAS_${BLD} "$blas_libs"
         eval CONFIG_LINLIB_${BLD}_ARGS="\"--with-lapack-lib='$lapack_libs' --with-blas-lib='$blas_libs' --with-lapack='$lapack_libs' --with-blas='$blas_libs'\""
         local lapack_libdirs=`deref LAPACK_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
+        if [[ `uname` =~ CYGWIN ]] && test -n "$lapack_libdirs"; then
+          lapack_libdirs=`cygpath -am $lapack_libdirs`
+        fi
         local lapack_libnames=`deref LAPACK_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
         local blas_libdirs=`deref BLAS_${BLD}_LIBRARY_DIRS | tr ' ' ';'`
+        if [[ `uname` =~ CYGWIN ]] && test -n "$blas_libdirs"; then
+          blas_libdirs=`cygpath -am $blas_libdirs`
+        fi
         local blas_libnames=`deref BLAS_${BLD}_LIBRARY_NAMES | tr ' ' ';'`
         eval CMAKE_LINLIB_${BLD}_ARGS="\"-DLAPACK_LIBRARY_NAMES:STRING='$lapack_libnames' -DBLAS_LIBRARY_NAMES:STRING='$blas_libnames'\""
         local cmakeargs=
@@ -3061,12 +3104,12 @@ findBlasLapack() {
 
 # Print out results
   for BLD in SER SERSH PYCSH BEN; do
-    techo "LINLIB_${BLD}_LIBS = `deref LINLIB_${BLD}_LIBS`."
-    techo "CMAKE_LINLIB_${BLD}_ARGS = `deref CMAKE_LINLIB_${BLD}_ARGS`."
-    techo "CONFIG_LINLIB_${BLD}_ARGS = `deref CONFIG_LINLIB_${BLD}_ARGS`."
+    printvar LINLIB_${BLD}_LIBS
+    printvar CMAKE_LINLIB_${BLD}_ARGS
+    printvar CONFIG_LINLIB_${BLD}_ARGS
     for PKG in BLAS LAPACK; do
-      for VAR in DIR LIBRARY_DIRS LIBRARY_NAMES; do
-        techo "${PKG}_${BLD}_${VAR} = `deref ${PKG}_${BLD}_${VAR}`."
+      for VAR in DIR LIBRARY_DIRS LIBRARY_NAMES STATIC_LIBRARIES; do
+        printvar ${PKG}_${BLD}_${VAR}
       done
     done
   done
@@ -3087,8 +3130,11 @@ findBlasLapack() {
   done
   trimvar LINLIB_PYCSH_ENV ' '
   techo "LINLIB_PYCSH_ENV = $LINLIB_PYCSH_ENV."
+
+#
+# Set distutils env now that LINLIB_PYCSH_ENV is known
+#
   setDistutilsEnv
-  # techo "Quitting after setDistutilsEnv."; exit
 
 }
 
@@ -3522,8 +3568,12 @@ updateRepo() {
     if test -d $pkg; then rm -rf $pkg.sav; mv $pkg $pkg.sav; fi
     cmd="$scmexec clone $pkgurl $pkg"
     techo "$cmd"
-    $cmd
-    cd $pkg
+    if $cmd; then
+      cd $pkg
+    else
+      techo "ERROR: [$FUNCNAME] '$cmd' failed."
+      terminate
+    fi
   fi
 
 # Make sure on tag
@@ -3533,14 +3583,25 @@ updateRepo() {
   esac
   techo "$cmd"
   eval "$cmd"
+  if ! eval "$cmd"; then
+    techo "WARNING: [$FUNCNAME] '$cmd' failed."
+  fi
 
 # Determine whether changesets are available
   upurlvar=`genbashvar $pkg`_UPSTREAM_URL
   upurlval=`deref $upurlvar`
   if test -n "$upurlval"; then
     case $scmexec in
-      hg) hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>bilder_chgsets;;
-      git) git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets;;
+      hg)
+        if ! hg incoming $CARVE_UPSTREAM_URL 2>/dev/null 1>bilder_chgsets; then
+          techo "WARNING: [$FUNCNAME] 'hg incoming $CARVE_UPSTREAM_URL' failed."
+        fi
+        ;;
+      git)
+        if ! git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets; then
+          techo "WARNING: [$FUNCNAME] 'git fetch && git log ..origin/$branchval' failed."
+        fi
+        ;;
     esac
     if test -s bilder_chgsets; then
       techo "WARNING: [$FUNCNAME] Changesets available for $pkg from $upurlval:"
@@ -3599,7 +3660,7 @@ bilderUnpack() {
   if ! $USING_BUILD_CHAIN; then
     techo "bilderUnpack not using build chain."
   fi
-  techo -2 "bilderUnpack called with $*"
+  techo -2 "bilderUnpack called with '$*'."
 
 # Determine whether to force install
   local inplace=false   # Whether to build in place
@@ -3863,7 +3924,7 @@ bilderUnpack() {
 #
 bilderPreconfig() {
 
-  techo -2 "bilderPreconfig called with $*"
+  techo -2 "bilderPreconfig called with '$*'."
 
 # If just getting packages, nothing to do here.
   if $JUST_GET_PACKAGES; then
@@ -4127,7 +4188,7 @@ rminterlibdeps() {
 #
 bilderConfig() {
 
-  techo -2 "bilderConfig called with $*"
+  techo -2 "bilderConfig called with '$*'."
 
 # Default option values
   unset DEPS
@@ -4489,7 +4550,7 @@ bilderConfig() {
   fi
   if test -z "$configexec"; then
     if test "$cmval" = cmake; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Location of cmake not found. PATH = $PATH."
+      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Location of cmake not found. configexec = $configexec.  PATH = $PATH."
       terminate
     fi
     techo "No configure system found for $1-$2.  Assuming no need."
@@ -4780,7 +4841,10 @@ bilderConfig() {
     if test -n "$generator"; then
       configargs="$configargs -G '$generator'"
     fi
-    finalcmd="$configprefix '$configexec' $configargs $srcarg"
+    finalcmd="'$configexec' $configargs $srcarg"
+    if test -n "$configprefix"; then
+      finalcmd="$configprefix $finalcmd"
+    fi
   fi
 
 # Now add the environment variables
@@ -5010,8 +5074,9 @@ _
        ;;
     *)
        cat <<_ >> $buildscript
-echo $bildermake $buildargs
-$bildermake $buildargs
+cmd="$bildermake $buildargs"
+echo "\$cmd"
+eval \$cmd
 res=\$?
 _
        ;;
@@ -5583,13 +5648,19 @@ bilderRunTests() {
     $cmd
     res=$?
     # techo "waitAction returned $res."
+    # DWS: Don't understand how $res ($?) could ever be empty.
+    # DWS: How could something not be built here other than if
+    # it failed to configure (in which case waitAction returns
+    # a 99). Added "(or failed to configure)" to handle case
+    # where no builds configure and we were previously trying
+    # to run tests.
     if test -z "$res" -o "$res" = 99; then
-      techo "$pkgname-$bld not built."
-      # if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo "Continuing."
+      if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo "$pkgname-$bld build skipped due to '-i $bld'"
         continue
-      # fi
-      # tbFailures="$tbFailures $bld"
+      fi
+      techo "$pkgname-$bld failed to configure."
+      tbFailures="$tbFailures $bld"
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
       tbFailures="$tbFailures $bld"
@@ -5603,6 +5674,8 @@ bilderRunTests() {
       untestedBuildReason="it has no per-build tests"
     elif ! $testingval; then
       untestedBuildReason="testing is turned off"
+    elif echo $tbFailures | grep -w $bld; then
+      untestedBuildReason="$bld failed to configure/build"
     fi
 
     if test -n "$untestedBuildReason"; then
@@ -5747,7 +5820,7 @@ EOF
   fi
 
   if test -n "$tbFailures"; then
-    techo "Not running $pkgname tests. One or more tested builds '$tbFailures' not built."
+    techo "Not calling build$2 for $pkgname because one or more tested builds ($tbFailures) not built."
     return
   fi
   if test ! $testingval; then
@@ -5902,7 +5975,7 @@ installRelShlib() {
 # Return true if should be installed
 #
 shouldInstallTestedPkg() {
-  techo -2 "shouldInstallTestedPkg called with args: '$*'."
+  techo -2 "shouldInstallTestedPkg called with '$*'."
 
 # Parse options
   local hasbuildtests=false
@@ -6442,7 +6515,7 @@ EOF
       local patchvar=`genbashvar $1`_PATCH
       local patchval=`deref $patchvar`
       if test -n "$patchval"; then
-        patchname=`basename $patchval`
+        local patchname=`basename $patchval`
         cmd="/usr/bin/install -m 664 $patchval $instdirval/$instsubdirval/$patchname"
         techo "$cmd"
         $cmd
@@ -6525,6 +6598,7 @@ EOF
           techo -2 "installerbase = $installerbase."
           local ending=
           local OS=`uname`
+          local sfx=
           case $OS in
             CYGWIN*)
               if $IS_64BIT; then
@@ -6533,20 +6607,25 @@ EOF
                 endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip"
               fi
               ;;
-            Darwin) endings="-MacSnowleopard.dmg -MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -Darwin.dmg -Mac.tar.gz";;
-            Linux) endings="-Linux64.tar.gz -Linux64-gpu.tar.gz -Linux32.tar.gz";;
+            Darwin)
+              endings="-MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -MacYosemite.dmg -Mac.dmg"
+              sfx=dmg
+              ;;
+            Linux)
+              endings="-Linux64.tar.gz -Linux64-glibc${GLIBC_VERSION}.tar.gz -Linux32.tar.gz -Linux32-glibc${GLIBC_VERSION}.tar.gz"
+              sfx=tar.gz
+              ;;
           esac
-          local sfx=
           for ending in $endings; do
-            techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
+            #techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
             installer=`(shopt -s nocaseglob; \ls ${installerbase}-*${ending} 2>/dev/null)`
             if test -z "$installer"; then
-              techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
+              #techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
               installer=`(shopt -s nocaseglob; \ls ${installerbase}*${ending} 2>/dev/null)`
             fi
             if test -n "$installer"; then
-              sfx=`echo $ending | sed 's/^[^\.]*\.//'`
               techo "NOTE: [$FUNCNAME] Installer = '${installer}'"
+              sfx=${sfx:-"`echo $ending | sed 's/^[^\.]*\.//'`"}
               break
             fi
           done
@@ -6676,9 +6755,14 @@ EOF
 bilderInstallAll() {
   local buildsvar=`genbashvar $1`_BUILDS
   local buildsval=`deref $buildsvar`
+  local res=0
   for bld in `echo $buildsval | tr ',' ' '`; do
     bilderInstall $2 $1 $bld
+    if test $? != 0; then
+      res=$?
+    fi
   done
+  return $res
 }
 
 #
@@ -6700,7 +6784,7 @@ bilderInstallAll() {
 #
 bilderInstallTestedPkg() {
 
-  techo -3 "bilderInstallTestedPkg called with args: '$*'."
+  techo -2 "bilderInstallTestedPkg called with '$*'."
 
 # Default option values
   local hasbuildtests=false
@@ -6960,7 +7044,7 @@ EOF
 #
 bilderDuInstall() {
 
-  techo -2 "bilderDuInstall called with '$*'"
+  techo -2 "bilderDuInstall called with '$*'."
 
 # Default option values
   local dupkg=
@@ -7096,6 +7180,17 @@ EOF
 # Some python packages install executables
     setOpenPerms $CONTRIB_DIR/bin
     techo "Package $1 installed in $instdirval."
+
+# Install any patch
+    local patchvar=`genbashvar $1`_PATCH
+    local patchval=`deref $patchvar`
+    techo "Patch is '$patchval'."
+    if test -n "$patchval"; then
+      local patchname=`basename $patchval`
+      cmd="/usr/bin/install -m 664 $patchval $PYTHON_SITEPKGSDIR/$patchname"
+      techo "$cmd"
+      $cmd
+    fi
 
 # Rebuild time
     local starttimevar=`genbashvar $1`_START_TIME
@@ -7894,7 +7989,6 @@ buildChain() {
       exitOnError
     fi
     techo "Package: '$pkgfile'"
-
 
 # Look for commands and execute
     cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`

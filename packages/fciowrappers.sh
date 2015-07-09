@@ -24,7 +24,7 @@ FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-"ser,par"}
 FCIOWRAPPERS_DEPS=hdf5,$MPI_BUILD
 # Right now netcdf has separated the C and fortran libraries 
 # which is a total pain so just skip it.
-#FCIOWRAPPERS_DEPS=hdf5,netcdf,$MPI_BUILD
+FCIOWRAPPERS_DEPS=hdf5,netcdf,netcdf_fortran,$MPI_BUILD
 
 ######################################################################
 #

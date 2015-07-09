@@ -32,6 +32,10 @@ FLUXGRID_UMASK=002
 
 buildFluxgridCM() {
   getVersion fluxgrid
+  case `uname` in 
+   Linux)
+    FLUXGRID_SER_OTHER_ARGS="${FLUXGRID_SER_OTHER_ARGS} -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
+  esac
   if bilderPreconfig fluxgrid; then
     if bilderConfig -c fluxgrid ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG $CMAKE_LINLIB_SER_ARGS $FLUXGRID_SER_OTHER_ARGS"; then
       bilderBuild fluxgrid ser

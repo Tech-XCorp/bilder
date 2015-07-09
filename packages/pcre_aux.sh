@@ -16,7 +16,7 @@
 ######################################################################
 
 setPcreTriggerVars() {
-  PCRE_BLDRVERSION_STD=${PCRE_BLDRVERSION:-"8.20"}
+  PCRE_BLDRVERSION_STD=${PCRE_BLDRVERSION:-"8.36"}
   PCRE_BLDRVERSION_EXP=${PCRE_BLDRVERSION:-"8.36"}
   PCRE_BUILDS=${PCRE_BUILDS:-"ser"}
   PCRE_DEPS=cmake

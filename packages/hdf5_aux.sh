@@ -27,34 +27,31 @@ getHdf5TriggerVars() {
       if [[ "$CC" =~ mingw ]]; then
         HDF5_BLDRVERSION_STD=1.8.10
       else
-        HDF5_BLDRVERSION_STD=1.8.12
+        HDF5_BLDRVERSION_STD=1.8.13
       fi
       ;;
     Darwin)
       case `uname -r` in
         13.*) HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
-           *) HDF5_BLDRVERSION_STD=1.8.12;;	# Everything else
+           *) HDF5_BLDRVERSION_STD=1.8.13;;	# Everything else
       esac
       ;;
-    Linux) HDF5_BLDRVERSION_STD=1.8.12;;
+    Linux) HDF5_BLDRVERSION_STD=1.8.13;;
   esac
   HDF5_BLDRVERSION_EXP=1.8.13
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
-    HDF5_DESIRED_BUILDS=ser,par,sersh
+    HDF5_DESIRED_BUILDS=ser,sersh,par
 # No need for parallel shared, as MPI executables are built static.
     case `uname`-${BILDER_CHAIN} in
       CYGWIN*)
         HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,sermd"
-        if test "$VISUALSTUDIO_VERSION" = "10"; then
-# Python built with VS9, so need hdf5 build for that
-          HDF5_DESIRED_BUILDS="$HDF5_DESIRED_BUILDS,pycsh"
-        fi
         ;;
     esac
   fi
   computeBuilds hdf5
+  addPycstBuild hdf5
   addPycshBuild hdf5
 
 # Deps and other

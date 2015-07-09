@@ -1,13 +1,25 @@
 diff -ruN libssh-0.6.4/ConfigureChecks.cmake libssh-0.6.4-new/ConfigureChecks.cmake
 --- libssh-0.6.4/ConfigureChecks.cmake	2014-12-19 01:11:17.000000000 -0700
-+++ libssh-0.6.4-new/ConfigureChecks.cmake	2015-02-03 19:05:06.597698000 -0700
-@@ -116,10 +116,11 @@
++++ libssh-0.6.4-new/ConfigureChecks.cmake	2015-03-29 09:26:15.475146100 -0600
+@@ -102,6 +102,9 @@
+ check_function_exists(poll HAVE_POLL)
+ check_function_exists(select HAVE_SELECT)
+ check_function_exists(getaddrinfo HAVE_GETADDRINFO)
++if (WIN32)
++  set(CMAKE_EXTRA_INCLUDE_FILES winsock2.h)
++endif ()
+ check_function_exists(ntohll HAVE_NTOHLL)
+ check_function_exists(htonll HAVE_HTONLL)
+ 
+@@ -116,10 +119,13 @@
      if (HAVE_WSPIAPI_H OR HAVE_WS2TCPIP_H)
          set(HAVE_GETADDRINFO TRUE)
          set(HAVE_GETHOSTBYNAME TRUE)
 -        if (MSVC)
-+# Not sure when this should be true, but certainly after VS9
-+        if (_MSC_VER GREATER 1500)
++# check_function_exists not working above.  Believe these exist for
++# VS10 (16.0+) and greater.  Known to exist for VS12 (18.0+)
++        if (NOT (${CMAKE_C_COMPILER_VERSION} VERSION_LESS 16.0))
++            message(STATUS "Overriding HAVE_NTOHLL and HAVE_HTONLL.")
              set(HAVE_NTOHLL TRUE)
              set(HAVE_HTONLL TRUE)
 -        endif (MSVC)
@@ -17,7 +29,7 @@ diff -ruN libssh-0.6.4/ConfigureChecks.cmake libssh-0.6.4-new/ConfigureChecks.cm
      set(HAVE_SELECT TRUE)
 diff -ruN libssh-0.6.4/src/connect.c libssh-0.6.4-new/src/connect.c
 --- libssh-0.6.4/src/connect.c	2014-12-05 02:42:06.000000000 -0700
-+++ libssh-0.6.4-new/src/connect.c	2015-02-03 19:05:13.217698000 -0700
++++ libssh-0.6.4-new/src/connect.c	2015-03-29 09:23:39.065199900 -0600
 @@ -64,6 +64,10 @@
  #include <wspiapi.h>
  #endif

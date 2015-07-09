@@ -15,6 +15,8 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-intel 1>/dev/null 2>&1; then
   echo Wrong programming environment. Should be PrgEnv-intel.
   exit
 fi
+gccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
+gccvers=`echo $gccver | sed 's/\.[0-9]*$//' | tr -d '.'`
 case $UQMAILHOST in
 
   edison*)
@@ -27,23 +29,24 @@ case $UQMAILHOST in
 
 # System linear algebra, note sandybridge for Edison.
     SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/140/sandybridge/lib/libsci_intel.a
-    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/140/sandybridge/lib/libsci_intel.a
-    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/48/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
     MKL_ROOT_DIR=/opt/intel/composer_xe_2013.5.192/mkl
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
+    SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
+    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
 
 # Python builds -- must use gcc for consistency.
-# Loading the module gcc produces errors with the icpc, ensure it is
-# not loaded. Specify full python compiler paths.
-    PYC_CC=${PYC_CC:-"/opt/gcc/4.8.2/bin/gcc"}
-    PYC_CXX=${PYC_CXX:-"/opt/gcc/4.8.2/bin/g++"}
-    PYC_FC=${PYC_FC:-"/opt/gcc/4.8.2/bin/gfortran"}
+# Loading gcc module now seed to work
+    PYC_CC=`which gcc`
+    PYC_CXX=`which g++`
+    PYC_FC=`which gfortran`
     PYC_F77=${PYC_F77:-"${PYC_FC}"}
     ;;
 
@@ -53,18 +56,18 @@ case $UQMAILHOST in
 # System linear algebra libraries.  mc12 (Magny-Cours) for Hopper.
 # These are used together.  Not really the right division by name, but with
 # these definitions one gets the libraries in the right order.
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel.a
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/130/mc12/lib/libsci_intel_mp.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/140/mc12/lib/libsci_intel.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/140/mc12/lib/libsci_intel_mp.a
 # These are used together.  Not really the right division by name, but with
 # these definitions one gets the libraries in the right order.
     SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
     SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu_mp.a
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/130
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/130
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/130
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/130
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
 
     PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
     PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
@@ -247,6 +250,7 @@ BABEL_STATIC_OTHER_ARGS=${BABEL_STATIC_OTHER_ARGS:-"--with-F90-vendor=GNU cross_
 # BOOST_BUILDS=${BOOST_BUILDS:-""}
 # BOOST_BEN_OTHER_ARGS=${BOOST_BEN_OTHER_ARGS:-""}
 # BOOST_PYCSH_OTHER_ARGS=${BOOST_PYCSH_OTHER_ARGS:-""}
+# BOOST_PYCST_OTHER_ARGS=${BOOST_PYCST_OTHER_ARGS:-""}
 # BOOST_SER_OTHER_ARGS=${BOOST_SER_OTHER_ARGS:-""}
 # BOOST_SERMD_OTHER_ARGS=${BOOST_SERMD_OTHER_ARGS:-""}
 # BOOST_SERSH_OTHER_ARGS=${BOOST_SERSH_OTHER_ARGS:-""}
@@ -528,6 +532,7 @@ HDF5_BUILDS=${HDF5_BUILDS:-"sersh,pycsh"}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
 # HDF5_PYCSH_OTHER_ARGS=${HDF5_PYCSH_OTHER_ARGS:-""}
+# HDF5_PYCST_OTHER_ARGS=${HDF5_PYCST_OTHER_ARGS:-""}
 # HDF5_SER_OTHER_ARGS=${HDF5_SER_OTHER_ARGS:-""}
 # HDF5_SERMD_OTHER_ARGS=${HDF5_SERMD_OTHER_ARGS:-""}
 # HDF5_SERSH_OTHER_ARGS=${HDF5_SERSH_OTHER_ARGS:-""}
@@ -660,6 +665,7 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # MOAB_BUILDS=${MOAB_BUILDS:-""}
 # MOAB_PAR_OTHER_ARGS=${MOAB_PAR_OTHER_ARGS:-""}
 # MOAB_PYCSH_OTHER_ARGS=${MOAB_PYCSH_OTHER_ARGS:-""}
+# MOAB_PYCST_OTHER_ARGS=${MOAB_PYCST_OTHER_ARGS:-""}
 # MOAB_SER_OTHER_ARGS=${MOAB_SER_OTHER_ARGS:-""}
 # MOAB_SERSH_OTHER_ARGS=${MOAB_SERSH_OTHER_ARGS:-""}
 
@@ -691,6 +697,8 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 
 # MUPARSER_BLDRVERSION=${MUPARSER_BLDRVERSION:-""}
 # MUPARSER_BUILDS=${MUPARSER_BUILDS:-""}
+# MUPARSER_PYCSH_OTHER_ARGS=${MUPARSER_PYCSH_OTHER_ARGS:-""}
+# MUPARSER_PYCST_OTHER_ARGS=${MUPARSER_PYCST_OTHER_ARGS:-""}
 # MUPARSER_SER_OTHER_ARGS=${MUPARSER_SER_OTHER_ARGS:-""}
 # MUPARSER_SERMD_OTHER_ARGS=${MUPARSER_SERMD_OTHER_ARGS:-""}
 # MUPARSER_SERSH_OTHER_ARGS=${MUPARSER_SERSH_OTHER_ARGS:-""}
@@ -717,6 +725,12 @@ METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=craycnl -pdt_c++=g++"}
 # NETCDF_CXX4_BUILDS=${NETCDF_CXX4_BUILDS:-""}
 # NETCDF_CXX4_PAR_OTHER_ARGS=${NETCDF_CXX4_PAR_OTHER_ARGS:-""}
 # NETCDF_CXX4_SER_OTHER_ARGS=${NETCDF_CXX4_SER_OTHER_ARGS:-""}
+
+# NETCDF_FORTRAN_BLDRVERSION=${NETCDF_FORTRAN_BLDRVERSION:-""}
+NETCDF_FORTRAN_BUILDS=${NETCDF_FORTRAN_BUILDS:-"NONE"}
+# NETCDF_FORTRAN_PAR_OTHER_ARGS=${NETCDF_FORTRAN_PAR_OTHER_ARGS:-""}
+# NETCDF_FORTRAN_SER_OTHER_ARGS=${NETCDF_FORTRAN_SER_OTHER_ARGS:-""}
+# NETCDF_FORTRAN_SERSH_OTHER_ARGS=${NETCDF_FORTRAN_SERSH_OTHER_ARGS:-""}
 
 # NETCDF_BLDRVERSION=${NETCDF_BLDRVERSION:-""}
 NETCDF_BUILDS=${NETCDF_BUILDS:-"NONE"}
@@ -846,6 +860,10 @@ PETSC_SER_OTHER_ARGS=${PETSC_SER_OTHER_ARGS:-"--with-blas-lapack-lib=${SYSTEM_BL
 # PIVY_BLDRVERSION=${PIVY_BLDRVERSION:-""}
 # PIVY_BUILDS=${PIVY_BUILDS:-""}
 # PIVY_PYCSH_OTHER_ARGS=${PIVY_PYCSH_OTHER_ARGS:-""}
+
+# PKGCONFIG_BLDRVERSION=${PKGCONFIG_BLDRVERSION:-""}
+PKGCONFIG_BUILDS=${PKGCONFIG_BUILDS:-"NONE"}
+# PKGCONFIG_SER_OTHER_ARGS=${PKGCONFIG_SER_OTHER_ARGS:-""}
 
 # PLASMA_STATE_BLDRVERSION=${PLASMA_STATE_BLDRVERSION:-""}
 # PLASMA_STATE_BUILDS=${PLASMA_STATE_BUILDS:-""}
@@ -1172,10 +1190,11 @@ TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
 TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,par,pycsh"}
 # TXBASE_BEN_OTHER_ARGS=${TXBASE_BEN_OTHER_ARGS:-""}
 # TXBASE_DEVELDOCS_OTHER_ARGS=${TXBASE_DEVELDOCS_OTHER_ARGS:-""}
-# TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-""}
+TXBASE_PAR_OTHER_ARGS=${TXBASE_PAR_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXBASE_PARSH_OTHER_ARGS=${TXBASE_PARSH_OTHER_ARGS:-""}
 # TXBASE_PYCSH_OTHER_ARGS=${TXBASE_PYCSH_OTHER_ARGS:-""}
-# TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-""}
+# TXBASE_PYCST_OTHER_ARGS=${TXBASE_PYCST_OTHER_ARGS:-""}
+TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXBASE_SERMD_OTHER_ARGS=${TXBASE_SERMD_OTHER_ARGS:-""}
 # TXBASE_SERSH_OTHER_ARGS=${TXBASE_SERSH_OTHER_ARGS:-""}
 
@@ -1184,6 +1203,17 @@ TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,par,pycsh"}
 # TXPHYSICS_BEN_OTHER_ARGS=${TXPHYSICS_BEN_OTHER_ARGS:-""}
 # TXPHYSICS_SER_OTHER_ARGS=${TXPHYSICS_SER_OTHER_ARGS:-""}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
+
+# TXSIM_BLDRVERSION=${TXSIM_BLDRVERSION:-""}
+TXSIM_BUILDS=${TXSIM_BUILDS:-"ser,par,pycsh"}
+# TXSIM_BEN_OTHER_ARGS=${TXSIM_BEN_OTHER_ARGS:-""}
+# TXSIM_DEVELDOCS_OTHER_ARGS=${TXSIM_DEVELDOCS_OTHER_ARGS:-""}
+TXSIM_PAR_OTHER_ARGS=${TXSIM_PAR_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
+# TXSIM_PARSH_OTHER_ARGS=${TXSIM_PARSH_OTHER_ARGS:-""}
+# TXSIM_PYCSH_OTHER_ARGS=${TXSIM_PYCSH_OTHER_ARGS:-""}
+TXSIM_SER_OTHER_ARGS=${TXSIM_SER_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
+# TXSIM_SERMD_OTHER_ARGS=${TXSIM_SERMD_OTHER_ARGS:-""}
+# TXSIM_SERSH_OTHER_ARGS=${TXSIM_SERSH_OTHER_ARGS:-""}
 
 # UEDGE_BLDRVERSION=${UEDGE_BLDRVERSION:-""}
 UEDGE_BUILDS=${UEDGE_BUILDS:-"par"}

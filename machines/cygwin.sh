@@ -79,9 +79,10 @@ elif test -f /usr/bin/python2.5.exe; then
 fi
 
 # Make sure that /usr/bin and /bin are just after the Python bin dir
-# alexanda 2012-7-31: Changed this to above code that simply moves python to front of path
+# alexanda 2012-7-31: Changed this to above code that simply moves
+#   python to front of path
 # PATH="/cygdrive/c/Python26:$PATH"
-# JRC 20121111: This screwed me up.  I get my correct with my subversion
+# JRC 20121111: This screwed me up.  I get mine correct with my subversion
 # in front of my path, and then move /usr/bin later than python, so that
 # the correct subversion is unchanged.  Otherwise, svnversion looks modified.
 # Restoring for now.  What we need to figure out is why the qar machines
@@ -122,7 +123,7 @@ $TECHO2 "After /usr/bin move, PATH = $PATH."
 getVsPaths() {
   local vsver=$1
   $TECHO "Looking for tools for Visual Studio ${vsver}."
-  if ! test -d "/cygdrive/c/${programfiles}/Microsoft Visual Studio ${vsver}.0"; then
+  if ! test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio ${vsver}.0"; then
     $TECHO "Microsoft Visual Studio ${vsver}.0 is not installed.  Will not set associated variables."
     return 1
   fi
@@ -132,23 +133,17 @@ getVsPaths() {
   if echo $PATH | grep "Visual Studio ${vsver}"; then
     $TECHO "WARNING: Visual Studio ${vsver} already in your path."
     pathhasvs=true
-# Attempts to remove from path
-    # PATHVS=`echo $PATH | sed -e "s?^.*\(/cygdrive/c/Program Files/Microsoft Visual Studio ${vsver}\)?\1?" -e "s?\(Windows/v7.0A/bin\).*$?\1?"`
-    $TECHO "Temporary path = $PATH."
   fi
   local vscomntools=`deref VS${vsver}0COMNTOOLS`
   $TECHO "VS${vsver}0COMNTOOLS = $vscomntools."
-  if [[ `uname` =~ WOW ]] && ! [[ "$vscomntools" =~ "(x86)" ]]; then
-    $TECHO "WARNING: 64 bit Windows, but VS${vsver}0COMNTOOLS does not contain (x86)."
-  fi
 
   arch=x86
   if $IS_64_BIT; then
+    if ! [[ "$vscomntools" =~ "(x86)" ]]; then
+      $TECHO "WARNING: 64 bit Windows, but VS${vsver}0COMNTOOLS does not contain (x86)."
+    fi
     arch=amd64
-    if ! test -d "/cygdrive/c/${programfiles}/Microsoft Visual Studio ${vsver}.0/VC/bin/${arch}"; then
-      # In VS12 Express there is no amd64 but there is x86_amd64 a 32 bit compiler
-      # which compiles 64bit executables.  The x86_amd64 compiler is limited to
-      # using less than 4G memory during compile time.
+    if test $vsver = 12; then
       arch=x86_amd64
     fi
   fi
@@ -177,7 +172,7 @@ EOF
     cygpath -au "$line": >> $workdir/path_${vsver}.txt
   done
   if test -f $workdir/path_${vsver}.txt; then
-    PATH_CYG=`cat $workdir/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
+    local PATH_CYG=`cat $workdir/path_${vsver}.txt | tr -d '\n' | sed 's/:$//'`
   fi
   rm -f $workdir/path_${vsver}.txt
   eval PATH_VS${vsver}="\"$PATH_CYG\""
@@ -191,79 +186,49 @@ EOF
   eval LIBPATH_VS${vsver}="\"$tmp\""
 }
 
-if $IS_64_BIT; then
-  getVsPaths 9
-  getVsPaths 10
-  getVsPaths 11
-  getVsPaths 12
-else
-  PATH_VS9="/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/IDE:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/Common7/Tools:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v3.5:/cygdrive/c/WINDOWS/Microsoft.NET/Framework/v2.0.50727:/cygdrive/c/${programfiles}/Microsoft Visual Studio 9.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v6.0A/bin"
-  INCLUDE_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\include;"
-  LIB_VS9="C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v6.0A\lib;"
-  LIBPATH_VS9="C:\Windows\Microsoft.NET\Framework\v3.5;C:\Windows\Microsoft.NET\Framework\v2.0.50727;C:\\${programfiles}\Microsoft Visual Studio 9.0\VC\LIB;"
-# for MSVC10
-  PATH_VS10="/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/Common7/IDE/:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/VC/bin:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/Common7/Tools:/cygdrive/c/Windows/Microsoft.NET/Framework/v4.0.30319:/cygdrive/c/Windows/Microsoft.NET/Framework/v3.5:/cygdrive/c/${programfiles}/Microsoft Visual Studio 10.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v7.0A/bin/NETFX 4.0 Tools:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v7.0A/bin"
-  INCLUDE_VS10="C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v7.0A\include;"
-  LIB_VS10="C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v7.0A\lib;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib/amd64;"
-  LIBPATH_VS10="C:\Windows\Microsoft.NET\Framework\v4.0.30319;C:\Windows\Microsoft.NET\Framework\v3.5;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\LIB;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 10.0\VC\lib/amd64;"
-
-# for MSVC11
-  PATH_VS11="/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/Common7/IDE/:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/VC/BIN:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/VC/bin:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/Common7/Tools:/cygdrive/c/Windows/Microsoft.NET/Framework/v4.0.30319:/cygdrive/c/Windows/Microsoft.NET/Framework/v3.5:/cygdrive/c/${programfiles}/Microsoft Visual Studio 11.0/VC/VCPackages:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v8.0A/bin/NETFX 4.0 Tools:/cygdrive/c/${programfiles}/Microsoft SDKs/Windows/v8.0A/bin"
-  INCLUDE_VS11="C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\INCLUDE;C:\\${programfiles}\Microsoft SDKs\Windows\v8.0A\include;"
-  LIB_VS11="C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft SDKs\Windows\v8.0A\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
-  LIBPATH_VS11="C:\Windows\Microsoft.NET\Framework\v4.0.30319;C:\Windows\Microsoft.NET\Framework\v3.5;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\LIB;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib;C:\\${programfiles}\Microsoft Visual Studio 11.0\VC\lib/amd64;"
-fi
-
 allVersions="12 11 10 9"
 
-# Set the environments
-FULLPATH_VS9=`echo $PATH | sed -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
-FULLPATH_VS9=`echo $FULLPATH_VS9 | sed "s%:/cygdrive%:$PATH_VS9:/cygdrive%"`
-ENV_VS9="PATH='$MINGW_BINDIR:$FULLPATH_VS9' VS90COMNTOOLS='C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools' INCLUDE='$INCLUDE_VS9' LIB='$LIB_VS9' LIBPATH='$LIBPATH_VS9'"
-# $TECHO "ENV_VS9 = \"$ENV_VS9\""
-FULLPATH_VS10=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS11:%:%"`
-FULLPATH_VS10=`echo $FULLPATH_VS10 | sed "s%:/cygdrive%:$PATH_VS10:/cygdrive%"`
-ENV_VS10="PATH='$MINGW_BINDIR:$FULLPATH_VS10' VS100COMNTOOLS='C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools' INCLUDE='$INCLUDE_VS10' LIB='$LIB_VS10' LIBPATH='$LIBPATH_VS10'"
-# $TECHO "ENV_VS10 = \"$ENV_VS10\""
-FULLPATH_VS11=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%"`
-FULLPATH_VS11=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS11:/cygdrive%"`
-ENV_VS11="PATH='$MINGW_BINDIR:$FULLPATH_VS11' VS110COMNTOOLS='C:\Program Files\Microsoft Visual Studio 11.0\Common7\Tools' INCLUDE='$INCLUDE_VS11' LIB='$LIB_VS11' LIBPATH='$LIBPATH_VS11'"
-# $TECHO "ENV_VS11 = \"$ENV_VS11\""
-FULLPATH_VS12=`echo $PATH | sed -e "s%:$PATH_VS9:%:%" -e "s%:$PATH_VS10:%:%" -e "s%:$PATH_VS11:%:%"`
-FULLPATH_VS12=`echo $FULLPATH_VS11 | sed "s%:/cygdrive%:$PATH_VS12:/cygdrive%"`
-ENV_VS12="PATH='$MINGW_BINDIR:$FULLPATH_VS12' VS120COMNTOOLS='C:\Program Files\Microsoft Visual Studio 12.0\Common7\Tools' INCLUDE='$INCLUDE_VS12' LIB='$LIB_VS12' LIBPATH='$LIBPATH_VS12'"
-# $TECHO "ENV_VS12 = \"$ENV_VS12\""
+for vsver in $allVersions; do
+# This previously done for only 64 bit.  If we return to supporting 32-bit
+# windows, getVsPaths will have to be revisited.
+  getVsPaths $vsver
+done
 
-setVsVars() {
-# $1 = visual studio version
-# Remove old from PATH
-# if MINGW_BINDIR does not exist, don't try to substitute or we'll remove
-# a needed colon.
-  sedStr=sed
-  for ver in $allVersions; do
-    if test $ver != $1; then
-      sedStr="$sedStr -e \"s%:\$PATH_VS${ver}:%:%\""
+# Set the environment for a version of Visual Studio
+#
+# 1: the version
+setVsEnv() {
+# Convert to consistent kind of path
+  local fullpath=`cygpath -aup "$PATH"`
+  # $TECHO "At start, fullpath = $fullpath"
+  for vsver in $allVersions; do
+    local rmpath=`deref PATH_VS$vsver`
+    if test -n "$rmpath"; then
+      rmpath=`cygpath -aup "$rmpath"`
+      # $TECHO "Removing $rmpath"
+      fullpath=`echo $fullpath | sed -e "s%:$rmpath:%:%"`
     fi
   done
-
-  if test -n "$MINGW_BINDIR"; then
-    sedStr="$sedStr -e \"s%:\$MINGW_BINDIR%%\""
+  local pathvs=`deref PATH_VS${1}`
+  if test -z "$pathvs"; then
+    TERMINATE_ERROR_MSG="ERROR: [${FUNCNAME}] Visual Studio $1 not found."
+    terminate
   fi
-
-  echo $PATH | eval $sedStr
-
-# Add new
-  $TECHO "setVsVars... Adding Visual Studio $1 variables to environment."
-  $TECHO "setVsVars... before PATH = $PATH"
-  PATH=`echo $PATH | sed "s%:/cygdrive%:\`deref PATH_VS$1\`:/cygdrive%"`:$MINGW_BINDIR
-# Do we need to make sure /usr/bin is before /cygdrive/c/Windows/system32?
-  export INCLUDE="`deref INCLUDE_VS$1`"
-  export LIB="`deref LIB_VS$1`"
-  export LIBPATH="`deref LIBPATH_VS$1`"
-  $TECHO "setVsVars... after PATH = $PATH"
-  $TECHO "setVsVars... INCLUDE = $INCLUDE"
-  $TECHO "setVsVars... LIB = $LIB"
-  $TECHO "setVsVars... LIBPATH = $LIBPATH"
+  pathvs=`cygpath -aup "$pathvs"`
+  fullpath=`echo $fullpath | sed "s%:/cygdrive%:$pathvs:/cygdrive%"`
+  # $TECHO "After sed, fullpath = $fullpath"
+  export PATH="$fullpath"
+  # local cmnvar=VS${1}0COMNTOOLS
+  # local cmnval="C:\Program Files\Microsoft Visual Studio ${1}.0\Common7\Tools"
+  local inc=`deref INCLUDE_VS${1}`
+  export INCLUDE="$inc"
+  local lib=`deref LIB_VS${1}`
+  export LIB="$lib"
+  local libpath=`deref LIBPATH_VS${1}`
+  export LIBPATH="$libpath"
+  # ENV_VS="PATH='$fullpath' $cmnvar='$cmnval' INCLUDE='$inc' LIB='$lib' LIBPATH='$libpath'"
+  ENV_VS="PATH='$PATH' INCLUDE='$INCLUDE' LIB='$LIB' LIBPATH='$LIBPATH'"
+  $TECHO "ENV_VS = \"$ENV_VS\""
 }
 
 hasvisstudio=`echo $PATH | grep -i "/$programfiles/Microsoft Visual Studio"`
@@ -271,7 +236,7 @@ if test -n "$hasvisstudio"; then
   $TECHO "Found a Visual Studio in your path.  Not adding."
 else
   if test -z "$VISUALSTUDIO_VERSION"; then
-# Use VS 11 if present
+# Try all versions, starting with latest first
     for ver in $allVersions; do
       if test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio ${ver}.0/Common7/IDE"; then
         VISUALSTUDIO_VERSION=$ver
@@ -282,11 +247,11 @@ else
   fi
   if test -n "$VISUALSTUDIO_VERSION"; then
     nopathvisstudio=`echo $PATH | grep -i "/cygdrive/c/$programfiles/Microsoft Visual Studio ${VISUALSTUDIO_VERSION}.0/VC/BIN:"`
-      if test -z "$nopathvisstudio"; then
-        setVsVars ${VISUALSTUDIO_VERSION}
-      fi
+    if test -z "$nopathvisstudio"; then
+      setVsEnv ${VISUALSTUDIO_VERSION}
+    fi
   else
-      $TECHO "WARNING: Visual Studio not found and not in path."
+    $TECHO "WARNING: Visual Studio not found and not in path."
   fi
 fi
 

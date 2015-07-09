@@ -55,12 +55,18 @@ buildGraphviz() {
       ;;
   esac
 
+# Look for graphviz perl problem
+  if echo $PYC_CXXFLAGS | grep -- -std=c++11; then
+    techo "NOTE: If graphviz fails to build, consider applying the patch,
+bilder/extras/osxperl.patch in /System/Library/Perl/5.16/darwin-thread-multi-2level/CORE with -p1"
+  fi
+
 # Configure and build
   local GRAPHVIZ_PYC_ADDL_ARGS="--with-qt=no"
   if test `uname` = Linux; then
     GRAPHVIZ_PYC_ADDL_ARGS="$GRAPHVIZ_PYC_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
   fi
-  if bilderConfig graphviz $FORPYTHON_STATIC_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PAR --enable-static $GRAPHVIZ_PYC_ADDL_ARGS $GRAPHVIZ_PYC_OTHER_ARGS"; then
+  if bilderConfig graphviz $FORPYTHON_STATIC_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --enable-static $GRAPHVIZ_PYC_ADDL_ARGS $GRAPHVIZ_PYC_OTHER_ARGS"; then
     bilderBuild graphviz $FORPYTHON_STATIC_BUILD
   fi
 
@@ -83,6 +89,11 @@ testGraphviz() {
 ######################################################################
 
 installGraphviz() {
-  bilderInstallAll graphviz "  -p open"
+  if bilderInstallAll graphviz "  -p open"; then
+    mkdir -p $CONTRIB_DIR/bin
+    local instsfx=
+    test $FORPYTHON_STATIC_BUILD != ser && instsfx="-${FORPYTHON_STATIC_BUILD}"
+    (cd $CONTRIB_DIR/bin; rm -f dot; ln -s ../graphviz${instsfx}/bin/dot .)
+  fi
 }
 
