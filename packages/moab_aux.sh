@@ -69,7 +69,7 @@ setMoabTriggerVars() {
     fi
   fi
   computeBuilds moab
-  MOAB_DEPS=netcdf
+  MOAB_DEPS=netcdf,boost
   if echo "$MOAB_USE_CMAKE" | grep -q "true"; then
       MOAB_DEPS=$MOAB_DEPS,cmake
   else
