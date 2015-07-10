@@ -4,6 +4,9 @@
 updir=${1:-"."}
 updir=`(cd $updir; pwd -P)`
 mydir=`dirname $0`
-cmd="(cd $mydir/..; svn up; $mydir/updategitrepos.sh)"
+mydir=`(cd $mydir; pwd -P)`
+dirdir=`(cd $mydir/..; pwd -P)`
+cmd="(cd $dirdir; svn up; $mydir/updategitrepos.sh)"
 echo $cmd
+eval "$cmd"
 
