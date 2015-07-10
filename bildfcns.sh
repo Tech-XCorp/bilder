@@ -3138,11 +3138,8 @@ findBlasLapack() {
 }
 
 #
-# Find a the build of a package that may be in the contrib dir
-# allowing for alternate builds to fit the role
-#
-# by using that value, then ser if not windows,
-# and sermd if windows
+# Find the build of a package that may be in the contrib dir
+# allowing for alternate builds to fit the role.
 #
 # Args:
 # 1: The name of the package (should be a package.sh bilder script)
@@ -3195,7 +3192,11 @@ findAltPkgDir() {
     done
   fi
   if test -z "$val"; then
-    techo "WARNING: [$FUNCNAME] Cannot find ${desbld} build of ${pkgnameuc}."
+    # On Windows, we are building Python with the system compiler, so it's
+    # not an issue that there is no pycst build found.
+    if ! [[ `uname` =~ CYGWIN ]]; then
+      techo "WARNING: [$FUNCNAME] Cannot find ${desbld} build of ${pkgnameuc}."
+    fi
     return
   fi
 
@@ -3212,7 +3213,7 @@ findAltPkgDir() {
 }
 
 #
-# Find a the pycst build of a package that may be in the contrib dir
+# Find the pycst build of a package that may be in the contrib dir
 # by using that value, then ser if not windows,
 # and sermd if windows
 #
@@ -3232,7 +3233,7 @@ findPycstDir() {
 }
 
 #
-# Find a the pycsh build of a package that may be in the contrib dir
+# Find the pycsh build of a package that may be in the contrib dir
 # by using that value, or sersh if not present, then ser if not windows,
 # and sermd if windows
 #
