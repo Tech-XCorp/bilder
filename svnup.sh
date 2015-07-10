@@ -1,5 +1,7 @@
 #!/bin/sh
 # script for updating svn repos and git repos
+#
+# $Id$
 
 updir=${1:-"."}
 updir=`(cd $updir; pwd -P)`
