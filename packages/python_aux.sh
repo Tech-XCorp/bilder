@@ -26,7 +26,7 @@ setPythonTriggerVars() {
   PYTHON_USE_REPO=${PYTHON_USE_REPO:-"false"}
   if $PYTHON_USE_REPO; then
     PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
-# Our best working branch (we pull from master)
+# Our best working branch (we use master for only pull requests to upstream)
     PYTHON_REPO_BRANCH_STD=mastertxc
 # Where we develop fixes
     PYTHON_REPO_BRANCH_EXP=develop
