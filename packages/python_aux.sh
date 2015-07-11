@@ -26,9 +26,11 @@ setPythonTriggerVars() {
   PYTHON_USE_REPO=${PYTHON_USE_REPO:-"false"}
   if $PYTHON_USE_REPO; then
     PYTHON_REPO_URL=https://github.com/Tech-XCorp/pythoncm.git
-# Our best working branch (we use master for only pull requests to upstream)
+# Master for pull requests to upstream and to rebase against upstream
+# Our best working branch.  After mastertxc is rebased, it is pulled in
+# and commits squashed.
     PYTHON_REPO_BRANCH_STD=mastertxc
-# Where we develop fixes
+# Where we develop fixes.  We rebase against mastertxc.
     PYTHON_REPO_BRANCH_EXP=develop
     PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
     PYTHON_UPSTREAM_BRANCH_STD=master
