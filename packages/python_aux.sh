@@ -17,6 +17,12 @@
 
 setPythonTriggerVars() {
 
+# Patch number needed for repo and tarball
+  PY_BLDRVERSION_PATCH_STD=9
+  PY_BLDRVERSION_PATCH_EXP=10
+  PY_BLDRVERSION_PATCH=$PY_BLDRVERSION_PATCH_STD
+  $BUILD_EXPERIMENTAL && PY_BLDRVERSION_PATCH=$PY_BLDRVERSION_PATCH_EXP
+
 # Determine how to get python
   if test -n "$VISUALSTUDIO_VERSION"; then
     if test "$VISUALSTUDIO_VERSION" -ge 12; then
@@ -38,8 +44,8 @@ setPythonTriggerVars() {
 # Do not create installer in this case, as it is not yet working.
     BDIST_WININST_ARG=
   else
-    PYTHON_BLDRVERSION_STD=2.7.9
-    PYTHON_BLDRVERSION_EXP=2.7.10
+    PYTHON_BLDRVERSION_STD=2.7.$PY_BLDRVERSION_PATCH_STD
+    PYTHON_BLDRVERSION_EXP=2.7.$PY_BLDRVERSION_PATCH_EXP
     BDIST_WININST_ARG=bdist_wininst
   fi
   computeVersion Python
