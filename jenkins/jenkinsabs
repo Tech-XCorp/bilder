@@ -180,35 +180,9 @@ for absdir in $absdirs; do
 # last one, which will be the freshest.
   $cmd | sed -e "s%/.*/%%" | sort -t_ -k 3 > abstracts.txt
   lecho "<<< Analyzing $absdir Abstracts from $topdir >>>"
-  absinfile=`cat abstracts.txt`
-  lecho "Found abstracts.txt with contents: $absinfile"
-  bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
-  lecho "bilderhosts = $bilderhosts."
-  numhosts=`echo $bilderhosts | wc -w | sed 's/^ *//'`
-  lecho "$numhosts unique hosts."
-  firsthost=`echo $bilderhosts | sed 's/ .*$//'`
-  lecho "firsthost = $firsthost."
-  if test -n "$firsthost"; then
-    bilderbuilds=`sed -e "s/^[^_]*_//" -e 's/_.*$//' <abstracts.txt | sort | uniq | tr '\n' ' '`
-    lecho "Builds directory labels found were: $bilderbuilds."
-  else
-    lecho "ERROR: No hosts found for $absdir directory. Setting return result to 1."
-    res=1
-  fi
-  numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
-  lecho "$numbuilds build directory labels found."
-  numlines=`expr $numhosts \* $numbuilds`
-  lecho "$numlines lines to keep from abstracts.txt file."
-
-# Get the last distinct builds of the distinct hosts
-  abs2get=
-  for h in $bilderhosts; do
-    for b in $bilderbuilds; do
-      abs2get="$abs2get "`grep $h abstracts.txt | grep $b | tail -1`
-    done
-  done
-  rm abstracts.txt
-  lecho "Will get $abs2get."
+  abs2get=`cat abstracts.txt`
+  lecho "Will get the following abstracts:"
+  lecho "$abs2get"
 
 # Get the project email
   if test -n "$EMAIL"; then
