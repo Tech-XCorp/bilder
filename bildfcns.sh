@@ -1323,7 +1323,7 @@ getVersion() {
 #     number. Depending on where you get your repository and how you have
 #     applied patches, I believe that your repo could get a different number
 #     for the same code tree or the same number for a different code tree. (SG)
-    if ! rev=`git rev-list HEAD | wc -l | awk '{print $1}'`; then
+    if ! rev=`git rev-list HEAD | wc -l`; then
       techo "Git rev-list failed.  In path? Returning."
       cd $origdir
       return 1
