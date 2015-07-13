@@ -162,7 +162,14 @@ if ! $NO_PYTHON; then
 # Below ensures the final sourced file is correct
   addtopathvar PYTHONPATH "$PYTHON_SITEPKGSDIR"
   case `uname` in
-    CYGWIN*) trimvar PYTHONPATH ';' ;;
+    CYGWIN*) 
+       for dirpart in DLLs Lib; do
+         pathpart=`python -c "import sys; print sys.path" | \
+             tr , '\n' | grep "$dirpart'" | sed -e "s/'//g"`
+ 	 pathpart=`cygpath -m $pathpart`
+         addtopathvar PYTHONPATH "$pathpart"
+       done
+       trimvar PYTHONPATH ';' ;;
     *) trimvar PYTHONPATH ':' ;;
   esac
   export PYTHONPATH
