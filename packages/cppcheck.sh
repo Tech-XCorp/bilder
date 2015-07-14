@@ -49,7 +49,7 @@ buildCppcheck() {
   local makerargs=
   local cppcheckenv=
   if [[ `uname` =~ Linux ]]; then
-    cppcheckenv="LD_RUN_PATH=$CONTRIB_DIR/pcre/lib"
+    cppcheckenv="LD_RUN_PATH=$CONTRIB_DIR/pcre/lib:$LD_RUN_PATH"
   fi
   bilderBuild -kD $makerargs cppcheck ser "CFGDIR=$CONTRIB_DIR/cppcheck-${CPPCHECK_BLDRVERSION}-ser/cfg HAVE_RULES=yes" "$cppcheckenv"
 }

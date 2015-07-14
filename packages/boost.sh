@@ -119,7 +119,7 @@ buildBoost() {
   case `uname`-`uname -r` in
     CYGWIN*)
       if $IS_64BIT; then
-        toolsetarg_ser="toolset=intel-win32"
+        toolsetarg_ser="toolset=intel-15.0-vc12"
       fi
       ;;
     Darwin-*)

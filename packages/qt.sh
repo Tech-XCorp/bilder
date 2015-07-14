@@ -125,9 +125,10 @@ buildQt() {
 # The paths on redhat are:
 #  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
 #  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
+
       local incdir=
 # qt will not compile with gstreamer-1.0, so specifically look for 0.10
-      for i in gstreamer-0.10 libxml2; do
+      for i in gstreamer-0.10 libxml2 dbus-1.0 glib-2.0; do
 # Get the latest
         incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
         if test -z "$incdir"; then
@@ -161,7 +162,8 @@ buildQt() {
         fi
       done
       if test -n "$glibincdir"; then
-        QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir"
+        QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir -ldbus-1 -lglib-2.0 -lgthread-2.0"
+
       else
         techo "WARNING: [qt.sh] glib word-size include dir not found."
         techo "WARNING: [qt.sh] May need to install glib2-devel."
