@@ -119,7 +119,7 @@ buildBoost() {
   case `uname`-`uname -r` in
     CYGWIN*)
       if $IS_64BIT; then
-        toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+        toolsetarg_ser="toolset=intel-win32"
       fi
       ;;
     Darwin-*)
