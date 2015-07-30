@@ -4,14 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
 #
 ######################################################################
 
@@ -24,21 +16,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setAlabasterTriggerVars() {
+  ALABASTER_BLDRVERSION_STD=${ALABASTER_BLDRVERSION_STD:-"0.7.6"}
+  ALABASTER_BLDRVERSION_EXP=${ALABASTER_BLDRVERSION_EXP:-"0.7.6"}
+  ALABASTER_BUILDS=${ALABASTER_BUILDS:-"pycsh"}
+  ALABASTER_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setAlabasterTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find alabaster
 #
 ######################################################################
 
-findSetuptools() {
+findAlabaster() {
   :
 }
 

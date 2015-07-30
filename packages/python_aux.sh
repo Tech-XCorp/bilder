@@ -43,6 +43,13 @@ setPythonTriggerVars() {
     PYTHON_UPSTREAM_BRANCH_EXP=master
 # Do not create installer in this case, as it is not yet working.
     BDIST_WININST_ARG=
+# Because of my inability to get git to do what I want, adoping the nuclear
+# solution.
+    if test -n "$JENKINS_FSROOT"; then
+      rm -rf $PROJECT_DIR/python
+    else
+      techo "NOTE: [$FUNCNAME] Not removing $PROJECT_DIR/python."
+    fi
   else
     PYTHON_BLDRVERSION_STD=2.7.$PY_BLDRVERSION_PATCH_STD
     PYTHON_BLDRVERSION_EXP=2.7.$PY_BLDRVERSION_PATCH_EXP

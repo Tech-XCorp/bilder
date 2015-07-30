@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for babel
+# Build information for pytz
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in babel_aux.sh
+# Trigger variables set in pytz_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/babel_aux.sh
+source $mydir/pytz_aux.sh
 
 ######################################################################
 #
@@ -23,41 +23,54 @@ source $mydir/babel_aux.sh
 #
 ######################################################################
 
-setDocutilsNonTriggerVars() {
-  BABEL_UMASK=002
+setPytzNonTriggerVars() {
+  PYTZ_UMASK=002
 }
-setDocutilsNonTriggerVars
+setPytzNonTriggerVars
 
 #####################################################################
 #
-# Launch builds.
+# Build pytz
 #
 ######################################################################
 
-buildBabel() {
-  if bilderUnpack Babel; then
-    bilderDuBuild -p babel Babel "" "$DISTUTILS_ENV"
+buildPytz() {
+
+# Check for build need
+  if ! bilderUnpack pytz; then
+    return 1
   fi
+
+# Build away
+  PYTZ_ENV="$DISTUTILS_ENV"
+  techo -2 PYTZ_ENV = $PYTZ_ENV
+  bilderDuBuild pytz "" "$PYTZ_ENV"
+
 }
 
 ######################################################################
 #
-# Test
+# Test pytz
 #
 ######################################################################
 
-testBabel() {
-  techo "Not testing Babel."
+testPytz() {
+  techo "Not testing pytz."
 }
 
 ######################################################################
 #
-# Install
+# Install pytz
 #
 ######################################################################
 
-installBabel() {
-  local BABEL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/babel.filelist'"
-  bilderDuInstall -p babel Babel "$BABEL_INSTALL_ARGS" "$DISTUTILS_ENV"
+installPytz() {
+# Eggs are described at https://pythonhosted.org/pytz/formats.html
+# Args below work on Windows
+  local PYTZ_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pytz.filelist'"
+  mkdir -p $PYTHON_SITEPKGSDIR
+  if bilderDuInstall pytz "$PYTZ_INSTALL_ARGS" "$PYTZ_ENV"; then
+    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+  fi
 }
 

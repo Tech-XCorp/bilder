@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for setuptools
+# Build information for sphinx_bootstrap_theme
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in setuptools_aux.sh
+# Trigger variables set in sphinx_bootstrap_theme_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/setuptools_aux.sh
+source $mydir/sphinx_bootstrap_theme_aux.sh
 
 ######################################################################
 #
@@ -23,55 +23,55 @@ source $mydir/setuptools_aux.sh
 #
 ######################################################################
 
-setSetuptoolsNonTriggerVars() {
-  SETUPTOOLS_UMASK=002
+setSphinx_bootstrap_themeNonTriggerVars() {
+  SPHINX_BOOTSTRAP_THEME_UMASK=002
 }
-setSetuptoolsNonTriggerVars
+setSphinx_bootstrap_themeNonTriggerVars
 
 #####################################################################
 #
-# Build setuptools
+# Build sphinx_bootstrap_theme
 #
 ######################################################################
 
-buildSetuptools() {
+buildSphinx_bootstrap_theme() {
 
 # Check for build need
-  if ! bilderUnpack setuptools; then
+  if ! bilderUnpack sphinx_bootstrap_theme; then
     return 1
   fi
 
 # Build away
-  SETUPTOOLS_ENV="$DISTUTILS_ENV"
-  techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
-  bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
+  SPHINX_BOOTSTRAP_THEME_ENV="$DISTUTILS_ENV"
+  techo -2 SPHINX_BOOTSTRAP_THEME_ENV = $SPHINX_BOOTSTRAP_THEME_ENV
+  bilderDuBuild sphinx_bootstrap_theme '-' "$SPHINX_BOOTSTRAP_THEME_ENV"
 
 }
 
 ######################################################################
 #
-# Test setuptools
+# Test sphinx_bootstrap_theme
 #
 ######################################################################
 
-testSetuptools() {
-  techo "Not testing setuptools."
+testSphinx_bootstrap_theme() {
+  techo "Not testing sphinx_bootstrap_theme."
 }
 
 ######################################################################
 #
-# Install setuptools
+# Install sphinx_bootstrap_theme
 #
 ######################################################################
 
-installSetuptools() {
+installSphinx_bootstrap_theme() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/setuptools/formats.html
-# It seems that packages are using setuptools which creates eggs, which
+# Eggs are described at https://pythonhosted.org/sphinx_bootstrap_theme/formats.html
+# It seems that packages are using sphinx_bootstrap_theme which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
-  if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
+  local SPHINX_BOOTSTRAP_THEME_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx_bootstrap_theme.filelist'"
+  if bilderDuInstall sphinx_bootstrap_theme "$SPHINX_BOOTSTRAP_THEME_INSTALL_ARGS" "$SPHINX_BOOTSTRAP_THEME_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }

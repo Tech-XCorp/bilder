@@ -4,14 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
 #
 ######################################################################
 
@@ -24,21 +16,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setSphinx_bootstrap_themeTriggerVars() {
+  SPHINX_BOOTSTRAP_THEME_BLDRVERSION_STD=${SPHINX_BOOTSTRAP_THEME_BLDRVERSION_STD:-"0.4.7"}
+  SPHINX_BOOTSTRAP_THEME_BLDRVERSION_EXP=${SPHINX_BOOTSTRAP_THEME_BLDRVERSION_EXP:-"0.4.7"}
+  SPHINX_BOOTSTRAP_THEME_BUILDS=${SPHINX_BOOTSTRAP_THEME_BUILDS:-"pycsh"}
+  SPHINX_BOOTSTRAP_THEME_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setSphinx_bootstrap_themeTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find sphinx_bootstrap_theme
 #
 ######################################################################
 
-findSetuptools() {
+findSphinx_bootstrap_theme() {
   :
 }
 

@@ -4,14 +4,10 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
+# Get tarball from zip by
+# unzip MathJax-2.5-latest.zip
+# mv MathJax-2.5-latest MathJax-2.5
+# env COPYFILE_DISABLE=true tar cjf MathJax-2.5.bz2 MathJax-2.5
 #
 ######################################################################
 
@@ -24,21 +20,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setMathjaxTriggerVars() {
+  MATHJAX_BLDRVERSION_STD=${MATHJAX_BLDRVERSION_STD:-"2.3"}
+  MATHJAX_BLDRVERSION_EXP=${MATHJAX_BLDRVERSION_EXP:-"2.5.3"}
+  MATHJAX_BUILDS=${MATHJAX_BUILDS:-"full,lite"}
+  MATHJAX_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setMathjaxTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find mathjaxs
 #
 ######################################################################
 
-findSetuptools() {
+findMathjax() {
   :
 }
 

@@ -4,15 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
-#
 ######################################################################
 
 ######################################################################
@@ -24,21 +15,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setJinja2TriggerVars() {
+  JINJA2_BLDRVERSION_STD=${JINJA2_BLDRVERSION_STD:-"2.7.3"}
+  JINJA2_BLDRVERSION_EXP=${JINJA2_BLDRVERSION_EXP:-"2.7.3"}
+  JINJA2_BUILDS=${JINJA2_BUILDS:-"pycsh"}
+  JINJA2_DEPS=markupsafe,setuptools,Python
 }
-setSetuptoolsTriggerVars
+setJinja2TriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find jinja2
 #
 ######################################################################
 
-findSetuptools() {
+findJinja2() {
   :
 }
 

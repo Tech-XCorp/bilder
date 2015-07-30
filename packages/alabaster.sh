@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for setuptools
+# Build information for alabaster
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in setuptools_aux.sh
+# Trigger variables set in alabaster_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/setuptools_aux.sh
+source $mydir/alabaster_aux.sh
 
 ######################################################################
 #
@@ -23,55 +23,55 @@ source $mydir/setuptools_aux.sh
 #
 ######################################################################
 
-setSetuptoolsNonTriggerVars() {
-  SETUPTOOLS_UMASK=002
+setAlabasterNonTriggerVars() {
+  ALABASTER_UMASK=002
 }
-setSetuptoolsNonTriggerVars
+setAlabasterNonTriggerVars
 
 #####################################################################
 #
-# Build setuptools
+# Build alabaster
 #
 ######################################################################
 
-buildSetuptools() {
+buildAlabaster() {
 
 # Check for build need
-  if ! bilderUnpack setuptools; then
+  if ! bilderUnpack alabaster; then
     return 1
   fi
 
 # Build away
-  SETUPTOOLS_ENV="$DISTUTILS_ENV"
-  techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
-  bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
+  ALABASTER_ENV="$DISTUTILS_ENV"
+  techo -2 ALABASTER_ENV = $ALABASTER_ENV
+  bilderDuBuild alabaster '-' "$ALABASTER_ENV"
 
 }
 
 ######################################################################
 #
-# Test setuptools
+# Test alabaster
 #
 ######################################################################
 
-testSetuptools() {
-  techo "Not testing setuptools."
+testAlabaster() {
+  techo "Not testing alabaster."
 }
 
 ######################################################################
 #
-# Install setuptools
+# Install alabaster
 #
 ######################################################################
 
-installSetuptools() {
+installAlabaster() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/setuptools/formats.html
-# It seems that packages are using setuptools which creates eggs, which
+# Eggs are described at https://pythonhosted.org/alabaster/formats.html
+# It seems that packages are using alabaster which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
-  if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
+  local ALABASTER_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/alabaster.filelist'"
+  if bilderDuInstall alabaster "$ALABASTER_INSTALL_ARGS" "$ALABASTER_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for setuptools
+# Build information for snowballstemmer
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in setuptools_aux.sh
+# Trigger variables set in snowballstemmer_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/setuptools_aux.sh
+source $mydir/snowballstemmer_aux.sh
 
 ######################################################################
 #
@@ -23,55 +23,53 @@ source $mydir/setuptools_aux.sh
 #
 ######################################################################
 
-setSetuptoolsNonTriggerVars() {
-  SETUPTOOLS_UMASK=002
+setSnowballstemmerNonTriggerVars() {
+  SNOWBALLSTEMMER_UMASK=002
 }
-setSetuptoolsNonTriggerVars
+setSnowballstemmerNonTriggerVars
 
 #####################################################################
 #
-# Build setuptools
+# Build snowballstemmer
 #
 ######################################################################
 
-buildSetuptools() {
+buildSnowballstemmer() {
 
 # Check for build need
-  if ! bilderUnpack setuptools; then
+  if ! bilderUnpack snowballstemmer; then
     return 1
   fi
 
 # Build away
-  SETUPTOOLS_ENV="$DISTUTILS_ENV"
-  techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
-  bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
+  SNOWBALLSTEMMER_ENV="$DISTUTILS_ENV"
+  techo -2 SNOWBALLSTEMMER_ENV = $SNOWBALLSTEMMER_ENV
+  bilderDuBuild snowballstemmer '-' "$SNOWBALLSTEMMER_ENV"
 
 }
 
 ######################################################################
 #
-# Test setuptools
+# Test snowballstemmer
 #
 ######################################################################
 
-testSetuptools() {
-  techo "Not testing setuptools."
+testSnowballstemmer() {
+  techo "Not testing snowballstemmer."
 }
 
 ######################################################################
 #
-# Install setuptools
+# Install snowballstemmer
 #
 ######################################################################
 
-installSetuptools() {
+installSnowballstemmer() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/setuptools/formats.html
-# It seems that packages are using setuptools which creates eggs, which
-# for some reason we are not finding.  Moreover, different packages are
-# installing difference eggs of their dependencies.
-  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
-  if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
+# Eggs are described at https://pythonhosted.org/snowballstemmer/formats.html
+  # local SNOWBALLSTEMMER_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/snowballstemmer.filelist'"
+  local SNOWBALLSTEMMER_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/snowballstemmer.filelist'"
+  if bilderDuInstall snowballstemmer "$SNOWBALLSTEMMER_INSTALL_ARGS" "$SNOWBALLSTEMMER_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }

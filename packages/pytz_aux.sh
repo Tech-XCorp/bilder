@@ -4,14 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
 #
 ######################################################################
 
@@ -24,21 +16,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setPytzTriggerVars() {
+  PYTZ_BLDRVERSION_STD=${PYTZ_BLDRVERSION_STD:-"2015.4"}
+  PYTZ_BLDRVERSION_EXP=${PYTZ_BLDRVERSION_EXP:-"2015.4"}
+  PYTZ_BUILDS=${PYTZ_BUILDS:-"pycsh"}
+  PYTZ_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setPytzTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find pytz
 #
 ######################################################################
 
-findSetuptools() {
+findPytz() {
   :
 }
 

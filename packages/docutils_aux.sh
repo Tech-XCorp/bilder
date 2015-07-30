@@ -4,15 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
-#
 ######################################################################
 
 ######################################################################
@@ -24,21 +15,23 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setDocutilsTriggerVars() {
+  DOCUTILS_BLDRVERSION_STD=${DOCUTILS_BLDRVERSION_STD:-"0.8.1"}
+  DOCUTILS_BLDRVERSION_EXP=${DOCUTILS_BLDRVERSION_EXP:-"0.12"}
+  DOCUTILS_BUILDS=${DOCUTILS_BUILDS:-"pycsh"}
+# Does docutils depend on roman?  Used to look for it.
+  techo "NOTE: [$FUNCNAME] determine whether docutils depends on roman."
+  DOCUTILS_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setDocutilsTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find docutils
 #
 ######################################################################
 
-findSetuptools() {
+findDocutils() {
   :
 }
 

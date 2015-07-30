@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for babel
+# Build information for markupsafe
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in babel_aux.sh
+# Trigger variables set in markupsafe_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/babel_aux.sh
+source $mydir/markupsafe_aux.sh
 
 ######################################################################
 #
@@ -24,7 +24,7 @@ source $mydir/babel_aux.sh
 ######################################################################
 
 setDocutilsNonTriggerVars() {
-  BABEL_UMASK=002
+  MARKUPSAFE_UMASK=002
 }
 setDocutilsNonTriggerVars
 
@@ -34,9 +34,9 @@ setDocutilsNonTriggerVars
 #
 ######################################################################
 
-buildBabel() {
-  if bilderUnpack Babel; then
-    bilderDuBuild -p babel Babel "" "$DISTUTILS_ENV"
+buildMarkupSafe() {
+  if bilderUnpack MarkupSafe; then
+    bilderDuBuild -p markupsafe MarkupSafe "" "$DISTUTILS_ENV"
   fi
 }
 
@@ -46,8 +46,8 @@ buildBabel() {
 #
 ######################################################################
 
-testBabel() {
-  techo "Not testing Babel."
+testMarkupSafe() {
+  techo "Not testing MarkupSafe."
 }
 
 ######################################################################
@@ -56,8 +56,8 @@ testBabel() {
 #
 ######################################################################
 
-installBabel() {
-  local BABEL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/babel.filelist'"
-  bilderDuInstall -p babel Babel "$BABEL_INSTALL_ARGS" "$DISTUTILS_ENV"
+installMarkupSafe() {
+  local MARKUPSAFE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/markupsafe.filelist'"
+  bilderDuInstall -r MarkupSafe -p markupsafe MarkupSafe "$MARKUPSAFE_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

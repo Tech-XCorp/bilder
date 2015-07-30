@@ -4,15 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
-#
 ######################################################################
 
 ######################################################################
@@ -24,21 +15,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setPygmentsTriggerVars() {
+  PYGMENTS_BLDRVERSION_STD=${PYGMENTS_BLDRVERSION_STD:-"1.6"}
+  PYGMENTS_BLDRVERSION_EXP=${PYGMENTS_BLDRVERSION_EXP:-"2.0.2"}
+  PYGMENTS_BUILDS=${PYGMENTS_BUILDS:-"pycsh"}
+  PYGMENTS_DEPS=setuptools,Python
 }
-setSetuptoolsTriggerVars
+setPygmentsTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find pygments
 #
 ######################################################################
 
-findSetuptools() {
+findPygments() {
   :
 }
 

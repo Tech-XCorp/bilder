@@ -36,9 +36,12 @@ Move back to develop branch
 
   git checkout $wbranch
 
-Now merge that in.
+Either merge or rebase to the upstream branch
 
   git merge upstream-$wbranch
+OR
+  git rebase upstream-$wbranch
+
 
 Commit and push:
 

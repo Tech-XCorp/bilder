@@ -197,9 +197,10 @@ fi
 #   Cygwin: build, install, and make packages all at once.
 #   Others, just build.
   MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
+  local MATPLOTLIB_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/matplotlib.filelist'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $MATPLOTLIB_INSTALL_ARGS $BDIST_WININST_ARG"
       ;;
     CYGWIN*-mingw*)
       MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
@@ -267,8 +268,8 @@ installMatplotlib() {
 # Below modified by matplotlib-1.3.0, but should not remove, as additive.
   # MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
   case `uname`-`uname -r` in
-    CYGWIN*) bilderDuInstall -n matplotlib;;
-    *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib;;
+    CYGWIN*) bilderDuInstall -n matplotlib "$MATPLOTLIB_ARGS";;
+    *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib "$MATPLOTLIB_ARGS";;
   esac
   res=$?
 

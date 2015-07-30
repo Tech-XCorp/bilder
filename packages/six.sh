@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for babel
+# Build information for six
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in babel_aux.sh
+# Trigger variables set in six_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/babel_aux.sh
+source $mydir/six_aux.sh
 
 ######################################################################
 #
@@ -23,41 +23,55 @@ source $mydir/babel_aux.sh
 #
 ######################################################################
 
-setDocutilsNonTriggerVars() {
-  BABEL_UMASK=002
+setSixNonTriggerVars() {
+  SIX_UMASK=002
 }
-setDocutilsNonTriggerVars
+setSixNonTriggerVars
 
 #####################################################################
 #
-# Launch builds.
+# Build six
 #
 ######################################################################
 
-buildBabel() {
-  if bilderUnpack Babel; then
-    bilderDuBuild -p babel Babel "" "$DISTUTILS_ENV"
+buildSix() {
+
+# Check for build need
+  if ! bilderUnpack six; then
+    return 1
   fi
+
+# Build away
+  SIX_ENV="$DISTUTILS_ENV"
+  techo -2 SIX_ENV = $SIX_ENV
+  bilderDuBuild six '-' "$SIX_ENV"
+
 }
 
 ######################################################################
 #
-# Test
+# Test six
 #
 ######################################################################
 
-testBabel() {
-  techo "Not testing Babel."
+testSix() {
+  techo "Not testing six."
 }
 
 ######################################################################
 #
-# Install
+# Install six
 #
 ######################################################################
 
-installBabel() {
-  local BABEL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/babel.filelist'"
-  bilderDuInstall -p babel Babel "$BABEL_INSTALL_ARGS" "$DISTUTILS_ENV"
+installSix() {
+  mkdir -p $PYTHON_SITEPKGSDIR
+# Eggs are described at https://pythonhosted.org/six/formats.html
+# Args below work on windows.
+  local SIX_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/six.filelist'"
+  # local SIX_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/six.filelist'"
+  if bilderDuInstall six "$SIX_INSTALL_ARGS" "$SIX_ENV"; then
+    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+  fi
 }
 

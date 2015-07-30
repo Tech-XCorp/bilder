@@ -5,18 +5,14 @@
 # Latest source packages available from
 #   http://get.qt.nokia.com/qt/source/.
 #   20121125: Moved to http://qt-project.org/downloads.
+#   20150723: Moved to http://www.qt.io/download-open-source/
 #
 # These have to be unpacked and repacked for Bilder standards.  E.g.:
-#   tar xzf qt-everywhere-opensource-src-4.8.6.tar.gz
-#   mv qt-everywhere-opensource-src-4.8.6 qt-4.8.6
-#   tar --exclude '\._*' cjf qt-4.8.6.tar.bz2 qt-4.8.6
-# OR
-#   tar xzf qt-everywhere-opensource-src-5.0.0-beta2.tar.gz
-#   mv qt-everywhere-opensource-src-5.0.0-beta2 qt-5.0.0b2
-#   tar --exclude '\._*' cjf qt-5.0.0b2.tar.bz2 qt-5.0.0b2
+#   tar xzf qt-everywhere-opensource-src-5.5.0.tar.gz
+#   mv qt-everywhere-opensource-src-5.5.0 qt-5.5.0
+#   env COPYFILE_DISABLE=true tar cjf qt-5.5.0.tar.bz2 qt-5.5.0
 #
-# The args, --exclude '\._*', are needed to not put extended attributes
-#   files in the tarball on OS X.
+# The env change is to prevent addition of resource files on OSX.
 #
 # Tar up on an older dist, or one may get errors like
 # gtar: Ignoring unknown extended header keyword `SCHILY.dev'
@@ -35,19 +31,8 @@
 ######################################################################
 
 setQtTriggerVars() {
-#  case `uname`-`uname -r` in
-#    Darwin-13.*)
-# 4.8.4 and 4.8.5 do not build on Mavericks
-# 4.8.6 does.
-# Snapshots: http://download.qt-project.org/snapshots/qt/4.8/
-#      QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.6"}
-#      ;;
-#    *)
-#      QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.5"}
-#      ;;
-#  esac
   QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.6"}
-  QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.6"}
+  QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.7"}
   QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   QT_BUILD=$FORPYTHON_SHARED_BUILD
   QT_DEPS=bzip2

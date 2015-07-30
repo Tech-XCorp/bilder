@@ -4,14 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
 #
 ######################################################################
 
@@ -24,21 +16,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setColoramaTriggerVars() {
+  COLORAMA_BLDRVERSION_STD=${COLORAMA_BLDRVERSION_STD:-"0.3.3"}
+  COLORAMA_BLDRVERSION_EXP=${COLORAMA_BLDRVERSION_EXP:-"0.3.3"}
+  COLORAMA_BUILDS=${COLORAMA_BUILDS:-"pycsh"}
+  COLORAMA_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setColoramaTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find colorama
 #
 ######################################################################
 
-findSetuptools() {
+findColorama() {
   :
 }
 

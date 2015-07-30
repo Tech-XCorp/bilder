@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for babel
+# Build information for jinja2
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in babel_aux.sh
+# Trigger variables set in jinja2_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/babel_aux.sh
+source $mydir/jinja2_aux.sh
 
 ######################################################################
 #
@@ -24,7 +24,7 @@ source $mydir/babel_aux.sh
 ######################################################################
 
 setDocutilsNonTriggerVars() {
-  BABEL_UMASK=002
+  JINJA2_UMASK=002
 }
 setDocutilsNonTriggerVars
 
@@ -34,9 +34,9 @@ setDocutilsNonTriggerVars
 #
 ######################################################################
 
-buildBabel() {
-  if bilderUnpack Babel; then
-    bilderDuBuild -p babel Babel "" "$DISTUTILS_ENV"
+buildJinja2() {
+  if bilderUnpack Jinja2; then
+    bilderDuBuild -p jinja2 Jinja2 "" "$DISTUTILS_ENV"
   fi
 }
 
@@ -46,8 +46,8 @@ buildBabel() {
 #
 ######################################################################
 
-testBabel() {
-  techo "Not testing Babel."
+testJinja2() {
+  techo "Not testing Jinja2."
 }
 
 ######################################################################
@@ -56,8 +56,8 @@ testBabel() {
 #
 ######################################################################
 
-installBabel() {
-  local BABEL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/babel.filelist'"
-  bilderDuInstall -p babel Babel "$BABEL_INSTALL_ARGS" "$DISTUTILS_ENV"
+installJinja2() {
+  local JINJA2_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/jinja2.filelist'"
+  bilderDuInstall -r Jinja2 -p jinja2 Jinja2 "$JINJA2_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

@@ -4,15 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
-#
 ######################################################################
 
 ######################################################################
@@ -24,21 +15,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setMarkupSafeTriggerVars() {
+  MARKUPSAFE_BLDRVERSION_STD=${MARKUPSAFE_BLDRVERSION_STD:-"0.23"}
+  MARKUPSAFE_BLDRVERSION_EXP=${MARKUPSAFE_BLDRVERSION_EXP:-"0.23"}
+  MARKUPSAFE_BUILDS=${MARKUPSAFE_BUILDS:-"pycsh"}
+  MARKUPSAFE_DEPS=setuptools,Python
 }
-setSetuptoolsTriggerVars
+setMarkupSafeTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find markupsafe
 #
 ######################################################################
 
-findSetuptools() {
+findMarkupSafe() {
   :
 }
 

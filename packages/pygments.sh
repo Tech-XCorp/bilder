@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for pygments
+# Build information for pygments
 #
 # $Id$
 #
@@ -8,22 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in pygments_aux.sh
 #
 ######################################################################
 
-PYGMENTS_BLDRVERSION_STD=1.6
-PYGMENTS_BLDRVERSION_EXP=1.6
+mydir=`dirname $BASH_SOURCE`
+source $mydir/pygments_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-PYGMENTS_BUILDS=${PYGMENTS_BUILDS:-"pycsh"}
-PYGMENTS_DEPS=setuptools,Python
-PYGMENTS_UMASK=002
+setDocutilsNonTriggerVars() {
+  PYGMENTS_UMASK=002
+}
+setDocutilsNonTriggerVars
 
 #####################################################################
 #
@@ -54,6 +57,7 @@ testPygments() {
 ######################################################################
 
 installPygments() {
-  bilderDuInstall -r Pygments -p pygments Pygments "" "$DISTUTILS_ENV"
+  local PYGMENTS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pygments.filelist'"
+  bilderDuInstall -r Pygments -p pygments Pygments "$PYGMENTS_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

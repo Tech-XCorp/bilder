@@ -4,14 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
 #
 ######################################################################
 
@@ -24,21 +16,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setSixTriggerVars() {
+  SIX_BLDRVERSION_STD=${SIX_BLDRVERSION_STD:-"1.9.0"}
+  SIX_BLDRVERSION_EXP=${SIX_BLDRVERSION_EXP:-"1.9.0"}
+  SIX_BUILDS=${SIX_BUILDS:-"pycsh"}
+  SIX_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setSixTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find six
 #
 ######################################################################
 
-findSetuptools() {
+findSix() {
   :
 }
 

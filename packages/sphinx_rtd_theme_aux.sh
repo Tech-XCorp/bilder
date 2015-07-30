@@ -4,14 +4,6 @@
 #
 # $Id$
 #
-# setuptools-18.0.1 installs
-# _markerlib
-# easy_install.py
-# easy_install.pyc
-# pkg_resources
-# setuptools
-# setuptools-18.0.1-py2.7.egg-info
-# setuptools-record
 #
 ######################################################################
 
@@ -24,21 +16,21 @@
 #
 ######################################################################
 
-setSetuptoolsTriggerVars() {
-  SETUPTOOLS_BLDRVERSION_STD=${SETUPTOOLS_BLDRVERSION_STD:-"18.0.1"}
-  SETUPTOOLS_BLDRVERSION_EXP=${SETUPTOOLS_BLDRVERSION_EXP:-"18.0.1"}
-  SETUPTOOLS_BUILDS=${SETUPTOOLS_BUILDS:-"pycsh"}
-  SETUPTOOLS_DEPS=Python
+setSphinx_rtd_themeTriggerVars() {
+  SPHINX_RTD_THEME_BLDRVERSION_STD=${SPHINX_RTD_THEME_BLDRVERSION_STD:-"0.1.8"}
+  SPHINX_RTD_THEME_BLDRVERSION_EXP=${SPHINX_RTD_THEME_BLDRVERSION_EXP:-"0.1.8"}
+  SPHINX_RTD_THEME_BUILDS=${SPHINX_RTD_THEME_BUILDS:-"pycsh"}
+  SPHINX_RTD_THEME_DEPS=Python
 }
-setSetuptoolsTriggerVars
+setSphinx_rtd_themeTriggerVars
 
 ######################################################################
 #
-# Find setuptools
+# Find sphinx_rtd_theme
 #
 ######################################################################
 
-findSetuptools() {
+findSphinx_rtd_theme() {
   :
 }
 

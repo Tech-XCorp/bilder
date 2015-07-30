@@ -74,9 +74,11 @@ testSphinx() {
 ######################################################################
 
 installSphinx() {
-  if bilderDuInstall Sphinx "" "$SPHINX_ENV"; then
+# Possible options: --single-version-externally-managed
+  local SPHINX_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx.filelist'"
+  if bilderDuInstall Sphinx "$SPHINX_INSTALL_ARGS" "$SPHINX_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/easy-install.pth
-    setOpenPerms $PYTHON_SITEPKGSDIR/Sphinx-*.egg
+    setOpenPerms $PYTHON_SITEPKGSDIR/{S,s}phinx-*.egg
     setOpenPerms $PYTHON_SITEPKGSDIR/Jinja2-*.egg
   fi
 }

@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for docutils
-# Pure Python package
+# Build information for docutils
 #
 # $Id$
 #
@@ -9,20 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in docutils_aux.sh
 #
 ######################################################################
 
-DOCUTILS_BLDRVERSION=${DOCUTILS_BLDRVERSION:-"0.8.1"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/docutils_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-DOCUTILS_BUILDS=${DOCUTILS_BUILDS:-"pycsh"}
-DOCUTILS_DEPS=
+setDocutilsNonTriggerVars() {
+  DOCUTILS_UMASK=002
+}
+setDocutilsNonTriggerVars
 
 ######################################################################
 #
@@ -31,21 +35,18 @@ DOCUTILS_DEPS=
 ######################################################################
 
 buildDocutils() {
-# If cannot import roman, which comes with docutils, then reinstall
-  if ! python -c "import roman" 2>/dev/null; then
-    techo "Cannot import roman.  Will rebuild docutils."
-    cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR docutils,pycsh"
-    techo "$cmd"
-    $cmd
+
+  if ! bilderUnpack docutils; then
+    return
   fi
-  if bilderUnpack docutils; then
+
 # Must first remove any old installations
-    cmd="rmall $CONTRIB_DIR/$PYTHON_LIBSUBDIR/python$PYTHON_MAJMIN/site-package/docutils*"
-    techo "$cmd"
-    $cmd
-    techo "Running bilderDuBuild for docutils."
-    bilderDuBuild docutils
-  fi
+  cmd="rmall $CONTRIB_DIR/$PYTHON_LIBSUBDIR/python$PYTHON_MAJMIN/site-package/docutils*"
+  techo "$cmd"
+  $cmd
+  techo "Running bilderDuBuild for docutils."
+  bilderDuBuild docutils
+
 }
 
 ######################################################################
@@ -65,9 +66,6 @@ testDocutils() {
 ######################################################################
 
 installDocutils() {
-  if bilderDuInstall docutils "$DOCUTILS_ARGS" "$DOCUTILS_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/roman.py*
-  fi
-  # techo "WARNING: Quitting at end of docutils.sh."; exit
+  bilderDuInstall docutils
 }
 

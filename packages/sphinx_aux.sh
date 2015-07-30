@@ -24,7 +24,7 @@ setSphinxTriggerVars() {
   SPHINX_BLDRVERSION_STD=${SPHINX_BLDRVERSION_STD="1.2.2"}
   SPHINX_BLDRVERSION_EXP=${SPHINX_BLDRVERSION_EXP="1.3.1"}
   SPHINX_BUILDS=${SPHINX_BUILDS:-"pycsh"}
-  SPHINX_DEPS=docutils,Pygments,Imaging,setuptools,MathJax,Python
+  SPHINX_DEPS=alabaster,Babel,colorama,Jinja2,six,snowballstemmer,sphinx_bootstrap_theme,sphinx_rtd_theme,docutils,Pygments,Imaging,MathJax,setuptools,Python
 }
 setSphinxTriggerVars
 

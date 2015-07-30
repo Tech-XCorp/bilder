@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for setuptools
+# Build information for colorama
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in setuptools_aux.sh
+# Trigger variables set in colorama_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/setuptools_aux.sh
+source $mydir/colorama_aux.sh
 
 ######################################################################
 #
@@ -23,55 +23,55 @@ source $mydir/setuptools_aux.sh
 #
 ######################################################################
 
-setSetuptoolsNonTriggerVars() {
-  SETUPTOOLS_UMASK=002
+setColoramaNonTriggerVars() {
+  COLORAMA_UMASK=002
 }
-setSetuptoolsNonTriggerVars
+setColoramaNonTriggerVars
 
 #####################################################################
 #
-# Build setuptools
+# Build colorama
 #
 ######################################################################
 
-buildSetuptools() {
+buildColorama() {
 
 # Check for build need
-  if ! bilderUnpack setuptools; then
+  if ! bilderUnpack colorama; then
     return 1
   fi
 
 # Build away
-  SETUPTOOLS_ENV="$DISTUTILS_ENV"
-  techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
-  bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
+  COLORAMA_ENV="$DISTUTILS_ENV"
+  techo -2 COLORAMA_ENV = $COLORAMA_ENV
+  bilderDuBuild colorama '-' "$COLORAMA_ENV"
 
 }
 
 ######################################################################
 #
-# Test setuptools
+# Test colorama
 #
 ######################################################################
 
-testSetuptools() {
-  techo "Not testing setuptools."
+testColorama() {
+  techo "Not testing colorama."
 }
 
 ######################################################################
 #
-# Install setuptools
+# Install colorama
 #
 ######################################################################
 
-installSetuptools() {
+installColorama() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/setuptools/formats.html
-# It seems that packages are using setuptools which creates eggs, which
+# Eggs are described at https://pythonhosted.org/colorama/formats.html
+# It seems that packages are using colorama which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
-  if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
+  local COLORAMA_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/colorama.filelist'"
+  if bilderDuInstall colorama "$COLORAMA_INSTALL_ARGS" "$COLORAMA_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for setuptools
+# Build information for sphinx_rtd_theme
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in setuptools_aux.sh
+# Trigger variables set in sphinx_rtd_theme_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/setuptools_aux.sh
+source $mydir/sphinx_rtd_theme_aux.sh
 
 ######################################################################
 #
@@ -23,55 +23,55 @@ source $mydir/setuptools_aux.sh
 #
 ######################################################################
 
-setSetuptoolsNonTriggerVars() {
-  SETUPTOOLS_UMASK=002
+setSphinx_rtd_themeNonTriggerVars() {
+  SPHINX_RTD_THEME_UMASK=002
 }
-setSetuptoolsNonTriggerVars
+setSphinx_rtd_themeNonTriggerVars
 
 #####################################################################
 #
-# Build setuptools
+# Build sphinx_rtd_theme
 #
 ######################################################################
 
-buildSetuptools() {
+buildSphinx_rtd_theme() {
 
 # Check for build need
-  if ! bilderUnpack setuptools; then
+  if ! bilderUnpack sphinx_rtd_theme; then
     return 1
   fi
 
 # Build away
-  SETUPTOOLS_ENV="$DISTUTILS_ENV"
-  techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
-  bilderDuBuild setuptools '-' "$SETUPTOOLS_ENV"
+  SPHINX_RTD_THEME_ENV="$DISTUTILS_ENV"
+  techo -2 SPHINX_RTD_THEME_ENV = $SPHINX_RTD_THEME_ENV
+  bilderDuBuild sphinx_rtd_theme '-' "$SPHINX_RTD_THEME_ENV"
 
 }
 
 ######################################################################
 #
-# Test setuptools
+# Test sphinx_rtd_theme
 #
 ######################################################################
 
-testSetuptools() {
-  techo "Not testing setuptools."
+testSphinx_rtd_theme() {
+  techo "Not testing sphinx_rtd_theme."
 }
 
 ######################################################################
 #
-# Install setuptools
+# Install sphinx_rtd_theme
 #
 ######################################################################
 
-installSetuptools() {
+installSphinx_rtd_theme() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/setuptools/formats.html
-# It seems that packages are using setuptools which creates eggs, which
+# Eggs are described at https://pythonhosted.org/sphinx_rtd_theme/formats.html
+# It seems that packages are using sphinx_rtd_theme which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
-  if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
+  local SPHINX_RTD_THEME_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx_rtd_theme.filelist'"
+  if bilderDuInstall sphinx_rtd_theme "$SPHINX_RTD_THEME_INSTALL_ARGS" "$SPHINX_RTD_THEME_ENV"; then
     chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }

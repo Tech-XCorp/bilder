@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for babel
+# Build information for roman
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in babel_aux.sh
+# Trigger variables set in roman_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/babel_aux.sh
+source $mydir/roman_aux.sh
 
 ######################################################################
 #
@@ -23,41 +23,54 @@ source $mydir/babel_aux.sh
 #
 ######################################################################
 
-setDocutilsNonTriggerVars() {
-  BABEL_UMASK=002
+setRomanNonTriggerVars() {
+  ROMAN_UMASK=002
 }
-setDocutilsNonTriggerVars
+setRomanNonTriggerVars
 
 #####################################################################
 #
-# Launch builds.
+# Build roman
 #
 ######################################################################
 
-buildBabel() {
-  if bilderUnpack Babel; then
-    bilderDuBuild -p babel Babel "" "$DISTUTILS_ENV"
+buildRoman() {
+
+# Check for build need
+  if ! bilderUnpack roman; then
+    return 1
   fi
+
+# Build away
+  ROMAN_ENV="$DISTUTILS_ENV"
+  techo -2 ROMAN_ENV = $ROMAN_ENV
+  bilderDuBuild roman '-' "$ROMAN_ENV"
+
 }
 
 ######################################################################
 #
-# Test
+# Test roman
 #
 ######################################################################
 
-testBabel() {
-  techo "Not testing Babel."
+testRoman() {
+  techo "Not testing roman."
 }
 
 ######################################################################
 #
-# Install
+# Install roman
 #
 ######################################################################
 
-installBabel() {
-  local BABEL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/babel.filelist'"
-  bilderDuInstall -p babel Babel "$BABEL_INSTALL_ARGS" "$DISTUTILS_ENV"
+installRoman() {
+  mkdir -p $PYTHON_SITEPKGSDIR
+# Eggs are described at https://pythonhosted.org/roman/formats.html
+  # local ROMAN_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/roman.filelist'"
+  local ROMAN_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/roman.filelist'"
+  if bilderDuInstall roman "$ROMAN_INSTALL_ARGS" "$ROMAN_ENV"; then
+    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+  fi
 }
 
