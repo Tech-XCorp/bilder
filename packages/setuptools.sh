@@ -72,7 +72,9 @@ installSetuptools() {
 # installing difference eggs of their dependencies.
   local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
   if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    if test -e $PYTHON_SITEPKGSDIR/site.py; then
+      chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    fi
   fi
 }
 
