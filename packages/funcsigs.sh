@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for markupsafe
+# Build information for funcsigs
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in markupsafe_aux.sh
+# Trigger variables set in funcsigs_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/markupsafe_aux.sh
+source $mydir/funcsigs_aux.sh
 
 ######################################################################
 #
@@ -23,10 +23,10 @@ source $mydir/markupsafe_aux.sh
 #
 ######################################################################
 
-setMarkupSaveNonTriggerVars() {
-  MARKUPSAFE_UMASK=002
+setFuncsigsNonTriggerVars() {
+  FUNCSIGS_UMASK=002
 }
-setMarkupSaveNonTriggerVars
+setFuncsigsNonTriggerVars
 
 #####################################################################
 #
@@ -34,9 +34,9 @@ setMarkupSaveNonTriggerVars
 #
 ######################################################################
 
-buildMarkupSafe() {
-  if bilderUnpack MarkupSafe; then
-    bilderDuBuild -p markupsafe MarkupSafe "" "$DISTUTILS_ENV"
+buildFuncsigs() {
+  if bilderUnpack funcsigs; then
+    bilderDuBuild funcsigs "" "$DISTUTILS_ENV"
   fi
 }
 
@@ -46,8 +46,8 @@ buildMarkupSafe() {
 #
 ######################################################################
 
-testMarkupSafe() {
-  techo "Not testing MarkupSafe."
+testFuncsigs() {
+  techo "Not testing Funcsigs."
 }
 
 ######################################################################
@@ -56,8 +56,8 @@ testMarkupSafe() {
 #
 ######################################################################
 
-installMarkupSafe() {
-  local MARKUPSAFE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/markupsafe.filelist'"
-  bilderDuInstall -r MarkupSafe -p markupsafe MarkupSafe "$MARKUPSAFE_INSTALL_ARGS" "$DISTUTILS_ENV"
+installFuncsigs() {
+  local FUNCSIGS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/funcsigs.filelist'"
+  bilderDuInstall funcsigs "$FUNCSIGS_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 
