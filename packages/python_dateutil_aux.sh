@@ -15,29 +15,21 @@
 #
 ######################################################################
 
-setMatplotlibTriggerVars() {
-  MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.4.3"}
-  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.4.3"}
-  MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
-# Dependencies listed in matplotlib-1.4.3-py2.7.egg-info/requires.txt
-  MATPLOTLIB_DEPS=numpy,libpng,freetype,Python
-  MATPLOTLIB_DEPS=python_dateutil,mock,nose,pyparsing,pytz,six,$MATPLOTLIB_DEPS
-# Additional seen to be installed
-  MATPLOTLIB_DEPS=markupsafe,pbr,$MATPLOTLIB_DEPS
-  case `uname` in
-    Darwin) ;;
-    *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
-  esac
+setPython_dateutilTriggerVars() {
+  PYTHON_DATEUTIL_BLDRVERSION_STD=${PYTHON_DATEUTIL_BLDRVERSION_STD:-"2.4.2"}
+  PYTHON_DATEUTIL_BLDRVERSION_EXP=${PYTHON_DATEUTIL_BLDRVERSION_EXP:-"2.4.2"}
+  PYTHON_DATEUTIL_BUILDS=${PYTHON_DATEUTIL_BUILDS:-"pycsh"}
+  PYTHON_DATEUTIL_DEPS=setuptools,Python
 }
-setMatplotlibTriggerVars
+setPython_dateutilTriggerVars
 
 ######################################################################
 #
-# Find matplotlib
+# Find python_dateutil
 #
 ######################################################################
 
-findMatplotlib() {
+findPython_dateutil() {
   :
 }
 
