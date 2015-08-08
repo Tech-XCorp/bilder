@@ -197,7 +197,7 @@ fi
 #   Cygwin: build, install, and make packages all at once.
 #   Others, just build.
   MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
-  local MATPLOTLIB_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/matplotlib.filelist'"
+  MATPLOTLIB_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/matplotlib.filelist'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
       MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $MATPLOTLIB_INSTALL_ARGS $BDIST_WININST_ARG"
@@ -261,15 +261,12 @@ testMatplotlib() {
 
 installMatplotlib() {
 
-# Below installed by matplotlib-1.1.0.  Gone in 1.3.0
-  MATPLOTLIB_REMOVE="matplotlib mpl_toolkits pylab pytz"
-# Below installed by matplotlib-1.3.0
-  MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
-# Below modified by matplotlib-1.3.0, but should not remove, as additive.
-  # MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
+# Below installed by matplotlib-1.4.3, but we now install separately
+  # MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
   case `uname`-`uname -r` in
     CYGWIN*) bilderDuInstall -n matplotlib "$MATPLOTLIB_ARGS";;
-    *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib "$MATPLOTLIB_ARGS";;
+    # *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib "$MATPLOTLIB_ARGS";;
+    *) bilderDuInstall matplotlib "$MATPLOTLIB_INSTALL_ARGS";;
   esac
   res=$?
 

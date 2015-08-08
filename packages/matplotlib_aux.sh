@@ -19,7 +19,7 @@ setMatplotlibTriggerVars() {
   MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.4.3"}
   MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.4.3"}
   MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
-  MATPLOTLIB_DEPS=pyparsing,numpy,Python,libpng,freetype,six
+  MATPLOTLIB_DEPS=markupsafe,mock,nose,pbr,pyparsing,six,numpy,libpng,freetype,Python
   case `uname` in
     Darwin) ;;
     *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
