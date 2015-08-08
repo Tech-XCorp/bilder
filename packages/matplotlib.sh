@@ -261,28 +261,11 @@ testMatplotlib() {
 
 installMatplotlib() {
 
-# Below installed by matplotlib-1.4.3, but we now install separately
-  # MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
   case `uname`-`uname -r` in
     CYGWIN*) bilderDuInstall -n matplotlib "$MATPLOTLIB_ARGS";;
-    # *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib "$MATPLOTLIB_ARGS";;
     *) bilderDuInstall matplotlib "$MATPLOTLIB_INSTALL_ARGS";;
   esac
   res=$?
-
-# Fix perms of other installed items
-  if test $res = 0; then
-    for i in $MATPLOTLIB_REMOVE; do
-      local instdirs=`\ls $PYTHON_SITEPKGSDIR/${i}* 2>/dev/null`
-      if test -n "$instdirs"; then
-        for j in $PYTHON_SITEPKGSDIR/${i}*; do
-          setOpenPerms ${j}
-        done
-#      else
-#        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
-      fi
-    done
-  fi
 
 }
 
