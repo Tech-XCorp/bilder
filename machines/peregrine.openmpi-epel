@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: peregrine.gcc 109 2013-03-01 09:10:58Z swsides $
+# $Id$
 #
 # Define variables.
 # Do not override existing definitions.

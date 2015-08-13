@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: empty.ness 1838 2014-11-05 09:22:02Z jrobcary $
+# $Id$
 # /* vim: set filetype=sh : */
 #
 # Define variables.
