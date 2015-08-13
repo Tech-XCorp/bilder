@@ -181,7 +181,8 @@ for absdir in $absdirs; do
   $cmd | sed -e "s%/.*/%%" | sort -t_ -k 3 > abstracts.txt
   lecho "<<< Analyzing $absdir Abstracts from $topdir >>>"
   absinfile=`cat abstracts.txt`
-  lecho "Found abstracts.txt with contents: $absinfile"
+  lecho "Found abstracts.txt with contents:"
+  lecho $absinfile
   bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
   lecho "bilderhosts = $bilderhosts."
   numhosts=`echo $bilderhosts | wc -w | sed 's/^ *//'`
@@ -206,7 +207,8 @@ for absdir in $absdirs; do
     abs2get="$abs2get "`grep $h abstracts.txt | tail -1`
   done
   rm abstracts.txt
-  lecho "Will get $abs2get."
+  lecho "Will get"
+  echo $abs2get
 
 # Get the project email
   if test -n "$EMAIL"; then
