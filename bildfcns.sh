@@ -7337,6 +7337,36 @@ summarize() {
     totalmmss=`myTime $totaltime`
   fi
   local timestamp=`date +%F-%H:%M`
+  local dayOfWeekNum=`date +%u`
+  local formattedDay=`date +%d`;
+  local formattedDayOfWeek;
+  case "$dayOfWeekNum" in
+    1) formattedDayOfWeek="Monday";;
+    2) formattedDayOfWeek="Tuesday";;
+    3) formattedDayOfWeek="Wednesday";;
+    4) formattedDayOfWeek="Thursday";;
+    5) formattedDayOfWeek="Friday";;
+    6) formattedDayOfWeek="Saturday";;
+    7) formattedDayOfWeek="Sunday";;
+  esac
+  local formattedTime=`date +'%H:%M %p'`
+  local monthOfYearNum=`date +%m`
+  case "$monthOfYearNum" in
+    01) formattedMonth="January";;
+    02) formattedMonth="February";;
+    03) formattedMonth="March";;
+    04) formattedMonth="April";;
+    05) formattedMonth="May";;
+    06) formattedMonth="June";;
+    07) formattedMonth="July";;
+    08) formattedMonth="August";;
+    09) formattedMonth="September";;
+    10) formattedMonth="October";;
+    11) formattedMonth="November";;
+    12) formattedMonth="December";;
+  esac
+  local formattedTimestamp="$formattedTime $formattedDayOfWeek, $formattedMonth "
+  formattedTimestamp="$formattedTimestamp $formattedDay ($timestamp)"
 
 # Begin summary
   techo
@@ -7357,7 +7387,7 @@ EOF
   rmall $ABSTRACT
 
   local jenkinsProj=`echo $BUILD_DIR | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`
-  addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $timestamp" BLUE $ABSTRACT
+  addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $formattedTimestamp" BLUE $ABSTRACT
   addHtmlLine 2 "Build: ${BUILD_DIR}" BLACK $ABSTRACT
   chmod a+r ${ABSTRACT}
 # Email subject
