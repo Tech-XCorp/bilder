@@ -7660,7 +7660,7 @@ EOF
     if $destdirok; then
 # Create name such that alphabetical listing will have correct grouping
 # I *need* underscores to separate fields
-     local abstractdest=${FQMAILHOST}_`basename $BUILD_DIR`_${timestamp}-abstract.html
+     local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
       abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
       cmd="scp -q ${ABSTRACT} $ABSTRACT_HOST:${abstractdest}"
       techo "$cmd"
