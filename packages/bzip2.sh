@@ -6,6 +6,9 @@
 #
 ######################################################################
 
+BZIP2_BUILDS=${BZIP2_BUILDS:-"ser"}
+BZIP2_BLDRVERSION=${BZIP2_BLDRVERSION:-"1.0.6"}
+
 ######################################################################
 #
 # Trigger variables set in bzip2_aux.sh
