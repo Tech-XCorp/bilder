@@ -1,6 +1,6 @@
 diff -ruN cmake-3.2.2/Modules/FindCUDA.cmake cmake-3.2.2-new/Modules/FindCUDA.cmake
 --- cmake-3.2.2/Modules/FindCUDA.cmake	2015-04-13 11:09:00.000000000 -0600
-+++ cmake-3.2.2-new/Modules/FindCUDA.cmake	2015-05-02 15:08:03.622306512 -0600
++++ cmake-3.2.2-new/Modules/FindCUDA.cmake	2015-08-19 16:13:43.893234400 -0600
 @@ -901,6 +901,7 @@
          "x${arg}" STREQUAL "xEXCLUDE_FROM_ALL" OR
          "x${arg}" STREQUAL "xSTATIC" OR
@@ -9,6 +9,19 @@ diff -ruN cmake-3.2.2/Modules/FindCUDA.cmake cmake-3.2.2-new/Modules/FindCUDA.cm
          "x${arg}" STREQUAL "xMODULE"
          )
        list(APPEND ${_cmake_options} ${arg})
+@@ -1467,9 +1468,9 @@
+     # we work around that issue by compiling the intermediate link object as a
+     # pre-link custom command in that situation.
+     set(do_obj_build_rule TRUE)
+-    if (MSVC_VERSION GREATER 1599)
+-      # VS 2010 and 2012 have this problem.  If future versions fix this issue,
+-      # it should still work, it just won't be as nice as the other method.
++
++    if (MSVC_VERSION GREATER 1599 AND MSVC_VERSION LESS 1800)
++      # VS 2010 and 2012 have this problem.
+       set(do_obj_build_rule FALSE)
+     endif()
+ 
 @@ -1525,9 +1526,11 @@
    # variable will have been defined.
    CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS("${link_file}" ${cuda_target} "${_options}" "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
@@ -26,7 +39,7 @@ diff -ruN cmake-3.2.2/Modules/FindCUDA.cmake cmake-3.2.2-new/Modules/FindCUDA.cm
    # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
 diff -ruN cmake-3.2.2/Modules/Platform/Linux.cmake cmake-3.2.2-new/Modules/Platform/Linux.cmake
 --- cmake-3.2.2/Modules/Platform/Linux.cmake	2015-04-13 11:09:00.000000000 -0600
-+++ cmake-3.2.2-new/Modules/Platform/Linux.cmake	2015-05-02 15:05:44.330390931 -0600
++++ cmake-3.2.2-new/Modules/Platform/Linux.cmake	2015-08-19 16:09:42.779634400 -0600
 @@ -2,7 +2,7 @@
  set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath,")
  set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG_SEP ":")
@@ -36,18 +49,9 @@ diff -ruN cmake-3.2.2/Modules/Platform/Linux.cmake cmake-3.2.2-new/Modules/Platf
  set(CMAKE_EXE_EXPORTS_C_FLAG "-Wl,--export-dynamic")
  
  # Shared libraries with no builtin soname may not be linked safely by
-diff -ruN cmake-3.2.2/Modules/Platform/Linux-Intel-C.cmake cmake-3.2.2-new/Modules/Platform/Linux-Intel-C.cmake
---- cmake-3.2.2/Modules/Platform/Linux-Intel-C.cmake	2015-04-13 11:09:00.000000000 -0600
-+++ cmake-3.2.2-new/Modules/Platform/Linux-Intel-C.cmake	2015-05-02 15:05:44.331390909 -0600
-@@ -1,3 +1,5 @@
- include(Platform/Linux-Intel)
-+# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
-+set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
- __linux_compiler_intel(C)
- set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
 diff -ruN cmake-3.2.2/Modules/Platform/Linux-Intel.cmake cmake-3.2.2-new/Modules/Platform/Linux-Intel.cmake
 --- cmake-3.2.2/Modules/Platform/Linux-Intel.cmake	2015-04-13 11:09:00.000000000 -0600
-+++ cmake-3.2.2-new/Modules/Platform/Linux-Intel.cmake	2015-05-02 15:05:44.331390909 -0600
++++ cmake-3.2.2-new/Modules/Platform/Linux-Intel.cmake	2015-08-19 16:09:42.785634400 -0600
 @@ -38,7 +38,8 @@
  
    # We pass this for historical reasons.  Projects may have
@@ -58,3 +62,12 @@ diff -ruN cmake-3.2.2/Modules/Platform/Linux-Intel.cmake cmake-3.2.2-new/Modules
  
    if(XIAR)
      # INTERPROCEDURAL_OPTIMIZATION
+diff -ruN cmake-3.2.2/Modules/Platform/Linux-Intel-C.cmake cmake-3.2.2-new/Modules/Platform/Linux-Intel-C.cmake
+--- cmake-3.2.2/Modules/Platform/Linux-Intel-C.cmake	2015-04-13 11:09:00.000000000 -0600
++++ cmake-3.2.2-new/Modules/Platform/Linux-Intel-C.cmake	2015-08-19 16:09:42.782634400 -0600
+@@ -1,3 +1,5 @@
+ include(Platform/Linux-Intel)
++# Fix for Intel 13.1.0.20130607 on hopper.nersc.gov
++set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-Wl,-soname=")
+ __linux_compiler_intel(C)
+ set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
