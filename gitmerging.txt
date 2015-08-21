@@ -1,5 +1,10 @@
 MERGING FROM A REMOTE REPO
 
+Some git workflows:
+
+[1] https://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html
+[2] https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
 NOTE: When working with github, one must have git-1.7.10 or later.
 
   $Id$
