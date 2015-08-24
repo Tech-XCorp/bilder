@@ -16,6 +16,12 @@
 ######################################################################
 
 setOceTriggerVars() {
+# Remove old repo
+  newocerem=`(cd $PROJECT_DIR/oce; git remote -v | grep Tech-XCorp)`
+  if test -z "$newocerem"; then
+    rm -rf $PROJECT_DIR/oce
+  fi
+# Standard vars
   OCE_REPO_URL=https://github.com/Tech-XCorp/oce.git
   OCE_REPO_BRANCH_STD=${OCE_REPO_BRANCH_STD:-"OCE-0.17-txc"}
   OCE_REPO_BRANCH_EXP=${OCE_REPO_BRANCH_STD:-"OCE-0.17-txc"}
