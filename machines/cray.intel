@@ -137,7 +137,7 @@ MPIF77=${MPIF77:-"ftn"}
 
 # Serial
 # CFLAGS=${CFLAGS:-""}
-# CXXFLAGS=${CXXFLAGS:-""}
+CXXFLAGS=${CXXFLAGS:-"-std=c++11"}
 # FCFLAGS=${FCFLAGS:-""}
 # FFLAGS=${FFLAGS:-""}
 
