@@ -6777,7 +6777,7 @@ bilderInstallAll() {
 # -b whether there are build tests
 # -i ignore the tests of builds when calling install, comma-separated list
 # -n <tests>   Name of tests if not found from lower-casing $2
-# -t do not install test pkg
+# -t Install named test pkg
 # -I ignore test results--passed on to shouldInstallTestedPkg()
 #
 # Return true if should be installed
@@ -6793,7 +6793,7 @@ bilderInstallTestedPkg() {
   local installsubdir=
   local removePkg=false
   local removearg=
-  local testinstall=false
+  local installNamedPkg=false
   local ignoreTestResultsArg=
 
 # Parse options
@@ -6804,7 +6804,7 @@ bilderInstallTestedPkg() {
       b) hasbuildtests=true;;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
       n) tstsnm="$OPTARG";;
-      t) testinstall=true;;
+      t) installNamedPkg=true;;
       I) ignoreTestResultsArg=-I;;
     esac
   done
@@ -6847,10 +6847,13 @@ bilderInstallTestedPkg() {
       for bld in $bldsval; do
         bilderInstall $installargs $1 $bld
       done
-      if $testinstall; then
-        bilderInstall $removearg -t $tstsnm all
+      if test -n "$tstsnm"; then
+        if $installNamedPkg; then
+          techo -2 "Installing test package, $tstsnm, at request."
+          bilderInstall $removearg -t $tstsnm all
+        fi
       else
-        techo -2 "Not installing test package, $tstsnm, at request."
+        techo -2 "Package, $1, has no named tests."
       fi
       return 0
     else
