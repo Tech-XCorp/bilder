@@ -181,6 +181,8 @@ for absdir in $absdirs; do
   $cmd | sed -e "s%/.*/%%" | sort -t_ -k 3 > abstracts.txt
   absinfile=`cat abstracts.txt`
   if test -z "$absinfile"; then
+    lecho "No abstracts found for the last $HOURS hours."
+  else
     lecho "Found abstracts.txt with contents:"
     lecho $absinfile
     bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
@@ -272,8 +274,6 @@ for absdir in $absdirs; do
       fi
     fi
     # rm allabs-${absdir}.html
-  else
-    lecho "No abstracts found for the last $HOURS hours."
   fi
   lecho "<<<< End ${absdir} >>>>"
 done
