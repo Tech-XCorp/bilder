@@ -103,6 +103,11 @@ CC=${CC:-"icl"}
 CXX=${CXX:-"icl"}
 FC=${FC:-"ifort"}
 F77=${F77:-"ifort"}
+CFLAGS="/Qmkl /DWIN32 /D_WINDOWS /W3 /MT"
+MPI_CFLAGS="/Qmkl /DWIN32 /D_WINDOWS /W3 /MT"
+CXXFLAGS="/Qmkl /Qstd=c++11 /DNOMINMAX /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MT"
+MPI_CXXFLAGS="/Qmkl /Qstd=c++11 /DNOMINMAX /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MT"
+
 
 # Python builds -- much use gcc for consistency.
 PYC_CC=${PYC_CC:-"cl"}
@@ -119,6 +124,16 @@ MPICC=${MPICC:-"mpiicc.bat"}
 MPICXX=${MPICXX:-"mpiicpc.bat"}
 MPIFC=${MPIFC:-"mpiifort.bat"}
 MPIF77=${MPIF77:-"mpiifort.bat"}
+
+# Path to mkl
+mkldir="C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
+#mkldir="/cygdrive/c/Program\ Files\ \(x86\)/Intel/Composer\ XE\ 2015/mkl/"
+
+SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$mkldir/include"}
+SYSTEM_BLAS_SER_LIBDIR=${SYSTEM_BLAS_SER_LIB:-"$mkldir/lib/intel64"}
+# I want mkl_sequential
+SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$mkldir/include"}
+SYSTEM_LAPACK_SER_LIBDIR=${SYSTEM_LAPACK_SER_LIB:-"$mkldir/lib/intel64"}
 
 HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DMSVC:BOOL=TRUE"}
 HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-" -DMSVC:BOOL=TRUE"}

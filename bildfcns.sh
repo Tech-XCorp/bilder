@@ -2360,7 +2360,8 @@ getCombinedCompVars() {
         case `uname` in
           CYGWIN*)
             compbin=`cygpath -am "$comp"`
-            if ! echo $compbin | grep -q '\.exe$'; then
+# Intel MPI Compiler scripts end with .bat, not .exe
+            if ! echo $compbin | grep -q '\.exe$' && ! echo $compbin | grep -q '\.bat$'; then
               compbin="$compbin".exe
             fi
             ;;

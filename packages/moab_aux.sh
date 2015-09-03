@@ -74,17 +74,15 @@ setMoabTriggerVars() {
       MOAB_DEPS=$MOAB_DEPS,cmake
   else
       MOAB_DEPS=$MOAB_DEPS,autotools
-    if test -z "$TRILINOS_DESIRED_BUILDS"; then
-      TRILINOS_DESIRED_BUILDS=sercommio,parcommio
-    else
-      TRILINOS_BUILDS=sercommio,parcommio
+    if test -z "$TRILINOSREPO_BUILD_SET"; then
+      TRILINOS_BUILD_SET=commio
     fi
   fi
   if echo "$MOAB_BUILD_SET" | grep -q "full"; then
       MOAB_DEPS=$MOAB_DEPS,oce,cgm
   fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
-      MOAB_DEPS=$MOAB_DEPS,trilinos
+      MOAB_DEPS=$MOAB_DEPS,trilinosrepo
   fi
 }
 setMoabTriggerVars
