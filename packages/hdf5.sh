@@ -85,7 +85,7 @@ buildHdf5() {
 # Shared: For Linux, add origin to rpath, do not strip rpath
   local HDF5_SER_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt'"
   local HDF5_SERSH_ADDL_ARGS=
-  local HDF5_PAR_ADDL_ARGS="-DMPI_HEADER_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include'  -DMPI_DIR:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/'  -DMPI_INCLUDE_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include' -DMPI_LIBRARY:FILEPATH:FILEPATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/lib/impi.lib'" 
+  local HDF5_PAR_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DMPI_HEADER_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include'  -DMPI_DIR:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/'  -DMPI_INCLUDE_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include' -DMPI_LIBRARY:FILEPATH:FILEPATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/lib/release_mt/impi.lib'" 
   local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PARSH_ADDL_ARGS=
   local HDF5_PYCSH_ADDL_ARGS=
