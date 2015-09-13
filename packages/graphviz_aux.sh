@@ -31,6 +31,16 @@ setGraphvizTriggerVars() {
       Linux) GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
     esac
   fi
+  computeBuilds graphviz
+  if test -n "$GRAPHVIZ_BUILDS"; then
+    case `uname` in
+      Linux)
+        if ! test -f /usr/share/perl5/ExtUtils/Embed.pm; then
+          techo "WARNING: [$FUNCNAME] Perl module, ExtUtils::Embed, may not be installed."
+        fi
+        ;;
+    esac
+  fi
 # pkgconfig is needed to get pkg.m4, which is needed upon autoreconf.
   GRAPHVIZ_DEPS=libgd,Python,pkgconfig,autotools
 }
