@@ -24,12 +24,12 @@ target=
 token=
 baseurl=
 
-while getopts "b:c:ht:T:u:" arg; do
+while getopts "b:c:hj:t:T:u:" arg; do
   case $arg in
     b) svnbranch=$OPTARG;;
     c) cause=$OPTARG;;
     h) usage;;
-    t) target=$OPTARG;;
+    j) job=$OPTARG;;
     T) token=$OPTARG;;
     t) target=$OPTARG;;
     u) baseurl=$OPTARG;;
