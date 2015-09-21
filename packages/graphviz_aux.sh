@@ -35,9 +35,9 @@ setGraphvizTriggerVars() {
   if test -n "$GRAPHVIZ_BUILDS"; then
     case `uname` in
       Linux)
-        if ! test -f /usr/share/perl5/ExtUtils/Embed.pm; then
-          techo "WARNING: [$FUNCNAME] Perl module, ExtUtils::Embed, may not be installed."
-        fi
+        if ! perl -e 'use ExtUtils::Embed' 2>/dev/null; then
+          echo "WARNING: [$FUNCNAME] Perl module, ExtUtils::Embed, may not be installed."
+        fi    
         ;;
     esac
   fi
