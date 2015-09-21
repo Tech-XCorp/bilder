@@ -7746,7 +7746,7 @@ fi
 
 # Always construct subject for email as it uses as a marker for finish of build
   subject=${subject:-"$EMAIL_SUBJECT"}
-  subject="$UQMAILHOST ($RUNNRSYSTEM-$BILDER_CHAIN) $BILDER_BRANCH $BILDER_NAME results: $subject"
+  subject="$UQMAILHOST ($RUNNRSYSTEM-$BILDER_CHAIN) $PROJECT_SVN_URL $BILDER_NAME results: $subject"
   echo "$subject" >$BILDER_LOGDIR/$BILDER_NAME.subj
 
 # If no email address, no email; otherwise send email
