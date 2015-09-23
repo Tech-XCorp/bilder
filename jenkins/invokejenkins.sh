@@ -8,9 +8,10 @@ Usage: invokebuild.sh [options]
 Options:
   -b <svnbranch>.. The branch to build
   -c <cause> ..... Jenkins puts this as the cause of the build
+  -d ............. Debug: just show command
   -e <email> ..... Where to email the results
   -h ............. Print this message.
-  -j <job> ....... The Jenkins job, e.g., vorpal-test
+  -j <job> ....... The Jenkins job, e.g., vorpalall-test
   -t <target> .... The target for the build
   -T <token> ..... The job remote invocation token
   -u <baseurl> ... The base url, e.g., carys.org:8300
@@ -25,11 +26,13 @@ job=
 target=
 token=
 baseurl=
+DEBUG=false
 
-while getopts "b:c:e:hj:t:T:u:" arg; do
+while getopts "b:c:de:hj:t:T:u:" arg; do
   case $arg in
     b) svnbranch=$OPTARG;;
     c) cause=$OPTARG;;
+    d) DEBUG=true;;
     e) email=${email},$OPTARG;;
     h) usage 0;;
     j) job=$OPTARG;;
@@ -76,4 +79,4 @@ echo "Will post to $url"
 
 cmd="curl $url"
 echo "$cmd"
-# eval "$cmd"
+$DEBUG || eval "$cmd"
