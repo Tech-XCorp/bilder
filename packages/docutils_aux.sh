@@ -20,7 +20,7 @@ setDocutilsTriggerVars() {
   DOCUTILS_BLDRVERSION_EXP=${DOCUTILS_BLDRVERSION_EXP:-"0.12"}
   DOCUTILS_BUILDS=${DOCUTILS_BUILDS:-"pycsh"}
 # Does docutils depend on roman?  Used to look for it.
-  techo "NOTE: [$FUNCNAME] determine whether docutils depends on roman."
+  # techo "NOTE: [$FUNCNAME] determine whether docutils depends on roman."
   DOCUTILS_DEPS=Python
 }
 setDocutilsTriggerVars
