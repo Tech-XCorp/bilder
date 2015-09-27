@@ -5423,9 +5423,9 @@ waitAction() {
       fi
 # Check for inconsistency of wait return value and build result and correct
       if test $res = $newres; then
-        techo "Recorded build result is $newres.  Consistent."
+        techo "Recorded result is $newres.  Consistent."
       else
-        techo "Recorded build result is $newres.  Inconsistent.  Using $newres."
+        techo "Recorded result is $newres.  Inconsistent.  Using $newres."
         res=$newres
         eval $resvarname=$res
       fi
