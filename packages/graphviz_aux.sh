@@ -37,7 +37,16 @@ setGraphvizTriggerVars() {
       Linux)
         if ! perl -e 'use ExtUtils::Embed' 2>/dev/null; then
           echo "WARNING: [$FUNCNAME] Perl module, ExtUtils::Embed, may not be installed."
-        fi    
+        fi
+# Looks like they moved this directory in recent distros
+        if test -d /usr/lib64/pkgconfig; then
+          techo "NOTE: [$FUNCNAME] Adding /usr/lib64/pkgconfig to PKG_CONFIG_PATH."
+          addtopathvar PKG_CONFIG_PATH /usr/lib64/pkgconfig
+        fi
+        env
+        if ! msg=`pkg-config --exists --print-errors freetype2`; then
+          echo "WARNING: [$FUNCNAME] $msg."
+        fi
         ;;
     esac
   fi

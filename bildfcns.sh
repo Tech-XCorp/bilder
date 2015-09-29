@@ -925,6 +925,7 @@ addtopathvar() {
 # Print results
   pathval=`derefpath $1`
   bpval=`derefpath $bpvar`
+  export $1
   techo -2 "Variable $bpvar = $bpval, $1 = $pathval (addtopathvar)"
 }
 
