@@ -43,7 +43,6 @@ setGraphvizTriggerVars() {
           techo "NOTE: [$FUNCNAME] Adding /usr/lib64/pkgconfig to PKG_CONFIG_PATH."
           addtopathvar PKG_CONFIG_PATH /usr/lib64/pkgconfig
         fi
-        env
         if ! msg=`pkg-config --exists --print-errors freetype2`; then
           echo "WARNING: [$FUNCNAME] $msg."
         fi
