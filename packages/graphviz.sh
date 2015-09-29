@@ -37,6 +37,7 @@ setGraphvizNonTriggerVars
 
 buildGraphviz() {
 
+# Check whether to build
   if ! bilderUnpack graphviz; then
     return 1
   fi
