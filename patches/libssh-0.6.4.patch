@@ -1,6 +1,18 @@
+diff -ruN libssh-0.6.4/cmake/Modules/DefineCompilerFlags.cmake libssh-0.6.4-new/cmake/Modules/DefineCompilerFlags.cmake
+--- libssh-0.6.4/cmake/Modules/DefineCompilerFlags.cmake	2014-09-15 12:54:34.000000000 -0600
++++ libssh-0.6.4-new/cmake/Modules/DefineCompilerFlags.cmake	2015-10-06 11:40:37.639337417 -0600
+@@ -10,7 +10,7 @@
+     if (${CMAKE_C_COMPILER_ID} MATCHES "(GNU|Clang)")
+ 
+         # add -Wconversion ?
+-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -pedantic -pedantic-errors")
++        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -pedantic")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wshadow -Wmissing-prototypes -Wdeclaration-after-statement")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused -Wfloat-equal -Wpointer-arith -Wwrite-strings -Wformat-security")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-format-attribute")
 diff -ruN libssh-0.6.4/ConfigureChecks.cmake libssh-0.6.4-new/ConfigureChecks.cmake
 --- libssh-0.6.4/ConfigureChecks.cmake	2014-12-19 01:11:17.000000000 -0700
-+++ libssh-0.6.4-new/ConfigureChecks.cmake	2015-03-29 09:26:15.475146100 -0600
++++ libssh-0.6.4-new/ConfigureChecks.cmake	2015-10-06 11:41:21.058374842 -0600
 @@ -102,6 +102,9 @@
  check_function_exists(poll HAVE_POLL)
  check_function_exists(select HAVE_SELECT)
@@ -29,7 +41,7 @@ diff -ruN libssh-0.6.4/ConfigureChecks.cmake libssh-0.6.4-new/ConfigureChecks.cm
      set(HAVE_SELECT TRUE)
 diff -ruN libssh-0.6.4/src/connect.c libssh-0.6.4-new/src/connect.c
 --- libssh-0.6.4/src/connect.c	2014-12-05 02:42:06.000000000 -0700
-+++ libssh-0.6.4-new/src/connect.c	2015-03-29 09:23:39.065199900 -0600
++++ libssh-0.6.4-new/src/connect.c	2015-10-06 11:41:21.058374842 -0600
 @@ -64,6 +64,10 @@
  #include <wspiapi.h>
  #endif
