@@ -16,8 +16,8 @@ setGeant4TriggerVars() {
 #  env COPYFILE_DISABLE=true tar czf geant4-10.0.3.tar.gz  geant4-10.0.3
 # and then add the above tarball to svnpkgs
 # p03 is recommended for GRAS
-  #GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
-  GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.0.3"}
+  GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
+  #GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.0.3"}
   GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   GEANT4_DEPS=qt,pcre,xercesc,cmake
   trimvar GEANT4_DEPS ,
