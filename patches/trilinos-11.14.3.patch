@@ -1,6 +1,6 @@
 diff -ruN trilinos-11.14.3/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake trilinos-11.14.3-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake
 --- trilinos-11.14.3/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-05-10 09:47:25.766747300 -0600
++++ trilinos-11.14.3-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-09-23 10:31:31.509567691 -0600
 @@ -1571,7 +1571,7 @@
      ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE
        -D_CRT_NONSTDC_NO_DEPRECATE  -D_SCL_SECURE_NO_WARNINGS)
@@ -12,7 +12,7 @@ diff -ruN trilinos-11.14.3/cmake/tribits/core/package_arch/TribitsGlobalMacros.c
    IF (WIN32 AND NOT CYGWIN)
 diff -ruN trilinos-11.14.3/packages/amesos/CMakeLists.txt trilinos-11.14.3-new/packages/amesos/CMakeLists.txt
 --- trilinos-11.14.3/packages/amesos/CMakeLists.txt	2015-04-17 13:01:25.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos/CMakeLists.txt	2015-05-10 09:46:36.127460100 -0600
++++ trilinos-11.14.3-new/packages/amesos/CMakeLists.txt	2015-09-23 10:31:31.517567298 -0600
 @@ -11,9 +11,13 @@
  #
  
@@ -27,9 +27,51 @@ diff -ruN trilinos-11.14.3/packages/amesos/CMakeLists.txt trilinos-11.14.3-new/p
  
  # if using parallel MUMPS, must also link in scalapack and BLACS
  
+diff -ruN trilinos-11.14.3/packages/amesos/src/Amesos_Superludist.cpp trilinos-11.14.3-new/packages/amesos/src/Amesos_Superludist.cpp
+--- trilinos-11.14.3/packages/amesos/src/Amesos_Superludist.cpp	2015-04-17 13:05:04.000000000 -0600
++++ trilinos-11.14.3-new/packages/amesos/src/Amesos_Superludist.cpp	2015-09-23 10:33:08.796566040 -0600
+@@ -442,7 +442,11 @@
+     FactorizationDone_ = true;   // i.e. clean up Superlu data structures in the destructor
+ 
+     ScalePermstructInit(NumGlobalRows_, NumGlobalRows_, &PrivateSuperluData_->ScalePermstruct_);
++#ifdef HAVE_SUPERLUDIST_LUSTRUCTINIT_2ARG
++    LUstructInit(NumGlobalRows_, &PrivateSuperluData_->LUstruct_);
++#else
+     LUstructInit(NumGlobalRows_, NumGlobalRows_, &PrivateSuperluData_->LUstruct_);
++#endif
+ 
+     // stick options from ParameterList to options_ structure
+     // Here we follow the same order of the SuperLU_dist 2.0 manual (pag 55/56)
+@@ -473,8 +477,24 @@
+     else                    PrivateSuperluData_->options_.ReplaceTinyPivot = (yes_no_t)NO;
+ 
+     if( IterRefine_ == "NO" ) PrivateSuperluData_->options_.IterRefine = (IterRefine_t)NO;
+-    else if( IterRefine_ == "DOUBLE" ) PrivateSuperluData_->options_.IterRefine = DOUBLE;
+-    else if( IterRefine_ == "EXTRA" ) PrivateSuperluData_->options_.IterRefine = EXTRA;
++    else if( IterRefine_ == "DOUBLE" ) {
++      PrivateSuperluData_->options_.IterRefine =
++#ifdef HAVE_SUPERLUDIST_ENUM_NAMESPACE
++        SLU_DOUBLE
++#else
++        DOUBLE
++#endif
++        ;
++    }
++    else if( IterRefine_ == "EXTRA" ) {
++      PrivateSuperluData_->options_.IterRefine =
++#ifdef HAVE_SUPERLUDIST_ENUM_NAMESPACE
++        SLU_EXTRA
++#else
++        EXTRA
++#endif
++        ;
++    }
+ 
+     //  Without the following two lines, SuperLU_DIST cannot be made
+     //  quiet.
 diff -ruN trilinos-11.14.3/packages/amesos2/cmake/Amesos2_config.h.in trilinos-11.14.3-new/packages/amesos2/cmake/Amesos2_config.h.in
 --- trilinos-11.14.3/packages/amesos2/cmake/Amesos2_config.h.in	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos2/cmake/Amesos2_config.h.in	2015-05-10 09:46:36.127460100 -0600
++++ trilinos-11.14.3-new/packages/amesos2/cmake/Amesos2_config.h.in	2015-09-23 10:31:31.518567264 -0600
 @@ -92,7 +92,7 @@
  #cmakedefine HAVE_AMESOS2_SUPERLUMT
  
@@ -41,7 +83,7 @@ diff -ruN trilinos-11.14.3/packages/amesos2/cmake/Amesos2_config.h.in trilinos-1
  #cmakedefine HAVE_AMESOS2_PARDISO_MKL
 diff -ruN trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt trilinos-11.14.3-new/packages/amesos2/src/CMakeLists.txt
 --- trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos2/src/CMakeLists.txt	2015-05-10 09:46:36.127460100 -0600
++++ trilinos-11.14.3-new/packages/amesos2/src/CMakeLists.txt	2015-09-23 10:31:31.518567264 -0600
 @@ -287,20 +287,20 @@
      )
  ENDIF()
@@ -77,7 +119,7 @@ diff -ruN trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt trilinos-11.14.3-
    APPEND_SET(HEADERS
 diff -ruN trilinos-11.14.3/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h trilinos-11.14.3-new/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h
 --- trilinos-11.14.3/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h	2015-04-17 13:01:26.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h	2015-05-10 09:46:36.143060200 -0600
++++ trilinos-11.14.3-new/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h	2015-09-23 10:31:31.518567264 -0600
 @@ -465,7 +465,12 @@
                if (Randomize_)
                {
@@ -93,7 +135,7 @@ diff -ruN trilinos-11.14.3/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.
  	      k++;
 diff -ruN trilinos-11.14.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.14.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
 --- trilinos-11.14.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2015-04-17 13:01:27.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2015-05-10 09:46:36.143060200 -0600
++++ trilinos-11.14.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2015-09-23 10:31:31.519567232 -0600
 @@ -15,6 +15,8 @@
  #include "MLAPI_Workspace.h"
  #ifdef _MSC_VER
@@ -105,7 +147,7 @@ diff -ruN trilinos-11.14.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11
  namespace MLAPI {
 diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.14.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp
 --- trilinos-11.14.3/packages/ml/src/Utils/ml_epetra_utils.cpp	2015-04-17 13:01:27.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2015-05-10 09:46:36.143060200 -0600
++++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2015-09-23 10:31:31.521567172 -0600
 @@ -42,6 +42,8 @@
  #endif
  #ifdef _MSC_VER
@@ -117,7 +159,7 @@ diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11
  #ifdef HAVE_ML_TEUCHOS
 diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_utils.c trilinos-11.14.3-new/packages/ml/src/Utils/ml_utils.c
 --- trilinos-11.14.3/packages/ml/src/Utils/ml_utils.c	2015-04-17 13:01:27.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_utils.c	2015-05-10 09:46:36.143060200 -0600
++++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_utils.c	2015-09-23 10:31:31.526567055 -0600
 @@ -1957,13 +1957,15 @@
        if (i == mypid) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
@@ -137,7 +179,7 @@ diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_utils.c trilinos-11.14.3-new
          sleep(1);
 diff -ruN trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H trilinos-11.14.3-new/packages/nox/src-lapack/NOX_LAPACK_Matrix.H
 --- trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/nox/src-lapack/NOX_LAPACK_Matrix.H	2015-05-10 09:46:36.158660200 -0600
++++ trilinos-11.14.3-new/packages/nox/src-lapack/NOX_LAPACK_Matrix.H	2015-09-23 10:31:31.530566967 -0600
 @@ -104,7 +104,7 @@
          stream << operator()(i,j) << " ";
        stream << "]" << std::endl;
@@ -149,7 +191,7 @@ diff -ruN trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H trilinos-
        //! Returns the number of rows in the matrix
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c
 --- trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c	2015-04-17 13:01:29.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c	2015-05-10 12:23:18.850007600 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c	2015-09-23 10:31:31.531566941 -0600
 @@ -36,10 +36,15 @@
   * at Sandia National Laboratories under US Department of Energy        *
   * contract DE-AC04-76DP00789 and is copyrighted by Sandia Corporation. */
@@ -168,7 +210,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c trilin
  {
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-04-17 13:05:05.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-05-10 09:46:36.158660200 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-09-23 10:31:31.532566917 -0600
 @@ -51,7 +51,12 @@
  
  #include <stddef.h>
@@ -185,7 +227,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodus
  #error "NetCDF version 4.1.2 or later is required."
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
 --- trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2015-04-17 13:01:29.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2015-05-10 09:46:36.158660200 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2015-09-23 10:31:31.536566846 -0600
 @@ -63,7 +63,7 @@
  #include <exodusII_int.h>               // for EX_FATAL, ex_leavedef, etc
  #include <netcdf.h>                     // for NC_NOERR, nc_def_var, etc
@@ -197,7 +239,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cma
  
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/CMakeLists.txt trilinos-11.14.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt
 --- trilinos-11.14.3/packages/seacas/libraries/nemesis/CMakeLists.txt	2015-04-17 13:01:30.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt	2015-05-10 09:46:36.158660200 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt	2015-09-23 10:31:31.537566835 -0600
 @@ -39,12 +39,11 @@
      NAME ne_ctest_wrap
      NUM_MPI_PROCS 1
@@ -217,7 +259,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/CMakeLists.txt tril
  
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trilinos-11.14.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h
 --- trilinos-11.14.3/packages/seacas/libraries/nemesis/ne_nemesisI.h	2015-04-17 13:01:30.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2015-05-10 09:46:36.158660200 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2015-09-23 10:31:31.537566835 -0600
 @@ -46,7 +46,12 @@
  #endif
  
@@ -234,7 +276,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trili
    
 diff -ruN trilinos-11.14.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.14.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
 --- trilinos-11.14.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2015-04-17 13:01:34.000000000 -0600
-+++ trilinos-11.14.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2015-05-10 09:46:36.174260200 -0600
++++ trilinos-11.14.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2015-09-23 10:31:31.538566827 -0600
 @@ -111,7 +111,8 @@
  
  //Explicitly instantiating these templates for windows due to an issue with
