@@ -3043,10 +3043,9 @@ findBlasLapack() {
 # If MKL requested, then use it
   if test -n $USE_MKL; then
    if $USE_MKL; then
-    # MKL doesn't separate blas and lapack?
-    MKL_DIR=${MKL_DIR:-${MKLROOT}}
+    MKL_DIR=${MKL_DIR:-${MKLROOT}/lib/intel64}
     MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
-    MKL_LAPACK_LIBS="-lmkl_lapack"
+    MKL_LAPACK_LIBS="-lmkl_lapack95_lp64"
     for BLD in SER SERMD SERSH PYCSH BEN; do
       eval LAPACK_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_LAPACK_LIBS}\""
       eval BLAS_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_BLAS_LIBS}\""
