@@ -7973,7 +7973,7 @@ buildChain() {
     chain=`echo $hifirst | awk '{for (i=NF;i>=1;i--) printf $i" "} END{print ""}'`
     trimvar chain ' '
     techo ""
-    rm *-chain.txt # Remove old chain files
+    rm -f *-chain.txt # Remove old chain files
     techo "Package(s) $1 dependencies = '$hifirst'." | tee $BILDER_LOGDIR/${1}-chain.txt
     techo "Inverse order = '$chain'." | tee -a $BILDER_LOGDIR/${1}-chain.txt
     if $analyzeonly; then
