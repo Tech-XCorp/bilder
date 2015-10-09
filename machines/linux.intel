@@ -45,19 +45,7 @@ fi
 echo "mpiccdir = $mpiccdir"
 addtopathvar PATH $mpiccdir
 
-# Find mkl
-ipath=`dirname $ipath`
-mkldir=`(cd $ipath/mkl/lib/intel64 2>/dev/null; pwd -P)`
-if ! test -d $mkldir; then
-  echo "$ipath/mkl/lib/intel64 not found.  No mkl.  Quitting."
-  terminate
-fi
 USE_MKL=true
-SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$mkldir/include"}
-SYSTEM_BLAS_SER_LIBDIR=${SYSTEM_BLAS_SER_LIBDIR:-"$mkldir/lib/intel64"}
-# I want mkl_sequential
-SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$mkldir/include"}
-SYSTEM_LAPACK_SER_LIBDIR=${SYSTEM_LAPACK_SER_LIBDIR:-"$mkldir/lib/intel64"}
 
 # END KEEP THIS
 

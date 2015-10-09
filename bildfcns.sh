@@ -3043,6 +3043,19 @@ findBlasLapack() {
 # If MKL requested, then use it
   if test -n $USE_MKL; then
    if $USE_MKL; then
+    # Find mkl
+    ipath=`dirname $ipath`
+    mkldir=`(cd $ipath/mkl/lib/intel64 2>/dev/null; pwd -P)`
+    if ! test -d $mkldir; then
+      echo "$ipath/mkl/lib/intel64 not found.  No mkl.  Quitting."
+      terminate
+    fi
+    SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$mkldir/include"}
+    SYSTEM_BLAS_SER_LIBDIR=${SYSTEM_BLAS_SER_LIBDIR:-"$mkldir/lib/intel64"}
+    # I want mkl_sequential
+    SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$mkldir/include"}
+    SYSTEM_LAPACK_SER_LIBDIR=${SYSTEM_LAPACK_SER_LIBDIR:-"$mkldir/lib/intel64"}
+
     MKL_DIR=${MKL_DIR:-${MKLROOT}/lib/intel64}
     MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
     MKL_LAPACK_LIBS="-lmkl_lapack95_lp64"
