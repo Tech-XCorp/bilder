@@ -155,7 +155,7 @@ processBilderArgs() {
     w) BILDER_WAIT_DAYS=$OPTARG;;
     W) NOBUILD_PKGS=${NOBUILD_PKGS},$OPTARG;;
     X) BUILD_EXPERIMENTAL=true;;
-    y) DISABLE_CUDA=true;;
+    y) SCI_ENABLE_CUDA=false;;
     z) CLEAN_GITHG_SUBREPOS=true;;
     Z) DO_FINAL_ACTION=false;;
     2) techo "WARNING: -2 option will be removed Oct. 18, 2014. Use -FI instead."
@@ -197,7 +197,7 @@ setBilderOptions() {
   CLEAN_INSTALLS=
   CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
-  DISABLE_CUDA=false
+  SCI_ENABLE_CUDA=true
   DOCS_BUILDS=
   DO_FINAL_ACTION=true
   FORCE_INSTALL=false
