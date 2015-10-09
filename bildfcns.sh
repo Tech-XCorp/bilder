@@ -7498,14 +7498,14 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in check.failures unit.failures ctest.failures Testing/Temporary/LastTestsFailed.log; do
+        for tstlist in check-failures.txt unit.failures ctest.failures Testing/Temporary/LastTestsFailed.log; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
-            numTestFailures=`cat $builddir/${tstlist} | wc -l`
+            numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
           fi
           if test $numTestFailures -gt 0; then
             techo "Failed tests found in $builddir/$tstlist."
-            addHtmlLine 4 "Failed Tests: $tdir/$tstlist -- $numTestFailures tests" RED $ABSTRACT
+            addHtmlLine 4 "Found $numTestFailures failures from $tdir/$tstlist" RED $ABSTRACT
 # Print out specific test failures; a maximum of 15 lines.
             local linemax=15
             if test $numTestFailures -lt $linemax; then
