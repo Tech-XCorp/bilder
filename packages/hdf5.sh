@@ -83,9 +83,9 @@ buildHdf5() {
   fi
 
 # Shared: For Linux, add origin to rpath, do not strip rpath
-  local HDF5_SER_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt'"
+  local HDF5_SER_ADDL_ARGS=
   local HDF5_SERSH_ADDL_ARGS=
-  local HDF5_PAR_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DMPI_HEADER_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include'  -DMPI_DIR:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/'  -DMPI_INCLUDE_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include' -DMPI_LIBRARY:FILEPATH:FILEPATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/lib/release_mt/impi.lib'" 
+  local HDF5_PAR_ADDL_ARGS= 
   local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PARSH_ADDL_ARGS=
   local HDF5_PYCSH_ADDL_ARGS=
@@ -113,6 +113,15 @@ buildHdf5() {
       HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
+    Cygwin)
+# For icl we have to explicitly tell cmake that, no, we *really* don't want the shared runtime.
+      if echo "$CMAKE_COMPILERS_SER" | grep -q "icl"; then
+	   HDF5_SER_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt'"
+      fi
+# HDF5 CMake is unable to properly parse return codes from Intel MPI wrappers, so we have to use the compiler directly
+      if echo "$CMAKE_COMPILERS_PAR" | grep -q "mpiicc"; then
+	  HDF5_PAR_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DMPI_HEADER_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include'  -DMPI_DIR:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/'  -DMPI_INCLUDE_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include' -DMPI_LIBRARY:FILEPATH:FILEPATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/lib/release_mt/impi.lib'";
+      fi
   esac
 
 # Separating builds for all platforms as required on Windows and this
