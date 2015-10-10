@@ -113,13 +113,16 @@ buildHdf5() {
       HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
-    Cygwin)
+    CYGWIN*)
+      echo "HDF5 cygwin case"
 # For icl we have to explicitly tell cmake that, no, we *really* don't want the shared runtime.
       if echo "$CMAKE_COMPILERS_SER" | grep -q "icl"; then
+           echo "HDF5 Cygwin ICL ser compiler"
 	   HDF5_SER_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt'"
       fi
 # HDF5 CMake is unable to properly parse return codes from Intel MPI wrappers, so we have to use the compiler directly
       if echo "$CMAKE_COMPILERS_PAR" | grep -q "mpiicc"; then
+          echo "HDF5 Cygwin ICL par compiler"
 	  HDF5_PAR_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DMPI_HEADER_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include'  -DMPI_DIR:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/'  -DMPI_INCLUDE_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include' -DMPI_LIBRARY:FILEPATH:FILEPATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/lib/release_mt/impi.lib'";
       fi
   esac
