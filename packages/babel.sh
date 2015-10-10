@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for babel
+# Build information for babel
 #
 # $Id$
 #
@@ -8,86 +8,56 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in babel_aux.sh
 #
 ######################################################################
 
-BABEL_BLDRVERSION=${BABEL_BLDRVERSION:-"1.5.0-r6860"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/babel_aux.sh
 
 ######################################################################
 #
-# Builds and deps
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-BABEL_BUILDS=${BABEL_BUILDS:-"shared,static"}
-BABEL_DEPS=numpy,libtool
-BABEL_UMASK=002
+setDocutilsNonTriggerVars() {
+  BABEL_UMASK=002
+}
+setDocutilsNonTriggerVars
 
-######################################################################
+#####################################################################
 #
-# Add to paths
-#
-######################################################################
-
-if test `uname` = Linuux; then
-  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/babel-shared/lib
-fi
-
-######################################################################
-#
-# Launch babel builds.
-# The shared babel build is done with the front-end serial compilers,
-# and it will be used for code generation on the front-end nodes during
-# compilation.  The static babel build is done with the back-end serial
-# compilers.
-#
-# Some notes: http://trac.mcs.anl.gov/projects/cca/wiki/babelbgp
+# Launch builds.
 #
 ######################################################################
 
 buildBabel() {
-
-# Downgrade gcc on old darwin
-  local BABEL_BUILD_ARGS=
-  case `uname`-`uname -r` in
-    Darwin-9.*)
-      BABEL_BUILD_ARGS="CC=gcc-4.0"
-      ;;
-  esac
-
-# Configure and build
-  if bilderUnpack babel; then
-# Use parallel compilers, since this is needed on the backend nodes
-    if bilderConfig babel static "$CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR CPP='$PYC_CC -E' -C --enable-fortran90 --disable-java --disable-numeric --disable-shared --enable-pure-static-runtime --without-sidlx --disable-rmi --disable-iconv $BABEL_STATIC_OTHER_ARGS"; then
-      bilderBuild babel static "$BABEL_BUILD_ARGS"
-    fi
-    if bilderConfig babel shared "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER CPP='$PYC_CC -E' -C --enable-fortran90 --disable-java --disable-numeric --without-sidlx --disable-rmi --disable-iconv $BABEL_SHARED_OTHER_ARGS"; then
-      bilderBuild babel shared "$BABEL_BUILD_ARGS"
-    fi
+  if bilderUnpack Babel; then
+    bilderDuBuild -p babel Babel "" "$DISTUTILS_ENV"
   fi
-
 }
 
 ######################################################################
 #
-# Test babel
+# Test
 #
 ######################################################################
 
 testBabel() {
-  techo "Not testing babel."
+  techo "Not testing Babel."
 }
 
 ######################################################################
 #
-# Install babel
+# Install
 #
 ######################################################################
 
 installBabel() {
-  bilderInstall babel shared babel-shared
-  bilderInstall babel static babel-static
-  # techo "WARNING: Quitting at end of babel.sh."; exit
+  local BABEL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/babel.filelist'"
+  bilderDuInstall -p babel Babel "$BABEL_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

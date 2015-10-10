@@ -18,8 +18,7 @@
 setBzip2TriggerVars() {
   BZIP2_BLDRVERSION=${BZIP2_BLDRVERSION:-"1.0.6"}
   if test -z "$BZIP2_BUILDS"; then
-    if [[ `uname` =~ CYGWIN ]]; then
-      # BZIP2_BUILDS=ser,sermd
+    if [[ `uname` =~ CYGWIN ]] || ! which bunzip2 1>/dev/null 2>&1; then
       BZIP2_BUILDS=ser
     fi
   fi

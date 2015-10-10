@@ -17,7 +17,7 @@
 
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_REPO_BRANCH_STD=master
+  MOAB_REPO_BRANCH_STD=cmakeEnhance
   MOAB_REPO_BRANCH_EXP=cmakeEnhance
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH_STD=master
@@ -27,18 +27,17 @@ setMoabTriggerVars() {
     if [[ `uname` =~ CYGWIN ]]; then
       MOAB_USE_CMAKE=true
     fi
-    MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"false"}
+    MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
   fi
   if test -z "$MOAB_BUILD_SET"; then
     MOAB_BUILD_SET=fullForPython
   fi;
   if test -z "$MOAB_DESIRED_BUILDS"; then
     if [[ $MOAB_BUILD_SET = full ]]; then
-# Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=ser,par
+      MOAB_DESIRED_BUILDS=ser
     elif [[ $MOAB_BUILD_SET = fullForPython ]]; then
 # Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=ser,par,${FORPYTHON_STATIC_BUILD}
+      MOAB_DESIRED_BUILDS=ser,${FORPYTHON_STATIC_BUILD}
 # Python shared build needed for composers
 # Python shared build needed for dagmc
       if ! [[ `uname` =~ CYGWIN ]]; then

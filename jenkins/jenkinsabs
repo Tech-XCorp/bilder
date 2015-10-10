@@ -164,92 +164,121 @@ else
 fi
 lecho "   topdir  = $topdir"
 lecho "   absdirs = $absdirs"
-lecho "<<<< ---------- >>>>"
-lecho " "
+lecho "<<<< End Environment >>>>"
 
 # Loop over all the abstract dirs, analyze and email
 
 lecho "Looking in $topdir for abstracts in subdirectories: $absdirs."
 MINUTES=`expr $HOURS \* 60`
 for absdir in $absdirs; do
+  lecho "<<<< Analyzing subdirectory $absdir >>>>"
 # Do find to get abstracts in last number of hours.
 # This find syntax not valid on Darwin.
   cmd="$cmdprefix find $topdir/${absdir} -type f -cmin -${MINUTES}"
-  lecho "$cmd"
+  lecho "Running command: $cmd"
 # Sort by date of abs, so if there are multiple ones we only get the
 # last one, which will be the freshest.
   $cmd | sed -e "s%/.*/%%" | sort -t_ -k 3 > abstracts.txt
-  lecho "<<< Analyzing $absdir Abstracts from $topdir >>>"
-  abs2get=`cat abstracts.txt`
-  lecho "Will get the following abstracts:"
-  lecho "$abs2get"
+  absinfile=`cat abstracts.txt`
+  if test -z "$absinfile"; then
+    lecho "No abstracts found for the last $HOURS hours."
+  else
+    lecho "Found abstracts.txt with contents:"
+    lecho $absinfile
+    bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
+    lecho "bilderhosts = $bilderhosts."
+    numhosts=`echo $bilderhosts | wc -w | sed 's/^ *//'`
+    lecho "$numhosts unique hosts."
+    firsthost=`echo $bilderhosts | sed 's/ .*$//'`
+    lecho "firsthost = $firsthost."
+    if test -n "$firsthost"; then
+      bilderbuilds=`sed -e "s/^[^_]*_//" -e 's/_.*$//' <abstracts.txt | sort | uniq | tr '\n' ' '`
+      lecho "Builds directory labels found were: $bilderbuilds."
+    else
+      lecho "ERROR: No hosts found for $absdir directory. Setting return result to 1."
+      res=1
+    fi
+    numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
+    lecho "$numbuilds build directory labels found."
+    numlines=`expr $numhosts \* $numbuilds`
+    lecho "$numlines lines to keep from abstracts.txt file."
+
+# Get the last distinct builds of the distinct hosts
+    abs2get=
+    for h in $bilderhosts; do
+      abs2get="$abs2get "`grep $h abstracts.txt | tail -1`
+    done
+    rm abstracts.txt
+    lecho "Will get"
+    echo $abs2get
 
 # Get the project email
-  if test -n "$EMAIL"; then
+    if test -n "$EMAIL"; then
       projemail=$EMAIL
-  else
-    emailvar=`genbashvar ${absdir}_EMAIL`
-    # lecho "emailvar = $emailvar"
-    eval projemail=\$$emailvar
-  fi
-  lecho "Project email is $projemail."
+    else
+      emailvar=`genbashvar ${absdir}_EMAIL`
+      # lecho "emailvar = $emailvar"
+      eval projemail=\$$emailvar
+    fi
+    lecho "Project email is $projemail."
 
 # Get these abstracts into a file
-  rm -rf allabs-${absdir}.html *-abstract.html
+    rm -rf allabs-${absdir}.html *-abstract.html
 # Create local date stamp
-  datestamp=`date +%F`
-  lecho "Created datestamp for email subject: $datestamp"
+    datestamp=`date +%F`
+    lecho "Created datestamp for email subject: $datestamp"
 # Create basename directory for subject
-  topdirsubj=`basename $topdir`
+    topdirsubj=`basename $topdir`
 # This line seems necessary for mailmain
-  echo "From: ${absdir}-abstracts@$ABSMAILHOST" >>allabs-${absdir}.html
-  echo "To: ${projemail}" >>allabs-${absdir}.html
-  echo "Subject: $datestamp $absdir abstracts from $topdirsubj on $ABSMAILHOST" >>allabs-${absdir}.html
-  echo "Content-Type: text/html; charset=UTF-8" >> allabs-${absdir}.html
-  echo "<html>" >>allabs-${absdir}.html
-  if test -n "$abs2get"; then
-    for i in $abs2get; do
-      if test -n "${ABSTRACTHOST}"; then
-        cmd="scp ${ABSTRACTHOST}:${topdir}/$absdir/$i $i"
-      else
-        cmd="cp ${topdir}/$absdir/$i $i"
-      fi
-      lecho "Adding $i to email."
-      $cmd
-      if grep -iq fail $i; then
-        echo "FAILURES FOUND IN ${i}."
-      fi
-      cat $i >>allabs-${absdir}.html
-      # rm tempabs.html
-      echo '<br>' >>allabs-${absdir}.html
-    done
-  else
-    echo "No abstracts found in last $HOURS hours.<br>" >>allabs-${absdir}.html
-  fi
-  echo "<br/>" >>allabs-${absdir}.html
-  echo "<br/>" >>allabs-${absdir}.html
-  echo "<hr/>" >>allabs-${absdir}.html
-  echo "<br/>" >>allabs-${absdir}.html
-  echo "<h2>Log:</h2>" >>allabs-${absdir}.html
-  echo "<pre>" >>allabs-${absdir}.html
-  cat "${workdir}/jenkinsabs.log" >>allabs-${absdir}.html
-  echo "</pre>" >>allabs-${absdir}.html
-  echo "</html>" >>allabs-${absdir}.html
-  if $istopdir; then
+    echo "From: ${absdir}-abstracts@$ABSMAILHOST" >>allabs-${absdir}.html
+    echo "To: ${projemail}" >>allabs-${absdir}.html
+    echo "Subject: $datestamp $absdir abstracts from $topdirsubj on $ABSMAILHOST" >>allabs-${absdir}.html
+    echo "Content-Type: text/html; charset=UTF-8" >> allabs-${absdir}.html
+    echo "<html>" >>allabs-${absdir}.html
+    if test -n "$abs2get"; then
+      for i in $abs2get; do
+        if test -n "${ABSTRACTHOST}"; then
+          cmd="scp ${ABSTRACTHOST}:${topdir}/$absdir/$i $i"
+        else
+          cmd="cp ${topdir}/$absdir/$i $i"
+        fi
+        lecho "Adding $i to email."
+        $cmd
+        if grep -iq fail $i; then
+          echo "FAILURES FOUND IN ${i}."
+        fi
+        cat $i >>allabs-${absdir}.html
+        # rm tempabs.html
+        echo '<br>' >>allabs-${absdir}.html
+      done
+    else
+      echo "No abstracts found in last $HOURS hours.<br>" >>allabs-${absdir}.html
+    fi
+    echo "<br/>" >>allabs-${absdir}.html
+    echo "<br/>" >>allabs-${absdir}.html
+    echo "<hr/>" >>allabs-${absdir}.html
+    echo "<br/>" >>allabs-${absdir}.html
+    echo "<h2>Log:</h2>" >>allabs-${absdir}.html
+    echo "<pre>" >>allabs-${absdir}.html
+    cat "${workdir}/jenkinsabs.log" >>allabs-${absdir}.html
+    echo "</pre>" >>allabs-${absdir}.html
+    echo "</html>" >>allabs-${absdir}.html
+    if $istopdir; then
 # -a/-t passed, so email this file to the specified email address.
 # Assuming sendmail exists.
-    SENDMAIL=`env PATH="$PATH":/usr/sbin:/usr/lib which sendmail 2>/dev/null`
-    if test -n "$projemail" -a -n "$SENDMAIL"; then
-      cmd="$SENDMAIL -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
-      lecho "$cmd"
-      eval "$cmd"
+      SENDMAIL=`env PATH="$PATH":/usr/sbin:/usr/lib which sendmail 2>/dev/null`
+      if test -n "$projemail" -a -n "$SENDMAIL"; then
+        cmd="$SENDMAIL -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
+        lecho "$cmd"
+        eval "$cmd"
+      fi
     fi
+    # rm allabs-${absdir}.html
   fi
-  # rm allabs-${absdir}.html
-  lecho "<<< --------------- >>>"
+  lecho "<<<< End ${absdir} >>>>"
 done
 
 #  Finish up.
-lecho "  jenkinsabs completing with result = $res."
+lecho "jenkinsabs completing with result = $res."
 exit $res
 

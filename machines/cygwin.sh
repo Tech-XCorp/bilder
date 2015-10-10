@@ -144,7 +144,7 @@ getVsPaths() {
     fi
     arch=amd64
     if test $vsver = 12; then
-      arch=x86_amd64
+      arch=amd64
     fi
   fi
 

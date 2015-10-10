@@ -12,6 +12,8 @@ CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-gcc-4.7
 # Janus
 CONTRIB_DIR=/projects/cary/contrib-gcc-4.7
 CONTRIB_DIR=/global/project/projectdirs/facets/hopper/contrib-gcc-4.8
+# Edison
+CONTRIB_DIR=/global/project/projectdirs/vorpal/vpusers/cary/edison/contrib-gcc-4.9
 
 exec() {
   echo $*

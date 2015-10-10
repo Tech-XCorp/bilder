@@ -55,6 +55,7 @@ buildNumexpr() {
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # For Cygwin: build, install, and make packages all at once.
+  NUMEXPR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numexpr.filelist'"
 # For others, just build.
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,
@@ -64,12 +65,12 @@ buildNumexpr() {
 # build and installation steps to remove old installations only if the
 # build was successful.  One must do any removal then before starting
 # the build and installation.
-    CYGWIN*-*cl*)
-      NUMEXPR_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+    CYGWIN*-cl | CYGWIN*-*/cl)
+      NUMEXPR_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $NUMEXPR_INSTALL_ARGS $BDIST_WININST_ARG"
       NUMEXPR_ENV="$DISTUTILS_ENV"
       ;;
     CYGWIN*-*mingw*)
-      NUMEXPR_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      NUMEXPR_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $NUMEXPR_INSTALL_ARGS $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       NUMEXPR_ENV="PATH=$mingwdir:'$PATH'"
@@ -131,7 +132,7 @@ installNumexpr() {
       bilderDuInstall -n numexpr "$NUMEXPR_ARGS" "$NUMEXPR_ENV"
       ;;
     *)
-      bilderDuInstall -r numexpr numexpr "$NUMEXPR_ARGS" "$NUMEXPR_ENV"
+      bilderDuInstall -r numexpr numexpr "$NUMEXPR_INSTALL_ARGS" "$NUMEXPR_ENV"
       ;;
   esac
   # techo "WARNING: Quitting at end of numexpr.sh."; exit

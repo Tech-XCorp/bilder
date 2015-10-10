@@ -1,0 +1,31 @@
+diff -ruN qt-4.8.7/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h qt-4.8.7-new/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h
+--- qt-4.8.7/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h	2015-05-07 08:14:45.000000000 -0600
++++ qt-4.8.7-new/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h	2015-07-26 08:34:38.679221602 -0600
+@@ -113,14 +113,15 @@
+ #if (COMPILER(MSVC) && _MSC_VER < 1800) || (COMPILER(RVCT) && !(RVCT_VERSION_AT_LEAST(3, 0, 0, 0)))
+ 
+ // We must not do 'num + 0.5' or 'num - 0.5' because they can cause precision loss.
+-static double round(double num)
++static inline double round(double num)
+ {
+     double integer = ceil(num);
+     if (num > 0)
+         return integer - num > 0.5 ? integer - 1.0 : integer;
+     return integer - num >= 0.5 ? integer - 1.0 : integer;
+ }
+-static float roundf(float num)
++
++static inline float roundf(float num)
+ {
+     float integer = ceilf(num);
+     if (num > 0)
+@@ -143,7 +144,9 @@
+ 
+ inline bool isinf(double num) { return !_finite(num) && !_isnan(num); }
+ inline bool isnan(double num) { return !!_isnan(num); }
++#if _MSC_VER < 1800
+ inline bool signbit(double num) { return _copysign(1.0, num) < 0; }
++#endif
+ 
+ inline double nextafter(double x, double y) { return _nextafter(x, y); }
+ inline float nextafterf(float x, float y) { return x > y ? x - FLT_EPSILON : x + FLT_EPSILON; }

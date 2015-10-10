@@ -17,7 +17,7 @@ GENERAL OPTIONS
   -E <env pairs> .... comma separated list of environment variables and values,
                       e.g., FOO=f,BAR=b
   -h ................ Print this and exit
-  -m ................ Use minggw on cygwin
+  -m <machines file>. file defining machine files for all platforms
   -n ................ Do not add tests
   -p ................ Print the command only.
   -s <step> ......... Sets which build step: 1 = internal, 2 = volatile.
@@ -38,16 +38,16 @@ args="$*"
 ADD_TESTS=true
 DEBUG=false
 EXTRA_ENV=
-USE_MINGW=false
+MACHINES_FILE=
 PRINT_ONLY=false
 FORCESTEP2=false
 STEP=1
 
-while getopts "d:E:hmnps:2f" arg; do
+while getopts "d:E:hm:nps:2f" arg; do
   case "$arg" in
     E) EXTRA_ENV=$EXTRA_ENV,$OPTARG;;
     h) usage; exit;;
-    m) USE_MINGW=true;;
+    m) MACHINES_FILE=$OPTARG;;
     n) ADD_TESTS=false;;
     p) PRINT_ONLY=true;;
     s) STEP=$OPTARG;;
@@ -77,6 +77,7 @@ else
   cd $projdir
   defscript=./$defscript
 fi
+jenkinssubdir=$projdir/bilder/jenkins
 
 if [[ `uname` =~ CYGWIN ]] && [[ $projdir =~ jenkins/workspace ]]; then
   echo "projdir still a subdir of jenkins/workspace.  Quitting."
@@ -230,16 +231,16 @@ lecho "   BILDER_CONFDIR = $BILDER_CONFDIR"
 lecho "   BILDER_CTEST_MODEL = $BILDER_CTEST_MODEL"
 
 #
-# Additional options for mkall-default.sh.
+# Find the machine file
 #
 addlopts=
-if $USE_MINGW && [[ `uname` =~ CYGWIN ]]; then
-  # if test `uname -m` = x86_64 || [[ `uname` =~ WOW ]]; then
-  if wmic os get osarchitecture | grep -q 64-bit; then
-    addlopts="-m cygwin.mingw64"
-  else
-    addlopts="-m cygwin.mingw32"
-  fi
+if test -f $jenkinssubdir/$MACHINES_FILE; then
+  source $jenkinssubdir/$MACHINES_FILE
+else
+  lecho "WARNING: $jenkinssubdir/$MACHINES_FILE does not exist."
+fi
+if test -n "$MACHINEFILE"; then
+  addlopts="-m $MACHINEFILE"
 fi
 
 #

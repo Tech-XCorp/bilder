@@ -1,6 +1,19 @@
+diff -ruN matplotlib-1.4.3/lib/matplotlib/texmanager.py matplotlib-1.4.3-new/lib/matplotlib/texmanager.py
+--- matplotlib-1.4.3/lib/matplotlib/texmanager.py	2015-02-15 19:46:36.000000000 -0800
++++ matplotlib-1.4.3-new/lib/matplotlib/texmanager.py	2015-08-29 11:45:28.273498184 -0700
+@@ -213,8 +213,7 @@
+         while '\\usepackage{type1cm}' in cmd:
+             cmd.remove('\\usepackage{type1cm}')
+         cmd = '\n'.join(cmd)
+-        self._font_preamble = '\n'.join(['\\usepackage{type1cm}', cmd,
+-                                         '\\usepackage{textcomp}'])
++        self._font_preamble = '\n'.join(['\\usepackage{type1cm}', cmd])
+ 
+     def get_basefile(self, tex, fontsize, dpi=None):
+         """
 diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
---- matplotlib-1.4.3/setupext.py	2015-02-15 20:46:36.000000000 -0700
-+++ matplotlib-1.4.3-new/setupext.py	2015-07-05 10:42:02.531276300 -0600
+--- matplotlib-1.4.3/setupext.py	2015-02-15 19:46:36.000000000 -0800
++++ matplotlib-1.4.3-new/setupext.py	2015-08-29 11:41:56.353841376 -0700
 @@ -942,7 +942,12 @@
  
      def check(self):
@@ -31,20 +44,9 @@ diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
              min_version='2.3', version=version)
  
      def version_from_header(self):
-diff -ruN matplotlib-1.4.3/src/_path.cpp matplotlib-1.4.3-new/src/_path.cpp
---- matplotlib-1.4.3/src/_path.cpp	2015-02-15 20:46:36.000000000 -0700
-+++ matplotlib-1.4.3-new/src/_path.cpp	2015-07-05 10:42:21.126357100 -0600
-@@ -4,6 +4,7 @@
- #include "agg_py_transforms.h"
- #include "path_converters.h"
- 
-+#include <algorithm>
- #include <limits>
- #include <math.h>
- 
 diff -ruN matplotlib-1.4.3/src/ft2font.cpp matplotlib-1.4.3-new/src/ft2font.cpp
---- matplotlib-1.4.3/src/ft2font.cpp	2015-02-15 20:46:36.000000000 -0700
-+++ matplotlib-1.4.3-new/src/ft2font.cpp	2015-07-05 10:42:27.803114300 -0600
+--- matplotlib-1.4.3/src/ft2font.cpp	2015-02-15 19:46:36.000000000 -0800
++++ matplotlib-1.4.3-new/src/ft2font.cpp	2015-08-29 11:41:56.358088831 -0700
 @@ -3,6 +3,7 @@
  #include "ft2font.h"
  #include "mplutils.h"
@@ -52,4 +54,15 @@ diff -ruN matplotlib-1.4.3/src/ft2font.cpp matplotlib-1.4.3-new/src/ft2font.cpp
 +#include <algorithm>
  
  #include "file_compat.h"
+ 
+diff -ruN matplotlib-1.4.3/src/_path.cpp matplotlib-1.4.3-new/src/_path.cpp
+--- matplotlib-1.4.3/src/_path.cpp	2015-02-15 19:46:36.000000000 -0800
++++ matplotlib-1.4.3-new/src/_path.cpp	2015-08-29 11:41:56.356173581 -0700
+@@ -4,6 +4,7 @@
+ #include "agg_py_transforms.h"
+ #include "path_converters.h"
+ 
++#include <algorithm>
+ #include <limits>
+ #include <math.h>
  

@@ -19,7 +19,7 @@ setNumexprTriggerVars() {
   NUMEXPR_BLDRVERSION_STD=${NUMEXPR_BLDRVERSION_STD:-"2.4.3"}
   NUMEXPR_BLDRVERSION_EXP=${NUMEXPR_BLDRVERSION_EXP:-"2.4.3"}
   NUMEXPR_BUILDS=${NUMEXPR_BUILDS:-"pycsh"}
-  NUMEXPR_DEPS=numpy,Python
+  NUMEXPR_DEPS=numpy,setuptools,Python
 }
 setNumexprTriggerVars
 

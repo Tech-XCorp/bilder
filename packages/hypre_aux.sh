@@ -26,7 +26,7 @@ setHypreTriggerVars() {
       Linux) HYPRE_BUILDS="${HYPRE_BUILDS},parsh";;
     esac
   fi
-  HYPRE_DEPS=cmake,atlas,lapack,clapack_cmake
+  HYPRE_DEPS=cmake,atlas,lapack,clapack_cmake,$MPI_BUILD
 }
 setHypreTriggerVars
 

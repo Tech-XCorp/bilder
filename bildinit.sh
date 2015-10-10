@@ -162,8 +162,9 @@ esac
 # techo exit; exit
 
 # Get various URLs
+PROJECT_SVN_URL=`bilderSvn info $PROJECT_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_URL=`bilderSvn info $BILDER_DIR | grep ^URL: | sed -e 's/^URL: *//'`
-BILDER_BRANCH=`echo $BILDER_URL | sed -e 's?^.*/bilder/code/??'`
+BILDER_BRANCH=`echo $BILDER_URL | sed -e 's?^.*/bilder/??'`
 techo "NOTE: [bildinit.sh] BILDER_BRANCH = $BILDER_BRANCH."
 BILDER_BRANCHSHORT=`echo $BILDER_BRANCH | sed -e 's?^.*/??'`
 BILDER_CONFDIR=${BILDER_CONFDIR:-"$BILDER_DIR/runnr"}

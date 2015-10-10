@@ -19,7 +19,7 @@ setCythonTriggerVars() {
   CYTHON_BLDRVERSION_STD=0.20.1
   CYTHON_BLDRVERSION_EXP=0.20.1
   CYTHON_BUILDS=${CYTHON_BUILDS:-"pycsh"}
-  CYTHON_DEPS=Python
+  CYTHON_DEPS=setuptools,Python
   if $HAVE_ATLAS_PYC; then
     CYTHON_DEPS="$CYTHON_DEPS,atlas"
   fi

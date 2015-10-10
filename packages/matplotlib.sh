@@ -197,9 +197,10 @@ fi
 #   Cygwin: build, install, and make packages all at once.
 #   Others, just build.
   MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
+  MATPLOTLIB_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/matplotlib.filelist'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $MATPLOTLIB_INSTALL_ARGS $BDIST_WININST_ARG"
       ;;
     CYGWIN*-mingw*)
       MATPLOTLIB_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
@@ -260,31 +261,11 @@ testMatplotlib() {
 
 installMatplotlib() {
 
-# Below installed by matplotlib-1.1.0.  Gone in 1.3.0
-  MATPLOTLIB_REMOVE="matplotlib mpl_toolkits pylab pytz"
-# Below installed by matplotlib-1.3.0
-  MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE distribute nose pyparsing tornado"
-# Below modified by matplotlib-1.3.0, but should not remove, as additive.
-  # MATPLOTLIB_REMOVE="$MATPLOTLIB_REMOVE easy-install.pth setuptools.pth"
   case `uname`-`uname -r` in
-    CYGWIN*) bilderDuInstall -n matplotlib;;
-    *) bilderDuInstall -r "$MATPLOTLIB_REMOVE" matplotlib;;
+    CYGWIN*) bilderDuInstall -n matplotlib "$MATPLOTLIB_ARGS";;
+    *) bilderDuInstall matplotlib "$MATPLOTLIB_INSTALL_ARGS";;
   esac
   res=$?
-
-# Fix perms of other installed items
-  if test $res = 0; then
-    for i in $MATPLOTLIB_REMOVE; do
-      local instdirs=`\ls $PYTHON_SITEPKGSDIR/${i}* 2>/dev/null`
-      if test -n "$instdirs"; then
-        for j in $PYTHON_SITEPKGSDIR/${i}*; do
-          setOpenPerms ${j}
-        done
-#      else
-#        techo "NOTE: [matplotlib.sh] Need not set perms on $i for matplotlib-$MATPLOTLIB_BLDRVERSION."
-      fi
-    done
-  fi
 
 }
 

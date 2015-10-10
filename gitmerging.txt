@@ -1,5 +1,10 @@
 MERGING FROM A REMOTE REPO
 
+Some git workflows:
+
+[1] https://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html
+[2] https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
 NOTE: When working with github, one must have git-1.7.10 or later.
 
   $Id$
@@ -36,9 +41,12 @@ Move back to develop branch
 
   git checkout $wbranch
 
-Now merge that in.
+Either merge or rebase to the upstream branch
 
   git merge upstream-$wbranch
+OR
+  git rebase upstream-$wbranch
+
 
 Commit and push:
 

@@ -87,6 +87,7 @@ BILDER OPTIONS
   -W <disable builds> Build without these packages (comma delimited list)
                         e.g., -W nubeam,plasma_state.
   -X ................ Build experimental (new) versions of packages.
+  -y ................ Disable cuda?  yes
   -z ................ Clean git or hg repos.
   -Z ................ Do not execute the definable bilderFinalAction.
 EOF
@@ -154,6 +155,7 @@ processBilderArgs() {
     w) BILDER_WAIT_DAYS=$OPTARG;;
     W) NOBUILD_PKGS=${NOBUILD_PKGS},$OPTARG;;
     X) BUILD_EXPERIMENTAL=true;;
+    y) SCI_ENABLE_CUDA=false;;
     z) CLEAN_GITHG_SUBREPOS=true;;
     Z) DO_FINAL_ACTION=false;;
     2) techo "WARNING: -2 option will be removed Oct. 18, 2014. Use -FI instead."
@@ -195,6 +197,7 @@ setBilderOptions() {
   CLEAN_INSTALLS=
   CREATE_RELEASE=false
   DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR:-"$HOME/software"}
+  SCI_ENABLE_CUDA=true
   DOCS_BUILDS=
   DO_FINAL_ACTION=true
   FORCE_INSTALL=false
@@ -224,7 +227,7 @@ setBilderOptions() {
 #######################################################
 
 # Get options
-  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:K:L:l:m:MNoOp:PrRsStTuUv:VW:w:XzZ2$EXTRA_BILDER_ARGS"
+  BILDER_ARGS="aA:b:B:cCdD:e:E:FgGhHi:Ij:k:K:L:l:m:MNoOp:PrRsStTuUv:VW:w:XyzZ2$EXTRA_BILDER_ARGS"
 
   set -- "$@"
   # techo "* = $*."

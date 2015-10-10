@@ -57,8 +57,9 @@ buildQt() {
       ;;
   esac
 
-# Get variables.  Per platform.  Just do mac for now.
-  local QT_PLATFORM_ARGS=
+# Get the addition args and environment per-platform.
+# Get the phonon args separately to allow experimental builds without it.
+  local QT_ADDL_ARGS=
   local QT_ENV=
   local QT_PHONON_ARGS=-phonon
   case `uname` in
@@ -68,22 +69,22 @@ buildQt() {
 
     Darwin)
 # jpeg present, but qt cannot find headers
-      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform macx-g++"
+      QT_ADDL_ARGS="$QT_ADDL_ARGS -platform macx-g++"
       case `uname -r` in
         13.*)
 # This will need to be clang
           ;;
         1[0-2].*)
           case `uname -m` in
-            i386) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -arch x86_64";;
+            i386) QT_ADDL_ARGS="$QT_ADDL_ARGS -arch x86_64";;
           esac
           ;;
       esac
       case $QT_BLDRVERSION in
         5.*) ;;
-        *) QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -cocoa";;
+        *) QT_ADDL_ARGS="$QT_ADDL_ARGS -cocoa";;
       esac
-      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -no-gif -qt-libpng"
+      QT_ADDL_ARGS="$QT_ADDL_ARGS -no-gif -qt-libpng"
       ;;
 
     Linux)
@@ -94,13 +95,13 @@ buildQt() {
       QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
       case `uname -m` in
         x86_64)
-          QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++-64"
+          QT_ADDL_ARGS="$QT_ADDL_ARGS -platform linux-g++-64"
           ;;
         *)
-          QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -platform linux-g++"
+          QT_ADDL_ARGS="$QT_ADDL_ARGS -platform linux-g++"
           ;;
       esac
-      QT_PLATFORM_ARGS="$QT_PLATFORM_ARGS -system-libpng"
+      QT_ADDL_ARGS="$QT_ADDL_ARGS -system-libpng"
 
 # Need the following for phonon (and for webkit):
 #   glib (aka glib2 for the rpm)
@@ -162,8 +163,7 @@ buildQt() {
         fi
       done
       if test -n "$glibincdir"; then
-        QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir -ldbus-1 -lglib-2.0 -lgthread-2.0"
-
+        QT_PHONON_ARGS="$QT_PHONON_ARGS -I$glibincdir -ldbus-1 -lglib-2.0 -lgthread-2.0 -lgstreamer-0.10 -lgobject-2.0"
       else
         techo "WARNING: [qt.sh] glib word-size include dir not found."
         techo "WARNING: [qt.sh] May need to install glib2-devel."
@@ -213,7 +213,7 @@ buildQt() {
 # Restore dbus and xmlpatterns or get wrong one
   local otherargsvar=`genbashvar QT_${QT_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig -i qt $QT_BUILD "$QT_PLATFORM_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $otherargsval" "" "$QT_ENV"; then
+  if bilderConfig -i qt $QT_BUILD "$QT_ADDL_ARGS $QT_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $otherargsval" "" "$QT_ENV"; then
 # Make clean seems to hang
     bilderBuild -k qt $QT_BUILD "$QT_MAKEJ_USEARGS" "$QT_ENV"
   else

@@ -925,6 +925,7 @@ addtopathvar() {
 # Print results
   pathval=`derefpath $1`
   bpval=`derefpath $bpvar`
+  export $1
   techo -2 "Variable $bpvar = $bpval, $1 = $pathval (addtopathvar)"
 }
 
@@ -1323,7 +1324,7 @@ getVersion() {
 #     number. Depending on where you get your repository and how you have
 #     applied patches, I believe that your repo could get a different number
 #     for the same code tree or the same number for a different code tree. (SG)
-    if ! rev=`git rev-list HEAD | wc -l`; then
+    if ! rev=`git rev-list HEAD | wc -l | tr -d ' '`; then
       techo "Git rev-list failed.  In path? Returning."
       cd $origdir
       return 1
@@ -3044,10 +3045,22 @@ findBlasLapack() {
 # If MKL requested, then use it
   if test -n $USE_MKL; then
    if $USE_MKL; then
-    # MKL doesn't separate blas and lapack?
-    MKL_DIR=${MKL_DIR:-${MKLROOT}}
+    # Find mkl
+    ipath=`dirname $ipath`
+    mkldir=`(cd $ipath/mkl/lib/intel64 2>/dev/null; pwd -P)`
+    if ! test -d $mkldir; then
+      echo "$ipath/mkl/lib/intel64 not found.  No mkl.  Quitting."
+      terminate
+    fi
+    SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"$mkldir/include"}
+    SYSTEM_BLAS_SER_LIBDIR=${SYSTEM_BLAS_SER_LIBDIR:-"$mkldir/lib/intel64"}
+    # I want mkl_sequential
+    SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$mkldir/include"}
+    SYSTEM_LAPACK_SER_LIBDIR=${SYSTEM_LAPACK_SER_LIBDIR:-"$mkldir/lib/intel64"}
+
+    MKL_DIR=${MKL_DIR:-${MKLROOT}/lib/intel64}
     MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
-    MKL_LAPACK_LIBS="-lmkl_lapack"
+    MKL_LAPACK_LIBS="-lmkl_lapack95_lp64"
     for BLD in SER SERMD SERSH PYCSH BEN; do
       eval LAPACK_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_LAPACK_LIBS}\""
       eval BLAS_${BLD}_LIBS="\"-L${MKL_DIR} ${MKL_BLAS_LIBS}\""
@@ -5425,9 +5438,9 @@ waitAction() {
       fi
 # Check for inconsistency of wait return value and build result and correct
       if test $res = $newres; then
-        techo "Recorded build result is $newres.  Consistent."
+        techo "Recorded result is $newres.  Consistent."
       else
-        techo "Recorded build result is $newres.  Inconsistent.  Using $newres."
+        techo "Recorded result is $newres.  Inconsistent.  Using $newres."
         res=$newres
         eval $resvarname=$res
       fi
@@ -6779,7 +6792,7 @@ bilderInstallAll() {
 # -b whether there are build tests
 # -i ignore the tests of builds when calling install, comma-separated list
 # -n <tests>   Name of tests if not found from lower-casing $2
-# -t do not install test pkg
+# -t Install named test pkg
 # -I ignore test results--passed on to shouldInstallTestedPkg()
 #
 # Return true if should be installed
@@ -6795,7 +6808,7 @@ bilderInstallTestedPkg() {
   local installsubdir=
   local removePkg=false
   local removearg=
-  local testinstall=false
+  local installNamedPkg=false
   local ignoreTestResultsArg=
 
 # Parse options
@@ -6806,7 +6819,7 @@ bilderInstallTestedPkg() {
       b) hasbuildtests=true;;
       i) ignorebuilds=$ignorebuilds,$OPTARG;;
       n) tstsnm="$OPTARG";;
-      t) testinstall=true;;
+      t) installNamedPkg=true;;
       I) ignoreTestResultsArg=-I;;
     esac
   done
@@ -6849,10 +6862,13 @@ bilderInstallTestedPkg() {
       for bld in $bldsval; do
         bilderInstall $installargs $1 $bld
       done
-      if $testinstall; then
-        bilderInstall $removearg -t $tstsnm all
+      if test -n "$tstsnm"; then
+        if $installNamedPkg; then
+          techo -2 "Installing test package, $tstsnm, at request."
+          bilderInstall $removearg -t $tstsnm all
+        fi
       else
-        techo -2 "Not installing test package, $tstsnm, at request."
+        techo -2 "Package, $1, has no named tests."
       fi
       return 0
     else
@@ -7339,6 +7355,36 @@ summarize() {
     totalmmss=`myTime $totaltime`
   fi
   local timestamp=`date +%F-%H:%M`
+  local dayOfWeekNum=`date +%u`
+  local formattedDay=`date +%d`;
+  local formattedDayOfWeek;
+  case "$dayOfWeekNum" in
+    1) formattedDayOfWeek="Monday";;
+    2) formattedDayOfWeek="Tuesday";;
+    3) formattedDayOfWeek="Wednesday";;
+    4) formattedDayOfWeek="Thursday";;
+    5) formattedDayOfWeek="Friday";;
+    6) formattedDayOfWeek="Saturday";;
+    7) formattedDayOfWeek="Sunday";;
+  esac
+  local formattedTime=`date +'%H:%M %p'`
+  local monthOfYearNum=`date +%m`
+  case "$monthOfYearNum" in
+    01) formattedMonth="January";;
+    02) formattedMonth="February";;
+    03) formattedMonth="March";;
+    04) formattedMonth="April";;
+    05) formattedMonth="May";;
+    06) formattedMonth="June";;
+    07) formattedMonth="July";;
+    08) formattedMonth="August";;
+    09) formattedMonth="September";;
+    10) formattedMonth="October";;
+    11) formattedMonth="November";;
+    12) formattedMonth="December";;
+  esac
+  local formattedTimestamp="$formattedTime $formattedDayOfWeek, $formattedMonth "
+  formattedTimestamp="$formattedTimestamp $formattedDay ($timestamp)"
 
 # Begin summary
   techo
@@ -7359,7 +7405,7 @@ EOF
   rmall $ABSTRACT
 
   local jenkinsProj=`echo $BUILD_DIR | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`
-  addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $timestamp" BLUE $ABSTRACT
+  addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $formattedTimestamp" BLUE $ABSTRACT
   addHtmlLine 2 "Build: ${BUILD_DIR}" BLACK $ABSTRACT
   chmod a+r ${ABSTRACT}
 # Email subject
@@ -7454,14 +7500,14 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in check.failures unit.failures ctest.failures Testing/Temporary/LastTestsFailed.log; do
+        for tstlist in check-failures.txt unit.failures ctest.failures Testing/Temporary/LastTestsFailed.log; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
-            numTestFailures=`cat $builddir/${tstlist} | wc -l`
+            numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
           fi
           if test $numTestFailures -gt 0; then
             techo "Failed tests found in $builddir/$tstlist."
-            addHtmlLine 4 "Failed Tests: $tdir/$tstlist -- $numTestFailures tests" RED $ABSTRACT
+            addHtmlLine 4 "Found $numTestFailures failures from $tdir/$tstlist" RED $ABSTRACT
 # Print out specific test failures; a maximum of 15 lines.
             local linemax=15
             if test $numTestFailures -lt $linemax; then
@@ -7632,7 +7678,7 @@ EOF
     if $destdirok; then
 # Create name such that alphabetical listing will have correct grouping
 # I *need* underscores to separate fields
-     local abstractdest=${FQMAILHOST}_`basename $BUILD_DIR`_${timestamp}-abstract.html
+     local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
       abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
       cmd="scp -q ${ABSTRACT} $ABSTRACT_HOST:${abstractdest}"
       techo "$cmd"
@@ -7715,7 +7761,7 @@ fi
 
 # Always construct subject for email as it uses as a marker for finish of build
   subject=${subject:-"$EMAIL_SUBJECT"}
-  subject="$UQMAILHOST ($RUNNRSYSTEM-$BILDER_CHAIN) $BILDER_BRANCH $BILDER_NAME results: $subject"
+  subject="$UQMAILHOST ($RUNNRSYSTEM-$BILDER_CHAIN) $PROJECT_SVN_URL $BILDER_NAME results: $subject"
   echo "$subject" >$BILDER_LOGDIR/$BILDER_NAME.subj
 
 # If no email address, no email; otherwise send email
@@ -7942,6 +7988,7 @@ buildChain() {
     chain=`echo $hifirst | awk '{for (i=NF;i>=1;i--) printf $i" "} END{print ""}'`
     trimvar chain ' '
     techo ""
+    rm -f *-chain.txt # Remove old chain files
     techo "Package(s) $1 dependencies = '$hifirst'." | tee $BILDER_LOGDIR/${1}-chain.txt
     techo "Inverse order = '$chain'." | tee -a $BILDER_LOGDIR/${1}-chain.txt
     if $analyzeonly; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for MathJax
+# Build information for MathJax
 #
 # $Id$
 #
@@ -8,21 +8,26 @@
 
 ######################################################################
 #
-# MathJax -- modeled after jsMath but fixes all of the annoyances.
+# Trigger variables set in mathjax_aux.sh
 #
 ######################################################################
 
-MATHJAX_BLDRVERSION_STD=2.3
-MATHJAX_BLDRVERSION_EXP=2.3
+mydir=`dirname $BASH_SOURCE`
+source $mydir/mathjax_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-MATHJAX_BUILDS=${MATHJAX_BUILDS:-"full,lite"}
-MATHJAX_DEPS=
+setMathjaxNonTriggerVars() {
+  MATHJAX_UMASK=002
+  MATHJAX_DEPS=
+}
+setMathjaxNonTriggerVars
 
 #####################################################################
 #

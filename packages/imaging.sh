@@ -48,11 +48,11 @@ buildImaging() {
 
 # Different targets for windows
   case `uname`-$CC in
-    CYGWIN*-cl)
+    CYGWIN*-cl | CYGWIN*-*/cl)
       IMAGING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       IMAGING_ENV="$DISTUTILS_ENV"
       ;;
-    CYGWIN*-mingw*)
+    CYGWIN*-mingw* | CYGWIN*-*/mingw* )
 # Have to install with build to get both prefix and compiler correct.
       IMAGING_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
@@ -75,7 +75,6 @@ buildImaging() {
       trimvar IMAGING_ENV ' '
       ;;
     Linux-*)
-      # IMAGING_ARGS=
       local IMAGING_LIBPATH=$LD_LIBRARY_PATH
       if test -n "$PYC_LD_LIBRARY_PATH"; then
         IMAGING_LIBPATH=$PYC_LD_LIBRARY_PATH:$IMAGING_LIBPATH
@@ -84,6 +83,9 @@ buildImaging() {
       if test -n "$IMAGING_LIBPATH"; then
         IMAGING_ENV="LDFLAGS='-Wl,-rpath,$IMAGING_LIBPATH -L$IMAGING_LIBPATH'"
       fi
+      ;;
+    *)
+      echo "Imaging args not being set."
       ;;
   esac
 

@@ -45,14 +45,15 @@ buildCython() {
   cmd="rmall ${PYTHON_SITEPKGSDIR}/Cython*"
   techo "$cmd"
   $cmd
+  CYTHON_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numexpr.filelist'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $CYTHON_INSTALL_ARGS $BDIST_WININST_ARG"
       CYTHON_ENV_USED="$DISTUTILS_ENV"
       ;;
     CYGWIN*-mingw*)
 # Have to install with build to get both prefix and compiler correct.
-      CYTHON_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      CYTHON_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $CYTHON_INSTALL_ARGS $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       CYTHON_ENV_USED="PATH=$mingwdir:'$PATH'"
@@ -87,11 +88,11 @@ installCython() {
     CYGWIN*)
 # bilderDuInstall should not run python setup.py install, as this
 # will rebuild with cl
-      bilderDuInstall -n Cython "-" "$CYTHON_ENV_USED"
+      bilderDuInstall -n Cython "$CYTHON_ARGS" "$CYTHON_ENV_USED"
       res=$?
       ;;
     *)
-      bilderDuInstall Cython "-" "$CYTHON_ENV_USED"
+      bilderDuInstall Cython "$CYTHON_INSTALL_ARGS" "$CYTHON_ENV_USED"
       res=$?
       ;;
   esac

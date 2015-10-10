@@ -19,7 +19,11 @@ setMatplotlibTriggerVars() {
   MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.4.3"}
   MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.4.3"}
   MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
-  MATPLOTLIB_DEPS=pyparsing,numpy,Python,libpng,freetype
+# Dependencies listed in matplotlib-1.4.3-py2.7.egg-info/requires.txt
+  MATPLOTLIB_DEPS=numpy,libpng,freetype,Python
+  MATPLOTLIB_DEPS=python_dateutil,mock,nose,pyparsing,pytz,six,$MATPLOTLIB_DEPS
+# Additional seen to be installed
+  MATPLOTLIB_DEPS=markupsafe,pbr,$MATPLOTLIB_DEPS
   case `uname` in
     Darwin) ;;
     *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
