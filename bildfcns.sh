@@ -6426,7 +6426,7 @@ bilderInstall() {
 # no make install performed.
       cmd="\cp -R $builddir $instdirval/$instsubdirval"
     else
-      cmd="$bildermake $4 -d $insttarg"
+      cmd="$bildermake $4 $insttarg"
     fi
 
 # Add environment
