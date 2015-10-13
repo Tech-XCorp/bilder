@@ -4892,7 +4892,7 @@ bilderConfig() {
   eval "$finalcmd" 1>>$configure_txt 2>&1
   RESULT=$?
 
-# Save the configuration command
+# Save the configuration result
   if test $RESULT = 0; then
     techo "Package $1-$verval-$2 configured at `date +%F-%T`." | tee -a $configure_txt
     echo SUCCESS >>$configure_txt
