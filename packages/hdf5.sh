@@ -229,7 +229,7 @@ fixHdf5StaticLibs() {
         ;;
     esac
     if test "$i" != "$newname"; then
-      cmd="mv $i $newname"
+      cmd="cp $i $newname"
       techo "$cmd"
       $cmd
     else
