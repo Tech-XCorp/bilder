@@ -6411,14 +6411,17 @@ bilderInstall() {
     local instflags=$4
     if $debuginst; then
       case $bildermake in
-        make) instflags="$instflags -d";;
+        make)
+          instflags="$instflags -d VERBOSE=1"
+          # envvars="$envvars VERBOSE=1"
+          ;;
       esac
     fi
     techo "Package $1 was configured with $cmval."
     if test "$cmval" = cmake; then
       envvars="$envvars CMAKE_INSTALL_ALWAYS=1"
-      trimvar envvars ' '
     fi
+    trimvar envvars ' '
 
 # Determine the installation target.  Defined, then to defaults per system.
     local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
