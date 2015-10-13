@@ -6168,6 +6168,7 @@ recordInstallation() {
 # -a accept build was correct
 # -c directly copy build dir to install dir
 # -f force the installation
+# -d run make in debug mode
 # -g set the group to this after installing on the hosts matching what is
 #    specified by -h
 # -h list of hosts or domains, which if matched, get the group set
@@ -6190,6 +6191,7 @@ bilderInstall() {
   local bildermake=
   local builddir=
   local cpdir=false
+  local debuginst=false
   local doLinks=true
   local forceinstall=$FORCE_INSTALL
   local grpnm=
@@ -6204,11 +6206,12 @@ bilderInstall() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ab:cfg:h:Lm:np:rs:tT:z" arg; do
+  while getopts "ab:cdfg:h:Lm:np:rs:tT:z" arg; do
     case $arg in
       a) acceptbuild=true;;
       b) builddir="$OPTARG";;
       c) cpdir=true;;
+      d) debuginst=true;;
       f) forceinstall=true;;
       g) grpnm="$OPTARG";;
       h) hostids="$OPTARG";;
@@ -6405,6 +6408,12 @@ bilderInstall() {
     local cmvar=`genbashvar $1`_CONFIG_METHOD
     local cmval=`deref $cmvar`
     bildermake=${bildermake:-"`getMaker $cmval`"}
+    local instflags=$4
+    if $debuginst; then
+      case $bildermake in
+        make) instflags="$instflags -d";;
+      esac
+    fi
     techo "Package $1 was configured with $cmval."
     if test "$cmval" = cmake; then
       envvars="$envvars CMAKE_INSTALL_ALWAYS=1"
@@ -6426,7 +6435,7 @@ bilderInstall() {
 # no make install performed.
       cmd="\cp -R $builddir $instdirval/$instsubdirval"
     else
-      cmd="$bildermake $4 $insttarg"
+      cmd="$bildermake $instflags $insttarg"
     fi
 
 # Add environment
