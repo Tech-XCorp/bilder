@@ -6796,14 +6796,17 @@ bilderInstallAll() {
 # Args:
 # 1: Name of tested package, e.g., vorpal
 # 2: Name of tests in methods, e.g., VpTests
-# 3: Args to used when calling bilderInstall
+# 3: (optional) name to link installation subdir to
+# 4: (optional) args for make install
+# 5: (optional) environment variables
 #
 # Named args (must come first):
+# -a args to used when calling bilderInstall
 # -b whether there are build tests
 # -i ignore the tests of builds when calling install, comma-separated list
+# -I ignore test results--passed on to shouldInstallTestedPkg()
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -t Install named test pkg
-# -I ignore test results--passed on to shouldInstallTestedPkg()
 #
 # Return true if should be installed
 #
@@ -6819,24 +6822,25 @@ bilderInstallTestedPkg() {
   local removePkg=false
   local removearg=
   local installNamedPkg=false
+  local installargs=
   local ignoreTestResultsArg=
 
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bi:n:tI" arg; do
+  while getopts "a:bi:n:tI" arg; do
     case $arg in
+      a) installargs="$OPTARG";;
       b) hasbuildtests=true;;
-      i) ignorebuilds=$ignorebuilds,$OPTARG;;
+      I) ignoreTestResultsArg=-I;;
+      i) ignorebuilds="$ignorebuilds,$OPTARG";;
       n) tstsnm="$OPTARG";;
       t) installNamedPkg=true;;
-      I) ignoreTestResultsArg=-I;;
     esac
   done
   shift $(($OPTIND - 1))
 
 # Args for calling install method if tests pass
-  local installargs="$3"
 
 # Determine args for shouldInstallTestedPkg
   local sitpargs=
@@ -6870,7 +6874,7 @@ bilderInstallTestedPkg() {
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
       for bld in $bldsval; do
-        bilderInstall $installargs $1 $bld
+        bilderInstall $installargs $1 $bld $3 $4 $5
       done
       if test -n "$tstsnm"; then
         if $installNamedPkg; then

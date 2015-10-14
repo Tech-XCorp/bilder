@@ -92,6 +92,6 @@ testTeaspink() {
 ######################################################################
 
 installTeaspink() {
-  bilderInstallTestedPkg teaspink TsTests "-r -p open"
+  bilderInstallTestedPkg -a "-r -p open" teaspink TsTests
 }
 
