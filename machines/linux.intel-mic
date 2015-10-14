@@ -133,6 +133,23 @@ fi
 # SYSTEM_LAPACK_BEN_LIB=${SYSTEM_LAPACK_BEN_LIB:-""}
 
 # IO directories:
+# DM 10/14/2015:
+#   As of version 1.8.13 hdf5 fails to build for the phi.  This is
+# because hdf5 builds several executables which are then run to generate
+# more source files to get sizes of various types.  This step fails when
+# the executables, which are cross compiled for the phi, are executed on
+# the host.
+#   A nasty workaround is to manually copy the following files from a
+# non-phi hdf5 build directory:
+#   H5lib_settings.c .
+#   H5Tinit.c .
+#   fortran/H5fortran_detect.f90
+#   fortran/H5fort_type_defines.h
+#   fortran/H5f90i_gen.h
+#   fortran/H5fortran_types.f90
+# I don't know how to automate this procedure.  In most cases one should
+# link against system hdf5 anyways, so perhaps there is not too much
+# value in automating this.
 # SYSTEM_HDF5_SER_DIR=${SYSTEM_HDF5_SER_DIR:-""}
 # SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-""}
 # SYSTEM_NETCDF_SER_DIR=${SYSTEM_NETCDF_SER_DIR:-""}
