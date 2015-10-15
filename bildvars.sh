@@ -780,11 +780,5 @@ env >$BUILD_DIR/bilderenv.txt
 
 # Various cleanups
 
-# Remove incorrect installations
-# if isCcPyc; then
-  # rm -rf $BLDR_INSTALL_DIR/*-pycsh $BLDR_INSTALL_DIR/*-pycsh.lnk  # Should be sersh
-  # rm -rf $CONTRIB_DIR/*-pycsh $CONTRIB_DIR/*-pycsh.lnk  # Should be sersh
-# fi
-
 # techo "WARNING: [bildvars.sh] Quitting at end of bildvars.sh."; exit
 
