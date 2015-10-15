@@ -29,21 +29,22 @@ Options:
   -h .......... Print this help and exit
   -t <name>.... Package to use at the target in the bilder invocation
 Required environment variables
-  JENKINS_URL ... The URL for job submission
-  JENKINS_USER .. user:password for jenkins submission
+  JENKINS_URL ..... The URL for job submission
+  JENKINS_USER .... user:password for jenkins submission
+  JENKINS_DEFTARG . default target for jenkins submission
 EOF
   exit $1
 }
 
 # Make sure basic parameters are set
-if test -z "$JENKINS_URL"; then
-  echo "JENKINS_URL not set.  Cannot continue.
-  usage 1
-fi
-if test -z "$JENKINS_USER"; then
-  echo "JENKINS_USER not set.  Cannot continue.
-  usage 1
-fi
+for sfx in URL USER DEFTARG; do
+  var=JENKINS_${sfx}
+  val=${!var}
+  if test -z "$val"; then
+    echo "$var not set.  Cannot continue."
+    usage 1
+  fi
+done
 
 # First check that we are in a branch of the project repo.
 # Otherwise,
@@ -59,7 +60,7 @@ fi
 # Default values
 DEBUG=false
 JENKINS_BRANCH="$jbranch"
-JENKINS_TARGET=""
+JENKINS_TARGET="$JENKINS_DEFTARG"
 JENKINS_EMAIL="qar@txcorp.com"
 
 while getopts "b:de:ht:" arg; do
