@@ -259,7 +259,8 @@ techo "umask = `umask`"
 
 #
 # All paths other than PATH that might get affected.
-BILDER_ADDL_PATHS="LD_LIBRARY_PATH PYTHONPATH SIDL_DLL_PATH POLYSWIFT_LOC POLYSWIFT_PYTHON DYLD_LIBRARY_PATH TXPP_PATH"
+# Project specific paths should be put in the mk*all.sh file.
+BILDER_ADDL_PATHS="$BILDER_ADDL_PATHS LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH PKG_CONFIG_PATH"
 for i in PATH $BILDER_ADDL_PATHS; do
   unset BILDER_ADDED_${i}
 done
