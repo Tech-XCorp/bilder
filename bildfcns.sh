@@ -6427,7 +6427,8 @@ bilderInstall() {
     local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
     techo -2 "Before parsing $insttargvar, insttarg = $insttarg."
     local insttargval=`deref $insttargvar`
-    insttarg=${insttarg:-"$insttargval"}
+    # insttarg=${insttarg:-"$insttargval"}
+    insttarg=${insttargval:-"$insttarg"}
     techo -2 "After parsing $insttargvar, insttarg = $insttarg."
     insttarg=${insttarg:-"install"}
     techo -2 "Finally, insttarg = $insttarg."
