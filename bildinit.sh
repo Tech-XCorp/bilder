@@ -185,47 +185,11 @@ techo "BILDER_PROJECT = $BILDER_PROJECT."
 export BILDER_PROJECT
 PROJECT_BRANCH=`echo $PROJECT_URL | sed -e "s?^.*/$BILDER_PROJECT/??"`
 
-# Clean out old build files
-if false; then
-techo "Moving old bilder configure/build/... files."
-for i in svnup preconfig config depend distclean build install; do
-  cmd="find $BUILD_DIR -maxdepth 3 -name '*-$i.txt' -exec mv '{}' '{}'.bak \;"
-  techo -2 "$cmd"
-  eval "$cmd"
-done
-# JRC: not moving aside old .sh files.
-for i in preconfig config build install; do
-  cmd="find $BUILD_DIR -maxdepth 3 -name '*${i}.sh' -exec mv '{}' '{}'.bak \;"
-  techo -2 "$cmd"
-  eval "$cmd"
-done
-fi
-
-# Move aside test logs
-techo "Moving old test logs."
-testdirs=`\ls -d $PROJECT_DIR/*tests 2>/dev/null`
-if test -n "$testdirs"; then
-  for i in $testdirs; do
-    if test -d $i; then
-      cmd="find $i -name '*-txtest.log' -exec mv '{}' '{}'.bak \;"
-      techo -2 "$cmd"
-      eval "$cmd"
-    fi
-  done
-fi
-# echo testdirs moved.
-
-# Move log files
-techo "Moving old bilder log files."
-for i in summary patch; do
-  eval ${i}files=`(cd $BUILD_DIR; \ls *-${i}.txt 2>/dev/null)`
-  files=`deref ${i}files`
-  if test -n "$files"; then
-    for f in $files; do
-      (cd $BUILD_DIR; mv $f ${f}.bak)
-    done
-  fi
-done
+# Clean out artifacts
+cmd="(cd $PROJECT_DIR; $PROJECT_DIR/bilder/jenkins/jenkinsclean.sh)"
+echo "$cmd"
+eval "$cmd"
+exit
 
 # Get the packages repos
 getPkgRepos
