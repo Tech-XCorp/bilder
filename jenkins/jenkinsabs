@@ -63,8 +63,8 @@ cd $workdir
 # Echo a statement to the log and stdout
 #
 lecho() {
-  echo "$1" >> ${workdir}/jenkinsabs.log
-  echo "  jenkinsabs: $1"
+  echo "$@" >> ${workdir}/jenkinsabs.log
+  echo "  jenkinsabs: $@"
 }
 
 #
@@ -200,17 +200,17 @@ for absdir in $absdirs; do
     fi
     numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
     lecho "$numbuilds build directory labels found."
-    numlines=`expr $numhosts \* $numbuilds`
-    lecho "$numlines lines to keep from abstracts.txt file."
 
 # Get the last distinct builds of the distinct hosts
     abs2get=
     for h in $bilderhosts; do
-      abs2get="$abs2get "`grep $h abstracts.txt | tail -1`
+      for b in $bilderbuilds; do
+        abs2get="$abs2get "`grep ${h}_${b} abstracts.txt | tail -1`
+      done
     done
     rm abstracts.txt
-    lecho "Will get"
-    echo $abs2get
+    lecho "Will get the following abstracts:"
+    lecho $abs2get
 
 # Get the project email
     if test -n "$EMAIL"; then
