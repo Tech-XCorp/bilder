@@ -45,6 +45,10 @@ for sfx in URL USER DEFTARG; do
     usage 1
   fi
 done
+if ! which curl 1>/dev/null 2>&1 </dev/null; then
+  echo "curl not found.  Cannot continue."
+  usage 1
+fi
 
 # First check that we are in a branch of the project repo.
 # Otherwise,

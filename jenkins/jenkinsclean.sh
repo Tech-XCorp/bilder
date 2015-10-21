@@ -11,6 +11,6 @@ echo "Removing artifacts, $rmartifacts in $PWD."
 bashartifacts=`echo $rmartifacts | sed 's/,/ /g'`
 cmd="rm -f $bashartifacts"
 echo "$cmd"
-echo "Not executing."
-# eval "$cmd"
+# echo "Not executing."
+eval "$cmd"
 

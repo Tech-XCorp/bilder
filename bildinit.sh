@@ -189,7 +189,6 @@ PROJECT_BRANCH=`echo $PROJECT_URL | sed -e "s?^.*/$BILDER_PROJECT/??"`
 cmd="(cd $PROJECT_DIR; $PROJECT_DIR/bilder/jenkins/jenkinsclean.sh)"
 echo "$cmd"
 eval "$cmd"
-exit
 
 # Get the packages repos
 getPkgRepos
