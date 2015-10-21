@@ -78,6 +78,10 @@ while getopts "b:de:ht:" arg; do
   esac
 done
 shift $(($OPTIND - 1))
+if test -n "$1"; then
+  echo "$1 not understood."
+  usage 1
+fi
 
 # Error checking
 if test -z "$JENKINS_BRANCH"; then
