@@ -29,34 +29,25 @@ ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++
 ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++ >> jenkinsbild.log
 
 REM JOB_NAME contains <JOB>/n=<NODE>
+set JOB_LINK=
 if defined JOB_NAME (
   for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK=%%A
-  echo jenkinsbild.bat: JOB Part of JOB_NAME=%JOB_LINK%
-  echo jenkinsbild.bat: JOB Part of JOB_NAME=%JOB_LINK% >> jenkinsbild.log
-) else (
-  set JOB_LINK=
 )
+
+REM Declare vars outside of if parens so they have current scope
+set BILDER_WSPATH=%CD%
+set drive=%cd:~0,2%
 
 REM If Jenkins define where to link job
 if defined JOB_LINK (
-  for %%A in ("%CD%") do set drive=%%~dA
   set JOB_LINK=%drive%\%JOB_LINK%
-  echo jenkinsbild.bat: Adding drive letter... JOB_LINK=%JOB_LINK%
-  echo jenkinsbild.bat: Adding drive letter... JOB_LINK=%JOB_LINK% >> jenkinsbild.log
+  echo jenkinsbild.bat: Added drive letter.
 REM Jenkins workspace variable has forward slashes, but
 REM we need a windows path, so we convert
   set BILDER_WSPATH=%WORKSPACE%
   set BILDER_WSPATH=%BILDER_WSPATH:/=\%
-) else (
-  set BILDER_WSPATH=%CD%
 )
-echo BILDER_WSPATH = %BILDER_WSPATH%
-
-REM Jenkins xshell converts forward slashes in arguments to back slashes,
-REM but we need forward slashes so undo
-set BILDER_ARGS=%*
-set BILDER_ARGS=%BILDER_ARGS:\=/%
-ECHO jenkinsbild.bat: BILDER_ARGS = %BILDER_ARGS%.
+echo jenkinsbild.bat: JOB_LINK=%JOB_LINK%
 
 REM If workspace path doesn't contain drive letter
 REM then we add the current drive letter to the path.
@@ -93,6 +84,12 @@ if defined JOB_LINK (
 
 ECHO jenkinsbild.bat: Working in %CD%.
 ECHO jenkinsbild.bat: Working in %CD%. >> jenkinsbild.log
+
+REM Jenkins xshell converts forward slashes in arguments to back slashes,
+REM but we need forward slashes so undo
+set BILDER_ARGS=%*
+set BILDER_ARGS=%BILDER_ARGS:\=/%
+ECHO jenkinsbild.bat: BILDER_ARGS = %BILDER_ARGS%.
 
 REM Find cygwinbasedir
 set CYGWINBASEDIR=C:\cygwin64
