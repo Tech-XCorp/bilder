@@ -28,7 +28,7 @@ ECHO jenkinsbild.bat: WORKSPACE=%WORKSPACE% >> jenkinsbild.log
 ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++
 ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++ >> jenkinsbild.log
 
-REM JOB_NAME contains <JOB>\<NODES>=<NODE>
+REM JOB_NAME contains <JOB>/n=<NODE>
 if defined JOB_NAME (
   for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK=%%A
   echo jenkinsbild.bat: JOB Part of JOB_NAME=%JOB_LINK%
@@ -46,11 +46,11 @@ if defined JOB_LINK (
 REM Jenkins workspace variable has forward slashes, but
 REM we need a windows path, so we convert
   set BILDER_WSPATH=%WORKSPACE%
-  echo BILDER_WSPATH = %BILDER_WSPATH%
   set BILDER_WSPATH=%BILDER_WSPATH:/=\%
 ) else (
   set BILDER_WSPATH=%CD%
 )
+echo BILDER_WSPATH = %BILDER_WSPATH%
 
 REM Jenkins xshell converts forward slashes in arguments to back slashes,
 REM but we need forward slashes so undo
