@@ -10,7 +10,7 @@
 #    {"parameter": [
 #       {"name": "jenkinsBranch", "value": "test-branch"},
 #       {"name": "jenkinsTarget", "value": ""},
-#       {"name": "JenkinsEmail", "value": ""}
+#       {"name": "jenkinsEmail", "value": ""}
 #    ]}
 #
 # The defaults are given is the above example.
