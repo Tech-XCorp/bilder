@@ -175,7 +175,7 @@ for absdir in $absdirs; do
 # Do find to get abstracts in last number of hours.
 # This find syntax not valid on Darwin.
   cmd="$cmdprefix find $topdir/${absdir} -type f -cmin -${MINUTES}"
-  lecho "Running command: $cmd"
+#  lecho "Running command: $cmd"
 # Sort by date of abs, so if there are multiple ones we only get the
 # last one, which will be the freshest.
   $cmd | sed -e "s%/.*/%%" | sort -t_ -k 3 > abstracts.txt
@@ -183,34 +183,51 @@ for absdir in $absdirs; do
   if test -z "$absinfile"; then
     lecho "No abstracts found for the last $HOURS hours."
   else
-    lecho "Found abstracts.txt with contents:"
-    lecho $absinfile
+    lecho "Found the following abstracts that are within $HOURS hours:"
+    absinlist=`echo $absinfile | sed -e 's@\n@ @g'` 
+    for ab in $absinlist; do
+      lecho "    $ab"
+    done
     bilderhosts=`sed -e 's/_.*$//' abstracts.txt | sort | uniq | tr '\n' ' '`
-    lecho "bilderhosts = $bilderhosts."
     numhosts=`echo $bilderhosts | wc -w | sed 's/^ *//'`
-    lecho "$numhosts unique hosts."
+    lecho "Found $numhosts unique hosts: $bilderhosts"
     firsthost=`echo $bilderhosts | sed 's/ .*$//'`
-    lecho "firsthost = $firsthost."
     if test -n "$firsthost"; then
       bilderbuilds=`sed -e "s/^[^_]*_//" -e 's/_.*$//' <abstracts.txt | sort | uniq | tr '\n' ' '`
-      lecho "Builds directory labels found were: $bilderbuilds."
+      numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
+      lecho "Found $numbuilds builds directory labels: $bilderbuilds."
     else
       lecho "ERROR: No hosts found for $absdir directory. Setting return result to 1."
       res=1
     fi
-    numbuilds=`echo $bilderbuilds | wc -w | sed 's/^ *//'`
-    lecho "$numbuilds build directory labels found."
 
 # Get the last distinct builds of the distinct hosts
+# Using tail -1 to take the last distinct.
     abs2get=
     for h in $bilderhosts; do
       for b in $bilderbuilds; do
-        abs2get="$abs2get "`grep ${h}_${b} abstracts.txt | tail -1`
+        abs=`grep ${h}_${b}_ abstracts.txt | tail -1`
+        if test -n "$abs"; then
+          abs2get="$abs2get $abs"
+        fi
       done
     done
-    rm abstracts.txt
-    lecho "Will get the following abstracts:"
-    lecho $abs2get
+    lecho "Taking only the last distinct host-build abstracts:"
+    for ab in $abs2get; do
+      lecho "    $ab"
+    done
+
+# Warn if abstracts.txt changes from previous day
+    warnmsg=""   
+    if test -f abstracts.previous.${absdir}; then
+      numLinesNow=`cat abstracts.txt | wc -l`
+      numLinesPrevious=`cat abstracts.previous.$absdir | wc -l`
+      if test "$numLinesNow" != "$numLinesPrevious"; then
+        warnmsg="NUMBER OF ABSTRACTS CHANGES: there are $numLinesNow, but previously were $numLinesPrevious." 
+      fi
+    fi  
+    mv abstracts.txt abstracts.previous.$absdir
+
 
 # Get the project email
     if test -n "$EMAIL"; then
@@ -235,6 +252,11 @@ for absdir in $absdirs; do
     echo "Subject: $datestamp $absdir abstracts from $topdirsubj on $ABSMAILHOST" >>allabs-${absdir}.html
     echo "Content-Type: text/html; charset=UTF-8" >> allabs-${absdir}.html
     echo "<html>" >>allabs-${absdir}.html
+    if test -n "$warnmsg"; then
+      echo "<h2><font style=color:RED;>${warnmsg}</font></h2>" >>allabs-${absdir}.html
+    else
+      echo "<h2><font style=color:BLACK;>Number of abstracts same as previous.</font></h2>" >>allabs-${absdir}.html
+    fi
     if test -n "$abs2get"; then
       for i in $abs2get; do
         if test -n "${ABSTRACTHOST}"; then
@@ -242,13 +264,8 @@ for absdir in $absdirs; do
         else
           cmd="cp ${topdir}/$absdir/$i $i"
         fi
-        lecho "Adding $i to email."
         $cmd
-        if grep -iq fail $i; then
-          echo "FAILURES FOUND IN ${i}."
-        fi
         cat $i >>allabs-${absdir}.html
-        # rm tempabs.html
         echo '<br>' >>allabs-${absdir}.html
       done
     else
