@@ -8,9 +8,9 @@
 # JSON to define parameters. The JSON currently can set 3 parameters:
 #
 #    {"parameter": [
-#       {"name": "jenkinsBranch", "value": "test-branch"},
-#       {"name": "jenkinsTarget", "value": ""},
-#       {"name": "jenkinsEmail", "value": ""}
+#       {"name": "${JENKINS_PREFIX}Branch", "value": "test-branch"},
+#       {"name": "${JENKINS_PREFIX}Target", "value": ""},
+#       {"name": "${JENKINS_PREFIX}Email", "value": ""}
 #    ]}
 #
 # The defaults are given is the above example.
@@ -32,6 +32,8 @@ Required environment variables
   JENKINS_URL ..... The URL for job submission
   JENKINS_USER .... user:password for jenkins submission
   JENKINS_DEFTARG . default target for jenkins submission
+Optional environment variables
+  JENKINS_PREFIX .. The prefix for the variables for jenkins job submission.
 EOF
   exit $1
 }
@@ -95,10 +97,10 @@ echo "[$myname]    server = $JENKINS_URL"
 echo "[$myname]    branch = $JENKINS_BRANCH"
 echo "[$myname]    target = $JENKINS_TARGET"
 echo "[$myname]    email  = $JENKINS_EMAIL"
+echo "[$myname]    prefix = $JENKINS_PREFIX"
 # Determine the command
-pfx=vpall
-# pfx=jenkins
-json="{\"parameter\": [{\"name\": \"${pfx}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${pfx}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${pfx}Email\", \"value\": \"$JENKINS_EMAIL\"}]}"
+JENKINS_PREFIX=${JENKINS_PREFIX:-"vpall"}
+json="{\"parameter\": [{\"name\": \"${JENKINS_PREFIX}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${JENKINS_PREFIX}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${JENKINS_PREFIX}Email\", \"value\": \"$JENKINS_EMAIL\"}]}"
 cmd="curl -F json='$json' -u $JENKINS_USER $JENKINS_URL"
 echo "[$myname]    command = $cmd"
 # Ask whether to submit
