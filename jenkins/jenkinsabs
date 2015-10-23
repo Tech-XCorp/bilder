@@ -204,9 +204,28 @@ for absdir in $absdirs; do
 # Get the last distinct builds of the distinct hosts
 # Using tail -1 to take the last distinct.
     abs2get=
+    warnmsg=""   
+    notemsg=""   
     for h in $bilderhosts; do
       for b in $bilderbuilds; do
-        abs=`grep ${h}_${b}_ abstracts.txt | tail -1`
+        absNoDate=${h}_${b}
+        abs=`grep ${absNoDate}_ abstracts.txt | tail -1`
+        expAbs=`grep ${absNoDate}_ expected.$absdir | tail -1`
+# Warn if abstracts.txt changes from expected
+        if test -n "$expAbs"; then
+          if test -z "$abs"; then
+            #abstract in expected and not currently available
+            #could be caused by many things including intentional removal of abstract
+            warnmsg="$warnmsg WARNING: Abstract $absNoDate missing <br>"
+          fi
+        else
+          if test -n "$abs"; then
+            #abstract currently available but not expected
+            #could be caused by bug creating extra abstracts or new abstracts intentionally generated
+            notemsg="$notemsg $absNoDate was not an expected abstract."
+            notemsg="$notemsg <br> Add $absNoDate to jobs/nodes/master/bilder/jenkins/expected.$absdir on jenkins server if $absNoDate is expected. <br>"
+          fi
+        fi
         if test -n "$abs"; then
           abs2get="$abs2get $abs"
         fi
@@ -217,16 +236,15 @@ for absdir in $absdirs; do
       lecho "    $ab"
     done
 
-# Warn if abstracts.txt changes from previous day
-    warnmsg=""   
-    if test -f abstracts.previous.${absdir}; then
-      numLinesNow=`cat abstracts.txt | wc -l`
-      numLinesPrevious=`cat abstracts.previous.$absdir | wc -l`
-      if test "$numLinesNow" != "$numLinesPrevious"; then
-        warnmsg="NUMBER OF ABSTRACTS CHANGES: there are $numLinesNow, but previously were $numLinesPrevious." 
-      fi
-    fi  
-    mv abstracts.txt abstracts.previous.$absdir
+    
+#    if test -f abstracts.previous.${absdir}; then
+#      numLinesNow=`cat abstracts.txt | wc -l`
+#      numLinesPrevious=`cat abstracts.previous.$absdir | wc -l`
+#      if test "$numLinesNow" != "$numLinesPrevious"; then
+#        warnmsg="NUMBER OF ABSTRACTS CHANGES: there are $numLinesNow, but previously were $numLinesPrevious." 
+#      fi
+#    fi  
+#    mv abstracts.txt expected.previous.$absdir
 
 
 # Get the project email
@@ -255,7 +273,9 @@ for absdir in $absdirs; do
     if test -n "$warnmsg"; then
       echo "<h2><font style=color:RED;>${warnmsg}</font></h2>" >>allabs-${absdir}.html
     else
-      echo "<h2><font style=color:BLACK;>Number of abstracts same as previous.</font></h2>" >>allabs-${absdir}.html
+      if test -n "$notemsg"; then
+        echo "$notemsg <br>" >>allabs-${absdir}.html
+      fi
     fi
     if test -n "$abs2get"; then
       for i in $abs2get; do
@@ -285,7 +305,8 @@ for absdir in $absdirs; do
 # Assuming sendmail exists.
       SENDMAIL=`env PATH="$PATH":/usr/sbin:/usr/lib which sendmail 2>/dev/null`
       if test -n "$projemail" -a -n "$SENDMAIL"; then
-        cmd="$SENDMAIL -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
+        #cmd="$SENDMAIL -f ${absdir}-abstracts@$ABSMAILHOST -t $projemail <allabs-${absdir}.html"
+        cmd="$SENDMAIL -f mrctest-abstracts@$ABSMAILHOST -t  <allabs-${absdir}.html"
         lecho "$cmd"
         eval "$cmd"
       fi
