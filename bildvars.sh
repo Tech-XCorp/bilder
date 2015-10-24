@@ -251,7 +251,7 @@ case `uname` in
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}
     SHOBJEXT=.so
     SHOBJFLAGS=${SHOBJFLAGS:-"-shared"}
-    warnMissingPkgs
+    # warnMissingLinuxPkgs # This is the responsibility of packages
     ;;
 
 esac

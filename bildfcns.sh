@@ -1894,15 +1894,15 @@ shouldInstall() {
   techo -2  "Checking for installation of all builds '$builds' of $1."
   if areAllInstalled -i $instdirs $1 $builds; then
     if test -n "$builds"; then
-      techo "Verified that all builds of $1 are installed."
+      techo "Verified that builds, {$builds}, of $1 are installed."
     else
       techo "Package $1 is installed."
     fi
-    techo "Not building ${proj}."
+    techo "Not building builds, {$builds}, of ${proj}."
     return 1      # false
   fi
   if test -n "$builds"; then
-    techo "One or more of builds of $1 needs (re)installation. Rebuilding."
+    techo "One or more of the builds, {$builds}, of $1 needs (re)installation. Rebuilding."
   else
     techo "Package $1 is not installed. Rebuilding."
   fi
@@ -1911,9 +1911,9 @@ shouldInstall() {
 }
 
 #
-# Warn for absence of needed libraries
+# Warn for absence of needed Linux libraries
 #
-warnMissingPkgs() {
+warnMissingLinuxPkgs() {
 
 # Start with png and freetype
   local dirs="/usr/include $CONTRIB_DIR/include"
