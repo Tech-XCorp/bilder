@@ -4889,7 +4889,7 @@ bilderConfig() {
   local buildscript=$FQMAILHOST-$1-$2-build.sh
   touch $builddir/$buildscript
 # Execute the command
-  eval "$finalcmd" 1>>$configure_txt 2>&1
+  eval "$finalcmd" | tr -d '\r' 1>>$configure_txt 2>&1
   RESULT=$?
 
 # Save the configuration result
@@ -5110,7 +5110,7 @@ _
   techo "$buildscript" | tee -a $build_txt
   # cat $buildscript | tee -a $build_txt | tee -a $LOGFILE
 # JRC: echo comes from script
-  ./$buildscript >>$build_txt 2>&1 &
+  ./$buildscript | tr -d '\r' >>$build_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
     techo "WARNING: [$FUNCNAME] pid not known."
@@ -5284,7 +5284,7 @@ bilderTest() {
   techo "$testscript" | tee -a $test_txt
   # cat $testscript | tee -a $test_txt | tee -a $LOGFILE
   techo "$envprefix $bildermake $testargs" | tee -a $test_txt
-  ./$testscript >>$test_txt 2>&1 &
+  ./$testscript | tr -d '\r' >>$test_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
     techo "WARNING: [$FUNCNAME] pid not known.  Something bad happened."
@@ -6473,7 +6473,7 @@ EOF
     install_txt=$FQMAILHOST-$1-$2-install.txt
     techo "Installing $1-$2 from $PWD using $installscript at `date +%F-%T`." | tee $install_txt
     techo "$installscript" | tee -a $install_txt
-    ./$installscript >>$install_txt 2>&1
+    ./$installscript | tr -d '\r' >>$install_txt 2>&1
     RESULT=$?
 
 # If installed, record
