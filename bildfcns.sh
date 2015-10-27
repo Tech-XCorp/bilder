@@ -7531,12 +7531,19 @@ EOF
             if test $numTestFailures -lt $linemax; then
               linemax=$numTestFailures
             fi
+# The check-log.txt file has more info that the check-failures list so we change
+# to grabbing the line from that file instead.
+            finallist=${builddir}/${tstlist}
+            if test "$tstlist" == "check-failures"; then
+              finallist="${builddir}/check-log.txt"
+            fi
             for ((nline=1;nline<=${linemax};nline++)); do
-              tline=`sed -n ${nline}p $builddir/${tstlist}`
+              tline=`sed -n ${nline}p ${finallist}`
               addHtmlLine 6 "${tline}" RED $ABSTRACT
             done
           fi
         done
+
       else
         addHtmlLine 4 "Failed Tests: $tfaildir" RED $ABSTRACT
       fi
