@@ -7526,8 +7526,8 @@ EOF
           if test $numTestFailures -gt 0; then
             techo "Failed tests found in $builddir/$tstlist."
             addHtmlLine 4 "Found $numTestFailures failures from $tdir/$tstlist" RED $ABSTRACT
-# Print out specific test failures; a maximum of 15 lines.
-            local linemax=15
+# Print out specific test failures; a maximum of 50 lines.
+            local linemax=50
             if test $numTestFailures -lt $linemax; then
               linemax=$numTestFailures
             fi
