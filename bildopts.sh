@@ -412,7 +412,7 @@ EOF
 
 # Set environment
   if test -n "$BILDER_ENV"; then
-    for i in `echo $BILDER_ENV | tr ',' ' '`; do
+    for i in `echo $BILDER_ENV | sed 's/,\([A-Za-z_][0-9A-Za-z_]*=\)/ \1/g'`; do
       cmd="export $i"
       techo "$cmd"
       $cmd
