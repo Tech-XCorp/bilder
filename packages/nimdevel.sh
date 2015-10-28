@@ -21,8 +21,7 @@
 ######################################################################
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
-# don't include autotools -- for testing only
-NIMDEVEL_DEPS=$MPI_BUILD,fciowrappers,superlu,cmake
+NIMDEVEL_DEPS=$MPI_BUILD,fciowrappers,superlu,cmake,autotools
 NIMDEVEL_UMASK=002
 nimversion=nimdevel
 
