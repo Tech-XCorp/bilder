@@ -89,6 +89,7 @@ export INCLUDE="$INCLUDE_;$INCLUDE"
 export LIB="$LIB_;$LIB"
 export LIBPATH="$LIBPATH_;$LIBPATH"
 
+$cmd
 
 # END KEEP THIS
 
