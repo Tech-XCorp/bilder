@@ -24,7 +24,7 @@ setOpenmpiTriggerVars() {
       *) OPENMPI_BUILDS=nodl,static,shared;;
     esac
   fi
-  OPENMPI_DEPS=libtool,automake
+  OPENMPI_DEPS=valgrind,libtool,automake
 }
 setOpenmpiTriggerVars
 
