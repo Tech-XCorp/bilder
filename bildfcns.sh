@@ -5658,29 +5658,30 @@ bilderRunTests() {
   local cmd=
   for bld in `echo $buildsval | tr ',' ' '`; do
 # Is there a problem that only some builds might be done at any run?
+# JRC: Yes.  Update to scimake to fix sersh build, so that only it is rebuilt.
     cmd="waitAction $pkgname-$bld"
     techo -2 "$cmd"
     $cmd
     res=$?
-    # techo "waitAction returned $res."
-    # DWS: Don't understand how $res ($?) could ever be empty.
-    # DWS: How could something not be built here other than if
-    # it failed to configure (in which case waitAction returns
-    # a 99). Added "(or failed to configure)" to handle case
-    # where no builds configure and we were previously trying
-    # to run tests.
-    if test -z "$res" -o "$res" = 99; then
-      if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo "$pkgname-$bld build skipped due to '-i $bld'"
-        continue
-      fi
-      techo "$pkgname-$bld failed to configure."
-      tbFailures="$tbFailures $bld"
+# DWS: Don't understand how $res ($?) could ever be empty.
+# DWS: How could something not be built here other than if
+# it failed to configure (in which case waitAction returns
+# a nonzero but not 99). Added "(or failed to configure)" to handle case
+# where no builds configure and we were previously trying to run tests.
+# JRC: waitAction should return 99 if something was not built, for whatever
+# reason.
+    if test "$res" = 99; then
+      techo "$pkgname-$bld was not built.  Not testing."
+      continue
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
       tbFailures="$tbFailures $bld"
       continue
+    elif test -z "$res"; then
+      techo "WARNING: [$FUNCNAME] waitAction returned no result."
+      tbFailures="$tbFailures $bld"
     fi
+
 # Determine whether this build is ignored
     local untestedBuildReason=
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
@@ -5689,9 +5690,8 @@ bilderRunTests() {
       untestedBuildReason="it has no per-build tests"
     elif ! $testingval; then
       untestedBuildReason="testing is turned off"
-    elif echo $tbFailures | grep -w $bld; then
-      untestedBuildReason="$bld failed to configure/build"
     fi
+    techo "Reason for ignoring build determined."
 
     if test -n "$untestedBuildReason"; then
 # Don't test if not testing or this build is ignored.
@@ -5722,11 +5722,8 @@ EOF
 # going to collect the action.  Otherwise it shows up as an incomplete
 # action upon erroring out.
         ./${sub_fname}.sh &> ${sub_fname}.txt
-        # sub_pid=$!
-        # addActionToLists $pkgname-$bld-submit $sub_pid
       fi
       continue
-    # elif $TESTING && $hasbuildtests; then
     else
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
