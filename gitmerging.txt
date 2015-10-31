@@ -54,6 +54,22 @@ Commit and push:
   git push
 
 
+REBRANCHING FROM UPSTREAM
+
+To rebranch, say, the branch dbranch=develop locally and remotely, make
+sure you are not on that branch, then delete the branch.
+
+  git branch -D $dbranch
+  git push origin --delete $dbranch
+
+Make sure you have the branch you want now to branch off of in your
+local branches list, move to that branch
+  git checkout upstream-$wbranch
+  git checkout -b $dbranch
+  git push origin $dbranch
+For versioning, you can create an annotated tag on this branch
+  git tag -a u20151031 -m "Tagging branch with date made from upstream."
+  git push --tags
 
 CREATING A BRANCH FROM AN UPSTREAM TAG FOR MODIFYING
 

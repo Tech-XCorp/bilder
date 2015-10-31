@@ -1324,17 +1324,25 @@ getVersion() {
 #     number. Depending on where you get your repository and how you have
 #     applied patches, I believe that your repo could get a different number
 #     for the same code tree or the same number for a different code tree. (SG)
-    if ! rev=`git rev-list HEAD | wc -l | tr -d ' '`; then
-      techo "Git rev-list failed.  In path? Returning."
+    # if ! rev=`git rev-list HEAD | wc -l | tr -d ' '`; then
+      # techo "Git rev-list failed.  In path? Returning."
+# New revision counts since tag
+      techo "Git describe failed.  Is git in path?  Returning."
       cd $origdir
       return 1
     fi
     branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
     if [[ "$branch" =~ "no branch" || "$branch" =~ [Dd]etached ]]; then
+# Version for tag/detached branch. Just count revisions.
       branch=`git describe --tags`
+      rev=r`git rev-list HEAD | wc -l | tr -d ' '`
+# Try this on experimental builds first, so not to break anything.
+    elif $BUILD_EXPERIMENTAL; then
+      rev=`git describe --long | sed 's/-[^-]*$//' | tr '[-/]' '.' `
+    else
+      rev=r`git rev-list HEAD | wc -l | tr -d ' '`
     fi
-    # rev=${rev}-${branch}
-    rev=${branch}.r${rev}
+    rev=${branch}.${rev}
   elif test "$repotype" == "HG"; then
     techo "Getting the current version of $1 at `date +%F-%T`."
     if ! rev=`hg id -n`; then
