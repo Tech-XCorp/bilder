@@ -1320,26 +1320,23 @@ getVersion() {
 
   elif test "$repotype" == "GIT"; then
     techo "Getting the current git branch name of $1 at `date +%F-%T`."
-# NB: For git, we are using the number of repository revisions as the version
-#     number. Depending on where you get your repository and how you have
-#     applied patches, I believe that your repo could get a different number
-#     for the same code tree or the same number for a different code tree. (SG)
-    # if ! rev=`git rev-list HEAD | wc -l | tr -d ' '`; then
-      # techo "Git rev-list failed.  In path? Returning."
-# New revision counts since tag
-      techo "Git describe failed.  Is git in path?  Returning."
+    if ! which git 1>/dev/null 2>&1; then
+      techo "Git not found.  Is git in path?  Returning."
       cd $origdir
       return 1
     fi
     branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
     if [[ "$branch" =~ "no branch" || "$branch" =~ [Dd]etached ]]; then
-# Version for tag/detached branch. Just count revisions.
+# branch for tag/detached branch is the tag.
+# rev for tag/detached branch is count of revisions.
+# Could differ for different remotes.
       branch=`git describe --tags`
       rev=r`git rev-list HEAD | wc -l | tr -d ' '`
-# Try this on experimental builds first, so not to break anything.
     elif $BUILD_EXPERIMENTAL; then
-      rev=`git describe --long | sed 's/-[^-]*$//' | tr '[-/]' '.' `
+# rev given by describe plus number of commits.
+      rev=`git describe --long | sed 's/-[^-]*$//' | tr '/-' '..' `
     else
+# Same as for detached.
       rev=r`git rev-list HEAD | wc -l | tr -d ' '`
     fi
     rev=${branch}.${rev}
