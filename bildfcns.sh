@@ -1248,19 +1248,22 @@ getRepoType() {
 #
 # Named args (must come first):
 # -l: Get the last version instead of the last changed version
+# -L: Use the long version for git repos
 #
 getVersion() {
 
 # Get options
   local lastChangedArg=-c
+  local useLongVersion=false
 
 # Parse options
 # This syntax is needed to keep parameters quoted
   set -- "$@"
   OPTIND=1
-  while getopts "l" arg; do
+  while getopts "lL" arg; do
     case "$arg" in
       l) lastChangedArg= ;;
+      L) useLongVersion=true ;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -1334,7 +1337,11 @@ getVersion() {
       rev=r`git rev-list HEAD | wc -l | tr -d ' '`
     elif $BUILD_EXPERIMENTAL; then
 # rev given by describe plus number of commits.
-      rev=`git describe --long | sed 's/-[^-]*$//' | tr '/-' '..' `
+      if $useLongVersion; then
+        rev=`git describe --long | sed 's/-[^-]*$//' | tr '/-' '..' `
+      else
+        rev=r`git rev-list HEAD | wc -l | tr -d ' '`
+      fi
     else
 # Same as for detached.
       rev=r`git rev-list HEAD | wc -l | tr -d ' '`

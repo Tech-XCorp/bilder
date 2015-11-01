@@ -40,7 +40,7 @@ buildPython() {
   local res=
   if $PYTHON_USE_REPO; then
     updateRepo python
-    getVersion python
+    getVersion -L python
 # Always install in contrib dir for consistency
     bilderPreconfig -I $CONTRIB_DIR Python
     res=$?
