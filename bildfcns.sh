@@ -3609,7 +3609,7 @@ updateRepo() {
   techo "$cmd"
   eval "$cmd"
   if ! eval "$cmd"; then
-    techo "WARNING: [$FUNCNAME] '$cmd' failed."
+    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
   fi
 
 # Determine whether changesets are available
