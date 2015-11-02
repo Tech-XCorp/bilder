@@ -100,7 +100,7 @@ case `uname` in
     LIBEXT=.lib
     unset LIBPREFIX
     techo "Getting number of cores."
-    MAKEJ_TOTAL=`wmic cpu get NumberOfCores | sed -n 2p | tr -d '\r '`
+    MAKEJ_TOTAL=${NUMBER_OF_PROCESSORS}
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
