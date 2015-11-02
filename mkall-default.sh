@@ -230,7 +230,7 @@ fi
 if test -n "$FIXED_INSTALL_SUBDIR"; then
   case `uname` in
     CYGWIN*)
-      MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"}
+      MACHINEFILE=${MACHINEFILE:-"cygwin.icl15"}
       machinesfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
       if [[ $machinesfx =~ mingw ]]; then
         machinesfx=mingw
