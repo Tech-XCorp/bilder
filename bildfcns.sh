@@ -7543,10 +7543,13 @@ EOF
 # The check-log.txt file has more info that the check-failures list so we change
 # to grabbing the line from that file instead.
             finallist=${builddir}/${tstlist}
-            if test "$tstlist" == "check-failures"; then
+            nstart=1
+            if test "$tstlist" == "check-failures.txt"; then
               finallist="${builddir}/check-log.txt"
+              nstart=2
+              linemax=`expr ${linemax} + 1`
             fi
-            for ((nline=1;nline<=${linemax};nline++)); do
+            for ((nline=${nstart};nline<=${linemax};nline++)); do
               tline=`sed -n ${nline}p ${finallist}`
               addHtmlLine 6 "${tline}" RED $ABSTRACT
             done
