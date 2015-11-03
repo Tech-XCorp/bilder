@@ -77,6 +77,19 @@ buildPython() {
       rm -rf $BUILD_DIR/Python/*
       ;;
     Linux)
+# If python has been built and installed from a different areas, one gets
+# errors like: gcc: error: binascii.c: No such file or directory
+# when compiling the modules.  It's as if the installed python has
+# its own Module dir path, and when that is not found, the code fails.
+# The fix seems to be to move aside the installed python and any link.
+      if test -e $CONTRIB_DIR/bin/python; then
+        mv $CONTRIB_DIR/bin/python $CONTRIB_DIR/bin/python.bak
+      fi
+      local pybindir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin
+      if test -e $pybindir/python; then
+        mv $pybindir/python $pybindir/python.bak
+      fi
+
 # Ensure python can find its own library and any libraries linked into contrib
       pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib -Wl,--export-dynamic"
       if cd $CONTRIB_DIR/sqlite-$FORPYTHON_SHARED_BUILD; then
@@ -129,14 +142,30 @@ testPython() {
 ######################################################################
 
 installPython() {
+  local pydir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
       Linux)
 # Fix rpath if known how
         if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
-          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/libpython${PYTHON_MAJMIN}.so
-          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib/python${PYTHON_MAJMIN}/lib-dynload
+          bilderFixRpath ${pydir}/bin/python${PYTHON_MAJMIN}
+          bilderFixRpath ${pydir}/lib/libpython${PYTHON_MAJMIN}.so
+          bilderFixRpath ${pydir}/lib/python${PYTHON_MAJMIN}/lib-dynload
+        fi
+# Remove any backups
+        rm -f $CONTRIB_DIR/bin/python.bak
+        rm -f $pybindir/python $pybindir/python.bak
+        ;;
+    esac
+  else
+    case `uname` in
+      Linux)
+# Did not install, move back old
+        if test -e $CONTRIB_DIR/bin/python.bak; then
+          mv $CONTRIB_DIR/bin/python.bak $CONTRIB_DIR/bin/python
+        fi
+        if test -e $pybindir/python.bak; then
+          mv $pybindir/python $pybindir/python.bak
         fi
         ;;
     esac
