@@ -1338,7 +1338,7 @@ getVersion() {
     elif $BUILD_EXPERIMENTAL; then
 # rev given by describe plus number of commits.
       if $useLongVersion; then
-        rev=`git describe --long | sed 's/-[^-]*$//' | tr '/-' '..' `
+        rev=`git describe --long | sed 's/-[^-]*$//' | tr '/-' '..'`
       else
         rev=r`git rev-list HEAD | wc -l | tr -d ' '`
       fi
