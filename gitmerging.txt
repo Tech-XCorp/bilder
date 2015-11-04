@@ -87,18 +87,16 @@ increments.
 
 CREATING A BRANCH FROM AN UPSTREAM TAG FOR MODIFYING
 
-Follow the branching strategy above.  Then, e.g., for OCE, you
-will have the local branch, upstream-OCE-0.17 off of which
-you can branch and tag.
+At the next opportunity, we should try to parallel the above
+strategy for when we are copying from a tag, as we do with OCE.
 
-OLD METHOD
 # Get the tag
   git fetch upstream OCE-0.17:upstream-OCE-0.17
 # Switch to it locally
   git checkout OCE-0.17
-# Create local branch from it
-  git checkout -b OCE-0.17-txc
-# Push local branch to origin to have remote repo for mods
+# Now in a detached state. Create a local branch from it.
+  git checkout -b OCE-0.17-txc # Would like not to have -txc, but that
+# Set upstream of local branch to origin and push it there.
   git push -u origin OCE-0.17-txc
 
 
