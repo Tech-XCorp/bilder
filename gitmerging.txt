@@ -41,10 +41,11 @@ Move back to develop branch
 
   git checkout $wbranch
 
-Either merge or rebase to the upstream branch
+Merge to the upstream branch
 
   git merge upstream-$wbranch
-OR
+
+(Sometimes rebase, why?)
   git rebase upstream-$wbranch
 
 
@@ -54,9 +55,17 @@ Commit and push:
   git push
 
 
-REBRANCHING FROM UPSTREAM
+RESET FROM UPSTREAM
 
-To rebranch, say, the branch dbranch=develop locally and remotely, make
+Reset when your local branch and the remote branch are in
+the same state, but yours shows lots of commit differences, and
+you would like to get rid of those, as they are just noise.
+
+E.g., continuing from above, do
+
+  git reset --hard upstream-$wbranch
+
+Another approach is to delete and recreate the branch.
 sure you are not on that branch, then delete the branch.
 
   git branch -D $dbranch
@@ -67,12 +76,22 @@ local branches list, move to that branch
   git checkout upstream-$wbranch
   git checkout -b $dbranch
   git push origin $dbranch
+
 For versioning, you can create an annotated tag on this branch
   git tag -a u20151031 -m "Tagging branch with date made from upstream."
   git push --tags
+and then
+  git describe --long | sed 's/-[^-]*$//' | tr '/-' '..'
+gives a nice version number that strictly increments as long as upstream
+increments.
 
 CREATING A BRANCH FROM AN UPSTREAM TAG FOR MODIFYING
 
+Follow the branching strategy above.  Then, e.g., for OCE, you
+will have the local branch, upstream-OCE-0.17 off of which
+you can branch and tag.
+
+OLD METHOD
 # Get the tag
   git fetch upstream OCE-0.17:upstream-OCE-0.17
 # Switch to it locally
