@@ -68,32 +68,46 @@ case $UQMAILHOST in
 
 # Use gcc 4.7 as it is compatible with the cuda 5.5 sdk
 # System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/GNU/49/mc12/lib/libsci_gnu.a
     SYSTEM_BLAS_SERSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_BLAS_PYCSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_SER_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_SERSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_PYCSH_LIB=${SYSTEM_BLAS_SER_LIB}
-    SYSTEM_BLAS_PAR_LIB=/opt/cray/libsci/default/GNU/48/interlagos/lib/libsci_gnu.a
+    SYSTEM_BLAS_PAR_LIB=/opt/cray/libsci/default/GNU/49/interlagos/lib/libsci_gnu.a
     SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_PAR_LIB}
     SYSTEM_LAPACK_PAR_LIB=${SYSTEM_BLAS_PAR_LIB}
     SYSTEM_LAPACK_BEN_LIB=${SYSTEM_BLAS_PAR_LIB}
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/48
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/48
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/49
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/49
     SYSTEM_HDF5_BEN_DIR=${SYSTEM_HDF5_PAR_DIR}
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/48
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/48
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/49
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/49
     SYSTEM_NETCDF_BEN_DIR=${SYSTEM_NETCDF_PAR_DIR}
 
-# use ben builds
+# Work around for Unicode version
+    PYTHON_PYCSH_OTHER_ARGS="--enable-static --enable-unicode=ucs4"
+
+# use system boost for boost_ben to avoid building issues with b2
+#    BOOST_BEN_DIR="/sw/xk6/boost/1.57.0/cle5.2_gnu4.8.2"
+#    BOOST_BEN_LIB="${BOOST_BEN_DIR}/libboost_math_tr1.a"
+#    BOOST_BEN_LIBDIR="${BOOST_BEN_DIR}/lib"
+#    BOOST_BEN_INCDIR="${BOOST_BEN_DIR}/include"
+#    CONFIG_BOOST_BEN_DIR_ARG="--with-boost-dir=${BOOST_BEN_DIR}"
+#    CMAKE_BOOST_BEN_DIR="${BOOST_BEN_DIR}"
+#    CMAKE_BOOST_BEN_LIBDIR="${BOOST_BEN_LIBDIR}"
+#    CMAKE_BOOST_BEN_INCDIR="${BOOST_BEN_INCDIR}"
+
+# use ben builds otherwise
     BOOST_BUILDS=${BOOST_BUILDS:-"ser,ben"}
-    SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"ben"}
+    PARMETIS_BUILDS=${SUPERLU_DIST_BUILDS:-"par"}
+    SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"par"}
     TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,ben"}
     TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,ben"}
 # JRK 12/13, Hack -- this variable does not currently get set by bilder
-    CMAKE_HDF5_BEN_DIR_ARG="-DHdf5_ROOT_DIR:PATH=${SYSTEM_HDF5_BEN_DIR}"
+    CMAKE_HDF5_BEN_DIR_ARG="-DHdf5_ROOT_DIR:PATH=${SYSTEM_HDF5_BEN_DIR} -DUSE_SHARED_LIBS:BOOL=FALSE"
     ;;
 
   copper*)
