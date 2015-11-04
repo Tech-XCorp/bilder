@@ -65,7 +65,7 @@ buildNumexpr() {
 # build and installation steps to remove old installations only if the
 # build was successful.  One must do any removal then before starting
 # the build and installation.
-    CYGWIN*-cl | CYGWIN*-*/cl | CYGWIN_NT-6.1)
+    CYGWIN*-cl | CYGWIN*-*/cl | CYGWIN*)
       NUMEXPR_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $NUMEXPR_INSTALL_ARGS $BDIST_WININST_ARG"
       NUMEXPR_ENV="$DISTUTILS_ENV"
       ;;
