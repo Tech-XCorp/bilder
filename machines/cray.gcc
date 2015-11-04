@@ -102,10 +102,11 @@ case $UQMAILHOST in
 
 # use ben builds otherwise
     BOOST_BUILDS=${BOOST_BUILDS:-"ser,ben"}
-    PARMETIS_BUILDS=${SUPERLU_DIST_BUILDS:-"par"}
+    PARMETIS_BUILDS=${PARMETIS_BUILDS:-"par"}
     SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"par"}
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,ben"}
-    TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,ben"}
+    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,ben"} #should use par
+    TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,ben"}         #should use par
+    TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser,ben"}
 # JRK 12/13, Hack -- this variable does not currently get set by bilder
     CMAKE_HDF5_BEN_DIR_ARG="-DHdf5_ROOT_DIR:PATH=${SYSTEM_HDF5_BEN_DIR} -DUSE_SHARED_LIBS:BOOL=FALSE"
     ;;
