@@ -186,9 +186,11 @@ export BILDER_PROJECT
 PROJECT_BRANCH=`echo $PROJECT_URL | sed -e "s?^.*/$BILDER_PROJECT/??"`
 
 # Clean out artifacts
-cmd="(cd $PROJECT_DIR; $PROJECT_DIR/bilder/jenkins/jenkinsclean.sh)"
-echo "$cmd"
-eval "$cmd"
+if test -n "$JENKINS_FSROOT"; then
+  cmd="(cd $PROJECT_DIR; $PROJECT_DIR/bilder/jenkins/jenkinsclean.sh)"
+  echo "$cmd"
+  eval "$cmd"
+fi
 
 # Get the packages repos
 getPkgRepos
