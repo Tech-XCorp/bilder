@@ -65,15 +65,15 @@ BILDER OPTIONS
   -L ................ Directory for logs (if different from build).
   -m <hostfile> ..... File to source for machine specific defs.
   -M ................ Maximally thread.
-  -N ................ No debug info when building repo packages via CMake.
+  -N ................ Build repo packages as Release with stripped executables.
   -o ................ Install mpi if not on cygwin (use USE_MPI for version -- openmpi-nodl is default).
   -O ................ Install optional packages = ATLAS, parallel visit, ...
   -p <path> ......... Specify a supra-search-path.
   -P ................ Do not post to depot regardless of other settings.
   -r ................ Remove other installations of a package upon successful
                         installation of that package.
-  -R ................ Build RELEASE (i.e., licensed and signed when applicable)
-                        version of executable.
+  -R ................ Build Release with executables that are stripped and are
+                        signed and licensed when applicable.
   -s ................ Rebuild packages if package script has been modified
                         since last build.
   -S ................ Build static.

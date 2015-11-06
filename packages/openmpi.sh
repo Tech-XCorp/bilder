@@ -205,10 +205,27 @@ testOpenmpi() {
 # Set umask to allow only group to use
 installOpenmpi() {
   if bilderInstallAll openmpi; then
-    (cd $CONTRIB_DIR; rmall mpi openmpi; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
 # This needed to allow overloading cores in 1.8.2
     echo "rmaps_base_oversubscribe = true" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
     echo "hwloc_base_binding_policy = core:overload-allowed" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
+    if test -h $CONTRIB_DIR/mpi; then
+      rm -f $CONTRIB_DIR/mpi
+    fi
+    if [[ "$USE_MPI" =~ openmpi ]]  && ! [[ `uname` =~ CYGWIN ]]; then
+      ln -s $CONTRIB_DIR/openmpi $CONTRIB_DIR/mpi
+    fi
+# Allow rsh use
+    OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
+    if $OPENMPI_ALLOW_RSH; then
+      case $OPENMPI_BLDRVERSION in
+        1.3* | 1.4*)
+          echo "plm_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
+          ;;
+        *)
+          echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
+          ;;
+      esac
+    fi
   fi
 }
 
