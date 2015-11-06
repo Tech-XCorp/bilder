@@ -32,7 +32,6 @@ setMpichTriggerVars
 ######################################################################
 
 findMpich() {
-# Not adding for now to not conflict with openmpi
   if [[ "$USE_MPI" =~ mpich ]] && test -d $CONTRIB_DIR/$USE_MPI/bin; then
     addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
     local mpichdir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`

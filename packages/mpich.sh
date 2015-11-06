@@ -42,6 +42,8 @@ buildMpich() {
   fi
 # Needed?
   # MPICH_ADDL_ARGS="--enable-romio --enable-smpcoll --with-device=ch3:ssm --with-pm=hydra--with-mpe"
+
+# Configure and build
   mpichmakeflags="$MPICH_MAKEJ_ARGS $mpichmakeflags"
 
 # Builds
@@ -74,27 +76,6 @@ testMpich() {
 
 # Set umask to allow only group to use
 installMpich() {
-  if bilderInstallAll mpich; then
-    if [[ "$USE_MPI" =~ mpich ]]  && ! [[ `uname` =~ CYGWIN ]]; then
-      addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
-      local mpichdir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
-      for c in MPICC MPICXX MPIFC MPIF77; do
-        case $c in
-          MPIFC) MPIFC=$mpichdir/mpif90;;
-          *) exe=`echo $c | tr '[:upper:]' '[:lower:]'`; eval $c=$mpichdir/$exe;;
-        esac
-        exe=`deref $c`
-        if ! test -x $exe; then
-          techo "WARNING: $exe not found."
-        fi
-        printvar $c
-      done
-      MPICH2_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
-      PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
-      PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
-      printvar PAR_EXTRA_LDFLAGS
-      printvar PAR_EXTRA_LT_LDFLAGS
-    fi
-  fi
+  bilderInstallAll mpich
 }
 
