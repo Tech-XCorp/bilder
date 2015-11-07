@@ -245,6 +245,10 @@ case `uname` in
         sfxorder="so a"
         ;;
     esac
+# Looks like they moved this directory in recent distros
+    if test -d /usr/lib64/pkgconfig; then
+      addtopathvar PKG_CONFIG_PATH /usr/lib64/pkgconfig
+    fi
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-shared"}
     USE_ATLAS_PYCSH=true
     READLINK=readlink
@@ -672,6 +676,7 @@ PATH="$PATHSAV"
 ######################################################################
 #
 # Determine whether to ignore cmake for some hosts.
+# Determine some cmake variables.
 #
 ######################################################################
 
@@ -687,6 +692,10 @@ else
   : # techo "PREFER_CMAKE already set to $PREFER_CMAKE."
 fi
 # techo exit; exit
+if test -n "$JENKINS_FSROOT"; then
+  CUDA_ALL_COMPUTE_CAPABILITIES=${CUDA_ALL_COMPUTE_CAPABILITIES:-"true"}
+fi
+CUDA_ALL_COMPUTE_CAPABILITIES=${CUDA_ALL_COMPUTE_CAPABILITIES:-"false"}
 
 ######################################################################
 #
@@ -754,7 +763,7 @@ USING_BUILD_CHAIN=false
 techo -2 "Trimming and writing out all variables."
 hostvars="USER BLDRHOSTID CPUINFO FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
 instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
-pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
+pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG PKG_CONFIG_PATH"
 source $BILDER_DIR/mkvars.sh
 vervars="BILDER_CHAIN GCC_VERSION GCC_MAJMIN GCC_MAJOR GCC_MINOR SVN_BLDRVERSION BLDR_SVNVERSION"
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
@@ -777,8 +786,6 @@ done
 techo "All variables written."
 
 env >$BUILD_DIR/bilderenv.txt
-
-# Various cleanups
 
 # techo "WARNING: [bildvars.sh] Quitting at end of bildvars.sh."; exit
 
