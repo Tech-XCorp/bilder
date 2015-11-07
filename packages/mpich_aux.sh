@@ -34,11 +34,11 @@ setMpichTriggerVars
 findMpich() {
   if [[ "$USE_MPI" =~ mpich ]] && test -d $CONTRIB_DIR/$USE_MPI/bin; then
     addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
-    local mpichdir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
+    local mpibindir=`(cd $CONTRIB_DIR/$USE_MPI/bin; pwd -P)`
     for c in MPICC MPICXX MPIFC MPIF77; do
       case $c in
-        MPIFC) MPIFC=$mpichdir/mpif90;;
-        *) exe=`echo $c | tr '[:upper:]' '[:lower:]'`; eval $c=$mpichdir/$exe;;
+        MPIFC) MPIFC=$mpibindir/mpif90;;
+        *) exe=`echo $c | tr '[:upper:]' '[:lower:]'`; eval $c=$mpibindir/$exe;;
       esac
       exe=`deref $c`
       if ! test -x $exe; then
@@ -46,12 +46,16 @@ findMpich() {
       fi
       printvar $c
     done
-    MPICH2_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
-    PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
-    PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
-    printvar PAR_EXTRA_LDFLAGS
-    printvar PAR_EXTRA_LT_LDFLAGS
     getCombinedCompVars
+    MPICH2_LIBDIR=`$MPICC -show | sed -e 's/^.*-L//' -e 's/ .*$//'`
+    if test `uname` = Linux; then
+      PAR_EXTRA_LDFLAGS="$PAR_EXTRA_LDFLAGS ${RPATH_FLAG}$MPICH2_LIBDIR"
+      PAR_EXTRA_LT_LDFLAGS="$PAR_EXTRA_LDFLAGS ${LT_RPATH_FLAG}$MPICH2_LIBDIR"
+      trimvar PAR_EXTRA_LDFLAGS ' '
+      trimvar PAR_EXTRA_LT_LDFLAGS ' '
+      printvar PAR_EXTRA_LDFLAGS
+      printvar PAR_EXTRA_LT_LDFLAGS
+    fi
   fi
 }
 
