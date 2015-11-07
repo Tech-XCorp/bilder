@@ -2328,9 +2328,9 @@ getCombinedCompVars() {
     # techo -2 "Adding to COMPILERS_$i."
     unset CONFIG_COMPILERS_$i
     for j in CC CXX FC F77; do
-      techo -2 "COMPILER $j."
       local var=${varprfx}$j
       local comp=`deref ${var}`
+      techo -2 "COMPILER $j = $comp."
 # Why is the below here?  Breaks names with spaces in them.
       # comp=`echo $comp | sed 's/ .*$//'`
       # techo -2 "compbin = $compbin."
