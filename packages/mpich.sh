@@ -42,6 +42,8 @@ buildMpich() {
   fi
 # Needed?
   # MPICH_ADDL_ARGS="--enable-romio --enable-smpcoll --with-device=ch3:ssm --with-pm=hydra--with-mpe"
+
+# Configure and build
   mpichmakeflags="$MPICH_MAKEJ_ARGS $mpichmakeflags"
 
 # Builds
@@ -75,6 +77,5 @@ testMpich() {
 # Set umask to allow only group to use
 installMpich() {
   bilderInstallAll mpich
-  (cd $CONTRIB_DIR; rmall mpi mpich; ln -sf mpich-static mpich; ln -s mpich mpi)
 }
 
