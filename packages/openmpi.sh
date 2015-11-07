@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Trigger variables set in open_aux.sh
+# Trigger variables set in openmpi_aux.sh
 #
 ######################################################################
 
@@ -35,8 +35,10 @@ setOpenmpiNonTriggerVars
 ######################################################################
 
 buildOpenmpiAT() {
+
+# Unpack
   if ! bilderUnpack openmpi; then
-    return
+    return 1
   fi
 
   techo "OPENMPI_BLDRVERSION = $OPENMPI_BLDRVERSION."
@@ -204,27 +206,17 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
+  if test -h $CONTRIB_DIR/mpi; then
+    rm -f $CONTRIB_DIR/mpi
+  fi
   if bilderInstallAll openmpi; then
 # This needed to allow overloading cores in 1.8.2
     echo "rmaps_base_oversubscribe = true" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
     echo "hwloc_base_binding_policy = core:overload-allowed" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
-    if test -h $CONTRIB_DIR/mpi; then
-      rm -f $CONTRIB_DIR/mpi
-    fi
-    if [[ "$USE_MPI" =~ openmpi ]]  && ! [[ `uname` =~ CYGWIN ]]; then
-      ln -s $CONTRIB_DIR/openmpi $CONTRIB_DIR/mpi
-    fi
 # Allow rsh use
     OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
     if $OPENMPI_ALLOW_RSH; then
-      case $OPENMPI_BLDRVERSION in
-        1.3* | 1.4*)
-          echo "plm_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
-          ;;
-        *)
-          echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
-          ;;
-      esac
+      echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
     fi
   fi
 }
