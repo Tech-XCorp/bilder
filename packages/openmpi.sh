@@ -210,13 +210,18 @@ installOpenmpi() {
     rm -f $CONTRIB_DIR/mpi
   fi
   if bilderInstallAll openmpi; then
-# This needed to allow overloading cores in 1.8.2
-    echo "rmaps_base_oversubscribe = true" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
-    echo "hwloc_base_binding_policy = core:overload-allowed" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
-# Allow rsh use
     OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
     if $OPENMPI_ALLOW_RSH; then
-      echo "orte_rsh_agent = rsh" >>$CONTRIB_DIR/openmpi/etc/openmpi-mca-params.conf
+      for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
+        prmsfile=$CONTRIB_DIR/openmpi-$bld/etc/openmpi-mca-params.conf
+# Allow rsh use, oversubscription
+# "hwloc_base_binding_policy = core:overload-allowed" fails on osx.
+        for line in "rmaps_base_oversubscribe = true" "plm_rsh_agent = rsh"; do
+          if ! grep -q "^$line" $prmsfile; then
+            echo "$line" >>$prmsfile
+          fi
+        done
+      done
     fi
   fi
 }
