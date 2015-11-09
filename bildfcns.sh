@@ -7716,7 +7716,11 @@ EOF
 # Create name such that alphabetical listing will have correct grouping
 # I *need* underscores to separate fields
      local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
-      abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
+     if test -n "$FIXED_INSTALL_SUBDIR"; then
+       abstractdest=${ABSTRACT_ROOTDIR}-${FIXED_INSTALL_SUBDIR}/$BILDER_PROJECT/$abstractdest
+     else
+       abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
+     fi
       cmd="scp -q ${ABSTRACT} $ABSTRACT_HOST:${abstractdest}"
       techo "$cmd"
       if $cmd 2>&1; then
