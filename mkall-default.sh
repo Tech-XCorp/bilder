@@ -140,6 +140,7 @@ EXTRA_ARG_FILE=".extra_args"
 REPODIR_IS_INTERNAL=false
 INSTALL_IN_HOME=false
 INST_SUBDIR=
+FIXED_INSTALL_SUBDIR=
 unset MKJMAX
 PRINTONLY=false
 ROOTDIR_CVI=
@@ -164,6 +165,7 @@ while getopts $args arg; do
   fi
   processArg $arg
 done
+export FIXED_INSTALL_SUBDIR
 
 # Get additional args after --
 shift $(($OPTIND - 1))

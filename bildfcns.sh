@@ -7674,11 +7674,15 @@ EOF
 # Copy abstract to central host
   if $SEND_ABSTRACT && test -n "$ABSTRACT_HOST" -a -n "$ABSTRACT_ROOTDIR"; then
 
-# Append BILDER_BRANCHSHORT to ABSTRACT_ROOTDIR directory on abstract host machine; this will help identify
-# whether the build is non-trunk.  Do not append if BILDER_BRANCHSHORT is trunk.
-    if test "${BILDER_BRANCHSHORT}" != "trunk"; then
-      ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${BILDER_BRANCHSHORT}
+# Directory on jenkins server where abstracts gets copied to (ABSTRACT_ROOTDIR)
+# is set outside this function, but we append to it for the case when we define
+# a special install directory (which is the case for the test branches and 
+# release builds. 
+    if test -n "$FIXED_INSTALL_SUBDIR"; then
+      ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${FIXED_INSTALL_SUBDIR}
     fi
+
+# Log Creation of abstract
     techo
     techo "  Bilder sending abstract to host $ABSTRACT_HOST."
     techo "======================================"
@@ -7713,14 +7717,10 @@ EOF
     fi
 
     if $destdirok; then
-# Create name such that alphabetical listing will have correct grouping
-# I *need* underscores to separate fields
-     local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
-     if test -n "$FIXED_INSTALL_SUBDIR"; then
-       abstractdest=${ABSTRACT_ROOTDIR}-${FIXED_INSTALL_SUBDIR}/$BILDER_PROJECT/$abstractdest
-     else
-       abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
-     fi
+# Create name such that alphabetical listing will have correct grouping.
+# Underscores are expected by jenkinsabs script that processes these files.
+      local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
+      abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
       cmd="scp -q ${ABSTRACT} $ABSTRACT_HOST:${abstractdest}"
       techo "$cmd"
       if $cmd 2>&1; then
