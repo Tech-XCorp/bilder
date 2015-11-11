@@ -3780,7 +3780,7 @@ bilderUnpack() {
 # See whether should install
   if shouldInstall -I $instdirsval $1-$verval "$builds" $DEPS; then
     unpack=true
-    techo "Package $1 needs building since a dependency rebuilt or $1 not installed."
+    techo "Package ${1}-$verval needs building since a dependency rebuilt or ${1}-$verval not installed for one of {$builds}."
   fi
 
   if $unpack; then
@@ -4347,7 +4347,7 @@ bilderConfig() {
     else
       if shouldInstall -I $instdirval $1-$verval $2 $DEPS; then
         dobuildval=true
-        techo "Package $1-$verval-$2 is a candidate for configuring since a dependency rebuilt or $1-$verval not installed."
+        techo "Package $1-$verval-$2 is a candidate for configuring since a dependency rebuilt or $1-$verval-$2 not installed."
       else
         techo "Not configuring since $1-$verval-$2 already installed in $instdirval."
       fi
