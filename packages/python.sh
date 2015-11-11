@@ -64,7 +64,11 @@ buildPython() {
       if test -z "$CMAKE_ZLIB_SERMD_LIBDIR"; then
         echo "WARNING: [$FUNCNAME] CMAKE_ZLIB_SERMD_LIBDIR not set."
       else
-        PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DZLIB_LIBRARY='$CMAKE_ZLIB_SERMD_LIBDIR/zlib.lib' -DZLIB_INCLUDE_DIR='$CMAKE_ZLIB_SERMD_INCDIR'"
+        zlibfile=$CMAKE_ZLIB_SERMD_LIBDIR/zlib.lib
+        if test "$TARBALL_BUILD_TYPE" == "Debug"; then
+          zlibfile=$CMAKE_ZLIB_SERMD_LIBDIR/zlibd.lib
+        fi
+        PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DZLIB_LIBRARY='$zlibfile' -DZLIB_INCLUDE_DIR='$CMAKE_ZLIB_SERMD_INCDIR'"
       fi
 # Need a sersh build of bzip2 before this can be implemented
       if test -z "$CMAKE_BZIP2_SERSH_LIBDIR"; then
