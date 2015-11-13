@@ -22,7 +22,7 @@ setDoxygenTriggerVars() {
     CYGWIN*) ;;
     *) DOXYGEN_BUILDS=${DOXYGEN_BUILDS:-"${FORPYTHON_STATIC_BUILD}"};;
   esac
-  DOXYGEN_DEPS=graphviz
+  DOXYGEN_DEPS=cmake,graphviz
 }
 setDoxygenTriggerVars
 
