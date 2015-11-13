@@ -99,7 +99,7 @@ echo "[$myname]    target = $JENKINS_TARGET"
 echo "[$myname]    email  = $JENKINS_EMAIL"
 echo "[$myname]    prefix = $JENKINS_PREFIX"
 # Determine the command
-JENKINS_PREFIX=${JENKINS_PREFIX:-"vpall"}
+JENKINS_PREFIX=${JENKINS_PREFIX:-"test"}
 json="{\"parameter\": [{\"name\": \"${JENKINS_PREFIX}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${JENKINS_PREFIX}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${JENKINS_PREFIX}Email\", \"value\": \"$JENKINS_EMAIL\"}]}"
 cmd="curl -F json='$json' -u $JENKINS_USER $JENKINS_URL"
 echo "[$myname]    command = $cmd"
