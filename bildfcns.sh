@@ -4575,7 +4575,7 @@ bilderConfig() {
   fi
   if test -z "$configexec"; then
     if test "$cmval" = cmake; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Location of cmake not found. configexec = $configexec.  PATH = $PATH."
+      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] cmake not found. configexec = $configexec.  PATH = $PATH."
       terminate
     fi
     techo "No configure system found for $1-$2.  Assuming no need."
