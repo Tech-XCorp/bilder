@@ -1,0 +1,243 @@
+diff -ruN doxygen-1.8.10/CMakeLists.txt doxygen-1.8.10-new/CMakeLists.txt
+--- doxygen-1.8.10/CMakeLists.txt	2015-06-16 11:42:32.000000000 -0600
++++ doxygen-1.8.10-new/CMakeLists.txt	2015-11-13 09:31:11.000000000 -0700
+@@ -39,7 +39,7 @@
+ endif()
+ 
+ if (${CMAKE_SYSTEM} MATCHES "Darwin")
+-    set(CMAKE_CXX_FLAGS "-Wno-deprecated-register -mmacosx-version-min=10.5 ${CMAKE_CXX_FLAGS}")
++    set(CMAKE_CXX_FLAGS "-Wno-deprecated-register -mmacosx-version-min=10.7 ${CMAKE_CXX_FLAGS}")
+     find_library(CORESERVICES_LIB CoreServices)
+     set(EXTRA_LIBS ${CORESERVICES_LIB})
+ endif()
+diff -ruN doxygen-1.8.10/src/translator_cn.h doxygen-1.8.10-new/src/translator_cn.h
+--- doxygen-1.8.10/src/translator_cn.h	2015-06-26 13:21:37.000000000 -0600
++++ doxygen-1.8.10-new/src/translator_cn.h	2015-11-13 09:31:41.000000000 -0700
+@@ -110,7 +110,7 @@
+ 
+     /*! this is the first part of a sentence that is followed by a class name */
+     virtual QCString trThisIsTheListOfAllMembers()
+-    { return "成员的完整列表，这些成员属于"CN_SPC; }
++    { return "成员的完整列表，这些成员属于" CN_SPC; }
+ 
+     /*! this is the remainder of the sentence after the class name */
+     virtual QCString trIncludingInheritedMembers()
+@@ -121,8 +121,8 @@
+      */
+     virtual QCString trGeneratedAutomatically(const char *s)
+     { QCString result;
+-      result = "由"CN_SPC"Doyxgen"CN_SPC"通过分析"CN_SPC;
+-      if (s) result += ((QCString)s+CN_SPC"的"CN_SPC);
++      result = "由" CN_SPC"Doyxgen" CN_SPC"通过分析" CN_SPC;
++      if (s) result += ((QCString)s+CN_SPC"的" CN_SPC);
+       result+= "源代码自动生成.";
+       return result;
+     }
+@@ -137,7 +137,7 @@
+ 
+     /*! put after an undocumented member in the list of all members */
+     virtual QCString trDefinedIn()
+-    { return "定义于"CN_SPC; }
++    { return "定义于" CN_SPC; }
+ 
+     // quick reference sections
+ 
+@@ -199,7 +199,7 @@
+     { return "搜索"; }
+ 
+     virtual QCString trClassHierarchyDescription()
+-    { return "此继承关系列表按字典顺序粗略的排序:"CN_SPC; }
++    { return "此继承关系列表按字典顺序粗略的排序:" CN_SPC; }
+ 
+     virtual QCString trFileListDescription(bool extractAll)
+     {
+@@ -376,15 +376,15 @@
+     }
+ 
+     virtual QCString trGeneratedAt(const char *date,const char *projName)
+-    { QCString result=(QCString)"生成于"CN_SPC+date;
+-      if (projName) result+=(QCString)CN_SPC", 为"CN_SPC+projName;
+-      result+=(QCString)"使用"CN_SPC;
++    { QCString result=(QCString)"生成于" CN_SPC+date;
++      if (projName) result+=(QCString)CN_SPC", 为" CN_SPC+projName;
++      result+=(QCString)"使用" CN_SPC;
+       return result;
+     }
+ 
+     virtual QCString trClassDiagram(const char *clName)
+     {
+-      return (QCString)"类"CN_SPC+clName+CN_SPC"继承关系图:";
++      return (QCString)"类" CN_SPC+clName+CN_SPC"继承关系图:";
+     }
+ 
+      virtual QCString trForInternalUseOnly()
+@@ -528,9 +528,9 @@
+         if (i!=numEntries-1)  // not the last entry, so we need a separator
+         {
+           if (i<numEntries-2) // not the fore last entry
+-            result+=","CN_SPC;
++            result+="," CN_SPC;
+           else                // the fore last entry
+-            result+=CN_SPC", 以及"CN_SPC;
++            result+=CN_SPC", 以及" CN_SPC;
+         }
+       }
+       return result;
+@@ -540,14 +540,14 @@
+      *  if class diagrams are disabled.
+      */
+     virtual QCString trInheritsList(int numEntries)
+-    { return "继承自"CN_SPC+trWriteList(numEntries)+CN_SPC".";  }
++    { return "继承自" CN_SPC+trWriteList(numEntries)+CN_SPC".";  }
+ 
+     /*! used in class documentation to produce a list of super classes,
+      *  if class diagrams are disabled.
+      */
+     virtual QCString trInheritedByList(int numEntries)
+     {
+-      return "被"CN_SPC+trWriteList(numEntries)+CN_SPC"继承.";
++      return "被" CN_SPC+trWriteList(numEntries)+CN_SPC"继承.";
+     }
+ 
+     /*! used in member documentation blocks to produce a list of
+@@ -555,7 +555,7 @@
+      */
+     virtual QCString trReimplementedFromList(int numEntries)
+     {
+-      return "重载"CN_SPC+trWriteList(numEntries)+CN_SPC".";
++      return "重载" CN_SPC+trWriteList(numEntries)+CN_SPC".";
+     }
+ 
+     /*! used in member documentation blocks to produce a list of
+@@ -563,7 +563,7 @@
+      */
+     virtual QCString trReimplementedInList(int numEntries)
+     {
+-      return "被"CN_SPC+trWriteList(numEntries)+CN_SPC"重载.";
++      return "被" CN_SPC+trWriteList(numEntries)+CN_SPC"重载.";
+     }
+ 
+     /*! This is put above each page as a link to all members of namespaces. */
+@@ -659,12 +659,12 @@
+ 
+     virtual QCString trDefinedAtLineInSourceFile()
+     {
+-      return "在文件"CN_SPC"@1"CN_SPC"第"CN_SPC"@0"CN_SPC"行定义.";
++      return "在文件" CN_SPC"@1" CN_SPC"第" CN_SPC"@0" CN_SPC"行定义.";
+     }
+ 
+     virtual QCString trDefinedInSourceFile()
+     {
+-      return "在文件"CN_SPC"@0"CN_SPC"中定义.";
++      return "在文件" CN_SPC"@0" CN_SPC"中定义.";
+     }
+ 
+ //////////////////////////////////////////////////////////////////////////
+@@ -879,7 +879,7 @@
+     /*! page explaining how the dot graph's should be interpreted */
+     virtual QCString trLegendDocs()
+     {
+-      return "本页将向您解释如何理解由"CN_SPC"doxygen"CN_SPC"生成的图.<p>\n"
++      return "本页将向您解释如何理解由" CN_SPC"doxygen" CN_SPC"生成的图.<p>\n"
+         "考虑如下例子:\n"
+         "\\code\n"
+         "/*! 由于截断而使 Invisible 不可见 */\n"
+@@ -991,7 +991,7 @@
+     /*! Used as the title of a Java package */
+     virtual QCString trPackage(const char *name)
+     {
+-      return (QCString)"包"CN_SPC+name;
++      return (QCString)"包" CN_SPC+name;
+     }
+ 
+     /*! Title of the package index page */
+@@ -1028,7 +1028,7 @@
+ 
+     virtual QCString trBugList ()
+     {
+-      return "Bug"CN_SPC"列表";
++      return "Bug" CN_SPC"列表";
+     }
+ 
+ //////////////////////////////////////////////////////////////////////////
+@@ -1217,7 +1217,7 @@
+     virtual QCString trImplementedFromList(int numEntries)
+     {
+       /* return "Implements "+trWriteList(numEntries)+"."; */
+-      return "实现了"CN_SPC+trWriteList(numEntries)+".";
++      return "实现了" CN_SPC+trWriteList(numEntries)+".";
+     }
+ 
+     /*! used in member documentation blocks to produce a list of
+@@ -1226,7 +1226,7 @@
+     virtual QCString trImplementedInList(int numEntries)
+     {
+       /* return "Implemented in "+trWriteList(numEntries)+"."; */
+-      return "在"CN_SPC+trWriteList(numEntries)+CN_SPC"内被实现.";
++      return "在" CN_SPC+trWriteList(numEntries)+CN_SPC"内被实现.";
+     }
+ 
+ //////////////////////////////////////////////////////////////////////////
+@@ -1419,7 +1419,7 @@
+      */
+     virtual QCString trDirDescription()
+     {
+-      return "此继承关系列表按字典顺序粗略的排序:"CN_SPC;
++      return "此继承关系列表按字典顺序粗略的排序:" CN_SPC;
+     }
+ 
+     /*! This returns the title of a directory page. The name of the
+@@ -1574,7 +1574,7 @@
+         case ClassDef::Exception:  result+=CN_SPC"异常"; break;
+         default: break;
+       }
+-      if (isTemplate) result+="模板"CN_SPC;
++      if (isTemplate) result+="模板" CN_SPC;
+       result+="参考手册";
+       return result;
+     }
+@@ -1718,7 +1718,7 @@
+ 
+   virtual QCString trIncludesFileIn(const char *name)
+   {
+-    return (QCString)"在"CN_SPC+name+CN_SPC"中引用";
++    return (QCString)"在" CN_SPC+name+CN_SPC"中引用";
+   }
+ 
+   virtual QCString trDateTime(int year,int month,int day,int dayOfWeek,
+@@ -1730,7 +1730,7 @@
+ 
+     QCString sdate;
+ 
+-    sdate.sprintf("%d年"CN_SPC"%s月"CN_SPC"%d日"CN_SPC"星期%s",year, months[month-1], day, days[dayOfWeek-1]);
++    sdate.sprintf("%d年" CN_SPC"%s月" CN_SPC"%d日" CN_SPC"星期%s",year, months[month-1], day, days[dayOfWeek-1]);
+ 
+     if (includeTime)
+     {
+@@ -1773,7 +1773,7 @@
+ 
+     /*! Used in dot graph when UML_LOOK is enabled and there are many fields */
+     virtual QCString trAndMore(const QCString &number)
+-    { return "和"CN_SPC+number+CN_SPC"更多..."; }
++    { return "和" CN_SPC+number+CN_SPC"更多..."; }
+ 
+     /*! Used file list for a Java enum */
+     virtual QCString trEnumGeneratedFromFiles(bool /*single*/)
+@@ -1785,7 +1785,7 @@
+ 
+     /*! Used for a section containing inherited members */
+     virtual QCString trInheritedFrom(const char *members,const char *what)
+-    { return QCString(members)+CN_SPC"继承自"CN_SPC+what; }
++    { return QCString(members)+CN_SPC"继承自" CN_SPC+what; }
+ 
+     /*! Header of the sections with inherited members specific for the
+      *  base class(es)
+@@ -1806,7 +1806,7 @@
+     virtual QCString trPanelSynchronisationTooltip(bool enable)
+     {
+       QCString opt = enable ? "开启" : "关闭";
+-      return "点击"CN_SPC+opt+CN_SPC"面板同步";
++      return "点击" CN_SPC+opt+CN_SPC"面板同步";
+     }
+ 
+     /*! Used in a method of an Objective-C class that is declared in a
