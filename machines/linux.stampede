@@ -26,7 +26,7 @@ esac
 case $FQMAILHOST in
 
   *stampede.tacc.utexas.edu)
-    
+
     SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
     SYSTEM_BLAS_SER_LIB=${SYSTEM_BLAS_SER_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/intel64"}
     SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_BEN_LIB:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/lib/mic"}
@@ -43,12 +43,12 @@ case $FQMAILHOST in
     SYSTEM_HDF5_BEN_DIR=${SYSTEM_HDF5_BEN_DIR:-"/work/01059/tg803229/softwareMIC/hdf5-1.8.10-par"}
     SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/work/01059/tg803229/software/hdf5-1.8.10-par"}
 
-    TXUTILS_BEN_DIR=$CONTRIB_DIR/txutils-ben 
+    TXUTILS_BEN_DIR=$CONTRIB_DIR/txutils-ben
     TXPHYSICS_DIR=$CONTRIB_DIR/txphysics
     TXBASE_BEN_DIR=$CONTRIB_DIR/txbase-ben
     BOOST_BEN_DIR=$CONTRIB_DIR/boost-1_53_0-ben
     TRILINOS_BEN_DIR=$CONTRIB_DIR/trilinos-ben
-    PTHREAD_BEN_LIB_DIR=/opt/intel/mic/filesystem/base/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib    
+    PTHREAD_BEN_LIB_DIR=/opt/intel/mic/filesystem/base/lib64;/opt/apps/intel13/impi/4.1.0.030/mic/lib
     PTHREAD_BEN_LIB=/opt/intel/mic/filesystem/base/lib64/libpthread.so.0
 
 # Backend compilers:
@@ -62,7 +62,7 @@ case $FQMAILHOST in
     MPICXX=${MPICXX:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpicxx"}
     MPIFC=${MPIFC:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
     MPIF77=${MPIF77:-"/opt/apps/intel13/impi/4.1.0.030/intel64/bin/mpif90"}
-    
+
 esac
 ##
 # source Intel compilervars.sh on Linux and Mac

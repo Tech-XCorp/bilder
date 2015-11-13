@@ -165,7 +165,7 @@ esac
 PROJECT_SVN_URL=`bilderSvn info $PROJECT_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_URL=`bilderSvn info $BILDER_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_BRANCH=`echo $BILDER_URL | sed -e 's?^.*/bilder/??'`
-techo "NOTE: [bildinit.sh] BILDER_BRANCH = $BILDER_BRANCH."
+# techo "NOTE: [bildinit.sh] BILDER_BRANCH = $BILDER_BRANCH."
 BILDER_BRANCHSHORT=`echo $BILDER_BRANCH | sed -e 's?^.*/??'`
 BILDER_CONFDIR=${BILDER_CONFDIR:-"$BILDER_DIR/runnr"}
 techo "BILDER_CONFDIR = $BILDER_CONFDIR."
@@ -184,6 +184,7 @@ fi
 techo "BILDER_PROJECT = $BILDER_PROJECT."
 export BILDER_PROJECT
 PROJECT_BRANCH=`echo $PROJECT_URL | sed -e "s?^.*/$BILDER_PROJECT/??"`
+techo "NOTE: [bildinit.sh] PROJECT_BRANCH = $PROJECT_BRANCH."
 
 # Clean out artifacts
 if test -n "$JENKINS_FSROOT"; then
