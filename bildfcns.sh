@@ -3052,9 +3052,16 @@ findBlasLapack() {
     done
   fi
 
+# Set pyc now, as these should not be mkl
+  LAPACK_PYCST_LIBS=${LAPACK_PYCST_LIBS:-"$LAPACK_SER_LIBS"}
+  BLAS_PYCST_LIBS=${BLAS_PYCST_LIBS:-"$BLAS_SER_LIBS"}
+  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SERSH_LIBS"}
+  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SERSH_LIBS"}
+  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SER_LIBS"}
+  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SER_LIBS"}
+
 # If MKL requested, then use it
-  if test -n $USE_MKL; then
-   if $USE_MKL; then
+  if $USE_MKL; then
     # Find mkl
     ipath=`dirname $ipath`
     mkldir=`(cd $ipath/mkl/lib/intel64 2>/dev/null; pwd -P)`
@@ -3068,7 +3075,7 @@ findBlasLapack() {
     SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$mkldir/include"}
     SYSTEM_LAPACK_SER_LIBDIR=${SYSTEM_LAPACK_SER_LIBDIR:-"$mkldir/lib/intel64"}
 
-    MKL_DIR=${MKL_DIR:-${MKLROOT}/lib/intel64}
+    MKL_DIR=${MKL_DIR:-"${MKLROOT}/lib/intel64"}
     MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
     MKL_LAPACK_LIBS="-lmkl_lapack95_lp64"
     for BLD in SER SERMD SERSH PYCSH BEN; do
@@ -3077,7 +3084,6 @@ findBlasLapack() {
     done
     techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
     techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
-   fi
   fi
 
 # Ben defaults to ser
@@ -3086,9 +3092,6 @@ findBlasLapack() {
 # sersh defaults to ser
   LAPACK_SERSH_LIBS=${LAPACK_SERSH_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_SERSH_LIBS=${BLAS_SERSH_LIBS:-"$BLAS_SER_LIBS"}
-# Cc4py defaults to sersh, then ser
-  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SERSH_LIBS"}
-  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SERSH_LIBS"}
 
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
@@ -4047,10 +4050,10 @@ bilderPreconfig() {
 # Set the package script version here, as is needed for installation
 # even if this is not the reason for initiating a build.
   local currentPkgScriptRev=
-  if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${lcproj}.sh; then
+  if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${lcproj}.sh -a -d "$BILDER_CONFDIR/.svn"; then
     currentPkgScriptRev=`svn info $BILDER_CONFDIR/packages/${lcproj}.sh |\
       grep 'Last Changed Rev:' | sed 's/.* //'`
-  elif test -f $BILDER_DIR/packages/${lcproj}.sh; then
+  elif test -f $BILDER_DIR/packages/${lcproj}.sh -a -d "$BILDER_DIR/.svn"; then
     currentPkgScriptRev=`svn info $BILDER_DIR/packages/${lcproj}.sh |\
       grep 'Last Changed Rev:' | sed 's/.* //'`
   else

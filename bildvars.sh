@@ -53,7 +53,9 @@ addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 # Add parallel path now before absolute paths determined by getCombinedCompVars
-addtopathvar PATH $CONTRIB_DIR/mpi/bin
+if $BUILD_MPIS; then
+  addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
+fi
 techo "PATH = $PATH"
 
 ######################################################################
@@ -711,6 +713,7 @@ getCombinedCompVars
 #
 ######################################################################
 
++USE_MKL=${USE_MKL:-"false"}  # Make sure set
 LINK_WITH_MKL=${LINK_WITH_MKL:-"false"}  # Make sure set
 findBlasLapack
 

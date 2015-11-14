@@ -19,7 +19,8 @@ fi
 # Find intel compilers
 ipath=`which icc 2>/dev/null`
 if test -z "$ipath"; then
-  echo "icc not in path.  Quitting."
+  TERMINATE_ERROR_MSG="icc not in path.  Quitting."
+  terminate
 fi
 
 # Find script to source
@@ -84,10 +85,10 @@ MPIF77=${MPIF77:-"mpiifort"}
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-fpic"}
-CXXFLAGS=${CXXFLAGS:-"-fpic"}
-FCFLAGS=${FCFLAGS:-"-fpic"}
-FFLAGS=${FFLAGS:-"-fpic"}
+CFLAGS=${CFLAGS:-"-fpic -mkl"}
+CXXFLAGS=${CXXFLAGS:-"-fpic -mkl"}
+FCFLAGS=${FCFLAGS:-"-fpic -mkl"}
+FFLAGS=${FFLAGS:-"-fpic -mkl"}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -103,10 +104,10 @@ FFLAGS=${FFLAGS:-"-fpic"}
 
 # Parallel
 if false; then
-MPI_CFLAGS=${MPI_CFLAGS:-"-mt_mpi"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mt_mpi"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-mt_mpi"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-mt_mpi"}
+MPI_CFLAGS=${MPI_CFLAGS:-"-mkl"}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mkl"}
+MPI_FCFLAGS=${MPI_FCFLAGS:-"-mkl"}
+MPI_FFLAGS=${MPI_FFLAGS:-"-mkl"}
 fi
 
 # Linear algebra libraries:
