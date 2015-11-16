@@ -212,7 +212,7 @@ for absdir in $absdirs; do
         hostBuild=${h}_${b}
         uqhostBuild=${uqhost}_${b} 
         abs=`grep ${hostBuild}_ abstracts.txt | tail -1`
-        expAbs=`grep ${hostBuild}_ txcbilder/jenkins/expected.$absdir | tail -1`
+        expAbs=`grep ${hostBuild} txcbilder/jenkins/expected.$absdir | tail -1`
 # Warn if abstracts.txt changes from expected
         if test -n "$expAbs"; then
           if test -z "$abs"; then
