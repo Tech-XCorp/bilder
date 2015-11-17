@@ -206,26 +206,53 @@ for absdir in $absdirs; do
     abs2get=
     warnmsg=""   
     extralist=""   
+    expectedFile=`cat ./txcbilder/jenkins/expected.$absdir`
+    OIFS=$IFS
+    IFS=$(echo -en "\n\b")
+    for line in $expectedFile; do
+      echo "Line from expected file: $line"
+      line=${line%_*}
+      echo "Line from expected file after trim: $line"
+      expBuild=${line#*_}
+      echo "Build: $expBuild"
+      expHost=${line%%_*}
+      echo " Host: $expHost"
+      expHostBuild=${expHost}_${expBuild}
+      hasExpected=`grep $expHostBuild abstracts.txt`
+      if test -z "$hasExpected" ; then
+        lecho "$expHostBuild was expected and not present."
+# Abstract in expected and not currently available, so we warn
+        warnmsg="$warnmsg WARNING: Abstract $expHostBuild missing.<br>"
+      fi
+    done
+    IFS=$OIFS
+
     for h in $bilderhosts; do
       uqhost=`echo $h | sed -e 's@\.txcorp\.com@@g'`
       for b in $bilderbuilds; do
         hostBuild=${h}_${b}
         uqhostBuild=${uqhost}_${b} 
         abs=`grep ${hostBuild}_ abstracts.txt | tail -1`
-        expAbs=`grep ${hostBuild} txcbilder/jenkins/expected.$absdir | tail -1`
+        isExtra=`grep $uqhostBuild $expectedFile`
+        if test -n "$isExtra" ; then
+# Abstract currently produced, but not expected. Could be that it is new and
+# we have not added to the expected yet. So we make a notea
+          lecho "Found $uqhostBuild but was not expected."
+          extralist="$extralist $uqhostBuild"
+        fi  
 # Warn if abstracts.txt changes from expected
-        if test -n "$expAbs"; then
-          if test -z "$abs"; then
+       # if test -n "$expAbs"; then
+       #   if test -z "$abs"; then
 # Abstract in expected and not currently available, so we warn
-            warnmsg="$warnmsg WARNING: Abstract $uqhostBuild missing.<br>"
-          fi
-        else
-          if test -n "$abs"; then
+       #     warnmsg="$warnmsg WARNING: Abstract $uqhostBuild missing.<br>"
+       #   fi
+       # else
+       #   if test -n "$abs"; then
 # Abstract currently produced, but not expected. Could be that it is new and
 # we have not added to the expected yet. So we make a note
-            extralist="$extralist $uqhostBuild"
-          fi
-        fi
+       #     extralist="$extralist $uqhostBuild"
+       #   fi
+       # fi
         if test -n "$abs"; then
           abs2get="$abs2get $abs"
         fi
@@ -260,7 +287,7 @@ for absdir in $absdirs; do
     echo "Content-Type: text/html; charset=UTF-8" >> allabs-${absdir}.html
     echo "<html>" >>allabs-${absdir}.html
     if test -n "$warnmsg"; then
-      echo "<h2><font style=color:RED;>${warnmsg}</font></h2>" >>allabs-${absdir}.html
+      echo "<h4><font style=color:RED;>${warnmsg}</font></h4>" >>allabs-${absdir}.html
     else
       if test -n "$extralist"; then
         echo "The following abstract entries are extra: $extralist <br>" >>allabs-${absdir}.html
