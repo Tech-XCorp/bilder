@@ -206,10 +206,10 @@ for absdir in $absdirs; do
     abs2get=
     warnmsg=""   
     extralist=""   
-    expectedFile=`cat ./txcbilder/jenkins/expected.$absdir`
+    expectedFile="./txcbilder/jenkins/expected.$absdir"
     OIFS=$IFS
     IFS=$(echo -en "\n\b")
-    for line in $expectedFile; do
+    for line in `cat $expectedFile`; do
       echo "Line from expected file: $line"
       line=${line%_*}
       echo "Line from expected file after trim: $line"
@@ -233,13 +233,15 @@ for absdir in $absdirs; do
         hostBuild=${h}_${b}
         uqhostBuild=${uqhost}_${b} 
         abs=`grep ${hostBuild}_ abstracts.txt | tail -1`
-        isExtra=`grep $uqhostBuild $expectedFile`
-        if test -n "$isExtra" ; then
+        if test -n "$abs" ; then 
+          isExtra=`grep $hostBuild $expectedFile`
+          if test -z "$isExtra" ; then
 # Abstract currently produced, but not expected. Could be that it is new and
 # we have not added to the expected yet. So we make a notea
-          lecho "Found $uqhostBuild but was not expected."
-          extralist="$extralist $uqhostBuild"
-        fi  
+            lecho "Found $uqhostBuild but was not expected."
+            extralist="$extralist $uqhostBuild"
+          fi  
+        fi
 # Warn if abstracts.txt changes from expected
        # if test -n "$expAbs"; then
        #   if test -z "$abs"; then
