@@ -290,11 +290,10 @@ for absdir in $absdirs; do
     echo "<html>" >>allabs-${absdir}.html
     if test -n "$warnmsg"; then
       echo "<h4><font style=color:RED;>${warnmsg}</font></h4>" >>allabs-${absdir}.html
-    else
-      if test -n "$extralist"; then
-        echo "The following abstract entries are extra: $extralist <br>" >>allabs-${absdir}.html
-        echo "Maybe add them to txcbilder/jenkins/expected file.<br>" >>allabs-${absdir}.html
-      fi
+    fi
+    if test -n "$extralist"; then
+      echo "The following abstract entries are extra: $extralist <br>" >>allabs-${absdir}.html
+      echo "Maybe add them to txcbilder/jenkins/expected file.<br>" >>allabs-${absdir}.html
     fi
     if test -n "$abs2get"; then
       for i in $abs2get; do
