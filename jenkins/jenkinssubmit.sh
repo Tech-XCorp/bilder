@@ -61,11 +61,13 @@ jbranch=
 if test $isBranch = 0; then
   jbranch=`echo $jenkinsSvnUrl | sed -e 's@http.*/branches/@@'`
   echo "[$myname] Found branch ($jbranch). Continuing."
+  JENKINS_BRANCH="branches/$jbranch"
+else
+  JENKINS_BRANCH="trunk"
 fi
 
 # Default values
 DEBUG=false
-JENKINS_BRANCH="$jbranch"
 JENKINS_TARGET="$JENKINS_DEFTARG"
 JENKINS_EMAIL="qar@txcorp.com"
 
