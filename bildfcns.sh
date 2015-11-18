@@ -7694,7 +7694,7 @@ EOF
 
 # Check destination directory to copy abstract to
     local destdirok=false
-    cmd="ssh $ABSTRACT_HOST test -d $abstractdir"
+    cmd="ssh -o StrictHostKeyChecking=no $ABSTRACT_HOST test -d $abstractdir"
     techo "$cmd"
     if $cmd 2>&1; then
 # Set destination directory is group writable.  Ignore failure.
