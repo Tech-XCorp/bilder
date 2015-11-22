@@ -117,10 +117,10 @@ fi
 echo Executing "$cmd"
 $DEBUG || returnHtml=`curl -F json="$json" -u $JENKINS_USER $JENKINS_URL`
 res=$?
-if test $res; then
-  echo "[$myname] SUCCESS."
+if test $res = 0; then
+  echo "[$myname] SUCCESS.  Received '$returnHtml'."
 else
-  echo "[$myname] ERROR (return code of curl is $res)."
+  echo "[$myname] ERROR.  Return code of curl is $res.  Received '$returnHtml'."
 fi
 
 
