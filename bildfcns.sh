@@ -6596,7 +6596,7 @@ EOF
 # Remove old installations.
 # Add -r to deal with '-' being in name of another package.
 # Assumes installation by svn revision.
-      allinstalls=`(cd $instdirval; \ls -d $instsubdirbase-r* 2>/dev/null)`
+      allinstalls=`(cd $instdirval; \ls -d $instsubdirbase-r* 2>/dev/null | tr  '\n' ' ')`
       if test -n "$allinstalls"; then
         techo -2 "All installations are $allinstalls"
         if $REMOVE_OLD; then
