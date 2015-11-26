@@ -84,7 +84,7 @@ EOF
         *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
       esac
       ;;
-    1.8.*)
+    1.8.* | 1.10.*)
 # Disabling vt can help build
       OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
       OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
