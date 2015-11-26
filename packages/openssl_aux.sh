@@ -23,7 +23,7 @@ setOpensslTriggerVars() {
     Darwin)
       case `uname -r` in
         1[5-9]*)
-// OpenSSL disappeared in El Capitan
+# OpenSSL disappeared in El Capitan
           OPENSSL_BUILDS=ser
           ;;
       esac
