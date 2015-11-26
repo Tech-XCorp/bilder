@@ -34,7 +34,7 @@ setLibsshTriggerVars() {
       LIBSSH_BLDRVERSION_STD=${LIBSSH_BLDRVERSION:-"0.6.4"}
       ;;
   esac
-  LIBSSH_BLDRVERSION_EXP=${LIBSSH_BLDRVERSION:-"0.6.4"}
+  LIBSSH_BLDRVERSION_EXP=${LIBSSH_BLDRVERSION:-"0.7.2"}
 # libssh always builds the shared libs.  With configuration below,
 # it will also build the static library, so we call this build ser.
   LIBSSH_DESIRED_BUILDS=${LIBSSH_DESIRED_BUILDS:-"ser"}
