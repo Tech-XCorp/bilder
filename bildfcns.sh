@@ -3411,7 +3411,7 @@ getPkg() {
 # Determine the method if direct
     local DIRECT_GET=
     if $SVNUP_PKGS; then
-      techo -n "Getting packages in $pkgdir with " 1>&2
+      techo -n "Getting packages in $pkgdir with" 1>&2
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
           techo " svn." 1>&2
