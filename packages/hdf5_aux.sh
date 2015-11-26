@@ -27,18 +27,18 @@ getHdf5TriggerVars() {
       if [[ "$CC" =~ mingw ]]; then
         HDF5_BLDRVERSION_STD=1.8.10
       else
-        HDF5_BLDRVERSION_STD=1.8.13
+        HDF5_BLDRVERSION_STD=1.8.16
       fi
       ;;
     Darwin)
       case `uname -r` in
         13.*) HDF5_BLDRVERSION_STD=1.8.9;;	# Mavericks
-           *) HDF5_BLDRVERSION_STD=1.8.13;;	# Everything else
+           *) HDF5_BLDRVERSION_STD=1.8.16;;	# Everything else
       esac
       ;;
     Linux) HDF5_BLDRVERSION_STD=1.8.13;;
   esac
-  HDF5_BLDRVERSION_EXP=1.8.13
+  HDF5_BLDRVERSION_EXP=1.8.16
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
