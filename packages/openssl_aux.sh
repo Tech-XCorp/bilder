@@ -24,7 +24,7 @@ setOpensslTriggerVars() {
       case `uname -r` in
         1[5-9]*)
 # OpenSSL disappeared in El Capitan
-          OPENSSL_BUILDS=ser
+          OPENSSL_BUILDS=sersh
           ;;
       esac
     ;;
@@ -42,6 +42,6 @@ setOpensslTriggerVars
 ######################################################################
 
 findOpenssl() {
-  :
+  findContribPackage Openssl crypto sersh
 }
 
