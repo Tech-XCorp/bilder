@@ -9,6 +9,7 @@
 #
 #    {"parameter": [
 #       {"name": "${JENKINS_PREFIX}Branch", "value": "test-branch"},
+#       {"name": "${JENKINS_PREFIX}AddlArgs", "value": ""}
 #       {"name": "${JENKINS_PREFIX}Target", "value": ""},
 #       {"name": "${JENKINS_PREFIX}Email", "value": ""}
 #    ]}
@@ -23,17 +24,19 @@ usage() {
   cat >&2 <<EOF
 Usage: jenkinssubmit.sh [options]
 Options:
+  -a <args>.... Additional args for the build
   -b <name>.... Branch of vorpalall to use in the test job
   -d .......... Debug (print command but do not execute)
   -e <address>. Email address that should get the bilder results
   -h .......... Print this help and exit
   -t <name>.... Package to use at the target in the bilder invocation
 Required environment variables
-  JENKINS_URL ..... The URL for job submission
-  JENKINS_USER .... user:password for jenkins submission
-  JENKINS_DEFTARG . default target for jenkins submission
+  JENKINS_URL ...... The URL for job submission
+  JENKINS_USER ..... user:password for jenkins submission
+  JENKINS_DEFTARG .. default target for jenkins submission
+  JENKINS_ADDLARGS . default target for jenkins submission
 Optional environment variables
-  JENKINS_PREFIX .. The prefix for the variables for jenkins job submission.
+  JENKINS_PREFIX ... The prefix for the variables for jenkins job submission.
 EOF
   exit $1
 }
@@ -68,16 +71,18 @@ fi
 
 # Default values
 DEBUG=false
+JENKINS_ADDLARGS="-v2"  # Add innocuous args
 JENKINS_TARGET="$JENKINS_DEFTARG"
 JENKINS_EMAIL="qar@txcorp.com"
 
-while getopts "b:de:ht:" arg; do
+while getopts "a:b:de:ht:" arg; do
   case "$arg" in
-    b) JENKINS_BRANCH=$OPTARG;;
+    a) JENKINS_ADDLARGS="$OPTARG";;
+    b) JENKINS_BRANCH="$OPTARG";;
     d) DEBUG=true;;
-    e) JENKINS_EMAIL=$OPTARG;;
+    e) JENKINS_EMAIL="$OPTARG";;
     h) usage 0;;
-    t) JENKINS_TARGET=$OPTARG;;
+    t) JENKINS_TARGET="$OPTARG";;
    \?) usage 1;;
   esac
 done
@@ -95,14 +100,15 @@ fi
 
 # Create Jenkins Request
 echo "[$myname] Jenkins Job Parameters:"
-echo "[$myname]    server = $JENKINS_URL"
-echo "[$myname]    branch = $JENKINS_BRANCH"
-echo "[$myname]    target = $JENKINS_TARGET"
-echo "[$myname]    email  = $JENKINS_EMAIL"
-echo "[$myname]    prefix = $JENKINS_PREFIX"
+echo "[$myname]    branch   = $JENKINS_BRANCH"
+echo "[$myname]    server   = $JENKINS_URL"
+echo "[$myname]    addlargs = $JENKINS_ADDLARGS"
+echo "[$myname]    target   = $JENKINS_TARGET"
+echo "[$myname]    email    = $JENKINS_EMAIL"
+echo "[$myname]    prefix   = $JENKINS_PREFIX"
 # Determine the command
 JENKINS_PREFIX=${JENKINS_PREFIX:-"test"}
-json="{\"parameter\": [{\"name\": \"${JENKINS_PREFIX}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${JENKINS_PREFIX}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${JENKINS_PREFIX}Email\", \"value\": \"$JENKINS_EMAIL\"}]}"
+json="{\"parameter\": [{\"name\": \"${JENKINS_PREFIX}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${JENKINS_PREFIX}AddlArgs\", \"value\": \"$JENKINS_ADDLARGS\"},{\"name\": \"${JENKINS_PREFIX}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${JENKINS_PREFIX}Email\", \"value\": \"$JENKINS_EMAIL\"}]}"
 cmd="curl -F json='$json' -u $JENKINS_USER $JENKINS_URL"
 echo "[$myname]    command = $cmd"
 # Ask whether to submit
