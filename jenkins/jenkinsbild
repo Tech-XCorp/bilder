@@ -336,7 +336,7 @@ fi
 
 # Execute the command
 lecho "Current directory not expanding symbolic links is `pwd`"
-lecho "Executing $cmd in `pwd -P` at `date`."
+lecho "Executing $cmd in `pwd` at `date`."
 lecho "$cmd"
 eval "$cmd"
 res=$?
