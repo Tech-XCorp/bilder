@@ -1583,6 +1583,13 @@ mkConfigScript() {
     echo "rm -rf CMakeFiles CMakeCache.txt" >> $configscript
     echo >> $configscript
   fi
+  cat >> $configscript <<EOF
+# Source script to set needed envvars
+if test -f $BUILD_DIR/${BILDER_PROJECT}.sh; then
+  source $BUILD_DIR/${BILDER_PROJECT}.sh
+fi
+EOF
+  echo >> $configscript
 # Prettify the configure script.  Darwin does not allow \n in substitutions,
 # so use sed file, $sedfile, modified with package and version.
 # For lines containing a blank after an =, put quote after equals and at end.
@@ -4891,8 +4898,8 @@ bilderConfig() {
   techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
   mkConfigScript $FQMAILHOST $1 $2
-  # For packages like petsc where configure in place but build
-  # out-of-place is needed, we change definition of builddir here
+# For packages like petsc where configure in place but build
+# out-of-place is needed, we change definition of builddir here
   if test -n "$buildsubdir"; then
     if ! $build_inplace; then
       (cd $builddir; mkdir -p $buildsubdir)
@@ -5078,6 +5085,17 @@ bilderBuild() {
   fi
   local buildscript=$FQMAILHOST-$1-$2-build.sh
   echo '#!/bin/bash' >$buildscript
+
+# Source envvars at top of script
+  cat >> $buildscript <<EOF
+
+# Source script to set needed envvars
+if test -f $BUILD_DIR/${BILDER_PROJECT}.sh; then
+  source $BUILD_DIR/${BILDER_PROJECT}.sh
+fi
+
+EOF
+
   if test -n "$envprefix"; then
 # JRC: This perhaps complicated.  Different approach to capture full line.
     # echo -n "$envprefix " | tee -a $buildscript
@@ -5114,6 +5132,7 @@ _
 # Script puts results into res file in case script no longer a child process
 # by the time of collection.
   cat <<_ >> $buildscript
+
 echo Build of $1-$2 completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
@@ -6475,9 +6494,16 @@ bilderInstall() {
     techo "Creating installation script, $installscript, for command, \"$cmd\"."
     cat >$installscript << EOF
 #!/bin/bash
+
+# Source script to set needed envvars
+if test -f $BUILD_DIR/${BILDER_PROJECT}.sh; then
+  source $BUILD_DIR/${BILDER_PROJECT}.sh
+fi
+
 echo '$cmd'
 $cmd
 res=\$?
+
 echo Installation of $1-$2 completed with result = \$res.
 echo \$res >bilderinstall.res
 exit \$res
