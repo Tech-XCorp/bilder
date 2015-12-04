@@ -235,9 +235,12 @@ lecho "   BILDER_CTEST_MODEL = $BILDER_CTEST_MODEL"
 #
 addlopts=
 if test -n "$MACHINES_FILE"; then
-  addlopts="-m $MACHINES_FILE"
+  # addlopts="-m $MACHINES_FILE" # JRC: This is wrong. Sourcing gives filename.
   if test -f $jenkinssubdir/$MACHINES_FILE; then
     source $jenkinssubdir/$MACHINES_FILE
+    if test -n "$MACHINEFILE"; then
+      addlopts="-m $MACHINEFILE"
+    fi
   else
     lecho "WARNING: $jenkinssubdir/$MACHINES_FILE does not exist."
   fi
