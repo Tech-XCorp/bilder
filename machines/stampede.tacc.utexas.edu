@@ -14,14 +14,6 @@
 if test -n "PETSC_MPIEXEC"; then
   PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
 fi
-# This should be specialized to systems with static mvapich libs
-case $FQMAILHOST in
-  verus.colorado.edu)
-    FACETS_PAR_OTHER_ARGS=${FACETS_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
-    NUBEAM_PAR_OTHER_ARGS=${NUBEAM_PAR_OTHER_ARGS:-"--disable-shared --enable-static"}
-    TRILINOS_PAR_OTHER_ARGS=${TRILINOS_PAR_OTHER_ARGS:-"-DBUILD_SHARED_LIBS:BOOL=OFF -DCMAKE_CROSSCOMPILING:BOOL=TRUE"}
-    ;;
-esac
 
 case $FQMAILHOST in
 
