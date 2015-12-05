@@ -94,7 +94,9 @@ installGraphviz() {
     mkdir -p $CONTRIB_DIR/bin
     local instsfx=
     test $FORPYTHON_STATIC_BUILD != ser && instsfx="-${FORPYTHON_STATIC_BUILD}"
-    (cd $CONTRIB_DIR/bin; rm -f dot; ln -s ../graphviz${instsfx}/bin/dot .)
+    if test -f $CONTRIB_DIR/graphviz${instsfx}/bin/dot; then
+      (cd $CONTRIB_DIR/bin; rm -f dot; ln -s ../graphviz${instsfx}/bin/dot .)
+    fi
   fi
 }
 
