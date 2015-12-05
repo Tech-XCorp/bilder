@@ -11,11 +11,42 @@
 ##########
 
 bilderFqdn() {
+
+# Check for already done
+  if test -n "$FQHOSTNAME"; then
+    return
+  fi
+
+# Try getting with hostname
   local fqdn
   if ! fqdn=`hostname -f 2>/dev/null`; then
     fqdn=`hostname`
   fi
+# If that is unqualified, try host.
+  if ! [[ $fqdn =~ \. ]]; then
+    fqdn=`host $fqdn | sed 's/ .*$//'`
+  fi
+  FQHOSTNAME=$fqdn
   # echo "bilderFqdn called.  fqdn = $fqdn.  FQHOSTNAME = $FQHOSTNAME."
+
+# For systems with nodes named node0, node1, ... or login0, login1, ...,
+# strip that off to get the system name (FQMAILHOST)
+  for prehn in login node; do
+    if [[ $FQHOSTNAME =~ ^${prehn} ]]; then
+      echo matches $prehn
+      FQMAILHOST=`echo $FQHOSTNAME | sed -e "s/${prehn}[^\.]*\.//"`
+      DOMAINNAME=`echo $FQMAILHOST | sed -e 's/^[^\.]*\.//'`
+      return
+    fi
+  done
+
+# Otherwise assume domainname is last part and strip off trailing
+# numbers to get mailhost
+  DOMAINNAME=`echo $FQMAILHOST | sed -e 's/^[^\.]*\.//'`
+  FQMAILHOST=`echo $FQMAILHOST | sed -e 's/\..*$//' -e 's/[0-9]*$//'`
+
+# Obsolete
+if false; then
   case $fqdn in
 # ALCF
     *.*.alcf.anl.gov)
@@ -24,14 +55,6 @@ bilderFqdn() {
       RUNNRSYSTEM=${RUNNRSYSTEM:-"BGP"}
       ;;
 # NERSC (many machines do not return fqdn)
-    cvrsvc[0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"carver.nersc.gov"}
-      ;;
-    dirac[0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"dirac.nersc.gov"}
-      ;;
     edison[0-9]*)
       echo "Working on edison."
       FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
@@ -43,28 +66,9 @@ bilderFqdn() {
       FQMAILHOST=${FQMAILHOST:-"hopper.nersc.gov"}
       RUNNRSYSTEM=${RUNNRSYSTEM:-"XE6"}
       ;;
-    nid[0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"franklin.nersc.gov"}
-      RUNNRSYSTEM=${RUNNRSYSTEM:-"XT4"}
-      ;;
-    node[0-9]*.*) # Catchall for systems with nodes named node0, node1, ...
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn"}
-# Appears this does not work as bash through the queue is set -e?
-# And restricted shell so cannot execute /sbin commands?
-if false; then
-      if test -z "$FQMAILHOST"; then
-        if test -x "/sbin/route"; then
-          local gwip=`/sbin/route -n | grep 'UG[ \t]' | awk '{print $2}'`
-        else
-          local gwip=`route -n | grep 'UG[ \t]' | awk '{print $2}'`
-        fi
-        local gwhn=`rsh $gwip hostname -f | sed 's/[0-9]*\././'`
-        FQMAILHOST="$gwhn"
-      fi
-fi
-      ;;
   esac
+fi
+
 }
 
 bilderFqdn
