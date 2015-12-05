@@ -363,7 +363,7 @@ runnrGetHostVars() {
     echo "$cmd"
     $cmd
   else
-    # $runnrdebug &&  echo "Domains file not found."
+    # $runnrdebug &&  echo "Domains file not found for ${DOMAINNAME}."
     echo "Domains file not found."
   fi
 

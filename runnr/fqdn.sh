@@ -33,7 +33,7 @@ bilderFqdn() {
 # strip that off to get the system name (FQMAILHOST)
   for prehn in login node; do
     if [[ $FQHOSTNAME =~ ^${prehn} ]]; then
-      echo matches $prehn
+      # echo matches $prehn
       FQMAILHOST=`echo $FQHOSTNAME | sed -e "s/${prehn}[^\.]*\.//"`
       DOMAINNAME=`echo $FQMAILHOST | sed -e 's/^[^\.]*\.//'`
       return
