@@ -713,7 +713,7 @@ getCombinedCompVars
 #
 ######################################################################
 
-+USE_MKL=${USE_MKL:-"false"}  # Make sure set
+USE_MKL=${USE_MKL:-"false"}  # Make sure set
 LINK_WITH_MKL=${LINK_WITH_MKL:-"false"}  # Make sure set
 findBlasLapack
 

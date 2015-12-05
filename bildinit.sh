@@ -51,44 +51,33 @@ REPLACE_COMPILERS=${REPLACE_COMPILERS:-"false"}
 if test -n "$CC"; then
   techo "WARNING: [bildinit.sh] CC set to $CC before sourcing machine file"
 fi
-techo "MACHINE_FILE = \"$MACHINE_FILE\".  FQMAILHOST = \"$FQMAILHOST\"."
-if test -n "$MACHINE_FILE"; then
-  mfilefound=false
-  if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
+MACHINE_FILE=${MACHINE_FILE:-"$FQMAILHOST"}
+techo "MACHINE_FILE = \"$MACHINE_FILE\"."
+absmachfile=
+if test -n "$BILDER_CONFDIR"; then
+  if test -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
     absmachfile=$BILDER_CONFDIR/machines/$MACHINE_FILE
     techo "Sourcing $absmachfile."
     source $absmachfile
     techo "$absmachfile sourced."
-    mfilefound=true
+  else
+    techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_CONFDIR."
   fi
-  if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
-    absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
-    techo "Sourcing $absmachfile."
-    source $absmachfile
-    techo "$absmachfile sourced."
-    mfilefound=true
-  fi
-  if ! $mfilefound; then
-    if test -n "$BILDER_CONFDIR"; then
-      techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_CONFDIR or $BILDER_DIR."
-    else
-      techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
-    fi
-  fi
-elif test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/machines/$FQMAILHOST; then
-  absmachfile=$BILDER_CONFDIR/machines/$FQMAILHOST
-  techo "Sourcing $absmachfile."
-  source $absmachfile
-  techo "$absmachfile sourced."
-elif test -f $BILDER_DIR/machines/$FQMAILHOST; then
-  absmachfile=$BILDER_DIR/machines/$FQMAILHOST
+else
+  techo "WARNING: [bildinit.sh] BILDER_CONFDIR not defined."
+fi
+if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
+  absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
   techo "Sourcing $absmachfile."
   source $absmachfile
   techo "$absmachfile sourced."
 else
+   techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
+fi
+if test -z "$absmachfile"; then
   techo "No host specific variables file to source."
 fi
-# techo "CXXFLAGS = $CXXFLAGS"
+# techo "HDF5_BUILDS = $HDF5_BUILDS"; exit
 # techo "Quitting in bildinit.sh."; exit
 
 # Set BILDER_SVN before going further
