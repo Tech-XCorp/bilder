@@ -69,6 +69,7 @@ case ${compkey}-${compver} in
     PYC_F77FLAGS=${PYC_F77FLAGS:-"$F77FLAGS"}
 # blas and lapack not built for gcc?
     # SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
+    USE_CONTRIB_LAPACK=${USE_CONTRIB_LAPACK:-"true"}
 # Nor hdf5?
     # SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/opt/apps/gcc4_9/hdf5/1.8.16/x86_64/"}
     # Graphviz fails with Can't locate ExtUtils/Embed.pm

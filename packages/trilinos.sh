@@ -296,7 +296,7 @@ buildTrilinos() {
   BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
   if $BUILD_TRILINOS_EXPERIMENTAL; then
     triPkgs="$triPkgs Phalanx SEACAS Zoltan"
-  elif $TRILINOS_MAJORVER -lt 12; then
+  elif test $TRILINOS_MAJORVER -lt 12; then
     triPkgs="$triPkgs Phalanx"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
