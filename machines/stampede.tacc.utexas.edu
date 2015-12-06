@@ -40,6 +40,10 @@ case ${compkey}-${compver} in
     CXXFLAGS="-mkl"
     FCFLAGS="-mkl"
     F77FLAGS="-mkl"
+    MPI_CFLAGS="-mkl"
+    MPI_CXXFLAGS="-mkl"
+    MPI_FCFLAGS="-mkl"
+    MPI_FFLAGS="-mkl"
     if test -n "PETSC_MPIEXEC"; then
       PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
     fi
@@ -50,13 +54,19 @@ case ${compkey}-${compver} in
     CXX=g++
     FC=gfortran
     F77=gfortran
-    CFLAGS=" "  # Prevent replacement
+# Prevent replacement by setting these to a blank
+    CFLAGS=" "
     CXXFLAGS=" "  # Prevent replacement
     FCFLAGS=" "  # Prevent replacement
     F77FLAGS=" "  # Prevent replacement
+    MPI_CFLAGS=" "
+    MPI_CXXFLAGS=" "
+    MPI_FCFLAGS=" "
+    MPI_FFLAGS=" "
 # blas and lapack not built for gcc?
     # SYSTEM_BLAS_SER_INC=${SYSTEM_BLAS_SER_INC:-"/opt/apps/intel/13/composer_xe_2013.2.146/mkl/include/intel64"}
-    SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/opt/apps/gcc4_9/hdf5/1.8.16/x86_64/"}
+# Nor hdf5?
+    # SYSTEM_HDF5_PAR_DIR=${SYSTEM_HDF5_PAR_DIR:-"/opt/apps/gcc4_9/hdf5/1.8.16/x86_64/"}
     # Graphviz fails with Can't locate ExtUtils/Embed.pm
     ;;
 
@@ -97,10 +107,10 @@ fi
 # format from the file suffix.  The exception is the XL suite, where xlf
 # compiles F77 or F90, and expects fixed format, while xlf9x ignores
 # the suffix and looks for the -qfixed flag or else fails on fixed format.
-CC=${CC:-"icc"}
-CXX=${CXX:-"icpc"}
-FC=${FC:-"ifort"}
-F77=${F77:-"ifort"}
+# CC=${CC:-"icc"}
+# CXX=${CXX:-"icpc"}
+# FC=${FC:-"ifort"}
+# F77=${F77:-"ifort"}
 
 # Python builds -- must use gcc or msvc for consistency.
 PYC_CC=${PYC_CC:-"gcc"}
@@ -125,10 +135,10 @@ PYC_F77=${PYC_F77:-"gfortran"}
 # pic flags are added later
 
 # Serial
-CFLAGS=${CFLAGS:-"-mkl"}
-CXXFLAGS=${CXXFLAGS:-"-mkl"}
-FCFLAGS=${FCFLAGS:-"-mkl"}
-FFLAGS=${FFLAGS:-"-mkl"}
+# CFLAGS=${CFLAGS:-"-mkl"}
+# CXXFLAGS=${CXXFLAGS:-"-mkl"}
+# FCFLAGS=${FCFLAGS:-"-mkl"}
+# FFLAGS=${FFLAGS:-"-mkl"}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -143,10 +153,10 @@ FFLAGS=${FFLAGS:-"-mkl"}
 # PYC_LD_RUN_PATH=${PYC_LD_RUN_PATH:-""}
 
 # Parallel
-MPI_CFLAGS=${MPI_CFLAGS:-"-mkl"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mkl"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-mkl"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-mkl"}
+# MPI_CFLAGS=${MPI_CFLAGS:-"-mkl"}
+# MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mkl"}
+# MPI_FCFLAGS=${MPI_FCFLAGS:-"-mkl"}
+# MPI_FFLAGS=${MPI_FFLAGS:-"-mkl"}
 
 # Linear algebra libraries:
 # All should be a full path to the library.
@@ -511,7 +521,7 @@ MPI_FFLAGS=${MPI_FFLAGS:-"-mkl"}
 # GPERF_SERSH_OTHER_ARGS=${GPERF_SERSH_OTHER_ARGS:-""}
 
 # GRAPHVIZ_BLDRVERSION=${GRAPHVIZ_BLDRVERSION:-""}
-# GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-""}
+GRAPHVIZ_BUILDS=${GRAPHVIZ_BUILDS:-"NONE"}
 # GRAPHVIZ_PYCST_OTHER_ARGS=${GRAPHVIZ_PYCST_OTHER_ARGS:-""}
 # GRAPHVIZ_SER_OTHER_ARGS=${GRAPHVIZ_SER_OTHER_ARGS:-""}
 # GRAPHVIZ_SERMD_OTHER_ARGS=${GRAPHVIZ_SERMD_OTHER_ARGS:-""}
@@ -534,7 +544,7 @@ MPI_FFLAGS=${MPI_FFLAGS:-"-mkl"}
 # GTEST_SER_OTHER_ARGS=${GTEST_SER_OTHER_ARGS:-""}
 
 # HDF5_BLDRVERSION=${HDF5_BLDRVERSION:-""}
-HDF5_BUILDS=${HDF5_BUILDS:-"ser,sersh"}
+HDF5_BUILDS=${HDF5_BUILDS:-"ser,sersh,par"}
 # HDF5_PAR_OTHER_ARGS=${HDF5_PAR_OTHER_ARGS:-""}
 # HDF5_PARSH_OTHER_ARGS=${HDF5_PARSH_OTHER_ARGS:-""}
 # HDF5_PYCSH_OTHER_ARGS=${HDF5_PYCSH_OTHER_ARGS:-""}
