@@ -40,10 +40,10 @@ bilderFqdn() {
     fi
   done
 
-# Otherwise assume domainname is last part and strip off trailing
-# numbers to get mailhost
+# Otherwise assume domainname is last part.
   DOMAINNAME=`echo $FQHOSTNAME | sed -e 's/^[^\.]*\.//'`
-  FQMAILHOST=`echo $FQHOSTNAME | sed -e 's/\..*$//' -e 's/[0-9]*$//'`.$DOMAINNAME
+# FQMAILHOST will be determined elsewhere, as depending on system,
+# it may or may not have trailing numbers stripped.
 
 }
 
