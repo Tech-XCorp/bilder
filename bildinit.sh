@@ -53,29 +53,34 @@ if test -n "$CC"; then
 fi
 MACHINE_FILE=${MACHINE_FILE:-"$FQMAILHOST"}
 techo "MACHINE_FILE = \"$MACHINE_FILE\"."
-absmachfile=
-if test -n "$BILDER_CONFDIR"; then
-  if test -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
-    absmachfile=$BILDER_CONFDIR/machines/$MACHINE_FILE
+if test -n "$MACHINE_FILE"; then
+  absmachfile=
+  if test -n "$BILDER_CONFDIR"; then
+    if test -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
+      absmachfile=$BILDER_CONFDIR/machines/$MACHINE_FILE
+      techo "Sourcing $absmachfile."
+      source $absmachfile
+      techo "$absmachfile sourced."
+    fi
+  else
+    techo "WARNING: [bildinit.sh] BILDER_CONFDIR not defined."
+  fi
+  if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
+    absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
     techo "Sourcing $absmachfile."
     source $absmachfile
     techo "$absmachfile sourced."
   else
-    techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_CONFDIR."
+     techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
   fi
-else
-  techo "WARNING: [bildinit.sh] BILDER_CONFDIR not defined."
-fi
-if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
-  absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
-  techo "Sourcing $absmachfile."
-  source $absmachfile
-  techo "$absmachfile sourced."
-else
-   techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
-fi
-if test -z "$absmachfile"; then
-  techo "No host specific variables file to source."
+  if test -z "$absmachfile"; then
+    techo -n "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR"
+    if test -n "$BILDER_CONFDIR"; then
+      techo " and not found in $BILDER_CONFDIR."
+    else
+      techo "."
+    fi
+  fi
 fi
 # techo "HDF5_BUILDS = $HDF5_BUILDS"; exit
 # techo "Quitting in bildinit.sh."; exit
