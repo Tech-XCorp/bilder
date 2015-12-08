@@ -29,6 +29,7 @@ getHdf5TriggerVars() {
       else
         HDF5_BLDRVERSION_STD=1.8.13
       fi
+      HDF5_BLDRVERSION_EXP=1.8.13
       ;;
     Darwin)
       case `uname -r` in
@@ -39,7 +40,7 @@ getHdf5TriggerVars() {
       ;;
     Linux) HDF5_BLDRVERSION_STD=1.8.13;;
   esac
-  HDF5_BLDRVERSION_EXP=1.8.16
+  HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-"1.8.16"}
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
