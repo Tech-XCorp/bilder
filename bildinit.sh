@@ -51,36 +51,34 @@ REPLACE_COMPILERS=${REPLACE_COMPILERS:-"false"}
 if test -n "$CC"; then
   techo "WARNING: [bildinit.sh] CC set to $CC before sourcing machine file"
 fi
-MACHINE_FILE=${MACHINE_FILE:-"$FQMAILHOST"}
 techo "MACHINE_FILE = \"$MACHINE_FILE\"."
-# MACHINE_FILE declared.  Will seek,
-if test -n "$MACHINE_FILE"; then
-  absmachfile=
-  if test -n "$BILDER_CONFDIR"; then
-    if test -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
-      absmachfile=$BILDER_CONFDIR/machines/$MACHINE_FILE
-      techo "Sourcing $absmachfile."
-      source $absmachfile
-      techo "$absmachfile sourced."
-    fi
-  else
-    techo "WARNING: [bildinit.sh] BILDER_CONFDIR not defined."
-  fi
-  if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
-    absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
+machfile=${MACHINE_FILE:-"$FQMAILHOST"}
+# Seek machfile
+absmachfile=
+if test -n "$BILDER_CONFDIR"; then
+  if test -f $BILDER_CONFDIR/machines/$machfile; then
+    absmachfile=$BILDER_CONFDIR/machines/$machfile
     techo "Sourcing $absmachfile."
     source $absmachfile
     techo "$absmachfile sourced."
-  else
-     techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
   fi
-  if test -z "$absmachfile"; then
-    techo -n "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR"
-    if test -n "$BILDER_CONFDIR"; then
-      techo " and not found in $BILDER_CONFDIR."
-    else
-      techo "."
-    fi
+else
+  techo "WARNING: [bildinit.sh] BILDER_CONFDIR not defined."
+fi
+if test -f $BILDER_DIR/machines/$machfile; then
+  absmachfile=$BILDER_DIR/machines/$machfile
+  techo "Sourcing $absmachfile."
+  source $absmachfile
+  techo "$absmachfile sourced."
+else
+  test -n "$MACHINE_FILE" && techo "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR."
+fi
+if test -z "$absmachfile" -a test -n "$MACHINE_FILE"; then
+  techo -n "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR"
+  if test -n "$BILDER_CONFDIR"; then
+    techo " and not found in $BILDER_CONFDIR."
+  else
+    techo "."
   fi
 fi
 # techo "HDF5_BUILDS = $HDF5_BUILDS"; exit
