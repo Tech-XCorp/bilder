@@ -53,6 +53,7 @@ if test -n "$CC"; then
 fi
 MACHINE_FILE=${MACHINE_FILE:-"$FQMAILHOST"}
 techo "MACHINE_FILE = \"$MACHINE_FILE\"."
+# MACHINE_FILE declared.  Will seek,
 if test -n "$MACHINE_FILE"; then
   absmachfile=
   if test -n "$BILDER_CONFDIR"; then
