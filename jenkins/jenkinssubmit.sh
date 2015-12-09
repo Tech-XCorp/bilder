@@ -98,6 +98,8 @@ if test -z "$JENKINS_BRANCH"; then
   usage 1
 fi
 
+BRANCH_DEV=`id -un`
+
 # Create Jenkins Request
 echo "[$myname] Jenkins Job Parameters:"
 echo "[$myname]    branch   = $JENKINS_BRANCH"
@@ -106,9 +108,10 @@ echo "[$myname]    addlargs = $JENKINS_ADDLARGS"
 echo "[$myname]    target   = $JENKINS_TARGET"
 echo "[$myname]    email    = $JENKINS_EMAIL"
 echo "[$myname]    prefix   = $JENKINS_PREFIX"
+echo "[$myname]    dev      = $BRANCH_DEV"
 # Determine the command
 JENKINS_PREFIX=${JENKINS_PREFIX:-"test"}
-json="{\"parameter\": [{\"name\": \"${JENKINS_PREFIX}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${JENKINS_PREFIX}AddlArgs\", \"value\": \"$JENKINS_ADDLARGS\"},{\"name\": \"${JENKINS_PREFIX}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${JENKINS_PREFIX}Email\", \"value\": \"$JENKINS_EMAIL\"}]}"
+json="{\"parameter\": [{\"name\": \"${JENKINS_PREFIX}Branch\", \"value\": \"$JENKINS_BRANCH\"},{\"name\": \"${JENKINS_PREFIX}AddlArgs\", \"value\": \"$JENKINS_ADDLARGS\"},{\"name\": \"${JENKINS_PREFIX}Target\", \"value\": \"$JENKINS_TARGET\"},{\"name\": \"${JENKINS_PREFIX}Email\", \"value\": \"$JENKINS_EMAIL\"},{\"name\": \"${JENKINS_PREFIX}Dev\", \"value\": \"$BRANCH_DEV\"}]}"
 cmd="curl -F json='$json' -u $JENKINS_USER $JENKINS_URL"
 echo "[$myname]    command = $cmd"
 # Ask whether to submit
