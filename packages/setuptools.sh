@@ -40,7 +40,11 @@ buildSetuptools() {
   if ! bilderUnpack setuptools; then
     return 1
   fi
-
+# Remove old setuptools-installed hacky site.py.
+# http://stackoverflow.com/questions/26451807/pythons-site-py-gone-after-yosemite-upgrade-is-that-okay
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/site.{py,pyc}"
+  techo -2 "$cmd"
+  $cmd
 # Build away
   SETUPTOOLS_ENV="$DISTUTILS_ENV"
   techo -2 SETUPTOOLS_ENV = $SETUPTOOLS_ENV
