@@ -7515,7 +7515,11 @@ EOF
   elif test -n "$buildSuccesses"; then
     EMAIL_SUBJECT="SUCCESS"
     failed=false
-    EMAIL_SUBJECT="$EMAIL_SUBJECT - Builds: $buildSuccesses (see WARNING)"
+    EMAIL_SUBJECT="$EMAIL_SUBJECT - Builds: $buildSuccesses"
+# If warnings, note in subject
+    if test -s $BILDER_LOGDIR/warnings.txt; then
+      EMAIL_SUBJECT="$EMAIL_SUBJECT (see WARNINGS)"
+    fi
   else
     EMAIL_SUBJECT="Nothing built or tested.  Appears all up to date."
   fi

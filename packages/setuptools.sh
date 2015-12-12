@@ -69,7 +69,11 @@ installSetuptools() {
 # Eggs are described at https://pythonhosted.org/setuptools/formats.html
 # It seems that packages are using setuptools which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
-# installing difference eggs of their dependencies.
+# installing different eggs of their dependencies.  The flag,
+# --single-version-externally-managed, lets Bilder take over the management
+# so that we have a single installation.  But then we have to make sure
+# that wrong installations are cleaned out.
+  rm -rf $PYTHON_SITEPKGSDIR/setuptools*.{egg,pth}
   local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
   if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
     if test -e $PYTHON_SITEPKGSDIR/site.py; then

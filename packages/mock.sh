@@ -35,9 +35,15 @@ setMockNonTriggerVars
 ######################################################################
 
 buildMock() {
-  if bilderUnpack mock; then
-    bilderDuBuild mock "" "$DISTUTILS_ENV"
+  if ! bilderUnpack mock; then
+    return
   fi
+# Remove eggs and pth as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/mock*.{egg,pth}"
+  techo -2 "$cmd"
+  $cmd
+# Build
+  bilderDuBuild mock "" "$DISTUTILS_ENV"
 }
 
 ######################################################################
