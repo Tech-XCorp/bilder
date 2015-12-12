@@ -35,17 +35,18 @@ setPytzNonTriggerVars
 ######################################################################
 
 buildPytz() {
-
 # Check for build need
   if ! bilderUnpack pytz; then
     return 1
   fi
-
+# Remove eggs and pth as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/pytz*.{egg,pth}"
+  techo -2 "$cmd"
+  $cmd
 # Build away
   PYTZ_ENV="$DISTUTILS_ENV"
   techo -2 PYTZ_ENV = $PYTZ_ENV
   bilderDuBuild pytz "" "$PYTZ_ENV"
-
 }
 
 ######################################################################

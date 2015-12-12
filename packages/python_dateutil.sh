@@ -35,9 +35,15 @@ setPython_dateutilNonTriggerVars
 ######################################################################
 
 buildPython_dateutil() {
-  if bilderUnpack python_dateutil; then
-    bilderDuBuild -p dateutil python_dateutil "" "$DISTUTILS_ENV"
+  if ! bilderUnpack python_dateutil; then
+    return
   fi
+# Remove eggs and pth as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/python_dateutil*.{egg,pth}"
+  techo -2 "$cmd"
+  $cmd
+# Build
+  bilderDuBuild -p dateutil python_dateutil "" "$DISTUTILS_ENV"
 }
 
 ######################################################################
