@@ -17,7 +17,7 @@
 
 setMpichTriggerVars() {
   MPICH_BLDRVERSION_STD=3.1.4
-  MPICH_BLDRVERSION_EXP=3.1.4
+  MPICH_BLDRVERSION_EXP=3.2
   if $BUILD_MPIS && test -z "$MPICH_BUILDS" && [[ $USE_MPI =~ mpich ]]; then
     MPICH_BUILDS=static,shared
   fi
