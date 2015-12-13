@@ -46,15 +46,11 @@ buildNetcdf() {
 
   case `uname` in
     CYGWIN*)
-# JRC: netcdf-4 is disabled because of all the complications of finding
-# hdf5-config.cmake, and then the fact that it has errors concerning the
-# hdf5 library names (libhdf5.lib or hdf5.lib) which vary with version.
-      # NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
-# JRC: verified that -DNC_USE_STATIC_CRT:BOOL=ON is not enough.
-# Below needed for 4.3.2.
-      # NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DCMAKE_C_FLAGS_RELEASE:STRING='/MT /O2 /Ob2 /D NDEBUG' -DENABLE_NETCDF_4:BOOL=OFF"
-# JRC: Complications gone by referring directly to the library.
-# CMAKE_C_FLAGS_RELEASE need not be set with the 4.3.3.1 patch.
+# JRC: Because of the complications of finding hdf5-config.cmake,
+# which changes every minor rev, and then the fact that it has errors
+# concerning the hdf5 library names (libhdf5.lib or hdf5.lib), which
+# vary with version. Just refer directly to libraries and include directory.
+# The patches get the /MT arg right for the RELEASE build.
       NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL='ON' -DHDF5_HL_LIB:PATH='$CMAKE_HDF5_SER_LIBDIR/hdf5_hl.lib' -DHDF5_LIB:PATH='$CMAKE_HDF5_SER_LIBDIR/hdf5.lib' -DHDF5_INCLUDE_DIR:PATH='$CMAKE_HDF5_SER_INCDIR' -DZLIB_LIBRARY:PATH='$CMAKE_ZLIB_SER_LIBDIR/z.lib' -DZLIB_INCLUDE_DIR:PATH='$CMAKE_ZLIB_SER_INCDIR'"
       NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=OFF"
       NETCDF_SERMD_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL='ON'"
@@ -62,10 +58,11 @@ buildNetcdf() {
       ;;
     Darwin | Linux)
       NETCDF_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DENABLE_NETCDF_4:BOOL=ON -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
-      NETCDF_SER_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DHDF5_DIR:PATH='$CMAKE_HDF5_SER_DIR'"
-      NETCDF_SERSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DHDF5_DIR:PATH='$CMAKE_HDF5_SERSH_DIR'"
-      NETCDF_PAR_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DHDF5_DIR:PATH='$CMAKE_HDF5_PAR_DIR'"
-      NETCDF_PYCSH_ADDL_ARGS="${NETCDF_ADDL_ARGS} -DHDF5_DIR:PATH='$CMAKE_HDF5_PYCSH_DIR'"
+# Hdf5 found most easily here by env var.
+      NETCDF_SER_ENV="HDF5_ROOT='$CMAKE_HDF5_SER_DIR'"
+      NETCDF_SERSH_ENV="HDF5_ROOT='$CMAKE_HDF5_SERSH_DIR'"
+      NETCDF_PAR_ENV="HDF5_ROOT='$CMAKE_HDF5_PAR_DIR'"
+      NETCDF_PYCSH_ENV="HDF5_ROOT='$CMAKE_HDF5_PYCSH_DIR'"
       if [[ `uname` =~ Linux ]]; then
 # MAKE_INSTALL_RPATH_USE_LINK_PATH seems not enough, so adding following
         NETCDF_SERSH_ADDL_ARGS="${NETCDF_SERSH_ADDL_ARGS} -DCMAKE_SHARED_LINKER_FLAGS:STRING=-Wl,-rpath,'$HDF5_SERSH_DIR/lib'"
@@ -73,10 +70,6 @@ buildNetcdf() {
       fi
       ;;
   esac
-  # NETCDF_SER_ENV="HDF5_ROOT='$CMAKE_HDF5_SER_DIR'"
-  NETCDF_SERSH_ENV="HDF5_ROOT='$CMAKE_HDF5_SERSH_DIR'"
-  NETCDF_PAR_ENV="HDF5_ROOT='$CMAKE_HDF5_PAR_DIR'"
-  NETCDF_PYCSH_ENV="HDF5_ROOT='$CMAKE_HDF5_PYCSH_DIR'"
 
 # Serial build
   if bilderConfig -c netcdf ser "-DNC_USE_STATIC_CRT:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=OFF $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $MINGW_RC_COMPILER_FLAG $NETCDF_SER_ADDL_ARGS $NETCDF_SER_OTHER_ARGS" "" "$NETCDF_SER_ENV"; then
