@@ -80,8 +80,8 @@ fi
 jenkinssubdir=$projdir/bilder/jenkins
 
 if [[ `uname` =~ CYGWIN ]] && [[ $projdir =~ jenkins/workspace ]]; then
-  echo "projdir still a subdir of jenkins/workspace.  Quitting."
-  exit 1
+# Quitting is too drastic.  Kills some cases that would work.
+  echo "WARNING: projdir still a subdir of jenkins/workspace."
 fi
 
 lecho() {

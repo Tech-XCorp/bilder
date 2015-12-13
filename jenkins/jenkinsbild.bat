@@ -33,13 +33,14 @@ set JOB_LINK_NAME=
 if defined JOB_NAME (
   for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK_NAME=%%A
 )
+echo jenkinsbild.bat: JOB_LINK_NAME = %JOB_LINK_NAME%
 
 REM Declare vars outside of if parens so they have current scope
 set BILDER_WSPATH=%CD%
 set drive=%cd:~0,2%
 
 REM If Jenkins define where to link job
-if defined JOB_LINK (
+if defined JOB_LINK_NAME (
   set JOB_LINK=%drive%\%JOB_LINK_NAME%
 REM Allow for some namespacing of link
   if exist %drive%\jenkins set JOB_LINK=%drive%\jenkins\%JOB_LINK_NAME%
