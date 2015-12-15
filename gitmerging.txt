@@ -48,7 +48,6 @@ Merge to the upstream branch
 (Sometimes rebase, why?)
   git rebase upstream-$wbranch
 
-
 Commit and push:
 
   git commit -am "MSG"
@@ -57,13 +56,25 @@ Commit and push:
 
 RESET FROM UPSTREAM
 
-Reset when your local branch and the remote branch are in
-the same state, but yours shows lots of commit differences, and
+Reset when your branch and the upstream branch are in
+the same state, but github or equiv shows lots of commit differences, and
 you would like to get rid of those, as they are just noise.
 
 E.g., continuing from above, do
 
   git reset --hard upstream-$wbranch
+
+REMOVING RESIDUAL DIFFERENCES
+
+But you may then still show some differences, with git telling
+you that you re X commits behind origin.  Pulling origin puts you
+ahead of upstream, which you don't want, because upstream fixed
+the problem without having those differences.  In that case,
+after the above reset, do
+
+  git push --force
+
+DELETING AND RECREATING THE BRANCH (not recommended)
 
 Another approach is to delete and recreate the branch.
 sure you are not on that branch, then delete the branch.
@@ -76,6 +87,8 @@ local branches list, move to that branch
   git checkout upstream-$wbranch
   git checkout -b $dbranch
   git push origin $dbranch
+
+ANNOTATED TAGS
 
 For versioning, you can create an annotated tag on this branch
   git tag -a u20151031 -m "Tagging branch with date made from upstream."
