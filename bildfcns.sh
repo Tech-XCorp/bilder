@@ -3581,19 +3581,20 @@ updateRepo() {
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
     cd $pkg
-# Clean repo if requested
-    if $CLEAN_GITHG_SUBREPOS; then
+# Clean repo if requested or Jenkins
+    if $CLEAN_GITHG_SUBREPOS || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git)
           # cmd="git reset --hard"
-          cmd="git reset --hard origin/$branchval" # Discard local commits
+# Discard local commits
+          cmd="git checkout -f $branchval; git reset --hard origin/$branchval"
           ;;
         hg) cmd="hg revert -aC";;
       esac
       techo "$cmd"
       eval "$cmd"
     fi
-# Update repo if requested
+# Update repo if requested or Jenkins
     if $NONSVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git) cmd="git pull origin $branchval";;
@@ -3618,9 +3619,9 @@ updateRepo() {
 # Make sure on tag
   case $scmexec in
     git)
-      cmd="git checkout"
-      $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
-      cmd="$cmd $branchval"
+      cmd="git checkout $branchval"
+      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
+      # cmd="$cmd $branchval"
       ;;
     hg) cmd="hg update -C $branchval";;
   esac
