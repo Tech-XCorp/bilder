@@ -1,6 +1,6 @@
 diff -ruN netcdf-4.3.3.1/CMakeLists.txt netcdf-4.3.3.1-new/CMakeLists.txt
 --- netcdf-4.3.3.1/CMakeLists.txt	2015-02-25 15:56:15.000000000 -0700
-+++ netcdf-4.3.3.1-new/CMakeLists.txt	2015-12-13 09:36:27.287202800 -0700
++++ netcdf-4.3.3.1-new/CMakeLists.txt	2015-12-15 18:26:16.761601643 -0700
 @@ -264,6 +264,38 @@
    SET(CMAKE_OSX_ARCHITECTURES i386;x86_64)
  ENDIF(${CMAKE_SYSTEM_NAME} EQUAL "Darwin")
@@ -49,7 +49,22 @@ diff -ruN netcdf-4.3.3.1/CMakeLists.txt netcdf-4.3.3.1-new/CMakeLists.txt
      SET(HDF5_C_LIBRARIES ${HDF5_LIB})
      SET(HDF5_HL_LIBRARIES ${HDF5_HL_LIB})
      MESSAGE(STATUS "Using HDF5 Library: ${HDF5_LIB}")
-@@ -461,8 +493,15 @@
+@@ -454,15 +486,28 @@
+   IF(NOT MSVC)
+     # Depending on the install, either HDF5_hdf_library or
+     # HDF5_C_LIBRARIES may be defined.  We must check for either.
+-    IF(HDF5_C_LIBRARIES)
+-      SET(HDF5_hdf5_LIBRARY ${HDF5_C_LIBRARIES})
++    IF(NOT HDF5_hdf5_LIBRARY)
++      IF(HDF5_C_LIBRARIES)
++        SET(HDF5_hdf5_LIBRARY ${HDF5_C_LIBRARIES})
++      ELSEIF(HDF5_C_LIBRARY AND NOT HDF5_hdf5_LIBRARY)
++        SET(HDF5_hdf5_LIBRARY ${HDF5_C_LIBRARY})
++      ELSE ()
++        message(FATAL_ERROR "HDF5_hdf5_LIBRARY unknown.")
++      ENDIF()
+     ENDIF()
+ 
      # Find out if HDF5 was built with parallel support.
      # Do that by checking for the targets H5Pget_fapl_mpiposx and
      # H5Pget_fapl_mpio in ${HDF5_LIB}.
@@ -65,7 +80,7 @@ diff -ruN netcdf-4.3.3.1/CMakeLists.txt netcdf-4.3.3.1-new/CMakeLists.txt
  
      IF(HDF5_IS_PARALLEL_MPIPOSIX OR HDF5_IS_PARALLEL_MPIO)
        SET(HDF5_IS_PARALLEL ON)
-@@ -1180,35 +1219,6 @@
+@@ -1180,35 +1225,6 @@
    ENDIF()
  ENDMACRO()
  
@@ -101,9 +116,36 @@ diff -ruN netcdf-4.3.3.1/CMakeLists.txt netcdf-4.3.3.1-new/CMakeLists.txt
  # A function used to create autotools-style 'yes/no' definitions.
  # If a variable is set, it 'yes' is returned. Otherwise, 'no' is
  # returned.
+diff -ruN netcdf-4.3.3.1/liblib/CMakeLists.txt netcdf-4.3.3.1-new/liblib/CMakeLists.txt
+--- netcdf-4.3.3.1/liblib/CMakeLists.txt	2015-02-18 22:11:01.000000000 -0700
++++ netcdf-4.3.3.1-new/liblib/CMakeLists.txt	2015-12-15 18:26:53.686485737 -0700
+@@ -51,11 +51,19 @@
+   IF(NOT MSVC)
+     # Some version of cmake define HDF5_hdf5_LIBRARY instead of
+     # HDF5_LIBRARY. Same with HDF5_HL_LIBRARIES
+-    IF(HDF5_hdf5_LIBRARY AND NOT HDF5_C_LIBRARIES)
+-      SET(HDF5_C_LIBRARIES ${HDF5_hdf5_LIBRARY})
++    IF(NOT HDF5_C_LIBRARIES)
++      IF(HDF5_hdf5_LIBRARY)
++        SET(HDF5_C_LIBRARIES ${HDF5_hdf5_LIBRARY})
++      ELSEIF(HDF5_C_LIBRARY)
++        SET(HDF5_C_LIBRARIES ${HDF5_C_LIBRARY})
++      ENDIF()
+     ENDIF()
+-    IF(HDF5_hdf5_hl_LIBRARY AND NOT HDF5_HL_LIBRARIES)
+-      SET(HDF5_HL_LIBRARIES ${HDF5_hdf5_hl_LIBRARY})
++    IF(NOT HDF5_HL_LIBRARIES)
++      IF(HDF5_hdf5_hl_LIBRARY)
++        SET(HDF5_HL_LIBRARIES ${HDF5_hdf5_hl_LIBRARY})
++      ELSEIF(HDF5_HL_LIBRARY)
++        SET(HDF5_HL_LIBRARIES ${HDF5_HL_LIBRARY})
++      ENDIF()
+     ENDIF()
+     # The order of the libraries is important here for static
+     # builds:
 diff -ruN netcdf-4.3.3.1/nc-config.in netcdf-4.3.3.1-new/nc-config.in
 --- netcdf-4.3.3.1/nc-config.in	2015-02-18 21:34:31.000000000 -0700
-+++ netcdf-4.3.3.1-new/nc-config.in	2015-12-13 09:38:33.585024600 -0700
++++ netcdf-4.3.3.1-new/nc-config.in	2015-12-15 18:25:49.206688106 -0700
 @@ -11,6 +11,13 @@
  
  cc="@CC@"
