@@ -3573,6 +3573,10 @@ updateRepo() {
   fi
   local branchval=`deref $branchvar`
   # echo "$branchvar = $branchval"; exit
+  case $scmexec in
+    git) branchval=${branchval:-"master"};;
+    hg) branchval=${branchval:-"default"};;
+  esac
 
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
@@ -3613,8 +3617,12 @@ updateRepo() {
 
 # Make sure on tag
   case $scmexec in
-    git) branchval=${branchval:-"master"}; cmd="git checkout $branchval";;
-    hg) branchval=${branchval:-"default"}; cmd="hg update -C $branchval";;
+    git)
+      cmd="git checkout"
+      $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
+      cmd="$cmd $branchval"
+      ;;
+    hg) cmd="hg update -C $branchval";;
   esac
   techo "$cmd"
   eval "$cmd"
