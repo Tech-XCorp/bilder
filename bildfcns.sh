@@ -3585,8 +3585,8 @@ updateRepo() {
     if $CLEAN_GITHG_SUBREPOS; then
       case $scmexec in
         git)
-          cmd="git reset --hard"
-          # cmd="git reset --hard origin/master" # Discards local commits
+          # cmd="git reset --hard"
+          cmd="git reset --hard origin/$branchval" # Discard local commits
           ;;
         hg) cmd="hg revert -aC";;
       esac
