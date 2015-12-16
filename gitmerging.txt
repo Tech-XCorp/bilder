@@ -74,6 +74,16 @@ after the above reset, do
 
   git push --force
 
+Tried this with cgm, but it did not work.  Other checkouts got
+
+Auto-merging geom/CMakeLists.txt
+CONFLICT (content): Merge conflict in geom/CMakeLists.txt
+Removing cgm.cmake.in
+Automatic merge failed; fix conflicts and then commit the result.
+Error in updating cgm.  Fix or just remove?
+
+Had to delete and checkout fresh.
+
 DELETING AND RECREATING THE BRANCH (not recommended)
 
 Another approach is to delete and recreate the branch.
