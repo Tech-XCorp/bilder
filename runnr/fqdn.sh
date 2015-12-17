@@ -26,8 +26,8 @@ bilderFqdn() {
   if ! [[ $fqdn =~ \. ]]; then
     fqdn=`host $fqdn | sed 's/ .*$//'`
   fi
-  FQHOSTNAME=$fqdn
-  # echo "bilderFqdn called.  fqdn = $fqdn.  FQHOSTNAME = $FQHOSTNAME."
+  FQHOSTNAME=${FQHOSTNAME:-"$fqdn"}
+  echo "bilderFqdn called.  fqdn = $fqdn.  FQHOSTNAME = $FQHOSTNAME."
 
 # For systems with nodes named node0, node1, ... or login0, login1, ...,
 # strip that off to get the system name (FQMAILHOST)
@@ -39,6 +39,12 @@ bilderFqdn() {
       return
     fi
   done
+
+# Special case for cori at nersc
+  if [[ $FQHOSTNAME =~ ^cori[0-9]* ]] && ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
+    FQHOSTNAME=${FQHOSTNAME}.nersc.gov
+  fi
+  techo "FQHOSTNAME = $FQHOSTNAME."
 
 # Otherwise assume domainname is last part.
   DOMAINNAME=`echo $FQHOSTNAME | sed -e 's/^[^\.]*\.//'`
