@@ -12,8 +12,9 @@
 
 bilderFqdn() {
 
+  # techo "[$FUNCNAME]: FQHOSTNAME = $FQHOSTNAME."
 # Check for already done
-  if test -n "$FQHOSTNAME"; then
+  if test -n "$FQHOSTNAME" && ! test $FQHOSTNAME = Host; then
     return
   fi
 
@@ -24,10 +25,14 @@ bilderFqdn() {
   fi
 # If that is unqualified, try host.
   if ! [[ $fqdn =~ \. ]]; then
-    fqdn=`host $fqdn | sed 's/ .*$//'`
+    fqtmp=`host $fqdn | sed 's/ .*$//'`
+    echo "[$FUNCNAME]: fqtmp = $fqtmp."
+    if test $fqtmp != Host; then
+      fqdn=$fqtmp
+    fi
   fi
-  FQHOSTNAME=${FQHOSTNAME:-"$fqdn"}
-  echo "bilderFqdn called.  fqdn = $fqdn.  FQHOSTNAME = $FQHOSTNAME."
+  FQHOSTNAME=$fqdn
+  # techo "[$FUNCNAME]: fqdn = $fqdn."
 
 # For systems with nodes named node0, node1, ... or login0, login1, ...,
 # strip that off to get the system name (FQMAILHOST)
@@ -44,7 +49,7 @@ bilderFqdn() {
   if [[ $FQHOSTNAME =~ ^cori[0-9]* ]] && ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
     FQHOSTNAME=${FQHOSTNAME}.nersc.gov
   fi
-  techo "FQHOSTNAME = $FQHOSTNAME."
+  # techo "FQHOSTNAME = $FQHOSTNAME."
 
 # Otherwise assume domainname is last part.
   DOMAINNAME=`echo $FQHOSTNAME | sed -e 's/^[^\.]*\.//'`
