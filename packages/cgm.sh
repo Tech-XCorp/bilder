@@ -47,6 +47,7 @@ setCgmNonTriggerVars
 buildCgm() {
 
 # Whether using cmake
+# Autotools is necessary for the older version of cgm to install lib/cgm.make.
   # CGM_USE_CMAKE=true
   CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then

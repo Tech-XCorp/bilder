@@ -17,8 +17,8 @@
 
 setCgmTriggerVars() {
   CGM_REPO_URL=https://bitbucket.org/cadg4/cgm.git
-  CGM_REPO_BRANCH_STD=master
-  CGM_REPO_BRANCH_EXP=master
+  CGM_REPO_BRANCH_STD=stable
+  CGM_REPO_BRANCH_EXP=stable
   CGM_UPSTREAM_URL=https://bitbucket.org/fathomteam/cgm.git
   CGM_UPSTREAM_BRANCH=master
   if test -z "$CGM_DESIRED_BUILDS"; then
@@ -44,7 +44,8 @@ setCgmTriggerVars
 
 # Find the directory containing the OCE cmake files
 findCgm() {
-  findPackage Cgm cgm "$BLDR_INSTALL_DIR" pycsh sersh
+# The library is cgma in stable, cgm in master, but iGeom is in both
+  findPackage Cgm iGeom "$BLDR_INSTALL_DIR" pycsh sersh
   findPycshDir Cgm
 }
 

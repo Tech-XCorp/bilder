@@ -17,8 +17,8 @@
 
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_REPO_BRANCH_STD=cmakeEnhance
-  MOAB_REPO_BRANCH_EXP=cmakeEnhance
+  MOAB_REPO_BRANCH_STD=stable
+  MOAB_REPO_BRANCH_EXP=stable
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH_STD=master
   MOAB_UPSTREAM_BRANCH_EXP=master
@@ -39,7 +39,6 @@ setMoabTriggerVars() {
 # Static serial and parallel builds needed for ulixes
       MOAB_DESIRED_BUILDS=ser,${FORPYTHON_STATIC_BUILD}
 # Python shared build needed for composers
-# Python shared build needed for dagmc
       if ! [[ `uname` =~ CYGWIN ]]; then
         MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
       fi
@@ -61,7 +60,6 @@ setMoabTriggerVars() {
 # Static serial and parallel builds needed for ulixes
       MOAB_DESIRED_BUILDS=ser,par,${FORPYTHON_STATIC_BUILD}
 # Python shared build needed for composers
-# Python shared build needed for dagmc
       if ! [[ `uname` =~ CYGWIN ]]; then
         MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
       fi
