@@ -227,6 +227,7 @@ runnrExec() {
 #
 runnrGetHostVars() {
 
+  # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 # Warn if old runr stuff lying around
   local runnrdebug=${DEBUG:-"false"}
   mydir=`dirname $BASH_SOURCE`
@@ -317,6 +318,7 @@ runnrGetHostVars() {
 #
 # Get the domainname
 #
+  # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 
 # For others try to get domainname from last two elements
   DOMAINNAME=${DOMAINNAME:-"`echo $FQHOSTNAME | grep -q '\.[^\.]*\.[^\.]*'`"}
@@ -366,6 +368,7 @@ runnrGetHostVars() {
     # $runnrdebug &&  echo "Domains file not found for ${DOMAINNAME}."
     echo "Domains file not found."
   fi
+  # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 
 # Get any private queue information
   if test -f $BILDER_CONFDIR/bilderqs; then
@@ -378,14 +381,16 @@ runnrGetHostVars() {
 # Use defaults to set any unset names
 # Where mail is to come from, one value for all login nodes
   FQMAILHOST=${FQMAILHOST:-"$FQHOSTNAME"}
+  # techo "[$FUNCNAME]: FQMAILHOST = $FQMAILHOST."
   FQWEBHOST=${FQWEBHOST:-"$FQMAILHOST"}
 # Sendmail host: used for return address
   SMFROMHOST=${FQMAILHOST}
 # Unique id for a laptop
   BLDRHOSTID=${BLDRHOSTID:-"$FQMAILHOST"}
-  if test -z "$UQMAILHOST"; then
+  # if test -z "$UQMAILHOST"; then
     UQMAILHOST=`echo $FQMAILHOST |  sed 's/\..*//'`
-  fi
+  # fi
+  # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 
 # Select mailing program
   if test -z "$SENDMAIL"; then
