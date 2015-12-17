@@ -33,12 +33,22 @@ if test -z "$PROJECT_DIR"; then
   echo "WARNING: [bildall.sh] PROJECT_DIR not defined. Assuming current."
   PROJECT_DIR=$PWD
 fi
-PROJECT_DIR=`(cd $PROJECT_DIR; pwd -P)`
+
+case `uname` in
+  CYGWIN*) PROJECT_DIR=`dirname $0`
+      PROJECT_DIR=`(cd $PROJECT_DIR; pwd)`;;
+  *)  PROJECT_DIR=`(cd $PROJECT_DIR; pwd)`;;
+esac
 cd $PROJECT_DIR
+res=$?
+if [ ! $res = 0 ]; then
+  echo "cd to $PROJECT_DIR failed."
+fi
 
 # Get bilder and runnr functions
-BILDER_DIR=`dirname $BASH_SOURCE`
-BILDER_DIR=`(cd $BILDER_DIR; pwd -P)`
+BILDER_DIR=`pwd`
+BILDER_DIR="$BILDER_DIR/bilder"
+
 RUNNR_DIR=$BILDER_DIR/runnr
 
 ######################################################################
