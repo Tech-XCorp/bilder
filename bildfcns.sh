@@ -7469,7 +7469,7 @@ EOF
   techo "======================================"
   rmall $ABSTRACT
 
-  local jenkinsProj=`echo $BUILD_DIR | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`
+  local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`
   addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $formattedTimestamp" BLUE $ABSTRACT
   addHtmlLine 2 "Build: ${BUILD_DIR}" BLACK $ABSTRACT
   chmod a+r ${ABSTRACT}
