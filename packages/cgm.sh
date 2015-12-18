@@ -48,7 +48,9 @@ buildCgm() {
 
 # Whether using cmake
 # Autotools is necessary for the older version of cgm to install lib/cgm.make.
-  # CGM_USE_CMAKE=true
+  if $BUILD_EXPERIMENTAL; then
+    CGM_USE_CMAKE=true
+  fi
   CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
