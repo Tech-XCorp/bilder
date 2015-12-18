@@ -349,6 +349,7 @@ runnrGetHostVars() {
 
 # Make any adjustments to MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR,
 # FQMAILHOST, BLDRHOSTID
+  echo "[$FUNCNAME]: DOMAINS_DIR = $DOMAINS_DIR."
   if test -f $DOMAINS_DIR/${DOMAINNAME}; then
     cmd="source $DOMAINS_DIR/${DOMAINNAME}"
     # $runnrdebug && echo "$cmd"
@@ -1001,6 +1002,7 @@ fi
 }
 
 # Get the host variables
+# echo "Calling runnrGetHostVars."
 runnrGetHostVars
 # echo "runnrfcns.sh: FQHOSTNAME = $FQHOSTNAME."
 # echo "runnrfcns.sh: DOMAINNAME = $DOMAINNAME."

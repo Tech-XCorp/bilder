@@ -47,7 +47,11 @@ bilderFqdn() {
 
 # Special case for cori at nersc
   if [[ $FQHOSTNAME =~ ^cori[0-9]* ]] && ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
-    FQHOSTNAME=${FQHOSTNAME}.nersc.gov
+    UQMAILHOST=cori
+    FQMAILHOST=cori.nersc.gov
+    if ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
+      FQHOSTNAME=${FQHOSTNAME}.nersc.gov
+    fi
   fi
   # techo "FQHOSTNAME = $FQHOSTNAME."
 
