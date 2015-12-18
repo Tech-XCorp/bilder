@@ -34,7 +34,7 @@ case $UQMAILHOST in
 
 # System linear algebra, note sandybridge for Edison.
     libsciroot=/opt/cray/libsci/default
-    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/haswell/lib/libsci_INTEL.a
+    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/haswell/lib/libsci_intel.a
     SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/haswell/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=$SYSTEM_BLAS_SER_LIB
     SYSTEM_LAPACK_PYCSH_LIB=$SYSTEM_BLAS_PYCSH_LIB
