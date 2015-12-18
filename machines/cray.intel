@@ -15,23 +15,52 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-intel 1>/dev/null 2>&1; then
   echo Wrong programming environment. Should be PrgEnv-intel.
   exit
 fi
+
+# Never build these
+ATLAS_BUILDS=NONE
+LAPACK_BUILDS=NONE
+
+# For finding correct lib versions
 gccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
 gccvers=`echo $gccver | sed 's/\.[0-9]*$//' | tr -d '.'`
+
 case $UQMAILHOST in
+
+  cori*)
+
+# Never these
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+# System linear algebra, note sandybridge for Edison.
+    libsciroot=/opt/cray/libsci/default
+    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/haswell/lib/libsci_INTEL.a
+    SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/haswell/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=$SYSTEM_BLAS_SER_LIB
+    SYSTEM_LAPACK_PYCSH_LIB=$SYSTEM_BLAS_PYCSH_LIB
+    MKL_ROOT_DIR=/opt/intel/composerxe/mkl
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
+    SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
+    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
+
+    ;;
 
   edison*)
 
 # JRC 20130407: Bzip2 is not installed on edison.
     BZIP2_BUILDS=$FORPYTHON_SHARED_BUILD
 
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
-
 # System linear algebra, note sandybridge for Edison.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/140/sandybridge/lib/libsci_intel.a
-    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/140/sandybridge/lib/libsci_intel.a
-    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
+    libsciroot=/opt/cray/libsci/default
+    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/sandybridge/lib/libsci_intel.a
+    SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=$libsciroot/intel/140/sandybridge/lib/libsci_intel.a
+    SYSTEM_LAPACK_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
     MKL_ROOT_DIR=/opt/intel/composer_xe_2013.5.192/mkl
 
 # System IO libs
@@ -43,7 +72,7 @@ case $UQMAILHOST in
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
 
 # Python builds -- must use gcc for consistency.
-# Loading gcc module now seed to work
+# Loading gcc module now seems to work
     PYC_CC=`which gcc`
     PYC_CXX=`which g++`
     PYC_FC=`which gfortran`
@@ -51,8 +80,6 @@ case $UQMAILHOST in
     ;;
 
   hopper*)
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=""
 # System linear algebra libraries.  mc12 (Magny-Cours) for Hopper.
 # These are used together.  Not really the right division by name, but with
 # these definitions one gets the libraries in the right order.
@@ -79,8 +106,6 @@ case $UQMAILHOST in
   titan*)
 # Make sure your code is built for the compute nodes,
 # module xtpe-interlagos should be loaded.
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
     CRAY_CONNECT=gemini
 
 # System linear algebra, note interlagos for Titan backend nodes.
