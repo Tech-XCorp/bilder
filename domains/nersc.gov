@@ -19,6 +19,10 @@ runnrSetNamesByDomain() {
 # Hosts for which FQMAILHOST is not obvious.  Also ensure that an
 # install host name is set for all cases.
   case $UQHOSTNAME in
+    cori[01][0-9]*)
+      FQMAILHOST=cori.nersc.gov
+      RUNNRSYSTEM=XC40
+      ;;
     edison[01][0-9]*)
       FQMAILHOST=edison.nersc.gov
       RUNNRSYSTEM=XC30
@@ -28,6 +32,7 @@ runnrSetNamesByDomain() {
       RUNNRSYSTEM=XE6
       ;;
   esac
+  # echo "[$FUNCNAME]: FQMAILHOST = $FQMAILHOST."
 
 }
 runnrSetNamesByDomain
@@ -156,7 +161,7 @@ setBilderHostVars() {
 
 # Set machine file and any other env vars
   case $machinedir in
-    edison | hopper) MACHINEFILE=${MACHINEFILE:-"cray.$compkey"};;
+    cori | edison | hopper) MACHINEFILE=${MACHINEFILE:-"cray.$compkey"};;
     *) MACHINEFILE=${MACHINEFILE:-"nersclinux.$compkey"};;
   esac
 
