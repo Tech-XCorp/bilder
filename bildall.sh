@@ -61,8 +61,8 @@ RUNNR_DIR=$BILDER_DIR/runnr
 
 # Start with no verbosity so that techo is valid.  Changes at option time.
 VERBOSITY=0
-VERBOSE=${VERBOSE:-"false"}
-$VERBOSE && echo "Sourcing $RUNNR_DIR/runnrfcns.sh."
+BLDR_VERBOSE=${BLDR_VERBOSE:-"false"}
+$BLDR_VERBOSE && echo "Sourcing $RUNNR_DIR/runnrfcns.sh."
 if source $RUNNR_DIR/runnrfcns.sh; then
   : # echo "$RUNNR_DIR/runnrfcns.sh sourced."
 # techo now available but cannot be used until log are rotated (in bildopts).
@@ -70,7 +70,7 @@ else
   echo "Error sourcing $RUNNR_CONFDIR/runnrfcns.sh.  Is your directory current?"
   exit 1
 fi
-$VERBOSE && echo "Sourcing $BILDER_DIR/bildfcns.sh."
+$BLDR_VERBOSE && echo "Sourcing $BILDER_DIR/bildfcns.sh."
 source $BILDER_DIR/bildfcns.sh
 
 ######################################################################
@@ -93,7 +93,7 @@ if test -z "$1"; then
 fi
 
 # Options
-$VERBOSE && echo "Sourcing $BILDER_DIR/bildopts.sh."
+$BLDR_VERBOSE && echo "Sourcing $BILDER_DIR/bildopts.sh."
 source $BILDER_DIR/bildopts.sh
 # Trying to determine when numpy gets uninstalled
 # printInstallationStatus numpy $CONTRIB_DIR post-bildopts
