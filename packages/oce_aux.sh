@@ -26,7 +26,7 @@ setOceTriggerVars() {
 # Standard vars
   OCE_REPO_URL=https://github.com/Tech-XCorp/oce.git
   OCE_REPO_BRANCH_STD=${OCE_REPO_BRANCH_STD:-"stable"}
-  OCE_REPO_BRANCH_EXP=${OCE_REPO_BRANCH_STD:-"master"}
+  OCE_REPO_BRANCH_EXP=${OCE_REPO_BRANCH_EXP:-"stable"}
   OCE_UPSTREAM_URL=https://github.com/tpaviot/oce.git
   OCE_UPSTREAM_BRANCH_STD=OCE-0.17
   OCE_UPSTREAM_BRANCH_EXP=master

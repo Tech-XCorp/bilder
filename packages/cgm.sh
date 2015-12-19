@@ -49,15 +49,19 @@ buildCgm() {
 # Whether using cmake
 # As of 20151220, autotools is still necessary to build cgm without cubit.
   # if $BUILD_EXPERIMENTAL; then
-    # CGM_USE_CMAKE=true
+    # CGM_USE_CMAKE=${CGM_USE_CMAKE:-"true"}
   # fi
   CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
   fi
   local cgmcmakearg=
+  local sharedarg=
   if $CGM_USE_CMAKE; then
     cgmcmakearg=-c
+    sharedarg="-DBUILD_SHARED_LIBS='ON'"
+  else
+    sharedarg="--enable-shared"
   fi
 
 # Get cgm from repo, determine whether to build
@@ -101,7 +105,7 @@ buildCgm() {
 # PYTHON_SHARED_BUILD for dagsolid
   local otherargsvar=`genbashvar CGM_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "--enable-shared $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "$sharedarg $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $FORPYTHON_SHARED_BUILD "$makejargs" "$CGM_ENV"
   fi
 
