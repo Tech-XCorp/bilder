@@ -66,7 +66,9 @@ BILDER OPTIONS
   -m <hostfile> ..... File to source for machine specific defs.
   -M ................ Maximally thread.
   -N ................ Build repo packages as Release with stripped executables.
-  -o ................ Install mpi if not on cygwin (use USE_MPI for version -- openmpi-nodl is default).
+  -o ................ Install mpi if not on cygwin. Use
+                        -E USE_MPI=<package-build> to specify which mpi.
+                        openmpi-nodl is default.
   -O ................ Install optional packages = ATLAS, parallel visit, ...
   -p <path> ......... Specify a supra-search-path.
   -P ................ Do not post to depot regardless of other settings.
