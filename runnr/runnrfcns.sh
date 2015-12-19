@@ -229,12 +229,12 @@ runnrGetHostVars() {
 
   # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 # Warn if old runr stuff lying around
-  local runnrdebug=${BLDR_VERBOSE:-"false"}
+  local runnrverbose=${BLDR_VERBOSE:-"false"}
   mydir=`dirname $BASH_SOURCE`
   mydir=`(cd $mydir; pwd -P)`
   if test -d ../runr; then
     local runrdir=`(cd ../runr; pwd -P)`
-    $runnrdebug && echo "WARNING: $runrdir (obsolete) should be removed"'!'
+    $runnrverbose && echo "WARNING: $runrdir (obsolete) should be removed"'!'
   fi
 
 # Set variables associated with system: RUNNRSYSTEM and IS_64BIT
@@ -289,8 +289,7 @@ runnrGetHostVars() {
 # Look for anything in the configuration directory
   if test -n "$BILDER_CONFDIR" -a -f "$BILDER_CONFDIR/bilderrc"; then
     cmd="source $BILDER_CONFDIR/bilderrc"
-    # $runnrdebug && echo "$cmd"
-    $runnrdebug && echo "$cmd"
+    $runnrverbose && echo "$cmd"
     $cmd
   fi
 
@@ -298,8 +297,8 @@ runnrGetHostVars() {
   RUNNR_DIR=${RUNNR_DIR:-"$mydir"}
   if test -x $RUNNR_DIR/fqdn.sh; then
     cmd="source $RUNNR_DIR/fqdn.sh"
-    # $runnrdebug && echo "$cmd"
-    $runnrdebug && echo "$cmd"
+    # $runnrverbose && echo "$cmd"
+    $runnrverbose && echo "$cmd"
     $cmd
   fi
 
@@ -329,7 +328,7 @@ runnrGetHostVars() {
     if test -n "$DOMAINNAME"; then
       FQHOSTNAME=${UQHOSTNAME}.${DOMAINNAME}
     else
-      $runnrdebug &&  echo "WARNING: Windows with ipconfig not defining Primary Dns Suffix."
+      $runnrverbose &&  echo "WARNING: Windows with ipconfig not defining Primary Dns Suffix."
     fi
   fi
   # techo "FQHOSTNAME = $FQHOSTNAME."
@@ -349,32 +348,29 @@ runnrGetHostVars() {
 
 # Make any adjustments to MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR,
 # FQMAILHOST, BLDRHOSTID
-  $runnrdebug && echo "[$FUNCNAME]: DOMAINS_DIR = $DOMAINS_DIR."
+  $runnrverbose && echo "[$FUNCNAME]: DOMAINS_DIR = $DOMAINS_DIR."
   if test -f $DOMAINS_DIR/${DOMAINNAME}; then
     cmd="source $DOMAINS_DIR/${DOMAINNAME}"
-    $runnrdebug && $runnrdebug && echo "$cmd"
+    $runnrverbose && $runnrverbose && echo "$cmd"
     echo "$cmd"
     $cmd
   elif test -f $BILDER_CONFDIR/domains/${DOMAINNAME}; then
     cmd="source $BILDER_CONFDIR/domains/${DOMAINNAME}"
-    $runnrdebug && echo "$cmd"
-    echo "$cmd"
+    $runnrverbose && echo "$cmd"
     $cmd
   elif test -f $BILDER_DIR/domains/${DOMAINNAME}; then
     cmd="source $BILDER_DIR/domains/${DOMAINNAME}"
-    $runnrdebug && echo "$cmd"
-    echo "$cmd"
+    $runnrverbose && echo "$cmd"
     $cmd
   else
-    $runnrdebug && echo "Domains file not found."
+    $runnrverbose && echo "Domains file not found."
   fi
   # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 
 # Get any private queue information
   if test -f $BILDER_CONFDIR/bilderqs; then
     cmd="source $BILDER_CONFDIR/bilderqs"
-    # $runnrdebug && echo "$cmd"
-    echo "$cmd"
+    $runnrverbose && echo "$cmd"
     $cmd
   fi
 
