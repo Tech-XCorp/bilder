@@ -47,10 +47,10 @@ setCgmNonTriggerVars
 buildCgm() {
 
 # Whether using cmake
-# Autotools is necessary for the older version of cgm to install lib/cgm.make.
-  if $BUILD_EXPERIMENTAL; then
-    CGM_USE_CMAKE=true
-  fi
+# As of 20151220, autotools is still necessary to build cgm without cubit.
+  # if $BUILD_EXPERIMENTAL; then
+    # CGM_USE_CMAKE=true
+  # fi
   CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
@@ -70,7 +70,10 @@ buildCgm() {
 # Configure and build args
   local CGM_ADDL_ARGS=
   if $CGM_USE_CMAKE; then
-    CGM_ADDL_ARGS="-DCGM_OCC='ON' -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_PYCSH_CMAKE_DIR_ARG"
+    CGM_ADDL_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DCGM_OCC='ON' $OCE_PYCSH_CMAKE_DIR_ARG"
+    if [[ `uname` =~ CYGWIN ]]; then
+      CGM_ADDL_ARGS="-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CGM_ADDL_ARGS"
+    fi
   else
     CGM_ADDL_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR'"
   fi
