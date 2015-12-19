@@ -68,11 +68,11 @@ buildCgm() {
   fi
 
 # Configure and build args
-  local CGM_CONFIG_ARGS=
+  local CGM_ADDL_ARGS=
   if $CGM_USE_CMAKE; then
-    CGM_CONFIG_ARGS="-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_PYCSH_CMAKE_DIR_ARG $CGM_ADDL_ARGS"
+    CGM_ADDL_ARGS="-DCGM_OCC='ON' -DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_PYCSH_CMAKE_DIR_ARG"
   else
-    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR' $CGM_ADDL_ARGS"
+    CGM_ADDL_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR'"
   fi
 
 # When not all dependencies right on Windows, need nmake
@@ -91,14 +91,14 @@ buildCgm() {
 # PYTHON_STATIC_BUILD for composers
   local otherargsvar=`genbashvar CGM_${FORPYTHON_STATIC_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $cgmcmakearg cgm $FORPYTHON_STATIC_BUILD "$CGM_CONFIG_ARGS $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $FORPYTHON_STATIC_BUILD "$CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $FORPYTHON_STATIC_BUILD "$makejargs" "$CGM_ENV"
   fi
 
 # PYTHON_SHARED_BUILD for dagsolid
   local otherargsvar=`genbashvar CGM_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "--enable-shared $CGM_CONFIG_ARGS $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "--enable-shared $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $FORPYTHON_SHARED_BUILD "$makejargs" "$CGM_ENV"
   fi
 
