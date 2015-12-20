@@ -29,21 +29,21 @@ ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++
 ECHO jenkinsbild.bat: +++++++++++++++++++++++++++++ >> jenkinsbild.log
 
 REM JOB_NAME contains <JOB>/n=<NODE>
-set JOB_LINK_NAME=
+set JOB_LINK_BASENAME=
 if defined JOB_NAME (
-  for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK_NAME=%%A
+  for /f "tokens=1 delims=/" %%A in ("%JOB_NAME%") do set JOB_LINK_BASENAME=%%A
 )
-echo jenkinsbild.bat: JOB_LINK_NAME = %JOB_LINK_NAME%
+echo jenkinsbild.bat: JOB_LINK_BASENAME = %JOB_LINK_BASENAME%
 
 REM Declare vars outside of if parens so they have current scope
 set BILDER_WSPATH=%CD%
 set drive=%cd:~0,2%
 
 REM If Jenkins define where to link job
-if defined JOB_LINK_NAME (
-  set JOB_LINK=%drive%\%JOB_LINK_NAME%
+if defined JOB_LINK_BASENAME (
+  set JOB_LINK=%drive%\%JOB_LINK_BASENAME%
 REM Allow for some namespacing of link
-  if exist %drive%\jenkins set JOB_LINK=%drive%\jenkins\%JOB_LINK_NAME%
+  if exist %drive%\jenkins set JOB_LINK=%drive%\jenkins\%JOB_LINK_BASENAME%
   echo jenkinsbild.bat: Added drive letter.
 REM Jenkins workspace variable has forward slashes, but
 REM we need a windows path, so we convert

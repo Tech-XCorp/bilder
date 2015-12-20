@@ -1,0 +1,84 @@
+diff -ruN tables-3.2.0/c-blosc/hdf5/blosc_filter.c tables-3.2.0-works/c-blosc/hdf5/blosc_filter.c
+--- tables-3.2.0/c-blosc/hdf5/blosc_filter.c	2015-05-04 06:18:44.000000000 -0600
++++ tables-3.2.0-works/c-blosc/hdf5/blosc_filter.c	2015-12-20 08:11:32.456057800 -0700
+@@ -20,7 +20,7 @@
+ 
+ #if H5Epush_vers == 2
+ /* 1.8.x */
+-#define PUSH_ERR(func, minor, str...) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
++#define PUSH_ERR(func, minor, str) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
+ #else
+ /* 1.6.x */
+ #define PUSH_ERR(func, minor, str) H5Epush(__FILE__, func, __LINE__, H5E_PLINE, minor, str)
+diff -ruN tables-3.2.0/setup.py tables-3.2.0-works/setup.py
+--- tables-3.2.0/setup.py	2015-05-04 10:14:22.000000000 -0600
++++ tables-3.2.0-works/setup.py	2015-12-20 08:07:00.909327900 -0700
+@@ -383,20 +383,35 @@
+     }
+ elif os.name == 'nt':
+     _Package = WindowsPackage
+-    _platdep = {  # package tag -> platform-dependent components
++    HDF5_LIBNAMES_LACK_DLL = os.environ.get('HDF5_LIBNAMES_LACK_DLL', '')
++    if HDF5_LIBNAMES_LACK_DLL:
++      _platdep = {  # package tag -> platform-dependent components
++        'HDF5': ['hdf5', 'hdf5'],
++        'LZO2': ['lzo2', 'lzo2'],
++        'LZO': ['liblzo', 'lzo1'],
++        'BZ2': ['bzip2', 'bzip2'],
++        'BLOSC': ['blosc', 'blosc'],
++      }
++    else:
++      _platdep = {  # package tag -> platform-dependent components
+         'HDF5': ['hdf5dll', 'hdf5dll'],
+         'LZO2': ['lzo2', 'lzo2'],
+         'LZO': ['liblzo', 'lzo1'],
+         'BZ2': ['bzip2', 'bzip2'],
+         'BLOSC': ['blosc', 'blosc'],
+-    }
++      }
+ 
+     # Copy the next DLL's to binaries by default.
+     # Update these paths for your own system!
+-    dll_files = ['\\windows\\system\\zlib1.dll',
+-                 '\\windows\\system\\szip.dll',
+-                 ]
++# Bilder builds without compression
++    # dll_files = ['\\windows\\system\\zlib1.dll',
++                 # '\\windows\\system\\szip.dll',
++                 # ]
++    dll_files = []
+     if '--debug' in sys.argv:
++      if HDF5_LIBNAMES_LACK_DLL:
++        _platdep['HDF5'] = ['hdf5d', 'hdf5d']
++      else:
+         _platdep['HDF5'] = ['hdf5ddll', 'hdf5ddll']
+ 
+ hdf5_package = _Package("HDF5", 'HDF5', 'H5public', *_platdep['HDF5'])
+@@ -483,7 +498,10 @@
+ # variable to rebuild pytables
+ if not HDF5_DIR and os.name == 'nt':
+     import ctypes.util
+-    libdir = ctypes.util.find_library('hdf5dll.dll')
++    if HDF5_LIBNAMES_LACK_DLL:
++      libdir = ctypes.util.find_library('hdf5.dll')
++    else:
++      libdir = ctypes.util.find_library('hdf5dll.dll')
+     # Like 'C:\\Program Files\\HDF Group\\HDF5\\1.8.8\\bin\\hdf5dll.dll'
+     if libdir:
+         # Strip off the filename
+diff -ruN tables-3.2.0/tables/__init__.py tables-3.2.0-works/tables/__init__.py
+--- tables-3.2.0/tables/__init__.py	2015-04-21 05:37:18.000000000 -0600
++++ tables-3.2.0-works/tables/__init__.py	2015-12-20 08:07:00.916328300 -0700
+@@ -60,9 +60,10 @@
+     # In order to improve diagnosis of a common Windows dependency
+     # issue, we explicitly test that we can load the HDF5 dll before
+     # loading tables.utilsextensions.
+-    if not _load_library('hdf5dll.dll', ctypes.cdll.LoadLibrary):
++    if not _load_library('hdf5.dll', ctypes.cdll.LoadLibrary):
++      if not _load_library('hdf5dll.dll', ctypes.cdll.LoadLibrary):
+         raise ImportError(
+-            'Could not load "hdf5dll.dll", please ensure'
++            'Could not load "hdf5.dll" or "hdf5dll.dll", please ensure'
+             ' that it can be found in the system path')
+ 
+     # Some PyTables binary distributions place the dependency DLLs in the
