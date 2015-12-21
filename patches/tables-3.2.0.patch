@@ -1,18 +1,30 @@
-diff -ruN tables-3.2.0/c-blosc/hdf5/blosc_filter.c tables-3.2.0-works/c-blosc/hdf5/blosc_filter.c
+diff -ruN tables-3.2.0/c-blosc/hdf5/blosc_filter.c tables-3.2.0-new/c-blosc/hdf5/blosc_filter.c
 --- tables-3.2.0/c-blosc/hdf5/blosc_filter.c	2015-05-04 06:18:44.000000000 -0600
-+++ tables-3.2.0-works/c-blosc/hdf5/blosc_filter.c	2015-12-20 08:11:32.456057800 -0700
-@@ -20,7 +20,7 @@
++++ tables-3.2.0-new/c-blosc/hdf5/blosc_filter.c	2015-12-21 05:09:29.000000000 -0700
+@@ -18,8 +18,9 @@
+ #include "hdf5.h"
+ #include "blosc_filter.h"
  
- #if H5Epush_vers == 2
+-#if H5Epush_vers == 2
++#if H5Epush_vers == 2 && !defined(_MSC_VER)
  /* 1.8.x */
--#define PUSH_ERR(func, minor, str...) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
-+#define PUSH_ERR(func, minor, str) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
++#define H5Epush_ifc_18
+ #define PUSH_ERR(func, minor, str...) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
  #else
  /* 1.6.x */
- #define PUSH_ERR(func, minor, str) H5Epush(__FILE__, func, __LINE__, H5E_PLINE, minor, str)
-diff -ruN tables-3.2.0/setup.py tables-3.2.0-works/setup.py
+@@ -195,7 +196,8 @@
+         complist = blosc_list_compressors();
+ 	code = blosc_compcode_to_compname(compcode, &compname);
+ 	if (code == -1) {
+-#if H5Epush_vers == 2
++// #if H5Epush_vers == 2
++#ifdef H5Epush_ifc_18
+             PUSH_ERR("blosc_filter", H5E_CALLBACK,
+                      "this Blosc library does not have support for "
+                      "the '%s' compressor, but only for: %s",
+diff -ruN tables-3.2.0/setup.py tables-3.2.0-new/setup.py
 --- tables-3.2.0/setup.py	2015-05-04 10:14:22.000000000 -0600
-+++ tables-3.2.0-works/setup.py	2015-12-20 08:07:00.909327900 -0700
++++ tables-3.2.0-new/setup.py	2015-12-21 05:02:47.000000000 -0700
 @@ -383,20 +383,35 @@
      }
  elif os.name == 'nt':
@@ -66,9 +78,9 @@ diff -ruN tables-3.2.0/setup.py tables-3.2.0-works/setup.py
      # Like 'C:\\Program Files\\HDF Group\\HDF5\\1.8.8\\bin\\hdf5dll.dll'
      if libdir:
          # Strip off the filename
-diff -ruN tables-3.2.0/tables/__init__.py tables-3.2.0-works/tables/__init__.py
+diff -ruN tables-3.2.0/tables/__init__.py tables-3.2.0-new/tables/__init__.py
 --- tables-3.2.0/tables/__init__.py	2015-04-21 05:37:18.000000000 -0600
-+++ tables-3.2.0-works/tables/__init__.py	2015-12-20 08:07:00.916328300 -0700
++++ tables-3.2.0-new/tables/__init__.py	2015-12-21 05:02:47.000000000 -0700
 @@ -60,9 +60,10 @@
      # In order to improve diagnosis of a common Windows dependency
      # issue, we explicitly test that we can load the HDF5 dll before
