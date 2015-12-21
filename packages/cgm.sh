@@ -51,10 +51,10 @@ buildCgm() {
   # if $BUILD_EXPERIMENTAL; then
     # CGM_USE_CMAKE=${CGM_USE_CMAKE:-"true"}
   # fi
-  CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
   fi
+  CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   local cgmcmakearg=
   local sharedarg=
   if $CGM_USE_CMAKE; then
