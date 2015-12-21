@@ -1,18 +1,19 @@
 diff -ruN tables-3.2.0/c-blosc/hdf5/blosc_filter.c tables-3.2.0-new/c-blosc/hdf5/blosc_filter.c
 --- tables-3.2.0/c-blosc/hdf5/blosc_filter.c	2015-05-04 06:18:44.000000000 -0600
-+++ tables-3.2.0-new/c-blosc/hdf5/blosc_filter.c	2015-12-21 05:09:29.000000000 -0700
-@@ -18,8 +18,9 @@
- #include "hdf5.h"
- #include "blosc_filter.h"
++++ tables-3.2.0-new/c-blosc/hdf5/blosc_filter.c	2015-12-21 05:48:58.190977600 -0700
+@@ -20,7 +20,11 @@
  
--#if H5Epush_vers == 2
-+#if H5Epush_vers == 2 && !defined(_MSC_VER)
+ #if H5Epush_vers == 2
  /* 1.8.x */
-+#define H5Epush_ifc_18
++#if defined(_MSC_VER)
++#define PUSH_ERR(func, minor, str) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
++#else
  #define PUSH_ERR(func, minor, str...) H5Epush(H5E_DEFAULT, __FILE__, func, __LINE__, H5E_ERR_CLS, H5E_PLINE, minor, str)
++#endif
  #else
  /* 1.6.x */
-@@ -195,7 +196,8 @@
+ #define PUSH_ERR(func, minor, str) H5Epush(__FILE__, func, __LINE__, H5E_PLINE, minor, str)
+@@ -195,7 +199,8 @@
          complist = blosc_list_compressors();
  	code = blosc_compcode_to_compname(compcode, &compname);
  	if (code == -1) {
@@ -24,7 +25,7 @@ diff -ruN tables-3.2.0/c-blosc/hdf5/blosc_filter.c tables-3.2.0-new/c-blosc/hdf5
                       "the '%s' compressor, but only for: %s",
 diff -ruN tables-3.2.0/setup.py tables-3.2.0-new/setup.py
 --- tables-3.2.0/setup.py	2015-05-04 10:14:22.000000000 -0600
-+++ tables-3.2.0-new/setup.py	2015-12-21 05:02:47.000000000 -0700
++++ tables-3.2.0-new/setup.py	2015-12-21 05:46:21.097977600 -0700
 @@ -383,20 +383,35 @@
      }
  elif os.name == 'nt':
@@ -80,7 +81,7 @@ diff -ruN tables-3.2.0/setup.py tables-3.2.0-new/setup.py
          # Strip off the filename
 diff -ruN tables-3.2.0/tables/__init__.py tables-3.2.0-new/tables/__init__.py
 --- tables-3.2.0/tables/__init__.py	2015-04-21 05:37:18.000000000 -0600
-+++ tables-3.2.0-new/tables/__init__.py	2015-12-21 05:02:47.000000000 -0700
++++ tables-3.2.0-new/tables/__init__.py	2015-12-21 05:46:21.113577600 -0700
 @@ -60,9 +60,10 @@
      # In order to improve diagnosis of a common Windows dependency
      # issue, we explicitly test that we can load the HDF5 dll before
