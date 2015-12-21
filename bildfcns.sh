@@ -7468,8 +7468,15 @@ EOF
   techo "  Bilder creating abstract $ABSTRACT."
   techo "======================================"
   rmall $ABSTRACT
-
-  local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`
+  
+  case `uname` in
+    #in CYGWIN, we use a windows shortlink where pwd -P still returns the shortpath
+    #so we sed the short path for the directory under c, which should be the jenkins project name    
+    CYGWIN*) 
+      local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*c/@@' -e 's@/.*$@@'`;;
+    *)
+      local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`;;
+  esac
   addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $formattedTimestamp" BLUE $ABSTRACT
   addHtmlLine 2 "Build: ${BUILD_DIR}" BLACK $ABSTRACT
   chmod a+r ${ABSTRACT}
