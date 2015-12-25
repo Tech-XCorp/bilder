@@ -29,7 +29,7 @@ Options:
   -d .......... Debug (print command but do not execute)
   -e <address>. Email address that should get the bilder results
   -h .......... Print this help and exit
-  -t <name>.... Package to use at the target in the bilder invocation
+  -t <name>.... The build target(s)
 Required environment variables
   JENKINS_URL ...... The URL for job submission
   JENKINS_USER ..... user:password for jenkins submission
