@@ -16,8 +16,20 @@
 ######################################################################
 
 setOpensslTriggerVars() {
-  OPENSSL_BLDRVERSION_STD=${OPENSSL_BLDRVERSION_STD:-"1.0.1c"}
-  OPENSSL_BLDRVERSION_EXP=${OPENSSL_BLDRVERSION_EXP:-"1.0.1c"}
+  # OPENSSL_BLDRVERSION_STD=${OPENSSL_BLDRVERSION_STD:-"1.0.1c"}
+  OPENSSL_BLDRVERSION_STD=${OPENSSL_BLDRVERSION_STD:-"1.0.2d"}
+  OPENSSL_BLDRVERSION_EXP=${OPENSSL_BLDRVERSION_EXP:-"1.0.2d"}
+  case `uname` in
+    Darwin)
+      case `uname -r` in
+        1[5-9]*)
+# OpenSSL disappeared in El Capitan
+          OPENSSL_BUILDS=sersh
+          ;;
+      esac
+    ;;
+  esac
+  computeBuilds openssl
   OPENSSL_BUILDS=${OPENSSL_BUILDS:-"NONE"}
   OPENSSL_DEPS=
 }
@@ -30,6 +42,6 @@ setOpensslTriggerVars
 ######################################################################
 
 findOpenssl() {
-  :
+  findContribPackage Openssl crypto sersh
 }
 

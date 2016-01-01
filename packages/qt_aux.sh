@@ -36,6 +36,12 @@ setQtTriggerVars() {
   QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   QT_BUILD=$FORPYTHON_SHARED_BUILD
   QT_DEPS=bzip2
+# Need the following for phonon (and for webkit) on Linux:
+#   dbus
+#   glib (aka glib2 for the rpm)
+#   gstreamer-devel
+#   gstreamer-plugins-base-devel
+#   libxml2
 }
 setQtTriggerVars
 

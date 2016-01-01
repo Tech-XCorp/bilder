@@ -11,60 +11,55 @@
 ##########
 
 bilderFqdn() {
+
+  # techo "[$FUNCNAME]: FQHOSTNAME = $FQHOSTNAME."
+# Check for already done
+  if test -n "$FQHOSTNAME" && ! test $FQHOSTNAME = Host; then
+    return
+  fi
+
+# Try getting with hostname
   local fqdn
   if ! fqdn=`hostname -f 2>/dev/null`; then
     fqdn=`hostname`
   fi
-  # echo "bilderFqdn called.  fqdn = $fqdn.  FQHOSTNAME = $FQHOSTNAME."
-  case $fqdn in
-# ALCF
-    *.*.alcf.anl.gov)
-      FQMAILHOST=`echo $FQHOSTNAME | sed -e 's/.alcf.anl.gov//' -e 's/^.*\.//'`.alcf.anl.gov
-      DOMAINNAME=${DOMAINNAME:-"alcf.anl.gov"}
-      RUNNRSYSTEM=${RUNNRSYSTEM:-"BGP"}
-      ;;
-# NERSC (many machines do not return fqdn)
-    cvrsvc[0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"carver.nersc.gov"}
-      ;;
-    dirac[0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"dirac.nersc.gov"}
-      ;;
-    edison[0-9]*)
-      echo "Working on edison."
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"edison.nersc.gov"}
-      RUNNRSYSTEM=${RUNNRSYSTEM:-"XC30"}
-      ;;
-    hopper[01][0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"hopper.nersc.gov"}
-      RUNNRSYSTEM=${RUNNRSYSTEM:-"XE6"}
-      ;;
-    nid[0-9]*)
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn.nersc.gov"}
-      FQMAILHOST=${FQMAILHOST:-"franklin.nersc.gov"}
-      RUNNRSYSTEM=${RUNNRSYSTEM:-"XT4"}
-      ;;
-    node[0-9]*.*) # Catchall for systems with nodes named node0, node1, ...
-      FQHOSTNAME=${FQHOSTNAME:-"$fqdn"}
-# Appears this does not work as bash through the queue is set -e?
-# And restricted shell so cannot execute /sbin commands?
-if false; then
-      if test -z "$FQMAILHOST"; then
-        if test -x "/sbin/route"; then
-          local gwip=`/sbin/route -n | grep 'UG[ \t]' | awk '{print $2}'`
-        else
-          local gwip=`route -n | grep 'UG[ \t]' | awk '{print $2}'`
-        fi
-        local gwhn=`rsh $gwip hostname -f | sed 's/[0-9]*\././'`
-        FQMAILHOST="$gwhn"
-      fi
-fi
-      ;;
-  esac
+# If that is unqualified, try host.
+  if ! [[ $fqdn =~ \. ]]; then
+    fqtmp=`host $fqdn | sed 's/ .*$//'`
+    echo "[$FUNCNAME]: fqtmp = $fqtmp."
+    if test $fqtmp != Host; then
+      fqdn=$fqtmp
+    fi
+  fi
+  FQHOSTNAME=$fqdn
+  # techo "[$FUNCNAME]: fqdn = $fqdn."
+
+# For systems with nodes named node0, node1, ... or login0, login1, ...,
+# strip that off to get the system name (FQMAILHOST)
+  for prehn in login node; do
+    if [[ $FQHOSTNAME =~ ^${prehn} ]]; then
+      # echo matches $prehn
+      FQMAILHOST=`echo $FQHOSTNAME | sed -e "s/${prehn}[^\.]*\.//"`
+      DOMAINNAME=`echo $FQMAILHOST | sed -e 's/^[^\.]*\.//'`
+      return
+    fi
+  done
+
+# Special case for cori at nersc
+  if [[ $FQHOSTNAME =~ ^cori[0-9]* ]] && ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
+    UQMAILHOST=cori
+    FQMAILHOST=cori.nersc.gov
+    if ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
+      FQHOSTNAME=${FQHOSTNAME}.nersc.gov
+    fi
+  fi
+  # techo "FQHOSTNAME = $FQHOSTNAME."
+
+# Otherwise assume domainname is last part.
+  DOMAINNAME=`echo $FQHOSTNAME | sed -e 's/^[^\.]*\.//'`
+# FQMAILHOST will be determined elsewhere, as depending on system,
+# it may or may not have trailing numbers stripped.
+
 }
 
 bilderFqdn

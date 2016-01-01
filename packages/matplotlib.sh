@@ -120,6 +120,11 @@ buildMatplotlib() {
     return
   fi
 
+# Remove eggs and pth as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/matplotlib*.{egg,pth}"
+  techo -2 "$cmd"
+  $cmd
+
 # Find dependencies and construct the basedirs variable needed for setup
   techo -2 "Looking for freetype."
   local freetypedir=`findMatplotlibDepDir freetype ft2build.h freetype "include include/freetype2"`

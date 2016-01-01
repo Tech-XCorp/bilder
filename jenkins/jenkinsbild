@@ -80,8 +80,8 @@ fi
 jenkinssubdir=$projdir/bilder/jenkins
 
 if [[ `uname` =~ CYGWIN ]] && [[ $projdir =~ jenkins/workspace ]]; then
-  echo "projdir still a subdir of jenkins/workspace.  Quitting."
-  exit 1
+# Quitting is too drastic.  Kills some cases that would work.
+  echo "WARNING: projdir still a subdir of jenkins/workspace."
 fi
 
 lecho() {
@@ -234,13 +234,16 @@ lecho "   BILDER_CTEST_MODEL = $BILDER_CTEST_MODEL"
 # Find the machine file
 #
 addlopts=
-if test -f $jenkinssubdir/$MACHINES_FILE; then
-  source $jenkinssubdir/$MACHINES_FILE
-else
-  lecho "WARNING: $jenkinssubdir/$MACHINES_FILE does not exist."
-fi
-if test -n "$MACHINEFILE"; then
-  addlopts="-m $MACHINEFILE"
+if test -n "$MACHINES_FILE"; then
+  # addlopts="-m $MACHINES_FILE" # JRC: This is wrong. Sourcing gives filename.
+  if test -f $jenkinssubdir/$MACHINES_FILE; then
+    source $jenkinssubdir/$MACHINES_FILE
+    if test -n "$MACHINEFILE"; then
+      addlopts="-m $MACHINEFILE"
+    fi
+  else
+    lecho "WARNING: $jenkinssubdir/$MACHINES_FILE does not exist."
+  fi
 fi
 
 #
@@ -335,7 +338,8 @@ if $PRINT_ONLY; then
 fi
 
 # Execute the command
-lecho "Executing $cmd in `pwd -P` at `date`."
+lecho "Current directory not expanding symbolic links is `pwd`"
+lecho "Executing $cmd in `pwd` at `date`."
 lecho "$cmd"
 eval "$cmd"
 res=$?

@@ -65,15 +65,17 @@ BILDER OPTIONS
   -L ................ Directory for logs (if different from build).
   -m <hostfile> ..... File to source for machine specific defs.
   -M ................ Maximally thread.
-  -N ................ No debug info when building repo packages via CMake.
-  -o ................ Install mpi if not on cygwin (use USE_MPI for version -- openmpi-nodl is default).
+  -N ................ Build repo packages as Release with stripped executables.
+  -o ................ Install mpi if not on cygwin. Use
+                        -E USE_MPI=<package-build> to specify which mpi.
+                        openmpi-nodl is default.
   -O ................ Install optional packages = ATLAS, parallel visit, ...
   -p <path> ......... Specify a supra-search-path.
   -P ................ Do not post to depot regardless of other settings.
   -r ................ Remove other installations of a package upon successful
                         installation of that package.
-  -R ................ Build RELEASE (i.e., licensed and signed when applicable)
-                        version of executable.
+  -R ................ Build Release with executables that are stripped and are
+                        signed and licensed when applicable.
   -s ................ Rebuild packages if package script has been modified
                         since last build.
   -S ................ Build static.
@@ -243,7 +245,7 @@ setBilderOptions() {
   techo -2 "BILDER_OPTIND = $BILDER_OPTIND."
   shift $(($BILDER_OPTIND - 1))
   BILDER_TARGET="$*"
-  techo "BILDER_TARGET = $BILDER_TARGET."
+  techo -2 "BILDER_TARGET = $BILDER_TARGET."
   if test -n "$BILDER_TARGET"; then
     BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGET//"`
     techo "BILDER_CMD = $BILDER_CMD"
@@ -412,7 +414,7 @@ EOF
 
 # Set environment
   if test -n "$BILDER_ENV"; then
-    for i in `echo $BILDER_ENV | tr ',' ' '`; do
+    for i in `echo $BILDER_ENV | sed 's/,\([A-Za-z_][0-9A-Za-z_]*=\)/ \1/g'`; do
       cmd="export $i"
       techo "$cmd"
       $cmd

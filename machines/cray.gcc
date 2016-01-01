@@ -14,7 +14,25 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-gnu 1>/dev/null 2>&1; then
   echo Wrong programming environment. Should be PrgEnv-gnu.
   exit
 fi
+echo "UQMAILHOST=$UQMAILHOST"
 case $UQMAILHOST in
+  cori*)
+
+    ATLAS_BUILDS=NONE
+    LAPACK_BUILDS=NONE
+
+# System linear algebra, note haswell for Cori.
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
+    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
+    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
+
+# System IO libs
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/51
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/51
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/51
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/51
+    ;;
 
   edison*)
 
@@ -68,32 +86,34 @@ case $UQMAILHOST in
 
 # Use gcc 4.7 as it is compatible with the cuda 5.5 sdk
 # System linear algebra, note interlagos for Titan backend nodes.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/GNU/48/mc12/lib/libsci_gnu.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/GNU/49/mc12/lib/libsci_gnu.a
     SYSTEM_BLAS_SERSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_BLAS_PYCSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_SER_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_SERSH_LIB=${SYSTEM_BLAS_SER_LIB}
     SYSTEM_LAPACK_PYCSH_LIB=${SYSTEM_BLAS_SER_LIB}
-    SYSTEM_BLAS_PAR_LIB=/opt/cray/libsci/default/GNU/48/interlagos/lib/libsci_gnu.a
+    SYSTEM_BLAS_PAR_LIB=/opt/cray/libsci/default/GNU/49/interlagos/lib/libsci_gnu.a
     SYSTEM_BLAS_BEN_LIB=${SYSTEM_BLAS_PAR_LIB}
     SYSTEM_LAPACK_PAR_LIB=${SYSTEM_BLAS_PAR_LIB}
     SYSTEM_LAPACK_BEN_LIB=${SYSTEM_BLAS_PAR_LIB}
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/48
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/48
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/49
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/49
     SYSTEM_HDF5_BEN_DIR=${SYSTEM_HDF5_PAR_DIR}
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/48
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/48
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/49
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/49
     SYSTEM_NETCDF_BEN_DIR=${SYSTEM_NETCDF_PAR_DIR}
 
 # use ben builds
     BOOST_BUILDS=${BOOST_BUILDS:-"ser,ben"}
-    SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"ben"}
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,ben"}
-    TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,ben"}
-# JRK 12/13, Hack -- this variable does not currently get set by bilder
-    CMAKE_HDF5_BEN_DIR_ARG="-DHdf5_ROOT_DIR:PATH=${SYSTEM_HDF5_BEN_DIR}"
+    PARMETIS_BUILDS=${PARMETIS_BUILDS:-"par"}
+    SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"par"}
+    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,ben"} #should use par
+    TXBASE_BUILDS=${TXBASE_BUILDS:-"ser,ben"}         #should use par
+    TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser,ben"}
+# JRK 11/15, Hack -- this variable does not currently get set by bilder
+    CMAKE_HDF5_BEN_DIR_ARG="-DHdf5_ROOT_DIR:PATH=${SYSTEM_HDF5_BEN_DIR} -DUSE_SHARED_LIBS:BOOL=FALSE"
     ;;
 
   copper*)

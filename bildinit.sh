@@ -51,44 +51,37 @@ REPLACE_COMPILERS=${REPLACE_COMPILERS:-"false"}
 if test -n "$CC"; then
   techo "WARNING: [bildinit.sh] CC set to $CC before sourcing machine file"
 fi
-techo "MACHINE_FILE = \"$MACHINE_FILE\".  FQMAILHOST = \"$FQMAILHOST\"."
-if test -n "$MACHINE_FILE"; then
-  mfilefound=false
-  if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/machines/$MACHINE_FILE; then
-    absmachfile=$BILDER_CONFDIR/machines/$MACHINE_FILE
+techo "MACHINE_FILE = \"$MACHINE_FILE\"."
+machfile=${MACHINE_FILE:-"$FQMAILHOST"}
+# Seek machfile
+absmachfile=
+if test -n "$BILDER_CONFDIR"; then
+  if test -f $BILDER_CONFDIR/machines/$machfile; then
+    absmachfile=$BILDER_CONFDIR/machines/$machfile
     techo "Sourcing $absmachfile."
     source $absmachfile
     techo "$absmachfile sourced."
-    mfilefound=true
   fi
-  if test -f $BILDER_DIR/machines/$MACHINE_FILE; then
-    absmachfile=$BILDER_DIR/machines/$MACHINE_FILE
-    techo "Sourcing $absmachfile."
-    source $absmachfile
-    techo "$absmachfile sourced."
-    mfilefound=true
-  fi
-  if ! $mfilefound; then
-    if test -n "$BILDER_CONFDIR"; then
-      techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_CONFDIR or $BILDER_DIR."
-    else
-      techo "WARNING: [bildinit.sh] $MACHINE_FILE not found in $BILDER_DIR."
-    fi
-  fi
-elif test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/machines/$FQMAILHOST; then
-  absmachfile=$BILDER_CONFDIR/machines/$FQMAILHOST
-  techo "Sourcing $absmachfile."
-  source $absmachfile
-  techo "$absmachfile sourced."
-elif test -f $BILDER_DIR/machines/$FQMAILHOST; then
-  absmachfile=$BILDER_DIR/machines/$FQMAILHOST
+else
+  techo "WARNING: [bildinit.sh] BILDER_CONFDIR not defined."
+fi
+if test -f $BILDER_DIR/machines/$machfile; then
+  absmachfile=$BILDER_DIR/machines/$machfile
   techo "Sourcing $absmachfile."
   source $absmachfile
   techo "$absmachfile sourced."
 else
-  techo "No host specific variables file to source."
+  test -n "$MACHINE_FILE" && techo "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR."
 fi
-# techo "CXXFLAGS = $CXXFLAGS"
+if test -z "$absmachfile" -a test -n "$MACHINE_FILE"; then
+  techo -n "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR"
+  if test -n "$BILDER_CONFDIR"; then
+    techo " and not found in $BILDER_CONFDIR."
+  else
+    techo "."
+  fi
+fi
+# techo "HDF5_BUILDS = $HDF5_BUILDS"; exit
 # techo "Quitting in bildinit.sh."; exit
 
 # Set BILDER_SVN before going further
@@ -165,7 +158,7 @@ esac
 PROJECT_SVN_URL=`bilderSvn info $PROJECT_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_URL=`bilderSvn info $BILDER_DIR | grep ^URL: | sed -e 's/^URL: *//'`
 BILDER_BRANCH=`echo $BILDER_URL | sed -e 's?^.*/bilder/??'`
-techo "NOTE: [bildinit.sh] BILDER_BRANCH = $BILDER_BRANCH."
+# techo "NOTE: [bildinit.sh] BILDER_BRANCH = $BILDER_BRANCH."
 BILDER_BRANCHSHORT=`echo $BILDER_BRANCH | sed -e 's?^.*/??'`
 BILDER_CONFDIR=${BILDER_CONFDIR:-"$BILDER_DIR/runnr"}
 techo "BILDER_CONFDIR = $BILDER_CONFDIR."
@@ -184,48 +177,24 @@ fi
 techo "BILDER_PROJECT = $BILDER_PROJECT."
 export BILDER_PROJECT
 PROJECT_BRANCH=`echo $PROJECT_URL | sed -e "s?^.*/$BILDER_PROJECT/??"`
+techo "NOTE: [bildinit.sh] PROJECT_BRANCH = $PROJECT_BRANCH."
 
-# Clean out old build files
-if false; then
-techo "Moving old bilder configure/build/... files."
-for i in svnup preconfig config depend distclean build install; do
-  cmd="find $BUILD_DIR -maxdepth 3 -name '*-$i.txt' -exec mv '{}' '{}'.bak \;"
-  techo -2 "$cmd"
+# Clean out artifacts
+if test -n "$JENKINS_FSROOT"; then
+  cmd="(cd $PROJECT_DIR; $PROJECT_DIR/bilder/jenkins/jenkinsclean.sh)"
+  echo "$cmd"
   eval "$cmd"
-done
-# JRC: not moving aside old .sh files.
-for i in preconfig config build install; do
-  cmd="find $BUILD_DIR -maxdepth 3 -name '*${i}.sh' -exec mv '{}' '{}'.bak \;"
-  techo -2 "$cmd"
-  eval "$cmd"
-done
 fi
 
-# Move aside test logs
-techo "Moving old test logs."
-testdirs=`\ls -d $PROJECT_DIR/*tests 2>/dev/null`
-if test -n "$testdirs"; then
-  for i in $testdirs; do
-    if test -d $i; then
-      cmd="find $i -name '*-txtest.log' -exec mv '{}' '{}'.bak \;"
-      techo -2 "$cmd"
-      eval "$cmd"
-    fi
-  done
+# Set default pkg topdir
+SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$JENKINS_FSROOT"}
+SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$GSCRATCH"}
+SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH"}
+SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH2"}
+if test -d /scr_$UQHOSTNAME/$USER; then
+  SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"/scr_$UQHOSTNAME/$USER"}
 fi
-# echo testdirs moved.
-
-# Move log files
-techo "Moving old bilder log files."
-for i in summary patch; do
-  eval ${i}files=`(cd $BUILD_DIR; \ls *-${i}.txt 2>/dev/null)`
-  files=`deref ${i}files`
-  if test -n "$files"; then
-    for f in $files; do
-      (cd $BUILD_DIR; mv $f ${f}.bak)
-    done
-  fi
-done
+SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$HOME"}
 
 # Get the packages repos
 getPkgRepos
@@ -259,7 +228,8 @@ techo "umask = `umask`"
 
 #
 # All paths other than PATH that might get affected.
-BILDER_ADDL_PATHS="LD_LIBRARY_PATH PYTHONPATH SIDL_DLL_PATH POLYSWIFT_LOC POLYSWIFT_PYTHON DYLD_LIBRARY_PATH"
+# Project specific paths should be put in the mk*all.sh file.
+BILDER_ADDL_PATHS="$BILDER_ADDL_PATHS LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH PKG_CONFIG_PATH"
 for i in PATH $BILDER_ADDL_PATHS; do
   unset BILDER_ADDED_${i}
 done

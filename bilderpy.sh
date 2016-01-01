@@ -229,3 +229,5 @@ for i in $completevars; do
   fi
 done
 
+# echo "Quitting at end of bilderpy.sh"; exit
+

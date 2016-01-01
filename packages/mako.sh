@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for mako
+# Build information for mako
 #
 # $Id$
 #
@@ -8,30 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in mako_aux.sh
 #
 ######################################################################
 
-MAKO_BLDRVERSION=${MAKO_BLDRVERSION:-"0.3.6"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/mako_aux.sh
 
 ######################################################################
 #
-# Other values
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-MAKO_BUILDS=${MAKO_BUILDS:-"pycsh"}
-MAKO_DEPS=Python,setuptools
-MAKO_UMASK=002
-
-######################################################################
-#
-# Add to paths
-#
-######################################################################
-
-addtopathvar PATH $CONTRIB_DIR/bin
-addtopathvar PATH $BLDR_INSTALL_DIR/bin
+setMakoNonTriggerVars() {
+  MAKO_UMASK=002
+}
+setMakoNonTriggerVars
 
 #####################################################################
 #
@@ -40,19 +35,17 @@ addtopathvar PATH $BLDR_INSTALL_DIR/bin
 ######################################################################
 
 buildMako() {
-
-  if bilderUnpack Mako; then
-# Remove all old installations
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/Mako*"
-    techo "$cmd"
-    $cmd
-
-# Build away
-    MAKO_ENV="$DISTUTILS_ENV"
-    techo -2 MAKO_ENV = $MAKO_ENV
-    bilderDuBuild -p mako Mako '-' "$MAKO_ENV"
+  if ! bilderUnpack Mako; then
+    return
   fi
-
+# Remove eggs as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/Mako*.egg"
+  techo -2 "$cmd"
+  $cmd
+# Build away
+  MAKO_ENV="$DISTUTILS_ENV"
+  techo -2 MAKO_ENV = $MAKO_ENV
+  bilderDuBuild -p mako Mako '-' "$MAKO_ENV"
 }
 
 ######################################################################
@@ -72,13 +65,7 @@ testMako() {
 ######################################################################
 
 installMako() {
-  case `uname` in
-    # Windows does not have a lib versus lib64 issue
-    CYGWIN*)
-      bilderDuInstall -p mako Mako " " "$MAKO_ENV"
-      ;;
-    *)
-      bilderDuInstall -p mako Mako "--install-purelib=$PYTHON_SITEPKGSDIR" "$MAKO_ENV"
-      ;;
-  esac
+  local MAKO_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/mako.filelist'"
+  bilderDuInstall -p mako Mako "$MAKO_INSTALL_ARGS" "$MAKO_ENV"
+  # bilderDuInstall -p mako Mako "--install-purelib=$PYTHON_SITEPKGSDIR" "$MAKO_ENV"
 }

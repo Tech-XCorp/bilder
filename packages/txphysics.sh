@@ -97,6 +97,6 @@ testTxphysics() {
 installTxphysics() {
 # Prepared for when txphysics has develdocs
   TXPHYSICS_DEVELDOCS_INSTALL_TARGET=install-apidocs
-  bilderInstallTestedPkg -i ben txphysics "" " -r -p open"
+  bilderInstallTestedPkg -i ben -a "-r -p open" txphysics
 }
 

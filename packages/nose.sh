@@ -35,9 +35,15 @@ setNoseNonTriggerVars
 ######################################################################
 
 buildNose() {
-  if bilderUnpack nose; then
-    bilderDuBuild nose "" "$DISTUTILS_ENV"
+  if ! bilderUnpack nose; then
+    return
   fi
+# Remove eggs as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/nose*.egg"
+  techo -2 "$cmd"
+  $cmd
+# Build
+  bilderDuBuild nose "" "$DISTUTILS_ENV"
 }
 
 ######################################################################

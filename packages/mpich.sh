@@ -40,11 +40,13 @@ buildMpich() {
   if ! bilderUnpack mpich; then
     return 1
   fi
-# Needed?
-  # MPICH_ADDL_ARGS="--enable-romio --enable-smpcoll --with-device=ch3:ssm --with-pm=hydra--with-mpe"
+
+# Configure and build
   mpichmakeflags="$MPICH_MAKEJ_ARGS $mpichmakeflags"
 
-# Builds
+#
+# The builds
+#
 
   if bilderConfig mpich static "--enable-static --disable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $MPICH_STATIC_ADDL_ARGS $MPICH_STATIC_OTHER_ARGS"; then
     bilderBuild mpich static $mpichmakeflags
@@ -74,7 +76,9 @@ testMpich() {
 
 # Set umask to allow only group to use
 installMpich() {
+  if test -h $CONTRIB_DIR/mpi; then
+    rm -f $CONTRIB_DIR/mpi
+  fi
   bilderInstallAll mpich
-  (cd $CONTRIB_DIR; rmall mpi mpich; ln -sf mpich-static mpich; ln -s mpich mpi)
 }
 
