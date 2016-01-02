@@ -1,7 +1,21 @@
 diff -ruN netcdf-4.3.2/CMakeLists.txt netcdf-4.3.2-new/CMakeLists.txt
 --- netcdf-4.3.2/CMakeLists.txt	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/CMakeLists.txt	2015-01-01 17:26:35.000000000 -0700
-@@ -596,7 +596,7 @@
++++ netcdf-4.3.2-new/CMakeLists.txt	2015-12-13 10:37:28.858079100 -0700
+@@ -366,9 +366,12 @@
+     CMAKE_C_FLAGS_DEBUG
+     CMAKE_C_FLAGS_MINSIZEREL
+     CMAKE_C_FLAGS_RELWITHDEBINFO
++    CMAKE_C_FLAGS_RELEASE
+     CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG
+     CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL
+-    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
++    CMAKE_CXX_FLAGS_RELWITHDEBINFO
++    CMAKE_CXX_FLAGS_RELEASE
++  )
+ 
+   FOREACH(flag_var ${vars})
+     IF(${flag_var} MATCHES "/MD")
+@@ -596,7 +599,7 @@
    # .cmake files.  If this is the case, they should
    # specify HDF5_HL_LIB, HDF5_LIB, HDF5_INCLUDE_DIR manually.
    IF(HDF5_LIB AND HDF5_HL_LIB AND HDF5_INCLUDE_DIR)
@@ -10,7 +24,7 @@ diff -ruN netcdf-4.3.2/CMakeLists.txt netcdf-4.3.2-new/CMakeLists.txt
      SET(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR})
      SET(HDF5_C_LIBRARY ${HDF5_LIB})
      SET(HDF5_HL_LIBRARY ${HDF5_HL_LIB})
-@@ -620,8 +620,15 @@
+@@ -620,8 +623,15 @@
      # Find out if HDF5 was built with parallel support.
      # Do that by checking for the targets H5Pget_fapl_mpiposx and
      # H5Pget_fapl_mpio in ${HDF5_LIB}.
@@ -26,7 +40,7 @@ diff -ruN netcdf-4.3.2/CMakeLists.txt netcdf-4.3.2-new/CMakeLists.txt
  
      IF(HDF5_IS_PARALLEL_MPIPOSIX OR HDF5_IS_PARALLEL_MPIO)
        SET(HDF5_IS_PARALLEL ON)
-@@ -637,16 +644,26 @@
+@@ -637,16 +647,26 @@
    ENDIF(NOT MSVC)
  
    # Assert HDF5 version.
@@ -59,7 +73,7 @@ diff -ruN netcdf-4.3.2/CMakeLists.txt netcdf-4.3.2-new/CMakeLists.txt
    ELSE()
 diff -ruN netcdf-4.3.2/liblib/CMakeLists.txt netcdf-4.3.2-new/liblib/CMakeLists.txt
 --- netcdf-4.3.2/liblib/CMakeLists.txt	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/liblib/CMakeLists.txt	2015-01-01 17:26:24.000000000 -0700
++++ netcdf-4.3.2-new/liblib/CMakeLists.txt	2015-12-13 10:36:59.394393800 -0700
 @@ -51,13 +51,14 @@
    IF(NOT MSVC)
      # Some version of cmake define HDF5_hdf5_LIBRARY instead of
@@ -81,7 +95,7 @@ diff -ruN netcdf-4.3.2/liblib/CMakeLists.txt netcdf-4.3.2-new/liblib/CMakeLists.
    ENDIF()
 diff -ruN netcdf-4.3.2/libsrc4/nc4file.c netcdf-4.3.2-new/libsrc4/nc4file.c
 --- netcdf-4.3.2/libsrc4/nc4file.c	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/libsrc4/nc4file.c	2015-01-01 17:26:24.000000000 -0700
++++ netcdf-4.3.2-new/libsrc4/nc4file.c	2015-12-13 10:36:59.399394100 -0700
 @@ -308,12 +308,21 @@
  	 if (H5Pset_fapl_mpio(fapl_id, comm, info) < 0)
  	    BAIL(NC_EPARINIT);
@@ -162,9 +176,39 @@ diff -ruN netcdf-4.3.2/libsrc4/nc4file.c netcdf-4.3.2-new/libsrc4/nc4file.c
  
     /* Depending on the type of file, open it. */
  
+diff -ruN netcdf-4.3.2/nc_test4/tst_nc4perf.c netcdf-4.3.2-new/nc_test4/tst_nc4perf.c
+--- netcdf-4.3.2/nc_test4/tst_nc4perf.c	2014-04-23 15:35:20.000000000 -0600
++++ netcdf-4.3.2-new/nc_test4/tst_nc4perf.c	2015-12-13 10:36:59.409394700 -0700
+@@ -244,6 +244,11 @@
+    return 0;
+ }
+ 
++/* Note: When the MPI-POSIX VFD is not compiled in to HDF5, the NC_MPIPOSIX
++ *      flag will be aliased to the NC_MPIIO flag within the library, and
++ *      therefore this test will exercise the aliasing, with the MPI-IO VFD,
++ *      under that configuration. -QAK
++ */
+ #define NUM_MODES 2
+ #define NUM_FACC 2
+ #define NUM_CHUNK_COMBOS_2D 3
+diff -ruN netcdf-4.3.2/nc_test4/tst_parallel3.c netcdf-4.3.2-new/nc_test4/tst_parallel3.c
+--- netcdf-4.3.2/nc_test4/tst_parallel3.c	2014-04-23 15:35:20.000000000 -0600
++++ netcdf-4.3.2-new/nc_test4/tst_parallel3.c	2015-12-13 10:36:59.413394900 -0700
+@@ -129,6 +129,11 @@
+    if (mpi_rank == 0)
+       SUMMARIZE_ERR;
+ 
++/* Note: When the MPI-POSIX VFD is not compiled in to HDF5, the NC_MPIPOSIX
++ *      flag will be aliased to the NC_MPIIO flag within the library, and
++ *      therefore this test will exercise the aliasing, with the MPI-IO VFD,
++ *      under that configuration. -QAK
++ */
+    if (mpi_rank == 0)
+       printf("*** Testing parallel IO for raw-data with MPIPOSIX-IO (driver)...");
+    facc_type = NC_NETCDF4|NC_MPIPOSIX;
 diff -ruN netcdf-4.3.2/nc-config.in netcdf-4.3.2-new/nc-config.in
 --- netcdf-4.3.2/nc-config.in	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/nc-config.in	2015-01-01 17:26:24.000000000 -0700
++++ netcdf-4.3.2-new/nc-config.in	2015-12-13 10:36:59.403394300 -0700
 @@ -11,7 +11,14 @@
  
  cc="@CC@"
@@ -183,7 +227,7 @@ diff -ruN netcdf-4.3.2/nc-config.in netcdf-4.3.2-new/nc-config.in
  has_nc4="@HAS_NC4@"
 diff -ruN netcdf-4.3.2/nc-config.in.cmake netcdf-4.3.2-new/nc-config.in.cmake
 --- netcdf-4.3.2/nc-config.in.cmake	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/nc-config.in.cmake	2015-01-01 17:26:24.000000000 -0700
++++ netcdf-4.3.2-new/nc-config.in.cmake	2015-12-13 10:36:59.406394500 -0700
 @@ -6,12 +6,18 @@
  
  prefix=@CMAKE_INSTALL_PREFIX@
@@ -205,39 +249,9 @@ diff -ruN netcdf-4.3.2/nc-config.in.cmake netcdf-4.3.2-new/nc-config.in.cmake
  
  has_dap="@USE_DAP@"
  if [ -z $has_dap ]; then
-diff -ruN netcdf-4.3.2/nc_test4/tst_nc4perf.c netcdf-4.3.2-new/nc_test4/tst_nc4perf.c
---- netcdf-4.3.2/nc_test4/tst_nc4perf.c	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/nc_test4/tst_nc4perf.c	2015-01-01 17:26:24.000000000 -0700
-@@ -244,6 +244,11 @@
-    return 0;
- }
- 
-+/* Note: When the MPI-POSIX VFD is not compiled in to HDF5, the NC_MPIPOSIX
-+ *      flag will be aliased to the NC_MPIIO flag within the library, and
-+ *      therefore this test will exercise the aliasing, with the MPI-IO VFD,
-+ *      under that configuration. -QAK
-+ */
- #define NUM_MODES 2
- #define NUM_FACC 2
- #define NUM_CHUNK_COMBOS_2D 3
-diff -ruN netcdf-4.3.2/nc_test4/tst_parallel3.c netcdf-4.3.2-new/nc_test4/tst_parallel3.c
---- netcdf-4.3.2/nc_test4/tst_parallel3.c	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/nc_test4/tst_parallel3.c	2015-01-01 17:26:24.000000000 -0700
-@@ -129,6 +129,11 @@
-    if (mpi_rank == 0)
-       SUMMARIZE_ERR;
- 
-+/* Note: When the MPI-POSIX VFD is not compiled in to HDF5, the NC_MPIPOSIX
-+ *      flag will be aliased to the NC_MPIIO flag within the library, and
-+ *      therefore this test will exercise the aliasing, with the MPI-IO VFD,
-+ *      under that configuration. -QAK
-+ */
-    if (mpi_rank == 0)
-       printf("*** Testing parallel IO for raw-data with MPIPOSIX-IO (driver)...");
-    facc_type = NC_NETCDF4|NC_MPIPOSIX;
 diff -ruN netcdf-4.3.2/RELEASE_NOTES.md netcdf-4.3.2-new/RELEASE_NOTES.md
 --- netcdf-4.3.2/RELEASE_NOTES.md	2014-04-23 15:35:20.000000000 -0600
-+++ netcdf-4.3.2-new/RELEASE_NOTES.md	2015-01-01 17:26:24.000000000 -0700
++++ netcdf-4.3.2-new/RELEASE_NOTES.md	2015-12-13 10:36:59.416395100 -0700
 @@ -5,6 +5,8 @@
  
  This file contains a high-level description of this package's evolution. Releases are in reverse chronological order (most recent first). Note that, as of netcdf 4.2, the netcdf-c++ and netcdf-fortran libraries have been separated into their own libraries.

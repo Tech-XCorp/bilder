@@ -1,6 +1,6 @@
 diff -ruN qt-4.8.7/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h qt-4.8.7-new/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h
---- qt-4.8.7/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h	2015-05-07 08:14:45.000000000 -0600
-+++ qt-4.8.7-new/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h	2015-07-26 08:34:38.679221602 -0600
+--- qt-4.8.7/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h	2015-12-29 16:00:48.000000000 -0700
++++ qt-4.8.7-new/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h	2015-12-29 16:02:40.000000000 -0700
 @@ -113,14 +113,15 @@
  #if (COMPILER(MSVC) && _MSC_VER < 1800) || (COMPILER(RVCT) && !(RVCT_VERSION_AT_LEAST(3, 0, 0, 0)))
  
@@ -29,3 +29,111 @@ diff -ruN qt-4.8.7/src/3rdparty/webkit/Source/JavaScriptCore/wtf/MathExtras.h qt
  
  inline double nextafter(double x, double y) { return _nextafter(x, y); }
  inline float nextafterf(float x, float y) { return x > y ? x - FLT_EPSILON : x + FLT_EPSILON; }
+diff -ruN qt-4.8.7/src/gui/painting/qpaintengine_mac.cpp qt-4.8.7-new/src/gui/painting/qpaintengine_mac.cpp
+--- qt-4.8.7/src/gui/painting/qpaintengine_mac.cpp	2015-12-29 16:01:00.000000000 -0700
++++ qt-4.8.7-new/src/gui/painting/qpaintengine_mac.cpp	2015-12-29 16:38:10.000000000 -0700
+@@ -289,7 +289,7 @@
+ }
+ 
+ CGColorSpaceRef QCoreGraphicsPaintEngine::m_genericColorSpace = 0;
+-QHash<QWidget*, CGColorSpaceRef> QCoreGraphicsPaintEngine::m_displayColorSpaceHash; // window -> color space
++QHash<CGDirectDisplayID, CGColorSpaceRef> QCoreGraphicsPaintEngine::m_displayColorSpaceHash;
+ bool QCoreGraphicsPaintEngine::m_postRoutineRegistered = false;
+ 
+ CGColorSpaceRef QCoreGraphicsPaintEngine::macGenericColorSpace()
+@@ -318,48 +318,31 @@
+ 
+ CGColorSpaceRef QCoreGraphicsPaintEngine::macDisplayColorSpace(const QWidget *widget)
+ {
+-    // The color space depends on which screen the widget's window is on.
+-    // widget == 0 is a spacial case where we use the main display.
+-    QWidget *window = widget ? widget->window() : 0;
+-
+-    // Check for cached color space and return if found.
+-    if (m_displayColorSpaceHash.contains(window))
+-        return m_displayColorSpaceHash.value(window);
++    CGColorSpaceRef colorSpace;
+ 
+-    // Find which display the window is on.
+     CGDirectDisplayID displayID;
+-    if (window == 0) {
++    if (widget == 0) {
+         displayID = CGMainDisplayID();
+     } else {
+-        const QRect &qrect = window->geometry();
++        const QRect &qrect = widget->window()->geometry();
+         CGRect rect = CGRectMake(qrect.x(), qrect.y(), qrect.width(), qrect.height());
+         CGDisplayCount throwAway;
+         CGDisplayErr dErr = CGGetDisplaysWithRect(rect, 1, &displayID, &throwAway);
+         if (dErr != kCGErrorSuccess)
+-            displayID = CGMainDisplayID();
++            return macDisplayColorSpace(0); // fall back on main display
+     }
++    if ((colorSpace = m_displayColorSpaceHash.value(displayID)))
++        return colorSpace;
+ 
+-    // Get the color space from the display profile.
+-    CGColorSpaceRef colorSpace = 0;
+-    CMProfileRef displayProfile = 0;
+-    CMError err = CMGetProfileByAVID((CMDisplayIDType)displayID, &displayProfile);
+-    if (err == noErr) {
+-        colorSpace = CGColorSpaceCreateWithPlatformColorSpace(displayProfile);
+-        CMCloseProfile(displayProfile);
+-    }
+-
+-    // Fallback: use generic DeviceRGB
++    colorSpace = CGDisplayCopyColorSpace(displayID);
+     if (colorSpace == 0)
+         colorSpace = CGColorSpaceCreateDeviceRGB();
+ 
+-    // Install cleanup routines
++    m_displayColorSpaceHash.insert(displayID, colorSpace);
+     if (!m_postRoutineRegistered) {
+         m_postRoutineRegistered = true;
+         qAddPostRoutine(QCoreGraphicsPaintEngine::cleanUpMacColorSpaces);
+     }
+-
+-    // Cache and return.
+-    m_displayColorSpaceHash.insert(window, colorSpace);
+     return colorSpace;
+ }
+ 
+@@ -369,7 +352,7 @@
+         CFRelease(m_genericColorSpace);
+         m_genericColorSpace = 0;
+     }
+-    QHash<QWidget*, CGColorSpaceRef>::const_iterator it = m_displayColorSpaceHash.constBegin();
++    QHash<CGDirectDisplayID, CGColorSpaceRef>::const_iterator it = m_displayColorSpaceHash.constBegin();
+     while (it != m_displayColorSpaceHash.constEnd()) {
+         if (it.value())
+             CFRelease(it.value());
+@@ -1069,7 +1052,16 @@
+ 
+ void QCoreGraphicsPaintEngine::clearColorSpace(QWidget* w)
+ {
+-    m_displayColorSpaceHash.remove(w);
++    CGDirectDisplayID displayID = CGMainDisplayID();
++    if (w != 0) {
++        const QRect &qrect = w->window()->geometry();
++        CGRect rect = CGRectMake(qrect.x(), qrect.y(), qrect.width(), qrect.height());
++        CGDisplayCount throwAway;
++        CGDisplayErr dErr = CGGetDisplaysWithRect(rect, 1, &displayID, &throwAway);
++        if (dErr != kCGErrorSuccess)
++	    displayID = CGMainDisplayID();
++    }
++    m_displayColorSpaceHash.remove(displayID);
+ }
+ 
+ CGContextRef
+diff -ruN qt-4.8.7/src/gui/painting/qpaintengine_mac_p.h qt-4.8.7-new/src/gui/painting/qpaintengine_mac_p.h
+--- qt-4.8.7/src/gui/painting/qpaintengine_mac_p.h	2015-12-29 16:01:00.000000000 -0700
++++ qt-4.8.7-new/src/gui/painting/qpaintengine_mac_p.h	2015-12-29 16:38:10.000000000 -0700
+@@ -135,7 +135,7 @@
+ private:
+     static bool m_postRoutineRegistered;
+     static CGColorSpaceRef m_genericColorSpace;
+-    static QHash<QWidget*, CGColorSpaceRef> m_displayColorSpaceHash; // window -> color space
++    static QHash<CGDirectDisplayID, CGColorSpaceRef> m_displayColorSpaceHash;
+     static void cleanUpMacColorSpaces();
+     Q_DISABLE_COPY(QCoreGraphicsPaintEngine)
+ };

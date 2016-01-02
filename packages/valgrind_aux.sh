@@ -21,8 +21,10 @@ setValgrindTriggerVars() {
   case `uname` in
     Darwin)
       case `uname -r` in
-# Mavericks or later OSX 10.9 does not build 3.10.1
-        1[3-9]*)
+# Does not build on El Capitan
+        15*) VALGRIND_BUILDS=${VALGRIND_BUILDS:-"NONE"};;
+# 3.10.1 does not build on Mavericks through Yosemite
+        1[3-4]*)
           if $BUILD_EXPERIMENTAL; then
             VALGRIND_BUILDS=${VALGRIND_BUILDS:-"ser"}
           else

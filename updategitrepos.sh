@@ -11,6 +11,10 @@ for i in *; do
     else
       echo "Updating $i."
       git pull
+      res=$?
+      if test "$res" != 0; then
+        echo "Error in updating $i.  Fix or just remove?"
+      fi
     fi
     cd $topdir
   fi

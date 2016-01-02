@@ -8,7 +8,7 @@
 
 ######################################################################
 #
-# Trigger variables set in open_aux.sh
+# Trigger variables set in openmpi_aux.sh
 #
 ######################################################################
 
@@ -35,8 +35,10 @@ setOpenmpiNonTriggerVars
 ######################################################################
 
 buildOpenmpiAT() {
+
+# Unpack
   if ! bilderUnpack openmpi; then
-    return
+    return 1
   fi
 
   techo "OPENMPI_BLDRVERSION = $OPENMPI_BLDRVERSION."
@@ -82,7 +84,7 @@ EOF
         *) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
       esac
       ;;
-    1.8.*)
+    1.8.* | 1.10.*)
 # Disabling vt can help build
       OPENMPI_NODL_ADDL_ARGS="$OPENMPI_NODL_ADDL_ARGS --disable-vt"
       OPENMPI_STATIC_ADDL_ARGS="$OPENMPI_STATIC_ADDL_ARGS --disable-vt"
@@ -204,11 +206,23 @@ testOpenmpi() {
 
 # Set umask to allow only group to use
 installOpenmpi() {
+  if test -h $CONTRIB_DIR/mpi; then
+    rm -f $CONTRIB_DIR/mpi
+  fi
   if bilderInstallAll openmpi; then
-    (cd $CONTRIB_DIR; rmall mpi openmpi; ln -sf openmpi-nodl openmpi; ln -s openmpi mpi)
-# This needed to allow overloading cores in 1.8.2
-    echo "rmaps_base_oversubscribe = true" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
-    echo "hwloc_base_binding_policy = core:overload-allowed" >>$CONTRIB_DIR/openmpi-nodl/etc/openmpi-mca-params.conf
+    OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
+    if $OPENMPI_ALLOW_RSH; then
+      for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
+        prmsfile=$CONTRIB_DIR/openmpi-$bld/etc/openmpi-mca-params.conf
+# Allow rsh use, oversubscription
+# "hwloc_base_binding_policy = core:overload-allowed" fails on osx.
+        for line in "rmaps_base_oversubscribe = true" "plm_rsh_agent = rsh"; do
+          if ! grep -q "^$line" $prmsfile; then
+            echo "$line" >>$prmsfile
+          fi
+        done
+      done
+    fi
   fi
 }
 

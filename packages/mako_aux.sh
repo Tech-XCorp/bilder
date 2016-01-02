@@ -15,23 +15,21 @@
 #
 ######################################################################
 
-setTablesTriggerVars() {
-  TABLES_BLDRVERSION_STD=${TABLES_BLDRVERSION_STD:-"3.1.1"}
-  TABLES_BLDRVERSION_EXP=${TABLES_BLDRVERSION_EXP:-"3.2.0"}
-  computeVersion tables
-  TABLES_BUILDS=${TABLES_BUILDS:-"pycsh"}
-  TABLES_DEPS=hdf5,Cython,numexpr,numpy
+setMakoTriggerVars() {
+  MAKO_BLDRVERSION_STD=${MAKO_BLDRVERSION_STD:-"0.3.6"}
+  MAKO_BLDRVERSION_EXP=${MAKO_BLDRVERSION_EXP:-"0.3.6"}
+  MAKO_BUILDS=${MAKO_BUILDS:-"pycsh"}
+  MAKO_DEPS=Python,setuptools
 }
-setTablesTriggerVars
+setMakoTriggerVars
 
 ######################################################################
 #
-# Find numexpr
+# Find mako
 #
 ######################################################################
 
-findTables() {
+findMako() {
   :
 }
-findTables
 

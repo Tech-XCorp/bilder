@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for superlu_dist3
+# Build information for superlu_dist3
 #
 # $Id$
 #
@@ -8,33 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in superlu_dist3_aux.sh
 #
 ######################################################################
 
-SUPERLU_DIST3_BLDRVERSION=${SUPERLU_DIST3_BLDRVERSION:-"3.3"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/superlu_dist3_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$SUPERLU_DIST3_BUILDS"; then
-  SUPERLU_DIST3_BUILDS="par,parcomm"
-  case `uname` in
-    Linux) SUPERLU_DIST3_BUILDS="${SUPERLU_DIST3_BUILDS},parsh,parcommsh"
-  esac
-fi
-
-# Not sure if we need the dependency to atlas, lapack and clapack_cmake
-SUPERLU_DIST3_DEPS=${SUPERLU_DIST3_DEPS:-"cmake,$MPI_BUILD,atlas,lapack,clapack_cmake"}
-SUPERLU_DIST3_UMASK=002
-
-# Add parmetis if there are only standard builds and no commercial builds
-if !(grep -q comm <<<$SUPERLU_DIST3_BUILDS); then
-  SUPERLU_DIST3_DEPS=$SUPERLU_DIST3_DEPS,parmetis
-fi
+setSuperluDist3NonTriggerVars() {
+  SUPERLU_DIST3_UMASK=002
+}
+setSuperluDist3NonTriggerVars
 
 ######################################################################
 #

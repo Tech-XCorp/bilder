@@ -1,0 +1,103 @@
+## ######################################################################
+##
+## File:    tacc.utexas.edu
+##
+## Purpose: Helper functions for setting variables and queues by domain
+##
+## Version: $Id: nersc.gov 7049 2012-11-24 10:17:03Z cary $
+##
+## /* vim: set filetype=sh : */
+##
+## ######################################################################
+
+#
+# Adjust the auxiliary names:
+#   MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR, FQMAILHOST, BLDRHOSTID
+#
+runnrSetNamesByDomain() {
+  :
+}
+runnrSetNamesByDomain
+
+#
+# Determine RUNNR_QTARGET, RUNNR_QUEUE, RUNNR_ACCOUNT, RUNNR_PPN
+#
+runnrSetQInfoByDomain() {
+  RUNNR_QTARGET=${RUNNR_QTARGET:-"headnode"}
+  RUNNR_QUEUE=${RUNNR_QUEUE:-"regular"}
+  RUNNR_NCPUSVAR=mppwidth
+}
+runnrSetQInfoByDomain
+
+#
+# Set default options.  This has to be called after option parsing.
+# Should set
+#  CONTRIB_ROOTDIR    The root directory for common installations of tarballs
+#  INSTALL_ROOTDIR    The root directory for common installations of repos
+#  USERINST_ROOTDIR   The root directory for user installations (same for
+#                     tarballs and repos)
+#  INSTALL_SUBDIR_SFX Added to subdir (software, contrib, volatile, internal)
+#                     to complete the installation dir
+#  BUILD_ROOTDIR      Where builds are to take place
+#  BILDER_ADDL_ARGS   Any additional args to pass to Bilder
+#  MACHINEFILE        The machine file to use
+#
+setBilderHostVars() {
+
+#
+# Preliminary variables
+#   Determine the compiler and version for machinefile and namespacing
+#
+  # echo "setBilderHostVars entered."
+  # echo compkey = $compkey
+  if test -z "$compkey"; then
+    local comp=
+    for comp in pgi gcc intel; do
+      compkey=`module -t list $comp -t 2>&1 | sed -e 's?/.*$??'`
+      if test -n "$compkey"; then
+        compver=`module -t list $comp 2>&1 | sed -e 's?^.*/??'`
+        local majorminor=`echo $compver | sed -e "s/\(^[^\.]*\.[^\.]*\).*/\1/"`
+        compver=$majorminor
+        break
+      fi
+    done
+  fi
+  if test -z "$compkey"; then
+    echo "Cannot determine the compkey.  Quitting."
+    return 1
+  fi
+
+# Set the installation and project subdirs
+  INSTALL_SUBDIR_SFX="-$compkey-$compver"
+  PROJECT_INSTALL_SUBDIR=${PROJECT_INSTALL_SUBDIR:-"$PROJECT_INSTSUBDIR"}
+  if test -z "$PROJECT_INSTALL_SUBDIR"; then
+    echo "PROJECT_INSTALL_SUBDIR not defined in ${BASH_SOURCE[0]}."
+  fi
+  INSTALL_ROOTDIR=$WORK/$PROJECT_INSTALL_SUBDIR
+  # PROJECT_CONTRIB_SUBDIR=${PROJECT_CONTRIB_SUBDIR:-"$PROJECT_INSTALL_SUBDIR"}
+  if test -z "$PROJECT_CONTRIB_SUBDIR"; then
+    echo "PROJECT_CONTRIB_SUBDIR not defined in ${BASH_SOURCE[0]}."
+  fi
+  machinedir=$UQMAILHOST
+  CONTRIB_ROOTDIR=$WORK/$PROJECT_CONTRIB_SUBDIR
+  USERINST_ROOTDIR=$INSTALL_ROOTDIR/$machinedir
+  INSTALL_ROOTDIR=$INSTALL_ROOTDIR/$machinedir
+  CONTRIB_ROOTDIR=$CONTRIB_ROOTDIR/$machinedir
+
+# Set the build directory
+  if test -n "$SCRATCH2"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH2/builds-${UQMAILHOST}-$compkey"}
+  elif test -n "$SCRATCH"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH/builds-${UQMAILHOST}-$compkey"}
+  elif test -n "$GSCRATCH"; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH/builds-${UQMAILHOST}-$compkey"}
+  fi
+
+# Add to BILDER_ARGS
+  BILDER_ADDL_ARGS="-j4"
+
+# Set machine file and any other env vars
+  # MACHINEFILE=${MACHINEFILE:-"linux.$compkey"}
+
+}
+

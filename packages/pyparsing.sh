@@ -40,6 +40,11 @@ buildPyParsing() {
     return
   fi
 
+# Remove eggs as Bilder manages
+  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/pyparsing*.{egg,pth}"
+  techo -2 "$cmd"
+  $cmd
+
   PYPARSING_ENV="$DISTUTILS_NOLV_ENV"
 # pyparsing not using setuptools?
   # PYPARSING_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pyparsing.filelist'"

@@ -1,0 +1,162 @@
+diff -ruN netcdf-4.3.3.1/CMakeLists.txt netcdf-4.3.3.1-new/CMakeLists.txt
+--- netcdf-4.3.3.1/CMakeLists.txt	2015-02-25 15:56:15.000000000 -0700
++++ netcdf-4.3.3.1-new/CMakeLists.txt	2015-12-15 18:26:16.761601643 -0700
+@@ -264,6 +264,38 @@
+   SET(CMAKE_OSX_ARCHITECTURES i386;x86_64)
+ ENDIF(${CMAKE_SYSTEM_NAME} EQUAL "Darwin")
+ 
++# Macro for replacing '/MD' with '/MT'.
++# Used only on Windows, /MD tells VS to use the shared
++# CRT libs, MT tells VS to use the static CRT libs.
++#
++# Taken From:
++#   http://www.cmake.org/Wiki/CMake_FAQ#How_can_I_build_my_MSVC_application_with_a_static_runtime.3F
++#
++MACRO(specify_static_crt_flag)
++  SET(vars
++    CMAKE_C_FLAGS
++    CMAKE_C_FLAGS_DEBUG
++    CMAKE_C_FLAGS_MINSIZEREL
++    CMAKE_C_FLAGS_RELWITHDEBINFO
++    CMAKE_C_FLAGS_RELEASE
++    CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG
++    CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL
++    CMAKE_CXX_FLAGS_RELWITHDEBINFO
++    CMAKE_CXX_FLAGS_RELEASE
++  )
++
++  FOREACH(flag_var ${vars})
++    IF(${flag_var} MATCHES "/MD")
++      STRING(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
++    ENDIF()
++  ENDFOREACH()
++
++  FOREACH(flag_var ${vars})
++    MESSAGE(STATUS " '${flag_var}': ${${flag_var}}")
++  ENDFOREACH()
++  MESSAGE(STATUS "")
++ENDMACRO()
++
+ # Option to use Static Runtimes in MSVC
+ IF(MSVC)
+   OPTION(NC_USE_STATIC_CRT "Use static CRT Libraries ('\\MT')." OFF)
+@@ -433,7 +465,7 @@
+   # .cmake files.  If this is the case, they should
+   # specify HDF5_HL_LIB, HDF5_LIB, HDF5_INCLUDE_DIR manually.
+   IF(HDF5_LIB AND HDF5_HL_LIB AND HDF5_INCLUDE_DIR)
+-    SET(HDF5_LIBRARIES ${HDF5_LIB} ${HDF5_HL_LIB})
++    SET(HDF5_LIBRARIES ${HDF5_HL_LIB} ${HDF5_LIB})
+     SET(HDF5_C_LIBRARIES ${HDF5_LIB})
+     SET(HDF5_HL_LIBRARIES ${HDF5_HL_LIB})
+     MESSAGE(STATUS "Using HDF5 Library: ${HDF5_LIB}")
+@@ -454,15 +486,28 @@
+   IF(NOT MSVC)
+     # Depending on the install, either HDF5_hdf_library or
+     # HDF5_C_LIBRARIES may be defined.  We must check for either.
+-    IF(HDF5_C_LIBRARIES)
+-      SET(HDF5_hdf5_LIBRARY ${HDF5_C_LIBRARIES})
++    IF(NOT HDF5_hdf5_LIBRARY)
++      IF(HDF5_C_LIBRARIES)
++        SET(HDF5_hdf5_LIBRARY ${HDF5_C_LIBRARIES})
++      ELSEIF(HDF5_C_LIBRARY AND NOT HDF5_hdf5_LIBRARY)
++        SET(HDF5_hdf5_LIBRARY ${HDF5_C_LIBRARY})
++      ELSE ()
++        message(FATAL_ERROR "HDF5_hdf5_LIBRARY unknown.")
++      ENDIF()
+     ENDIF()
+ 
+     # Find out if HDF5 was built with parallel support.
+     # Do that by checking for the targets H5Pget_fapl_mpiposx and
+     # H5Pget_fapl_mpio in ${HDF5_LIB}.
++    set(CMAKE_REQUIRED_LIBRARIES_SAV ${CMAKE_REQUIRED_LIBRARIES})
++    if (NOT WIN32)
++      set(CMAKE_REQUIRED_LIBRARIES ${HDF5_hdf5_LIBRARY}
++        ${CMAKE_REQUIRED_LIBRARIES} dl z m
++      )
++    endif ()
+     CHECK_LIBRARY_EXISTS(${HDF5_hdf5_LIBRARY} H5Pget_fapl_mpiposix "" HDF5_IS_PARALLEL_MPIPOSIX)
+     CHECK_LIBRARY_EXISTS(${HDF5_hdf5_LIBRARY} H5Pget_fapl_mpio "" HDF5_IS_PARALLEL_MPIO)
++    set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAV})
+ 
+     IF(HDF5_IS_PARALLEL_MPIPOSIX OR HDF5_IS_PARALLEL_MPIO)
+       SET(HDF5_IS_PARALLEL ON)
+@@ -1180,35 +1225,6 @@
+   ENDIF()
+ ENDMACRO()
+ 
+-# Macro for replacing '/MD' with '/MT'.
+-# Used only on Windows, /MD tells VS to use the shared
+-# CRT libs, MT tells VS to use the static CRT libs.
+-#
+-# Taken From:
+-#   http://www.cmake.org/Wiki/CMake_FAQ#How_can_I_build_my_MSVC_application_with_a_static_runtime.3F
+-#
+-MACRO(specify_static_crt_flag)
+-  SET(vars
+-    CMAKE_C_FLAGS
+-    CMAKE_C_FLAGS_DEBUG
+-    CMAKE_C_FLAGS_MINSIZEREL
+-    CMAKE_C_FLAGS_RELWITHDEBINFO
+-    CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG
+-    CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL
+-    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+-
+-  FOREACH(flag_var ${vars})
+-    IF(${flag_var} MATCHES "/MD")
+-      STRING(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+-    ENDIF()
+-  ENDFOREACH()
+-
+-  FOREACH(flag_var ${vars})
+-    MESSAGE(STATUS " '${flag_var}': ${${flag_var}}")
+-  ENDFOREACH()
+-  MESSAGE(STATUS "")
+-ENDMACRO()
+-
+ # A function used to create autotools-style 'yes/no' definitions.
+ # If a variable is set, it 'yes' is returned. Otherwise, 'no' is
+ # returned.
+diff -ruN netcdf-4.3.3.1/liblib/CMakeLists.txt netcdf-4.3.3.1-new/liblib/CMakeLists.txt
+--- netcdf-4.3.3.1/liblib/CMakeLists.txt	2015-02-18 22:11:01.000000000 -0700
++++ netcdf-4.3.3.1-new/liblib/CMakeLists.txt	2015-12-15 18:26:53.686485737 -0700
+@@ -51,11 +51,19 @@
+   IF(NOT MSVC)
+     # Some version of cmake define HDF5_hdf5_LIBRARY instead of
+     # HDF5_LIBRARY. Same with HDF5_HL_LIBRARIES
+-    IF(HDF5_hdf5_LIBRARY AND NOT HDF5_C_LIBRARIES)
+-      SET(HDF5_C_LIBRARIES ${HDF5_hdf5_LIBRARY})
++    IF(NOT HDF5_C_LIBRARIES)
++      IF(HDF5_hdf5_LIBRARY)
++        SET(HDF5_C_LIBRARIES ${HDF5_hdf5_LIBRARY})
++      ELSEIF(HDF5_C_LIBRARY)
++        SET(HDF5_C_LIBRARIES ${HDF5_C_LIBRARY})
++      ENDIF()
+     ENDIF()
+-    IF(HDF5_hdf5_hl_LIBRARY AND NOT HDF5_HL_LIBRARIES)
+-      SET(HDF5_HL_LIBRARIES ${HDF5_hdf5_hl_LIBRARY})
++    IF(NOT HDF5_HL_LIBRARIES)
++      IF(HDF5_hdf5_hl_LIBRARY)
++        SET(HDF5_HL_LIBRARIES ${HDF5_hdf5_hl_LIBRARY})
++      ELSEIF(HDF5_HL_LIBRARY)
++        SET(HDF5_HL_LIBRARIES ${HDF5_HL_LIBRARY})
++      ENDIF()
+     ENDIF()
+     # The order of the libraries is important here for static
+     # builds:
+diff -ruN netcdf-4.3.3.1/nc-config.in netcdf-4.3.3.1-new/nc-config.in
+--- netcdf-4.3.3.1/nc-config.in	2015-02-18 21:34:31.000000000 -0700
++++ netcdf-4.3.3.1-new/nc-config.in	2015-12-15 18:25:49.206688106 -0700
+@@ -11,6 +11,13 @@
+ 
+ cc="@CC@"
+ cflags=" -I${includedir} @CPPFLAGS@" 
++if test -d ${exec_prefix}/lib; then
++  libdir=${exec_prefix}/lib
++  libs="-L${exec_prefix}/lib"
++elif test -d ${exec_prefix}/lib64; then
++  libs="-L${exec_prefix}/lib64"
++  libdir=${exec_prefix}/lib64
++fi
+ libs="-L${libdir} @NC_LIBS@"
+ has_dap="@HAS_DAP@"
+ has_nc2="@HAS_NC2@"

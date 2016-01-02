@@ -37,8 +37,8 @@ WRAPPER OPTIONS
   -g ................ Label the gnu builds the same way other builds occur.
   -H <host name> .... Use rules for this hostname (carver, surveyor, intrepid)
   -h ................ Print this message
-  -i <dir> .......... Software directory is labeled with "internal" if '\$USER'
-                        is member of internal install list
+  -i ................ Install repo software into internal directory as opposed
+                        to the volatile directory.
   -I ................ Install in \$HOME instead of default location
                         (projects directory at LCFs, BUILD_ROOTDIR on non-LCFs)
   -j ................ Maximum allowed value of the arg of make -j
@@ -140,6 +140,7 @@ EXTRA_ARG_FILE=".extra_args"
 REPODIR_IS_INTERNAL=false
 INSTALL_IN_HOME=false
 INST_SUBDIR=
+FIXED_INSTALL_SUBDIR=
 unset MKJMAX
 PRINTONLY=false
 ROOTDIR_CVI=
@@ -164,6 +165,7 @@ while getopts $args arg; do
   fi
   processArg $arg
 done
+export FIXED_INSTALL_SUBDIR
 
 # Get additional args after --
 shift $(($OPTIND - 1))

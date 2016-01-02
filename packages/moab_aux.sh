@@ -18,11 +18,11 @@
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
   MOAB_REPO_BRANCH_STD=stable
-  MOAB_REPO_BRANCH_EXP=master
+  MOAB_REPO_BRANCH_EXP=stable
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH_STD=master
   MOAB_UPSTREAM_BRANCH_EXP=master
-  # Using cmake? Eventually, need to get rid of autotools.
+# Using cmake? Eventually, need to get rid of autotools.
   if test -z "$MOAB_USE_CMAKE"; then
     if [[ `uname` =~ CYGWIN ]]; then
       MOAB_USE_CMAKE=true
@@ -39,7 +39,6 @@ setMoabTriggerVars() {
 # Static serial and parallel builds needed for ulixes
       MOAB_DESIRED_BUILDS=ser,${FORPYTHON_STATIC_BUILD}
 # Python shared build needed for composers
-# Python shared build needed for dagmc
       if ! [[ `uname` =~ CYGWIN ]]; then
         MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
       fi
@@ -58,10 +57,9 @@ setMoabTriggerVars() {
       techo "moab_aux.sh: MOAB_BUILD_SET = ${MOAB_BUILD_SET} not one of full,fullForPython,lite,liteForPython"
       techo "moab_aux.sh: Setting MOAB_BUILD_SET = fullForPython"
       MOAB_BUILD_SET=fullForPython
-      # Static serial and parallel builds needed for ulixes
+# Static serial and parallel builds needed for ulixes
       MOAB_DESIRED_BUILDS=ser,par,${FORPYTHON_STATIC_BUILD}
 # Python shared build needed for composers
-# Python shared build needed for dagmc
       if ! [[ `uname` =~ CYGWIN ]]; then
         MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
       fi
@@ -70,18 +68,18 @@ setMoabTriggerVars() {
   computeBuilds moab
   MOAB_DEPS=netcdf,boost
   if echo "$MOAB_USE_CMAKE" | grep -q "true"; then
-      MOAB_DEPS=$MOAB_DEPS,cmake
+    MOAB_DEPS=$MOAB_DEPS,cmake
   else
-      MOAB_DEPS=$MOAB_DEPS,autotools
+    MOAB_DEPS=$MOAB_DEPS,autotools
     if test -z "$TRILINOSREPO_BUILD_SET"; then
       TRILINOS_BUILD_SET=commio
     fi
   fi
   if echo "$MOAB_BUILD_SET" | grep -q "full"; then
-      MOAB_DEPS=$MOAB_DEPS,oce,cgm
+    MOAB_DEPS=$MOAB_DEPS,oce,cgm
   fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
-      MOAB_DEPS=$MOAB_DEPS,trilinosrepo
+    MOAB_DEPS=$MOAB_DEPS,trilinosrepo
   fi
 }
 setMoabTriggerVars
@@ -131,5 +129,4 @@ findMoab() {
   done
   techo "Done with defining variables"
 }
-
 

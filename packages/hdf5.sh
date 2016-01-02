@@ -98,19 +98,9 @@ buildHdf5() {
       HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DHDF5_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
       ;;
     Linux)
-      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS
-# Hasry: Above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
-      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
-# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
-      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SER_EXTRA_LDFLAGS"
-# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
-      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='$SERSH_EXTRA_LDFLAGS -Wl,-rpath,XORIGIN:XORIGIN/../lib'"
-# Hasry: above gets RPATH=/scr_hasry/contrib/lib on libhdf5.so.1.8.13 only
-      # HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib"
 # Hasry: Works!  Ivy fails because non system compiler.
       HDF5_SERSH_ADDL_ARGS="$HDF5_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
-# Ivy: Works!
-      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
+      HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH='XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH'"
       HDF5_PYCSH_ADDL_ARGS="$HDF5_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
     CYGWIN*)
@@ -126,6 +116,9 @@ buildHdf5() {
 	  HDF5_PAR_ADDL_ARGS="-DCMAKE_STATIC_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DCMAKE_EXE_LINKER_FLAGS:STRING='/NODEFAULTLIB:msvcrt' -DMPI_HEADER_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include'  -DMPI_DIR:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/'  -DMPI_INCLUDE_PATH:PATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/include' -DMPI_LIBRARY:FILEPATH:FILEPATH='C:/Program Files (x86)/Intel/MPI/5.0.3.048/intel64/lib/release_mt/impi.lib'";
       fi
   esac
+# 1.8.16 does now allow CXX library built in parallel
+  HDF5_PARSH_ADDL_ARGS="$HDF5_PARSH_ADDL_ARGS -DHDF5_BUILD_CPP_LIB:BOOL='OFF'"
+  HDF5_PAR_ADDL_ARGS="$HDF5_PAR_ADDL_ARGS -DHDF5_BUILD_CPP_LIB:BOOL='OFF'"
 
 # Separating builds for all platforms as required on Windows and this
 # gives simplification

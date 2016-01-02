@@ -33,12 +33,22 @@ if test -z "$PROJECT_DIR"; then
   echo "WARNING: [bildall.sh] PROJECT_DIR not defined. Assuming current."
   PROJECT_DIR=$PWD
 fi
-PROJECT_DIR=`(cd $PROJECT_DIR; pwd -P)`
+
+case `uname` in
+  CYGWIN*) PROJECT_DIR=`dirname $0`
+      PROJECT_DIR=`(cd $PROJECT_DIR; pwd)`;;
+  *)  PROJECT_DIR=`(cd $PROJECT_DIR; pwd)`;;
+esac
 cd $PROJECT_DIR
+res=$?
+if [ ! $res = 0 ]; then
+  echo "cd to $PROJECT_DIR failed."
+fi
 
 # Get bilder and runnr functions
-BILDER_DIR=`dirname $BASH_SOURCE`
-BILDER_DIR=`(cd $BILDER_DIR; pwd -P)`
+BILDER_DIR=`pwd`
+BILDER_DIR="$BILDER_DIR/bilder"
+
 RUNNR_DIR=$BILDER_DIR/runnr
 
 ######################################################################
@@ -51,7 +61,8 @@ RUNNR_DIR=$BILDER_DIR/runnr
 
 # Start with no verbosity so that techo is valid.  Changes at option time.
 VERBOSITY=0
-echo "Sourcing $RUNNR_DIR/runnrfcns.sh."
+BLDR_VERBOSE=${BLDR_VERBOSE:-"false"}
+$BLDR_VERBOSE && echo "Sourcing $RUNNR_DIR/runnrfcns.sh."
 if source $RUNNR_DIR/runnrfcns.sh; then
   : # echo "$RUNNR_DIR/runnrfcns.sh sourced."
 # techo now available but cannot be used until log are rotated (in bildopts).
@@ -59,7 +70,7 @@ else
   echo "Error sourcing $RUNNR_CONFDIR/runnrfcns.sh.  Is your directory current?"
   exit 1
 fi
-echo "Sourcing $BILDER_DIR/bildfcns.sh."
+$BLDR_VERBOSE && echo "Sourcing $BILDER_DIR/bildfcns.sh."
 source $BILDER_DIR/bildfcns.sh
 
 ######################################################################
@@ -82,17 +93,17 @@ if test -z "$1"; then
 fi
 
 # Options
-echo "Sourcing $BILDER_DIR/bildopts.sh."
+$BLDR_VERBOSE && echo "Sourcing $BILDER_DIR/bildopts.sh."
 source $BILDER_DIR/bildopts.sh
 # Trying to determine when numpy gets uninstalled
 # printInstallationStatus numpy $CONTRIB_DIR post-bildopts
 
 # Common initializations
-echo "Sourcing $BILDER_DIR/bildinit.sh."
+techo -2 "Sourcing $BILDER_DIR/bildinit.sh."
 source $BILDER_DIR/bildinit.sh
 
 # Build variables
-echo "Sourcing $BILDER_DIR/bildvars.sh."
+techo -2 "Sourcing $BILDER_DIR/bildvars.sh."
 source $BILDER_DIR/bildvars.sh
 
 # Source trilinos.conf if present
@@ -102,5 +113,4 @@ then
   echo "$conffile exists. sourcing..."
   source $conffile
 fi
-
 

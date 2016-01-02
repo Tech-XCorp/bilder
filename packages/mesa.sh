@@ -79,7 +79,7 @@ fi
         ;;
     esac
     local MESA_COMPILERS="CC='$PYC_CC' CXX='$PYC_CXX'"
-    local MESA_FLAGS="CFLAGS='-O2 ${CFLAGS} -DUSE_MGL_NAMESPACE ${MESA_OS_FLAGS}' CXXFLAGS='-O2 ${CXXFLAGS} -DUSE_MGL_NAMESPACE ${MESA_OS_FLAGS}'"
+    local MESA_FLAGS="CFLAGS='-O2 ${PYC_CFLAGS} -DUSE_MGL_NAMESPACE ${MESA_OS_FLAGS}' CXXFLAGS='-O2 ${PYC_CXXFLAGS} -DUSE_MGL_NAMESPACE ${MESA_OS_FLAGS}'"
 
 # Configure, build, and install with X driver, copying output as we
     if bilderConfig -i mesa mgl "$MESA_COMPILERS $MESA_FLAGS --without-demos --disable-gallium --with-driver=xlib --enable-gl-osmesa --enable-glx-tls --disable-glw --disable-glu --disable-egl $MESA_SER_OTHER_ARGS"; then

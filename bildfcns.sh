@@ -1248,19 +1248,22 @@ getRepoType() {
 #
 # Named args (must come first):
 # -l: Get the last version instead of the last changed version
+# -L: Use the long version for git repos
 #
 getVersion() {
 
 # Get options
   local lastChangedArg=-c
+  local useLongVersion=false
 
 # Parse options
 # This syntax is needed to keep parameters quoted
   set -- "$@"
   OPTIND=1
-  while getopts "l" arg; do
+  while getopts "lL" arg; do
     case "$arg" in
       l) lastChangedArg= ;;
+      L) useLongVersion=true ;;
     esac
   done
   shift $(($OPTIND - 1))
@@ -1320,21 +1323,30 @@ getVersion() {
 
   elif test "$repotype" == "GIT"; then
     techo "Getting the current git branch name of $1 at `date +%F-%T`."
-# NB: For git, we are using the number of repository revisions as the version
-#     number. Depending on where you get your repository and how you have
-#     applied patches, I believe that your repo could get a different number
-#     for the same code tree or the same number for a different code tree. (SG)
-    if ! rev=`git rev-list HEAD | wc -l | tr -d ' '`; then
-      techo "Git rev-list failed.  In path? Returning."
+    if ! which git 1>/dev/null 2>&1; then
+      techo "Git not found.  Is git in path?  Returning."
       cd $origdir
       return 1
     fi
     branch=`git branch | grep '^\*' | sed -e 's/^. *//'`
     if [[ "$branch" =~ "no branch" || "$branch" =~ [Dd]etached ]]; then
+# branch for tag/detached branch is the tag.
+# rev for tag/detached branch is count of revisions.
+# Could differ for different remotes.
       branch=`git describe --tags`
+      rev=r`git rev-list HEAD | wc -l | tr -d ' '`
+    elif $BUILD_EXPERIMENTAL; then
+# rev given by describe plus number of commits.
+      if $useLongVersion; then
+        rev=`git describe --long | sed 's/-[^-]*$//' | tr '/-' '..'`
+      else
+        rev=r`git rev-list HEAD | wc -l | tr -d ' '`
+      fi
+    else
+# Same as for detached.
+      rev=r`git rev-list HEAD | wc -l | tr -d ' '`
     fi
-    # rev=${rev}-${branch}
-    rev=${branch}.r${rev}
+    rev=${branch}.${rev}
   elif test "$repotype" == "HG"; then
     techo "Getting the current version of $1 at `date +%F-%T`."
     if ! rev=`hg id -n`; then
@@ -1571,6 +1583,13 @@ mkConfigScript() {
     echo "rm -rf CMakeFiles CMakeCache.txt" >> $configscript
     echo >> $configscript
   fi
+  cat >> $configscript <<EOF
+# Source script to set needed envvars
+if test -f $BUILD_DIR/${BILDER_PROJECT}.sh; then
+  source $BUILD_DIR/${BILDER_PROJECT}.sh
+fi
+EOF
+  echo >> $configscript
 # Prettify the configure script.  Darwin does not allow \n in substitutions,
 # so use sed file, $sedfile, modified with package and version.
 # For lines containing a blank after an =, put quote after equals and at end.
@@ -1894,15 +1913,15 @@ shouldInstall() {
   techo -2  "Checking for installation of all builds '$builds' of $1."
   if areAllInstalled -i $instdirs $1 $builds; then
     if test -n "$builds"; then
-      techo "Verified that all builds of $1 are installed."
+      techo "Verified that builds, {$builds}, of $1 are installed."
     else
       techo "Package $1 is installed."
     fi
-    techo "Not building ${proj}."
+    techo "Not building builds, {$builds}, of ${proj}."
     return 1      # false
   fi
   if test -n "$builds"; then
-    techo "One or more of builds of $1 needs (re)installation. Rebuilding."
+    techo "One or more of the builds, {$builds}, of $1 needs (re)installation. Rebuilding."
   else
     techo "Package $1 is not installed. Rebuilding."
   fi
@@ -1911,9 +1930,9 @@ shouldInstall() {
 }
 
 #
-# Warn for absence of needed libraries
+# Warn for absence of needed Linux libraries
 #
-warnMissingPkgs() {
+warnMissingLinuxPkgs() {
 
 # Start with png and freetype
   local dirs="/usr/include $CONTRIB_DIR/include"
@@ -2316,9 +2335,9 @@ getCombinedCompVars() {
     # techo -2 "Adding to COMPILERS_$i."
     unset CONFIG_COMPILERS_$i
     for j in CC CXX FC F77; do
-      techo -2 "COMPILER $j."
       local var=${varprfx}$j
       local comp=`deref ${var}`
+      techo -2 "COMPILER $j = $comp."
 # Why is the below here?  Breaks names with spaces in them.
       # comp=`echo $comp | sed 's/ .*$//'`
       # techo -2 "compbin = $compbin."
@@ -3042,9 +3061,16 @@ findBlasLapack() {
     done
   fi
 
+# Set pyc now, as these should not be mkl
+  LAPACK_PYCST_LIBS=${LAPACK_PYCST_LIBS:-"$LAPACK_SER_LIBS"}
+  BLAS_PYCST_LIBS=${BLAS_PYCST_LIBS:-"$BLAS_SER_LIBS"}
+  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SERSH_LIBS"}
+  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SERSH_LIBS"}
+  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SER_LIBS"}
+  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SER_LIBS"}
+
 # If MKL requested, then use it
-  if test -n $USE_MKL; then
-   if $USE_MKL; then
+  if $USE_MKL; then
     # Find mkl
     ipath=`dirname $ipath`
     mkldir=`(cd $ipath/mkl/lib/intel64 2>/dev/null; pwd -P)`
@@ -3058,7 +3084,7 @@ findBlasLapack() {
     SYSTEM_LAPACK_SER_INC=${SYSTEM_LAPACK_SER_INC:-"$mkldir/include"}
     SYSTEM_LAPACK_SER_LIBDIR=${SYSTEM_LAPACK_SER_LIBDIR:-"$mkldir/lib/intel64"}
 
-    MKL_DIR=${MKL_DIR:-${MKLROOT}/lib/intel64}
+    MKL_DIR=${MKL_DIR:-"${MKLROOT}/lib/intel64"}
     MKL_BLAS_LIBS="-lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -llibiomp5md"
     MKL_LAPACK_LIBS="-lmkl_lapack95_lp64"
     for BLD in SER SERMD SERSH PYCSH BEN; do
@@ -3067,7 +3093,6 @@ findBlasLapack() {
     done
     techo -2 "LAPACK_${BLD}_LIBS = `deref LAPACK_${BLD}_LIBS`."
     techo -2 "BLAS_${BLD}_LIBS = `deref BLAS_${BLD}_LIBS`."
-   fi
   fi
 
 # Ben defaults to ser
@@ -3076,9 +3101,6 @@ findBlasLapack() {
 # sersh defaults to ser
   LAPACK_SERSH_LIBS=${LAPACK_SERSH_LIBS:-"$LAPACK_SER_LIBS"}
   BLAS_SERSH_LIBS=${BLAS_SERSH_LIBS:-"$BLAS_SER_LIBS"}
-# Cc4py defaults to sersh, then ser
-  LAPACK_PYCSH_LIBS=${LAPACK_PYCSH_LIBS:-"$LAPACK_SERSH_LIBS"}
-  BLAS_PYCSH_LIBS=${BLAS_PYCSH_LIBS:-"$BLAS_SERSH_LIBS"}
 
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
@@ -3398,7 +3420,7 @@ getPkg() {
 # Determine the method if direct
     local DIRECT_GET=
     if $SVNUP_PKGS; then
-      techo -n "Getting packages in $pkgdir with " 1>&2
+      techo -n "Getting packages in $pkgdir with" 1>&2
       case ${PACKAGE_REPO_METHODS[$i]} in
         svn)
           techo " svn." 1>&2
@@ -3553,23 +3575,28 @@ updateRepo() {
   fi
   local branchval=`deref $branchvar`
   # echo "$branchvar = $branchval"; exit
+  case $scmexec in
+    git) branchval=${branchval:-"master"};;
+    hg) branchval=${branchval:-"default"};;
+  esac
 
 # Possibly clean and update repos
   if test -d $pkg/.$scmexec; then
     cd $pkg
-# Clean repo if requested
-    if $CLEAN_GITHG_SUBREPOS; then
+# Clean repo if requested or Jenkins
+    if $CLEAN_GITHG_SUBREPOS || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git)
-          cmd="git reset --hard"
-          # cmd="git reset --hard origin/master" # Discards local commits
+          # cmd="git reset --hard"
+# Discard local commits
+          cmd="git checkout -f $branchval; git reset --hard origin/$branchval"
           ;;
         hg) cmd="hg revert -aC";;
       esac
       techo "$cmd"
       eval "$cmd"
     fi
-# Update repo if requested
+# Update repo if requested or Jenkins
     if $NONSVNUP || test -n "$JENKINS_FSROOT"; then
       case $scmexec in
         git) cmd="git pull origin $branchval";;
@@ -3593,13 +3620,17 @@ updateRepo() {
 
 # Make sure on tag
   case $scmexec in
-    git) branchval=${branchval:-"master"}; cmd="git checkout $branchval";;
-    hg) branchval=${branchval:-"default"}; cmd="hg update -C $branchval";;
+    git)
+      cmd="git checkout $branchval"
+      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
+      # cmd="$cmd $branchval"
+      ;;
+    hg) cmd="hg update -C $branchval";;
   esac
   techo "$cmd"
   eval "$cmd"
   if ! eval "$cmd"; then
-    techo "WARNING: [$FUNCNAME] '$cmd' failed."
+    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
   fi
 
 # Determine whether changesets are available
@@ -3770,7 +3801,7 @@ bilderUnpack() {
 # See whether should install
   if shouldInstall -I $instdirsval $1-$verval "$builds" $DEPS; then
     unpack=true
-    techo "Package $1 needs building since a dependency rebuilt or $1 not installed."
+    techo "Package ${1}-$verval needs building since a dependency rebuilt or ${1}-$verval not installed for one of {$builds}."
   fi
 
   if $unpack; then
@@ -4037,10 +4068,10 @@ bilderPreconfig() {
 # Set the package script version here, as is needed for installation
 # even if this is not the reason for initiating a build.
   local currentPkgScriptRev=
-  if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${lcproj}.sh; then
+  if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/${lcproj}.sh -a -d "$BILDER_CONFDIR/.svn"; then
     currentPkgScriptRev=`svn info $BILDER_CONFDIR/packages/${lcproj}.sh |\
       grep 'Last Changed Rev:' | sed 's/.* //'`
-  elif test -f $BILDER_DIR/packages/${lcproj}.sh; then
+  elif test -f $BILDER_DIR/packages/${lcproj}.sh -a -d "$BILDER_DIR/.svn"; then
     currentPkgScriptRev=`svn info $BILDER_DIR/packages/${lcproj}.sh |\
       grep 'Last Changed Rev:' | sed 's/.* //'`
   else
@@ -4337,7 +4368,7 @@ bilderConfig() {
     else
       if shouldInstall -I $instdirval $1-$verval $2 $DEPS; then
         dobuildval=true
-        techo "Package $1-$verval-$2 is a candidate for configuring since a dependency rebuilt or $1-$verval not installed."
+        techo "Package $1-$verval-$2 is a candidate for configuring since a dependency rebuilt or $1-$verval-$2 not installed."
       else
         techo "Not configuring since $1-$verval-$2 already installed in $instdirval."
       fi
@@ -4565,7 +4596,7 @@ bilderConfig() {
   fi
   if test -z "$configexec"; then
     if test "$cmval" = cmake; then
-      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Location of cmake not found. configexec = $configexec.  PATH = $PATH."
+      TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] cmake not found. configexec = $configexec.  PATH = $PATH."
       terminate
     fi
     techo "No configure system found for $1-$2.  Assuming no need."
@@ -4878,8 +4909,8 @@ bilderConfig() {
   techo "$finalcmd" | tee -a $configure_txt
 # Store command in a script
   mkConfigScript $FQMAILHOST $1 $2
-  # For packages like petsc where configure in place but build
-  # out-of-place is needed, we change definition of builddir here
+# For packages like petsc where configure in place but build
+# out-of-place is needed, we change definition of builddir here
   if test -n "$buildsubdir"; then
     if ! $build_inplace; then
       (cd $builddir; mkdir -p $buildsubdir)
@@ -4892,9 +4923,10 @@ bilderConfig() {
   touch $builddir/$buildscript
 # Execute the command
   eval "$finalcmd" 1>>$configure_txt 2>&1
+  # eval "$finalcmd" | tr -d '\r' 1>>$configure_txt 2>&1
   RESULT=$?
 
-# Save the configuration command
+# Save the configuration result
   if test $RESULT = 0; then
     techo "Package $1-$verval-$2 configured at `date +%F-%T`." | tee -a $configure_txt
     echo SUCCESS >>$configure_txt
@@ -5064,6 +5096,17 @@ bilderBuild() {
   fi
   local buildscript=$FQMAILHOST-$1-$2-build.sh
   echo '#!/bin/bash' >$buildscript
+
+# Source envvars at top of script
+  cat >> $buildscript <<EOF
+
+# Source script to set needed envvars
+if test -f $BUILD_DIR/${BILDER_PROJECT}.sh; then
+  source $BUILD_DIR/${BILDER_PROJECT}.sh
+fi
+
+EOF
+
   if test -n "$envprefix"; then
 # JRC: This perhaps complicated.  Different approach to capture full line.
     # echo -n "$envprefix " | tee -a $buildscript
@@ -5100,6 +5143,7 @@ _
 # Script puts results into res file in case script no longer a child process
 # by the time of collection.
   cat <<_ >> $buildscript
+
 echo Build of $1-$2 completed with result = \$res.
 echo \$res > $bilderaction_resfile
 exit \$res
@@ -5113,6 +5157,7 @@ _
   # cat $buildscript | tee -a $build_txt | tee -a $LOGFILE
 # JRC: echo comes from script
   ./$buildscript >>$build_txt 2>&1 &
+  # ./$buildscript | tr -d '\r' >>$build_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
     techo "WARNING: [$FUNCNAME] pid not known."
@@ -5286,7 +5331,7 @@ bilderTest() {
   techo "$testscript" | tee -a $test_txt
   # cat $testscript | tee -a $test_txt | tee -a $LOGFILE
   techo "$envprefix $bildermake $testargs" | tee -a $test_txt
-  ./$testscript >>$test_txt 2>&1 &
+  ./$testscript | tr -d '\r' >>$test_txt 2>&1 &
   pid=$!
   if test -z "$pid"; then
     techo "WARNING: [$FUNCNAME] pid not known.  Something bad happened."
@@ -5658,29 +5703,30 @@ bilderRunTests() {
   local cmd=
   for bld in `echo $buildsval | tr ',' ' '`; do
 # Is there a problem that only some builds might be done at any run?
+# JRC: Yes.  Update to scimake to fix sersh build, so that only it is rebuilt.
     cmd="waitAction $pkgname-$bld"
     techo -2 "$cmd"
     $cmd
     res=$?
-    # techo "waitAction returned $res."
-    # DWS: Don't understand how $res ($?) could ever be empty.
-    # DWS: How could something not be built here other than if
-    # it failed to configure (in which case waitAction returns
-    # a 99). Added "(or failed to configure)" to handle case
-    # where no builds configure and we were previously trying
-    # to run tests.
-    if test -z "$res" -o "$res" = 99; then
-      if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo "$pkgname-$bld build skipped due to '-i $bld'"
-        continue
-      fi
-      techo "$pkgname-$bld failed to configure."
-      tbFailures="$tbFailures $bld"
+# DWS: Don't understand how $res ($?) could ever be empty.
+# DWS: How could something not be built here other than if
+# it failed to configure (in which case waitAction returns
+# a nonzero but not 99). Added "(or failed to configure)" to handle case
+# where no builds configure and we were previously trying to run tests.
+# JRC: waitAction should return 99 if something was not built, for whatever
+# reason.
+    if test "$res" = 99; then
+      techo "$pkgname-$bld was not built.  Not testing."
+      continue
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
       tbFailures="$tbFailures $bld"
       continue
+    elif test -z "$res"; then
+      techo "WARNING: [$FUNCNAME] waitAction returned no result."
+      tbFailures="$tbFailures $bld"
     fi
+
 # Determine whether this build is ignored
     local untestedBuildReason=
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
@@ -5689,9 +5735,8 @@ bilderRunTests() {
       untestedBuildReason="it has no per-build tests"
     elif ! $testingval; then
       untestedBuildReason="testing is turned off"
-    elif echo $tbFailures | grep -w $bld; then
-      untestedBuildReason="$bld failed to configure/build"
     fi
+    techo "Reason for ignoring build determined."
 
     if test -n "$untestedBuildReason"; then
 # Don't test if not testing or this build is ignored.
@@ -5722,11 +5767,8 @@ EOF
 # going to collect the action.  Otherwise it shows up as an incomplete
 # action upon erroring out.
         ./${sub_fname}.sh &> ${sub_fname}.txt
-        # sub_pid=$!
-        # addActionToLists $pkgname-$bld-submit $sub_pid
       fi
       continue
-    # elif $TESTING && $hasbuildtests; then
     else
 # Work in the build directory
       local builddirvar=`genbashvar $1-$2`_BUILD_DIR
@@ -6170,6 +6212,7 @@ recordInstallation() {
 # -a accept build was correct
 # -c directly copy build dir to install dir
 # -f force the installation
+# -d run make in debug mode
 # -g set the group to this after installing on the hosts matching what is
 #    specified by -h
 # -h list of hosts or domains, which if matched, get the group set
@@ -6192,6 +6235,7 @@ bilderInstall() {
   local bildermake=
   local builddir=
   local cpdir=false
+  local debuginst=false
   local doLinks=true
   local forceinstall=$FORCE_INSTALL
   local grpnm=
@@ -6206,11 +6250,12 @@ bilderInstall() {
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "ab:cfg:h:Lm:np:rs:tT:z" arg; do
+  while getopts "ab:cdfg:h:Lm:np:rs:tT:z" arg; do
     case $arg in
       a) acceptbuild=true;;
       b) builddir="$OPTARG";;
       c) cpdir=true;;
+      d) debuginst=true;;
       f) forceinstall=true;;
       g) grpnm="$OPTARG";;
       h) hostids="$OPTARG";;
@@ -6407,17 +6452,27 @@ bilderInstall() {
     local cmvar=`genbashvar $1`_CONFIG_METHOD
     local cmval=`deref $cmvar`
     bildermake=${bildermake:-"`getMaker $cmval`"}
+    local instflags=$4
+    if $debuginst; then
+      case $bildermake in
+        make)
+          instflags="$instflags -d VERBOSE=1"
+          # envvars="$envvars VERBOSE=1"
+          ;;
+      esac
+    fi
     techo "Package $1 was configured with $cmval."
     if test "$cmval" = cmake; then
       envvars="$envvars CMAKE_INSTALL_ALWAYS=1"
-      trimvar envvars ' '
     fi
+    trimvar envvars ' '
 
 # Determine the installation target.  Defined, then to defaults per system.
     local insttargvar=`genbashvar $1-$2`_INSTALL_TARGET
     techo -2 "Before parsing $insttargvar, insttarg = $insttarg."
     local insttargval=`deref $insttargvar`
-    insttarg=${insttarg:-"$insttargval"}
+    # insttarg=${insttarg:-"$insttargval"}
+    insttarg=${insttargval:-"$insttarg"}
     techo -2 "After parsing $insttargvar, insttarg = $insttarg."
     insttarg=${insttarg:-"install"}
     techo -2 "Finally, insttarg = $insttarg."
@@ -6428,7 +6483,7 @@ bilderInstall() {
 # no make install performed.
       cmd="\cp -R $builddir $instdirval/$instsubdirval"
     else
-      cmd="$bildermake $4 $insttarg"
+      cmd="$bildermake $instflags $insttarg"
     fi
 
 # Add environment
@@ -6450,9 +6505,16 @@ bilderInstall() {
     techo "Creating installation script, $installscript, for command, \"$cmd\"."
     cat >$installscript << EOF
 #!/bin/bash
+
+# Source script to set needed envvars
+if test -f $BUILD_DIR/${BILDER_PROJECT}.sh; then
+  source $BUILD_DIR/${BILDER_PROJECT}.sh
+fi
+
 echo '$cmd'
 $cmd
 res=\$?
+
 echo Installation of $1-$2 completed with result = \$res.
 echo \$res >bilderinstall.res
 exit \$res
@@ -6463,6 +6525,7 @@ EOF
     techo "Installing $1-$2 from $PWD using $installscript at `date +%F-%T`." | tee $install_txt
     techo "$installscript" | tee -a $install_txt
     ./$installscript >>$install_txt 2>&1
+    # ./$installscript | tr -d '\r' >>$install_txt 2>&1
     RESULT=$?
 
 # If installed, record
@@ -6570,7 +6633,7 @@ EOF
 # Remove old installations.
 # Add -r to deal with '-' being in name of another package.
 # Assumes installation by svn revision.
-      allinstalls=`(cd $instdirval; \ls -d $instsubdirbase-r* 2>/dev/null)`
+      allinstalls=`(cd $instdirval; \ls -d $instsubdirbase-r* 2>/dev/null | tr  '\n' ' ')`
       if test -n "$allinstalls"; then
         techo -2 "All installations are $allinstalls"
         if $REMOVE_OLD; then
@@ -6786,14 +6849,17 @@ bilderInstallAll() {
 # Args:
 # 1: Name of tested package, e.g., vorpal
 # 2: Name of tests in methods, e.g., VpTests
-# 3: Args to used when calling bilderInstall
+# 3: (optional) name to link installation subdir to
+# 4: (optional) args for make install
+# 5: (optional) environment variables
 #
 # Named args (must come first):
+# -a args to used when calling bilderInstall
 # -b whether there are build tests
 # -i ignore the tests of builds when calling install, comma-separated list
+# -I ignore test results--passed on to shouldInstallTestedPkg()
 # -n <tests>   Name of tests if not found from lower-casing $2
 # -t Install named test pkg
-# -I ignore test results--passed on to shouldInstallTestedPkg()
 #
 # Return true if should be installed
 #
@@ -6809,24 +6875,25 @@ bilderInstallTestedPkg() {
   local removePkg=false
   local removearg=
   local installNamedPkg=false
+  local installargs=
   local ignoreTestResultsArg=
 
 # Parse options
   set -- "$@"
   OPTIND=1
-  while getopts "bi:n:tI" arg; do
+  while getopts "a:bi:n:tI" arg; do
     case $arg in
+      a) installargs="$OPTARG";;
       b) hasbuildtests=true;;
-      i) ignorebuilds=$ignorebuilds,$OPTARG;;
+      I) ignoreTestResultsArg=-I;;
+      i) ignorebuilds="$ignorebuilds,$OPTARG";;
       n) tstsnm="$OPTARG";;
       t) installNamedPkg=true;;
-      I) ignoreTestResultsArg=-I;;
     esac
   done
   shift $(($OPTIND - 1))
 
 # Args for calling install method if tests pass
-  local installargs="$3"
 
 # Determine args for shouldInstallTestedPkg
   local sitpargs=
@@ -6860,7 +6927,7 @@ bilderInstallTestedPkg() {
       local vervar=`genbashvar $1`_BLDRVERSION
       local verval=`deref $vervar`
       for bld in $bldsval; do
-        bilderInstall $installargs $1 $bld
+        bilderInstall $installargs $1 $bld $3 $4 $5
       done
       if test -n "$tstsnm"; then
         if $installNamedPkg; then
@@ -7403,8 +7470,15 @@ EOF
   techo "  Bilder creating abstract $ABSTRACT."
   techo "======================================"
   rmall $ABSTRACT
-
-  local jenkinsProj=`echo $BUILD_DIR | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`
+  
+  case `uname` in
+    #in CYGWIN, we use a windows shortlink where pwd -P still returns the shortpath
+    #so we sed the short path for the directory under c, which should be the jenkins project name    
+    CYGWIN*) 
+      local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*c/@@' -e 's@/.*$@@'`;;
+    *)
+      local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`;;
+  esac
   addHtmlLine 0 "$FQMAILHOST ($RUNNRSYSTEM) - $jenkinsProj - $formattedTimestamp" BLUE $ABSTRACT
   addHtmlLine 2 "Build: ${BUILD_DIR}" BLACK $ABSTRACT
   chmod a+r ${ABSTRACT}
@@ -7459,7 +7533,11 @@ EOF
   elif test -n "$buildSuccesses"; then
     EMAIL_SUBJECT="SUCCESS"
     failed=false
-    EMAIL_SUBJECT="$EMAIL_SUBJECT - Builds: $buildSuccesses (see WARNING)"
+    EMAIL_SUBJECT="$EMAIL_SUBJECT - Builds: $buildSuccesses"
+# If warnings, note in subject
+    if test -s $BILDER_LOGDIR/warnings.txt; then
+      EMAIL_SUBJECT="$EMAIL_SUBJECT (see WARNINGS)"
+    fi
   else
     EMAIL_SUBJECT="Nothing built or tested.  Appears all up to date."
   fi
@@ -7500,7 +7578,7 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in check-failures.txt unit.failures ctest.failures Testing/Temporary/LastTestsFailed.log; do
+        for tstlist in check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
             numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
@@ -7508,17 +7586,27 @@ EOF
           if test $numTestFailures -gt 0; then
             techo "Failed tests found in $builddir/$tstlist."
             addHtmlLine 4 "Found $numTestFailures failures from $tdir/$tstlist" RED $ABSTRACT
-# Print out specific test failures; a maximum of 15 lines.
-            local linemax=15
+# Print out specific test failures; a maximum of 50 lines.
+            local linemax=50
             if test $numTestFailures -lt $linemax; then
               linemax=$numTestFailures
             fi
-            for ((nline=1;nline<=${linemax};nline++)); do
-              tline=`sed -n ${nline}p $builddir/${tstlist}`
+# The check-log.txt file has more info that the check-failures list so we change
+# to grabbing the line from that file instead.
+            finallist=${builddir}/${tstlist}
+            nstart=1
+            if test "$tstlist" == "check-failures.txt"; then
+              finallist="${builddir}/check-log.txt"
+              nstart=2
+              linemax=`expr ${linemax} + 1`
+            fi
+            for ((nline=${nstart};nline<=${linemax};nline++)); do
+              tline=`sed -n ${nline}p ${finallist}`
               addHtmlLine 6 "${tline}" RED $ABSTRACT
             done
           fi
         done
+
       else
         addHtmlLine 4 "Failed Tests: $tfaildir" RED $ABSTRACT
       fi
@@ -7637,11 +7725,15 @@ EOF
 # Copy abstract to central host
   if $SEND_ABSTRACT && test -n "$ABSTRACT_HOST" -a -n "$ABSTRACT_ROOTDIR"; then
 
-# Append BILDER_BRANCHSHORT to ABSTRACT_ROOTDIR directory on abstract host machine; this will help identify
-# whether the build is non-trunk.  Do not append if BILDER_BRANCHSHORT is trunk.
-    if test "${BILDER_BRANCHSHORT}" != "trunk"; then
-      ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${BILDER_BRANCHSHORT}
+# Directory on jenkins server where abstracts gets copied to (ABSTRACT_ROOTDIR)
+# is set outside this function, but we append to it for the case when we define
+# a special install directory (which is the case for the test branches and 
+# release builds. 
+    if test -n "$FIXED_INSTALL_SUBDIR"; then
+      ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${FIXED_INSTALL_SUBDIR}
     fi
+
+# Log Creation of abstract
     techo
     techo "  Bilder sending abstract to host $ABSTRACT_HOST."
     techo "======================================"
@@ -7650,7 +7742,7 @@ EOF
 
 # Check destination directory to copy abstract to
     local destdirok=false
-    cmd="ssh $ABSTRACT_HOST test -d $abstractdir"
+    cmd="ssh -o StrictHostKeyChecking=no $ABSTRACT_HOST test -d $abstractdir"
     techo "$cmd"
     if $cmd 2>&1; then
 # Set destination directory is group writable.  Ignore failure.
@@ -7676,9 +7768,9 @@ EOF
     fi
 
     if $destdirok; then
-# Create name such that alphabetical listing will have correct grouping
-# I *need* underscores to separate fields
-     local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
+# Create name such that alphabetical listing will have correct grouping.
+# Underscores are expected by jenkinsabs script that processes these files.
+      local abstractdest=${FQMAILHOST}_${jenkinsProj}_${timestamp}-abstract.html
       abstractdest=$ABSTRACT_ROOTDIR/$BILDER_PROJECT/$abstractdest
       cmd="scp -q ${ABSTRACT} $ABSTRACT_HOST:${abstractdest}"
       techo "$cmd"
@@ -7988,7 +8080,7 @@ buildChain() {
     chain=`echo $hifirst | awk '{for (i=NF;i>=1;i--) printf $i" "} END{print ""}'`
     trimvar chain ' '
     techo ""
-    rm -f *-chain.txt # Remove old chain files
+    rm -f ${BILDER_LOGDIR}/*-chain.txt # Remove old chain files
     techo "Package(s) $1 dependencies = '$hifirst'." | tee $BILDER_LOGDIR/${1}-chain.txt
     techo "Inverse order = '$chain'." | tee -a $BILDER_LOGDIR/${1}-chain.txt
     if $analyzeonly; then

@@ -69,7 +69,11 @@ buildQt() {
 
     Darwin)
 # jpeg present, but qt cannot find headers
-      QT_ADDL_ARGS="$QT_ADDL_ARGS -platform macx-g++"
+      if echo $CXXFLAGS | grep -q stdlib=libc++; then
+        QT_ADDL_ARGS="$QT_ADDL_ARGS -platform unsupported/macx-clang-libc++"
+      else
+        QT_ADDL_ARGS="$QT_ADDL_ARGS -platform macx-g++"
+      fi
       case `uname -r` in
         13.*)
 # This will need to be clang

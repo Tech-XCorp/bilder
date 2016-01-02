@@ -53,7 +53,9 @@ addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 # Add parallel path now before absolute paths determined by getCombinedCompVars
-addtopathvar PATH $CONTRIB_DIR/mpi/bin
+if $BUILD_MPIS; then
+  addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
+fi
 techo "PATH = $PATH"
 
 ######################################################################
@@ -100,7 +102,7 @@ case `uname` in
     LIBEXT=.lib
     unset LIBPREFIX
     techo "Getting number of cores."
-    MAKEJ_TOTAL=`wmic cpu get NumberOfCores | sed -n 2p | tr -d '\r '`
+    MAKEJ_TOTAL=${NUMBER_OF_PROCESSORS}
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
@@ -245,13 +247,17 @@ case `uname` in
         sfxorder="so a"
         ;;
     esac
+# Looks like they moved this directory in recent distros
+    if test -d /usr/lib64/pkgconfig; then
+      addtopathvar PKG_CONFIG_PATH /usr/lib64/pkgconfig
+    fi
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-shared"}
     USE_ATLAS_PYCSH=true
     READLINK=readlink
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}
     SHOBJEXT=.so
     SHOBJFLAGS=${SHOBJFLAGS:-"-shared"}
-    warnMissingPkgs
+    # warnMissingLinuxPkgs # This is the responsibility of packages
     ;;
 
 esac
@@ -672,6 +678,7 @@ PATH="$PATHSAV"
 ######################################################################
 #
 # Determine whether to ignore cmake for some hosts.
+# Determine some cmake variables.
 #
 ######################################################################
 
@@ -687,6 +694,10 @@ else
   : # techo "PREFER_CMAKE already set to $PREFER_CMAKE."
 fi
 # techo exit; exit
+if test -n "$JENKINS_FSROOT"; then
+  CUDA_ALL_COMPUTE_CAPABILITIES=${CUDA_ALL_COMPUTE_CAPABILITIES:-"true"}
+fi
+CUDA_ALL_COMPUTE_CAPABILITIES=${CUDA_ALL_COMPUTE_CAPABILITIES:-"false"}
 
 ######################################################################
 #
@@ -702,6 +713,7 @@ getCombinedCompVars
 #
 ######################################################################
 
+USE_MKL=${USE_MKL:-"false"}  # Make sure set
 LINK_WITH_MKL=${LINK_WITH_MKL:-"false"}  # Make sure set
 findBlasLapack
 
@@ -754,13 +766,13 @@ USING_BUILD_CHAIN=false
 techo -2 "Trimming and writing out all variables."
 hostvars="USER BLDRHOSTID CPUINFO FQHOSTNAME UQHOSTNAME FQMAILHOST UQMAILHOST FQWEBHOST MAILSRVR"
 instdirsvars="BLDR_INSTALL_DIR CONTRIB_DIR DEVELDOCS_DIR USERDOCS_DIR"
-pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG"
+pathvars="PATH PATH_NATIVE CONFIG_SUPRA_SP_ARG CMAKE_SUPRA_SP_ARG SYS_LIBSUBDIRS LD_LIBRARY_PATH LD_RUN_PATH LD_RUN_VAR LD_RUN_ARG PKG_CONFIG_PATH"
 source $BILDER_DIR/mkvars.sh
 vervars="BILDER_CHAIN GCC_VERSION GCC_MAJMIN GCC_MAJOR GCC_MINOR SVN_BLDRVERSION BLDR_SVNVERSION"
 linalgargs="CMAKE_LINLIB_SER_ARGS CONFIG_LINLIB_SER_ARGS LINLIB_SER_LIBS CMAKE_LINLIB_BEN_ARGS CONFIG_LINLIB_BEN_ARGS LINLIB_BEN_LIBS"
 compvars="USE_MPI MPI_BUILD CONFIG_COMPILERS_SER CONFIG_COMPILERS_PAR CONFIG_COMPILERS_BEN CONFIG_COMPILERS_PYC CMAKE_COMPILERS_SER CMAKE_COMPILERS_PAR CMAKE_COMPILERS_BEN CMAKE_COMPILERS_PYC"
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
-cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS"
+cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS CUDA_ALL_COMPUTE_CAPABILITIES"
 testvars="BILDER_CTEST_MODEL"
 mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="GLIBC_VERSION LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
@@ -777,14 +789,6 @@ done
 techo "All variables written."
 
 env >$BUILD_DIR/bilderenv.txt
-
-# Various cleanups
-
-# Remove incorrect installations
-# if isCcPyc; then
-  # rm -rf $BLDR_INSTALL_DIR/*-pycsh $BLDR_INSTALL_DIR/*-pycsh.lnk  # Should be sersh
-  # rm -rf $CONTRIB_DIR/*-pycsh $CONTRIB_DIR/*-pycsh.lnk  # Should be sersh
-# fi
 
 # techo "WARNING: [bildvars.sh] Quitting at end of bildvars.sh."; exit
 

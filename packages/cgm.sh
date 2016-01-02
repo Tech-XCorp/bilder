@@ -47,14 +47,21 @@ setCgmNonTriggerVars
 buildCgm() {
 
 # Whether using cmake
-  # CGM_USE_CMAKE=true
-  CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
+# As of 20151220, autotools is still necessary to build cgm without cubit.
+  # if $BUILD_EXPERIMENTAL; then
+    # CGM_USE_CMAKE=${CGM_USE_CMAKE:-"true"}
+  # fi
   if [[ `uname` =~ CYGWIN ]]; then
     CGM_USE_CMAKE=true
   fi
+  CGM_USE_CMAKE=${CGM_USE_CMAKE:-"false"}
   local cgmcmakearg=
+  local sharedarg=
   if $CGM_USE_CMAKE; then
     cgmcmakearg=-c
+    sharedarg="-DBUILD_SHARED_LIBS='ON'"
+  else
+    sharedarg="--enable-shared"
   fi
 
 # Get cgm from repo, determine whether to build
@@ -65,11 +72,14 @@ buildCgm() {
   fi
 
 # Configure and build args
-  local CGM_CONFIG_ARGS=
+  local CGM_ADDL_ARGS=
   if $CGM_USE_CMAKE; then
-    CGM_CONFIG_ARGS="-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OCE_PYCSH_CMAKE_DIR_ARG $CGM_ADDL_ARGS"
+    CGM_ADDL_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DCGM_OCC='ON' $OCE_PYCSH_CMAKE_DIR_ARG"
+    if [[ `uname` =~ CYGWIN ]]; then
+      CGM_ADDL_ARGS="-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CGM_ADDL_ARGS"
+    fi
   else
-    CGM_CONFIG_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR' $CGM_ADDL_ARGS"
+    CGM_ADDL_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR'"
   fi
 
 # When not all dependencies right on Windows, need nmake
@@ -88,14 +98,14 @@ buildCgm() {
 # PYTHON_STATIC_BUILD for composers
   local otherargsvar=`genbashvar CGM_${FORPYTHON_STATIC_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $cgmcmakearg cgm $FORPYTHON_STATIC_BUILD "$CGM_CONFIG_ARGS $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $FORPYTHON_STATIC_BUILD "$CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $FORPYTHON_STATIC_BUILD "$makejargs" "$CGM_ENV"
   fi
 
 # PYTHON_SHARED_BUILD for dagsolid
   local otherargsvar=`genbashvar CGM_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "--enable-shared $CGM_CONFIG_ARGS $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
+  if bilderConfig $cgmcmakearg cgm $FORPYTHON_SHARED_BUILD "$sharedarg $CGM_ADDL_ARGS $otherargsval" "" "$CGM_ENV"; then
     bilderBuild $makerargs cgm $FORPYTHON_SHARED_BUILD "$makejargs" "$CGM_ENV"
   fi
 
