@@ -25,11 +25,15 @@ setOceTriggerVars() {
   fi
 # Standard vars
   OCE_REPO_URL=https://github.com/Tech-XCorp/oce.git
-  OCE_REPO_BRANCH_STD=${OCE_REPO_BRANCH_STD:-"stable"}
-  OCE_REPO_BRANCH_EXP=${OCE_REPO_BRANCH_EXP:-"stable"}
+# We do not follow https://internal.txcorp.com/it/wiki/UpstreamGit
+# precisely, because we want to work off their tags.  So instead
+# we make a local branch, e.g., OCE-0.17.1-txc, and work from that.
+# The older branch is mirrored at stable.
+  OCE_REPO_BRANCH_STD=${OCE_REPO_BRANCH_STD:-"stable"} # aka OCE-0.17-txc
+  OCE_REPO_BRANCH_EXP=${OCE_REPO_BRANCH_EXP:-"OCE-0.17.1-txc"}
   OCE_UPSTREAM_URL=https://github.com/tpaviot/oce.git
   OCE_UPSTREAM_BRANCH_STD=OCE-0.17
-  OCE_UPSTREAM_BRANCH_EXP=master
+  OCE_UPSTREAM_BRANCH_EXP=OCE-0.17.1
   OCE_BUILD=$FORPYTHON_SHARED_BUILD
   OCE_BUILDS=${OCE_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   OCE_DEPS=freetype,cmake
