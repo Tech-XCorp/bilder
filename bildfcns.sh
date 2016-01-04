@@ -5713,8 +5713,10 @@ bilderRunTests() {
 # where no builds configure and we were previously trying to run tests.
 # JRC: waitAction should return 99 if something was not built, for whatever
 # reason.
+    local untestedBuildReason=
     if test "$res" = 99; then
       techo "$pkgname-$bld was not built.  Not testing."
+      untestedBuildReason="it was not built."
       continue
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
@@ -5726,7 +5728,6 @@ bilderRunTests() {
     fi
 
 # Determine whether this build is ignored
-    local untestedBuildReason=
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
       untestedBuildReason="it is in the list of ignored builds"
     elif ! $hasbuildtests; then
