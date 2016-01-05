@@ -1,4 +1,4 @@
-######################################################################
+m#####################################################################
 #
 # bildfcns.sh: A set of methods for configuring and building packages
 #
@@ -6434,12 +6434,6 @@ bilderInstall() {
         techo "$cmd"
         eval "$cmd"
         cmd="rmall $instdirval/$instsubdirval"
-        techo "$cmd"
-        $cmd
-# Remove the link
-        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-/-/' -e 's/-ser$//'`
-        cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
-        # techo "NOTE: [$FUNCNAME] not executing '$cmd'"
         techo "$cmd"
         $cmd
       fi
