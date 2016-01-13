@@ -6736,6 +6736,9 @@ EOF
           if test -n "$installer"; then
             installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
             installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
+            cmd="scp -v license.txt ${INSTALLER_HOST}:${depotdir}/license.txt"
+            techo "$cmd"
+            $cmd
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
             techo "$cmd"
             if $cmd 1>/dev/null 2>./error; then
