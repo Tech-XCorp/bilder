@@ -6754,6 +6754,9 @@ EOF
               cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotdir}/${installername}"
               techo "$cmd"
               $cmd
+              cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotdir}/license.txt"
+              techo "$cmd"
+              $cmd
               if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
                 cmd="ssh ${INSTALLER_HOST} ln -sf ${depotdir}/$installername ${depotdir}/${installerlink}"
                 techo "Creating link at depot: $cmd"
