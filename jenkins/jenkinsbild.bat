@@ -86,6 +86,7 @@ if defined JOB_LINK (
     echo Executing rmdir %JOB_LINK% to refresh existing link. >> jenkinsbild.log
     echo Executing mklink /D %JOB_LINK% %BILDER_WSPATH% to refresh existing link. >> jenkinsbild.log
     @echo on
+    rmdir %JOB_LINK%
     mklink /D %JOB_LINK% %BILDER_WSPATH%
     @echo off
   :nothavelinkcontinue
