@@ -79,8 +79,12 @@ if defined JOB_LINK (
     echo jenkinsbild.bat: %JOB_LINK% still does not exist. >> jenkinsbild.log
   :havelinkcontinue
   if not exist %JOB_LINK% goto nothavelinkcontinue
-    echo jenkinsbild.bat: %JOB_LINK% exists.  Executing mklink /D %JOB_LINK% %BILDER_WSPATH% to refresh existing link.
+    echo jenkinsbild.bat: %JOB_LINK% exists.  
+    echo Executing rmdir %JOB_LINK% to refresh existing link.
+    echo Executing mklink /D %JOB_LINK% %BILDER_WSPATH% to refresh existing link.
     echo jenkinsbild.bat: %JOB_LINK% exists.  Executing mklink /D %JOB_LINK% %BILDER_WSPATH% to refresh existing link. >> jenkinsbild.log
+    echo Executing rmdir %JOB_LINK% to refresh existing link. >> jenkinsbild.log
+    echo Executing mklink /D %JOB_LINK% %BILDER_WSPATH% to refresh existing link. >> jenkinsbild.log
     @echo on
     mklink /D %JOB_LINK% %BILDER_WSPATH%
     @echo off
