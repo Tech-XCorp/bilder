@@ -194,6 +194,9 @@ SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH2"}
 if test -d /scr_$UQHOSTNAME/$USER; then
   SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"/scr_$UQHOSTNAME/$USER"}
 fi
+if test -d /winsame/$USER; then
+  SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"/winsame/$USER"}
+fi
 SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$HOME"}
 
 # Get the packages repos

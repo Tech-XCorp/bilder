@@ -5713,8 +5713,10 @@ bilderRunTests() {
 # where no builds configure and we were previously trying to run tests.
 # JRC: waitAction should return 99 if something was not built, for whatever
 # reason.
+    local untestedBuildReason=
     if test "$res" = 99; then
       techo "$pkgname-$bld was not built.  Not testing."
+      untestedBuildReason="it was not built."
       continue
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
@@ -5726,7 +5728,6 @@ bilderRunTests() {
     fi
 
 # Determine whether this build is ignored
-    local untestedBuildReason=
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
       untestedBuildReason="it is in the list of ignored builds"
     elif ! $hasbuildtests; then
@@ -6435,12 +6436,6 @@ bilderInstall() {
         cmd="rmall $instdirval/$instsubdirval"
         techo "$cmd"
         $cmd
-# Remove the link
-        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-/-/' -e 's/-ser$//'`
-        cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
-        # techo "NOTE: [$FUNCNAME] not executing '$cmd'"
-        techo "$cmd"
-        $cmd
       fi
     else
       techo "Not removing old installation."
@@ -6741,6 +6736,9 @@ EOF
           if test -n "$installer"; then
             installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
             installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
+            cmd="scp -v license.txt ${INSTALLER_HOST}:${depotdir}/license.txt"
+            techo "$cmd"
+            $cmd
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
             techo "$cmd"
             if $cmd 1>/dev/null 2>./error; then
@@ -6754,6 +6752,9 @@ EOF
                   ;;
               esac
               cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotdir}/${installername}"
+              techo "$cmd"
+              $cmd
+              cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotdir}/license.txt"
               techo "$cmd"
               $cmd
               if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
