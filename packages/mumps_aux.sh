@@ -22,7 +22,7 @@ setMumpsTriggerVars() {
     Darwin) ;;
     Linux) MUMPS_BUILDS=${MUMPS_BUILDS:-"ser,par"};;
   esac
-  MUMPS_DEPS=cmake
+  MUMPS_DEPS=${MPI_BUILD},cmake
 }
 setMumpsTriggerVars
 
