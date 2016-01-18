@@ -186,18 +186,9 @@ if test -n "$JENKINS_FSROOT"; then
   eval "$cmd"
 fi
 
-# Set default pkg topdir
+# Set default pkg topdir for jenkins.  All others use default.
 SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$JENKINS_FSROOT"}
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$GSCRATCH"}
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH"}
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH2"}
-if test -d /scr_$UQHOSTNAME/$USER; then
-  SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"/scr_$UQHOSTNAME/$USER"}
-fi
-if test -d /winsame/$USER; then
-  SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"/winsame/$USER"}
-fi
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$HOME"}
+techo "SVNPKGS_TOPDIR = ${SVNPKGS_TOPDIR}"
 
 # Get the packages repos
 getPkgRepos
