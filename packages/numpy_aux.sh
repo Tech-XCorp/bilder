@@ -29,12 +29,7 @@
 
 setNumpyTriggerVars() {
   NUMPY_BLDRVERSION_STD=1.9.2
-  NUMPY_BLDRVERSION_EXP=1.9.2
-
-  if [[ `uname` =~ CYGWIN ]] && test $VISUALSTUDIO_VERSION = 12; then
-    NUMPY_BLDRVERSION_STD=1.9.2
-  fi
-
+  NUMPY_BLDRVERSION_EXP=1.10.2
   computeVersion numpy
   NUMPY_BUILDS=${NUMPY_BUILDS:-"pycsh"}
   NUMPY_DEPS=Python

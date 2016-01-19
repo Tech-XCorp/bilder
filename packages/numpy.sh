@@ -42,7 +42,7 @@ setNumpyNonTriggerVars() {
 # to avoid the error code, but we do not understand why it is being set.
 
 # So for now, the default is not to use fortran. Further it is forced off
-# off if there is no fortran compiler.
+# if there is no fortran compiler.
   NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
   if ! $HAVE_SER_FORTRAN; then
     NUMPY_WIN_USE_FORTRAN=false
