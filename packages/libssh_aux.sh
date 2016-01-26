@@ -16,6 +16,7 @@
 ######################################################################
 
 setLibsshTriggerVars() {
+if false; then
   case `uname` in
     CYGWIN*)
       if test "$VISUALSTUDIO_VERSION" -gt 11; then
@@ -35,6 +36,8 @@ setLibsshTriggerVars() {
       LIBSSH_BLDRVERSION_STD=${LIBSSH_BLDRVERSION_STD:-"0.6.4"}
       ;;
   esac
+fi
+  LIBSSH_BLDRVERSION_STD=${LIBSSH_BLDRVERSION_EXP:-"0.7.2"}
   LIBSSH_BLDRVERSION_EXP=${LIBSSH_BLDRVERSION_EXP:-"0.7.2"}
 # libssh always builds the shared libs.  With configuration below,
 # it will also build the static library, so we call this build ser.
