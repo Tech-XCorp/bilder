@@ -25,13 +25,18 @@ bilderFqdn() {
   fi
 # If that is unqualified, try host.
   if ! [[ $fqdn =~ \. ]]; then
-    fqtmp=`host $fqdn | sed 's/ .*$//'`
-    if test $fqtmp = Host; then # At place that does not give fqdn
+    # fqtmp=`host $fqdn | sed 's/ .*$//'`
+    # if test $fqtmp = Host; then # At place that does not give fqdn
+    if fqtmp=`host $fqdn | grep "has address"`; then
+      fqdn=`echo $fqtmp | sed -e 's/ .*$//'`
+    elif host $fqdn | grep -q "not found"; then
       echo "$fqdn not found by host."
-      ip=`hostname -i`
-      fqdn=`host $ip | sed -e 's/^.* //' -e 's/\.$//'`
+      if `uname` != Darwin; then
+        ip=`hostname -i`
+        fqdn=`host $ip | sed -e 's/^.* //' -e 's/\.$//'`
+      fi
     else
-      fqdn=$fqtmp
+      fqdn=`host $fqdn | sed 's/ .*$//'`
     fi
   fi
   FQHOSTNAME=$fqdn
