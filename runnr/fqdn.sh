@@ -53,9 +53,8 @@ bilderFqdn() {
 
 # And mail host found by stripping trailing numbers and dashes
   if test $DOMAINNAME = nersc.gov; then
-    UQHOSTNAME=`echo $FQHOSTNAME | sed -e 's/\..*$//'`
-    UQMAILHOST=`echo $UQHOSTNAME | sed -e 's/[0-9]*-[0-9]*$//'`
-    UQMAILHOST=`echo $UQHOSTNAME | sed -e 's/[0-9]*-eth[0-9]*$//'`
+    UQHOSTNAME=`echo $FQHOSTNAME | sed -e 's/\..*$//' -e 's/[0-9]*$//'`
+    UQMAILHOST=`echo $UQHOSTNAME | sed -e 's/eth$//' -e 's/-$//' -e 's/[0-9]*$//'`
     FQMAILHOST=${UQMAILHOST}.$DOMAINNAME
   fi
 
