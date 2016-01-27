@@ -27,10 +27,6 @@ runnrSetNamesByDomain() {
       FQMAILHOST=edison.nersc.gov
       RUNNRSYSTEM=XC30
       ;;
-    hopper[01][0-9]*)
-      FQMAILHOST=hopper.nersc.gov
-      RUNNRSYSTEM=XE6
-      ;;
   esac
   # echo "[$FUNCNAME]: FQMAILHOST = $FQMAILHOST."
 

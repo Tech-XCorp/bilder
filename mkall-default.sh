@@ -46,6 +46,7 @@ WRAPPER OPTIONS
                         On LCFs: Install tarballs (instead of using facetspkgs)
   -m ................ Force this machine file
   -n ................ Invoke with a nohup and a redirect output
+  -P <projinstsubdir> Subdir under the project dir on such machines
   -p ................ just print the command
   -q <timelimit> .... Run in queue if possible, with limit of timelimit time
   -r <rootinst> ..... If absolute, use this directory as the root for the
@@ -118,6 +119,7 @@ processArg() {
     k) COMMON_CONTRIB=true;;
     m) MACHINEFILE=$OPTARG;;
     n) USE_NOHUP=true;;
+    P) PROJECT_INSTALL_SUBDIR=$OPTARG;;
     p) PRINTONLY=true;;
     q) QUEUE_TIME=$OPTARG;;
     r) ROOTDIR_CVI=$OPTARG;;
@@ -155,7 +157,7 @@ if test -f $HOME/.bilderrc; then
 fi
 
 # Process all the args
-args="b:cCE:f:F:gH:hiIj:km:npq:r:R:s:tv:w:X-"
+args="b:cCE:f:F:gH:hiIj:km:nP:pq:r:R:s:tv:w:X-"
 if test -n $extraargs; then
   args=${args}${extraargs}
 fi
