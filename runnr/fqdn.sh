@@ -12,7 +12,7 @@
 
 bilderFqdn() {
 
-  # techo "[$FUNCNAME]: FQHOSTNAME = $FQHOSTNAME."
+  techo "[$FUNCNAME]: FQHOSTNAME = $FQHOSTNAME."
 # Check for already done
   if test -n "$FQHOSTNAME" && ! test $FQHOSTNAME = Host; then
     return
@@ -26,8 +26,11 @@ bilderFqdn() {
 # If that is unqualified, try host.
   if ! [[ $fqdn =~ \. ]]; then
     fqtmp=`host $fqdn | sed 's/ .*$//'`
-    echo "[$FUNCNAME]: fqtmp = $fqtmp."
-    if test $fqtmp != Host; then
+    if test $fqtmp = Host; then # At place that does not give fqdn
+      echo "$fqdn not found by host."
+      ip=`hostname -i`
+      fqdn=`host $ip | sed -e 's/^.* //' -e 's/\.$//'`
+    else
       fqdn=$fqtmp
     fi
   fi
@@ -45,20 +48,16 @@ bilderFqdn() {
     fi
   done
 
-# Special case for cori at nersc
-  if [[ $FQHOSTNAME =~ ^cori[0-9]* ]] && ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
-    UQMAILHOST=cori
-    FQMAILHOST=cori.nersc.gov
-    if ! [[ $FQHOSTNAME =~ nersc.gov$ ]]; then
-      FQHOSTNAME=${FQHOSTNAME}.nersc.gov
-    fi
-  fi
-  # techo "FQHOSTNAME = $FQHOSTNAME."
-
-# Otherwise assume domainname is last part.
+# Otherwise domainname is last part.
   DOMAINNAME=`echo $FQHOSTNAME | sed -e 's/^[^\.]*\.//'`
-# FQMAILHOST will be determined elsewhere, as depending on system,
-# it may or may not have trailing numbers stripped.
+
+# And mail host found by stripping trailing numbers and dashes
+  if test $DOMAINNAME = nersc.gov; then
+    UQHOSTNAME=`echo $FQHOSTNAME | sed -e 's/\..*$//'`
+    UQMAILHOST=`echo $UQHOSTNAME | sed -e 's/[0-9]*-[0-9]*$//'`
+    UQMAILHOST=`echo $UQHOSTNAME | sed -e 's/[0-9]*-eth[0-9]*$//'`
+    FQMAILHOST=${UQMAILHOST}.$DOMAINNAME
+  fi
 
 }
 
