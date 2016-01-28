@@ -27,7 +27,7 @@ bilderFqdn() {
   if ! [[ $fqdn =~ \. ]]; then
     # fqtmp=`host $fqdn | sed 's/ .*$//'`
     # if test $fqtmp = Host; then # At place that does not give fqdn
-    if fqtmp=`host $fqdn | grep -q "has address"`; then
+    if fqtmp=`host $fqdn | grep "has address"`; then
       fqdn=`echo $fqtmp | sed -e 's/ .*$//'`
     elif host $fqdn | grep -q "not found"; then
       echo "$fqdn not found by host."
@@ -57,7 +57,7 @@ bilderFqdn() {
   DOMAINNAME=`echo $FQHOSTNAME | sed -e 's/^[^\.]*\.//'`
 
 # And mail host found by stripping trailing numbers and dashes
-  if test $DOMAINNAME = nersc.gov; then
+  if test "$DOMAINNAME" = nersc.gov; then
     UQHOSTNAME=`echo $FQHOSTNAME | sed -e 's/\..*$//' -e 's/[0-9]*$//'`
     UQMAILHOST=`echo $UQHOSTNAME | sed -e 's/eth$//' -e 's/-$//' -e 's/[0-9]*$//'`
     FQMAILHOST=${UQMAILHOST}.$DOMAINNAME
