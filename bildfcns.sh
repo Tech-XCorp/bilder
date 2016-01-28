@@ -3643,7 +3643,7 @@ updateRepo() {
         ;;
       git)
         if ! git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets; then
-          techo "WARNING: [$FUNCNAME] 'git fetch && git log ..origin/$branchval' failed."
+          techo "WARNING: [$FUNCNAME] 'git fetch && git log ..origin/$branchval' failed for $pkg."
         fi
         ;;
     esac

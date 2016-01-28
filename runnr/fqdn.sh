@@ -12,7 +12,7 @@
 
 bilderFqdn() {
 
-  techo "[$FUNCNAME]: FQHOSTNAME = $FQHOSTNAME."
+  # techo "[$FUNCNAME]: FQHOSTNAME = $FQHOSTNAME."
 # Check for already done
   if test -n "$FQHOSTNAME" && ! test $FQHOSTNAME = Host; then
     return
