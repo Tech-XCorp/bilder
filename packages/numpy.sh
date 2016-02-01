@@ -170,6 +170,7 @@ buildNumpy() {
 # For Cygwin, build, install, and make packages all at once, with
 # the latter if not building from a repo, as controlled by BDIST_WININST_ARG.
 # For others, just build.
+  NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.filelist'"
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,
 # but then one has to be building, otherwise specifying the compiler is
@@ -179,7 +180,7 @@ buildNumpy() {
 # build was successful.  Instead one must do any removal before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      NUMPY_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $NUMPY_INSTALL_ARGS $BDIST_WININST_ARG"
       NUMPY_ENV="$DISTUTILS_ENV"
       if $NUMPY_WIN_USE_FORTRAN && test -n "$PYC_FC"; then
         local fcbase=`basename "$PYC_FC"`
@@ -200,13 +201,13 @@ buildNumpy() {
       fi
       ;;
     CYGWIN*-*w64-mingw*)
-      NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' $NUMPY_INSTALL_ARGS $BDIST_WININST_ARG"
       local mingwgcc=`which x86_64-w64-mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       NUMPY_ENV="PATH=$mingwdir:'$PATH'"
       ;;
     CYGWIN*-*mingw*)
-      NUMPY_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      NUMPY_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $NUMPY_INSTALL_ARGS $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
       NUMPY_ENV="PATH=$mingwdir:'$PATH'"
@@ -266,9 +267,14 @@ testNumpy() {
 ######################################################################
 
 installNumpy() {
+  local res=
   case `uname` in
-    CYGWIN*) bilderDuInstall -n numpy "-" "$NUMPY_ENV";;
-    *) bilderDuInstall -r numpy numpy "-" "$NUMPY_ENV";;
+    CYGWIN*) bilderDuInstall -n numpy "-" "$NUMPY_ENV"; res=$?;;
+    *) bilderDuInstall -r numpy numpy "$NUMPY_INSTALL_ARGS" "$NUMPY_ENV"; res=$?;;
   esac
+  if test "$res" = 0; then
+    chmod a+r $PYTHON_SITEPKGSDIR/easy-install.pth
+    setOpenPerms $PYTHON_SITEPKGSDIR/numpy-*.egg
+  fi
 }
 
