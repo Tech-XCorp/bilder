@@ -71,12 +71,13 @@ buildTables() {
 # With the new setuptools, package managers that want to manage the
 # installations need the following arguments.  Otherwise, the installation
 # is inside an egg, and the regular python path does not work.
-# At the moment, the below fixes windows but not darwin/linux.
-  case `uname` in
-    CYGWIN*)
-      TABLES_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
-      ;;
-  esac
+  if $BUILD_EXPERIMENTAL; then
+    case `uname` in
+      CYGWIN*)
+        TABLES_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/tables.files'"
+        ;;
+    esac
+  fi
 
 # For Cygwin, build, install, and make packages all at once.
 # For others, just build.
