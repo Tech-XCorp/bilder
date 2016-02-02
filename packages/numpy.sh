@@ -167,10 +167,18 @@ buildNumpy() {
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
+# With the new setuptools, package managers that want to manage the
+# installations need the following arguments.  Otherwise, the installation
+# is inside an egg, and the regular python path does not work.
+# At the moment, the below fixes windows but not darwin/linux.
+  case `uname` in
+    CYGWIN*)
+      NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.filelist'"
+      ;;
+  esac
 # For Cygwin, build, install, and make packages all at once, with
 # the latter if not building from a repo, as controlled by BDIST_WININST_ARG.
 # For others, just build.
-  # NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.filelist'"
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,
 # but then one has to be building, otherwise specifying the compiler is
