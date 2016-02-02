@@ -68,6 +68,16 @@ buildTables() {
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
+# With the new setuptools, package managers that want to manage the
+# installations need the following arguments.  Otherwise, the installation
+# is inside an egg, and the regular python path does not work.
+# At the moment, the below fixes windows but not darwin/linux.
+  case `uname` in
+    CYGWIN*)
+      TABLES_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
+      ;;
+  esac
+
 # For Cygwin, build, install, and make packages all at once.
 # For others, just build.
   case `uname`-"$CC" in
@@ -79,11 +89,11 @@ buildTables() {
 # build was successful.  One must do any removal then before starting
 # the build and installation.
     CYGWIN*-*cl*)
-      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $TABLES_INSTALL_ARGS $BDIST_WININST_ARG"
       TABLES_ENV=`echo $DISTUTILS_NOLV_ENV | sed "s@PATH=@PATH=$HDF5_SERSH_DIR/bin:@"`
       ;;
     CYGWIN*-mingw*)
-      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      TABLES_ARGS="--hdf5='$TABLES_HDF5_DIR' --compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $TABLES_INSTALL_ARGS $BDIST_WININST_ARG"
       TABLES_ENV="PATH=/MinGW/bin:'$PATH'"
       ;;
 # For non-Cygwin builds, the build stage does not install.
@@ -145,13 +155,15 @@ testTables() {
 installTables() {
 
 # Determine installation args
+  local instopts
+  local instargs="$TABLES_ARGS"
   case `uname` in
-    CYGWIN*) instopts=-n;;
+    CYGWIN*) instopts=-n; instargs="$instargs $TABLES_INSTALL_ARGS";;
     *) instopts="-r tables";;
   esac
 
 # Install library if not present, make link if needed
-  if bilderDuInstall $instopts tables "$TABLES_ARGS" "$TABLES_ENV"; then
+  if bilderDuInstall $instopts tables "$instargs" "$TABLES_ENV"; then
 
 # Determine libraries, compatibility name/soname
     local hdf5shlib=
