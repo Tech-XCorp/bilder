@@ -65,7 +65,7 @@ testMako() {
 ######################################################################
 
 installMako() {
-  local MAKO_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/mako.filelist'"
+  local MAKO_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/mako.files'"
   bilderDuInstall -p mako Mako "$MAKO_INSTALL_ARGS" "$MAKO_ENV"
   # bilderDuInstall -p mako Mako "--install-purelib=$PYTHON_SITEPKGSDIR" "$MAKO_ENV"
 }

@@ -73,7 +73,7 @@ installSix() {
   mkdir -p $PYTHON_SITEPKGSDIR
 # Eggs are described at https://pythonhosted.org/six/formats.html
 # Args below work on windows.
-  local SIX_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/six.filelist'"
+  local SIX_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/six.files'"
   if bilderDuInstall six "$SIX_INSTALL_ARGS" "$SIX_ENV"; then
     : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi

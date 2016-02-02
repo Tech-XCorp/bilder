@@ -46,8 +46,9 @@ buildPyParsing() {
   $cmd
 
   PYPARSING_ENV="$DISTUTILS_NOLV_ENV"
+# Eggs are described at https://pythonhosted.org/setuptools/formats.html
 # pyparsing not using setuptools?
-  # PYPARSING_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pyparsing.filelist'"
+  # PYPARSING_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pyparsing.files'"
   case `uname`-$CC in
     CYGWIN*-*/cl | CYGWIN*-cl)
       PYPARSING_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $PYPARSING_INSTALL_ARGS $BDIST_WININST_ARG"

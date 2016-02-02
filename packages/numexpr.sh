@@ -55,7 +55,7 @@ buildNumexpr() {
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # For Cygwin: build, install, and make packages all at once.
-  NUMEXPR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numexpr.filelist'"
+  NUMEXPR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numexpr.files'"
 # For others, just build.
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,

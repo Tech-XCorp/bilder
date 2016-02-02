@@ -173,7 +173,7 @@ buildNumpy() {
 # At the moment, the below fixes windows but not darwin/linux.
   case `uname` in
     CYGWIN*)
-      NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.filelist'"
+      NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
       ;;
   esac
 # For Cygwin, build, install, and make packages all at once, with

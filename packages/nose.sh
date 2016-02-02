@@ -63,7 +63,7 @@ testNose() {
 ######################################################################
 
 installNose() {
-  local NOSE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/nose.filelist'"
+  local NOSE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/nose.files'"
   bilderDuInstall nose "$NOSE_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 
