@@ -170,7 +170,7 @@ buildNumpy() {
 # For Cygwin, build, install, and make packages all at once, with
 # the latter if not building from a repo, as controlled by BDIST_WININST_ARG.
 # For others, just build.
-  NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.filelist'"
+  # NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.filelist'"
   case `uname`-"$CC" in
 # For Cygwin builds, one has to specify the compiler during installation,
 # but then one has to be building, otherwise specifying the compiler is
