@@ -178,7 +178,10 @@ fi
 # Warn about bad old site.py
 for sfx in py pyc; do
   if test -f $PYTHON_SITEPKGSDIR/site.$sfx; then
-    techo "WARNING: [bilderpy.sh] $PYTHON_SITEPKGSDIR/site.$sfx present.  Should be removed?"
+    techo "WARNING: [bilderpy.sh] Removing $PYTHON_SITEPKGSDIR/site.$sfx present."
+    cmd="rm $PYTHON_SITEPKGSDIR/site.$sfx"
+    techo "$cmd"
+    $cmd
   fi
 done
 
