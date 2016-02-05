@@ -16,8 +16,8 @@
 ######################################################################
 
 setGstreamerTriggerVars() {
-  GSTREAMER_BLDRVERSION_STD=${GSTREAMER_BLDRVERSION_STD:-"0.10.36"}
-  GSTREAMER_BLDRVERSION_EXP=${GSTREAMER_BLDRVERSION_EXP:-"0.10.36"}
+  GSTREAMER_BLDRVERSION_STD=${GSTREAMER_BLDRVERSION_STD:-"1.7.1"}
+  GSTREAMER_BLDRVERSION_EXP=${GSTREAMER_BLDRVERSION_EXP:-"1.7.1"}
   if test `uname` = Linux; then
     GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   fi
@@ -32,7 +32,7 @@ setGstreamerTriggerVars
 ######################################################################
 
 findGstreamer() {
-  findContribPackage Gstreamer gstreamer-0.10 sersh pycsh
+  findContribPackage Gstreamer gstreamer-1.0 sersh pycsh
   findPycshDir Gstreamer
   addToPathVar PKG_CONFIG $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib/pkgconfig
 }
