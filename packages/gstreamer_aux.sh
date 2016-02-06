@@ -32,8 +32,13 @@ setGstreamerTriggerVars
 ######################################################################
 
 findGstreamer() {
-  findContribPackage Gstreamer gstreamer-1.0 sersh pycsh
+  findContribPackage Gstreamer gstreamer-0.10 sersh pycsh
   findPycshDir Gstreamer
-  addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib/pkgconfig
+  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib/pkgconfig
+  printvar PKG_CONFIG_PATH
+  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib
+  printvar LD_LIBRARY_PATH
+  addtopathvar LD_RUN_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib
+  printvar LD_RUN_PATH
 }
 
