@@ -60,6 +60,7 @@ buildQt() {
 # Get the addition args and environment per-platform.
 # Get the phonon args separately to allow experimental builds without it.
   local QT_ADDL_ARGS=
+  local ldlibpath=
   local QT_ENV=
   local QT_PHONON_ARGS=-phonon
   case `uname` in
@@ -96,7 +97,6 @@ buildQt() {
 # Adding to the LD_LIBRARY_PATH gets around the missing QtCLucene link bug.
 # To get around bash space separation of string, we separate env settings
 # with a comma.
-      QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
       case `uname -m` in
         x86_64)
           QT_ADDL_ARGS="$QT_ADDL_ARGS -platform linux-g++-64"
@@ -113,32 +113,37 @@ buildQt() {
 #   gstreamer-plugins-base-devel
 #   libxml2
 # For some systems, like the Crays, we have to build our own version of
-# glib, gstreamer, and xml2, which we do using extras/gstreamer.sh.
-# Look for that, and if present add the appropriate flags.
-# These should perhaps be Bilderized, but the resulting separate-dir
-# installation would make the qt flags a bit more complications
-      local extras_libdir=
-      if test -e $CONTRIB_DIR/extras/lib; then
-        extras_libdir=$CONTRIB_DIR/extras/lib
-      fi
-      if test -n "${extras_libdir}"; then
-        QT_PHONON_ARGS="$QT_PHONON_ARGS -L$extras_libdir"
+# glib, gstreamer, and xml2.  Previously all were done in $CONTRIB_DIR/extras.
+# Now gstreamer is bilderized.
+# Look for those, and if present add the appropriate flags.
+
+      local gstprefix=
+      local gstlibdir=
+      for gstprefix in $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh $CONTRIB_DIR/extras /usr; do
+        techo "Testing for $gstprefix/lib."
+        if test -e $gstprefix/lib; then
+          techo "Found $gstprefix/lib."
+          break
+        fi
+      done
+      if test -n "${gstprefix}"; then
+        QT_PHONON_ARGS="$QT_PHONON_ARGS -L$gstprefix/lib -I$gstprefix/include/gstreamer-0.10"
+        gstlibdir=$gstprefix/lib
       fi
 
 # Add system include directories if present.  This should not be duplication,
 # as the above should be built only when these are not found.
 # The paths on redhat are:
 #  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
-#  -I/usr/include/gstreamer-0.10 -I/usr/include/libxml2
+#  -I/usr/include/libxml2
 
       local incdir=
 # qt will not compile with gstreamer-1.0, so specifically look for 0.10
-      for i in gstreamer-0.10 libxml2 dbus-1.0 glib-2.0; do
+      local gpkgs="libxml2 dbus-1.0 glib-2.0"
+      test -z "${gstprefix}" && gpkgs="$gpkgs gstreamer-0.10"
+      for i in $gpkgs; do
 # Get the latest
         incdir=`ls -1d /usr/include/$i{,-*} 2>/dev/null | tail -1`
-        if test -z "$incdir"; then
-          incdir=`ls -1d $CONTRIB_DIR/extras/include/$i{,-*} 2>/dev/null | tail -1`
-        fi
         if test -n "$incdir"; then
           QT_PHONON_ARGS="$QT_PHONON_ARGS -I$incdir"
         else
@@ -184,6 +189,7 @@ buildQt() {
         techo "$cmd"
         eval "$cmd"
       fi
+      QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$gstlibdir:$LD_LIBRARY_PATH"
       ;;
 
   esac

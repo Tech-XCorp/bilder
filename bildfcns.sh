@@ -7950,7 +7950,7 @@ getDeps() {
         techo "$TERMINATE_ERROR_MSG" 1>&2
         exitOnError
       fi
-      cmd="source $pkgfile"
+      local cmd="source $pkgfile"
       techo "$cmd" 1>&2
       $cmd 1>&2
       local buildsvar=`genbashvar $pkg`_BUILDS
@@ -8117,6 +8117,7 @@ buildChain() {
     local pkglc=`echo $pkg | tr '[A-Z]' '[a-z]'`
     local pkgfile=${pkglc}.sh
     local auxfile=${pkglc}_aux.sh
+    local pkgvar=`genbashvar $pkg`  # Create a bash-valid variable name
     if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$pkgfile; then
       pkgfile="$BILDER_CONFDIR/packages/$pkgfile"
       auxfile="$BILDER_CONFDIR/packages/$auxfile"
@@ -8132,7 +8133,7 @@ buildChain() {
     techo "Package: '$pkgfile'"
 
 # Look for commands and execute
-    cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
+    local cmd=`grep -i "^ *build${pkgvar} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Build method for $pkg not found in $pkgfile."
 # Cannot use cleanup here, as the print gives the dependencies
@@ -8166,7 +8167,7 @@ buildChain() {
       techo "No builds for $pkg.  Will not call build, test, or install methods."
     fi
 # Call testPackageName
-    cmd=`grep -i "^ *test${pkg} *()" $pkgfile | sed 's/(.*$//'`
+    cmd=`grep -i "^ *test${pkgvar} *()" $pkgfile | sed 's/(.*$//'`
     if $dobuild; then
       if test -n "$cmd"; then
         techo ""
@@ -8177,7 +8178,7 @@ buildChain() {
       fi
     fi
 # Call installPackageName
-    cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
+    cmd=`grep -i "^ *install${pkgvar} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Install method for $pkg not found."
       exitOnError
@@ -8191,13 +8192,13 @@ buildChain() {
     # techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
       # techo "${auxfile} found."
-      cmd=`grep -i "^ *find${pkg} *()" $auxfile | sed 's/(.*$//'`
+      cmd=`grep -i "^ *find${pkgvar} *()" $auxfile | sed 's/(.*$//'`
       if test -n "$cmd"; then
         techo ""
         techo "EXECUTING $cmd"
         $cmd
       else
-        techo "NOTE: [$FUNCNAME] find$pkg not found in ${auxfile}."
+        techo "NOTE: [$FUNCNAME] find$pkgvar not found in ${auxfile}."
       fi
     else
       techo -2 "NOTE: [$FUNCNAME] ${auxfile} not found."

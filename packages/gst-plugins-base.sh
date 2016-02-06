@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for gstreamer
+# Build information for gstpluginsbase
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in gstreamer_aux.sh
+# Trigger variables set in gstpluginsbase_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/gstreamer_aux.sh
+source $mydir/gst-plugins-base_aux.sh
 
 ######################################################################
 #
@@ -23,45 +23,45 @@ source $mydir/gstreamer_aux.sh
 #
 ######################################################################
 
-setGstreamerNonTriggerVars() {
-  GSTREAMER_UMASK=002
+setGst_plugins_baseNonTriggerVars() {
+  GST_PLUGINS_BASE_UMASK=002
 }
-setGstreamerNonTriggerVars
+setGst_plugins_baseNonTriggerVars
 
 ######################################################################
 #
-# Launch gstreamer builds.
+# Launch gst-plugins-base builds.
 #
 ######################################################################
 
-buildGstreamer() {
+buildGst_plugins_base() {
 # Unpack
-  if ! bilderUnpack gstreamer; then
+  if ! bilderUnpack gst-plugins-base; then
     return
   fi
 # Build
-  if bilderConfig gstreamer sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GSTREAMER_SER_OTHER_ARGS"; then
-    bilderBuild gstreamer sersh
+  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-sersh  gst-plugins-base sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
+    bilderBuild gst-plugins-base sersh
   fi
 }
 
 ######################################################################
 #
-# Test gstreamer
+# Test gstpluginsbase
 #
 ######################################################################
 
-testGstreamer() {
-  techo "Not testing gstreamer."
+testGst_plugins_base() {
+  techo "Not testing gst-plugins-base."
 }
 
 ######################################################################
 #
-# Install gstreamer
+# Install gstpluginsbase
 #
 ######################################################################
 
-installGstreamer() {
-  bilderInstall gstreamer sersh
+installGst_plugins_base() {
+  bilderInstall gst-plugins-base sersh
 }
 

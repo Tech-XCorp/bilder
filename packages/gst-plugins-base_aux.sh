@@ -15,25 +15,26 @@
 #
 ######################################################################
 
-setGstreamerTriggerVars() {
-  GSTREAMER_BLDRVERSION_STD=${GSTREAMER_BLDRVERSION_STD:-"0.10.36"}
-  GSTREAMER_BLDRVERSION_EXP=${GSTREAMER_BLDRVERSION_EXP:-"0.10.36"}
+setGst_plugins_baseTriggerVars() {
+  GST_PLUGINS_BASE_BLDRVERSION_STD=${GST_PLUGINS_BASE_BLDRVERSION_STD:-"0.10.36"}
+  GST_PLUGINS_BASE_BLDRVERSION_EXP=${GST_PLUGINS_BASE_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
-    GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+    GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"$FORPYTHON_BUILD"}
   fi
-  GSTREAMER_DEPS=libtool,xz
+  GST_PLUGINS_BASE_DEPS=gstreamer
+  # GSTREAMER_TARBALLBASE=gst-plugins-base
 }
-setGstreamerTriggerVars
+setGst_plugins_baseTriggerVars
 
 ######################################################################
 #
-# Find gstreamer
+# Find gstpluginsbase
 #
 ######################################################################
 
-findGstreamer() {
-  findContribPackage Gstreamer gstreamer-1.0 sersh pycsh
-  findPycshDir Gstreamer
-  addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib/pkgconfig
+findGst_plugins_base() {
+  : # findContribPackage Gst_plugins_base gstpluginsbase-1.0 sersh pycsh
+  # findPycshDir Gstpluginsbase
+  # addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gstpluginsbase-${GST_PLUGINS_BASE_BLDRVERSION}-sersh/lib/pkgconfig
 }
 
