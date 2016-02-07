@@ -35,6 +35,7 @@ setQtTriggerVars() {
   QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.7"}
   QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   QT_BUILD=$FORPYTHON_SHARED_BUILD
+  # QT_DEPS=gst-plugins-base,bzip2
   QT_DEPS=bzip2
 # Need the following for phonon (and for webkit) on Linux:
 #   dbus

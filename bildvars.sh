@@ -52,6 +52,7 @@ techo "Adding to the PATH."
 addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
+addtopathvar PATH $CONTRIB_DIR/texlive/bin/x86_64-linux
 # Add parallel path now before absolute paths determined by getCombinedCompVars
 if $BUILD_MPIS; then
   addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin

@@ -57,7 +57,7 @@ testPygments() {
 ######################################################################
 
 installPygments() {
-  local PYGMENTS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pygments.filelist'"
+  local PYGMENTS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pygments.files'"
   bilderDuInstall -r Pygments -p pygments Pygments "$PYGMENTS_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

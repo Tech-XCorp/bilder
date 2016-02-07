@@ -45,7 +45,7 @@ buildCython() {
   cmd="rmall ${PYTHON_SITEPKGSDIR}/Cython*"
   techo "$cmd"
   $cmd
-  CYTHON_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numexpr.filelist'"
+  CYTHON_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numexpr.files'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
       CYTHON_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $CYTHON_INSTALL_ARGS $BDIST_WININST_ARG"

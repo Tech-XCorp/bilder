@@ -202,7 +202,7 @@ fi
 #   Cygwin: build, install, and make packages all at once.
 #   Others, just build.
   MATPLOTLIB_ENV="$DISTUTILS_NOLV_ENV"
-  MATPLOTLIB_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/matplotlib.filelist'"
+  MATPLOTLIB_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/matplotlib.files'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
       MATPLOTLIB_ARGS="install --prefix='$NATIVE_CONTRIB_DIR' $MATPLOTLIB_INSTALL_ARGS $BDIST_WININST_ARG"

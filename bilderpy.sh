@@ -175,6 +175,16 @@ if ! $NO_PYTHON; then
   export PYTHONPATH
 fi
 
+# Warn about bad old site.py
+for sfx in py pyc; do
+  if test -f $PYTHON_SITEPKGSDIR/site.$sfx; then
+    techo "WARNING: [bilderpy.sh] $PYTHON_SITEPKGSDIR/site.$sfx present.  Removing."
+    cmd="rm $PYTHON_SITEPKGSDIR/site.$sfx"
+    techo "$cmd"
+    $cmd
+  fi
+done
+
 #
 # Set distutils env now that PYTHONPATH is known
 #

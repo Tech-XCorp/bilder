@@ -66,11 +66,11 @@ testSnowballstemmer() {
 
 installSnowballstemmer() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/snowballstemmer/formats.html
-  # local SNOWBALLSTEMMER_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/snowballstemmer.filelist'"
-  local SNOWBALLSTEMMER_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/snowballstemmer.filelist'"
+# Eggs are described at https://pythonhosted.org/setuptools/formats.html
+  # local SNOWBALLSTEMMER_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/snowballstemmer.files'"
+  local SNOWBALLSTEMMER_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/snowballstemmer.files'"
   if bilderDuInstall snowballstemmer "$SNOWBALLSTEMMER_INSTALL_ARGS" "$SNOWBALLSTEMMER_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 

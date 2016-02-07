@@ -57,7 +57,7 @@ testMarkupSafe() {
 ######################################################################
 
 installMarkupSafe() {
-  local MARKUPSAFE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/markupsafe.filelist'"
+  local MARKUPSAFE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/markupsafe.files'"
   bilderDuInstall -r MarkupSafe -p markupsafe MarkupSafe "$MARKUPSAFE_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

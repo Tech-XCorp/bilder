@@ -70,9 +70,9 @@ installAlabaster() {
 # It seems that packages are using alabaster which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local ALABASTER_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/alabaster.filelist'"
+  local ALABASTER_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/alabaster.files'"
   if bilderDuInstall alabaster "$ALABASTER_INSTALL_ARGS" "$ALABASTER_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 

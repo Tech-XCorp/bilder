@@ -63,7 +63,7 @@ testMock() {
 ######################################################################
 
 installMock() {
-  local MOCK_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/mock.filelist'"
+  local MOCK_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/mock.files'"
   bilderDuInstall mock "$MOCK_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 
