@@ -52,7 +52,14 @@ techo "Adding to the PATH."
 addtopathvar PATH $CONTRIB_DIR/bin
 addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
-addtopathvar PATH $CONTRIB_DIR/texlive/bin/x86_64-linux
+# One of these should add the path to texlive if not in path
+case `uname` in
+  Linux) addtopathvar PATH $CONTRIB_DIR/texlive/bin/x86_64-linux;;
+  Darwin)
+    addtopathvar PATH /usr/local/texlive/2015/bin/x86_64-darwin
+    addtopathvar PATH /usr/local/texlive/2014/bin/x86_64-darwin
+    ;;
+esac
 # Add parallel path now before absolute paths determined by getCombinedCompVars
 if $BUILD_MPIS; then
   addtopathvar PATH $CONTRIB_DIR/$USE_MPI/bin
