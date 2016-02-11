@@ -26,9 +26,8 @@ setGst_plugins_baseTriggerVars() {
       techo "If it does not please check gstreamer-devel package"
       techo "is installed"
     else
-      QT_DEPS=${QT_DEPS},gst-plugins-base
+      GST_PLUGINS_BASE=${GST_PLUGINS_BASE_DEPS},gstreamer
     fi
-  fi
   fi
   GST_PLUGINS_BASE_DEPS=gstreamer
   # GSTREAMER_TARBALLBASE=gst-plugins-base
