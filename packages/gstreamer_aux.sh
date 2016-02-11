@@ -19,7 +19,9 @@ setGstreamerTriggerVars() {
   GSTREAMER_BLDRVERSION_STD=${GSTREAMER_BLDRVERSION_STD:-"0.10.36"}
   GSTREAMER_BLDRVERSION_EXP=${GSTREAMER_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
-    GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+#    GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+# forpython_shared_build is not always set. can't use JDAS 11th Feb16
+    GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"pycsh,sersh"}
   fi
   GSTREAMER_DEPS=libtool,xz
 # Probably shouldn't be just for linux, but this minimizes damage

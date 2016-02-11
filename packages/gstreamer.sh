@@ -43,6 +43,9 @@ buildGstreamer() {
   if bilderConfig gstreamer sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GSTREAMER_SER_OTHER_ARGS"; then
     bilderBuild gstreamer sersh
   fi
+  if bilderConfig gstreamer pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GSTREAMER_SER_OTHER_ARGS"; then
+    bilderBuild gstreamer pycsh
+  fi
 }
 
 ######################################################################

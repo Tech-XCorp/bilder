@@ -16,8 +16,8 @@
 ######################################################################
 
 setOrcTriggerVars() {
-  ORC_BLDRVERSION_STD=${ORC_BLDRVERSION_STD:-"0.4.24"}
-  ORC_BLDRVERSION_EXP=${ORC_BLDRVERSION_EXP:-"0.4.24"}
+  ORC_BLDRVERSION_STD=${ORC_BLDRVERSION_STD:-"0.4.16"}
+  ORC_BLDRVERSION_EXP=${ORC_BLDRVERSION_EXP:-"0.4.16"}
   if test `uname` = Linux; then
     ORC_BUILDS=${ORC_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD"}
   fi

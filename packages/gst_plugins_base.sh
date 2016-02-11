@@ -43,6 +43,12 @@ buildGst_plugins_base() {
   if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-sersh  gst_plugins_base sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
     bilderBuild gst_plugins_base sersh
   fi
+  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-ser  gst_plugins_base ser " $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
+    bilderBuild gst_plugins_base ser
+  fi
+  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-pycsh  gst_plugins_base pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
+    bilderBuild gst_plugins_base pycsh
+  fi
 }
 
 ######################################################################
