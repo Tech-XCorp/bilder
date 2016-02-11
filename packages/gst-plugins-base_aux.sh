@@ -20,7 +20,7 @@ setGst_plugins_baseTriggerVars() {
   GST_PLUGINS_BASE_BLDRVERSION_EXP=${GST_PLUGINS_BASE_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
     GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"$FORPYTHON_BUILD"}
-    if test -n `which gstreamer-0.10`; then
+    if which gstreamer-0.10; then
       techo "Gstreamer already in path, "
       techo "should be OK for phonon to build with this package"
       techo "If it does not please check gstreamer-devel package"

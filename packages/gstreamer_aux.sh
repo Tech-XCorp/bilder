@@ -26,7 +26,7 @@ setGstreamerTriggerVars() {
 # on other platforms where gstreamer building is currently untested
 # JDAS 9th Feb 2016
   if test `uname` = Linux; then
-    GSTREAMER_DEPS=${GSTREAMER_DEPS},libxml2,pkgconfig,orc
+    GSTREAMER_DEPS=${GSTREAMER_DEPS},libxml2,pkgconfig,orc,glib2
     if which flex; then
       techo "flex is installed, don't need to build"
     else
