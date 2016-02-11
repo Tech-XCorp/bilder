@@ -22,6 +22,22 @@ setGstreamerTriggerVars() {
     GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   fi
   GSTREAMER_DEPS=libtool,xz
+# Probably shouldn't be just for linux, but this minimizes damage
+# on other platforms where gstreamer building is currently untested
+# JDAS 9th Feb 2016
+  if test `uname` = Linux; then
+    GSTREAMER_DEPS=${GSTREAMER_DEPS},libxml2,pkgconfig,orc
+    if which flex; then
+      techo "flex is installed, don't need to build"
+    else
+      GSTREAMER_DEPS=${GSTREAMER_DEPS},flex
+    fi
+    if which bison; then
+      techo "bison is installed, don't need to build"
+    else
+      GSTREAMER_DEPS=${GSTREAMER_DEPS},bison
+    fi
+  fi
 }
 setGstreamerTriggerVars
 

@@ -37,6 +37,15 @@ setQtTriggerVars() {
   QT_BUILD=$FORPYTHON_SHARED_BUILD
   # QT_DEPS=gst-plugins-base,bzip2
   QT_DEPS=bzip2
+  if [[ `uname` = Linux ]]; then
+    if test -n `which gstreamer`; then
+      techo "Gstreamer already in path, phonon should build"
+      techo "If it does not please check gstreamer-devel package"
+      techo "is installed"
+    else
+      QT_DEPS=${QT_DEPS},gst-plugins-base
+    fi
+  fi
 # Need the following for phonon (and for webkit) on Linux:
 #   dbus
 #   glib (aka glib2 for the rpm)
