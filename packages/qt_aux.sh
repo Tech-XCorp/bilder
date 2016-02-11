@@ -38,8 +38,9 @@ setQtTriggerVars() {
   # QT_DEPS=gst-plugins-base,bzip2
   QT_DEPS=bzip2
   if [[ `uname` = Linux ]]; then
-    if test -n `which gstreamer`; then
-      techo "Gstreamer already in path, phonon should build"
+    if test -n `which gst-visualise-0.10`; then
+      techo "Gst-plugins-base already in path, "
+      techo "gstreamer should be present, phonon should build"
       techo "If it does not please check gstreamer-devel package"
       techo "is installed"
     else
