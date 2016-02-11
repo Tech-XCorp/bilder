@@ -73,7 +73,7 @@ if test -f $BILDER_DIR/machines/$machfile; then
 else
   test -n "$MACHINE_FILE" && techo "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR."
 fi
-if test -z "$absmachfile" -a test -n "$MACHINE_FILE"; then
+if test -z "$absmachfile" -a -n "$MACHINE_FILE"; then
   techo -n "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR"
   if test -n "$BILDER_CONFDIR"; then
     techo " and not found in $BILDER_CONFDIR."
