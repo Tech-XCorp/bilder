@@ -44,7 +44,7 @@ setQtTriggerVars() {
       techo "If it does not please check gstreamer-devel package"
       techo "is installed"
     else
-      QT_DEPS=${QT_DEPS},gst-plugins-base
+      QT_DEPS=${QT_DEPS},gst_plugins_base
     fi
   fi
 # Need the following for phonon (and for webkit) on Linux:

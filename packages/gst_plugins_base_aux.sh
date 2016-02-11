@@ -20,16 +20,18 @@ setGst_plugins_baseTriggerVars() {
   GST_PLUGINS_BASE_BLDRVERSION_EXP=${GST_PLUGINS_BASE_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
     GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"$FORPYTHON_BUILD"}
+    GST_PLUGINS_BASE_BUILD="$FORPYTHON_BUILD"   
     if which gstreamer-0.10; then
       techo "Gstreamer already in path, "
       techo "should be OK for phonon to build with this package"
       techo "If it does not please check gstreamer-devel package"
       techo "is installed"
     else
-      GST_PLUGINS_BASE=${GST_PLUGINS_BASE_DEPS},gstreamer
+      techo "Gstreamer was not found, adding to dependencies"
+      GST_PLUGINS_BASE_DEPS=${GST_PLUGINS_BASE_DEPS},gstreamer
     fi
   fi
-  GST_PLUGINS_BASE_DEPS=gstreamer
+#  GST_PLUGINS_BASE_DEPS=gstreamer
   # GSTREAMER_TARBALLBASE=gst-plugins-base
 }
 setGst_plugins_baseTriggerVars
