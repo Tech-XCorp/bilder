@@ -13,7 +13,7 @@
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/gst-plugins-base_aux.sh
+source $mydir/gst_plugins_base_aux.sh
 
 ######################################################################
 #
@@ -36,12 +36,12 @@ setGst_plugins_baseNonTriggerVars
 
 buildGst_plugins_base() {
 # Unpack
-  if ! bilderUnpack gst-plugins-base; then
+  if ! bilderUnpack gst_plugins_base; then
     return
   fi
 # Build
-  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-sersh  gst-plugins-base sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
-    bilderBuild gst-plugins-base sersh
+  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-sersh  gst_plugins_base sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
+    bilderBuild gst_plugins_base sersh
   fi
 }
 
@@ -52,7 +52,7 @@ buildGst_plugins_base() {
 ######################################################################
 
 testGst_plugins_base() {
-  techo "Not testing gst-plugins-base."
+  techo "Not testing gst_plugins_base."
 }
 
 ######################################################################
@@ -62,6 +62,6 @@ testGst_plugins_base() {
 ######################################################################
 
 installGst_plugins_base() {
-  bilderInstall gst-plugins-base sersh
+  bilderInstall gst_plugins_base sersh
 }
 

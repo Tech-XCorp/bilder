@@ -43,8 +43,8 @@ setGst_plugins_baseTriggerVars
 ######################################################################
 
 findGst_plugins_base() {
-  : # findContribPackage Gst_plugins_base gstpluginsbase-1.0 sersh pycsh
-  # findPycshDir Gstpluginsbase
-  # addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gstpluginsbase-${GST_PLUGINS_BASE_BLDRVERSION}-sersh/lib/pkgconfig
+  findContribPackage Gst_plugins_base gst-plugins-base-1.0 sersh pycsh
+  findPycshDir Gst_plugins_base
+  addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gst_plugins_base-${GST_PLUGINS_BASE_BLDRVERSION}-sersh/lib/pkgconfig
 }
 
