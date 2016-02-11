@@ -43,6 +43,9 @@ buildOrc() {
   if bilderConfig orc sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ORC_SER_OTHER_ARGS"; then
     bilderBuild orc sersh
   fi
+  if bilderConfig orc pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ORC_SER_OTHER_ARGS"; then
+    bilderBuild orc pycsh
+  fi
 }
 
 ######################################################################

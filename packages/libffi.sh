@@ -43,6 +43,9 @@ buildLibffi() {
   if bilderConfig libffi sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $LIBFFI_SER_OTHER_ARGS"; then
     bilderBuild libffi sersh
   fi
+  if bilderConfig libffi pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $LIBFFI_SER_OTHER_ARGS"; then
+    bilderBuild libffi pycsh
+  fi
 }
 
 ######################################################################

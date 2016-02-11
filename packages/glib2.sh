@@ -43,6 +43,9 @@ buildGlib2() {
   if bilderConfig glib2 sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GLIB2_SER_OTHER_ARGS"; then
     bilderBuild glib2 sersh
   fi
+  if bilderConfig glib2 pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GLIB2_SER_OTHER_ARGS"; then
+    bilderBuild glib2 pycsh
+  fi
 }
 
 ######################################################################
