@@ -66,5 +66,7 @@ testGlib2() {
 
 installGlib2() {
   bilderInstall glib2 sersh
+  bilderInstall glib2 pycsh
+  
 }
 

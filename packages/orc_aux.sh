@@ -19,7 +19,7 @@ setOrcTriggerVars() {
   ORC_BLDRVERSION_STD=${ORC_BLDRVERSION_STD:-"0.4.16"}
   ORC_BLDRVERSION_EXP=${ORC_BLDRVERSION_EXP:-"0.4.16"}
   if test `uname` = Linux; then
-    ORC_BUILDS=${ORC_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD"}
+    ORC_BUILDS=${ORC_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD,ser"}
   fi
   ORC_DEPS="libtool,pkgconfig"
 }
@@ -34,11 +34,13 @@ setOrcTriggerVars
 findOrc() {
   findContribPackage Orc orc-0.4 sersh pycsh
   findPycshDir Orc
-  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-sersh/lib/pkgconfig
+  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib/pkgconfig
   printvar PKG_CONFIG_PATH
-  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-sersh/lib
+  addtopathvar PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/bin
+  printvar PATH
+  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
   printvar LD_LIBRARY_PATH
-  addtopathvar LD_RUN_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-sersh/lib
+  addtopathvar LD_RUN_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
   printvar LD_RUN_PATH
 }
 

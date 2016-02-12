@@ -44,6 +44,9 @@ buildGstreamer() {
     bilderBuild gstreamer sersh
   fi
   if bilderConfig gstreamer pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GSTREAMER_SER_OTHER_ARGS"; then
+#    techo "BUILDING GSTREAMER PYCSH WITH PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
+    techo "debug statement: glib2-pycsh is not adding it's bin dir to path" 
+    techo "BUILDING GSTREAMER PYCSH WITH PATH=$PATH"
     bilderBuild gstreamer pycsh
   fi
 }
@@ -66,5 +69,6 @@ testGstreamer() {
 
 installGstreamer() {
   bilderInstall gstreamer sersh
+  bilderInstall gstreamer pycsh
 }
 

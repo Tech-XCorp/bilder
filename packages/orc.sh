@@ -65,6 +65,8 @@ testOrc() {
 ######################################################################
 
 installOrc() {
+  bilderInstall orc pycsh
+  bilderInstall orc pycst
   bilderInstall orc sersh
 }
 

@@ -69,5 +69,6 @@ testGst_plugins_base() {
 
 installGst_plugins_base() {
   bilderInstall gst_plugins_base sersh
+  bilderInstall gst_plugins_base pycsh
 }
 

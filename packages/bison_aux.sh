@@ -19,7 +19,8 @@ setBisonTriggerVars() {
   BISON_BLDRVERSION_STD=${BISON_BLDRVERSION_STD:-"2.7.1"}
   BISON_BLDRVERSION_EXP=${BISON_BLDRVERSION_EXP:-"2.7.1"}
   if test `uname` = Linux; then
-    BISON_BUILDS=${BISON_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD"}
+#    BISON_BUILDS=${BISON_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD"}
+    BISON_BUILDS=${BISON_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD",ser,sersh}
   fi
   BISON_DEPS="libtool,pkgconfig"
 }
@@ -32,7 +33,7 @@ setBisonTriggerVars
 ######################################################################
 
 findBison() {
-  findContribPackage Bison bison-2.7 sersh pycsh
+  findContribPackage Bison bison-2.7 sersh ser pycsh pycst
   findPycshDir Bison
   addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/bison-${BISON_BLDRVERSION}-sersh/lib/pkgconfig
   printvar PKG_CONFIG_PATH
