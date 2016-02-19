@@ -6776,10 +6776,11 @@ EOF
               copycmd="cp -v ${installer} ${windepotdir}/${installername}"
               techo "$copycmd"
               if $copycmd 2>&1; then
-                techo -2 "Installer $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
-                copycmd="cp -v license.txt ${windepotdir}/license.txt"
-                techo "$copycmd"
-                eval $cpycmd
+                techo -2 "Installer $installaer also being copied to WINDOWS_DEPOT=${windepotdir}."
+                techo -2 "License now being copied to WINDOWS_DEPOT=${windepotdir}."
+                copyLicCmd="cp -v license.txt ${windepotdir}/license.txt"
+                techo "$copyLicCmd"
+                eval $copyLicCmd
               else
                 techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
               fi
