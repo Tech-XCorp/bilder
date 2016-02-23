@@ -95,7 +95,7 @@ setFreetypeTriggerVars() {
   case `uname` in
     CYGWIN*)
       findFreetype
-      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sermd"}
+      FREETYPE_DESIRED_BUILDS=${FREETYPE_DESIRED_BUILDS:-"sermd,sersh"}
       ;;
     Darwin | Linux)
 # Build on Linux or Darwin only if not found in system
