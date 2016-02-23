@@ -19,7 +19,7 @@ setGst_plugins_baseTriggerVars() {
   GST_PLUGINS_BASE_BLDRVERSION_STD=${GST_PLUGINS_BASE_BLDRVERSION_STD:-"0.10.36"}
   GST_PLUGINS_BASE_BLDRVERSION_EXP=${GST_PLUGINS_BASE_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
-    GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"pycsh,sersh,ser"}
+    GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"${FORPYTHON_SERIAL_BUILD},sersh"}
     GST_PLUGINS_BASE_BUILD="pycsh"   
     if which gstreamer-0.10; then
       techo "Gstreamer already in path, "

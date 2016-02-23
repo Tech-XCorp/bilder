@@ -49,6 +49,9 @@ buildGst_plugins_base() {
   if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-pycsh  gst_plugins_base pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
     bilderBuild gst_plugins_base pycsh
   fi
+  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-pycst  gst_plugins_base pycst "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
+    bilderBuild gst_plugins_base pycst
+  fi
 }
 
 ######################################################################
@@ -68,7 +71,17 @@ testGst_plugins_base() {
 ######################################################################
 
 installGst_plugins_base() {
-  bilderInstall gst_plugins_base sersh
-  bilderInstall gst_plugins_base pycsh
+  if [[ $GST_PLUGINS_BASE_BUILDS =~ sersh ]]; then
+    bilderInstall gst_plugins_base sersh
+  fi
+  if [[ $GST_PLUGINS_BASE_BUILDS =~ ser ]]; then
+    bilderInstall gst_plugins_base ser
+  fi
+  if [[ $GST_PLUGINS_BASE_BUILDS =~ pycsh ]]; then
+    bilderInstall gst_plugins_base pycsh
+  fi
+  if [[ $GST_PLUGINS_BASE_BUILDS =~ pycst ]]; then
+    bilderInstall gst_plugins_base pycst
+  fi
 }
 
