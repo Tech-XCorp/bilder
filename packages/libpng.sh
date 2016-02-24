@@ -92,14 +92,18 @@ installLibpng() {
         CYGWIN*) # Correct library names on Windows.  DLLs?
           if test -f $instdir/lib/libpng${LIBPNG_MAJMIN}.lib; then
             cp $instdir/lib/libpng${LIBPNG_MAJMIN}.lib $instdir/lib/libpng.lib
+# cmake likes the below
+            cp $instdir/lib/libpng${LIBPNG_MAJMIN}.lib $instdir/lib/png.lib
           elif test -f $instdir/lib/libpng${LIBPNG_MAJMIN}.dll.a; then
             cp $instdir/lib/libpng${LIBPNG_MAJMIN}.dll.a $instdir/lib/libpng.lib
+            cp $instdir/lib/libpng${LIBPNG_MAJMIN}.dll.a $instdir/lib/png.lib
           fi
           if test -f $instdir/lib/libpng${LIBPNG_MAJMIN}_static.lib; then
             cp $instdir/lib/libpng${LIBPNG_MAJMIN}_static.lib $instdir/lib/libpng_static.lib
           fi
           if test -f $instdir/bin/libpng${LIBPNG_MAJMIN}.dll; then
             cp $instdir/bin/libpng${LIBPNG_MAJMIN}.dll $instdir/bin/libpng.dll
+            cp $instdir/bin/libpng${LIBPNG_MAJMIN}.dll $instdir/bin/png.dll
           fi
           ;;
       esac
