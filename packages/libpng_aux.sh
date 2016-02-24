@@ -49,7 +49,7 @@ findLibpng() {
 
 # Look for libpng in contrib
   if test -z "$LIBPNG_PYCSH_DIR"; then
-    findPackage Libpng png "$CONTRIB_DIR" pycsh sersh
+    findPackage Libpng libpng "$CONTRIB_DIR" pycsh sersh
     findPycshDir Libpng
   fi
 
