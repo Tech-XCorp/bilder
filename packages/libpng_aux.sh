@@ -18,7 +18,7 @@ findLibpng() {
 # on mac and linux we use pkg-config
   case `uname` in
     CYGWIN*)
-      findPackage Libpng png "$CONTRIB_DIR" sersh sermd
+      findPackage Libpng png "$CONTRIB_DIR" sersh
       if test -n "$LIBPNG_SERSH_DIR"; then
         LIBPNG_SERSH_DIR=`cygpath -am $LIBPNG_SERSH_DIR`
       else
@@ -76,11 +76,12 @@ findLibpng() {
 ######################################################################
 
 setLibpngTriggerVars() {
-  LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
+  LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.6.21"}
   case `uname` in
     CYGWIN*)
 # Only attempt to build on Windows. Must be installed elsewhere.
-      LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh,sermd"}
+# sersh also builds sermd
+      LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh"}
       ;;
   esac
   computeBuilds libpng

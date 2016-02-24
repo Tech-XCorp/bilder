@@ -42,6 +42,7 @@ buildLibpng() {
 
 # For cygwin, get zlib version
   local LIBPNG_SERSH_ADDL_ARGS=
+  local LIBPNG_SERMD_ADDL_ARGS=
   case `uname` in
     CYGWIN*)
 # on Win64, sersh exists, but pycsh does not
@@ -85,16 +86,20 @@ installLibpng() {
 
   for bld in `echo $LIBPNG_BUILDS | tr ',' ' '`; do
     if bilderInstall libpng $bld; then
-      instdir=$CONTRIB_DIR/libpng-${LIBPNG_BLDRVERSION}-$bld
+      local instdir=$CONTRIB_DIR/libpng-${LIBPNG_BLDRVERSION}-$bld
+      local LIBPNG_MAJMIN=`echo $LIBPNG_BLDRVERSION | sed -e 's/\.[0-9]*$//' -e 's/\.//g'`
       case `uname` in
         CYGWIN*) # Correct library names on Windows.  DLLs?
-          if test -f $instdir/lib/libpng15.lib; then
-            mv $instdir/lib/libpng15.lib $instdir/lib/png.lib
-          elif test -f $instdir/lib/libpng15.dll.a; then
-            mv $instdir/lib/libpng15.dll.a $instdir/lib/png.lib
+          if test -f $instdir/lib/libpng${LIBPNG_MAJMIN}.lib; then
+            cp $instdir/lib/libpng${LIBPNG_MAJMIN}.lib $instdir/lib/libpng.lib
+          elif test -f $instdir/lib/libpng${LIBPNG_MAJMIN}.dll.a; then
+            cp $instdir/lib/libpng${LIBPNG_MAJMIN}.dll.a $instdir/lib/libpng.lib
           fi
-          if test -f $instdir/bin/libpng15.dll; then
-            mv $instdir/bin/libpng15.dll $instdir/bin/png.dll
+          if test -f $instdir/lib/libpng${LIBPNG_MAJMIN}_static.lib; then
+            cp $instdir/lib/libpng${LIBPNG_MAJMIN}_static.lib $instdir/lib/libpng_static.lib
+          fi
+          if test -f $instdir/bin/libpng${LIBPNG_MAJMIN}.dll; then
+            cp $instdir/bin/libpng${LIBPNG_MAJMIN}.dll $instdir/bin/libpng.dll
           fi
           ;;
       esac
