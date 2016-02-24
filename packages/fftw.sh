@@ -1,10 +1,32 @@
 #!/bin/bash
 #
-# Version and build information for fftw
+# Build information for fftw
 #
 # $Id$
 #
 ######################################################################
+
+######################################################################
+#
+# Trigger variables and versions set in fftw_aux.sh
+#
+######################################################################
+
+mydir=`dirname $BASH_SOURCE`
+source $mydir/fftw_aux.sh
+
+######################################################################
+#
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
+
+setFftwNonTriggerVars() {
+  FFTW_UMASK=002
+}
+setFftwNonTriggerVars
 
 ######################################################################
 #
