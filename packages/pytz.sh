@@ -68,10 +68,10 @@ testPytz() {
 installPytz() {
 # Eggs are described at https://pythonhosted.org/pytz/formats.html
 # Args below work on Windows
-  local PYTZ_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pytz.filelist'"
+  local PYTZ_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pytz.files'"
   mkdir -p $PYTHON_SITEPKGSDIR
   if bilderDuInstall pytz "$PYTZ_INSTALL_ARGS" "$PYTZ_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 

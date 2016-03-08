@@ -246,10 +246,12 @@ setBilderOptions() {
   shift $(($BILDER_OPTIND - 1))
   BILDER_TARGET="$*"
   techo -2 "BILDER_TARGET = $BILDER_TARGET."
+  BILDER_CMD_NO_TARGET=$BILDER_CMD
   if test -n "$BILDER_TARGET"; then
-    BILDER_CMD=`echo $BILDER_CMD | sed -e "s/$BILDER_TARGET//"`
-    techo "BILDER_CMD = $BILDER_CMD"
+    BILDER_CMD_NO_TARGET=`echo $BILDER_CMD | sed -e "s/\(.*\)$BILDER_TARGET/\1/"`
+    techo -2 "BILDER_CMD_NO_TARGET = $BILDER_CMD_NO_TARGET"
   fi
+  techo -2 "BILDER_CMD = $BILDER_CMD"
 
 # Ensure BILDER_NAME defined
 # Allow calling routine to specify the name
@@ -265,7 +267,7 @@ setBilderOptions() {
   if test -n "$BILDER_NAME"; then
     cat >$PROJECT_DIR/${BILDER_NAME}-redo.sh <<EOF
 #!/bin/bash
-cmd="${BILDER_CMD}"
+cmd="${BILDER_CMD_NO_TARGET}"
 target="${BILDER_TARGET}"
 if [ \$# = 0 ]; then
   echo '#' The last bilder run was
@@ -278,13 +280,13 @@ fi
 if [ "\$1" = redo -o "\$1" = run ]; then
   echo "Executing \$cmd \$target"
   exec \$cmd \$target
-fi
-if [ "\$1" = default ]; then
+elif [ "\$1" = default ]; then
   echo "Executing \$cmd"
   exec \$cmd
+else
+  echo "Executing \$cmd \$1"
+  exec \$cmd \$1
 fi
-echo "Executing \$cmd \$1"
-exec \$cmd \$1
 EOF
     chmod a+x $PROJECT_DIR/${BILDER_NAME}-redo.sh
   fi

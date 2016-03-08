@@ -97,8 +97,14 @@ buildOce() {
   local shlinkflags=
   case `uname` in
     CYGWIN*)
+      local depdir=
       if test -n "$FREETYPE_PYCST_DIR"; then
-        OCE_ENV="FREETYPE_DIR='$FREETYPE_PYCST_DIR'"
+        depdir=`cygpath -am $FREETYPE_PYCST_DIR`
+        OCE_ENV="FREETYPE_DIR='$depdir'"
+      fi
+      if test -n "$LIBPNG_PYCSH_DIR"; then
+        depdir=`cygpath -am $LIBPNG_PYCSH_DIR`
+        OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DPNG_PNG_INCLUDE_DIR='${depdir}/include' -DPNG_LIBRARY='${depdir}/lib/libpng_static.lib'"
       fi
 # Bilder does not use oce bundle (precompiled dependencies), so cannot install
       OCE_ADDL_ARGS="$OCE_ADDL_ARGS -DOCE_BUNDLE_AUTOINSTALL:BOOL=FALSE"

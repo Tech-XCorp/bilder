@@ -1,0 +1,112 @@
+There are two sections, A and B, to these instructions. Section A
+sets up the system to access additional rpms, both source and
+binary from the installation ISOs as well as the SDK ISOs which
+generally contain most 'devel' packages. Section B contains the
+build procedure for building the rpm binary file in a desired
+build location that doesn't require administrator privileges.
+
+A) Repository Setup
+----------------
+
+# Visit https://download.suse.com/index.jsp to download SLES 12 ISO
+# files for the x86_64 platform.
+# Under the 'Basic Search' Tab
+#   Check the box next to SUSE
+#   Select 'SUSE Linux Enterprise Server'  from the first drop down menu
+#   Select 'SUSE Linux Enterprise Server 12 SP1' from the second drop down menu
+#   Click on 'Submit Query'
+#   Click on 'SUSE Linux Enterprise Server 12 SP1 for AMD64/Intel 64'
+#     from the search results
+#   Click on 'proceed to download'  (login may be required)
+# Download the follwoing iso files;
+#  1) SLE-12-SP1-Server-DVD-x86_64-GM-DVD1.iso
+#  2) SLE-12-SP1-Server-DVD-x86_64-GM-DVD2.iso
+
+# Return to https://download.suse.com/index.jsp to download SLES 12 SDK ISO
+#   files
+# Under the 'Basic Search' Tab
+#    Check the box next to SUSE
+#    Select 'SUSE Linux Enterprise Software Development Kit' from the
+#      first drop down menu
+#    Select 'SUSE Linux Enterprise Software Development Kit 12' from the
+#      second drop down menu
+#    Click on 'Submit Query'
+#    Click on 'SUSE Linux Enterprise Software Development Kit 12 SP1'
+#      from the search results
+#    Click on 'proceed to download'  (login may be required)
+# Download the follwoing iso files;
+#  1) SLE-12-SP1-SDK-DVD-x86_64-GM-DVD1.iso
+#  2) SLE-12-SP1-SDK-DVD-x86_64-GM-DVD2.iso
+
+# Copy all four ISO files downloaded above somewhere on the SLES 12 machine.
+# We chose /usr/local/sles12sp1-iso-data
+
+# Set up all four ISO files as repositories
+$ sudo zypper addrepo
+iso:/?iso=/usr/local/sles12sp1-iso-data/SLE-12-SP1-SDK-DVD-x86_64-GM-DVD1.iso
+SLES12SP1-DVD1
+$ sudo zypper addrepo
+iso:/?iso=/usr/local/sles12sp1-iso-data/SLE-12-SP1-SDK-DVD-x86_64-GM-DVD2.iso
+SLES12SP1-DVD2
+$ sudo zypper addrepo
+iso:/?iso=/usr/local/sles12sp1-iso-data/SLE-12-SP1-SDK-DVD-x86_64-GM-DVD1.iso
+SLES12SP1-SDK-DVD1
+$ sudo zypper addrepo
+iso:/?iso=/usr/local/sles12sp1-iso-data/SLE-12-SP1-SDK-DVD-x86_64-GM-DVD2.iso
+SLES12SP1-SDK-DVD2
+
+# Verify that all four repos are added and enabled
+$ zypper lr
+
+# Build repo cache
+$ sudo zypper refresh
+
+B) Build Procedure
+---------------
+
+# Set up .rpmmacros file with desired build area
+# /scratch should be replaced with your work area
+
+$ cat ~/.rpmmacros
+%_topdir /scratch/rpmbuild
+%_smp_mflags -j3
+%__arch_install_post /usr/lib/rpm/check-rpaths /usr/lib/rpm/check-buildroot
+
+# Install source rpm and dependencies required to build it
+$ sudo zypper source-install gstreamer-0_10
+
+# Mount /usr/local/sles12sp1-iso-data/SLE-12-SP1-SDK-DVD-x86_64-GM-DVD2.iso
+# and build the rpm package file
+
+$ sudo mount -o loop /usr/local/sles12sp1-iso-data/SLE-12-SP1-SDK-DVD-x86_64-GM-DVD2.iso /mnt
+$ rpmbuild --rebuild /mnt/suse/src/gstreamer-0_10-0.10.36-12.154.src.rpm
+$ sudo umount /mnt
+
+# Built rpms are located at ...
+$ ls -l /scratch/rpmbuild/RPMS/x86_64/
+  total 3072
+-rw-r--r-- 1 nzuonkwe it  845314 Feb  9 12:29 gstreamer-0_10-0.10.36-12.154.x86_64.rpm
+-rw-r--r-- 1 nzuonkwe it  346866 Feb  9 12:29 gstreamer-0_10-devel-0.10.36-12.154.x86_64.rpm
+-rw-r--r-- 1 nzuonkwe it  155265 Feb  9 12:29 gstreamer-0_10-utils-0.10.36-12.154.x86_64.rpm
+-rw-r--r-- 1 nzuonkwe it   42166 Feb  9 12:29
+gstreamer-0_10-utils-unversioned-0.10.36-12.154.x86_64.rpm
+-rw-r--r-- 1 nzuonkwe it 1666224 Feb  9 12:29 libgstreamer-0_10-0-0.10.36-12.154.x86_64.rpm
+-rw-r--r-- 1 nzuonkwe it   79403 Feb  9 12:29
+typelib-1_0-Gst-0_10-0.10.36-12.154.x86_64.rpm
+
+# As seen above, several rpms are built but not all are necessary.
+# We want to install gstreamer-0_10-0.10.36-12.154.x86_64.rpm
+# We must install this with libgstreamer to satisfy dependencies.
+# We also install three of the other rpms built because they will be needed
+# to build and install plugins-base
+
+$ cd /scratch/rpmbuild/RPMS/x86_64
+$ sudo rpm -ivh gstreamer-0_10-0.10.36-12.154.x86_64.rpm libgstreamer-0_10-0-0.10.36-12.154.x86_64.rpm typelib-1_0-Gst-0_10-0.10.36-12.154.x86_64.rpm gstreamer-0_10-utils-0.10.36-12.154.x86_64.rpm gstreamer-0_10-devel-0.10.36-12.154.x86_64.rpm
+
+# Now build the plugins-base rpms:
+$ sudo zypper source-install gstreamer-0_10-plugins-base
+$ rpmbuild --rebuild /mnt/suse/src/gstreamer-0_10-plugins-base-0.10.36-10.267.src.rpm
+
+# And install them
+$ cd /usr/src/packages/RPMS/x86_64
+$ sudo zypper install gstreamer-0_10-plugins-base-0.10.36-10.267.x86_64.rpm libgstapp-0_10-0-0.10.36-10.267.x86_64.rpm libgstinterfaces-0_10-0-0.10.36-10.267.x86_64.rpm

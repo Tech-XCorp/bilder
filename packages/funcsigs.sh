@@ -57,7 +57,7 @@ testFuncsigs() {
 ######################################################################
 
 installFuncsigs() {
-  local FUNCSIGS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/funcsigs.filelist'"
+  local FUNCSIGS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/funcsigs.files'"
   bilderDuInstall funcsigs "$FUNCSIGS_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

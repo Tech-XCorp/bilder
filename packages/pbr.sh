@@ -57,7 +57,7 @@ testPbr() {
 ######################################################################
 
 installPbr() {
-  local PBR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pbr.filelist'"
+  local PBR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pbr.files'"
   bilderDuInstall pbr "$PBR_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

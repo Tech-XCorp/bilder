@@ -63,7 +63,7 @@ testPython_dateutil() {
 ######################################################################
 
 installPython_dateutil() {
-  local PYTHON_DATEUTIL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/dateutil.filelist'"
+  local PYTHON_DATEUTIL_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/dateutil.files'"
   bilderDuInstall -p dateutil python_dateutil "$PYTHON_DATEUTIL_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

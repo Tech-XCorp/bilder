@@ -70,9 +70,9 @@ installColorama() {
 # It seems that packages are using colorama which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local COLORAMA_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/colorama.filelist'"
+  local COLORAMA_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/colorama.files'"
   if bilderDuInstall colorama "$COLORAMA_INSTALL_ARGS" "$COLORAMA_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 

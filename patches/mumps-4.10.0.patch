@@ -1,0 +1,30 @@
+diff -ruN mumps-4.10.0/ossolvers.cmake mumps-4.10.0-new/ossolvers.cmake
+--- mumps-4.10.0/ossolvers.cmake	2014-12-19 14:25:25.000000000 -0700
++++ mumps-4.10.0-new/ossolvers.cmake	2016-01-17 09:48:12.710887208 -0700
+@@ -47,20 +47,22 @@
+   set(TIMEOUT 60)
+   set(TIMEOUT ${TIMEOUT} PARENT_SCOPE)
+ 
++  message(STATUS "Finding library for ${FD_TESTNAME}.")
+   string(SUBSTRING ${FD_TESTNAME} 0 1 strfirst)
+-  if (${strfirst} MATCHES "z")
++  if (strfirst MATCHES "z")
+     set(DATAFILE input_simpletest_cmplx)
+     set(LINK_LIB zmumps)
+-  elseif (${strfirst} MATCHES "c")
++  elseif (strfirst MATCHES "c")
+     set(DATAFILE input_simpletest_cmplx)
+     set(LINK_LIB cmumps)
+-  elseif (${strfirst} MATCHES "s")
++  elseif (strfirst MATCHES "s")
+     set(DATAFILE input_simpletest_real)
+     set(LINK_LIB smumps)
+-  elseif (${strfirst} MATCHES "d")
++  elseif (strfirst MATCHES "d")
+     set(DATAFILE input_simpletest_real)
+     set(LINK_LIB dmumps)
+   endif()
++  message(STATUS "Library is ${LINK_LIB}.")
+   set(LINK_LIB_STATIC ${LINK_LIB}-static)
+  
+   set (DATAFILE ${DATAFILE} PARENT_SCOPE)

@@ -32,7 +32,7 @@ nimversion=nimdevel
 ######################################################################
 
 if $NIMDEVEL_WITH_OPENMP; then
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist4" # CUDA/OpenMP enabled
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist3,superlu_dist4"
 else
   NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",netlib_lite,superlu_dist3"
 fi

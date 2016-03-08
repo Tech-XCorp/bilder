@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for nose
+# Build information for gstpluginsbase
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in nose_aux.sh
+# Trigger variables set in gstpluginsbase_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/nose_aux.sh
+source $mydir/gst-plugins-base_aux.sh
 
 ######################################################################
 #
@@ -23,47 +23,45 @@ source $mydir/nose_aux.sh
 #
 ######################################################################
 
-setNoseNonTriggerVars() {
-  NOSE_UMASK=002
+setGst_plugins_baseNonTriggerVars() {
+  GST_PLUGINS_BASE_UMASK=002
 }
-setNoseNonTriggerVars
+setGst_plugins_baseNonTriggerVars
 
-#####################################################################
+######################################################################
 #
-# Launch builds.
+# Launch gst-plugins-base builds.
 #
 ######################################################################
 
-buildNose() {
-  if ! bilderUnpack nose; then
+buildGst_plugins_base() {
+# Unpack
+  if ! bilderUnpack gst-plugins-base; then
     return
   fi
-# Remove eggs as Bilder manages
-  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/nose*.egg"
-  techo -2 "$cmd"
-  $cmd
 # Build
-  bilderDuBuild nose "" "$DISTUTILS_ENV"
+  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-sersh  gst-plugins-base sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
+    bilderBuild gst-plugins-base sersh
+  fi
 }
 
 ######################################################################
 #
-# Test
+# Test gstpluginsbase
 #
 ######################################################################
 
-testNose() {
-  techo "Not testing Nose."
+testGst_plugins_base() {
+  techo "Not testing gst-plugins-base."
 }
 
 ######################################################################
 #
-# Install
+# Install gstpluginsbase
 #
 ######################################################################
 
-installNose() {
-  local NOSE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/nose.files'"
-  bilderDuInstall nose "$NOSE_INSTALL_ARGS" "$DISTUTILS_ENV"
+installGst_plugins_base() {
+  bilderInstall gst-plugins-base sersh
 }
 

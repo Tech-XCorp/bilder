@@ -30,11 +30,11 @@ Options:
   -e <address>. Email address that should get the bilder results
   -h .......... Print this help and exit
   -t <name>.... The build target(s)
-Required environment variables
+Required environment variables (should be set by sourcing script)
   JENKINS_URL ...... The URL for job submission
   JENKINS_USER ..... user:password for jenkins submission
   JENKINS_DEFTARG .. default target for jenkins submission
-  JENKINS_ADDLARGS . default target for jenkins submission
+  JENKINS_ADDLARGS . any additional Bilder args for the test job
 Optional environment variables
   JENKINS_PREFIX ... The prefix for the variables for jenkins job submission.
 EOF

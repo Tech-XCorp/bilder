@@ -66,11 +66,11 @@ testRoman() {
 
 installRoman() {
   mkdir -p $PYTHON_SITEPKGSDIR
-# Eggs are described at https://pythonhosted.org/roman/formats.html
-  # local ROMAN_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/roman.filelist'"
-  local ROMAN_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/roman.filelist'"
+# Eggs are described at https://pythonhosted.org/setuptools/formats.html
+  # local ROMAN_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/roman.files'"
+  local ROMAN_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/roman.files'"
   if bilderDuInstall roman "$ROMAN_INSTALL_ARGS" "$ROMAN_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 
