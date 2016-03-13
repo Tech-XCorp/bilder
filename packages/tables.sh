@@ -71,9 +71,10 @@ buildTables() {
 # With the new setuptools, package managers that want to manage the
 # installations need the following arguments.  Otherwise, the installation
 # is inside an egg, and the regular python path does not work.
-  if $BUILD_EXPERIMENTAL; then
+# Looks like this not happening automatically on Windows or Darwin.
+  if [[ $TABLES_BLDRVERSION =~ 3.[2-9] ]]; then
     case `uname` in
-      CYGWIN*)
+      CYGWIN* | Darwin)
         TABLES_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/tables.files'"
         ;;
     esac
@@ -160,7 +161,7 @@ installTables() {
   local instargs="$TABLES_ARGS"
   case `uname` in
     CYGWIN*) instopts=-n; instargs="$instargs $TABLES_INSTALL_ARGS";;
-    *) instopts="-r tables";;
+    *) instopts="-r tables $TABLES_INSTALL_ARGS";;
   esac
 
 # Install library if not present, make link if needed
