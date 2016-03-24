@@ -5782,7 +5782,7 @@ EOF
       local testScript=$FQMAILHOST-$1-$bld-test.sh
       local MAKER=make
       if [[ `uname` =~ CYGWIN ]]; then
-        MAKER=nmake
+        MAKER=jom
       fi
       cmd="$MAKER $tststarget"
       if test -n "$tstsenv"; then
