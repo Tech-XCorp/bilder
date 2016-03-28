@@ -166,7 +166,7 @@ lecho "   BILDER_CONFDIR = $BILDER_CONFDIR"
 
 
 # Execute the command
-cmd="$scripttorun $*"
+cmd="$scripttorun $@"
 lecho "Executing $cmd in `pwd -P` at `date`."
 eval $cmd
 res=$?
