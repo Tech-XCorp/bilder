@@ -78,10 +78,11 @@ installSetuptools() {
 # so that we have a single installation.  But then we have to make sure
 # that wrong installations are cleaned out.
   rm -rf $PYTHON_SITEPKGSDIR/setuptools*.{egg,pth}
-  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.filelist'"
+  local SETUPTOOLS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/setuptools.files'"
   if bilderDuInstall setuptools "$SETUPTOOLS_INSTALL_ARGS" "$SETUPTOOLS_ENV"; then
     if test -e $PYTHON_SITEPKGSDIR/site.py; then
-      chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+      techo "WARNING: [$FUNCNAME] site.py is obsolete and should be removed."
+      : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
     fi
   fi
 }

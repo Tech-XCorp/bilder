@@ -73,7 +73,7 @@ if test -f $BILDER_DIR/machines/$machfile; then
 else
   test -n "$MACHINE_FILE" && techo "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR."
 fi
-if test -z "$absmachfile" -a test -n "$MACHINE_FILE"; then
+if test -z "$absmachfile" -a -n "$MACHINE_FILE"; then
   techo -n "WARNING: [bildinit.sh] $machfile not found in $BILDER_DIR"
   if test -n "$BILDER_CONFDIR"; then
     techo " and not found in $BILDER_CONFDIR."
@@ -186,15 +186,9 @@ if test -n "$JENKINS_FSROOT"; then
   eval "$cmd"
 fi
 
-# Set default pkg topdir
+# Set default pkg topdir for jenkins.  All others use default.
 SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$JENKINS_FSROOT"}
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$GSCRATCH"}
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH"}
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$SCRATCH2"}
-if test -d /scr_$UQHOSTNAME/$USER; then
-  SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"/scr_$UQHOSTNAME/$USER"}
-fi
-SVNPKGS_TOPDIR=${SVNPKGS_TOPDIR:-"$HOME"}
+techo "SVNPKGS_TOPDIR = ${SVNPKGS_TOPDIR}"
 
 # Get the packages repos
 getPkgRepos

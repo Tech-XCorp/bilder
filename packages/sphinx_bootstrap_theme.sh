@@ -70,9 +70,9 @@ installSphinx_bootstrap_theme() {
 # It seems that packages are using sphinx_bootstrap_theme which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local SPHINX_BOOTSTRAP_THEME_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx_bootstrap_theme.filelist'"
+  local SPHINX_BOOTSTRAP_THEME_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx_bootstrap_theme.files'"
   if bilderDuInstall sphinx_bootstrap_theme "$SPHINX_BOOTSTRAP_THEME_INSTALL_ARGS" "$SPHINX_BOOTSTRAP_THEME_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 

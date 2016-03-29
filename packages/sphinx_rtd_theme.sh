@@ -70,9 +70,9 @@ installSphinx_rtd_theme() {
 # It seems that packages are using sphinx_rtd_theme which creates eggs, which
 # for some reason we are not finding.  Moreover, different packages are
 # installing difference eggs of their dependencies.
-  local SPHINX_RTD_THEME_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx_rtd_theme.filelist'"
+  local SPHINX_RTD_THEME_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/sphinx_rtd_theme.files'"
   if bilderDuInstall sphinx_rtd_theme "$SPHINX_RTD_THEME_INSTALL_ARGS" "$SPHINX_RTD_THEME_ENV"; then
-    chmod a+r $PYTHON_SITEPKGSDIR/site.py*
+    : # chmod a+r $PYTHON_SITEPKGSDIR/site.py*
   fi
 }
 

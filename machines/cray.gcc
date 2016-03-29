@@ -16,6 +16,7 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-gnu 1>/dev/null 2>&1; then
 fi
 echo "UQMAILHOST=$UQMAILHOST"
 case $UQMAILHOST in
+
   cori*)
 
     ATLAS_BUILDS=NONE
@@ -40,40 +41,17 @@ case $UQMAILHOST in
     LAPACK_BUILDS=NONE
 
 # System linear algebra, note sandybridge for Edison.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/49/sandybridge/lib/libsci_gnu.a
-    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/49/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/49/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/49/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/gnu/51/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/51/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/gnu/51/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/51/sandybridge/lib/libsci_gnu.a
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/49
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/49
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/49
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/49
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/51
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/51
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/51
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/51
 
-# trilinos builds
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
-    ;;
-
-  hopper*)
-
-    ATLAS_BUILDS=NONE
-    LAPACK_BUILDS=NONE
-
-# System linear algebra, note mc12 (Magny-Cours) for Hopper.
-    SYSTEM_BLAS_SER_LIB="/opt/cray/libsci/default/gnu/49/mc12/lib/libsci_gnu.a /opt/cray/libsci/default/gnu/49/sandybridge/lib/libsci_gnu_mp.a"
-    SYSTEM_BLAS_PYCSH_LIB="$SYSTEM_BLAS_SER_LIB"
-    SYSTEM_LAPACK_SER_LIB="$SYSTEM_BLAS_SER_LIB"
-    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/49/mc12/lib/libsci_gnu.a
-
-# System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/gnu/49
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/gnu/49
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/49
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/49
-
-# trilinos builds
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
     ;;
 
   titan*)
@@ -133,8 +111,6 @@ case $UQMAILHOST in
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/gnu/46
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/gnu/46
 
-# trilinos builds
-    TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
     ;;
 
 esac
@@ -978,7 +954,7 @@ SUPERLU_DIST_BUILDS=${SUPERLU_DIST_BUILDS:-"par,parcomm"}
 # TORNADO_PYCSH_OTHER_ARGS=${TORNADO_PYCSH_OTHER_ARGS:-""}
 
 # TRILINOS_BLDRVERSION=${TRILINOS_BLDRVERSION:-"10.8.3"}
-# TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
+TRILINOS_BUILDS=${TRILINOS_BUILDS:-"sercomm,sercommsh,parcomm"}
 # TRILINOS_PARBARE_OTHER_ARGS=${TRILINOS_PARBARE_OTHER_ARGS:-""}
 # TRILINOS_PARBARESH_OTHER_ARGS=${TRILINOS_PARBARESH_OTHER_ARGS:-""}
 # TRILINOS_PARCOMM_OTHER_ARGS=${TRILINOS_PARCOMM_OTHER_ARGS:-""}

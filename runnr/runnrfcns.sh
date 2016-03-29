@@ -230,6 +230,7 @@ runnrGetHostVars() {
   # techo "[$FUNCNAME]: UQMAILHOST = $UQMAILHOST."
 # Warn if old runr stuff lying around
   local runnrverbose=${BLDR_VERBOSE:-"false"}
+  # runnrverbose=true
   mydir=`dirname $BASH_SOURCE`
   mydir=`(cd $mydir; pwd -P)`
   if test -d ../runr; then

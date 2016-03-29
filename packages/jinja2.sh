@@ -57,7 +57,7 @@ testJinja2() {
 ######################################################################
 
 installJinja2() {
-  local JINJA2_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/jinja2.filelist'"
+  local JINJA2_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/jinja2.files'"
   bilderDuInstall -r Jinja2 -p jinja2 Jinja2 "$JINJA2_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 

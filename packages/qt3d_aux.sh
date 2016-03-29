@@ -20,8 +20,8 @@
 
 setQt3dTriggerVars() {
   if test -d qt3d; then
-    local isgitorious=`(cd qt3d; git remote -v | grep gitorious)`
     local goodrepo=true
+    local isgitorious=`(cd qt3d; git remote -v | grep gitorious)`
     if test -n "$isgitorious"; then
       goodrepo=false
     fi
@@ -32,6 +32,7 @@ setQt3dTriggerVars() {
     if ! $goodrepo; then
       techo "WARNING: [$FUNCNAME] Qt3D repos absent from gitorius and qt.io."
       techo "WARNING: [$FUNCNAME] Using https://github.com/Tech-XCorp/qt3d.git."
+      rm -rf qt3d-bad
       mv qt3d qt3d-bad
     fi
   fi

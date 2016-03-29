@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for scipy
+# Build information for scipy
 #
 # $Id$
 #
@@ -8,29 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in scipy_aux.sh
 #
 ######################################################################
 
-SCIPY_BLDRVERSION_STD=0.13.3
-SCIPY_BLDRVERSION_EXP=0.13.3
-computeVersion scipy
+mydir=`dirname $BASH_SOURCE`
+source $mydir/scipy_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setScipyGlobalVars() {
-  if [[ `uname` =~ "CYGWIN" ]] && ! $NUMPY_WIN_USE_FORTRAN; then
-    SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
-  else
-    SCIPY_BUILDS=${SCIPY_BUILDS:-"pycsh"}
-  fi
-  SCIPY_DEPS=numpy,atlas
+setScipyNonTriggerVars() {
+  :
 }
-setScipyGlobalVars
+setScipyNonTriggerVars
 
 #####################################################################
 #

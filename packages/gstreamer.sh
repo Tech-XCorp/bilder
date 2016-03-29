@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for nose
+# Build information for gstreamer
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in nose_aux.sh
+# Trigger variables set in gstreamer_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/nose_aux.sh
+source $mydir/gstreamer_aux.sh
 
 ######################################################################
 #
@@ -23,47 +23,45 @@ source $mydir/nose_aux.sh
 #
 ######################################################################
 
-setNoseNonTriggerVars() {
-  NOSE_UMASK=002
+setGstreamerNonTriggerVars() {
+  GSTREAMER_UMASK=002
 }
-setNoseNonTriggerVars
+setGstreamerNonTriggerVars
 
-#####################################################################
+######################################################################
 #
-# Launch builds.
+# Launch gstreamer builds.
 #
 ######################################################################
 
-buildNose() {
-  if ! bilderUnpack nose; then
+buildGstreamer() {
+# Unpack
+  if ! bilderUnpack gstreamer; then
     return
   fi
-# Remove eggs as Bilder manages
-  cmd="rm -rf ${PYTHON_SITEPKGSDIR}/nose*.egg"
-  techo -2 "$cmd"
-  $cmd
 # Build
-  bilderDuBuild nose "" "$DISTUTILS_ENV"
+  if bilderConfig gstreamer sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GSTREAMER_SER_OTHER_ARGS"; then
+    bilderBuild gstreamer sersh
+  fi
 }
 
 ######################################################################
 #
-# Test
+# Test gstreamer
 #
 ######################################################################
 
-testNose() {
-  techo "Not testing Nose."
+testGstreamer() {
+  techo "Not testing gstreamer."
 }
 
 ######################################################################
 #
-# Install
+# Install gstreamer
 #
 ######################################################################
 
-installNose() {
-  local NOSE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/nose.files'"
-  bilderDuInstall nose "$NOSE_INSTALL_ARGS" "$DISTUTILS_ENV"
+installGstreamer() {
+  bilderInstall gstreamer sersh
 }
 

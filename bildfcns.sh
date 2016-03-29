@@ -3645,7 +3645,7 @@ updateRepo() {
         ;;
       git)
         if ! git fetch && git log ..origin/$branchval 2>/dev/null 1>bilder_chgsets; then
-          techo "WARNING: [$FUNCNAME] 'git fetch && git log ..origin/$branchval' failed."
+          techo "WARNING: [$FUNCNAME] 'git fetch && git log ..origin/$branchval' failed for $pkg."
         fi
         ;;
     esac
@@ -5715,8 +5715,10 @@ bilderRunTests() {
 # where no builds configure and we were previously trying to run tests.
 # JRC: waitAction should return 99 if something was not built, for whatever
 # reason.
+    local untestedBuildReason=
     if test "$res" = 99; then
       techo "$pkgname-$bld was not built.  Not testing."
+      untestedBuildReason="it was not built."
       continue
     elif test "$res" != 0; then
       techo "$pkgname-$bld failed to build."
@@ -5728,7 +5730,6 @@ bilderRunTests() {
     fi
 
 # Determine whether this build is ignored
-    local untestedBuildReason=
     if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
       untestedBuildReason="it is in the list of ignored builds"
     elif ! $hasbuildtests; then
@@ -5781,7 +5782,7 @@ EOF
       local testScript=$FQMAILHOST-$1-$bld-test.sh
       local MAKER=make
       if [[ `uname` =~ CYGWIN ]]; then
-        MAKER=nmake
+        MAKER=jom
       fi
       cmd="$MAKER $tststarget"
       if test -n "$tstsenv"; then
@@ -6437,12 +6438,6 @@ bilderInstall() {
         cmd="rmall $instdirval/$instsubdirval"
         techo "$cmd"
         $cmd
-# Remove the link
-        local instsubdirlink=`echo $instsubdirval | sed -e 's/-.*-/-/' -e 's/-ser$//'`
-        cmd="rm -f $instdirval/$instsubdirlink $instdirval/${instsubdirlink}.lnk"
-        # techo "NOTE: [$FUNCNAME] not executing '$cmd'"
-        techo "$cmd"
-        $cmd
       fi
     else
       techo "Not removing old installation."
@@ -6743,6 +6738,9 @@ EOF
           if test -n "$installer"; then
             installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
             installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
+            cmd="scp -v license.txt ${INSTALLER_HOST}:${depotdir}/license.txt"
+            techo "$cmd"
+            $cmd
             cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
             techo "$cmd"
             if $cmd 1>/dev/null 2>./error; then
@@ -6756,6 +6754,9 @@ EOF
                   ;;
               esac
               cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotdir}/${installername}"
+              techo "$cmd"
+              $cmd
+              cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotdir}/license.txt"
               techo "$cmd"
               $cmd
               if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
@@ -6777,7 +6778,11 @@ EOF
               copycmd="cp -v ${installer} ${windepotdir}/${installername}"
               techo "$copycmd"
               if $copycmd 2>&1; then
-                techo -2 "Installer $installer also being copied to WINDOWS_DEPOT=${windepotdir}."
+                techo -2 "Installer $installaer also being copied to WINDOWS_DEPOT=${windepotdir}."
+                techo -2 "License now being copied to WINDOWS_DEPOT=${windepotdir}."
+                copyLicCmd="cp -v license.txt ${windepotdir}/license.txt"
+                techo "$copyLicCmd"
+                eval $copyLicCmd
               else
                 techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
               fi
@@ -7951,7 +7956,7 @@ getDeps() {
         techo "$TERMINATE_ERROR_MSG" 1>&2
         exitOnError
       fi
-      cmd="source $pkgfile"
+      local cmd="source $pkgfile"
       techo "$cmd" 1>&2
       $cmd 1>&2
       local buildsvar=`genbashvar $pkg`_BUILDS
@@ -8118,6 +8123,7 @@ buildChain() {
     local pkglc=`echo $pkg | tr '[A-Z]' '[a-z]'`
     local pkgfile=${pkglc}.sh
     local auxfile=${pkglc}_aux.sh
+    local pkgvar=`genbashvar $pkg`  # Create a bash-valid variable name
     if test -n "$BILDER_CONFDIR" -a -f $BILDER_CONFDIR/packages/$pkgfile; then
       pkgfile="$BILDER_CONFDIR/packages/$pkgfile"
       auxfile="$BILDER_CONFDIR/packages/$auxfile"
@@ -8133,7 +8139,7 @@ buildChain() {
     techo "Package: '$pkgfile'"
 
 # Look for commands and execute
-    cmd=`grep -i "^ *build${pkg} *()" $pkgfile | sed 's/(.*$//'`
+    local cmd=`grep -i "^ *build${pkgvar} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Build method for $pkg not found in $pkgfile."
 # Cannot use cleanup here, as the print gives the dependencies
@@ -8167,7 +8173,7 @@ buildChain() {
       techo "No builds for $pkg.  Will not call build, test, or install methods."
     fi
 # Call testPackageName
-    cmd=`grep -i "^ *test${pkg} *()" $pkgfile | sed 's/(.*$//'`
+    cmd=`grep -i "^ *test${pkgvar} *()" $pkgfile | sed 's/(.*$//'`
     if $dobuild; then
       if test -n "$cmd"; then
         techo ""
@@ -8178,7 +8184,7 @@ buildChain() {
       fi
     fi
 # Call installPackageName
-    cmd=`grep -i "^ *install${pkg} *()" $pkgfile | sed 's/(.*$//'`
+    cmd=`grep -i "^ *install${pkgvar} *()" $pkgfile | sed 's/(.*$//'`
     if test -z "$cmd"; then
       TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Install method for $pkg not found."
       exitOnError
@@ -8192,13 +8198,13 @@ buildChain() {
     # techo "auxfile = ${auxfile}."
     if test -f ${auxfile}; then
       # techo "${auxfile} found."
-      cmd=`grep -i "^ *find${pkg} *()" $auxfile | sed 's/(.*$//'`
+      cmd=`grep -i "^ *find${pkgvar} *()" $auxfile | sed 's/(.*$//'`
       if test -n "$cmd"; then
         techo ""
         techo "EXECUTING $cmd"
         $cmd
       else
-        techo "NOTE: [$FUNCNAME] find$pkg not found in ${auxfile}."
+        techo "NOTE: [$FUNCNAME] find$pkgvar not found in ${auxfile}."
       fi
     else
       techo -2 "NOTE: [$FUNCNAME] ${auxfile} not found."
