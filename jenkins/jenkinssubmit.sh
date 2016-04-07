@@ -78,7 +78,8 @@ JENKINS_EMAIL="qar@txcorp.com"
 while getopts "a:b:de:ht:" arg; do
   case "$arg" in
     a) JENKINS_ADDLARGS="$OPTARG";;
-    b) JENKINS_BRANCH="$OPTARG";;
+    b) JENKINS_BRANCH="$OPTARG"
+       JENKINS_BRANCH=$(echo $JENKINS_BRANCH | sed -e 's,^\^/,,') ;;
     d) DEBUG=true;;
     e) JENKINS_EMAIL="$OPTARG";;
     h) usage 0;;
