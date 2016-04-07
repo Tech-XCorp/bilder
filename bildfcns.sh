@@ -3618,22 +3618,8 @@ updateRepo() {
     fi
   fi
 
-# Make sure on tag
-  case $scmexec in
-    git)
-      cmd="git checkout $branchval"
-      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
-      # cmd="$cmd $branchval"
-      ;;
-    hg) cmd="hg update -C $branchval";;
-  esac
-  techo "$cmd"
-  eval "$cmd"
-  if ! eval "$cmd"; then
-    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
-  fi
-
 # Determine whether changesets are available
+# Needs to be done first to handle the case where we need a branch that isn't in our local checkout.
   upurlvar=`genbashvar $pkg`_UPSTREAM_URL
   upurlval=`deref $upurlvar`
   if test -n "$upurlval"; then
@@ -3656,6 +3642,21 @@ updateRepo() {
       techo "No changesets available for $pkg from $upurlval."
     fi
     rm -f bilder_chgsets
+  fi
+
+# Make sure on tag
+  case $scmexec in
+    git)
+      cmd="git checkout $branchval"
+      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
+      # cmd="$cmd $branchval"
+      ;;
+    hg) cmd="hg update -C $branchval";;
+  esac
+  techo "$cmd"
+  eval "$cmd"
+  if ! eval "$cmd"; then
+    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
   fi
 
 # Return to project dir
