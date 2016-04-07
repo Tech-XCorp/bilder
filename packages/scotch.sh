@@ -37,24 +37,24 @@ setScotchNonTriggerVars
 
 buildScotch() {
 
-  getVersion scotch
-  bilderPreconfig scotch
-  res=$?
+  if ! bilderUnpack scotch; then
+    return 1
+  fi
 
-  if test $res = 0; then
       local cmd=''
       case `uname` in
 	  Darwin)
-	      cmd="cp src/Make.inc/Makefile.inc.i686_mac_darwin10 src/Makefile.inc"
+	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
 	      ;;
 	  Linux)
-	      cmd="cp src/Make.inc/Makefile.inc.i686_pc_linux2 src/Makefile.inc"
+	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_pc_linux2 $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
 	      ;;
       esac
-      if bilderConfig -c scotch par "$CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR"; then
-	  bilderBuild scotch par
+      techo $cmd
+      $cmd
+      if bilderConfig -B src scotch par "$CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR"; then
+	  bilderBuild -m "cd src/; make $SCOTCH_MAKEJ_ARGS ptscotch; cd ../" scotch par
       fi
-  fi
 
 }
 
@@ -75,6 +75,9 @@ testScotch() {
 ######################################################################
 
 installScotch() {
-  bilderInstallAll scotch "  -r -p open"
+  local cmd="mkdir ${CONTRIB_DIR}/scotch-$SCOTCH_BLDRVERSION-par"
+  techo $cmd
+  $cmd
+  bilderInstall -m "cd src; make prefix=${CONTRIB_DIR}/scotch-$SCOTCH_BLDRVERSION-par install; cd ../" scotch par
 }
 
