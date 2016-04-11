@@ -7132,7 +7132,7 @@ EOF
 #
 bilderDuInstall() {
 
-  techo -2 "bilderDuInstall called with '$*'."
+  techo -2 "bilderDuInstall called with \"$*\"."
 
 # Default option values
   local dupkg=

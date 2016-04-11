@@ -71,10 +71,14 @@ buildTables() {
 # With the new setuptools, package managers that want to manage the
 # installations need the following arguments.  Otherwise, the installation
 # is inside an egg, and the regular python path does not work.
-# Looks like this not happening automatically on Windows or Darwin.
+# Looks like this not happening automatically on Windows.
   if [[ $TABLES_BLDRVERSION =~ 3.[2-9] ]]; then
     case `uname` in
-      CYGWIN* | Darwin)
+      Darwin)
+        TABLES_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/tables.files'"
+        TABLES_INSTALL_ARGS="$TABLES_INSTALL_ARGS --single-version-externally-managed"
+        ;;
+      CYGWIN*)
         TABLES_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/tables.files'"
         ;;
     esac
@@ -134,7 +138,7 @@ buildTables() {
   fi
 
 # Build/install
-  bilderDuBuild -p tables tables "$TABLES_ARGS" "$TABLES_ENV"
+  bilderDuBuild tables "$TABLES_ARGS" "$TABLES_ENV"
 
 }
 
@@ -157,11 +161,11 @@ testTables() {
 installTables() {
 
 # Determine installation args
-  local instopts
-  local instargs="$TABLES_ARGS"
+  local instopts=
+  local instargs="$TABLES_ARGS $TABLES_INSTALL_ARGS"
   case `uname` in
-    CYGWIN*) instopts=-n; instargs="$instargs $TABLES_INSTALL_ARGS";;
-    *) instopts="-r tables $TABLES_INSTALL_ARGS";;
+    CYGWIN*) instopts=-n;;
+    *) instopts="-r tables";;
   esac
 
 # Install library if not present, make link if needed
