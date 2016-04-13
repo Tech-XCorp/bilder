@@ -72,6 +72,6 @@ installNdiff() {
   mkdir -p $CONTRIB_DIR/ndiff/bin
   mkdir -p $CONTRIB_DIR/ndiff/man
   mkdir -p $CONTRIB_DIR/ndiff/man/man1
-  bilderInstall ndiff ser
+  bilderInstall -L ndiff ser
 }
 
