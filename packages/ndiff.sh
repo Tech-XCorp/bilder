@@ -43,7 +43,8 @@ buildNdiff() {
 
   techo "NDIFF_BLDRVERSION = $NDIFF_BLDRVERSION."
 
-  if bilderConfig ndiff ser "$CONFIG_COMPILERS_SER --enable-static $NDIFF_SER_ADDL_ARGS" "" "$NDIFF_SER_ENV"; then
+#  if bilderConfig -i -I $CONTRIB_DIR  ndiff ser "" "" "$NDIFF_SER_ENV"; then
+  if bilderConfig -g -i -B ser ndiff ser "" "ndiff" "$NDIFF_SER_ENV"; then
     bilderBuild ndiff ser "" ""
   fi
 
@@ -67,6 +68,10 @@ testNdiff() {
 
 # Set umask to allow only group to use
 installNdiff() {
+  mkdir -p $CONTRIB_DIR/ndiff
+  mkdir -p $CONTRIB_DIR/ndiff/bin
+  mkdir -p $CONTRIB_DIR/ndiff/man
+  mkdir -p $CONTRIB_DIR/ndiff/man/man1
   bilderInstall ndiff ser
 }
 
