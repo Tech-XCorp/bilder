@@ -18,9 +18,7 @@
 setNdiffTriggerVars() {
   NDIFF_BLDRVERSION_STD=2.0.0
   NDIFF_BLDRVERSION_EXP=2.0.0
-  if $BUILD_MPIS && test -z "$NDIFF_BUILDS" && [[ $USE_MPI =~ ndiff ]]; then
-    NDIFF_BUILDS=ser
-  fi
+  NDIFF_BUILDS=ser
   NDIFF_DEPS=automake
 }
 setNdiffTriggerVars
