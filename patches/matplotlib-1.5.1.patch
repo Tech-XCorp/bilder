@@ -1,7 +1,7 @@
-diff -ruN matplotlib-1.4.3/lib/matplotlib/texmanager.py matplotlib-1.4.3-new/lib/matplotlib/texmanager.py
---- matplotlib-1.4.3/lib/matplotlib/texmanager.py	2015-02-15 19:46:36.000000000 -0800
-+++ matplotlib-1.4.3-new/lib/matplotlib/texmanager.py	2015-08-29 11:45:28.273498184 -0700
-@@ -213,8 +213,7 @@
+diff -ruN matplotlib-1.5.1/lib/matplotlib/texmanager.py matplotlib-1.5.1-new/lib/matplotlib/texmanager.py
+--- matplotlib-1.5.1/lib/matplotlib/texmanager.py	2016-01-10 19:43:13.000000000 -0700
++++ matplotlib-1.5.1-new/lib/matplotlib/texmanager.py	2016-04-19 01:51:23.000000000 -0600
+@@ -218,8 +218,7 @@
          while '\\usepackage{type1cm}' in cmd:
              cmd.remove('\\usepackage{type1cm}')
          cmd = '\n'.join(cmd)
@@ -11,10 +11,10 @@ diff -ruN matplotlib-1.4.3/lib/matplotlib/texmanager.py matplotlib-1.4.3-new/lib
  
      def get_basefile(self, tex, fontsize, dpi=None):
          """
-diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
---- matplotlib-1.4.3/setupext.py	2015-02-15 19:46:36.000000000 -0800
-+++ matplotlib-1.4.3-new/setupext.py	2015-08-29 11:41:56.353841376 -0700
-@@ -942,7 +942,12 @@
+diff -ruN matplotlib-1.5.1/setupext.py matplotlib-1.5.1-new/setupext.py
+--- matplotlib-1.5.1/setupext.py	2016-01-10 20:06:08.000000000 -0700
++++ matplotlib-1.5.1-new/setupext.py	2016-04-19 01:48:04.000000000 -0600
+@@ -890,7 +890,12 @@
  
      def check(self):
          if sys.platform == 'win32':
@@ -28,7 +28,7 @@ diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
              return 'Using unknown version found on system.'
  
          status, output = getstatusoutput("freetype-config --ftversion")
-@@ -956,8 +961,14 @@
+@@ -904,11 +909,17 @@
          if version is None or 'No such file or directory\ngrep:' in version:
              version = self.version_from_header()
  
@@ -38,31 +38,12 @@ diff -ruN matplotlib-1.4.3/setupext.py matplotlib-1.4.3-new/setupext.py
 +            min_version='2.3', version=version)
 +        except: pass
 +
+         # pkg_config returns the libtool version rather than the
+         # freetype version so we need to explicitly pass the version
+         # to _check_for_pkg_config
          return self._check_for_pkg_config(
 -            'freetype2', 'ft2build.h',
 +            'freetype', 'freetype2/ft2build.h',
              min_version='2.3', version=version)
  
      def version_from_header(self):
-diff -ruN matplotlib-1.4.3/src/ft2font.cpp matplotlib-1.4.3-new/src/ft2font.cpp
---- matplotlib-1.4.3/src/ft2font.cpp	2015-02-15 19:46:36.000000000 -0800
-+++ matplotlib-1.4.3-new/src/ft2font.cpp	2015-08-29 11:41:56.358088831 -0700
-@@ -3,6 +3,7 @@
- #include "ft2font.h"
- #include "mplutils.h"
- #include <sstream>
-+#include <algorithm>
- 
- #include "file_compat.h"
- 
-diff -ruN matplotlib-1.4.3/src/_path.cpp matplotlib-1.4.3-new/src/_path.cpp
---- matplotlib-1.4.3/src/_path.cpp	2015-02-15 19:46:36.000000000 -0800
-+++ matplotlib-1.4.3-new/src/_path.cpp	2015-08-29 11:41:56.356173581 -0700
-@@ -4,6 +4,7 @@
- #include "agg_py_transforms.h"
- #include "path_converters.h"
- 
-+#include <algorithm>
- #include <limits>
- #include <math.h>
- 
