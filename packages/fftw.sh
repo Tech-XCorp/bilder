@@ -12,7 +12,8 @@
 #
 ######################################################################
 
-FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"}
+#FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"}
+FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}
 
 ######################################################################
 #
