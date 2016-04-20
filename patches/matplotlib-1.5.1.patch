@@ -1,6 +1,6 @@
 diff -ruN matplotlib-1.5.1/lib/matplotlib/texmanager.py matplotlib-1.5.1-new/lib/matplotlib/texmanager.py
 --- matplotlib-1.5.1/lib/matplotlib/texmanager.py	2016-01-10 19:43:13.000000000 -0700
-+++ matplotlib-1.5.1-new/lib/matplotlib/texmanager.py	2016-04-19 01:51:23.000000000 -0600
++++ matplotlib-1.5.1-new/lib/matplotlib/texmanager.py	2016-04-20 15:27:13.510575600 -0600
 @@ -218,8 +218,7 @@
          while '\\usepackage{type1cm}' in cmd:
              cmd.remove('\\usepackage{type1cm}')
@@ -13,7 +13,7 @@ diff -ruN matplotlib-1.5.1/lib/matplotlib/texmanager.py matplotlib-1.5.1-new/lib
          """
 diff -ruN matplotlib-1.5.1/setupext.py matplotlib-1.5.1-new/setupext.py
 --- matplotlib-1.5.1/setupext.py	2016-01-10 20:06:08.000000000 -0700
-+++ matplotlib-1.5.1-new/setupext.py	2016-04-19 01:48:04.000000000 -0600
++++ matplotlib-1.5.1-new/setupext.py	2016-04-20 15:27:57.021533600 -0600
 @@ -890,7 +890,12 @@
  
      def check(self):
@@ -47,3 +47,12 @@ diff -ruN matplotlib-1.5.1/setupext.py matplotlib-1.5.1-new/setupext.py
              min_version='2.3', version=version)
  
      def version_from_header(self):
+@@ -942,7 +953,7 @@
+                 'lib/freetype2/include/freetype2'],
+             default_library_dirs=[
+                 'freetype2/lib'],
+-            default_libraries=['freetype', 'z'])
++            default_libraries=['freetype', 'png', 'z'])
+ 
+ 
+ class FT2Font(SetupPackage):
