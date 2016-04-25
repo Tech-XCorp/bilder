@@ -48,4 +48,13 @@ installSowing() {
     bilderInstall sowing ser 
   done
 }
+######################################################################
+#
+# Find sowing
+#
+######################################################################
+
+findSowing() {
+  addtopathvar PATH $CONTRIB_DIR/sowing/bin
+}
 

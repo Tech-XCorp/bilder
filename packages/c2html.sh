@@ -48,4 +48,13 @@ installC2html() {
     bilderInstall c2html ser 
   done
 }
+######################################################################
+#
+# Find c2html
+#
+######################################################################
+
+findSowing() {
+  addtopathvar PATH $CONTRIB_DIR/c2html/bin
+}
 
