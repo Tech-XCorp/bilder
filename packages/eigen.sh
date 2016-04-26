@@ -1,0 +1,84 @@
+#!/bin/bash
+#
+# Build information for eigen
+#
+# $Id$
+#
+######################################################################
+
+######################################################################
+#
+# Trigger variables set in eigen_aux.sh
+#
+######################################################################
+
+mydir=`dirname $BASH_SOURCE`
+source $mydir/eigen_aux.sh
+
+######################################################################
+#
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
+
+setEigenNonTriggerVars() {
+  EIGEN_UMASK=002
+}
+setEigenNonTriggerVars
+
+######################################################################
+#
+# Add to paths
+#
+######################################################################
+
+addtopathvar PATH $CONTRIB_DIR/eigen/bin
+
+######################################################################
+#
+# Launch eigen builds.
+#
+######################################################################
+
+buildEigen3() {
+
+# If worked, preigened to configure and build
+  if ! bilderUnpack eigen; then
+    return
+  fi
+
+# This makes eigen configure/installs more robust as it's
+# not strictly needed.  Had it installing into cuda for some reason
+  EIGEN_OTHER_ARGS="-DEIGEN_BUILD_PKGCONFIG:BOOL=FALSE ${EIGEN_OTHER_ARGS}"
+# Configure and build
+  if bilderConfig eigen ser "$EIGEN_OTHER_ARGS"; then
+    bilderBuild eigen ser "$EIGEN_MAKEJ_ARGS"
+  fi
+
+}
+
+######################################################################
+#
+# Test eigen
+#
+######################################################################
+
+testEigen3() {
+  techo "Not testing eigen."
+}
+
+######################################################################
+#
+# Install eigen
+#
+######################################################################
+
+installEigen3() {
+  if bilderInstall eigen ser; then
+    : # Probably need to fix up dylibs here
+  fi
+  # techo "WARNING: Quitting at end of eigen.sh."; cleanup
+}
+
