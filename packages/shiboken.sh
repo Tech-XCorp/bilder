@@ -37,7 +37,7 @@ setShibokenNonTriggerVars
 buildShiboken() {
 
 # Get version, see about installing
-  if ! bilderUnpack shiboken; then
+  if ! bilderUnpack Shiboken; then
     return
   fi
 
