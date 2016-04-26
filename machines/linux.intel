@@ -82,13 +82,13 @@ MPIF77=${MPIF77:-"mpiifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
-# pic flags are added later
+# pic flags are added later so do not include them here
 
 # Serial
-CFLAGS=${CFLAGS:-"-fpic -mkl"}
-CXXFLAGS=${CXXFLAGS:-"-fpic -mkl"}
-FCFLAGS=${FCFLAGS:-"-fpic -mkl"}
-FFLAGS=${FFLAGS:-"-fpic -mkl"}
+CFLAGS=${CFLAGS:-""}
+CXXFLAGS=${CXXFLAGS:-""}
+FCFLAGS=${FCFLAGS:-""}
+FFLAGS=${FFLAGS:-""}
 
 # PYC flags:
 # PYC_LDFLAGS is for creating an executable.
@@ -104,10 +104,10 @@ FFLAGS=${FFLAGS:-"-fpic -mkl"}
 
 # Parallel
 if false; then
-MPI_CFLAGS=${MPI_CFLAGS:-"-mkl"}
-MPI_CXXFLAGS=${MPI_CXXFLAGS:-"-mkl"}
-MPI_FCFLAGS=${MPI_FCFLAGS:-"-mkl"}
-MPI_FFLAGS=${MPI_FFLAGS:-"-mkl"}
+MPI_CFLAGS=${MPI_CFLAGS:-""}
+MPI_CXXFLAGS=${MPI_CXXFLAGS:-""}
+MPI_FCFLAGS=${MPI_FCFLAGS:-""}
+MPI_FFLAGS=${MPI_FFLAGS:-""}
 fi
 
 # Linear algebra libraries:
