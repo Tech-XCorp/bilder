@@ -490,7 +490,7 @@ addDefaultCompFlags() {
         ;;
       icpc*)
         eval ${pre}PIC_FLAG=-fPIC
-        eval ${pre}PIPE_FLAG=-pipe
+        eval ${pre}PIPE_FLAG=""
         eval ${pre}O3_FLAG='-O3'
         ;;
       mingw*)
