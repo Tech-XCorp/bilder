@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for shiboken
+# Build information for shiboken
 #
 # $Id$
 #
@@ -8,27 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in shiboken_aux.sh
 #
 ######################################################################
 
-# Neither of these works on mtnlion
-SHIBOKEN_BLDRVERSION_STD=${SHIBOKEN_BLDRVERSION_STD:-"1.2.1"}
-SHIBOKEN_BLDRVERSION_EXP=${SHIBOKEN_BLDRVERSION_EXP:-"1.2.1"}
-computeVersion shiboken
+mydir=`dirname $BASH_SOURCE`
+source $mydir/shiboken_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-setShibokenGlobalVars() {
-  SHIBOKEN_BUILDS=ser
-  SHIBOKEN_DEPS=cmake,bzip2
+setShibokenNonTriggerVars() {
   SHIBOKEN_UMASK=002
 }
-setShibokenGlobalVars
+setShibokenNonTriggerVars
 
 ######################################################################
 #

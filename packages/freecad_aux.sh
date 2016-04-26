@@ -19,7 +19,9 @@ getFreecadTriggerVars() {
   FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
   FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   FREECAD_BUILD=$FORPYTHON_SHARED_BUILD
-  FREECAD_DEPS=${FREECAD_DEPS:-"nglib,pivy,coin,xercesc,pyside,qt,oce,eigen3,boost"}
+  FREECAD_DEPS=${FREECAD_DEPS:-"pivy,coin,xercesc,pyside,qt,oce,eigen3,boost"}
+# is installed by homebrew
+# nglib is installed by homebrew
 # boost-python: just install boost with python?
 # coin installed --without-soqt
 # pyside-tools?
