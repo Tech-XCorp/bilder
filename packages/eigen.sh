@@ -42,7 +42,7 @@ addtopathvar PATH $CONTRIB_DIR/eigen/bin
 #
 ######################################################################
 
-buildEigen3() {
+buildEigen() {
 
 # If worked, preigened to configure and build
   if ! bilderUnpack eigen; then
@@ -65,7 +65,7 @@ buildEigen3() {
 #
 ######################################################################
 
-testEigen3() {
+testEigen() {
   techo "Not testing eigen."
 }
 
@@ -75,7 +75,7 @@ testEigen3() {
 #
 ######################################################################
 
-installEigen3() {
+installEigen() {
   if bilderInstall eigen ser; then
     : # Probably need to fix up dylibs here
   fi
