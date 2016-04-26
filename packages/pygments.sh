@@ -35,9 +35,10 @@ setDocutilsNonTriggerVars
 ######################################################################
 
 buildPygments() {
-  if bilderUnpack Pygments; then
-    bilderDuBuild -p pygments Pygments "" "$DISTUTILS_ENV"
+  if ! bilderUnpack Pygments; then
+    return
   fi
+  bilderDuBuild -p pygments Pygments "" "$DISTUTILS_ENV"
 }
 
 ######################################################################

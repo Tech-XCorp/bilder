@@ -41,10 +41,8 @@ buildShiboken() {
     return
   fi
 
-# configure and install
-  if bilderConfig shiboken ser; then
-    bilderBuild shiboken ser
-  fi
+# Build
+  bilderDuBuild -p shiboken Shiboken "" "$DISTUTILS_ENV"
 
 }
 
@@ -65,8 +63,7 @@ testShiboken() {
 ######################################################################
 
 installShiboken() {
-  if bilderInstall shiboken ser; then
-    ln -sf $CONTRIB_DIR/shiboken/bin/shiboken $CONTRIB_DIR/bin/shiboken
-  fi
+  local SHIBOKEN_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/shiboken.files'"
+  bilderDuInstall -r Shiboken -p shiboken Shiboken "$SHIBOKEN_INSTALL_ARGS" "$DISTUTILS_ENV"
 }
 
