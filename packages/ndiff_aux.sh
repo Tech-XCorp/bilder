@@ -18,7 +18,7 @@
 setNdiffTriggerVars() {
   NDIFF_BLDRVERSION_STD=2.00
   NDIFF_BLDRVERSION_EXP=2.00
-  NDIFF_BUILDS=ser
+  NDIFF_BUILDS=pycsh
   NDIFF_DEPS=automake
 }
 setNdiffTriggerVars

@@ -43,9 +43,9 @@ buildNdiff() {
 
   techo "NDIFF_BLDRVERSION = $NDIFF_BLDRVERSION."
 
-#  if bilderConfig -i -I $CONTRIB_DIR  ndiff ser "" "" "$NDIFF_SER_ENV"; then
-  if bilderConfig -g -i -B ser ndiff ser "" "ndiff" "$NDIFF_SER_ENV"; then
-    bilderBuild ndiff ser "" ""
+#  if bilderConfig -i -I $CONTRIB_DIR  ndiff pycsh "" "" "$NDIFF_PYCSH_ENV"; then
+  if bilderConfig -g -i -B pycsh ndiff pycsh "$CONFIG_COMPFLAGS_PYC" " $SIMYAN_OTHER_ARGS ndiff" "$NDIFF_PYCSH_ENV"; then
+    bilderBuild ndiff pycsh "" ""
   fi
 
 }
@@ -72,6 +72,6 @@ installNdiff() {
   mkdir -p $CONTRIB_DIR/ndiff/bin
   mkdir -p $CONTRIB_DIR/ndiff/man
   mkdir -p $CONTRIB_DIR/ndiff/man/man1
-  bilderInstall -L ndiff ser
+  bilderInstall -L ndiff pycsh
 }
 
