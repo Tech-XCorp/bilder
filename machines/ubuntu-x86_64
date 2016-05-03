@@ -59,8 +59,8 @@ MPIF77=${MPIF77:-"mpif77"}
 # pic flags are added later
 
 # Serial
-# CFLAGS=${CFLAGS:-""}
-# CXXFLAGS=${CXXFLAGS:-""}
+CFLAGS=${CFLAGS:-"-Wno-format-security"}
+CXXFLAGS=${CXXFLAGS:-"-Wno-format-security"}
 # FCFLAGS=${FCFLAGS:-""}
 # FFLAGS=${FFLAGS:-""}
 
