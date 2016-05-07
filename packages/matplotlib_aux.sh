@@ -26,6 +26,9 @@ setMatplotlibTriggerVars() {
   MATPLOTLIB_DEPS=markupsafe,pbr,$MATPLOTLIB_DEPS
   case `uname` in
     Darwin) ;;
+# The requirement of pyqt on Linux is causing long build times
+# Perhaps this should be done only optionally
+    Linux) ;;
     *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
   esac
 }
