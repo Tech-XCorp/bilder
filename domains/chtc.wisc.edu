@@ -1,0 +1,186 @@
+## ######################################################################
+##
+## File:    nersc.gov
+##
+## Purpose: Helper functions for setting variables and queues by domain
+##
+## Version: $Id: nersc.gov 7049 2012-11-24 10:17:03Z cary $
+##
+## /* vim: set filetype=sh : */
+##
+## ######################################################################
+
+#
+# Adjust the auxiliary names:
+#   MAILSRVR, INSTALLER_HOST, INSTALLER_ROOTDIR, FQMAILHOST, BLDRHOSTID
+#
+runnrSetNamesByDomain() {
+#
+# Hosts for which FQMAILHOST is not obvious.  Also ensure that an
+# install host name is set for all cases.
+#  case $UQHOSTNAME in
+#    aci-service-[0-9]*)
+#      FQMAILHOST=chtc.wisc.edu
+#      ;;
+#  esac
+   :
+}
+runnrSetNamesByDomain
+
+cat >/dev/null <<EOF  ## (Block comment)
+MODULES AT ACI
+
+This is an incomplete list of modules that have to be loaded
+on the machines that use modules.
+
+Currently Available Modulefiles:
+abaqus-6.12                         lammps-31Jan14
+ansys-15.0.7                        lumerical
+ansys-16.0                          matlab-r2013b
+astropy-0.4.1                       matlab-r2014b
+boost-1.49                          matplotlib-1.3.0
+catmip_v0.0                         mpi/gcc/mpich-3.0.4
+cmake-2.8.11.2                      *mpi/gcc/mpich-3.1
+*compile/gcc                        mpi/gcc/mpich2-1.5
+compile/intel                       mpi/gcc/mvapich2-1.9
+compile/intel-2016                  mpi/gcc/openmpi-1.6.4
+comsol43b                           mpi/intel/mpich-3.0.4
+comsol44                            mpi/intel/mpich-3.1
+comsol50                            mpi/intel/mpich2-1.5
+comsol51                            mpi/intel/mvapich2-1.9
+comsol52                            mpi/intel/mvapich2-2.1
+copro-seq                           mpi/intel/openmpi-1.6.4
+cst-2016                            mpi/other/compat-openmpi-i386
+dakota-5.4                          mpi/other/compat-openmpi-psm-x86_64
+eland-1                             mpi/other/compat-openmpi-x86_64
+ffmpeg-2.2.4                        mplayer-1.1.1
+fftw-3.3.4                          mvapich-x86_64
+gapipeline-1.4.0                    numpy-1.7.1
+**gcc-4.9.0                         perl5-modules
+gmt-4.5.12                          pgplot-5.2
+gmt-5.1.1                           qiime-1.7.0
+***hdf5-1.8.11                      scipy-0.12.0
+***hdf5-1.8.13_parallel             yt-x86_64
+
+*required for installation
+**not compatible with mpif90 from any available build (DO NOT USE)
+***no fortran support so these should no be used
+
+EOF
+
+#
+# Determine RUNNR_QTARGET, RUNNR_QUEUE, RUNNR_ACCOUNT, RUNNR_PPN
+#
+runnrSetQInfoByDomain() {
+  RUNNR_QTARGET=${RUNNR_QTARGET:-"headnode"}
+  RUNNR_QUEUE=${RUNNR_QUEUE:-"regular"}
+  RUNNR_NCPUSVAR=mppwidth
+}
+runnrSetQInfoByDomain
+
+#
+# Set default options.  This has to be called after option parsing.
+# Should set
+#  CONTRIB_ROOTDIR    The root directory for common installations of tarballs
+#  INSTALL_ROOTDIR    The root directory for common installations of repos
+#  USERINST_ROOTDIR   The root directory for user installations (same for
+#                     tarballs and repos)
+#  INSTALL_SUBDIR_SFX Added to subdir (software, contrib, volatile, internal)
+#                     to complete the installation dir
+#  BUILD_ROOTDIR      Where builds are to take place
+#  BILDER_ADDL_ARGS   Any additional args to pass to Bilder
+#  MACHINEFILE        The machine file to use
+#
+setBilderHostVars() {
+
+#
+# Preliminary variables
+#   Determine the compiler and version for machinefile and namespacing
+#   and ensure that it is supported by the installation
+#   
+  # echo "setBilderHostVars entered."
+  if test -z "$compkey"; then
+    compkey=`module -t list 2>&1 | grep ^gcc`
+    if test -n "$compkey"; then 
+      local compver=`echo $compkey | sed -e "s:[^-]*-\([^\.]*\.[^\.]*\).*:\1:"`
+      if [ "$compver" = "4.9" ]; then
+	echo "GCC 4.9.0 is not compatible with system MPI versions."
+        echo "Load the module compile/gcc and retry installation."
+	echo "Quitting."
+	exit 1
+      else
+        echo "GCC version is untested for build.  Proceed at your own risk."
+        compkey="gcc"
+      fi 
+    else
+      local comp=
+      for comp in compile/gcc compile/intel; do
+        compkey=`module -t list 2>&1 | grep ^$comp`
+        if test -n "$compkey"; then
+          compkey=`echo $compkey | sed "s:[^/]*/\(.*\):\1:"`
+	  break
+        fi
+      done
+      if [ "$compkey" = "gcc" ]; then
+        compver=`gcc -dumpversion | sed -e "s:\(^[^\.]*\.[^\.]*\).*:\1:"`
+      else
+        compver=`icc -dumpversion | sed -e "s:\(^[^\.]*\.[^\.]*\).*:\1:"`
+      fi
+      local tmpver=`gcc -dumpversion | sed -e "s:\(^[^\.]*\.[^\.]*\).*:\1:"`
+      if [ "$tmpver" = "4.4" ]; then
+	echo "Old version of GCC detected."
+	echo "CONFIGURE statements must be stripped from nimdevel source code"
+	echo "in order for build to succeed."
+      fi 
+    fi
+  fi
+  if test -z "$compkey"; then
+    echo "Cannot determine the compkey.  Quitting."
+    exit 1
+  fi
+#  echo compkey = $compkey
+#  echo compver = $compver
+
+# Set the installation and project subdirs
+  INSTALL_SUBDIR_SFX="-$compkey-$compver"
+  PROJECT_INSTALL_SUBDIR=/software
+  if test -z "$PROJECT_INSTALL_SUBDIR"; then
+    echo "PROJECT_INSTALL_SUBDIR not defined in wisc.edu."
+  fi
+  INSTALL_ROOTDIR=$HOME/$PROJECT_INSTALL_SUBDIR
+  PROJECT_CONTRIB_SUBDIR=${PROJECT_CONTRIB_SUBDIR:-"$PROJECT_INSTALL_SUBDIR"}
+  if test -z "$PROJECT_CONTRIB_SUBDIR"; then
+    echo "PROJECT_CONTRIB_SUBDIR not defined in wisc.edu."
+  fi
+  CONTRIB_ROOTDIR=$HOME/$PROJECT_CONTRIB_SUBDIR
+  USERINST_ROOTDIR=$INSTALL_ROOTDIR
+
+# Set the build directory
+  if [ -d "$SCRATCH" ]; then
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$SCRATCH/builds-$compkey"}
+  else
+    BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$INSTALL_ROOTDIR/builds-$compkey"}
+  fi
+
+# Add to BILDER_ARGS
+  BILDER_ADDL_ARGS="-j4"
+
+# Set machine file and any other env vars
+  MACHINEFILE=${MACHINEFILE:-"aci.$compkey"}
+
+# Check that system hdf5 modules are not loaded
+  local comphdf=`module -t list 2>&1 | grep hdf`
+  if test -n "$comphdf"; then
+    echo "System hdf5 builds do not have Fortran support."
+    echo "Unload these modules before continuing."
+  fi
+
+# Check that system has mpi compiler
+  local compmpi=`module -t list 2>&1 | grep ^mpi/$compkey`
+  if test -z "$compmpi"; then
+    echo "No mpi module detected.  Parallel builds will not be installed."
+  fi
+  
+
+}
+
