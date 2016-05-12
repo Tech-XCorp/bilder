@@ -1,0 +1,38 @@
+diff -ruN scotch-6.0.4/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread scotch-6.0.4-patched/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread
+--- scotch-6.0.4/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread	1969-12-31 17:00:00.000000000 -0700
++++ scotch-6.0.4-patched/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread	2016-05-12 10:35:19.000000000 -0600
+@@ -0,0 +1,21 @@
++EXE		=
++LIB		= .a
++OBJ		= .o
++
++MAKE		= make
++AR		= ar
++ARFLAGS		= -ruv
++CAT		= cat
++CCS		= mpicc
++CCP		= mpicc
++CCD		= mpicc
++CFLAGS		= -g -Drestrict="" -DCOMMON_RANDOM_FIXED_SEED -DCOMMON_TIMING_OLD  -DSCOTCH_RENAME 
++CLIBFLAGS	=
++LDFLAGS		= -lm
++CP		= cp
++LEX		= flex -Pscotchyy -olex.yy.c
++LN		= ln
++MKDIR		= mkdir
++MV		= mv
++RANLIB		= ranlib
++YACC		= bison -pscotchyy -y -b y
+diff -ruN scotch-6.0.4/src/libscotch/common.h scotch-6.0.4-patched/src/libscotch/common.h
+--- scotch-6.0.4/src/libscotch/common.h	2015-03-01 02:14:02.000000000 -0700
++++ scotch-6.0.4-patched/src/libscotch/common.h	2016-05-12 10:40:00.000000000 -0600
+@@ -306,6 +306,9 @@
+   ThreadLaunchStartFunc     stafptr;              /*+ Pointer to start routine +*/
+   ThreadLaunchJoinFunc      joifptr;              /*+ Pointer to join routine  +*/
+   ThreadBarrier             barrdat;              /*+ Barrier data structure   +*/
++#else
++/* MEJ: dummy member to get compilation to proceed */
++  int thrdnbr;
+ #endif /* ((defined COMMON_PTHREAD) || (defined SCOTCH_PTHREAD)) */
+ } ThreadGroupHeader;
+ 
