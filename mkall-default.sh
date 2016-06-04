@@ -91,7 +91,7 @@ BILDER_DIR=`dirname $BASH_SOURCE`
 BILDER_DIR=`(cd $BILDER_DIR; pwd -P)`
 
 # Save to print out later if run
-redoargs="$*"
+redoargs=`echo "$*" | sed -e 's%/$%%'`
 
 # Get machine info
 # echo "Sourcing runnrfcns.sh."
