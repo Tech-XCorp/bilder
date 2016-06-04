@@ -171,7 +171,8 @@ export FIXED_INSTALL_SUBDIR
 
 # Get additional args after --
 shift $(($OPTIND - 1))
-SCRIPT_ADDL_ARGS="$*"
+# Pull off trailing /
+SCRIPT_ADDL_ARGS=`echo "$*" | sed -e 's%/$%%'`
 # techo "SCRIPT_ADDL_ARGS = $SCRIPT_ADDL_ARGS."
 
 # Script to show how to rerun.  Done here so not done for help request.
