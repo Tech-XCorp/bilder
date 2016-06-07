@@ -173,7 +173,7 @@ buildNumpy() {
 # Looks like this happening automatically on Darwin but not Linux.
   if [[ $NUMPY_BLDRVERSION =~ 1.1[0-9] ]]; then
     case `uname` in
-      CYGWIN*)
+      CYGWIN* | Darwin)
         NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
         ;;
     esac
