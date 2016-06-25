@@ -2210,7 +2210,7 @@ getPkgRepos() {
       svn)
         if test -d ${PACKAGE_REPO_DIRS[$i]}/.svn; then
           techo "${PACKAGE_REPO_DIRS[$i]} is already an svn checkout.  Not checking out again."
-        else
+        elif $SVNUP_PKGS
           bilderSvn co "--non-interactive --depth=empty ${PACKAGE_REPO_URLS[$i]} ${PACKAGE_REPO_DIRS[$i]}"
         fi
         ;;
