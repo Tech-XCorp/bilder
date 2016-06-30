@@ -7581,7 +7581,7 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
+        for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
             numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
