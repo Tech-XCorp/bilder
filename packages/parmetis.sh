@@ -8,26 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in scotch_aux.sh
 #
 ######################################################################
 
-PARMETIS_BLDRVERSION=${PARMETIS_BLDRVERSION:-"4.0.3"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/parmetis_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$PARMETIS_BUILDS"; then
-  case `uname` in
-    Linux) PARMETIS_BUILDS=par,parsh;;
-    Darwin) PARMETIS_BUILDS=par;;
-  esac
-fi
-PARMETIS_DEPS=${PARMETIS_DEPS:-"cmake,$MPI_BUILD"}
-PARMETIS_UMASK=002
+setParmetisNonTriggerVars() {
+  PARMETIS_UMASK=002
+}
+setParmetisNonTriggerVars
 
 ######################################################################
 #
