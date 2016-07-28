@@ -47,7 +47,7 @@ buildScotch() {
 	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
 	      ;;
 	  Linux)
-	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_pc_linux2_mpi $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
+	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_pc_linux2_mpi.nothreads $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
 	      ;;
       esac
       techo $cmd
