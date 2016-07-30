@@ -74,11 +74,7 @@ buildTables() {
 # Looks like this not happening automatically on Windows.
   if [[ $TABLES_BLDRVERSION =~ 3.[2-9] ]]; then
     case `uname` in
-      Darwin)
-        TABLES_INSTALL_ARGS="--record='$PYTHON_SITEPKGSDIR/tables.files'"
-        TABLES_INSTALL_ARGS="$TABLES_INSTALL_ARGS --single-version-externally-managed"
-        ;;
-      CYGWIN*)
+      CYGWIN* | Darwin | Linux)
         TABLES_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/tables.files'"
         ;;
     esac
