@@ -5695,7 +5695,7 @@ bilderRunTests() {
       untestedBuildReason="it was not built."
       continue
     else
-      if ! echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
+      if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
         nonIgnoredTbFailures="$nonIgnoredTbFailures $bld"
       fi
       if test "$res" != 0; then
