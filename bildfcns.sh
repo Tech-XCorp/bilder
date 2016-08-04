@@ -5695,7 +5695,10 @@ bilderRunTests() {
       untestedBuildReason="it was not built."
       continue
     else
-      if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
+      if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo -2 "$bld found in ignoreBuilds.  Run tests even if this build failed."
+      else
+        techo -2 "$bld not found in ignoreBuilds.  Run tests only if this build succeeded."
         nonIgnoredTbFailures="$nonIgnoredTbFailures $bld"
       fi
       if test "$res" != 0; then
@@ -5786,12 +5789,12 @@ EOF
     fi
   done
   trimvar nonIgnoredTbFailures ' '
+  techo -2 "nonIgnoredTbFailures = $nonIgnoredTbFailures."
 
 # Collect results of tests in build dirs
   local tstFailures=
   if $hasbuildtests && test -n "$builddirtests"; then
     techo "All build directory tests launched."
-    # for bld in `echo $testedBuilds | tr ',' ' '`; do
     for bld in $builddirtests; do
 # Get individual build test results
       cmd="waitAction -t b $pkgname-$bld-test"
