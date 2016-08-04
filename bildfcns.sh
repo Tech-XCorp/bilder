@@ -5694,11 +5694,12 @@ bilderRunTests() {
       techo "$pkgname-$bld was not built.  Not testing."
       untestedBuildReason="it was not built."
       continue
-    else
+    elif test "$res" != 0 -o -z "$res"; then
+      techo -2 "Build, $bld, failed."
       if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
-        techo -2 "$bld found in ignoreBuilds.  Run tests even if this build failed."
+        techo -2 "$bld found in ignoreBuilds.  Run tests anyway."
       else
-        techo -2 "$bld not found in ignoreBuilds.  Run tests only if this build succeeded."
+        techo -2 "$bld not found in ignoreBuilds.  Do not run tests."
         nonIgnoredTbFailures="$nonIgnoredTbFailures $bld"
       fi
       if test "$res" != 0; then
