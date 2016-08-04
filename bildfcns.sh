@@ -5226,30 +5226,6 @@ bilderTest() {
   local buildsval=`deref $buildsvar`
   local testedBuilds=
 
-#SEK: Not sure what Travis was doing here.  He copied form runTests but
-#SEK   not relevant for this case?
-#SEK Remove ignored builds
-#SEK  for bld in `echo $buildsval | tr ',' ' '`; do
-#SEK    if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
-#SEK      testedBuilds=$testedBuilds,$bld
-#SEK    fi
-#SEK  done
-#SEK  trimvar testedBuilds ','
-#SEK  techo "Checking on tested builds '$testedBuilds' of $pkgname."
-#SEK
-#SEK# Wait on all builds, see if any tested build failed
-#SEK  local tbFailures=
-#SEK  for i in `echo $testedBuilds | tr ',' ' '`; do
-#SEK    cmd="waitAction $pkgname-$i"
-#SEK    techo -2 "$cmd"
-#SEK    $cmd
-#SEK    res=$?
-#SEK    if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
-#SEK      tbFailures="$tbFailures $i"
-#SEK    fi
-#SEK  done
-#SEK  trimvar tbFailures ' '
-
 # Wait for build to complete
 
   cmd="waitAction $1-$2"
@@ -5694,9 +5670,9 @@ bilderRunTests() {
     submitres=false
   fi
 
-# Wait on all builds, see if any tested build failed.
-# For those not failed, launch tests in build dir if asked.
-  local tbFailures=
+# Wait on all builds, see if any tested, non-ignored build failed.
+# For those not failed and not ignored, launch tests in build dir if asked.
+  local nonIgnoredTbFailures=
   local builddirtests=
   local cmd=
   for bld in `echo $buildsval | tr ',' ' '`; do
@@ -5718,13 +5694,16 @@ bilderRunTests() {
       techo "$pkgname-$bld was not built.  Not testing."
       untestedBuildReason="it was not built."
       continue
-    elif test "$res" != 0; then
-      techo "$pkgname-$bld failed to build."
-      tbFailures="$tbFailures $bld"
-      continue
-    elif test -z "$res"; then
-      techo "WARNING: [$FUNCNAME] waitAction returned no result."
-      tbFailures="$tbFailures $bld"
+    else
+      if ! echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
+        nonIgnoredTbFailures="$nonIgnoredTbFailures $bld"
+      fi
+      if test "$res" != 0; then
+        techo "$pkgname-$bld failed to build."
+        continue
+      elif test -z "$res"; then
+        techo "WARNING: [$FUNCNAME] waitAction returned no result."
+      fi
     fi
 
 # Determine whether this build is ignored
@@ -5806,7 +5785,7 @@ EOF
       addActionToLists $1-$bld-test $pid
     fi
   done
-  trimvar tbFailures ' '
+  trimvar nonIgnoredTbFailures ' '
 
 # Collect results of tests in build dirs
   local tstFailures=
@@ -5875,8 +5854,8 @@ EOF
     techo "Test package file $tstsname.sh not found."
   fi
 
-  if test -n "$tbFailures"; then
-    techo "Not calling build$2 for $pkgname because one or more tested builds ($tbFailures) not built."
+  if test -n "$nonIgnoredTbFailures"; then
+    techo "Not calling build$2 for $pkgname because one or more tested, nonignored builds ($nonIgnoredTbFailures) not built."
     return
   fi
   if test ! $testingval; then
