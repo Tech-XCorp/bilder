@@ -321,7 +321,10 @@ if ! [[ `uname` =~ CYGWIN ]]; then
 fi
 
 if $BUILD_MPIS; then
-  USE_MPI=${USE_MPI:-"openmpi-nodl"}
+  case `uname` in
+    Darwin) USE_MPI=${USE_MPI:-"openmpi-nodl"};; # mpich OSX CUDA fails
+    *) USE_MPI=${USE_MPI:-"mpich-shared"};;
+  esac
   MPI_BUILD=`echo $USE_MPI | sed 's/-.*//'`
 fi
 # Parallel compilers

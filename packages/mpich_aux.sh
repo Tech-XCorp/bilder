@@ -17,7 +17,10 @@
 
 setMpichTriggerVars() {
   MPICH_BLDRVERSION_STD=3.1.4
-  MPICH_BLDRVERSION_EXP=3.2
+  case `uname` in
+    Darwin) MPICH_BLDRVERSION_EXP=3.2;; # 3.1.[24], 3.2 fail with cuda-7.5.27
+    *) MPICH_BLDRVERSION_EXP=3.2;;
+  esac
   if $BUILD_MPIS && test -z "$MPICH_BUILDS" && [[ $USE_MPI =~ mpich ]]; then
     MPICH_BUILDS=static,shared
   fi
