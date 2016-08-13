@@ -53,7 +53,11 @@ buildNuitka() {
 # Build away
   NUITKA_ENV="$DISTUTILS_ENV"
   techo -2 NUITKA_ENV = $NUITKA_ENV
-  bilderDuBuild Nuitka '-' "$NUITKA_ENV"
+  local NUITKA_ARGS=
+  case `uname` in
+    CYGWIN*) NUITKA_ARGS='--compiler=msvc';;
+  esac
+  bilderDuBuild Nuitka "$NUITKA_ARGS" "$NUITKA_ENV"
 
 }
 
