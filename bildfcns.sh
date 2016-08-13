@@ -7456,11 +7456,12 @@ EOF
   techo "  Bilder creating abstract $ABSTRACT."
   techo "======================================"
   rmall $ABSTRACT
-  
+
   case `uname` in
-    #in CYGWIN, we use a windows shortlink where pwd -P still returns the shortpath
-    #so we sed the short path for the directory under c, which should be the jenkins project name    
-    CYGWIN*) 
+# In CYGWIN, we use a windows shortlink where pwd -P still returns the
+# shortpath, so we sed the short path for the directory under c, which
+# should be the jenkins project name.
+    CYGWIN*)
       local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*c/@@' -e 's@/.*$@@'`;;
     *)
       local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`;;
@@ -7713,8 +7714,8 @@ EOF
 
 # Directory on jenkins server where abstracts gets copied to (ABSTRACT_ROOTDIR)
 # is set outside this function, but we append to it for the case when we define
-# a special install directory (which is the case for the test branches and 
-# release builds. 
+# a special install directory (which is the case for the test branches and
+# release builds.
     if test -n "$FIXED_INSTALL_SUBDIR"; then
       ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${FIXED_INSTALL_SUBDIR}
     fi

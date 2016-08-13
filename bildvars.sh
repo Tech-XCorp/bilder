@@ -110,7 +110,7 @@ case `uname` in
     LIBEXT=.lib
     unset LIBPREFIX
     techo "Getting number of cores."
-    MAKEJ_TOTAL=${NUMBER_OF_PROCESSORS}
+    NUM_PHYS_CORES=${NUMBER_OF_PROCESSORS}
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
@@ -169,9 +169,9 @@ case `uname` in
     SYSTEM_LAPACK_SER_LIB="-framework Accelerate"
     LIBEXT=.a
     LIBPREFIX=lib
-    if ! MAKEJ_TOTAL=`hwprefs cpu_count 2>/dev/null`; then
-      # MAKEJ_TOTAL=`sysctl -n hw.ncpu`
-      MAKEJ_TOTAL=`sysctl -n hw.physicalcpu`
+    NUM_LOG_CORES=`sysctl -n hw.logicalcpu`
+    if ! NUM_PHYS_CORES=`hwprefs cpu_count 2>/dev/null`; then
+      NUM_PHYS_CORES=`sysctl -n hw.physicalcpu`
     fi
     OSVER=`uname -r`
 # On Darwin, jenkins is not getting /usr/local/bin or /opt/homebrew/bin
@@ -236,7 +236,10 @@ case `uname` in
     GLIBC_VERSION=`ldd --version | head -1 | sed 's/^.* //'`
     LIBEXT=.a
     LIBPREFIX=lib
-    MAKEJ_TOTAL=`grep ^processor /proc/cpuinfo | wc -l`
+    NUM_LOG_CORES=`grep ^processor /proc/cpuinfo | wc -l`
+    NUM_PHYS_CPUS=`grep "physical id" /proc/cpuinfo | sort -u | wc -l`
+    NUM_PHYS_CORES_PER_CPU=`grep "cpu cores" /proc/cpuinfo | head -1 | sed 's/^.* //'`
+    NUM_PHYS_CORES=`expr $NUM_PHYS_CPUS \* $NUM_PHYS_CORES_PER_CPU`
     case `uname -m` in
       x86_64)
 # CMAKE_LIBRARY_PATH_ARG is needed by cmake on ubuntu, where libraries
@@ -269,7 +272,9 @@ case `uname` in
     ;;
 
 esac
-techo "Found $MAKEJ_TOTAL cores."
+techo "Found $NUM_LOG_CORES logical cores."
+techo "Found $NUM_PHYS_CORES physical cores."
+MAKEJ_TOTAL=$NUM_PHYS_CORES
 IS_MINGW=${IS_MINGW:-"false"}
 
 ######################################################################
@@ -785,7 +790,7 @@ compvars="FORPYTHON_STATIC_BUILD FORPYTHON_SHARED_BUILD USE_MPI MPI_BUILD CONFIG
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS CUDA_ALL_COMPUTE_CAPABILITIES"
 testvars="BILDER_CTEST_MODEL"
-mkjvars="MAKEJ_TOTAL MAKEJ_DEFVAL"
+mkjvars="NUM_PHYS_CORES NUM_LOG_CORES MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="GLIBC_VERSION LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
 othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
