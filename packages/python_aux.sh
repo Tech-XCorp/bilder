@@ -38,7 +38,7 @@ setPythonTriggerVars() {
     PYTHON_REPO_BRANCH_STD=mastertxc
 # Where we develop fixes.  We rebase against mastertxc.
     PYTHON_REPO_BRANCH_EXP=develop
-    PYTHON_UPSTREAM_URL=https://github.com/davidsansome/python-cmake-buildsystem.git
+    PYTHON_UPSTREAM_URL=https://github.com/python-cmake-buildsystem/python-cmake-buildsystem.git
     PYTHON_UPSTREAM_BRANCH_STD=master
     PYTHON_UPSTREAM_BRANCH_EXP=master
 # Do not create installer in this case, as it is not yet working.
