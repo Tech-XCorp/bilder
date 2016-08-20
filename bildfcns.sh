@@ -407,6 +407,21 @@ bilderSvnversion() {
 }
 
 #
+# echo the number of physical cores
+#
+getNumPhysCores() {
+  case `uname` in
+    CYGWIN*) echo ${NUMBER_OF_PROCESSORS};;
+    Darwin) sysctl -n hw.physicalcpu;;
+    Linux)
+      NUM_PHYS_CPUS=`grep "physical id" /proc/cpuinfo | sort -u | wc -l`
+      NUM_PHYS_CORES_PER_CPU=`grep "cpu cores" /proc/cpuinfo | head -1 | sed 's/^.* //'`
+      expr $NUM_PHYS_CPUS \* $NUM_PHYS_CORES_PER_CPU
+      ;;
+  esac
+}
+
+#
 # Get the maker depending on system and build system
 #
 # Args:
