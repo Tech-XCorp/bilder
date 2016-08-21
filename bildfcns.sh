@@ -895,11 +895,33 @@ addVals() {
 # 2: The directory to add
 # 3: If "after" add after, otherwise before
 #
+# Named args
+# -e path must exist
+#
 addtopathvar() {
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  local mustexist=false
+  while getopts "e" arg; do
+    case "$arg" in
+      e) mustexist=true;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
 # Determine the separator
   local sep=":"
   local addpathcand="$2"
   local addpath=
+
+# Look for path if required
+  if $mustexist && ! test -d $addpathcand; then
+    return
+  fi
+
 # Find absolute, resolved path, if it exists
   case `uname`-$1 in
     *-PATH)  # cygwin converts PATH and uses colon
