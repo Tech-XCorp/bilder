@@ -117,7 +117,7 @@ buildNimdevel() {
       # Check the contrib and install directories but do not include python files, 
       # the awk statement puts everything on one line, an the sed statement trims 
       # down to the first acceptable file.
-      TAU_MAKEFILE=`ls -m --hide=python /{${CONTRIB_DIR},${BLDR_INSTALL_DIR}}/tau/lib/Makefile.tau* 2> /dev/null |  awk '{ ORS="|"; print; }' | sed 's/,.*//'`
+      TAU_MAKEFILE=`ls -m --hide=python /{${CONTRIB_DIR},${BLDR_INSTALL_DIR}}/tau/lib/Makefile.tau* 2> /dev/null |  awk '{ ORS=" "; print; }' | sed 's/,.*//'`
     fi
     if test -a $TAU_MAKEFILE; then
       techo "Using tau makefile ${TAU_MAKEFILE}"
@@ -184,5 +184,6 @@ installNimdevel() {
 
   addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/bin
   addtopathvar PATH $BLDR_INSTALL_DIR/$nimversion/scripts
+  addtopathvar PYTHONPATH $BLDR_INSTALL_DIR/$nimversion/scripts
 }
 

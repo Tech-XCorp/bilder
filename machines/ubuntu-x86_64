@@ -59,8 +59,8 @@ MPIF77=${MPIF77:-"mpif77"}
 # pic flags are added later
 
 # Serial
-# CFLAGS=${CFLAGS:-""}
-# CXXFLAGS=${CXXFLAGS:-""}
+CFLAGS=${CFLAGS:-"-Wno-format-security"}
+CXXFLAGS=${CXXFLAGS:-"-Wno-format-security"}
 # FCFLAGS=${FCFLAGS:-""}
 # FFLAGS=${FFLAGS:-""}
 
@@ -490,7 +490,7 @@ GRIN_SER_OTHER_ARGS=${GRIN_SER_OTHER_ARGS:-"-DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl
 
 # METATAU_BLDRVERSION=${METATAU_BLDRVERSION:-""}
 # METATAU_BUILDS=${METATAU_BUILDS:-""}
-METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=x86_64 -mpi -mpilib=/usr/lib/mpich2/lib -mpiinc=/usr/include/mpich2 -mpilibrary=-lmpich#-lmpl -pdt_c++=g++"}
+METATAU_PAR_OTHER_ARGS=${METATAU_PAR_OTHER_ARGS:-"-arch=x86_64 -mpi -mpilib=/usr/lib -mpiinc=/usr/include/mpich -mpilibrary=-lmpich#-lmpl -pdt_c++=g++"}
 
 # METIS_BLDRVERSION=${METIS_BLDRVERSION:-""}
 # METIS_BUILDS=${METIS_BUILDS:-""}

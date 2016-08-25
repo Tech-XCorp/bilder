@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for pyside
+# Version and build information for whoosh
 #
 # $Id$
 #
@@ -8,61 +8,58 @@
 
 ######################################################################
 #
-# Trigger variables set in pyside_aux.sh
+# Version
 #
 ######################################################################
 
-mydir=`dirname $BASH_SOURCE`
-source $mydir/pyside_aux.sh
+WHOOSH_BLDRVERSION_STD=${WHOOSH_BLDRVERSION_STD:-"2.7.4"}
+WHOOSH_BLDRVERSION=${WHOOSH_BLDRVERSION_STD:-"2.7.4"}
 
 ######################################################################
 #
-# Set variables that should trigger a rebuild, but which by value change
-# here do not, so that build gets triggered by change of this file.
-# E.g: mask
+# Builds and deps
 #
 ######################################################################
 
-setPySideNonTriggerVars() {
-  PYSIDE_UMASK=002
-}
-setPySideNonTriggerVars
+WHOOSH_BUILDS=${WHOOSH_BUILDS:-"pycsh"}
+WHOOSH_DEPS=
 
 ######################################################################
 #
-# Launch pyside builds.
+# Launch whoosh builds.
 #
 ######################################################################
 
-buildPySide() {
-
-  if ! bilderUnpack PySide; then
-    return 1
+buildWhoosh() {
+  if ! bilderUnpack whoosh; then
+W   return
   fi
-
-# Build
-  bilderDuBuild -p pyside PySide "" "$DISTUTILS_ENV"
-
+  bilderDuBuild whoosh "$WHOOSH_ARGS" "$WHOOSH_ENV"
 }
 
 ######################################################################
 #
-# Test pyside
+# Test whoosh
 #
 ######################################################################
 
-testPySide() {
-  techo "Not testing pyside."
+testWhoosh() {
+  techo "Not testing whoosh."
 }
 
 ######################################################################
 #
-# Install pyside
+# Install whoosh
 #
 ######################################################################
 
-installPySide() {
-  local PYSIDE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pyside.files'"
-  bilderDuInstall -r PySide -p pyside PySide "$PYSIDE_INSTALL_ARGS" "$DISTUTILS_ENV"
+installWhoosh() {
+  case `uname` in
+    CYGWIN*)
+      bilderDuInstall -n whoosh "$WHOOSH_ARGS" "$WHOOSH_ENV"
+      ;;
+    *)
+      bilderDuInstall -r whoosh whoosh "$WHOOSH_ARGS" "$WHOOSH_ENV"
+      ;;
+  esac
 }
-

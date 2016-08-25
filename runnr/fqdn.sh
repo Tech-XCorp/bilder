@@ -23,11 +23,15 @@ bilderFqdn() {
   if ! fqdn=`hostname -f 2>/dev/null`; then
     fqdn=`hostname`
   fi
+# strip digits at the end of node names (e.g. at NERSC)
+  fqdnstrip=`echo $fqdn | sed 's/[0-9].//'`
 # If that is unqualified, try host.
   if ! [[ $fqdn =~ \. ]]; then
     # fqtmp=`host $fqdn | sed 's/ .*$//'`
     # if test $fqtmp = Host; then # At place that does not give fqdn
     if fqtmp=`host $fqdn | grep "has address"`; then
+      fqdn=`echo $fqtmp | sed -e 's/ .*$//'`
+    elif fqtmp=`host $fqdnstrip | grep "has address"`; then
       fqdn=`echo $fqtmp | sed -e 's/ .*$//'`
     elif host $fqdn | grep -q "not found"; then
       echo "$fqdn not found by host."

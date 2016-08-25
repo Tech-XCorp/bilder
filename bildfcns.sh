@@ -407,6 +407,21 @@ bilderSvnversion() {
 }
 
 #
+# echo the number of physical cores
+#
+getNumPhysCores() {
+  case `uname` in
+    CYGWIN*) echo ${NUMBER_OF_PROCESSORS};;
+    Darwin) sysctl -n hw.physicalcpu;;
+    Linux)
+      NUM_PHYS_CPUS=`grep "physical id" /proc/cpuinfo | sort -u | wc -l`
+      NUM_PHYS_CORES_PER_CPU=`grep "cpu cores" /proc/cpuinfo | head -1 | sed 's/^.* //'`
+      expr $NUM_PHYS_CPUS \* $NUM_PHYS_CORES_PER_CPU
+      ;;
+  esac
+}
+
+#
 # Get the maker depending on system and build system
 #
 # Args:
@@ -490,7 +505,7 @@ addDefaultCompFlags() {
         ;;
       icpc*)
         eval ${pre}PIC_FLAG=-fPIC
-        eval ${pre}PIPE_FLAG=-pipe
+        eval ${pre}PIPE_FLAG=""
         eval ${pre}O3_FLAG='-O3'
         ;;
       mingw*)
@@ -880,11 +895,33 @@ addVals() {
 # 2: The directory to add
 # 3: If "after" add after, otherwise before
 #
+# Named args
+# -e path must exist
+#
 addtopathvar() {
+
+# Parse options
+# This syntax is needed to keep parameters quoted
+  set -- "$@"
+  OPTIND=1
+  local mustexist=false
+  while getopts "e" arg; do
+    case "$arg" in
+      e) mustexist=true;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
 # Determine the separator
   local sep=":"
   local addpathcand="$2"
   local addpath=
+
+# Look for path if required
+  if $mustexist && ! test -d $addpathcand; then
+    return
+  fi
+
 # Find absolute, resolved path, if it exists
   case `uname`-$1 in
     *-PATH)  # cygwin converts PATH and uses colon
@@ -2210,7 +2247,7 @@ getPkgRepos() {
       svn)
         if test -d ${PACKAGE_REPO_DIRS[$i]}/.svn; then
           techo "${PACKAGE_REPO_DIRS[$i]} is already an svn checkout.  Not checking out again."
-        else
+        elif $SVNUP_PKGS; then
           bilderSvn co "--non-interactive --depth=empty ${PACKAGE_REPO_URLS[$i]} ${PACKAGE_REPO_DIRS[$i]}"
         fi
         ;;
@@ -5226,30 +5263,6 @@ bilderTest() {
   local buildsval=`deref $buildsvar`
   local testedBuilds=
 
-#SEK: Not sure what Travis was doing here.  He copied form runTests but
-#SEK   not relevant for this case?
-#SEK Remove ignored builds
-#SEK  for bld in `echo $buildsval | tr ',' ' '`; do
-#SEK    if echo $ignoreBuilds | egrep -qv "(^|,)$bld($|,)"; then
-#SEK      testedBuilds=$testedBuilds,$bld
-#SEK    fi
-#SEK  done
-#SEK  trimvar testedBuilds ','
-#SEK  techo "Checking on tested builds '$testedBuilds' of $pkgname."
-#SEK
-#SEK# Wait on all builds, see if any tested build failed
-#SEK  local tbFailures=
-#SEK  for i in `echo $testedBuilds | tr ',' ' '`; do
-#SEK    cmd="waitAction $pkgname-$i"
-#SEK    techo -2 "$cmd"
-#SEK    $cmd
-#SEK    res=$?
-#SEK    if test $res != 0 && echo $i | egrep -qv "(^|,)$I($|,)"; then
-#SEK      tbFailures="$tbFailures $i"
-#SEK    fi
-#SEK  done
-#SEK  trimvar tbFailures ' '
-
 # Wait for build to complete
 
   cmd="waitAction $1-$2"
@@ -5694,9 +5707,9 @@ bilderRunTests() {
     submitres=false
   fi
 
-# Wait on all builds, see if any tested build failed.
-# For those not failed, launch tests in build dir if asked.
-  local tbFailures=
+# Wait on all builds, see if any tested, non-ignored build failed.
+# For those not failed and not ignored, launch tests in build dir if asked.
+  local nonIgnoredTbFailures=
   local builddirtests=
   local cmd=
   for bld in `echo $buildsval | tr ',' ' '`; do
@@ -5718,13 +5731,20 @@ bilderRunTests() {
       techo "$pkgname-$bld was not built.  Not testing."
       untestedBuildReason="it was not built."
       continue
-    elif test "$res" != 0; then
-      techo "$pkgname-$bld failed to build."
-      tbFailures="$tbFailures $bld"
-      continue
-    elif test -z "$res"; then
-      techo "WARNING: [$FUNCNAME] waitAction returned no result."
-      tbFailures="$tbFailures $bld"
+    elif test "$res" != 0 -o -z "$res"; then
+      techo -2 "Build, $bld, failed."
+      if echo $ignoreBuilds | egrep -q "(^|,)$bld($|,)"; then
+        techo -2 "$bld found in ignoreBuilds.  Run tests anyway."
+      else
+        techo -2 "$bld not found in ignoreBuilds.  Do not run tests."
+        nonIgnoredTbFailures="$nonIgnoredTbFailures $bld"
+      fi
+      if test "$res" != 0; then
+        techo "$pkgname-$bld failed to build."
+        continue
+      elif test -z "$res"; then
+        techo "WARNING: [$FUNCNAME] waitAction returned no result."
+      fi
     fi
 
 # Determine whether this build is ignored
@@ -5806,13 +5826,13 @@ EOF
       addActionToLists $1-$bld-test $pid
     fi
   done
-  trimvar tbFailures ' '
+  trimvar nonIgnoredTbFailures ' '
+  techo -2 "nonIgnoredTbFailures = $nonIgnoredTbFailures."
 
 # Collect results of tests in build dirs
   local tstFailures=
   if $hasbuildtests && test -n "$builddirtests"; then
     techo "All build directory tests launched."
-    # for bld in `echo $testedBuilds | tr ',' ' '`; do
     for bld in $builddirtests; do
 # Get individual build test results
       cmd="waitAction -t b $pkgname-$bld-test"
@@ -5875,8 +5895,8 @@ EOF
     techo "Test package file $tstsname.sh not found."
   fi
 
-  if test -n "$tbFailures"; then
-    techo "Not calling build$2 for $pkgname because one or more tested builds ($tbFailures) not built."
+  if test -n "$nonIgnoredTbFailures"; then
+    techo "Not calling build$2 for $pkgname because one or more tested, nonignored builds ($nonIgnoredTbFailures) not built."
     return
   fi
   if test ! $testingval; then
@@ -6679,7 +6699,7 @@ EOF
               fi
               ;;
             Darwin)
-              endings="-MacLion.dmg -MacMountainLion.dmg -MacMavericks.dmg -MacLion-gpu.dmg -MacMountainLion-gpu.dmg -MacYosemite.dmg -Mac.dmg"
+              endings="-MacOSX.dmg"
               sfx=dmg
               ;;
             Linux)
@@ -7132,7 +7152,7 @@ EOF
 #
 bilderDuInstall() {
 
-  techo -2 "bilderDuInstall called with '$*'."
+  techo -2 "bilderDuInstall called with \"$*\"."
 
 # Default option values
   local dupkg=
@@ -7473,11 +7493,12 @@ EOF
   techo "  Bilder creating abstract $ABSTRACT."
   techo "======================================"
   rmall $ABSTRACT
-  
+
   case `uname` in
-    #in CYGWIN, we use a windows shortlink where pwd -P still returns the shortpath
-    #so we sed the short path for the directory under c, which should be the jenkins project name    
-    CYGWIN*) 
+# In CYGWIN, we use a windows shortlink where pwd -P still returns the
+# shortpath, so we sed the short path for the directory under c, which
+# should be the jenkins project name.
+    CYGWIN*)
       local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*c/@@' -e 's@/.*$@@'`;;
     *)
       local jenkinsProj=`echo $(cd $BUILD_DIR; pwd -P) | sed -e 's@.*workspace/@@' -e 's@/.*$@@'`;;
@@ -7581,7 +7602,7 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
+        for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
             numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
@@ -7730,8 +7751,8 @@ EOF
 
 # Directory on jenkins server where abstracts gets copied to (ABSTRACT_ROOTDIR)
 # is set outside this function, but we append to it for the case when we define
-# a special install directory (which is the case for the test branches and 
-# release builds. 
+# a special install directory (which is the case for the test branches and
+# release builds.
     if test -n "$FIXED_INSTALL_SUBDIR"; then
       ABSTRACT_ROOTDIR=${ABSTRACT_ROOTDIR}-${FIXED_INSTALL_SUBDIR}
     fi

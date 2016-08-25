@@ -19,10 +19,16 @@ getFreecadTriggerVars() {
   FREECAD_BLDRVERSION=${FREECAD_BLDRVERSION:-"0.13.5443"}
   FREECAD_BUILDS=${FREECAD_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   FREECAD_BUILD=$FORPYTHON_SHARED_BUILD
-  FREECAD_DEPS=pyside,shiboken,soqt,coin,pyqt,xercesc,eigen3,oce,boost,f2c
+  FREECAD_DEPS=${FREECAD_DEPS:-"pivy,coin,xercesc,pyside,qt,oce,eigen3,boost"}
+# is installed by homebrew
+# nglib is installed by homebrew
+# boost-python: just install boost with python?
+# coin installed --without-soqt
+# pyside-tools?
+# freetype installed by home brew
   FREECAD_UMASK=002
-  FREECAD_REPO_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
-  FREECAD_UPSTREAM_URL=git://free-cad.git.sourceforge.net/gitroot/free-cad/free-cad
+  FREECAD_REPO_URL=https://github.com/FreeCAD/FreeCAD_sf_master.git
+  FREECAD_UPSTREAM_URL=https://github.com/FreeCAD/FreeCAD_sf_master.git
   FREECAD_WEBSITE_URL=http://www.freecadweb.org/
 }
 getFreecadTriggerVars

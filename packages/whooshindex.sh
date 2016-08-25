@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for pyside
+# Version and build information for whooshindex
 #
 # $Id$
 #
@@ -8,61 +8,58 @@
 
 ######################################################################
 #
-# Trigger variables set in pyside_aux.sh
+# Version
 #
 ######################################################################
 
-mydir=`dirname $BASH_SOURCE`
-source $mydir/pyside_aux.sh
+WHOOSHINDEX_BLDRVERSION_STD=${WHOOSHINDEX_BLDRVERSION_STD:-"0.1"}
+WHOOSHINDEX_BLDRVERSION=${WHOOSHINDEX_BLDRVERSION_STD:-"0.1"}
 
 ######################################################################
 #
-# Set variables that should trigger a rebuild, but which by value change
-# here do not, so that build gets triggered by change of this file.
-# E.g: mask
+# Builds and deps
 #
 ######################################################################
 
-setPySideNonTriggerVars() {
-  PYSIDE_UMASK=002
-}
-setPySideNonTriggerVars
+WHOOSHINDEX_BUILDS=${WHOOSHINDEX_BUILDS:-"pycsh"}
+WHOOSHINDEX_DEPS=whoosh,sphinx
 
 ######################################################################
 #
-# Launch pyside builds.
+# Launch whoosh builds.
 #
 ######################################################################
 
-buildPySide() {
-
-  if ! bilderUnpack PySide; then
-    return 1
+buildWhooshindex() {
+  if ! bilderUnpack whooshindex; then
+W   return
   fi
-
-# Build
-  bilderDuBuild -p pyside PySide "" "$DISTUTILS_ENV"
-
+  bilderDuBuild whooshindex "$WHOOSHINDEX_ARGS" "$WHOOSHINDEX_ENV"
 }
 
 ######################################################################
 #
-# Test pyside
+# Test whooshindex
 #
 ######################################################################
 
-testPySide() {
-  techo "Not testing pyside."
+testWhooshindex() {
+  techo "Not testing whooshindex."
 }
 
 ######################################################################
 #
-# Install pyside
+# Install whooshindex
 #
 ######################################################################
 
-installPySide() {
-  local PYSIDE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pyside.files'"
-  bilderDuInstall -r PySide -p pyside PySide "$PYSIDE_INSTALL_ARGS" "$DISTUTILS_ENV"
+installWhooshindex() {
+  case `uname` in
+    CYGWIN*)
+      bilderDuInstall -n whooshindex "$WHOOSHINDEX_ARGS" "$WHOOSHINDEX_ENV"
+      ;;
+    *)
+      bilderDuInstall -r whooshindex whooshindex "$WHOOSHINDEX_ARGS" "$WHOOSHINDEX_ENV"
+      ;;
+  esac
 }
-

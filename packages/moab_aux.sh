@@ -22,20 +22,26 @@ setMoabTriggerVars() {
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH_STD=master
   MOAB_UPSTREAM_BRANCH_EXP=master
+
 # Using cmake? Eventually, need to get rid of autotools.
   if test -z "$MOAB_USE_CMAKE"; then
     if [[ `uname` =~ CYGWIN ]]; then
       MOAB_USE_CMAKE=true
     fi
-    MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
   fi
+  MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
+
+# Determine Moab builds
   if test -z "$MOAB_BUILD_SET"; then
     MOAB_BUILD_SET=fullForPython
-  fi;
+  fi
   if test -z "$MOAB_DESIRED_BUILDS"; then
+# full depends on oce, cgm, but not on trilinos.  Can be used for composers.
     if [[ $MOAB_BUILD_SET = full ]]; then
       MOAB_DESIRED_BUILDS=ser
     elif [[ $MOAB_BUILD_SET = fullForPython ]]; then
+# full depends on oce, cgm, but not on trilinos.  Uses the compiler that
+# compiled python.
 # Static serial and parallel builds needed for ulixes
       MOAB_DESIRED_BUILDS=ser,${FORPYTHON_STATIC_BUILD}
 # Python shared build needed for composers
@@ -65,7 +71,10 @@ setMoabTriggerVars() {
       fi
     fi
   fi
+  echo "Next, MOAB_DESIRED_BUILDS = $MOAB_DESIRED_BUILDS"
   computeBuilds moab
+
+# Determine moab deps
   MOAB_DEPS=netcdf,boost
   if echo "$MOAB_USE_CMAKE" | grep -q "true"; then
     MOAB_DEPS=$MOAB_DEPS,cmake
@@ -81,6 +90,7 @@ setMoabTriggerVars() {
   if echo "$MOAB_BUILDS" | grep -q "par"; then
     MOAB_DEPS=$MOAB_DEPS,trilinosrepo
   fi
+
 }
 setMoabTriggerVars
 

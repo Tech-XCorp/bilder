@@ -49,7 +49,7 @@ findLibpng() {
 
 # Look for libpng in contrib
   if test -z "$LIBPNG_PYCSH_DIR"; then
-    findPackage Libpng png "$CONTRIB_DIR" pycsh sersh
+    findPackage Libpng libpng "$CONTRIB_DIR" pycsh sersh
     findPycshDir Libpng
   fi
 
@@ -76,10 +76,11 @@ findLibpng() {
 ######################################################################
 
 setLibpngTriggerVars() {
-  LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.5.7"}
+  LIBPNG_BLDRVERSION=${LIBPNG_BLDRVERSION:-"1.6.21"}
   case `uname` in
     CYGWIN*)
 # Only attempt to build on Windows. Must be installed elsewhere.
+# sersh also builds sermd
       LIBPNG_DESIRED_BUILDS=${LIBPNG_DESIRED_BUILDS:-"sersh"}
       ;;
   esac

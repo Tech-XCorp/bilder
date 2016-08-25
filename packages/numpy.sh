@@ -170,14 +170,16 @@ buildNumpy() {
 # With the new setuptools, package managers that want to manage the
 # installations need the following arguments.  Otherwise, the installation
 # is inside an egg, and the regular python path does not work.
-# At the moment, the below fixes windows but not darwin/linux.
+# Doing this on CYGWIN and Darwin.
+# Ivy build indicates need to do this on Linux
   if [[ $NUMPY_BLDRVERSION =~ 1.1[0-9] ]]; then
     case `uname` in
-      CYGWIN*)
+      CYGWIN* | Darwin | Linux)
         NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
         ;;
     esac
   fi
+
 # For Cygwin, build, install, and make packages all at once, with
 # the latter if not building from a repo, as controlled by BDIST_WININST_ARG.
 # For others, just build.

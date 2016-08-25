@@ -17,7 +17,7 @@
 
 setMatplotlibTriggerVars() {
   MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.4.3"}
-  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.4.3"}
+  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.5.1"}
   MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
 # Dependencies listed in matplotlib-1.4.3-py2.7.egg-info/requires.txt
   MATPLOTLIB_DEPS=numpy,libpng,freetype,Python
@@ -26,6 +26,9 @@ setMatplotlibTriggerVars() {
   MATPLOTLIB_DEPS=markupsafe,pbr,$MATPLOTLIB_DEPS
   case `uname` in
     Darwin) ;;
+# The requirement of pyqt on Linux is causing long build times
+# Perhaps this should be done only optionally
+    Linux) ;;
     *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
   esac
 }

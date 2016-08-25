@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for shiboken
+# Build information for ndiff
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in shiboken_aux.sh
+# Trigger variables set in ndiff_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/shiboken_aux.sh
+source $mydir/ndiff_aux.sh
 
 ######################################################################
 #
@@ -23,47 +23,55 @@ source $mydir/shiboken_aux.sh
 #
 ######################################################################
 
-setShibokenNonTriggerVars() {
-  SHIBOKEN_UMASK=002
+setNdiffNonTriggerVars() {
+  NDIFF_UMASK=002
 }
-setShibokenNonTriggerVars
+setNdiffNonTriggerVars
 
 ######################################################################
 #
-# Launch shiboken builds.
+# Launch ndiff builds.
 #
 ######################################################################
 
-buildShiboken() {
+buildNdiff() {
 
-# Get version, see about installing
-  if ! bilderUnpack Shiboken; then
-    return
+# Unpack
+  if ! bilderUnpack ndiff; then
+    return 1
   fi
 
-# Build
-  bilderDuBuild -p shiboken Shiboken "" "$DISTUTILS_ENV"
+  techo "NDIFF_BLDRVERSION = $NDIFF_BLDRVERSION."
+
+#  if bilderConfig -g -i -B ser ndiff ser "" "ndiff" "$NDIFF_SER_ENV"; then
+  if bilderConfig -g -i -B pycsh ndiff pycsh "" "ndiff" "$NDIFF_PYCSH_ENV"; then
+    bilderBuild ndiff pycsh "" "TARGET_ARCH=''"
+  fi
 
 }
 
 ######################################################################
 #
-# Test shiboken
+# Test ndiff
 #
 ######################################################################
 
-testShiboken() {
-  techo "Not testing shiboken."
+testNdiff() {
+  techo "Not testing ndiff."
 }
 
 ######################################################################
 #
-# Install shiboken
+# Install ndiff
 #
 ######################################################################
 
-installShiboken() {
-  local SHIBOKEN_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/shiboken.files'"
-  bilderDuInstall -r Shiboken -p shiboken Shiboken "$SHIBOKEN_INSTALL_ARGS" "$DISTUTILS_ENV"
+# Set umask to allow only group to use
+installNdiff() {
+  mkdir -p $CONTRIB_DIR/ndiff
+  mkdir -p $CONTRIB_DIR/ndiff/bin
+  mkdir -p $CONTRIB_DIR/ndiff/man
+  mkdir -p $CONTRIB_DIR/ndiff/man/man1
+  bilderInstall -L ndiff pycsh
 }
 

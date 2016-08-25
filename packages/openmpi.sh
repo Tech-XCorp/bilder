@@ -98,7 +98,11 @@ EOF
         Darwin-1[34].*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
         Darwin-*) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
 # make -j2 failed on one Centos 6.3 machonewithout --disable-vt, succeeded with
-        Linux) ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags";;
+        Linux-*)
+          ompimakeflags="$OPENMPI_MAKEJ_ARGS $ompimakeflags"
+          OPENMPI_NODL_ENV="LD_RUN_PATH=$CONTRIB_DIR/openmpi-${OPENMPI_BLDRVERSION}-nodl/lib"
+          OPENMPI_SHARED_ENV="LD_RUN_PATH=$CONTRIB_DIR/openmpi-${OPENMPI_BLDRVERSION}-shared/lib"
+          ;;
       esac
       ;;
     *)
@@ -116,23 +120,20 @@ EOF
   if test -n "$FCFLAGS"; then
     ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
   fi
-  if test -n "$LD_LIBRARY_PATH"; then
-    ompenv="LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-  fi
 
 #
 # The builds
 #
 
-  if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS" "" "$ompenv"; then
+  if bilderConfig openmpi nodl "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_NODL_ADDL_ARGS $OPENMPI_NODL_OTHER_ARGS" "" "$OPENMPI_NODL_ENV"; then
     bilderBuild openmpi nodl "$ompimakeflags" "$ompenv"
   fi
 
-  if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS" "" "$ompenv"; then
+  if bilderConfig openmpi static "$CONFIG_COMPILERS_SER $ompcompflags --enable-static --disable-shared --with-pic --disable-dlopen --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_STATIC_ADDL_ARGS $OPENMPI_STATIC_OTHER_ARGS" "" "$OPENMPI_STATIC_ENV"; then
     bilderBuild openmpi static "$ompimakeflags" "$ompenv"
   fi
 
-  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS" "" "$ompenv"; then
+  if bilderConfig openmpi shared "$CONFIG_COMPILERS_SER $ompcompflags --enable-shared --disable-static --with-pic --enable-mpirun-prefix-by-default $OPENMPI_VALGRIND_ARG $OPENMPI_SHARED_ADDL_ARGS $OPENMPI_SHARED_OTHER_ARGS" "" "$OPENMPI_SHARED_ENV"; then
     bilderBuild openmpi shared "$ompimakeflags" "$ompenv"
   fi
 

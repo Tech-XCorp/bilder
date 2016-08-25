@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for shiboken
+# Build information for eigen
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in shiboken_aux.sh
+# Trigger variables set in eigen_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/shiboken_aux.sh
+source $mydir/eigen_aux.sh
 
 ######################################################################
 #
@@ -23,47 +23,62 @@ source $mydir/shiboken_aux.sh
 #
 ######################################################################
 
-setShibokenNonTriggerVars() {
-  SHIBOKEN_UMASK=002
+setEigenNonTriggerVars() {
+  EIGEN_UMASK=002
 }
-setShibokenNonTriggerVars
+setEigenNonTriggerVars
 
 ######################################################################
 #
-# Launch shiboken builds.
+# Add to paths
 #
 ######################################################################
 
-buildShiboken() {
+addtopathvar PATH $CONTRIB_DIR/eigen/bin
 
-# Get version, see about installing
-  if ! bilderUnpack Shiboken; then
+######################################################################
+#
+# Launch eigen builds.
+#
+######################################################################
+
+buildEigen() {
+
+# If worked, preigened to configure and build
+  if ! bilderUnpack eigen; then
     return
   fi
 
-# Build
-  bilderDuBuild -p shiboken Shiboken "" "$DISTUTILS_ENV"
+# This makes eigen configure/installs more robust as it's
+# not strictly needed.  Had it installing into cuda for some reason
+  EIGEN_OTHER_ARGS="-DEIGEN_BUILD_PKGCONFIG:BOOL=FALSE ${EIGEN_OTHER_ARGS}"
+# Configure and build
+  if bilderConfig eigen ser "$EIGEN_OTHER_ARGS"; then
+    bilderBuild eigen ser "$EIGEN_MAKEJ_ARGS"
+  fi
 
 }
 
 ######################################################################
 #
-# Test shiboken
+# Test eigen
 #
 ######################################################################
 
-testShiboken() {
-  techo "Not testing shiboken."
+testEigen() {
+  techo "Not testing eigen."
 }
 
 ######################################################################
 #
-# Install shiboken
+# Install eigen
 #
 ######################################################################
 
-installShiboken() {
-  local SHIBOKEN_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/shiboken.files'"
-  bilderDuInstall -r Shiboken -p shiboken Shiboken "$SHIBOKEN_INSTALL_ARGS" "$DISTUTILS_ENV"
+installEigen() {
+  if bilderInstall eigen ser; then
+    : # Probably need to fix up dylibs here
+  fi
+  # techo "WARNING: Quitting at end of eigen.sh."; cleanup
 }
 
