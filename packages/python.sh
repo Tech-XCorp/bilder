@@ -149,6 +149,7 @@ installPython() {
   local pydir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
+
       Linux)
 # Fix rpath if known how
         if declare -f bilderFixRpath 1>/dev/null 2>&1; then
@@ -160,6 +161,7 @@ installPython() {
         rm -f $CONTRIB_DIR/bin/python.bak
         rm -f $pybindir/python $pybindir/python.bak
         ;;
+
     esac
   else
     case `uname` in
