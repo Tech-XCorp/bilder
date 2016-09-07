@@ -47,6 +47,7 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE \
                   -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE \
+                  -DBoost_NO_BOOST_CMAKE:BOOL=TRUE \
                   -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost-sersh"
 
 techo " "
