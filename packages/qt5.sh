@@ -69,15 +69,17 @@ buildQt5() {
       ;;
 
     Darwin)
+        
 # jpeg present, but qt5 cannot find headers
-      if echo $CXXFLAGS | grep -q stdlib=libc++; then
-        QT5_ADDL_ARGS="$QT5_ADDL_ARGS -platform unsupported/macx-clang-libc++"
-      else
-        QT5_ADDL_ARGS="$QT5_ADDL_ARGS -platform macx-g++"
-      fi
+#      if echo $CXXFLAGS | grep -q stdlib=libc++; then
+#        QT5_ADDL_ARGS="$QT5_ADDL_ARGS -platform unsupported/macx-clang-libc++"
+#      else
+#        QT5_ADDL_ARGS="$QT5_ADDL_ARGS -platform macx-g++"
+#      fi
+      
       case `uname -r` in
         13.*)
-# This will need to be clang
+      # This will need to be clang
           ;;
         1[0-2].*)
           case `uname -m` in
@@ -89,7 +91,7 @@ buildQt5() {
         5.*) ;;
         *) QT5_ADDL_ARGS="$QT5_ADDL_ARGS -cocoa";;
       esac
-      QT5_ADDL_ARGS="$QT5_ADDL_ARGS -no-gif -qt5-libpng"
+      QT5_ADDL_ARGS="$QT5_ADDL_ARGS -no-gif -qt-libpng"
       ;;
 
     Linux)
@@ -185,7 +187,7 @@ buildQt5() {
       if grep -q 'union *_GMutex' $incdir/glib/gthread.h; then
         techo "Adjusting Qt5 for change in gthread.h."
         local qt5gtypedefs=$BUILD_DIR/qt5-$QT5_BLDRVERSION/$QT5_BUILD/src/3rdparty/webkit/Source/JavaScriptCore/wtf/gobject/GTypedefs.h
-        cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qt5gtypedefs"
+        cmd="sed -i.bak 's/struct _GMutex/union _GMutex/' $qtgtypedefs"
         techo "$cmd"
         eval "$cmd"
       fi
@@ -223,7 +225,9 @@ buildQt5() {
 # Restore dbus and xmlpatterns or get wrong one
   local otherargsvar=`genbashvar QT5_${QT5_BUILD}`_OTHER_ARGS
   local otherargsval=`deref ${otherargsvar}`
-  if bilderConfig -i qt5 $QT5_BUILD "$QT5_ADDL_ARGS $QT5_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $otherargsval" "" "$QT5_ENV"; then
+#  if bilderConfig -i qt5 $QT5_BUILD "$QT5_ADDL_ARGS $QT5_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $otherargsval" "" "$QT5_ENV"; then
+  if bilderConfig -i qt5 $QT5_BUILD "$QT5_ADDL_ARGS $QT5_VERSION_ARGS -confirm-license -make libs -make tools -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -nomake examples $otherargsval" "" "$QT5_ENV"; then
+      
 # Make clean seems to hang
     bilderBuild -k qt5 $QT5_BUILD "$QT5_MAKEJ_USEARGS" "$QT5_ENV"
   else
@@ -264,7 +268,7 @@ fixQt5Install() {
 # (Seems not to do this on an overinstallation?)
   case `uname` in
     Darwin)
-      local badnode="$CONTRIB_DIR/qt5-$QT5_BLDRVERSION-$QT5_BUILD/lib/Qt5Test.framework/Versions/4/4"
+      local badnode="$CONTRIB_DIR/qt5-$QT5_BLDRVERSION-$QT5_BUILD/lib/QtTest.framework/Versions/4/4"
       if test -L $badnode; then
         techo "NOTE: Removing leftover link from qt5 installation, $badnode."
         cmd="chmod -h u+rwx $badnode"
@@ -309,4 +313,3 @@ EOF
     fi
   fi
 }
-
