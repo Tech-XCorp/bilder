@@ -31,8 +31,8 @@
 ######################################################################
 
 setQtTriggerVars() {
-  QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"4.8.6"}
-  QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.7"}
+  QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"5.6.1"}
+  #  QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.7"}
   QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   QT_BUILD=$FORPYTHON_SHARED_BUILD
   # QT_DEPS=gst-plugins-base,bzip2
