@@ -2,6 +2,9 @@
 #
 # Trigger vars and find information
 #
+# NOTE: As of 10/21/2016 these instructions need updating once
+# the package details are settled.
+#
 # Latest source packages available from
 #   http://get.qt.nokia.com/qt/source/.
 #   20121125: Moved to http://qt-project.org/downloads.
@@ -30,13 +33,13 @@
 #
 ######################################################################
 
-setQtTriggerVars() {
-  QT_BLDRVERSION_STD=${QT_BLDRVERSION_STD:-"5.6.1"}
-  #  QT_BLDRVERSION_EXP=${QT_BLDRVERSION_EXP:-"4.8.7"}
-  QT_BUILDS=${QT_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
-  QT_BUILD=$FORPYTHON_SHARED_BUILD
-  # QT_DEPS=gst-plugins-base,bzip2
-  QT_DEPS=bzip2
+setQt5TriggerVars() {
+  QT5_BLDRVERSION_STD=${QT5_BLDRVERSION_STD:-"5.6.1"}
+  #  QT5_BLDRVERSION_EXP=${QT5_BLDRVERSION_EXP:-"4.8.7"}
+  QT5_BUILDS=${QT5_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  QT5_BUILD=$FORPYTHON_SHARED_BUILD
+  # QT5_DEPS=gst-plugins-base,bzip2
+  QT5_DEPS=bzip2
 # Need the following for phonon (and for webkit) on Linux:
 #   dbus
 #   glib (aka glib2 for the rpm)
@@ -44,7 +47,7 @@ setQtTriggerVars() {
 #   gstreamer-plugins-base-devel
 #   libxml2
 }
-setQtTriggerVars
+setQt5TriggerVars
 
 ######################################################################
 #
@@ -53,11 +56,11 @@ setQtTriggerVars
 ######################################################################
 
 #
-# print Qt vars
+# print Qt5 vars
 #
-printQtVars() {
-  local qtvars="QMAKE QTDIR QT_BINDIR"
-  for i in $qtvars; do
+printQt5Vars() {
+  local qt5vars="QMAKE QT5DIR QT5_BINDIR"
+  for i in $qt5vars; do
     printvar $i
   done
 }
@@ -96,62 +99,63 @@ setQmakeArgs() {
 
 }
 
-findQt() {
+findQt5() {
 
 # Try accepting what the user specified
-  if test -n "$QT_BINDIR"; then
-    if QMAKE=`env PATH=$QT_BINDIR:/usr/bin which qmake 2>/dev/null`; then
-      techo "qmake found in $QT_BINDIR"
-      addtopathvar PATH $QT_BINDIR
-      QTDIR=`dirname $QT_BINDIR`
+  if test -n "$QT5_BINDIR"; then
+    if QMAKE=`env PATH=$QT5_BINDIR:/usr/bin which qmake 2>/dev/null`; then
+      techo "qmake found in $QT5_BINDIR"
+      addtopathvar PATH $QT5_BINDIR
+      QT5DIR=`dirname $QT5_BINDIR`
       setQmakeArgs
-      printQtVars
+      printQt5Vars
       return
     else
-      techo "Qt not found in $QT_BINDIR."
-      unset QT_BINDIR
-      unset QTDIR
+      techo "Qt5 not found in $QT5_BINDIR."
+      unset QT5_BINDIR
+      unset QT5DIR
     fi
   else
-    techo "QT_BINDIR not set."
+    techo "QT5_BINDIR not set."
   fi
 
-# Seek Qt in the contrib directory
+# Seek Qt5 in the contrib directory
   local libname=
   if [[ `uname` =~ CYGWIN ]]; then
-    libname=QtCore4
+lsikdjf    libname=QtCore4 
   else
-    libname=QtCore
+sdldikjf    libname=QtCore
   fi
-  findContribPackage Qt $libname sersh pycsh
-  techo "QT_SERSH_DIR = $QT_SERSH_DIR."
-  findPycshDir Qt
-  if test -n "$QT_PYCSH_DIR"; then
-    techo "QT_PYCSH_DIR = $QT_PYCSH_DIR."
+  
+  findContribPackage Qt5 $libname sersh pycsh
+  techo "QT5_SERSH_DIR = $QT5_SERSH_DIR."
+  findPycshDir Qt5
+  if test -n "$QT5_PYCSH_DIR"; then
+    techo "QT5_PYCSH_DIR = $QT5_PYCSH_DIR."
   else
-    findContribPackage Qt $libname ser
+    findContribPackage Qt5 $libname ser
   fi
-  local qtdir=$QT_PYCSH_DIR
-  qtdir=${qtdir:-"$QT_SER_DIR"}
-  if test -n "$qtdir"; then
-    techo "Qt found in $CONTRIB_DIR."
-    QT_BINDIR=$qtdir/bin
-    addtopathvar PATH $QT_BINDIR
-    QMAKE=`env PATH=$QT_BINDIR:/usr/bin which qmake 2>/dev/null`
-    QTDIR=$qtdir
+  local qt5dir=$QT5_PYCSH_DIR
+  qt5dir=${qt5dir:-"$QT5_SER_DIR"}
+  if test -n "$qt5dir"; then
+    techo "Qt5 found in $CONTRIB_DIR."
+    QT5_BINDIR=$qt5dir/bin
+    addtopathvar PATH $QT5_BINDIR
+    QMAKE=`env PATH=$QT5_BINDIR:/usr/bin which qmake 2>/dev/null`
+    QT5DIR=$qt5dir
     setQmakeArgs
-    printQtVars
+    printQt5Vars
     return
   fi
-  techo "Qt not found in $CONTRIB_DIR."
+  techo "Qt5 not found in $CONTRIB_DIR."
 
 # Seek qmake in one's path
   if QMAKE=`which qmake 2>/dev/null`; then
-    QT_BINDIR=`dirname $QMAKE`
-    addtopathvar PATH $QT_BINDIR
-    QTDIR=`dirname $QT_BINDIR`
+    QT5_BINDIR=`dirname $QMAKE`
+    addtopathvar PATH $QT5_BINDIR
+    QT5DIR=`dirname $QT5_BINDIR`
     setQmakeArgs
-    printQtVars
+    printQt5Vars
     return
   fi
   techo "qmake not found in the user path = $PATH."
@@ -159,21 +163,21 @@ findQt() {
 # Look in standard windows installation dirs
   if [[ `uname` =~ CYGWIN ]]; then
     techo "Searching Windows installation directories."
-    QT_BVER=`ls /cygdrive/c/Qt | grep "^4" | tail -1`
-    if test -n "$QT_BVER"; then
-      QT_BINDIR=/cygdrive/c/Qt/$QT_BVER/bin
-      addtopathvar PATH $QT_BINDIR
-      QMAKE=`env PATH=$QT_BINDIR which qmake 2>/dev/null`
-      QTDIR=`dirname $QT_BINDIR`
+    QT5_BVER=`ls /cygdrive/c/Qt5 | grep "^4" | tail -1`
+    if test -n "$QT5_BVER"; then
+      QT5_BINDIR=/cygdrive/c/Qt5/$QT5_BVER/bin
+      addtopathvar PATH $QT5_BINDIR
+      QMAKE=`env PATH=$QT5_BINDIR which qmake 2>/dev/null`
+      QT5DIR=`dirname $QT5_BINDIR`
       setQmakeArgs
-      printQtVars
+      printQt5Vars
       return
     fi
-    techo "Qt not found in the Windows standard installation areas."
+    techo "Qt5 not found in the Windows standard installation areas."
   fi
 
 # Out of ideas
-  techo "findQt could not find Qt."
+  techo "findQt5 could not find Qt5."
   return 0
 }
 
