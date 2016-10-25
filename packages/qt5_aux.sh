@@ -122,9 +122,9 @@ findQt5() {
 # Seek Qt5 in the contrib directory
   local libname=
   if [[ `uname` =~ CYGWIN ]]; then
-lsikdjf    libname=QtCore4 
+      libname=QtCore4 
   else
-sdldikjf    libname=QtCore
+      libname=QtCore
   fi
   
   findContribPackage Qt5 $libname sersh pycsh
@@ -165,7 +165,7 @@ sdldikjf    libname=QtCore
     techo "Searching Windows installation directories."
     QT5_BVER=`ls /cygdrive/c/Qt5 | grep "^4" | tail -1`
     if test -n "$QT5_BVER"; then
-      QT5_BINDIR=/cygdrive/c/Qt5/$QT5_BVER/bin
+      QT5_BINDIR=/cygdrive/c/Qt/$QT5_BVER/bin
       addtopathvar PATH $QT5_BINDIR
       QMAKE=`env PATH=$QT5_BINDIR which qmake 2>/dev/null`
       QT5DIR=`dirname $QT5_BINDIR`
