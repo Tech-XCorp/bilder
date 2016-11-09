@@ -36,6 +36,7 @@ getHdf5TriggerVars() {
         13.*) HDF5_BLDRVERSION_STD=1.8.9;;  # Mavericks
         14.*) HDF5_BLDRVERSION_STD=1.8.13;; # Yosemite
         15.*) HDF5_BLDRVERSION_STD=1.8.16;; # El Capitan
+        16.*) HDF5_BLDRVERSION_STD=1.8.16;; # Sierra
       esac
       ;;
     Linux) HDF5_BLDRVERSION_STD=1.8.13;;
