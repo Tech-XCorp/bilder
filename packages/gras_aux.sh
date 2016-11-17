@@ -16,10 +16,10 @@
 ######################################################################
 
 setGrasTriggerVars() {
-  #GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-03-r1561"}
-  #GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-04-r1658"}
   GRAS_BLDRVERSION=${GRAS_BLDRVERSION:-"03-04"}
-  GRAS_BUILDS=${GRAS_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  if test -z "$GRAS_BUILDS"; then
+    GRAS_BUILDS="ser"
+  fi
   GRAS_DEPS=geant4
 }
 setGrasTriggerVars
@@ -34,14 +34,14 @@ setGrasTriggerVars
 findGras() {
 
 # Look for Gras in the contrib directory
-  findContribPackage Gras G4global sersh pycsh
+  findContribPackage Gras G4global ser
   findPycshDir Gras
 
 # Set envvars for other packages
-  local GRAS_HOME="$CONTRIB_DIR/gras-sersh"
+  local GRAS_HOME="$CONTRIB_DIR/gras-ser"
   printvar GRAS_HOME
   source $GRAS_HOME/bin/gras-env.sh
-  addtopathvar PATH $CONTRIB_DIR/gras-$FORPYTHON_SHARED_BUILD/bin
+  addtopathvar PATH $CONTRIB_DIR/gras-ser/bin
 
 }
 
