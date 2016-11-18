@@ -116,10 +116,8 @@ EOF
 # Below definitely not needed with experimental version
   trimvar ompcxxflags ' '
 # http://www.open-mpi.org/community/lists/users/2015/01/26134.php
-  if $BUILD_EXPERIMENTAL; then
-    ompcompflags="$CONFIG_COMPFLAGS_SER" # Perhaps good for all.
-  else
-    ompcompflags="CFLAGS='$CFLAGS -fgnu89-inline' CXXFLAGS='$CXXFLAGS -fgnu89-inline'"
+  ompcompflags="$CONFIG_COMPFLAGS_SER" # Perhaps good for all.
+  if ! $BUILD_EXPERIMENTAL; then
     if test -n "$FCFLAGS"; then
       ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
     fi
