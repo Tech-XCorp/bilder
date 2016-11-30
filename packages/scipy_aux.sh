@@ -17,7 +17,7 @@
 
 setScipyTriggerVars() {
   SCIPY_BLDRVERSION_STD=0.13.3
-  SCIPY_BLDRVERSION_EXP=0.17.1
+  SCIPY_BLDRVERSION_EXP=0.18.1
   computeVersion scipy
   if [[ `uname` =~ "CYGWIN" ]] && ! $NUMPY_WIN_USE_FORTRAN; then
     SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
