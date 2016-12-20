@@ -7602,7 +7602,10 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
+#Next two lines get USim test results that have a date in the filename
+        local nttstlist=`ls $builddir/nttest/Testing/Temporary/LastTestsFailed*.log 2> /dev/null`
+        nttstlist=`basename $nttstlist 2> /dev/null`
+        for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log nttest/Testing/Temporary/$nttstlist; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
             numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
