@@ -6708,10 +6708,10 @@ EOF
               ;;
           esac
           for ending in $endings; do
-            #techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
+            techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
             installer=`(shopt -s nocaseglob; \ls ${installerbase}-*${ending} 2>/dev/null)`
             if test -z "$installer"; then
-              #techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
+              techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
               installer=`(shopt -s nocaseglob; \ls ${installerbase}*${ending} 2>/dev/null)`
             fi
             if test -n "$installer"; then
