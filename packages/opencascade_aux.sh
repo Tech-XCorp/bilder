@@ -16,8 +16,8 @@
 ######################################################################
 
 setOpenCascadeTriggerVars() {
-  OPENMPI_BLDRVERSION_STD=7.1.0
-  OPENMPI_BLDRVERSION_EXP=7.1.0
+  OPENCASCADE_BLDRVERSION_STD=7.1.0
+  OPENCASCADE_BLDRVERSION_EXP=7.1.0
   OPENCASCADE_BUILDS=shared
   OPENCASCADE_DEPS=freetype,cmake
 }
