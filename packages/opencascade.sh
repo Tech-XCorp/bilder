@@ -75,11 +75,15 @@ buildOpenCascade() {
       ;;
     Linux)
       local shrpath="XORIGIN:XORIGIN/../lib:$OPENCASCADE_INSTALL_DIR/lib"
+# No need for absolute as will set relative, but gives more room for chrpath.
       if test -n "$FREETYPE_PYCSH_DIR" -a "$FREETYPE_PYCSH_DIR" != /usr; then
         shrpath="$shrpath:$FREETYPE_PYCSH_DIR/lib"
       fi
-      shlinkflags="-Wl,-rpath,$shrpath"
-      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
+      # shlinkflags="-Wl,-rpath,$shrpath"
+# Below gets rpath correct (origin stuff, install dir) upon installation.
+      # OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_SKIP_RPATH:BOOL=TRUE -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
+# Below also gets it right and is simpler.
+      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH='$shrpath'"
       ;;
   esac
 
@@ -114,7 +118,15 @@ testOpenCascade() {
 
 # Set umask to allow only group to use
 installOpenCascade() {
-  bilderInstallAll opencascade
-# On linux, fix rpath?
+  if bilderInstallAll opencascade; then
+    case `uname` in
+      Linux)
+        rp=`chrpath -l $OPENCASCADE_INSTALL_DIR/lib/libTKStd.so | sed -e 's/^.*RPATH=//' -e 's/XORIGIN/$ORIGIN/g'`
+        for lib in $OPENCASCADE_INSTALL_DIR/lib/lib*.so; do
+          chrpath -r "$rp" $lib
+        done
+        ;;
+    esac
+  fi
 }
 
