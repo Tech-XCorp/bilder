@@ -74,21 +74,20 @@ buildOpenCascade() {
       OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_NAME_DIR:PATH='$OPENCASCADE_INSTALL_DIR/lib'"
       ;;
     Linux)
-      local shrpath=XORIGIN:XORIGIN/../lib
+      local shrpath="XORIGIN:XORIGIN/../lib:$OPENCASCADE_INSTALL_DIR/lib"
       if test -n "$FREETYPE_PYCSH_DIR" -a "$FREETYPE_PYCSH_DIR" != /usr; then
         shrpath="$shrpath:$FREETYPE_PYCSH_DIR/lib"
       fi
       shlinkflags="-Wl,-rpath,$shrpath"
-      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE"
+      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
       ;;
   esac
 
 # Set additional flags
+# Turn off draw module, as it brings difficulties with the tcl/tk version
+  OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DBUILD_MODULE_Draw=FALSE"
   if test -n "$FREETYPE_PYCSH_DIR"; then
     OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -D3RDPARTY_FREETYPE_DIR='$FREETYPE_PYCSH_DIR'"
-  fi
-  if test -n "$shlinkflags"; then
-    OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_PYCSH_LINKER_FLAGS:STRING='$shlinkflags'"
   fi
 
 # Build
@@ -116,5 +115,6 @@ testOpenCascade() {
 # Set umask to allow only group to use
 installOpenCascade() {
   bilderInstallAll opencascade
+# On linux, fix rpath?
 }
 
