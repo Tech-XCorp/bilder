@@ -179,7 +179,7 @@ case `uname` in
     ;;
 
   Darwin)
-    ATLAS_BUILDS=NONE	# Since using framework Accelerate
+    ATLAS_BUILDS=NONE   # Since using framework Accelerate
     if test -n "$ARCHFLAGS"; then
       techo "WARNING: [bildvars.sh] ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
     fi
@@ -231,8 +231,12 @@ case `uname` in
         # -std=c++11 breaks too many codes
         # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
         # echo "CXXFLAGS = $CXXFLAGS"
-        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
+        cxxb=`basename $CXX`
+        # echo "cxxb = $cxxb"
+        if [[ $cxxb =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
           CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
+        elif [[ $cxxb =~ 'g++' ]] && ! echo $CXXFLAGS | grep -- "-std="; then
+          CXXFLAGS="$CXXFLAGS -std=c++11"
         fi
         # echo "CXXFLAGS = $CXXFLAGS"
         PYC_CC=${PYC_CC:-"clang"}
@@ -245,7 +249,7 @@ case `uname` in
         PYC_F77=${PYC_F77:-"$F77"}
         ;;
     esac
-    RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}	# For 10.5 and higher
+    RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}     # For 10.5 and higher
     SHOBJEXT=.dylib
     SHOBJFLAGS=${SHOBJFLAGS:-"-dynamic -flat_namespace -undefined suppress"}
     ;;
@@ -271,7 +275,7 @@ case `uname` in
           SYS_LIBSUBDIRS=lib64
           CMAKE_LIBRARY_PATH_ARG=
         fi
-        sfxorder="so"	# Need shared libs for uedge
+        sfxorder="so"   # Need shared libs for uedge
         ;;
       i?86)
         SYS_LIBSUBDIRS=lib
