@@ -18,7 +18,7 @@
 setOpenCascadeTriggerVars() {
   OPENCASCADE_BLDRVERSION_STD=7.1.0
   OPENCASCADE_BLDRVERSION_EXP=7.1.0
-  OPENCASCADE_BUILDS=shared
+  OPENCASCADE_BUILDS=pycsh
   OPENCASCADE_DEPS=freetype,cmake
 }
 setOpenCascadeTriggerVars
