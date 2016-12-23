@@ -16,28 +16,9 @@
 ######################################################################
 
 setOpenCascadeTriggerVars() {
-# Remove old repo
-  if test -d $PROJECT_DIR/opencascade; then
-    newopencascaderem=`(cd $PROJECT_DIR/opencascade; git remote -v | grep Tech-XCorp)`
-    if test -z "$newopencascaderem"; then
-      rm -rf $PROJECT_DIR/opencascade
-    fi
-  fi
-# Standard vars
-  OPENCASCADE_REPO_URL=https://github.com/Tech-XCorp/opencascade.git
-# We do not follow https://internal.txcorp.com/it/wiki/UpstreamGit
-# precisely, because we want to work off their tags.  So instead
-# we make a local branch, e.g., OPENCASCADE-0.17.1-txc, and work from that.
-# The older branch is mirrored at stable.
-  OPENCASCADE_REPO_BRANCH_STD=${OPENCASCADE_REPO_BRANCH_STD:-"stable"} # aka OPENCASCADE-0.17-txc
-  OPENCASCADE_REPO_BRANCH_EXP=${OPENCASCADE_REPO_BRANCH_EXP:-"develop"}
-# Reverting, as this branch caused a step file reading crash
-  OPENCASCADE_REPO_BRANCH_EXP=${OPENCASCADE_REPO_BRANCH_EXP:-"stable"}
-  OPENCASCADE_UPSTREAM_URL=https://github.com/tpaviot/opencascade.git
-  OPENCASCADE_UPSTREAM_BRANCH_STD=OPENCASCADE-0.17
-  OPENCASCADE_UPSTREAM_BRANCH_EXP=OPENCASCADE-0.17.1
-  OPENCASCADE_BUILD=$FORPYTHON_SHARED_BUILD
-  OPENCASCADE_BUILDS=${OPENCASCADE_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+  OPENMPI_BLDRVERSION_STD=7.1.0
+  OPENMPI_BLDRVERSION_EXP=7.1.0
+  OPENCASCADE_BUILDS=shared
   OPENCASCADE_DEPS=freetype,cmake
 }
 setOpenCascadeTriggerVars
