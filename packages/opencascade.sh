@@ -61,14 +61,13 @@ buildOpenCascade() {
         OPENCASCADE_ENV="FREETYPE_DIR='$depdir'"
       fi
       if test -n "$LIBPNG_PYCSH_DIR"; then
-        depdir=`cygpath -am $LIBPNG_PYCSH_DIR`
-        OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DPNG_PNG_INCLUDE_DIR='${depdir}/include' -DPNG_LIBRARY='${depdir}/lib/libpng_static.lib'"
+        # depdir=`cygpath -am $LIBPNG_PYCSH_DIR`
+        shlinkflags="/LIBPATH $LIBPNG_PYCSH_DIR/lib/libpng_static.lib"
       fi
-# Bilder does not use oce bundle (precompiled dependencies), so cannot install
-      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DOPENCASCADE_BUNDLE_AUTOINSTALL:BOOL=FALSE"
-# Not using precompiled headers allows use of jom on Windows.
-# This may allow removal of pch's just before build.
-      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DOPENCASCADE_USE_PCH:BOOL=FALSE"
+      if test -n "$CMAKE_ZLIB_SERMD_LIBDIR"; then
+        shlinkflags="$shlinkflags /LIBPATH $CMAKE_ZLIB_SERMD_LIBDIR/zlib.lib"
+      fi
+      OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_SHARED_LINKER_FLAGS:STRING='$shlinkflags'"
       ;;
     Darwin)
       OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DCMAKE_INSTALL_NAME_DIR:PATH='$OPENCASCADE_INSTALL_DIR/lib'"
@@ -88,7 +87,7 @@ buildOpenCascade() {
   esac
 
 # Set additional flags
-# Turn off draw module, as it brings difficulties with the tcl/tk version
+# Disable draw module, as it brings difficulties with the tcl/tk version
   OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -DBUILD_MODULE_Draw=FALSE"
   if test -n "$FREETYPE_PYCSH_DIR"; then
     OPENCASCADE_PYCSH_ADDL_ARGS="$OPENCASCADE_PYCSH_ADDL_ARGS -D3RDPARTY_FREETYPE_DIR='$FREETYPE_PYCSH_DIR'"
