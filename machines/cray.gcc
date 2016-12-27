@@ -22,11 +22,17 @@ case $UQMAILHOST in
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
 
-# System linear algebra, note haswell for Cori.
-    SYSTEM_BLAS_SER_LIB=/opt/cray/pe/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
-    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/pe/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/pe/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
-    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/pe/libsci/default/gnu/51/haswell/lib/libsci_gnu.a
+# Determine architecture from programming environment
+    arch=haswell
+    if modulecmd bash list 2>&1 | grep craype-mic-knl 1>/dev/null 2>&1; then
+      arch=mic_knl
+    fi
+
+# System linear algebra
+    SYSTEM_BLAS_SER_LIB=/opt/cray/pe/libsci/default/gnu/51/${arch}/lib/libsci_gnu.a
+    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/pe/libsci/default/gnu/51/${arch}/lib/libsci_gnu.a
+    SYSTEM_LAPACK_SER_LIB=/opt/cray/pe/libsci/default/gnu/51/${arch}/lib/libsci_gnu.a
+    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/pe/libsci/default/gnu/51/${arch}/lib/libsci_gnu.a
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/pe/hdf5/default/gnu/51
