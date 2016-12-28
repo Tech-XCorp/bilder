@@ -228,14 +228,16 @@ case `uname` in
           FC=${FC:-"gfortran-4.9"}
           F77=${F77:-"gfortran-4.9"}
         fi
-        # -std=c++11 breaks too many codes
-        # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
         # echo "CXXFLAGS = $CXXFLAGS"
         cxxb=`basename $CXX`
         # echo "cxxb = $cxxb"
         if [[ $cxxb =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
+# -std=c++11 breaks too many codes
+          # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
           CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
         elif [[ $cxxb =~ 'g++' ]] && ! echo $CXXFLAGS | grep -- "-std="; then
+	  # -stdlib=libc++ does not exist on gcc
+          # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
           CXXFLAGS="$CXXFLAGS -std=c++11"
         fi
         # echo "CXXFLAGS = $CXXFLAGS"

@@ -46,29 +46,34 @@ fixBoost() {
   local bld=$1
   local cxxbase=
   case $bld in
-    pycsh) cxxbase=`basename $PYC_CXX`;;
-    *) cxxbase=`basename $CXX`;;
+    pycsh | pycst) cxxbase=`basename $PYC_CXX`;;
+    *) cxxbase=`basename $CXX`
+      local cxxversfx=
+      if [[ "$cxxbase" =~ 'g++' ]]; then
+        echo "Executing sed."
+        cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
+      fi
+      if test -n "$cxxversfx"; then
+        local exampconfigfile=
+        local cmd=
+        if test -f tools/build/v2/user-config.jam; then
+          exampconfigfile=tools/build/v2/user-config.jam
+# Need using darwin to get assembler correct.
+# https://svn.boost.org/trac/boost/ticket/9306
+          cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : $cxxbase ;/' $exampconfigfile"
+        elif test -f tools/build/example/user-config.jam; then
+          exampconfigfile=tools/build/example/user-config.jam
+# Now config file must show up in directory below.
+          local userconfigfile=tools/build/src/user-config.jam
+          cmd="sed 's/# using gcc : 3.*$/using darwin : $cxxversfx : $cxxbase ;/' $exampconfigfile >$userconfigfile"
+        fi
+        if test -n "$cmd"; then
+          techo "$cmd"
+          eval "$cmd"
+        fi
+      fi
+      ;;
   esac
-  if test $bld != pycsh; then
-    local cxxversfx=
-    if [[ "$cxxbase" =~ 'g++' ]]; then
-      echo "Executing sed."
-      cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
-    fi
-    if test -n "$cxxversfx"; then
-      local userconfigfile=
-      if test -f tools/build/v2/user-config.jam; then
-        userconfigfile=tools/build/v2/user-config.jam
-      elif test -f tools/build/example/user-config.jam; then
-        userconfigfile=tools/build/example/user-config.jam
-      fi
-      if test -n "$userconfigfile"; then
-        cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : g++-$cxxversfx ;/' $userconfigfile"
-        techo "$cmd"
-        eval "$cmd"
-      fi
-    fi
-  fi
   case $bld in
     sersh | pycsh)
       local jamdir=
@@ -133,7 +138,11 @@ buildBoost() {
 # g++ is clang++ on Darwin-11+
           toolsetarg_ser="toolset=clang"
 	  ;;
-        *g++-*) ;; # toolsetarg_ser="toolset=`basename $CC`";;
+        *g++-*)
+# For the real g++ installations (ser, sersh using gcc from homebrew, e.g.)
+# no toolset as have 'using' in user-config.jam
+	  # toolsetarg_ser="toolset=darwin"
+	  ;;
         *icpc) toolsetarg_ser="toolset=icpc";;
       esac
       ;;
