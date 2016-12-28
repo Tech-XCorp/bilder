@@ -46,8 +46,12 @@ fixBoost() {
   local bld=$1
   local cxxbase=
   case $bld in
-    pycsh | pycst) cxxbase=`basename $PYC_CXX`;;
-    *) cxxbase=`basename $CXX`
+    py*) cxxbase=`basename $PYC_CXX`;;
+    *) cxxbase=`basename $CXX`;;
+  esac
+  case $bld in
+    pycsh | pycst) ;;
+    *)
       local cxxversfx=
       if [[ "$cxxbase" =~ 'g++' ]]; then
         echo "Executing sed."
