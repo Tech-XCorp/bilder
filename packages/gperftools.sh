@@ -20,7 +20,7 @@ GPERFTOOLS_BLDRVERSION=${GPERFTOOLS_BLDRVERSION:-"2.5"}
 #
 ######################################################################
 
-GPERFTOOLS_BUILDS=${GPERFTOOLS_BUILDS:-"ser,sersh"}
+GPERFTOOLS_BUILDS=${GPERFTOOLS_BUILDS:-"ser"}
 GPERFTOOLS_DEPS=autotools
 
 ######################################################################
@@ -31,12 +31,14 @@ GPERFTOOLS_DEPS=autotools
 
 buildgperftools() {
   if bilderUnpack gperftools; then
-# Builds must be done separately
-    if bilderConfig gperftools ser "--enable-shared=no --enable-minimal"; then
+    if bilderConfig gperftools ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAG --enable-shared=no --enable-minimal"; then
       bilderBuild gperftools ser
     fi
-    if bilderConfig gperftools sersh "--enable-static=no --enable-minimal"; then
+    if bilderConfig gperftools sersh "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $SER_CONFIG_LDFLAG --enable-static=no --enable-minimal"; then
       bilderBuild gperftools sersh
+    fi
+    if bilderConfig gperftools ben "$CONFIG_COMPILERS_BEN $CONFIG_COMPFLAGS_PAR $PAR_CONFIG_LDFLAG --enable-shared=no --enable-minimal"; then
+      bilderBuild gperftools ben
     fi
   fi
 }
