@@ -2417,7 +2417,8 @@ getCombinedCompVars() {
         case `uname` in
           CYGWIN*)
             compbin=`cygpath -am "$comp"`
-            if ! echo $compbin | grep -q '\.exe$'; then
+# Intel MPI Compiler scripts end with .bat, not .exe
+            if ! echo $compbin | grep -q '\.exe$' && ! echo $compbin | grep -q '\.bat$'; then
               compbin="$compbin".exe
             fi
             ;;
@@ -2745,6 +2746,7 @@ findPackage() {
     elif test -n "$adirval"; then
       techo "Library, ${PKG_LIBNAME}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."
+      eval ${pkgnameprefix}_${BLD}_DIR="$adirval"
     else
       techo "Package ${pkgnameprefix}_${BLD} not set or found."
       eval HAVE_${pkgnameprefix}_$BLD=false
@@ -3653,22 +3655,8 @@ updateRepo() {
     fi
   fi
 
-# Make sure on tag
-  case $scmexec in
-    git)
-      cmd="git checkout $branchval"
-      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
-      # cmd="$cmd $branchval"
-      ;;
-    hg) cmd="hg update -C $branchval";;
-  esac
-  techo "$cmd"
-  eval "$cmd"
-  if ! eval "$cmd"; then
-    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
-  fi
-
 # Determine whether changesets are available
+# Needs to be done first to handle the case where we need a branch that isn't in our local checkout.
   upurlvar=`genbashvar $pkg`_UPSTREAM_URL
   upurlval=`deref $upurlvar`
   if test -n "$upurlval"; then
@@ -3691,6 +3679,21 @@ updateRepo() {
       techo "No changesets available for $pkg from $upurlval."
     fi
     rm -f bilder_chgsets
+  fi
+
+# Make sure on tag
+  case $scmexec in
+    git)
+      cmd="git checkout $branchval"
+      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
+      # cmd="$cmd $branchval"
+      ;;
+    hg) cmd="hg update -C $branchval";;
+  esac
+  techo "$cmd"
+  eval "$cmd"
+  if ! eval "$cmd"; then
+    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
   fi
 
 # Return to project dir
@@ -4900,7 +4903,7 @@ bilderConfig() {
 
 # Add specified args
   configargs="$configargs $3"
-  trimvar configargs ' '
+  #trimvar configargs ' '
 
 # Create final command
   local finalcmd=
@@ -5800,7 +5803,7 @@ EOF
       local testScript=$FQMAILHOST-$1-$bld-test.sh
       local MAKER=make
       if [[ `uname` =~ CYGWIN ]]; then
-        MAKER=nmake
+        MAKER=jom
       fi
       cmd="$MAKER $tststarget"
       if test -n "$tstsenv"; then
@@ -7602,7 +7605,6 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-#Next two lines get USim test results that have a date in the filename
         local nttstlist=`ls $builddir/nttest/Testing/Temporary/LastTestsFailed*.log 2> /dev/null`
         nttstlist=`basename $nttstlist 2> /dev/null`
         for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log nttest/Testing/Temporary/$nttstlist; do
@@ -8239,4 +8241,5 @@ buildChain() {
 # Ensure 2 blank lines in between examining packages.
   techo ""
 }
+
 

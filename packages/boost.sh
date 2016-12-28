@@ -128,7 +128,15 @@ buildBoost() {
   case `uname`-`uname -r` in
     CYGWIN*)
       if $IS_64BIT; then
-        toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+# We can't just use a case statement on CXX because
+# the Intel compiler is named icl and the Microsoft compiler
+# is named cl. So leading wildcards will match. Instead search
+# for Intel
+        if echo "$CXX" | grep -q "Intel"; then
+          toolsetarg_ser="toolset=intel-15.0-vc12"
+        else
+          toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+        fi
       fi
       ;;
     Darwin-*)
@@ -163,6 +171,7 @@ buildBoost() {
   esac
   toolsetarg_pycst=${toolsetarg_pycst:-"$toolsetarg_ser"}
   toolsetarg_pycsh=${toolsetarg_pycsh:-"$toolsetarg_ser"}
+  techo "Boost toolsetarg_ser=${toolserarg_ser}"
 
 # These args are actually to bilderBuild
   local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"

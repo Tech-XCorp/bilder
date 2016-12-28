@@ -4,7 +4,7 @@
 #
 # $Id$
 #
-##################################################################
+######################################################################
 
 ######################################################################
 #
@@ -15,39 +15,47 @@
 #
 ######################################################################
 
-setTxphysicsTriggerVars() {
-# txphysics used only by engine, so no sersh build needed
-  TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser"}
-  computeBuilds txphysics
-  addBenBuild txphysics
-  TXPHYSICS_DEPS=cmake
+setParmetisTriggerVars() {
+  PARMETIS_BLDRVERSION_STD=4.0.3
+  PARMETIS_BLDRVERSION_EXP=4.0.3
+  if test -z "$PARMETIS_BUILDS"; then
+    case `uname` in
+      CYGWIN*) ;;
+      Linux) PARMETIS_BUILDS=par,parsh;;
+      Darwin) PARMETIS_BUILDS=par;;
+    esac
+  fi
+  PARMETIS_DEPS=autotools,$MPI_BUILD
 }
-setTxphysicsTriggerVars
+setParmetisTriggerVars
 
 ######################################################################
 #
-# Find txphysics
+# Find parmetis
 #
 ######################################################################
 
-findTxphysics() {
-  srchbuilds="ser"
-  findPackage TxPhysics TXPHYSICS "$BLDR_INSTALL_DIR" $srchbuilds
+findParmetis() {
+# Find installation directories
+  findContribPackage Parmetis parmetis par 
+  local builds="par"
   techo
+
 # Find cmake configuration directories
-  for bld in $srcbuilds; do
-    local blddirvar=`genbashvar TXPHYSICS_${bld}`_DIR
+  techo
+  for bld in $builds; do
+    local blddirvar=`genbashvar PARMETIS_${bld}`_DIR
     local blddir=`deref $blddirvar`
     if test -d "$blddir"; then
-      local dir=$blddir/lib/cmake
+      local dir=$blddir/share/cmake
       if [[ `uname` =~ CYGWIN ]]; then
         dir=`cygpath -am $dir`
       fi
-      local varname=`genbashvar TXPHYSICS_${bld}`_CMAKE_LIBDIR
+      local varname=`genbashvar PARMETIS_${bld}`_CMAKE_DIR
       eval $varname=$dir
       printvar $varname
-      varname=`genbashvar TXPHYSICS_${bld}`_CMAKE_LIBDIR_ARG
-      eval $varname="\"-DTxPhysics_ROOT_DIR:PATH='$dir'\""
+      varname=`genbashvar PARMETIS_${bld}`_CMAKE_DIR_ARG
+      eval $varname="\"-DParmetis_DIR:PATH='$dir'\""
       printvar $varname
     fi
   done

@@ -39,7 +39,9 @@ setHdf5NonTriggerVars
 # Helper method to determine whether Fortran can compile hdf5
 haveHdf5Fortran() {
 # Check ability of compiler to compile hdf5
+  techo "HdF5: Testing if we have Fortran"
   if $HAVE_SER_FORTRAN; then
+    techo "Hdf5: We have Fortran"
     case "$FC" in
       *gfortran*)
         vertmp=`$FC --version | sed -e 's/^GNU Fortran ([^)]*)//'`
@@ -57,9 +59,10 @@ haveHdf5Fortran() {
         esac
         ;;
     esac
-    return 0
+    return 0 
   fi
-  return 1
+  techo "Hdf5: We don't have Fortran"
+  return 1 
 }
 
 buildHdf5() {
@@ -81,11 +84,12 @@ buildHdf5() {
   if test `uname` != Darwin; then
     HDF5_SHARED_ENABLE_FORTRAN=$HDF5_STATIC_ENABLE_FORTRAN
   fi
+  techo "Hdf5: HDF5_STATIC_ENABLE_FORTRAN = ${HDF5_STATIC_ENABLE_FORTRAN}"
 
 # Shared: For Linux, add origin to rpath, do not strip rpath
   local HDF5_SER_ADDL_ARGS=
   local HDF5_SERSH_ADDL_ARGS=
-  local HDF5_PAR_ADDL_ARGS=
+  local HDF5_PAR_ADDL_ARGS= 
   local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PARSH_ADDL_ARGS=
   local HDF5_PYCSH_ADDL_ARGS=
@@ -210,7 +214,7 @@ fixHdf5StaticLibs() {
         ;;
     esac
     if test "$i" != "$newname"; then
-      cmd="mv $i $newname"
+      cmd="cp $i $newname"
       techo "$cmd"
       $cmd
     else
@@ -229,7 +233,7 @@ fixHdf5StaticLibs() {
 fixHdf5Libs() {
   bld=$1
   case $bld in
-    ser | par | sermd) fixHdf5StaticLibs $bld;;
+    ser | par | sermd | pycst) fixHdf5StaticLibs $bld;;
     *sh) fixHdf5SharedInst $bld;;
   esac
 }

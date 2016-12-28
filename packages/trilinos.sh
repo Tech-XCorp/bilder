@@ -70,6 +70,15 @@ getTriTPLs() {
     addlArgs=""
     case "$TPL" in
 
+      Boost)
+        if test "$parflag" == "ser"; then
+          tplDir=$CONTRIB_DIR/boost
+        else
+           tplDir=$CONTRIB_DIR/boost
+        fi
+        tplLibName="boost"
+        ;;
+
       HYPRE)
         if test "$parflag" == "ser"; then
           continue  # parallel only
@@ -100,6 +109,15 @@ getTriTPLs() {
         fi
         ;;
 
+      MPI)
+        if test "$parflag" == "par"; then
+          tplDir=$CONTRIB_DIR/mpi/bin
+        else
+          continue  # parallel only
+        fi
+        tplLibName="mpi"
+        ;;	   
+
       Netcdf)
         if test "$parflag" == "ser"; then
           tplDir=$CONTRIB_DIR/netcdf
@@ -107,6 +125,19 @@ getTriTPLs() {
           continue  # serial only
         fi
         tplLibName="netcdf"
+        ;;
+
+      ParMETIS)
+        if test "$parflag" == "ser"; then
+          tplDir=$CONTRIB_DIR/parmetis-ser
+        else
+           if test -e $CONTRIB_DIR/parmetis-par; then
+            tplDir=$CONTRIB_DIR/parmetis-par
+          elif test -e $BLDR_INSTALL_DIR/parmetis-par; then
+            tplDir=$BLDR_INSTALL_DIR/parmetis-par
+          fi
+        fi
+        tplLibName="parmetis;metis;GKlib"
         ;;
 
       SuperLU)
@@ -286,22 +317,34 @@ buildTrilinos() {
 # include parmetis.
 #
 # Generic configuration
-  local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF -DTPL_ENABLE_Boost:STRING=ON"
+  local triConfigArgs="-DTeuchos_ENABLE_LONG_LONG_INT:BOOL=ON -DTPL_ENABLE_BinUtils:BOOL=OFF"
 
 # Internal packages
-  local triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex NOX EpetraExt Epetra Triutils Teuchos Ifpack"
-  if test `uname` = Linux; then
-    triPkgs="$triPkgs Amesos2"
-  fi
-  BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
-  if $BUILD_TRILINOS_EXPERIMENTAL; then
-    triPkgs="$triPkgs Phalanx SEACAS Zoltan"
-  elif test $TRILINOS_MAJORVER -lt 12; then
-    triPkgs="$triPkgs Phalanx"
+  local triPkgs=" "
+  local sigPkgs=0
+  if echo "$TRILINOS_BUILDS" | grep -q "ser" || echo "$TRILINOS_BUILDS" | grep -q "par" || echo "$TRILINOS_BUILDS" | grep -q "ben" ; then
+# Here, we are making a build for an application. 
+      triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex NOX EpetraExt Epetra Triutils Teuchos Ifpack"
+      if test `uname` = Linux; then
+	  triPkgs="$triPkgs Amesos2"
+      fi
+      BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
+      if $BUILD_TRILINOS_EXPERIMENTAL; then
+	  triPkgs="$triPkgs Phalanx SEACAS Zoltan"
+      elif $TRILINOS_MAJORVER -lt 12; then
+	  triPkgs="$triPkgs Phalanx"
+      fi
+  else
+# Here we are building a specific package
+      sigPkgs=1
+      triPkgs="$TRILINOS_BUILDS"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
 
+
 # Potential external packages
+# Casing has to match those given in getTriTPLs, which in turn
+# has to match the Trilinos TPL expectations.
   local TPL_PACKAGELIST=
   case `uname` in
      CYGWIN*)
@@ -323,7 +366,6 @@ buildTrilinos() {
        TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
        ;;
   esac
-  techo -2 "TPL_PACKAGELIST = $TPL_PACKAGELIST"
 
 # Turn on external packages. getTriTPLs figures out which ones are
 # par and which ones are ser
@@ -361,25 +403,31 @@ buildTrilinos() {
   fi
 
 #
-# The commio builds are static with more IO enabled
+# The commio builds are static with more IO enabled. Requires netcdf, hdf5 to have been added as a dependency.
 #
 # The args
-  local NETCDF_BASE_DIR=$MIXED_CONTRIB_DIR/netcdf-$NETCDF_BLDRVERSION-ser
-  local HDF5_BASE_DIR=$MIXED_CONTRIB_DIR/hdf5-$HDF5_BLDRVERSION-ser
-  local NETCDF_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH='$NETCDF_BASE_DIR/lib;$HDF5_BASE_DIR/lib' -DNetcdf_LIBRARY_NAMES:STRING='netcdf;hdf5_hl;hdf5' -DNetcdf_INCLUDE_DIRS:PATH=$NETCDF_BASE_DIR/include"
-  local SEACAS_ARGS="${SEACAS_ARGS} -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_ENABLE_SEACASExodus:BOOL=ON -DTrilinos_ENABLE_SEACASNemesis:BOOL=ON -DSEACASNemesis_ENABLE_TESTS:BOOL=OFF $NETCDF_ARGS -DTPL_ENABLE_MATLAB:BOOL=OFF"
-  local NETCDF_PAR_BASE_DIR=$MIXED_CONTRIB_DIR/netcdf-$NETCDF_BLDRVERSION-par
-  local HDF5_PAR_BASE_DIR=$MIXED_CONTRIB_DIR/hdf5-$HDF5_BLDRVERSION-par
-  local NETCDF_PAR_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH='$NETCDF_PAR_BASE_DIR/lib;$HDF5_PAR_BASE_DIR/lib' -DNetcdf_LIBRARY_NAMES:STRING='netcdf;hdf5_hl;hdf5' -DNetcdf_INCLUDE_DIRS:PATH=$NETCDF_PAR_BASE_DIR/include"
+  local NETCDF_SER_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH='$CMAKE_NETCDF_SER_LIBDIR;$CMAKE_HDF5_SER_LIBDIR' -DNetcdf_LIBRARY_NAMES:STRING='netcdf;hdf5_hl;hdf5' -DNetcdf_INCLUDE_DIRS:PATH=$CMAKE_NETCDF_SER_INCDIR"
+  local NETCDF_PAR_ARGS="-DTPL_ENABLE_Netcdf:STRING='ON' -DNetcdf_LIBRARY_DIRS:PATH='$CMAKE_NETCDF_PAR_LIBDIR;$CMAKE_HDF5_PAR_LIBDIR' -DNetcdf_LIBRARY_NAMES:STRING='netcdf;hdf5_hl;hdf5' -DNetcdf_INCLUDE_DIRS:PATH=$CMAKE_NETCDF_PAR_INCDIR"
+  local SEACAS_SER_ARGS="${SEACAS_ARGS} -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_ENABLE_SEACASExodus:BOOL=ON -DTrilinos_ENABLE_SEACASNemesis:BOOL=ON $NETCDF_SER_ARGS -DTPL_ENABLE_MATLAB:BOOL=OFF"
   local SEACAS_PAR_ARGS="${SEACAS_ARGS} -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_ENABLE_SEACASExodus:BOOL=ON -DTrilinos_ENABLE_SEACASNemesis:BOOL=ON $NETCDF_PAR_ARGS -DTPL_ENABLE_MATLAB:BOOL=OFF"
-  TRILINOS_SERCOMMIO_ADDL_ARGS="$TRILINOS_SERCOMM_ADDL_ARGS $SEACAS_ARGS"
+  local OTHER_BUILD_ARGS="-DTrilinos_TRIBITS_DIR=$PROJECT_DIR/trilinos/cmake//tribits -DCTEST_USE_LAUNCHERS:BOOL=1 -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=ON -DTrilinos_ENABLE_TESTS:BOOL=ON -DTrilinos_ALLOW_NO_PACKAGES:BOOL=ON -DTrilinos_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON -DTrilinos_ENABLE_SECONDARY_TESTED_CODE:BOOL=ON -DTrilinos_ENABLE_SECONDARY_STABLE_CODE:BOOL=ON -DTrilinos_EXTRAREPOS_FILE:STRING=$PROJECT_DIR/trilinos/cmake/ExtraRepositoriesList.cmake -DTrilinos_IGNORE_MISSING_EXTRA_REPOSITORIES:BOOL=ON -DTrilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE:STRING=Nightly -DTPL_ENABLE_Matio=OFF -DIntrepid_ENABLE_DEBUG_INF_CHECK=OFF -DTrilinos_ENABLE_DEBUG:BOOL=ON -DTrilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON -DTPL_ENABLE_Pthread:BOOL=ON -D${TRILINOS_BUILDS}_ENABLE_Experimental:BOOL=ON -DTrilinos_ENABLE_$TRILINOS_BUILDS:BOOL=ON"
+  TRILINOS_SERCOMMIO_ADDL_ARGS="$TRILINOS_SERCOMM_ADDL_ARGS $SEACAS_SER_ARGS"
   TRILINOS_PARCOMMIO_ADDL_ARGS="$TRILINOS_PARCOMM_ADDL_ARGS $SEACAS_PAR_ARGS"
+  TRILINOS_OTHER_BUILD_ADDL_ARGS="$triCommonArgs $triTplParArgs $OTHER_BUILD_ARGS"
 # The builds
   if bilderConfig trilinos sercommio "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $TRILINOS_ALL_ADDL_ARGS $TRILINOS_SERCOMMIO_ADDL_ARGS $TRILINOS_SERCOMMIO_OTHER_ARGS"; then
     bilderBuild trilinos sercommio "$TRILINOS_MAKEJ_ARGS"
   fi
+  if bilderConfig trilinos serzoltan2 "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PARCOMMIO_ADDL_ARGS $TRILINOS_PARCOMMIO_OTHER_ARGS $TRILINOS_ALL_PAR_ADDL_ARGS"; then
+    bilderBuild trilinos parcommio "$TRILINOS_MAKEJ_ARGS"
+  fi
   if bilderConfig trilinos parcommio "-DTPL_ENABLE_MPI:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PARCOMMIO_ADDL_ARGS $TRILINOS_PARCOMMIO_OTHER_ARGS $TRILINOS_ALL_PAR_ADDL_ARGS"; then
     bilderBuild trilinos parcommio "$TRILINOS_MAKEJ_ARGS"
+  fi
+  if [ $sigPkgs = 1 ]; then
+      if bilderConfig trilinos $TRILINOS_BUILDS "-DTPL_ENABLE_MPI:BOOL=ON $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS $TRILINOS_ALL_PAR_ADDL_ARGS $TRILINOS_OTHER_BUILD_ADDL_ARGS"; then
+	  bilderBuild trilinos $TRILINOS_BUILDS "$TRILINOS_MAKEJ_ARGS"
+      fi
   fi
 
 #

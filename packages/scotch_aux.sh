@@ -4,7 +4,7 @@
 #
 # $Id$
 #
-##################################################################
+######################################################################
 
 ######################################################################
 #
@@ -15,39 +15,48 @@
 #
 ######################################################################
 
-setTxphysicsTriggerVars() {
-# txphysics used only by engine, so no sersh build needed
-  TXPHYSICS_BUILDS=${TXPHYSICS_BUILDS:-"ser"}
-  computeBuilds txphysics
-  addBenBuild txphysics
-  TXPHYSICS_DEPS=cmake
+setScotchTriggerVars() {
+  SCOTCH_BLDRVERSION_STD=6.0.4
+  SCOTCH_BLDRVERSION_EXP=6.0.4
+  if test -z "$SCOTCH_BUILDS"; then
+    SCOTCH_BUILDS=par
+    case `uname` in
+      CYGWIN*) ;;
+      Darwin) SCOTCH_BUILDS="${SCOTCH_BUILDS}";;
+      Linux) SCOTCH_BUILDS="${SCOTCH_BUILDS}";;
+    esac
+  fi
+  SCOTCH_DEPS=autotools,$MPI_BUILD
 }
-setTxphysicsTriggerVars
+setScotchTriggerVars
 
 ######################################################################
 #
-# Find txphysics
+# Find scotch
 #
 ######################################################################
 
-findTxphysics() {
-  srchbuilds="ser"
-  findPackage TxPhysics TXPHYSICS "$BLDR_INSTALL_DIR" $srchbuilds
+findScotch() {
+# Find installation directories
+  findContribPackage Scotch scotch par 
+  local builds="par"
   techo
+
 # Find cmake configuration directories
-  for bld in $srcbuilds; do
-    local blddirvar=`genbashvar TXPHYSICS_${bld}`_DIR
+  techo
+  for bld in $builds; do
+    local blddirvar=`genbashvar SCOTCH_${bld}`_DIR
     local blddir=`deref $blddirvar`
     if test -d "$blddir"; then
-      local dir=$blddir/lib/cmake
+      local dir=$blddir/share/cmake
       if [[ `uname` =~ CYGWIN ]]; then
         dir=`cygpath -am $dir`
       fi
-      local varname=`genbashvar TXPHYSICS_${bld}`_CMAKE_LIBDIR
+      local varname=`genbashvar SCOTCH_${bld}`_CMAKE_DIR
       eval $varname=$dir
       printvar $varname
-      varname=`genbashvar TXPHYSICS_${bld}`_CMAKE_LIBDIR_ARG
-      eval $varname="\"-DTxPhysics_ROOT_DIR:PATH='$dir'\""
+      varname=`genbashvar SCOTCH_${bld}`_CMAKE_DIR_ARG
+      eval $varname="\"-DScotch_DIR:PATH='$dir'\""
       printvar $varname
     fi
   done
