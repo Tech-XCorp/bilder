@@ -243,8 +243,8 @@ case `uname` in
         # echo "CXXFLAGS = $CXXFLAGS"
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
-        # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
-        if [[ $CXX =~ clang ]] && ! echo $PYC_CXXFLAGS | grep stdlib; then
+        if [[ $PY_CXX =~ clang ]] && ! echo $PYC_CXXFLAGS | grep stdlib; then
+          # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
           PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
         fi
         PYC_FC=${PYC_FC:-"$FC"}
