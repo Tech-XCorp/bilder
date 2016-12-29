@@ -80,19 +80,23 @@ buildMuparser() {
 
 # The builds
 # Have to declare library in LDFLAGS on Darwin
-  if bilderConfig $configargs muparser ser "--enable-shared=no CC=$CC CFLAGS='$CFLAGS' $MUPARSER_SER_OTHER_ARGS"; then
+  local ldflags=`echo $CXXFLAGS | sed -e 's/-std=c++11//'`
+  local ldflagsvar="LDFLAGS='$ldflags'"
+  if bilderConfig $configargs muparser ser "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ldflagsvar $MUPARSER_SER_OTHER_ARGS"; then
     bilderBuild $makerargs muparser ser "$MUPARSER_SER_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sermd "--enable-shared=no CC=$CC CFLAGS='$CFLAGS' $MUPARSER_SERMD_OTHER_ARGS"; then
+  if bilderConfig $configargs muparser sermd "--enable-shared=no $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ldflagsvar $MUPARSER_SERMD_OTHER_ARGS"; then
     bilderBuild $makerargs muparser sermd "$MUPARSER_SERMD_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser sersh "--enable-shared=yes CC=$CC CFLAGS='$CFLAGS' $MUPARSER_SERSH_OTHER_ARG"; then
+  if bilderConfig $configargs muparser sersh "--enable-shared=yes $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ldflagsvar $MUPARSER_SERSH_OTHER_ARG"; then
     bilderBuild $makerargs muparser sersh "$MUPARSER_SERSH_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser pycsh  "--enable-shared=yes CC=$PYC_CC CFLAGS='$PYC_CFLAGS' $MUPARSER_PYCSH_OTHER_ARG"; then
+  ldflags=`echo $PYC_CXXFLAGS | sed -e 's/-std=c++11//'`
+  ldflagsvar="LDFLAGS='$ldflags'"
+  if bilderConfig $configargs muparser pycsh  "--enable-shared=yes $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ldflagsvar $MUPARSER_PYCSH_OTHER_ARG"; then
     bilderBuild $makerargs muparser pycsh "$MUPARSER_PYCSH_MAKE_ARGS"
   fi
-  if bilderConfig $configargs muparser pycst  "--enable-shared=no CC=$PYC_CC CFLAGS='$PYC_CFLAGS' $MUPARSER_PYCST_OTHER_ARG"; then
+  if bilderConfig $configargs muparser pycst  "--enable-shared=no $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ldflagsvar $MUPARSER_PYCST_OTHER_ARG"; then
     bilderBuild $makerargs muparser pycst "$MUPARSER_PYCST_MAKE_ARGS"
   fi
 
