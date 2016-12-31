@@ -59,10 +59,10 @@ haveHdf5Fortran() {
         esac
         ;;
     esac
-    return 0 
+    return 0
   fi
   techo "Hdf5: We don't have Fortran"
-  return 1 
+  return 1
 }
 
 buildHdf5() {
@@ -89,11 +89,15 @@ buildHdf5() {
 # Shared: For Linux, add origin to rpath, do not strip rpath
   local HDF5_SER_ADDL_ARGS=
   local HDF5_SERSH_ADDL_ARGS=
-  local HDF5_PAR_ADDL_ARGS= 
+  local HDF5_PAR_ADDL_ARGS=
   local HDF5_SERSH_ADDL_ARGS=
   local HDF5_PARSH_ADDL_ARGS=
   local HDF5_PYCSH_ADDL_ARGS=
   case `uname` in
+    CYGWIN*)
+      HDF5_SER_ADDL_ARGS="$HDF5_SER_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=FALSE"
+      HDF5_PAR_ADDL_ARGS="$HDF5_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=FALSE"
+      ;;
     Darwin)
 # Shared libs to know their installation names so that builds of
 # dependents link to this for installation to work without DYLD_LIBRARY_PATH
