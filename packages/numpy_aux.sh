@@ -28,8 +28,8 @@
 ######################################################################
 
 setNumpyTriggerVars() {
-  NUMPY_BLDRVERSION_STD=1.9.2
-  NUMPY_BLDRVERSION_EXP=1.12.0b1
+  NUMPY_BLDRVERSION_STD=1.11.2
+  NUMPY_BLDRVERSION_EXP=1.11.2
   computeVersion numpy
   NUMPY_BUILDS=${NUMPY_BUILDS:-"pycsh"}
   NUMPY_DEPS=Python

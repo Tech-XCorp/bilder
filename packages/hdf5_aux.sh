@@ -19,29 +19,8 @@
 
 getHdf5TriggerVars() {
 
-# Set the version
-  case `uname` in
-    CYGWIN*)
-# If you upgrade to a newer version of hdf5, first check a parallel run on
-# 32-bit Windows and be sure it does not crash.
-      if [[ "$CC" =~ mingw ]]; then
-        HDF5_BLDRVERSION_STD=1.8.10
-      else
-        HDF5_BLDRVERSION_STD=1.8.13
-      fi
-      HDF5_BLDRVERSION_EXP=1.8.13
-      ;;
-    Darwin)
-      case `uname -r` in
-        13.*) HDF5_BLDRVERSION_STD=1.8.9;;  # Mavericks
-        14.*) HDF5_BLDRVERSION_STD=1.8.13;; # Yosemite
-        15.*) HDF5_BLDRVERSION_STD=1.8.16;; # El Capitan
-        16.*) HDF5_BLDRVERSION_STD=1.8.16;; # Sierra
-      esac
-      ;;
-    Linux) HDF5_BLDRVERSION_STD=1.8.13;;
-  esac
-  HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-"1.10.0-patch1"}
+  HDF5_BLDRVERSION_STD=1.8.18
+  HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-"1.8.18"}
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
