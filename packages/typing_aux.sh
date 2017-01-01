@@ -4,10 +4,10 @@
 #
 # $Id$
 #
-# Get tarball from zip by
-# unzip MathJax-2.5-latest.zip
-# mv MathJax-2.5-latest MathJax-2.5
-# env COPYFILE_DISABLE=true tar cjf MathJax-2.5.tar.bz2 MathJax-2.5
+# This package was taken from bitbucket and put into sourceforge:
+# https://svn.code.sf.net/p/numfig/code-0/trunk
+#
+# Create the tarball by running tarup.sh in the checked out repo.
 #
 ######################################################################
 
@@ -20,21 +20,20 @@
 #
 ######################################################################
 
-setMathjaxTriggerVars() {
-  MATHJAX_BLDRVERSION_STD=${MATHJAX_BLDRVERSION_STD:-"2.7.0"}
-  MATHJAX_BLDRVERSION_EXP=${MATHJAX_BLDRVERSION_EXP:-"2.7.0"}
-  MATHJAX_BUILDS=${MATHJAX_BUILDS:-"full,lite"}
-  MATHJAX_DEPS=Python
+setTypingTriggerVars() {
+  TYPING_BLDRVERSION=${TYPING_BLDRVERSION:-"3.5.3.0"}
+  TYPING_BUILDS=${TYPING_BUILDS:-"pycsh"}
+  TYPING_DEPS=Sphinx
 }
-setMathjaxTriggerVars
+setTypingTriggerVars
 
 ######################################################################
 #
-# Find mathjaxs
+# Find xz
 #
 ######################################################################
 
-findMathjax() {
+findTyping() {
   :
 }
 
