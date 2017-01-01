@@ -23,7 +23,7 @@
 setTypingTriggerVars() {
   TYPING_BLDRVERSION=${TYPING_BLDRVERSION:-"3.5.3.0"}
   TYPING_BUILDS=${TYPING_BUILDS:-"pycsh"}
-  TYPING_DEPS=Sphinx
+  TYPING_DEPS=
 }
 setTypingTriggerVars
 
