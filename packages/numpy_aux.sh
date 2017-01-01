@@ -28,8 +28,14 @@
 ######################################################################
 
 setNumpyTriggerVars() {
-  NUMPY_BLDRVERSION_STD=1.11.2
-  NUMPY_BLDRVERSION_EXP=1.11.2
+# The variable below determines whether we try to build numpy on Windows
+  NUMPY_WIN_BUILD=${NUMPY_WIN_BUILD:-"false"}
+  if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
+    NUMPY_BLDRVERSION_STD=1.11.2
+    NUMPY_BLDRVERSION_EXP=1.11.2
+  else
+    NUMPY_BLDRVERSION=1.9.2
+  fi
   computeVersion numpy
   NUMPY_BUILDS=${NUMPY_BUILDS:-"pycsh"}
   NUMPY_DEPS=Python

@@ -80,8 +80,10 @@ setPythonTriggerVars
 
 findPython() {
   source $BILDER_DIR/bilderpy.sh
-  if test `uname` = Linux; then
-    addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
-  fi
+  case `uname` in
+    Linux)
+      addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
+      ;;
+  esac
 }
 

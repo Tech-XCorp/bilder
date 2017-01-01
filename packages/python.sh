@@ -150,6 +150,11 @@ installPython() {
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
 
+      CYGWIN*)
+        wget https://bootstrap.pypa.io/get-pip.py
+        python get-pip.py
+        ;;
+
       Linux)
 # Fix rpath if known how
         if declare -f bilderFixRpath 1>/dev/null 2>&1; then
