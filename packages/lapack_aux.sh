@@ -18,8 +18,8 @@
 ######################################################################
 
 setLapackTriggerVars() {
-  LAPACK_BLDRVERSION_STD=${LAPACK_BLDRVERSION_STD="3.4.2"}
-  LAPACK_BLDRVERSION_EXP=${LAPACK_BLDRVERSION_EXP="3.4.2"}
+  LAPACK_BLDRVERSION_STD=${LAPACK_BLDRVERSION_STD="3.7.0"}
+  LAPACK_BLDRVERSION_EXP=${LAPACK_BLDRVERSION_EXP="3.7.0"}
   computeVersion lapack
 # We cannot rely on system builds, as they get the PIC flags wrong.
 # Need liblapack.a compiled with -fPIC so that we can get the shared
