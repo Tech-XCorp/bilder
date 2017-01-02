@@ -138,10 +138,10 @@ buildNumpy() {
   esac
 
 # Create site.cfg
-# Format changed by 1.8.0.  Lines all begin with '#', and lapack_libs
+# Format changed with 1.8.0.  All lines begin with '#', and lapack_libs
 # and blas_libs no longer specified.  They come from the section by default?
   if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
-    local sep=':'
+    local sep=','
     if [[ `uname` =~ CYGWIN ]]; then
 # In spite of documentation, need semicolon, not comma.
       sep=';'
