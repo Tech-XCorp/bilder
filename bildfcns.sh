@@ -6701,14 +6701,14 @@ EOF
         techo -2 "[$FUNCNAME] call to bilderInstall or bilderInstallTestedPkg."
         doPost=false;
       fi
-      if $INSTALLER_HOST; then
-        if $INSTALLER_ROOTDIR; then
+      if test -z "$INSTALLER_HOST"; then
+        techo "Skipping post to depot for all packages. INSTALLER_HOST not set."
+        doPost=false;
+      else
+        if test -z "$INSTALLER_ROOTDIR"; then
           techo "Skipping post to depot for all packages. INSTALLER_ROOTDIR not set."
           doPost=false;
         fi
-      else
-        techo "Skipping post to depot for all packages. INSTALLER_HOST not set."
-        doPost=false;
       fi
 
       if $doPost; then
@@ -6742,7 +6742,7 @@ EOF
               techo "NOTE: [$FUNCNAME] Found Installer = ${installer}"
               local installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
               techo -2 "[$FUNCNAME] installerVersion = $installerVersion"
-              local installerProduct=`echo $installer | sed -e 's@-.*@@'` | tr '[:upper:]' '[:lower:]'
+              local installerProduct=`echo $installer | sed -e 's@-.*@@' | tr '[:upper:]' '[:lower:]'`
               techo -2 "[$FUNCNAME] installerProduct = $installerProduct"
 
 # Check that subdirectory in Depot exists, where directory name is
@@ -6767,9 +6767,9 @@ EOF
               if $depotDirOk; then
                 local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
                 techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
-                local removeExtra="s%${installerVersion}.*${ending}%${installerVersion}${ending}%"
-                local installerlink=`echo $installer | sed -e "${removeExtra}"`
-                techo -2 "[$FUNCNAME] installerlink = $installerlink"
+                local removeExtra="s%${installerVersion}.*${ending}%${installerVersion}-${ending}%"
+                local installerLink=`echo $installer | sed -e "${removeExtra}"`
+                techo -2 "[$FUNCNAME] installerLink = $installerLink"
                 cmd="scp -v license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
                 techo -2 "[$FUNCNAME] $cmd"
                 $cmd
@@ -6791,8 +6791,8 @@ EOF
                   cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotDir}/license.txt"
                   techo -2 "[$FUNCNAME] $cmd"
                   $cmd
-                  if test -n "$installerlink" -a "${installerlink}" != "${installerTarget}" ; then
-                    cmd="ssh ${INSTALLER_HOST} ln -sf ${depotDir}/$installerTarget ${depotDir}/${installerlink}"
+                  if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
+                    cmd="ssh ${INSTALLER_HOST} ln -sf ${depotDir}/$installerTarget ${depotDir}/${installerLink}"
                     techo -2 "[$FUNCNAME] $cmd"
                     eval $cmd
                   fi
@@ -6817,13 +6817,13 @@ EOF
                   else
                     techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotDir}."
                   fi
-                  if test -n "$installerlink" -a "${installerlink}" != "${installerTarget}" ; then
+                  if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
                     curdir=`pwd -P`
-                    if test -s ${windepotDir}/${installerlink}.lnk; then
-                      rmall ${windepotDir}/${installerlink}.lnk
+                    if test -s ${windepotDir}/${installerLink}.lnk; then
+                      rmall ${windepotDir}/${installerLink}.lnk
                     fi
-                    cmd="cd ${windepotDir}; mkshortcut.exe -n "${installerlink}.lnk" ${installerTarget}; cd ${curdir}"
-                    techo "Creating link ${installerlink}.lnk on Windows depot"
+                    cmd="cd ${windepotDir}; mkshortcut.exe -n "${installerLink}.lnk" ${installerTarget}; cd ${curdir}"
+                    techo "Creating link ${installerLink}.lnk on Windows depot"
                     eval $cmd
                   fi
                 fi  # if test -n "$WINDOWS_DEPOT"
