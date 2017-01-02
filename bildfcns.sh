@@ -6729,17 +6729,17 @@ EOF
             sfx=tar.gz
             ;;
         esac
+        foundOneInstaller=false
         for ending in $endings; do
           techo -2 "[$FUNCNAME] Looking for installers with pattern: '*-${ending}'."
           installers=`(shopt -s nocaseglob; \ls *-${ending} 2>/dev/null)`
-          if test -z $installers; then
-            techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
-          else 
+          if test -n $installers; then
             for installer in "$installers"; do
 
 # Found Installer
 #    Define some variables based on name
               techo "NOTE: [$FUNCNAME] Found Installer = ${installer}"
+              foundOneInstaller=true
               local installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
               techo -2 "[$FUNCNAME] installerVersion = $installerVersion"
               local installerProduct=`echo $installer | sed -e 's@-.*@@' | tr '[:upper:]' '[:lower:]'`
@@ -6772,7 +6772,10 @@ EOF
                 techo -2 "[$FUNCNAME] installerLink = $installerLink"
                 cmd="scp -v license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
                 techo -2 "[$FUNCNAME] $cmd"
-                $cmd
+                if ! $cmd 1>/dev/null 2>./bilderPostError; then
+                  techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
+                  rm -f bilderPostError
+                fi 
                 cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
                 techo -2 "[$FUNCNAME] $cmd"
                 if $cmd 1>/dev/null 2>./bilderPostError; then
@@ -6831,6 +6834,9 @@ EOF
             done  # loop of installers
           fi  # if test -z $installers  (i.e. if any installers found)
         done  # loop of endings
+        if ! $foundOneInstaller; then
+          techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+        fi 
       fi  # if $doPost  (i.e. sanity checks passed and ok to post)
     else  # if test $RESULT = 0  (i.e. install was not ok) 
       installFailures="$installFailures $1-$2"
