@@ -233,6 +233,7 @@ buildNumpy() {
   fi
   techo "NUMPY_ENV = $NUMPY_ENV."
 
+if false; then
 # For CYGWIN builds, remove any detritus lying around now.
   local cmd=
   if [[ `uname` =~ CYGWIN ]]; then
@@ -240,22 +241,22 @@ buildNumpy() {
     techo "$cmd"
     $cmd
   fi
+fi
 
 # Build/install
   if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
     bilderDuBuild numpy "$NUMPY_ARGS" "$NUMPY_ENV"
   else
-    if shouldInstall -i $CONTRIB_DIR numpy-${NUMPY_BLDRVERSION} pycsh; then
-      cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple numpy"
-      techo "$cmd"
-      if $cmd; then
-        ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR numpy,pycsh
-        techo "numpy-pycsh installed."
-        installations="$installations numpy-pycsh"
-      else
-        techo "numpy-pycsh failed to install."
-        installFailures="$installFailures numpy-pycsh"
-      fi
+# We know we should build this, as there is only one build.
+    cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple numpy"
+    techo "$cmd"
+    if $cmd; then
+      ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR numpy,pycsh
+      techo "numpy-pycsh installed."
+      installations="$installations numpy-pycsh"
+    else
+      techo "numpy-pycsh failed to install."
+      installFailures="$installFailures numpy-pycsh"
     fi
   fi
 

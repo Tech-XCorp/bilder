@@ -145,28 +145,29 @@ buildScipy() {
     SCIPY_ENV="$SCIPY_ENV LDFLAGS='$linkflags'"
   fi
 
+if false; then
 # For CYGWIN builds, remove any detritus lying around now.
   if [[ `uname` =~ CYGWIN ]]; then
     cmd="rmall ${PYTHON_SITEPKGSDIR}/scipy*"
     techo "$cmd"
     $cmd
   fi
+fi
 
 # On hopper, cannot include LD_LIBRARY_PATH
   if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
     bilderDuBuild scipy "$SCIPY_BUILD_ARGS" "$SCIPY_ENV" "$SCIPY_CONFIG_ARGS"
   else
-    if shouldInstall -i $CONTRIB_DIR scipy-${SCIPY_BLDRVERSION} pycsh; then
-      cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple scipy"
-      techo "$cmd"
-      if $cmd; then
-        ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR scipy,pycsh
-        techo "scipy-pycsh installed."
-        installations="$installations scipy-pycsh"
-      else
-        techo "scipy-pycsh failed to install."
-        installFailures="$installFailures scipy-pycsh"
-      fi
+# Building at this point as only one package, and that checked by bilderUnpack
+    cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple scipy"
+    techo "$cmd"
+    if $cmd; then
+      ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR scipy,pycsh
+      techo "scipy-pycsh installed."
+      installations="$installations scipy-pycsh"
+    else
+      techo "scipy-pycsh failed to install."
+      installFailures="$installFailures scipy-pycsh"
     fi
   fi
 
