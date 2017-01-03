@@ -6713,26 +6713,27 @@ EOF
 
       if $doPost; then
         techo "Finding and copying all installers to the depot."
-        local ending=
+        local endings=
         local sfx=
         case `uname` in
           CYGWIN*)
-            endings="Win64.exe"
+            endings="Win64"
             sfx=exe
             ;;
           Darwin)
-            endings="MacOSX.dmg"
+            endings="MacOSX"
             sfx=dmg
             ;;
           Linux)
-            endings="Linux64.tar.gz Linux64-glibc${GLIBC_VERSION}.tar.gz"
+            endings="Linux64 Linux64-glibc${GLIBC_VERSION}"
             sfx=tar.gz
             ;;
         esac
         foundOneInstaller=false
         for ending in $endings; do
-          techo -2 "[$FUNCNAME] Looking for installers with pattern: '*-${ending}'."
-          installers=`(shopt -s nocaseglob; \ls *-${ending} 2>/dev/null)`
+          techo -2 "[$FUNCNAME] Looking for installers with pattern: '*-${ending}.${sfx}'."
+          installers=`(shopt -s nocaseglob; \ls *-${ending}.${sfx} 2>/dev/null)`
+          techo -2 "[$FUNCNAME] installers = '$installers'"
           if test -n $installers; then
             for installer in "$installers"; do
 
@@ -6742,12 +6743,14 @@ EOF
               foundOneInstaller=true
               local installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
               techo -2 "[$FUNCNAME] installerVersion = $installerVersion"
-              local installerProduct=`echo $installer | sed -e 's@-.*@@' | tr '[:upper:]' '[:lower:]'`
+              local installerProduct=`echo $installer | sed -e 's@-.*@@'`
+              local installerProductLC=`echo $installerProduct | tr '[:upper:]' '[:lower:]'`
               techo -2 "[$FUNCNAME] installerProduct = $installerProduct"
+              techo -2 "[$FUNCNAME] installerProductLC = $installerProductLC"
 
 # Check that subdirectory in Depot exists, where directory name is
-# based on installer ($installerProduct-$installerVersion-****-****-$ending)
-              local depotDir=$INSTALLER_ROOTDIR/$installersubdir/$installerProduct/$installerVersion
+# based on installer ($installerProduct-$installerVersion-****-****-$ending.$sfx)
+              local depotDir=$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
               techo -2 "[$FUNCNAME] depotDir = $depotDir"
               local depotDirOk=false
               if ssh ${INSTALLER_HOST} ls ${depotDir} 1>/dev/null 2>&1; then
@@ -6767,10 +6770,7 @@ EOF
               if $depotDirOk; then
                 local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
                 techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
-                local removeExtra="s%${installerVersion}.*${ending}%${installerVersion}-${ending}%"
-                local installerLink=`echo $installer | sed -e "${removeExtra}"`
-                techo -2 "[$FUNCNAME] installerLink = $installerLink"
-                cmd="scp -v license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
+                cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
                 techo -2 "[$FUNCNAME] $cmd"
                 if ! $cmd 1>/dev/null 2>./bilderPostError; then
                   techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
@@ -6778,6 +6778,8 @@ EOF
                 fi 
                 cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
                 techo -2 "[$FUNCNAME] $cmd"
+                local installerLink="${installerProduct}-${installerVersion}-${ending}.${sfx}"
+                techo -2 "[$FUNCNAME] installerLink = $installerLink"
                 if $cmd 1>/dev/null 2>./bilderPostError; then
                   local perms=
                   case $umaskval in
