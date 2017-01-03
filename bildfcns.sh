@@ -6731,10 +6731,10 @@ EOF
         esac
         foundOneInstaller=false
         for ending in $endings; do
-          techo -2 "[$FUNCNAME] Looking for installers with pattern: '*-${ending}.${sfx}'."
           installers=`(shopt -s nocaseglob; \ls *-${ending}.${sfx} 2>/dev/null)`
-          techo -2 "[$FUNCNAME] installers = '$installers'"
-          if test -n $installers; then
+          if test -z "$installers"; then
+            techo -2 "[$FUNCNAME] No installers with pattern: '*-${ending}.${sfx}'."
+          else
             for installer in "$installers"; do
 
 # Found Installer
