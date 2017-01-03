@@ -228,27 +228,16 @@ case `uname` in
           FC=${FC:-"gfortran-4.9"}
           F77=${F77:-"gfortran-4.9"}
         fi
-        cxxb=`basename $CXX`
-        if [[ $cxxb =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
 # -stdlib=libc++ is the default since Mavericks and gives c++11 support.
 # http://stackoverflow.com/questions/19774778/when-is-it-necessary-to-use-use-the-flag-stdlib-libstdc
 # But tests show still needed at link.
-          CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        elif [[ $cxxb =~ 'g++' ]] && ! echo $CXXFLAGS | grep -- "-std="; then
-# -stdlib does not exist on gcc
-          CXXFLAGS="$CXXFLAGS -std=c++11"
-        fi
-        # echo "CXXFLAGS = $CXXFLAGS"
+        CXXFLAGS=${CXXFLAGS:-"-std=c++11 -stdlib=libc++"}
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
-        if [[ $PYC_CXX =~ clang ]] && ! echo $PYC_CXXFLAGS | grep -- "-std="; then
 # txbase must have -std=c++11 to compile as it uses C++11 extensions
 # txbase fails linking to self:
-          # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11"
 # txbase links to self, so -stdlib=libc++ is NOT a default at link:
-          PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
-        fi
-        # echo "PYC_CXXFLAGS = $PYC_CXXFLAGS"
+        PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-std=c++11 -stdlib=libc++"}
         PYC_FC=${PYC_FC:-"$FC"}
         PYC_F77=${PYC_F77:-"$F77"}
         ;;
@@ -260,6 +249,7 @@ case `uname` in
 
   Linux)
     ARCHIVER=ar
+    CXXFLAGS=${CXXFLAGS:-"-std=c++11"}
     CPUINFO=`grep "model name" /proc/cpuinfo | head -1 | sed 's/^.*:  *//'`
     GLIBC_VERSION=`ldd --version | head -1 | sed 's/^.* //'`
     LIBEXT=.a
