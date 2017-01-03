@@ -72,7 +72,7 @@ buildNumpy() {
     return
   fi
 # Scipy requires fortran
-  if test -z "$PYC_FC"; then
+  if (! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD) &&  test -z "$PYC_FC"; then
     techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
   fi
 
