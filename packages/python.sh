@@ -146,6 +146,7 @@ testPython() {
 ######################################################################
 
 installPython() {
+
   local pydir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
@@ -181,5 +182,6 @@ installPython() {
         ;;
     esac
   fi
+
 }
 
