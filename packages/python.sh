@@ -60,7 +60,7 @@ buildPython() {
   local pycppflags=
   case `uname` in
     CYGWIN*)
-      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DINSTALL_WINDOWS_TRADITIONAL=ON -DPY_VERSION_PATCH=$PY_BLDRVERSION_PATCH"
+      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DINSTALL_WINDOWS_TRADITIONAL=ON -DPYTHON_VERSION=$PYTHON_BLDRVERSION"
       if test -z "$CMAKE_ZLIB_SERMD_LIBDIR"; then
         echo "WARNING: [$FUNCNAME] CMAKE_ZLIB_SERMD_LIBDIR not set."
       else
@@ -153,7 +153,9 @@ installPython() {
 
       CYGWIN*)
         wget https://bootstrap.pypa.io/get-pip.py
-        python get-pip.py
+        cmd="python get-pip.py"
+        techo "$cmd"
+        eval "$cmd"
         ;;
 
       Linux)
