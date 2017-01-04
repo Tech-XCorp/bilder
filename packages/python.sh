@@ -155,7 +155,10 @@ installPython() {
         wget https://bootstrap.pypa.io/get-pip.py
         cmd="python get-pip.py"
         techo "$cmd"
-        eval "$cmd"
+        if ! $cmd; then
+          techo "ERROR: get-pip.py failed to run."
+          installFailures="$installFailures pip"
+        fi
         ;;
 
       Linux)
