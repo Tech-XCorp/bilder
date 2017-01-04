@@ -19,9 +19,17 @@
 
 getHdf5TriggerVars() {
 
-# 1.8.18 on Windows crashes
-  HDF5_BLDRVERSION_STD=${HDF5_BLDRVERSION_STD:-"1.8.16"}
-  HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-"1.8.16"}
+  case `uname` in
+    CYGWIN*)
+# 1.8.{16,18} crash on Windows
+      HDF5_BLDRVERSION_STD=${HDF5_BLDRVERSION_STD:-"1.8.13"}
+      HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-"1.8.13"}
+      ;;
+    *)
+      HDF5_BLDRVERSION_STD=${HDF5_BLDRVERSION_STD:-"1.8.18"}
+      HDF5_BLDRVERSION_EXP=${HDF5_BLDRVERSION_EXP:-"1.8.18"}
+      ;;
+  esac
 
 # Set the builds.
   if test -z "$HDF5_DESIRED_BUILDS"; then
