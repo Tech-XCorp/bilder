@@ -250,6 +250,7 @@ case `uname` in
   Linux)
     ARCHIVER=ar
     CXXFLAGS=${CXXFLAGS:-"-std=c++11"}
+    PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-std=c++11"}
     CPUINFO=`grep "model name" /proc/cpuinfo | head -1 | sed 's/^.*:  *//'`
     GLIBC_VERSION=`ldd --version | head -1 | sed 's/^.* //'`
     LIBEXT=.a
