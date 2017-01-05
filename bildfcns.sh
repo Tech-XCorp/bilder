@@ -2915,6 +2915,7 @@ setDefaultPkgVars() {
 #
 findBlasLapack() {
 
+  techo -2 "findBlasLapack entered."
 
   USE_ATLAS=${USE_ATLAS:-"false"}
   USE_PTSOLVE_LITE=${USE_PTSOLVE_LITE:-"false"}
@@ -2928,6 +2929,11 @@ findBlasLapack() {
 # First: Determine LAPACK_${BLD}_LIBS and BLAS_${BLD}_LIBS
 # for possible build values, BLD.
 #
+# Empty out to recompute
+  for BLD in SER SERSH PYCSH BEN; do
+    eval LAPACK_${BLD}_LIBS=
+    eval BLAS_${BLD}_LIBS=
+  done
 
 # Use system libraries if defined
   for BLD in SER SERSH PYCSH BEN; do
