@@ -156,7 +156,8 @@ installPython() {
         cmd="python get-pip.py"
         techo "$cmd"
         if ! $cmd; then
-          techo "ERROR: get-pip.py failed to run."
+          techo "ERROR: get-pip.py failed to run.  Must build numpy."
+          BLDR_BUILD_NUMPY=true
           installFailures="$installFailures pip"
         fi
         ;;

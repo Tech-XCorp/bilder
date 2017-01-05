@@ -34,37 +34,7 @@ setScipyNonTriggerVars
 #
 ######################################################################
 
-buildScipy() {
-
-# Determine whether to unpack, whether there is a build
-  if ! bilderUnpack scipy; then
-    return
-  fi
-# Scipy requires fortran
-  if test -z "$PYC_FC"; then
-    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
-    if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
-      return 1
-    fi
-  fi
-
-  cd $BUILD_DIR/scipy-${SCIPY_BLDRVERSION}
-
-# Older ppc require removal of arch from fortran flags
-  case `uname -s` in
-    Darwin)
-      case `uname -r` in
-        9.*)
-          case `uname -p` in
-            powerpc)
-              svn up $BILDER_DIR/scipygfortran.sh
-              SCIPY_GFORTRAN="F77=$BILDER_DIR/scipygfortran.sh"
-              ;;
-          esac
-          ;;
-        esac
-      ;;
-  esac
+setupScipyBuild() {
 
 # Get native fortran compiler
   local SCIPY_FC="$PYC_FC"
@@ -76,38 +46,34 @@ buildScipy() {
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
 
 # Determine whether to use atlas.  SciPy must go with NumPy in all things.
-  if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
-    if $NUMPY_USE_ATLAS; then
-      techo "Building scipy with ATLAS."
-      techo "ATLAS_PYCSH_DIR = $ATLAS_PYCSH_DIR,  ATLAS_PYCSH_LIBDIR = $ATLAS_PYCSH_LIBDIR."
-    fi
-    SCIPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/scipy.files'"
+  if $NUMPY_USE_ATLAS; then
+    techo "Building scipy with ATLAS."
+    techo "ATLAS_PYCSH_DIR = $ATLAS_PYCSH_DIR,  ATLAS_PYCSH_LIBDIR = $ATLAS_PYCSH_LIBDIR."
   fi
+  SCIPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/scipy.files'"
 
 # Get env and args
   case `uname`-"$CC" in
 
     CYGWIN*-*cl*)
-      if $NUMPY_WIN_BUILD; then
-        if ! $NUMPY_WIN_USE_FORTRAN; then
-          techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
-          return 1
-        fi
+      if ! $NUMPY_WIN_USE_FORTRAN; then
+        techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
+        return 1
+      fi
 # Determine basic args
-        SCIPY_BUILD_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
-        SCIPY_BUILD_ARGS="--fcompiler=gnu95 $SCIPY_BUILD_ARGS"
-        if $NUMPY_USE_ATLAS; then
-          SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_PYCSH_LIBDIR'"
-        else
-          local blslpcklibdir="$CONTRIB_LAPACK_SERMD_DIR"/lib
-          blslpcklibdir=`cygpath -aw $blslpcklibdir | sed 's/\\\\/\\\\\\\\/g'`
-          SCIPY_ENV="$DISTUTILS_ENV LAPACK='${blslpcklibdir}' BLAS='${blslpcklibdir}'"
-        fi
-        local fcbase=`basename "$PYC_FC"`
-        if ! eval "$SCIPY_ENV" which $fcbase 1>/dev/null 2>&1; then
-          techo "ERROR: [$FUNCNAME] Cannot build scipy, as $fcbase is not in PATH."
-          return
-        fi
+      SCIPY_BUILD_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
+      SCIPY_BUILD_ARGS="--fcompiler=gnu95 $SCIPY_BUILD_ARGS"
+      if $NUMPY_USE_ATLAS; then
+        SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_PYCSH_LIBDIR'"
+      else
+        local blslpcklibdir="$CONTRIB_LAPACK_SERMD_DIR"/lib
+        blslpcklibdir=`cygpath -aw $blslpcklibdir | sed 's/\\\\/\\\\\\\\/g'`
+        SCIPY_ENV="$DISTUTILS_ENV LAPACK='${blslpcklibdir}' BLAS='${blslpcklibdir}'"
+      fi
+      local fcbase=`basename "$PYC_FC"`
+      if ! eval "$SCIPY_ENV" which $fcbase 1>/dev/null 2>&1; then
+        techo "ERROR: [$FUNCNAME] Cannot build scipy, as $fcbase is not in PATH."
+        return
       fi
       ;;
 
@@ -130,19 +96,36 @@ buildScipy() {
       SCIPY_CONFIG_ARGS="config_fc --fcompiler gnu95 --f77exec='$PYC_FC' --f77flags='$fflags' --f90exec='$PYC_FC' --f90flags='$fflags' config --cc='$PYC_CC'"
       SCIPY_BUILD_ARGS="install --prefix='$NATIVE_CONTRIB_DIR'"
       ;;
+
     Linux-*)
       local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
       SCIPY_ENV="$DISTUTILS_ENV $SCIPY_GFORTRAN BLAS='$LAPACK_LIB_DIR' LAPACK='$LAPACK_LIB_DIR'"
       linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
       ;;
+
     *)
       techo "WARNING: [$FUNCNAME] uname `uname` not recognized.  Not building."
       return
       ;;
+
   esac
   trimvar linkflags ' '
   if test -n "$linkflags"; then
     SCIPY_ENV="$SCIPY_ENV LDFLAGS='$linkflags'"
+  fi
+
+}
+
+buildScipy() {
+
+# Determine whether to unpack, whether there is a build
+  if ! bilderUnpack scipy; then
+    return
+  fi
+# Scipy requires fortran
+  if ! $HAVE_SER_FORTRAN; then
+    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
+    return 1
   fi
 
 if false; then
@@ -155,10 +138,12 @@ if false; then
 fi
 
 # On hopper, cannot include LD_LIBRARY_PATH
-  if ! [[ `uname` =~ CYGWIN ]] || $NUMPY_WIN_BUILD; then
+  if $BLDR_BUILD_NUMPY && $HAVE_SER_FORTRAN; then
+    setupScipyBuild
     bilderDuBuild scipy "$SCIPY_BUILD_ARGS" "$SCIPY_ENV" "$SCIPY_CONFIG_ARGS"
   else
 # Building at this point as only one package, and that checked by bilderUnpack
+    cd $BUILD_DIR/scipy-${SCIPY_BLDRVERSION}
     cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple scipy"
     techo "$cmd"
     if $cmd; then
