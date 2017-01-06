@@ -18,6 +18,7 @@
 ######################################################################
 
 setLapackTriggerVars() {
+# Per KB, upgrading to 3.7.0 requires upgrade of trilinos (12??).
   LAPACK_BLDRVERSION_STD=${LAPACK_BLDRVERSION_STD="3.4.2"}
   LAPACK_BLDRVERSION_EXP=${LAPACK_BLDRVERSION_EXP="3.4.2"}
   computeVersion lapack

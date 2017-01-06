@@ -37,58 +37,60 @@ else
 fi
 
 #
-# Find mingw
+# Find mingw fortran.
 #
-MINGW_BINDIR=
-for dr in /TDM-GCC-64 /MinGW64 /TDM-GCC-32; do
-  bd=`ls -1d $dr/bin $dr/*/bin 2>/dev/null | tail -1`
-  if test -n "${bd}"; then
-    MINGW_BINDIR=${bd}
-    break
-  fi
-done
-if test -n "$MINGW_BINDIR"; then
-  $TECHO "MinGW found: MINGW_BINDIR = $MINGW_BINDIR."
-else
-  $TECHO "NOTE: MinGW not found.  ATLAS and SciPy require installation of MinGW per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
-fi
 
-# Find all the compilers if prefix known.
-if test -n "$MINGW_BINDIR"; then
-
-# Find the prefix for the compilers.
-  MINGW_PREFIX=
-  for pr in x86_64-w64-mingw32 i686-w64-mingw32 mingw32; do
-    if test -x ${MINGW_BINDIR}/${pr}-gcc; then
-      MINGW_PREFIX=$pr
+# Below gets installed with cygwin now
+if ! FC=`which i686-w64-mingw32-gfortran`; then
+  MINGW_BINDIR=
+  for dr in /TDM-GCC-64 /MinGW64; do
+    bd=`ls -1d $dr/bin $dr/*/bin 2>/dev/null | tail -1`
+    if test -n "${bd}"; then
+      MINGW_BINDIR=${bd}
       break
     fi
   done
-  $TECHO "MINGW_PREFIX = $MINGW_PREFIX."
-
-  if test -n "$MINGW_PREFIX"; then
-
-# Find fortran compiler
-    if test -x ${MINGW_BINDIR}/${MINGW_PREFIX}-gfortran.exe; then
-      FC=${FC:-"${MINGW_BINDIR}/${MINGW_PREFIX}-gfortran.exe"}
-    fi
-
-# Atlas requires that the mingw compilers be linked into /usr/bin
-# on Windows
-    # for prog in gcc gfortran ar ranlib; do
-    for prog in gcc gfortran; do
-      if ! test -e /usr/bin/${MINGW_PREFIX}-${prog}.exe; then
-        $TECHO "WARNING: [cygwin.vs] ${MINGW_PREFIX}-${prog}.exe not found."
-        if test -n $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe; then
-          $TECHO "WARNING: [cygwin.vs] Execute 'ln -s $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe /usr/bin/${MINGW_PREFIX}-${prog}.exe'."
-        else
-          $TECHO "NOTE: Cannot find MinGW installation of ${prog}."
-        fi
-      fi
-    done
-
+  if test -n "$MINGW_BINDIR"; then
+    $TECHO "MinGW found: MINGW_BINDIR = $MINGW_BINDIR."
+  else
+    $TECHO "NOTE: MinGW not found.  ATLAS and SciPy require installation of MinGW per instructions at http://sourceforge.net/p/bilder/wiki/Installing MinGW."
   fi
 
+# Find all the compilers if prefix known.
+  if test -n "$MINGW_BINDIR"; then
+
+# Find the prefix for the compilers.
+    MINGW_PREFIX=
+    for pr in i686-w64-mingw32 x86_64-w64-mingw32; do
+      if test -x ${MINGW_BINDIR}/${pr}-gcc; then
+        MINGW_PREFIX=$pr
+        break
+      fi
+    done
+    $TECHO "MINGW_PREFIX = $MINGW_PREFIX."
+
+    if test -n "$MINGW_PREFIX"; then
+
+# Find fortran compiler
+      if test -x ${MINGW_BINDIR}/${MINGW_PREFIX}-gfortran.exe; then
+        FC=${FC:-"${MINGW_BINDIR}/${MINGW_PREFIX}-gfortran.exe"}
+      fi
+
+# Atlas requires that the mingw compilers be linked into /usr/bin on Windows.
+      for prog in gcc gfortran; do
+        if ! test -e /usr/bin/${MINGW_PREFIX}-${prog}.exe; then
+          $TECHO "WARNING: [cygwin.vs] ${MINGW_PREFIX}-${prog}.exe not found."
+          if test -n $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe; then
+            $TECHO "WARNING: [cygwin.vs] Execute 'ln -s $MINGW_BINDIR/${MINGW_PREFIX}-${prog}.exe /usr/bin/${MINGW_PREFIX}-${prog}.exe'."
+          else
+            $TECHO "NOTE: Cannot find MinGW installation of ${prog}."
+          fi
+        fi
+      done
+
+    fi
+
+  fi
 fi
 
 # Set the fortran compiler

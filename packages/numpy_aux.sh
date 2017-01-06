@@ -28,8 +28,19 @@
 ######################################################################
 
 setNumpyTriggerVars() {
-  NUMPY_BLDRVERSION_STD=1.9.2
-  NUMPY_BLDRVERSION_EXP=1.12.0b1
+# BLDR_BUILD_NUMPY: whether numpy is built (versus installed from a whl)
+  if [[ `uname` =~ CYGWIN ]]; then
+# Default: build numpy on Windows (separate to facilitate change)
+    BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"true"}
+  fi
+# Default: build numpy
+  BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"true"}
+  if $BLDR_BUILD_NUMPY; then
+    NUMPY_BLDRVERSION_STD=1.11.2
+    NUMPY_BLDRVERSION_EXP=1.11.2
+  else
+    NUMPY_BLDRVERSION=1.9.2 # Version of available whl
+  fi
   computeVersion numpy
   NUMPY_BUILDS=${NUMPY_BUILDS:-"pycsh"}
   NUMPY_DEPS=Python

@@ -1,0 +1,25 @@
+diff -ruN hdf5-1.8.18/fortran/src/CMakeLists.txt hdf5-1.8.18-new/fortran/src/CMakeLists.txt
+--- hdf5-1.8.18/fortran/src/CMakeLists.txt	2016-11-04 12:41:06.000000000 -0600
++++ hdf5-1.8.18-new/fortran/src/CMakeLists.txt	2016-12-31 16:01:00.611097700 -0700
+@@ -166,6 +166,11 @@
+     ${HDF5_F90_SRC_SOURCE_DIR}/H5Tf.c
+     ${HDF5_F90_SRC_SOURCE_DIR}/H5Zf.c
+ )
++foreach (src ${f90CStub_C_SRCS})
++set_source_files_properties(${src}
++  PROPERTIES OBJECT_DEPENDS ${HDF5_F90_BINARY_DIR}/H5f90i_gen.h
++)
++endforeach ()
+ 
+ if (H5_HAVE_PARALLEL)
+   set (f90CStub_C_SRCS
+@@ -180,7 +185,8 @@
+     ${HDF5_F90_BINARY_DIR}/H5f90i_gen.h
+ )
+ 
+-add_library (${HDF5_F90_C_LIB_TARGET} STATIC ${f90CStub_C_SRCS} ${f90CStub_C_HDRS})
++# add_library (${HDF5_F90_C_LIB_TARGET} STATIC ${f90CStub_C_SRCS} ${f90CStub_C_HDRS})
++add_library (${HDF5_F90_C_LIB_TARGET} STATIC ${f90CStub_C_SRCS})
+ TARGET_C_PROPERTIES (${HDF5_F90_C_LIB_TARGET} STATIC " " " ")
+ target_link_libraries (${HDF5_F90_C_LIB_TARGET} ${HDF5_LIB_TARGET} ${LINK_LIBS})
+ set_global_variable (HDF5_LIBRARIES_TO_EXPORT "${HDF5_LIBRARIES_TO_EXPORT};${HDF5_F90_C_LIB_TARGET}")

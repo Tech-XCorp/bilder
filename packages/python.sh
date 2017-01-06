@@ -60,7 +60,7 @@ buildPython() {
   local pycppflags=
   case `uname` in
     CYGWIN*)
-      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DINSTALL_WINDOWS_TRADITIONAL=ON -DPY_VERSION_PATCH=$PY_BLDRVERSION_PATCH"
+      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DINSTALL_WINDOWS_TRADITIONAL=ON -DPYTHON_VERSION=$PY_DL_VERSION"
       if test -z "$CMAKE_ZLIB_SERMD_LIBDIR"; then
         echo "WARNING: [$FUNCNAME] CMAKE_ZLIB_SERMD_LIBDIR not set."
       else
@@ -146,9 +146,21 @@ testPython() {
 ######################################################################
 
 installPython() {
+
   local pydir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
+
+      CYGWIN*)
+        wget https://bootstrap.pypa.io/get-pip.py
+        cmd="python get-pip.py"
+        techo "$cmd"
+        if ! $cmd; then
+          techo "ERROR: get-pip.py failed to run.  Must build numpy."
+          BLDR_BUILD_NUMPY=true
+          installFailures="$installFailures pip"
+        fi
+        ;;
 
       Linux)
 # Fix rpath if known how
@@ -176,5 +188,6 @@ installPython() {
         ;;
     esac
   fi
+
 }
 

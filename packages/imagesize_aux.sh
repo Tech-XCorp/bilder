@@ -4,6 +4,10 @@
 #
 # $Id$
 #
+# This package was taken from bitbucket and put into sourceforge:
+# https://svn.code.sf.net/p/numfig/code-0/trunk
+#
+# Create the tarball by running tarup.sh in the checked out repo.
 #
 ######################################################################
 
@@ -16,21 +20,20 @@
 #
 ######################################################################
 
-setSnowballstemmerTriggerVars() {
-  SNOWBALLSTEMMER_BLDRVERSION_STD=${SNOWBALLSTEMMER_BLDRVERSION_STD:-"1.2.1"}
-  SNOWBALLSTEMMER_BLDRVERSION_EXP=${SNOWBALLSTEMMER_BLDRVERSION_EXP:-"1.2.1"}
-  SNOWBALLSTEMMER_BUILDS=${SNOWBALLSTEMMER_BUILDS:-"pycsh"}
-  SNOWBALLSTEMMER_DEPS=Python
+setImagesizeTriggerVars() {
+  IMAGESIZE_BLDRVERSION=${IMAGESIZE_BLDRVERSION:-"0.7.1"}
+  IMAGESIZE_BUILDS=${IMAGESIZE_BUILDS:-"pycsh"}
+  IMAGESIZE_DEPS=
 }
-setSnowballstemmerTriggerVars
+setImagesizeTriggerVars
 
 ######################################################################
 #
-# Find snowballstemmer
+# Find xz
 #
 ######################################################################
 
-findSnowballstemmer() {
+findImagesize() {
   :
 }
 

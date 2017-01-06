@@ -4,6 +4,9 @@
 #
 # $Id$
 #
+# tar xzf sphinx-bootstrap-theme-0.4.13.tar.gz
+# mv sphinx-bootstrap-theme-0.4.13 sphinx_bootstrap_theme-0.4.13
+# env COPYFILE_DISABLE=true tar czf sphinx_bootstrap_theme-0.4.13.tgz sphinx_bootstrap_theme-0.4.13
 #
 ######################################################################
 
@@ -17,8 +20,8 @@
 ######################################################################
 
 setSphinx_bootstrap_themeTriggerVars() {
-  SPHINX_BOOTSTRAP_THEME_BLDRVERSION_STD=${SPHINX_BOOTSTRAP_THEME_BLDRVERSION_STD:-"0.4.7"}
-  SPHINX_BOOTSTRAP_THEME_BLDRVERSION_EXP=${SPHINX_BOOTSTRAP_THEME_BLDRVERSION_EXP:-"0.4.7"}
+  SPHINX_BOOTSTRAP_THEME_BLDRVERSION_STD=${SPHINX_BOOTSTRAP_THEME_BLDRVERSION_STD:-"0.4.13"}
+  SPHINX_BOOTSTRAP_THEME_BLDRVERSION_EXP=${SPHINX_BOOTSTRAP_THEME_BLDRVERSION_EXP:-"0.4.13"}
   SPHINX_BOOTSTRAP_THEME_BUILDS=${SPHINX_BOOTSTRAP_THEME_BUILDS:-"pycsh"}
   SPHINX_BOOTSTRAP_THEME_DEPS=Python
 }

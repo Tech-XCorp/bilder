@@ -16,8 +16,8 @@
 ######################################################################
 
 setBabelTriggerVars() {
-  BABEL_BLDRVERSION_STD=${BABEL_BLDRVERSION_STD:-"1.3"}
-  BABEL_BLDRVERSION_EXP=${BABEL_BLDRVERSION_EXP:-"1.3"}
+  BABEL_BLDRVERSION_STD=${BABEL_BLDRVERSION_STD:-"2.3.4"}
+  BABEL_BLDRVERSION_EXP=${BABEL_BLDRVERSION_EXP:-"2.3.4"}
   BABEL_BUILDS=${BABEL_BUILDS:-"pycsh"}
   BABEL_DEPS=pytz,setuptools,Python
 }

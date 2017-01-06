@@ -16,7 +16,7 @@
 ######################################################################
 
 setCppcheckTriggerVars() {
-  CPPCHECK_BLDRVERSION_STD=${CPPCHECK_BLDRVERSION_STD:-"1.72"}
+  CPPCHECK_BLDRVERSION_STD=${CPPCHECK_BLDRVERSION_STD:-"1.76.1"}
   CPPCHECK_BLDRVERSION_EXP=${CPPCHECK_BLDRVERSION_EXP:-"1.76.1"}
   if ! test "$CPPCHECK_BUILDS" = NONE; then
     if ! [[ `uname` =~ CYGWIN ]]; then
