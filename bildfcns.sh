@@ -1004,7 +1004,6 @@ createConfigFiles() {
 
 # Create setup scripts
   cd $PROJECT_DIR
-  rm -f $BUILD_DIR/${BILDER_PROJECT}.sh
   case `uname` in
     CYGWIN*) sep=';';;
     *) sep=':';;
@@ -8074,6 +8073,10 @@ buildChain() {
 
 # Trying to trace down a de-installation of numpy
   # printInstallationStatus numpy $CONTRIB_DIR buildChain-begin
+
+# Remove Project script to ensure the environment is not contaminated by the previous run. 
+  rm -f $BUILD_DIR/${BILDER_PROJECT}.sh
+  rm -f $BUILD_DIR/${BILDER_PROJECT}.csh
 
 # Get options
   local analyzeonly=false
