@@ -229,20 +229,17 @@ buildNumpy() {
   if $BLDR_BUILD_NUMPY && ! $HAVE_SER_FORTRAN; then
     techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
   fi
-
-if false; then
-# For CYGWIN builds, remove any detritus lying around now.
   local cmd=
-  if [[ `uname` =~ CYGWIN ]]; then
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/numpy*"
-    techo "$cmd"
-    $cmd
-  fi
-fi
 
 # Build/install
   if $BLDR_BUILD_NUMPY; then
     setupNumpyBuild
+# For CYGWIN builds, remove any detritus lying around now.
+    if [[ `uname` =~ CYGWIN ]]; then
+      cmd="rmall ${PYTHON_SITEPKGSDIR}/numpy*"
+      techo "$cmd"
+      $cmd
+    fi
     bilderDuBuild numpy "$NUMPY_ARGS" "$NUMPY_ENV"
   else
 # Move to build directory
