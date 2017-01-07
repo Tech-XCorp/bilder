@@ -17,10 +17,10 @@
 
 getBoostTriggerVars() {
   case `uname` in
-    Linux) BOOST_BLDRVERSION_STD=1_62_0;; # Works.  Need to try Windows.
-    *) BOOST_BLDRVERSION_STD=1_62_0;;
+    Linux) BOOST_BLDRVERSION_STD=1_63_0;; # Works.  Need to try Windows.
+    *) BOOST_BLDRVERSION_STD=1_63_0;;
   esac
-  BOOST_BLDRVERSION_EXP=1_62_0
+  BOOST_BLDRVERSION_EXP=1_63_0
   if test -z "$BOOST_BUILDS"; then
     if test -z "$BOOST_DESIRED_BUILDS"; then
       BOOST_DESIRED_BUILDS=ser,sersh
