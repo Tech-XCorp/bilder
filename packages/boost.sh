@@ -188,8 +188,9 @@ buildBoost() {
   fi
 # Only the shared and pycsh build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags, which does not work with python.
+# boost_numpy fails to build with msvc in sersh so disable
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
-  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_PYCST_ADDL_ARGS="$toolsetarg_pycst $sermdlinkargs --without-python ${stdlibargs_pycst} $BOOST_ALL_ADDL_ARGS"
   BOOST_PYCSH_ADDL_ARGS="$toolsetarg_pycsh $sharedlinkargs ${stdlibargs_pycsh} $BOOST_ALL_ADDL_ARGS"
