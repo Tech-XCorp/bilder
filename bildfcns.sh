@@ -6811,7 +6811,7 @@ EOF
                   rm -f bilderPostError
                 fi
                 if test -n "$WINDOWS_DEPOT"; then
-                  local windepotDir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
+                  local windepotDir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
                   if test ! -d ${windepotDir}; then
                     techo "NOTE: [$FUNCNAME] Creating Windows depot dir ${windepotDir}."
                     mkdir -p ${windepotDir}
