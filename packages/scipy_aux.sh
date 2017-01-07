@@ -16,6 +16,7 @@
 ######################################################################
 
 setScipyTriggerVars() {
+  # techo "setScipyTriggerVars entered."
   if $BLDR_BUILD_NUMPY; then
     SCIPY_BLDRVERSION_STD=0.18.1
     SCIPY_BLDRVERSION_EXP=0.18.1
@@ -23,7 +24,11 @@ setScipyTriggerVars() {
     SCIPY_BLDRVERSION=0.16.0 # Version of available whl
   fi
   computeVersion scipy
-  if $BLDR_BUILD_NUMPY && [[ `uname` =~ "CYGWIN" ]] && ! $NUMPY_WIN_USE_FORTRAN; then
+  techo "BLDR_BUILD_NUMPY = $BLDR_BUILD_NUMPY"
+  techo "SCIPY_BUILDS = $SCIPY_BUILDS"
+  techo "HAVE_SER_FORTRAN = $HAVE_SER_FORTRAN"
+  if $BLDR_BUILD_NUMPY && [[ `uname` =~ "CYGWIN" ]] && ! $HAVE_SER_FORTRAN; then
+    techo "Setting SCIPY_BUILDS to NONE."
     SCIPY_BUILDS=${SCIPY_BUILDS:-"NONE"}
   else
     SCIPY_BUILDS=${SCIPY_BUILDS:-"pycsh"}

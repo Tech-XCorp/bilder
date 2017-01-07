@@ -130,6 +130,8 @@ case `uname` in
     LIBEXT=.lib
     unset LIBPREFIX
     techo "Getting number of cores."
+# BLDR_BUILD_NUMPY: whether numpy is built (versus installed from a whl)
+    BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"false"}
     NUM_PHYS_CORES=${NUMBER_OF_PROCESSORS}
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
@@ -295,6 +297,7 @@ techo "Found $NUM_LOG_CORES logical cores."
 techo "Found $NUM_PHYS_CORES physical cores."
 MAKEJ_TOTAL=$NUM_PHYS_CORES
 IS_MINGW=${IS_MINGW:-"false"}
+BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"true"}
 
 ######################################################################
 #
@@ -812,7 +815,7 @@ testvars="BILDER_CTEST_MODEL"
 mkjvars="NUM_PHYS_CORES NUM_LOG_CORES MAKEJ_TOTAL MAKEJ_DEFVAL"
 ldvars="GLIBC_VERSION LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
-othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
+othervars="BLDR_BUILD_NUMPY USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
 
 techo ""
 techo "Environment settings:"
