@@ -298,6 +298,7 @@ techo "Found $NUM_PHYS_CORES physical cores."
 MAKEJ_TOTAL=$NUM_PHYS_CORES
 IS_MINGW=${IS_MINGW:-"false"}
 BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"true"}
+export BLDR_BUILD_NUMPY
 
 ######################################################################
 #
