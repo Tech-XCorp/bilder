@@ -35,7 +35,7 @@ setPythonTriggerVars() {
 # Master for pull requests to upstream and to rebase against upstream
 # Our best working branch.  After mastertxc is rebased, it is pulled in
 # and commits squashed.
-    PYTHON_REPO_BRANCH_STD=develop
+    PYTHON_REPO_BRANCH_STD=mastertxc
 # Where we develop fixes.  We rebase against mastertxc.
     PYTHON_REPO_BRANCH_EXP=develop
     PYTHON_UPSTREAM_URL=https://github.com/python-cmake-buildsystem/python-cmake-buildsystem.git

@@ -1004,7 +1004,6 @@ createConfigFiles() {
 
 # Create setup scripts
   cd $PROJECT_DIR
-  rm -f $BUILD_DIR/${BILDER_PROJECT}.sh
   case `uname` in
     CYGWIN*) sep=';';;
     *) sep=':';;
@@ -8074,6 +8073,11 @@ buildChain() {
 
 # Trying to trace down a de-installation of numpy
   # printInstallationStatus numpy $CONTRIB_DIR buildChain-begin
+
+# Move Project script to ensure the environment is not contaminated by the previous run. 
+# Still available as .bak in case of bilder crash. 
+  mv $BUILD_DIR/${BILDER_PROJECT}.sh $BUILD_DIR/${BILDER_PROJECT}.sh.bak
+  mv $BUILD_DIR/${BILDER_PROJECT}.csh $BUILD_DIR/${BILDER_PROJECT}.csh.bak
 
 # Get options
   local analyzeonly=false

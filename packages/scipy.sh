@@ -127,19 +127,16 @@ buildScipy() {
     techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
     return 1
   fi
-
-if false; then
-# For CYGWIN builds, remove any detritus lying around now.
-  if [[ `uname` =~ CYGWIN ]]; then
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/scipy*"
-    techo "$cmd"
-    $cmd
-  fi
-fi
+  local cmd=
 
 # On hopper, cannot include LD_LIBRARY_PATH
   if $BLDR_BUILD_NUMPY && $HAVE_SER_FORTRAN; then
     setupScipyBuild
+    if [[ `uname` =~ CYGWIN ]]; then
+      cmd="rmall ${PYTHON_SITEPKGSDIR}/scipy*"
+      techo "$cmd"
+      $cmd
+    fi
     bilderDuBuild scipy "$SCIPY_BUILD_ARGS" "$SCIPY_ENV" "$SCIPY_CONFIG_ARGS"
   else
 # Building at this point as only one package, and that checked by bilderUnpack
