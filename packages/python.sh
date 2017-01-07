@@ -152,13 +152,22 @@ installPython() {
     case `uname` in
 
       CYGWIN*)
+if false; then
         wget https://bootstrap.pypa.io/get-pip.py
-        cmd="python get-pip.py"
+        cmd="$pydir/python get-pip.py"
         techo "$cmd"
         if ! $cmd; then
           techo "ERROR: get-pip.py failed to run.  Must build numpy."
           BLDR_BUILD_NUMPY=true
           installFailures="$installFailures pip"
+        fi
+fi
+        cmd="$pydir/python -c 'import ssl; print(ssl.__file__)"
+        techo "$cmd"
+        if eval "$cmd"; then
+          techo "ssl imported."
+        else
+          techo "WARNING: [$FUNCNAME] ssl did not import."
         fi
         ;;
 
