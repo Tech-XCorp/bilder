@@ -162,7 +162,7 @@ if false; then
           installFailures="$installFailures pip"
         fi
 fi
-        cmd="$pydir/python -c 'import ssl; print(ssl.__file__)"
+        cmd="$pydir/python -c 'import ssl; print(ssl.__file__)'"
         techo "$cmd"
         if eval "$cmd"; then
           techo "ssl imported."
