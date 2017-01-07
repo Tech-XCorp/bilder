@@ -473,7 +473,7 @@ if test -n "$WAIT_PACKAGE"; then
   elif test -f $BILDER_DIR/packages/${WAIT_PACKAGE}.sh; then
     waitPkg="$BILDER_DIR/packages/${WAIT_PACKAGE}.sh"
   fi
-  echo "----------------------- Found $waitPkg ------------------------------ "
+  echo "---------- Found $waitPkg ----------"
 
   if source $waitPkg; then
     bldsvar=`genbashvar ${WAIT_PACKAGE}`_BUILDS

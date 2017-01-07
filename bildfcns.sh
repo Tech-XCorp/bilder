@@ -6691,8 +6691,8 @@ EOF
 # A) Bilder allows to turn off posting altogether with POST2DEPOT=false.
 # B) The depot must be defined with INSTALLER_HOST:INSTALLER_ROOTDIR
 #    or we can not do the post.
-# C) The package file must set an installersubdir with the -s option 
-#    to bilderInstall or bilderInstallTestedPkg to flag this code to 
+# C) The package file must set an installersubdir with the -s option
+#    to bilderInstall or bilderInstallTestedPkg to flag this code to
 #    look for installers. So, we check all of these conditions up-front
 #    before doing the post.
 
@@ -6780,7 +6780,7 @@ EOF
                 if ! $cmd 1>/dev/null 2>./bilderPostError; then
                   techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
                   rm -f bilderPostError
-                fi 
+                fi
                 cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
                 techo -2 "[$FUNCNAME] $cmd"
                 local installerLink="${installerProduct}-${installerVersion}-${ending}.${sfx}"
@@ -6843,14 +6843,14 @@ EOF
         done  # loop of endings
         if ! $foundOneInstaller; then
           techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
-        fi 
+        fi
       fi  # if $doPost  (i.e. sanity checks passed and ok to post)
-    else  # if test $RESULT = 0  (i.e. install was not ok) 
+    else  # if test $RESULT = 0  (i.e. install was not ok)
       installFailures="$installFailures $1-$2"
       anyFailures="$anyFailures $1-$2"
       techo "Package $1-$2 failed to install."
       echo FAILURE >>$install_txt
-    fi  # if test $RESULT = 0  (i.e. install was ok) 
+    fi  # if test $RESULT = 0  (i.e. install was ok)
 
 # Print message and restore umask so that links & installations.txt okay
     if test -n "$BLDR_PROJECT_URL"; then
@@ -8074,10 +8074,10 @@ buildChain() {
 # Trying to trace down a de-installation of numpy
   # printInstallationStatus numpy $CONTRIB_DIR buildChain-begin
 
-# Move Project script to ensure the environment is not contaminated by the previous run. 
-# Still available as .bak in case of bilder crash. 
-  mv $BUILD_DIR/${BILDER_PROJECT}.sh $BUILD_DIR/${BILDER_PROJECT}.sh.bak
-  mv $BUILD_DIR/${BILDER_PROJECT}.csh $BUILD_DIR/${BILDER_PROJECT}.csh.bak
+# Move Project script to ensure builds are not contaminated by the previous run.
+# Still available as .bak in case of bilder crash.
+  test -f $BUILD_DIR/${BILDER_PROJECT}.sh && mv $BUILD_DIR/${BILDER_PROJECT}.sh $BUILD_DIR/${BILDER_PROJECT}.sh.bak
+  test -f $BUILD_DIR/${BILDER_PROJECT}.csh &&  mv $BUILD_DIR/${BILDER_PROJECT}.csh $BUILD_DIR/${BILDER_PROJECT}.csh.bak
 
 # Get options
   local analyzeonly=false
