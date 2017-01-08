@@ -24,13 +24,8 @@ setMatplotlibTriggerVars() {
   MATPLOTLIB_DEPS=python_dateutil,mock,nose,pyparsing,pytz,six,$MATPLOTLIB_DEPS
 # Additional seen to be installed
   MATPLOTLIB_DEPS=markupsafe,pbr,$MATPLOTLIB_DEPS
-  case `uname` in
-    Darwin) ;;
-# The requirement of pyqt on Linux is causing long build times
-# Perhaps this should be done only optionally
-    Linux) ;;
-    *) MATPLOTLIB_DEPS=pyqt,${MATPLOTLIB_DEPS};;
-  esac
+# Adding pyqt to the chain is causing long build times, so removing.
+# Those who need it should add it to the target.
 }
 setMatplotlibTriggerVars
 
