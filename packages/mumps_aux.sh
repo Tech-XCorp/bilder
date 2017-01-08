@@ -16,7 +16,9 @@
 ######################################################################
 
 setMumpsTriggerVars() {
-  MUMPS_BLDRVERSION=${MUMPS_BLDRVERSION:-"4.10.0"}
+  MUMPS_BLDRVERSION_STD=${MUMPS_BLDRVERSION_STD="5.0.2"}
+  MUMPS_BLDRVERSION_EXP=${MUMPS_BLDRVERSION_EXP="5.0.2"}
+  computeVersion mumps
   case `uname` in
 # Neither ser nor par building on Darwin
     Darwin) ;;
