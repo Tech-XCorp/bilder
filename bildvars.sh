@@ -329,6 +329,8 @@ if test -z "$HAVE_SER_FORTRAN"; then
 fi
 # Giving up
 HAVE_SER_FORTRAN=${HAVE_SER_FORTRAN:-"false"}
+# Needed for setinstald.sh for numpy
+export HAVE_SER_FORTRAN
 
 # Backend node serial compilers:
 BENCC=${BENCC:-"$CC"}
