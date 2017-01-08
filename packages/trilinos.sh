@@ -362,8 +362,10 @@ buildTrilinos() {
        ;;
      Linux)
        local TPL_PACKAGELIST="SuperLU SuperLUDist"
-       # We don't want MUMPS in serial, but getTriTPLs knows that
-       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
+# We don't want MUMPS in serial, but getTriTPLs knows that
+# mumps build is messed up in any case so removing for now.
+       # TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE MUMPS"
+       TPL_PACKAGELIST="$TPL_PACKAGELIST HYPRE"
        ;;
   esac
 
