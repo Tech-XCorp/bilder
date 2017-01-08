@@ -162,7 +162,8 @@ installPython() {
           techo "ssl imported."
         else
           sslimported=false
-          techo "WARNING: [$FUNCNAME] ssl did not import."
+          libeay32=`which libeay32.dll`
+          techo "WARNING: [$FUNCNAME] ssl did not import. libeay32 = $libeay32."
         fi
         wget https://bootstrap.pypa.io/get-pip.py
         if $sslimported; then
