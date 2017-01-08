@@ -48,10 +48,10 @@ buildMumps() {
     return
   fi
 
-# Shared: For Linux, add origin to rpath, do not strip rpath
-  local MUMPS_SER_ADDL_ARGS=
+# Mumps defaults to shared, so static needs to turn this off
+  local MUMPS_SER_ADDL_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE -DBUILD_EXECS:BOOL=FALSE"
   local MUMPS_SERSH_ADDL_ARGS=
-  local MUMPS_PAR_ADDL_ARGS=
+  local MUMPS_PAR_ADDL_ARGS="-DBUILD_SHARED_LIBS:BOOL=FALSE -DBUILD_EXECS:BOOL=FALSE"
   local MUMPS_PARSH_ADDL_ARGS=
   case `uname` in
     Darwin)
@@ -61,6 +61,7 @@ buildMumps() {
       MUMPS_PAR_ADDL_ARGS="$MUMPS_PAR_ADDL_ARGS -DMUMPS_BUILD_WITH_INSTALL_NAME:BOOL=TRUE"
       ;;
     Linux)
+# Shared: For Linux, add origin to rpath, do not strip rpath
 # Quoting of $ORIGIN does not work.
 # Adding -Wl,-rpath,XORIGIN:XORIGIN/../lib to LINKER_FLAGS does not work.
 # -DCMAKE_INSTALL_RPATH_USE_LINK_PATH cannot be used with -DCMAKE_INSTALL_RPATH
