@@ -121,8 +121,10 @@ buildPython() {
 # To find the necessary bits, look in setup.py in detect_modules() for
 # the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-# On Windows build is static and needs to go into contrib
+# On Windows, build is static and needs to go into contrib
   eval PYTHON_${FORPYTHON_SHARED_BUILD}_INSTALL_DIR=$CONTRIB_DIR
+  PYTHON_PREFIX_DIR="${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD"
+  techo -2 "PYTHON_PREFIX_DIR = $PYTHON_PREFIX_DIR"
   if bilderConfig -I $CONTRIB_DIR Python $FORPYTHON_SHARED_BUILD "$PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
     bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
@@ -147,12 +149,12 @@ testPython() {
 
 installPython() {
 
-  local pydir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD
+  techo -2 "PYTHON_PREFIX_DIR = $PYTHON_PREFIX_DIR"
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
 
       CYGWIN*)
-        cmd="$pydir/python -c 'import ssl; print(ssl.__file__)'"
+        cmd="$PYTHON_PREFIX_DIR/python -c 'import ssl; print(ssl.__file__)'"
         techo "$cmd"
         local sslimported=
         if eval "$cmd"; then
@@ -164,7 +166,7 @@ installPython() {
         fi
         wget https://bootstrap.pypa.io/get-pip.py
         if $sslimported; then
-          cmd="$pydir/python get-pip.py"
+          cmd="$PYTHON_PREFIX_DIR/python get-pip.py"
           techo "$cmd"
           if ! $cmd; then
             techo "ERROR: '$cmd' failed to run.  Must build numpy."
@@ -176,9 +178,9 @@ installPython() {
       Linux)
 # Fix rpath if known how
         if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-          bilderFixRpath ${pydir}/bin/python${PYTHON_MAJMIN}
-          bilderFixRpath ${pydir}/lib/libpython${PYTHON_MAJMIN}.so
-          bilderFixRpath ${pydir}/lib/python${PYTHON_MAJMIN}/lib-dynload
+          bilderFixRpath ${PYTHON_PREFIX_DIR}/bin/python${PYTHON_MAJMIN}
+          bilderFixRpath ${PYTHON_PREFIX_DIR}/lib/libpython${PYTHON_MAJMIN}.so
+          bilderFixRpath ${PYTHON_PREFIX_DIR}/lib/python${PYTHON_MAJMIN}/lib-dynload
         fi
 # Remove any backups
         rm -f $CONTRIB_DIR/bin/python.bak
