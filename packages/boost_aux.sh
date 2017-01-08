@@ -16,8 +16,8 @@
 ######################################################################
 
 getBoostTriggerVars() {
-  BOOST_BLDRVERSION_STD=${BOOST_BLDRVERSION_STD:-"1_63_0"}
-  BOOST_BLDRVERSION_EXP=${BOOST_BLDRVERSION_EXP:-"1_63_0"}
+  BOOST_BLDRVERSION_STD=${BOOST_BLDRVERSION_STD:-"1_62_0"}
+  BOOST_BLDRVERSION_EXP=${BOOST_BLDRVERSION_EXP:-"1_62_0"}
   if test -z "$BOOST_BUILDS"; then
     if test -z "$BOOST_DESIRED_BUILDS"; then
       BOOST_DESIRED_BUILDS=ser,sersh
