@@ -120,7 +120,7 @@ diff -ruN trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt trilinos-11.14.3-
 diff -ruN trilinos-11.14.3/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake trilinos-11.14.3-new/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake
 --- trilinos-11.14.3/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake	1969-12-31 17:00:00.000000000 -0700
 +++ trilinos-11.14.3-new/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake	2017-01-06 16:58:31.000000000 -0700
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,40 @@
 +# LAPACK 3.6.0 deprecates dggsvd and sggsvd (Issue #480)
 +# The new versions of dggsvd and sggsvd are called dggsvd3 and sggsvd3
 +#
@@ -140,6 +140,9 @@ diff -ruN trilinos-11.14.3/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cma
 +FUNCTION(CHECK_HAVE_EPETRA_LAPACK_GSSVD3 VARNAME)
 +
 +  SET(CMAKE_REQUIRED_LIBRARIES ${TPL_LAPACK_LIBRARIES} ${TPL_BLAS_LIBRARIES})
++  IF (HAVE_FORTRAN_SUPPORT)
++    SET(CMAKE_REQUIRED_FLAGS -lgfortran)
++  ENDIF()
 +
 +  CHECK_FUNCTION_EXISTS( dggsvd3   HAVE_dggsvd3 )
 +  CHECK_FUNCTION_EXISTS( dggsvd3_  HAVE_dggsvd3_POST )
