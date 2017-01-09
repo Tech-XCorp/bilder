@@ -19,7 +19,7 @@ setPbrTriggerVars() {
   PBR_BLDRVERSION_STD=${PBR_BLDRVERSION_STD:-"1.10.0"}
   PBR_BLDRVERSION_EXP=${PBR_BLDRVERSION_EXP:-"1.10.0"}
   PBR_BUILDS=${PBR_BUILDS:-"pycsh"}
-  PBR_DEPS=setuptools,Python
+  PBR_DEPS=imagesize,setuptools,Python
 }
 setPbrTriggerVars
 
