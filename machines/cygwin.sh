@@ -60,18 +60,17 @@ if echo $PATH | grep -qi '/cygdrive/c/Windows/System32:'; then
 fi
 
 # Put openssl at the front of the path
-osslpath=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
-newpath=`echo $PATH | sed -e "s?:$osslpath:?:?"`
-if ! [[ $osslpath =~ /bin$ ]]; then
-  osslpath="$osslpath/bin"
-fi
-PATH="$osslpath:$newpath"
-if OPENSSL_EXE=`which openssl.exe 2>/dev/null`; then
-  OPENSSL_BINDIR=`dirname $OPENSSL_EXE`
-  techo "openssl found. OPENSSL_BINDIR = $OPENSSL_BINDIR"
-else
-  techo "WARNING: [cygwin.sh] openssl not found."
-fi
+putOsslInFront() {
+  ossldir=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
+  test -z "$ossldir" && return
+  techo "Putting OpenSSL at the front of the path."
+  newpath=`echo $PATH | sed -e "s?:$ossldir:?:?"`
+  if ! [[ $ossldir =~ /bin$ ]]; then
+    techo "NOTE: [cygwin.vs] $ossldir does not end in bin. Appending."
+    ossldir="$ossldir/bin"
+  fi
+  PATH="$ossldir:$newpath"
+}
 
 # Add python to front of path.  This may create two copies of
 # the python directory in the path, but that's ok. In a fresh

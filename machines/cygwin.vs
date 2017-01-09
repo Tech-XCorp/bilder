@@ -121,16 +121,12 @@ if test $numossls != 1; then
 else
   techo "NOTE: [cygwin.vs] $numossls instance of ssleay32.dll found."
 fi
+where ssleay32.dll
 ssleayorig=`which ssleay32.dll`
 techo "Originally ssleay32.dll = $ssleayorig"
 osslorigdir=`dirname $ssleayorig`
-ossldir=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
-newpath=`echo $PATH | sed -e "s?:$ossldir:?:?"`
-if ! [[ $ossldir =~ /bin$ ]]; then
-  techo "NOTE: [cygwin.vs] $ossldir does not end in bin. Appending."
-  ossldir="$ossldir/bin"
-fi
-PATH="$ossldir:$newpath"
+techo "Ensuring desired OpenSSL is in front."
+putOsslInFront
 ssleaynew=`which ssleay32.dll`
 techo "Now ssleay32.dll = $ssleaynew"
 if OPENSSL_EXE=`which openssl.exe 2>/dev/null`; then
