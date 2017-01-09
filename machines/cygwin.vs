@@ -115,17 +115,29 @@ if test -n "$VISUALSTUDIO_VERSION"; then
 fi
 
 # Put openssl at the front of the path
-osslpath=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
-newpath=`echo $PATH | sed -e "s?:$osslpath:?:?"`
-if ! [[ $osslpath =~ /bin$ ]]; then
-  osslpath="$osslpath/bin"
+numossls=`where ssleay32.dll | wc -l`
+if test $numossls != 1; then
+  techo "WARNING: [cygwin.vs] $numossls instances of ssleay32.dll found."
+else
+  techo "NOTE: [cygwin.vs] $numossls instance of ssleay32.dll found."
 fi
-PATH="$osslpath:$newpath"
+ssleayorig=`which ssleay32.dll`
+techo "Originally ssleay32.dll = $ssleayorig"
+osslorigdir=`dirname $ssleayorig`
+ossldir=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
+newpath=`echo $PATH | sed -e "s?:$ossldir:?:?"`
+if ! [[ $ossldir =~ /bin$ ]]; then
+  techo "NOTE: [cygwin.vs] $ossldir does not end in bin. Appending."
+  ossldir="$ossldir/bin"
+fi
+PATH="$ossldir:$newpath"
+ssleaynew=`which ssleay32.dll`
+techo "Now ssleay32.dll = $ssleaynew"
 if OPENSSL_EXE=`which openssl.exe 2>/dev/null`; then
   OPENSSL_BINDIR=`dirname $OPENSSL_EXE`
-  techo "openssl found. OPENSSL_BINDIR = $OPENSSL_BINDIR"
+  techo "openssl.exe found. OPENSSL_BINDIR = $OPENSSL_BINDIR"
 else
-  techo "WARNING: [cygwin.sh] openssl not found."
+  techo "WARNING: [cygwin.sh] openssl.exe not found."
 fi
 
 # END KEEP THIS
