@@ -61,13 +61,13 @@ fi
 
 # Put openssl at the front of the path
 putOsslInFront() {
-  ossldir=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
+  ossldir=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?I' -e 's?:.*$??'`
   test -z "$ossldir" && return
   techo "Putting OpenSSL at the front of the path."
   newpath=`echo $PATH | sed -e "s?:$ossldir:?:?"`
   if ! [[ $ossldir =~ /bin$ ]]; then
     techo "NOTE: [cygwin.vs] $ossldir does not end in bin. Appending."
-    ossldir="$ossldir/bin"
+    ossldir="$ossldir:$ossldir/bin"
   fi
   PATH="$ossldir:$newpath"
 }
