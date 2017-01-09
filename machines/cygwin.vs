@@ -114,6 +114,20 @@ if test -n "$VISUALSTUDIO_VERSION"; then
   source $BILDER_DIR/machines/cygwin.sh
 fi
 
+# Put openssl at the front of the path
+osslpath=`echo $PATH | sed -e 's?^.*\(/cygdrive/./OpenSSL\)?\1?' -e 's?:.*$??'`
+newpath=`echo $PATH | sed -e "s?:$osslpath:?:?"`
+if ! [[ $osslpath =~ /bin$ ]]; then
+  osslpath="$osslpath/bin"
+fi
+PATH="$osslpath:$newpath"
+if OPENSSL_EXE=`which openssl.exe 2>/dev/null`; then
+  OPENSSL_BINDIR=`dirname $OPENSSL_EXE`
+  techo "openssl found. OPENSSL_BINDIR = $OPENSSL_BINDIR"
+else
+  techo "WARNING: [cygwin.sh] openssl not found."
+fi
+
 # END KEEP THIS
 
 # Serial compilers
