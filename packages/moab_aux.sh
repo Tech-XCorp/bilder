@@ -17,8 +17,8 @@
 
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_REPO_BRANCH_STD=stable-puJan17
-  MOAB_REPO_BRANCH_EXP=stable-puJan17
+  MOAB_REPO_BRANCH_STD=20170106-stable
+  MOAB_REPO_BRANCH_EXP=master
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH_STD=master
   MOAB_UPSTREAM_BRANCH_EXP=master
