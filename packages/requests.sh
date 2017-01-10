@@ -35,9 +35,11 @@ setRequestsNonTriggerVars
 ######################################################################
 
 buildRequests() {
-  if bilderUnpack requests; then
-    bilderDuBuild requests
+  if ! bilderUnpack requests; then
+    return
   fi
+  REQUESTS_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/requests.files'"
+  bilderDuBuild requests
 }
 
 ######################################################################
@@ -57,6 +59,6 @@ testRequests() {
 ######################################################################
 
 installRequests() {
-  bilderDuInstall requests
+  bilderDuInstall requests "$REQUESTS_INSTALL_ARGS"
 }
 

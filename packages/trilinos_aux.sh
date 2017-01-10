@@ -25,7 +25,6 @@ setTrilinosTriggerVars() {
   TRILINOS_BLDRVERSION_STD=11.14.3
 # 11.12.1 is the last version to configure and build with vs12
 # But it does not build Zoltan?
-  # TRILINOS_BLDRVERSION_EXP=11.12.1
   TRILINOS_BLDRVERSION_EXP=11.14.3
 # Below fails to compile
 # trilinos-12.0.1\packages\amesos\src\SuiteSparse\AMD\Source\amesos_amd_1.c

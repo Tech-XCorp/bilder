@@ -35,9 +35,12 @@ setPbrNonTriggerVars
 ######################################################################
 
 buildPbr() {
-  if bilderUnpack pbr; then
-    bilderDuBuild pbr "" "$DISTUTILS_ENV"
+  if ! bilderUnpack pbr; then
+    return
   fi
+  PBR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pbr.files'"
+  # bilderDuBuild pbr "" "$DISTUTILS_ENV"
+  bilderDuBuild pbr
 }
 
 ######################################################################
@@ -57,7 +60,7 @@ testPbr() {
 ######################################################################
 
 installPbr() {
-  local PBR_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/pbr.files'"
-  bilderDuInstall pbr "$PBR_INSTALL_ARGS" "$DISTUTILS_ENV"
+  # bilderDuInstall pbr "$PBR_INSTALL_ARGS" "$DISTUTILS_ENV"
+  bilderDuInstall pbr "$PBR_INSTALL_ARGS"
 }
 

@@ -35,9 +35,11 @@ setImagesizeNonTriggerVars
 ######################################################################
 
 buildImagesize() {
-  if bilderUnpack imagesize; then
-    bilderDuBuild imagesize
+  if ! bilderUnpack imagesize; then
+    return
   fi
+  IMAGESIZE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/imagesize.files'"
+  bilderDuBuild imagesize
 }
 
 ######################################################################
@@ -57,6 +59,6 @@ testImagesize() {
 ######################################################################
 
 installImagesize() {
-  bilderDuInstall imagesize
+  bilderDuInstall imagesize "$IMAGESIZE_INSTALL_ARGS"
 }
 

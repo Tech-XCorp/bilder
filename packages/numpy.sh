@@ -40,11 +40,12 @@ setNumpyNonTriggerVars() {
 #  python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple numpy
 #  python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple scipy
 
+# Below needed for scipy
+  NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
 # Set windows build vars if building on windows
   if $BLDR_BUILD_NUMPY && [[ `uname` =~ CYGWIN ]]; then
 # So for now, the default is not to use fortran. Further it is forced off
 # if there is no fortran compiler.
-    NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
     if ! $HAVE_SER_FORTRAN; then
       NUMPY_WIN_USE_FORTRAN=false
     fi
