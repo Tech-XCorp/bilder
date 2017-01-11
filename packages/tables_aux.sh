@@ -20,7 +20,7 @@ setTablesTriggerVars() {
   TABLES_BLDRVERSION_EXP=${TABLES_BLDRVERSION_EXP:-"3.3.0"}
   computeVersion tables
   TABLES_BUILDS=${TABLES_BUILDS:-"pycsh"}
-  TABLES_DEPS=hdf5,Cython,numexpr,numpy
+  TABLES_DEPS=hdf5,Cython,numexpr,numpy,six
 }
 setTablesTriggerVars
 
