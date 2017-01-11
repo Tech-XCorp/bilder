@@ -32,5 +32,9 @@ setCmakeTriggerVars
 findCmake() {
   addtopathvar PATH $CONTRIB_DIR/cmake/bin
   CMAKE=`which cmake`
+  if test -z "$CMAKE"; then
+    echo "No cmake.  PATH = $PATH."
+    exit
+  fi
 }
 
