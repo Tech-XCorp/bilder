@@ -32,7 +32,7 @@ setCgmTriggerVars() {
     fi
   fi
   computeBuilds cgm
-  CGM_DEPS=oce,autotools,cmake
+  CGM_DEPS=opencascade,autotools,cmake
 }
 setCgmTriggerVars
 

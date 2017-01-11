@@ -36,11 +36,11 @@ setMoabTriggerVars() {
     MOAB_BUILD_SET=fullForPython
   fi
   if test -z "$MOAB_DESIRED_BUILDS"; then
-# full depends on oce, cgm, but not on trilinos.  Can be used for composers.
+# full depends on cgm, but not on trilinos.  Can be used for composers.
     if [[ $MOAB_BUILD_SET = full ]]; then
       MOAB_DESIRED_BUILDS=ser
     elif [[ $MOAB_BUILD_SET = fullForPython ]]; then
-# full depends on oce, cgm, but not on trilinos.  Uses the compiler that
+# full depends on cgm, but not on trilinos.  Uses the compiler that
 # compiled python.
 # Static serial and parallel builds needed for ulixes
       MOAB_DESIRED_BUILDS=ser,${FORPYTHON_STATIC_BUILD}
@@ -85,7 +85,7 @@ setMoabTriggerVars() {
     fi
   fi
   if echo "$MOAB_BUILD_SET" | grep -q "full"; then
-    MOAB_DEPS=$MOAB_DEPS,oce,cgm
+    MOAB_DEPS=$MOAB_DEPS,opencascade,cgm
   fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
     MOAB_DEPS=$MOAB_DEPS,trilinosrepo
