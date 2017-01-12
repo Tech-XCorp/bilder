@@ -117,11 +117,7 @@ fi
 
 # Put openssl at the front of the path
 numossls=`where ssleay32.dll | wc -l`
-if test $numossls != 1; then
-  techo "WARNING: [cygwin.vs] $numossls instances of ssleay32.dll found."
-else
-  techo "NOTE: [cygwin.vs] $numossls instance of ssleay32.dll found."
-fi
+techo "NOTE: [cygwin.vs] $numossls instances of ssleay32.dll found."
 where ssleay32.dll
 ssleayorig=`which ssleay32.dll`
 techo "Originally ssleay32.dll = $ssleayorig"
