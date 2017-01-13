@@ -716,6 +716,9 @@ else
 fi
 PATH="$PATHSAV"
 
+# Determine opencascade or oce
+USE_OCC=${USE_OCC:-"oce"}
+
 ######################################################################
 #
 # Determine whether to ignore cmake for some hosts.
