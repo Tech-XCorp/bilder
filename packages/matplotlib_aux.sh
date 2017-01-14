@@ -21,7 +21,7 @@ setMatplotlibTriggerVars() {
   MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
 # Dependencies listed in matplotlib-1.4.3-py2.7.egg-info/requires.txt
   MATPLOTLIB_DEPS=numpy,libpng,freetype,Python
-  MATPLOTLIB_DEPS=python_dateutil,mock,nose,pyparsing,pytz,six,$MATPLOTLIB_DEPS
+  MATPLOTLIB_DEPS=cycler,python_dateutil,mock,nose,pyparsing,pytz,six,$MATPLOTLIB_DEPS
 # Additional seen to be installed
   MATPLOTLIB_DEPS=markupsafe,pbr,$MATPLOTLIB_DEPS
 # Adding pyqt to the chain is causing long build times, so removing.
