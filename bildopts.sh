@@ -560,6 +560,10 @@ EOF
     done
   fi
 
+# If the make -j argument hasn't been set on the command line, set it
+# to the default value if one has been set, e.g. by the machine file
+  JMAKE=${JMAKE:-$MAKEJ_DEFVAL}
+
 }
 
 # By default, set the options, but allow not doing so.

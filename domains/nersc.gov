@@ -152,8 +152,15 @@ setBilderHostVars() {
     BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH/builds-${UQMAILHOST}-$compkey"}
   fi
 
-# Add to BILDER_ARGS
-  BILDER_ADDL_ARGS="-j4"
+# Set default make -j argument
+  case $machinedir in
+    cori)
+      export MAKEJ_DEFVAL=12
+      ;;
+    *)
+      export MAKEJ_DEFVAL=8
+      ;;
+  esac
 
 # Set machine file and any other env vars
   case $machinedir in
