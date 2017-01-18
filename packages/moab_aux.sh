@@ -85,7 +85,7 @@ setMoabTriggerVars() {
     fi
   fi
   if echo "$MOAB_BUILD_SET" | grep -q "full"; then
-    MOAB_DEPS=$MOAB_DEPS,opencascade,cgm
+    MOAB_DEPS=$MOAB_DEPS,$USE_OCC,cgm
   fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
     MOAB_DEPS=$MOAB_DEPS,trilinosrepo
