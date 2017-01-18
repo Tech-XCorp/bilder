@@ -56,10 +56,6 @@ setupScipyBuild() {
   case `uname`-"$CC" in
 
     CYGWIN*-*cl*)
-      if ! $NUMPY_WIN_USE_FORTRAN; then
-        techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
-        return 1
-      fi
 # Determine basic args
       SCIPY_BUILD_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       SCIPY_BUILD_ARGS="--fcompiler=gnu95 $SCIPY_BUILD_ARGS"
