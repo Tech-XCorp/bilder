@@ -171,33 +171,33 @@ buildMoab() {
 
 # Configure and build serial
   if bilderConfig $makerargs $moabcmakearg moab ser${MOAB_BUILD_SET} "$MOAB_SER_CONFIG_ARGS $MOAB_SER_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab ser${moabBuildSet} "$makejargs" "$MOAB_ENV"
+    bilderBuild $makerargs moab ser${MOAB_BUILD_SET} "$makejargs" "$MOAB_ENV"
   fi
 
 # Configure and build parallel
   if bilderConfig $makerargs $moabcmakearg moab par${MOAB_BUILD_SET} "$MOAB_PAR_CONFIG_ARGS $MOAB_PAR_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab par${moabBuildSet} "$makejargs" "$MOAB_ENV"
+    bilderBuild $makerargs moab par${MOAB_BUILD_SET} "$makejargs" "$MOAB_ENV"
   fi
 
   if bilderConfig $makerargs $moabcmakearg moab sersh${MOAB_BUILD_SET} "$MOAB_SERSH_CONFIG_ARGS $MOAB_SERSH_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab ser${moabBuildSet} "$makejargs" "$MOAB_ENV"
+    bilderBuild $makerargs moab sersh${MOAB_BUILD_SET} "$makejargs" "$MOAB_ENV"
   fi
 
   if bilderConfig $makerargs $moabcmakearg moab parsh${MOAB_BUILD_SET} "$MOAB_PARSH_CONFIG_ARGS $MOAB_PARSH_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab parsh${moabBuildSet} "$makejargs" "$MOAB_ENV"
+    bilderBuild $makerargs moab parsh${MOAB_BUILD_SET} "$makejargs" "$MOAB_ENV"
   fi
 
 # Configure and build python serial.  This may not be needed.
 # Cannot use FORPYTHON_STATIC_BUILD on unixish where it can resolve to ser,
   if bilderConfig $makerargs $moabcmakearg moab pycst${MOAB_BUILD_SET} "$MOAB_PYCST_CONFIG_ARGS $MOAB_PYCST_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab pycst${moabBuildSet} "$makejargs" "$MOAB_ENV"
+    bilderBuild $makerargs moab pycst${MOAB_BUILD_SET} "$makejargs" "$MOAB_ENV"
   fi
 
 # Python shared build for composers.  Build with cmake.
   local otherargsvar=`genbashvar MOAB_${FORPYTHON_SHARED_BUILD}`_OTHER_ARGS
   local otherargs=`deref ${otherargsvar}`
   if bilderConfig $makerargs $moabcmakearg moab pycsh${MOAB_BUILD_SET} "$MOAB_PYCSH_CONFIG_ARGS $MOAB_PYCSH_OTHER_ARGS" "" "$MOAB_ENV"; then
-    bilderBuild $makerargs moab pycsh${moabBuildSet} "$makejargs" "$MOAB_ENV"
+    bilderBuild $makerargs moab pycsh${MOAB_BUILD_SET} "$makejargs" "$MOAB_ENV"
   fi
 
 }
