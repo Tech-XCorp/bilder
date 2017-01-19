@@ -84,9 +84,11 @@ setMoabTriggerVars() {
       TRILINOS_BUILD_SET=commio
     fi
   fi
-  if echo "$MOAB_BUILD_SET" | grep -q "full"; then
-    MOAB_DEPS=$MOAB_DEPS,$USE_OCC,cgm
-  fi
+# Will drop full builds for now, as they cannot use opencascade, according
+# Grindeanu, Iulian R. <iulian@mcs.anl.gov>
+  # if echo "$MOAB_BUILD_SET" | grep -q "full"; then
+    # MOAB_DEPS=$MOAB_DEPS,cgm
+  # fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
     MOAB_DEPS=$MOAB_DEPS,trilinosrepo
   fi
