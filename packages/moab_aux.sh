@@ -85,7 +85,8 @@ setMoabTriggerVars() {
     fi
   fi
   if echo "$MOAB_BUILD_SET" | grep -q "full"; then
-    MOAB_DEPS=$MOAB_DEPS,$USE_OCC,cgm
+# No need to specify $OCC as that is a dependency of cgm
+    MOAB_DEPS=$MOAB_DEPS,cgm
   fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
     MOAB_DEPS=$MOAB_DEPS,trilinosrepo
