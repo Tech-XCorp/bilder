@@ -50,14 +50,14 @@ setMoabTriggerVars() {
       fi
     elif [[ $MOAB_BUILD_SET = lite ]]; then
 # Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=serLite,parLite,
+      MOAB_DESIRED_BUILDS=serLite,parLite
     elif [[ $MOAB_BUILD_SET = liteForPython ]]; then
 # Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=serLite,parLite,${FORPYTHON_STATIC_BUILD}Lite
+      MOAB_DESIRED_BUILDS=serLite,parLite,pycstLite
 # Python shared build needed for composers
 # Python shared build needed for dagmc
       if ! [[ `uname` =~ CYGWIN ]]; then
-        MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}Lite
+        MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},pycshLite
       fi
     else
       techo "moab_aux.sh: MOAB_BUILD_SET = ${MOAB_BUILD_SET} not one of full,fullForPython,lite,liteForPython"
