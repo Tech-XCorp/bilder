@@ -85,6 +85,10 @@ case $UQMAILHOST in
     PYC_CXX=`which g++`
     PYC_FC=`which gfortran`
     PYC_F77=${PYC_F77:-"${PYC_FC}"}
+
+# Use optimization-reducing compilers
+    REPLACE_COMPILERS=true
+
     ;;
 
   titan*)
