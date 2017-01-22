@@ -31,8 +31,8 @@ setOpenCascadeTriggerVars
 
 findOpenCascade() {
 
-# Look for OpenCascade in the install directory
-  findPackage OpenCascade TKMath "$BLDR_INSTALL_DIR" pycsh sersh
+# Look for OpenCascade in the contrib directory
+  findPackage OpenCascade TKMath "$CONTRIB_DIR" pycsh sersh
   findPycshDir OpenCascade
 
 # Set root dir

@@ -73,13 +73,18 @@ buildCgm() {
 
 # Configure and build args
   local CGM_ADDL_ARGS=
+  if test $USE_OCC = oce; then
+    OCC_PYCSH_DIR=`deref OCE_PYCSH_DIR`
+  else
+    OCC_PYCSH_DIR=`deref OPENCASCADE_PYCSH_DIR`
+  fi
   if $CGM_USE_CMAKE; then
     CGM_ADDL_ARGS="$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC -DCGM_OCC='ON' $OCE_PYCSH_CMAKE_DIR_ARG"
     if [[ `uname` =~ CYGWIN ]]; then
       CGM_ADDL_ARGS="-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE $CGM_ADDL_ARGS"
     fi
   else
-    CGM_ADDL_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCE_PYCSH_DIR'"
+    CGM_ADDL_ARGS="$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --with-occ='$OCC_PYCSH_DIR'"
   fi
 
 # When not all dependencies right on Windows, need nmake
