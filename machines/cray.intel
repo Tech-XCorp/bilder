@@ -65,15 +65,15 @@ case $UQMAILHOST in
 
 # System linear algebra, note sandybridge for Edison.
     libsciroot=/opt/cray/libsci/default
-    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/sandybridge/lib/libsci_intel.a
+    SYSTEM_BLAS_SER_LIB=$libsciroot/INTEL/15.0/sandybridge/lib/libsci_intel.a
     SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=$libsciroot/intel/140/sandybridge/lib/libsci_intel.a
+    SYSTEM_LAPACK_SER_LIB=$libsciroot/INTEL/15.0/sandybridge/lib/libsci_intel.a
     SYSTEM_LAPACK_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
     MKL_ROOT_DIR=/opt/intel/composer_xe_2013.5.192/mkl
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/INTEL/15.0
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/INTEL/15.0
     SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
     SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
@@ -85,6 +85,10 @@ case $UQMAILHOST in
     PYC_CXX=`which g++`
     PYC_FC=`which gfortran`
     PYC_F77=${PYC_F77:-"${PYC_FC}"}
+
+# Use optimization-reducing compilers
+    REPLACE_COMPILERS=true
+
     ;;
 
   titan*)
@@ -1214,12 +1218,13 @@ TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
 # TXSIM_BLDRVERSION=${TXSIM_BLDRVERSION:-""}
-TXSIM_BUILDS=${TXSIM_BUILDS:-"ser,par,pycsh"}
+# TXSIM_BUILDS=${TXSIM_BUILDS:-"ser,par,pycsh"}
 # TXSIM_BEN_OTHER_ARGS=${TXSIM_BEN_OTHER_ARGS:-""}
 # TXSIM_DEVELDOCS_OTHER_ARGS=${TXSIM_DEVELDOCS_OTHER_ARGS:-""}
 TXSIM_PAR_OTHER_ARGS=${TXSIM_PAR_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXSIM_PARSH_OTHER_ARGS=${TXSIM_PARSH_OTHER_ARGS:-""}
 # TXSIM_PYCSH_OTHER_ARGS=${TXSIM_PYCSH_OTHER_ARGS:-""}
+TXSIM_PYCST_OTHER_ARGS=${TXSIM_PYCST_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 TXSIM_SER_OTHER_ARGS=${TXSIM_SER_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXSIM_SERMD_OTHER_ARGS=${TXSIM_SERMD_OTHER_ARGS:-""}
 # TXSIM_SERSH_OTHER_ARGS=${TXSIM_SERSH_OTHER_ARGS:-""}
