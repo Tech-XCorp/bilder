@@ -28,30 +28,33 @@ setNumpyNonTriggerVars() {
 # Without fortran, numpy builds, but scipy will not.
 # There is a connection between the numpy and scipy builds,
 # with scipy using part of the numpy distutils.
-# On the web, there are various claims:
-# Python has to be 32bit:
-#   http://www.andrewsturges.com/2012/05/installing-numpy-for-python-3-in.html
-# Numpy builds static with mingw-w64:
-#   https://code.google.com/p/mingw-w64-static/
-#   http://mail.scipy.org/pipermail/numpy-discussion/2013-November/068266.html
 #
-# Our build of numpy 1.8.0 with mingw-w64 is broken on Windows. testVsHdf5.py
-# exits with a code of 127 after calls to numpy. (Actually, the script exits
-# with a 127, and when we placed exit(0) calls in various places we found that
-# the problematic code is the calls to numpy.  One could call os._exit(0)
-# to avoid the error code, but we do not understand why it is being set.
+# Binary builds are at
+#  https://bitbucket.org/carlkl/mingw-w64-for-python/downloads
+#
+# Binary installations are possible by installing pip
+#  wget https://bootstrap.pypa.io/get-pip.py
+#  python get-pip.py
+#
+# Then, e.g.,
+#  python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple numpy
+#  python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple scipy
 
+# Below needed for scipy
+  NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
+# Set windows build vars if building on windows
+  if $BLDR_BUILD_NUMPY && [[ `uname` =~ CYGWIN ]]; then
 # So for now, the default is not to use fortran. Further it is forced off
 # if there is no fortran compiler.
-  NUMPY_WIN_USE_FORTRAN=${NUMPY_WIN_USE_FORTRAN:-"false"}
-  if ! $HAVE_SER_FORTRAN; then
-    NUMPY_WIN_USE_FORTRAN=false
-  fi
+    if ! $HAVE_SER_FORTRAN; then
+      NUMPY_WIN_USE_FORTRAN=false
+    fi
 # But if using fortran, must use mingw toolset
-  if $NUMPY_WIN_USE_FORTRAN; then
-    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
-  else
-    NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
+    if $NUMPY_WIN_USE_FORTRAN; then
+      NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"mingw32"}
+    else
+      NUMPY_WIN_CC_TYPE=${NUMPY_WIN_CC_TYPE:-"msvc"}
+    fi
   fi
   NUMPY_USE_ATLAS=${NUMPY_USE_ATLAS:-"false"}
 
@@ -64,19 +67,8 @@ setNumpyNonTriggerVars
 #
 ######################################################################
 
-buildNumpy() {
+setupNumpyBuild() {
 
-# Unpack if needs building
-  if ! bilderUnpack numpy; then
-    return
-  fi
-# Scipy requires fortran
-  if test -z "$PYC_FC"; then
-    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
-  fi
-
-# Move to build directory
-  cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
 # Set the blas and lapack names for site.cfg.  Getting this done
 # here also fixes it for scipy, which relies on the distutils that
 # gets installed with numpy.
@@ -124,15 +116,6 @@ buildNumpy() {
       fi
       ;;
 
-    CYGWIN*-*mingw*)
-      lapacknames=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
-      blasnames=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
-      blslpckdir="$LAPACK_PYCSH_DIR"/
-      blslpcklibdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-      blslpckincdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-      blslpckdir=`cygpath -aw $blslpckdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
-      ;;
-
     Linux-*)
       lapacknames=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
@@ -144,9 +127,9 @@ buildNumpy() {
   esac
 
 # Create site.cfg
-# Format changed by 1.8.0.  Lines all begin with '#', and lapack_libs
+# Format changed with 1.8.0.  All lines begin with '#', and lapack_libs
 # and blas_libs no longer specified.  They come from the section by default?
-  local sep=':'
+  local sep=','
   if [[ `uname` =~ CYGWIN ]]; then
 # In spite of documentation, need semicolon, not comma.
     sep=';'
@@ -155,7 +138,7 @@ buildNumpy() {
 # a fortran and use it.  If it is going to find cygwin's fortran,
 # prevent this by not defining the blas and lapack libraries
   if test -n "$lapacknames" && $NUMPY_WIN_USE_FORTRAN; then
-    sed -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
+    sed -e "s/^#\[ALL/\[ALL/" -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
     if test -n "$atlasdir"; then
       sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
     fi
@@ -173,11 +156,7 @@ buildNumpy() {
 # Doing this on CYGWIN and Darwin.
 # Ivy build indicates need to do this on Linux
   if [[ $NUMPY_BLDRVERSION =~ 1.1[0-9] ]]; then
-    case `uname` in
-      CYGWIN* | Darwin | Linux)
-        NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
-        ;;
-    esac
+    NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
   fi
 
 # For Cygwin, build, install, and make packages all at once, with
@@ -197,42 +176,31 @@ buildNumpy() {
       if $NUMPY_WIN_USE_FORTRAN && test -n "$PYC_FC"; then
         local fcbase=`basename "$PYC_FC"`
         if which $fcbase 1>/dev/null 2>&1; then
-          # NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
+# NUMPY_ARGS="--fcompiler='$fcbase' $NUMPY_ARGS"
 # The above specification fails with
 # don't know how to compile Fortran code on platform 'nt' with 'x86_64-w64-mingw32-gfortran.exe' compiler. Supported compilers are: pathf95,intelvem,absoft,compaq,ibm,sun,lahey,pg,hpux,intele,gnu95,intelv,g95,intel,compaqv,mips,vast,nag,none,intelem,gnu,intelev)
           NUMPY_ARGS="--fcompiler=gnu95 $NUMPY_ARGS"
           NUMPY_ENV="$NUMPY_ENV F90='$fcbase'"
 # Below does not help.  NumPy always uses 'gcc', so one must separate by path.
-          # local ccbase=`echo $fcbase | sed 's/fortran/cc/g'`
-          # NUMPY_ENV="$NUMPY_ENV CC='$ccbase'"
+# local ccbase=`echo $fcbase | sed 's/fortran/cc/g'`
+# NUMPY_ENV="$NUMPY_ENV CC='$ccbase'"
         else
           techo "WARNING: [$FUNCNAME] Not using fortran.  $fcbase not in path."
         fi
       else
         techo "WARNING: [$FUNCNAME] Not using fortran.  PYC_FC = $PYC_FC.  NUMPY_WIN_USE_FORTRAN = $NUMPY_WIN_USE_FORTRAN."
       fi
-      ;;
-    CYGWIN*-*w64-mingw*)
-      NUMPY_ARGS="--compiler=mingw64 install --prefix='$NATIVE_CONTRIB_DIR' $NUMPY_INSTALL_ARGS $BDIST_WININST_ARG"
-      local mingwgcc=`which x86_64-w64-mingw32-gcc`
-      local mingwdir=`dirname $mingwgcc`
-      NUMPY_ENV="PATH=$mingwdir:'$PATH'"
-      ;;
-    CYGWIN*-*mingw*)
-      NUMPY_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $NUMPY_INSTALL_ARGS $BDIST_WININST_ARG"
-      local mingwgcc=`which mingw32-gcc`
-      local mingwdir=`dirname $mingwgcc`
-      NUMPY_ENV="PATH=$mingwdir:'$PATH'"
-      ;;
+    ;;
+
 # For non-Cygwin builds, the build stage does not install.
     Darwin-*)
-      # linkflags="$linkflags -bundle -Wall"
+# linkflags="$linkflags -bundle -Wall"
       linkflags="$linkflags -Wall"
       NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
       ;;
     Linux-*)
 	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
-      # Handle the case where PYC_FC may not be in path
+# Handle the case where PYC_FC may not be in path
       NUMPY_ARGS="--fcompiler=`basename ${PYC_FC}`"
       local fcpath=`dirname ${PYC_FC}`
       NUMPY_ENV="$DISTUTILS_ENV2 PATH=${PATH}:${fcpath}"
@@ -250,15 +218,45 @@ buildNumpy() {
   fi
   techo "NUMPY_ENV = $NUMPY_ENV."
 
-# For CYGWIN builds, remove any detritus lying around now.
-  if [[ `uname` =~ CYGWIN ]]; then
-    cmd="rmall ${PYTHON_SITEPKGSDIR}/numpy*"
-    techo "$cmd"
-    $cmd
+}
+
+buildNumpy() {
+
+# Unpack if needs building
+  if ! bilderUnpack numpy; then
+    return
   fi
+# Scipy requires fortran
+  if $BLDR_BUILD_NUMPY && ! $HAVE_SER_FORTRAN; then
+    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
+  fi
+  local cmd=
 
 # Build/install
-  bilderDuBuild numpy "$NUMPY_ARGS" "$NUMPY_ENV"
+  if $BLDR_BUILD_NUMPY; then
+    setupNumpyBuild
+# For CYGWIN builds, remove any detritus lying around now.
+    if [[ `uname` =~ CYGWIN ]]; then
+      cmd="rmall ${PYTHON_SITEPKGSDIR}/numpy*"
+      techo "$cmd"
+      $cmd
+    fi
+    bilderDuBuild numpy "$NUMPY_ARGS" "$NUMPY_ENV"
+  else
+# Move to build directory
+    cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
+# We know we should build this, as there is only one build.
+    cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple numpy"
+    techo "$cmd"
+    if $cmd; then
+      ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR numpy,pycsh
+      techo "numpy-pycsh installed."
+      installations="$installations numpy-pycsh"
+    else
+      techo "numpy-pycsh failed to install."
+      installFailures="$installFailures numpy-pycsh"
+    fi
+  fi
 
 }
 
@@ -286,7 +284,7 @@ installNumpy() {
   esac
   if test "$res" = 0; then
     chmod a+r $PYTHON_SITEPKGSDIR/easy-install.pth
-    setOpenPerms $PYTHON_SITEPKGSDIR/numpy-*.egg
+    setOpenPerms $PYTHON_SITEPKGSDIR/numpy
   fi
 }
 

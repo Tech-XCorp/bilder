@@ -34,35 +34,7 @@ setScipyNonTriggerVars
 #
 ######################################################################
 
-buildScipy() {
-
-# Determine whether to unpack, whether there is a build
-  if ! bilderUnpack scipy; then
-    return
-  fi
-# Scipy requires fortran
-  if test -z "$PYC_FC"; then
-    techo "WARNING: [$FUNCNAME] No fortran compiler.  Scipy cannot be built."
-    return 1
-  fi
-
-  cd $BUILD_DIR/scipy-${SCIPY_BLDRVERSION}
-
-# Older ppc require removal of arch from fortran flags
-  case `uname -s` in
-    Darwin)
-      case `uname -r` in
-        9.*)
-          case `uname -p` in
-            powerpc)
-              svn up $BILDER_DIR/scipygfortran.sh
-              SCIPY_GFORTRAN="F77=$BILDER_DIR/scipygfortran.sh"
-              ;;
-          esac
-          ;;
-        esac
-      ;;
-  esac
+setupScipyBuild() {
 
 # Get native fortran compiler
   local SCIPY_FC="$PYC_FC"
@@ -78,14 +50,12 @@ buildScipy() {
     techo "Building scipy with ATLAS."
     techo "ATLAS_PYCSH_DIR = $ATLAS_PYCSH_DIR,  ATLAS_PYCSH_LIBDIR = $ATLAS_PYCSH_LIBDIR."
   fi
+  SCIPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/scipy.files'"
 
 # Get env and args
   case `uname`-"$CC" in
+
     CYGWIN*-*cl*)
-      if ! $NUMPY_WIN_USE_FORTRAN; then
-        techo "WARNING: [$FUNCNAME] Numpy was built without fortran.  Scipy cannot be built."
-        return 1
-      fi
 # Determine basic args
       SCIPY_BUILD_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       SCIPY_BUILD_ARGS="--fcompiler=gnu95 $SCIPY_BUILD_ARGS"
@@ -102,18 +72,7 @@ buildScipy() {
         return
       fi
       ;;
-    CYGWIN*-*mingw*)
-# Have to install with build to get both prefix and compiler correct.
-      local mingwgcc=`which mingw32-gcc`
-      local mingwdir=`dirname $mingwgcc`
-      SCIPY_ENV="PATH=$mingwdir:'$PATH'"
-      if test -n "$ATLAS_PYCSH_LIBDIR"; then
-        SCIPY_ENV="$SCIPY_ENV ATLAS='$ATLAS_PYCSH_LIBDIR'"
-      else
-        SCIPY_ENV="$SCIPY_ENV LAPACK='C:\winsame\contrib-mingw\lapack-${LAPACK_BLDRVERSION}-ser\lib' BLAS='C:\winsame\contrib-mingw\lapack-${LAPACK_BLDRVERSION}-ser\lib'"
-      fi
-      SCIPY_BUILD_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
-      ;;
+
 # For non-Cygwin builds, the build stage does not install.
     Darwin-*)
 # -bundle found necessary for scipy, otherwise
@@ -133,22 +92,33 @@ buildScipy() {
       SCIPY_CONFIG_ARGS="config_fc --fcompiler gnu95 --f77exec='$PYC_FC' --f77flags='$fflags' --f90exec='$PYC_FC' --f90flags='$fflags' config --cc='$PYC_CC'"
       SCIPY_BUILD_ARGS="install --prefix='$NATIVE_CONTRIB_DIR'"
       ;;
+
     Linux-*)
       local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
       SCIPY_ENV="$DISTUTILS_ENV $SCIPY_GFORTRAN BLAS='$LAPACK_LIB_DIR' LAPACK='$LAPACK_LIB_DIR'"
       linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
       ;;
+
     *)
       techo "WARNING: [$FUNCNAME] uname `uname` not recognized.  Not building."
       return
       ;;
+
   esac
   trimvar linkflags ' '
   if test -n "$linkflags"; then
     SCIPY_ENV="$SCIPY_ENV LDFLAGS='$linkflags'"
   fi
 
-# For CYGWIN builds, remove any detritus lying around now.
+}
+
+buildScipy() {
+
+# Determine whether to unpack, whether there is a build
+  if ! bilderUnpack scipy; then
+    return
+  fi
+  local cmd=
   if [[ `uname` =~ CYGWIN ]]; then
     cmd="rmall ${PYTHON_SITEPKGSDIR}/scipy*"
     techo "$cmd"
@@ -156,8 +126,25 @@ buildScipy() {
   fi
 
 # On hopper, cannot include LD_LIBRARY_PATH
-  bilderDuBuild scipy "$SCIPY_BUILD_ARGS" "$SCIPY_ENV" "$SCIPY_CONFIG_ARGS"
+  if $BLDR_BUILD_NUMPY && $HAVE_SER_FORTRAN; then
+    setupScipyBuild
+    bilderDuBuild scipy "$SCIPY_BUILD_ARGS" "$SCIPY_ENV" "$SCIPY_CONFIG_ARGS"
+  else
+# Building at this point as only one package, and that checked by bilderUnpack
+    cd $BUILD_DIR/scipy-${SCIPY_BLDRVERSION}
+    cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple scipy"
+    techo "$cmd"
+    if $cmd; then
+      ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR scipy,pycsh
+      techo "scipy-pycsh installed."
+      installations="$installations scipy-pycsh"
+    else
+      techo "scipy-pycsh failed to install."
+      installFailures="$installFailures scipy-pycsh"
+    fi
+  fi
 
+if false; then
 # On CYGWIN, build may have to be run twice
   if [[ `uname` =~ CYGWIN ]] && ! waitAction -n scipy-pycsh; then
     cd $BUILD_DIR/scipy-$SCIPY_BLDRVERSION
@@ -172,6 +159,7 @@ buildScipy() {
       addActionToLists scipy-pycsh $pid
     fi
   fi
+fi
 
 }
 
@@ -193,8 +181,8 @@ testScipy() {
 
 installScipy() {
   case `uname`-$PYC_CC in
-    CYGWIN* | Darwin-*) bilderDuInstall -n scipy "-" "$SCIPY_ENV";;
-    *) bilderDuInstall -r scipy scipy "-" "$SCIPY_ENV";;
+    CYGWIN*) bilderDuInstall -n scipy "-" "$SCIPY_ENV";;
+    *) bilderDuInstall -r scipy scipy "$SCIPY_INSTALL_ARGS" "$SCIPY_ENV";;
   esac
   # techo "WARNING: Quitting at the end of scipy.sh."; cleanup
 }

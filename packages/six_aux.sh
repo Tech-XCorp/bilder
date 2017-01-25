@@ -17,8 +17,8 @@
 ######################################################################
 
 setSixTriggerVars() {
-  SIX_BLDRVERSION_STD=${SIX_BLDRVERSION_STD:-"1.9.0"}
-  SIX_BLDRVERSION_EXP=${SIX_BLDRVERSION_EXP:-"1.9.0"}
+  SIX_BLDRVERSION_STD=${SIX_BLDRVERSION_STD:-"1.10.0"}
+  SIX_BLDRVERSION_EXP=${SIX_BLDRVERSION_EXP:-"1.10.0"}
   SIX_BUILDS=${SIX_BUILDS:-"pycsh"}
   SIX_DEPS=Python
 }

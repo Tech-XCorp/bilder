@@ -60,7 +60,7 @@ buildPython() {
   local pycppflags=
   case `uname` in
     CYGWIN*)
-      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DINSTALL_WINDOWS_TRADITIONAL=ON -DPY_VERSION_PATCH=$PY_BLDRVERSION_PATCH"
+      PYTHON_PYCSH_ADDL_ARGS="$PYTHON_PYCSH_ADDL_ARGS -DBUILD_SHARED=ON -DBUILD_STATIC=OFF -DINSTALL_WINDOWS_TRADITIONAL=ON -DPYTHON_VERSION=$PY_DL_VERSION"
       if test -z "$CMAKE_ZLIB_SERMD_LIBDIR"; then
         echo "WARNING: [$FUNCNAME] CMAKE_ZLIB_SERMD_LIBDIR not set."
       else
@@ -121,8 +121,10 @@ buildPython() {
 # To find the necessary bits, look in setup.py in detect_modules() for
 # the module's name.
 # --enable-shared --enable-static gave both shared and static libs.
-# On Windows build is static and needs to go into contrib
+# On Windows, build is static and needs to go into contrib
   eval PYTHON_${FORPYTHON_SHARED_BUILD}_INSTALL_DIR=$CONTRIB_DIR
+  PYTHON_PREFIX_DIR="${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD"
+  techo -2 "PYTHON_PREFIX_DIR = $PYTHON_PREFIX_DIR"
   if bilderConfig -I $CONTRIB_DIR Python $FORPYTHON_SHARED_BUILD "$PYTHON_PYCSH_ADDL_ARGS $PYTHON_PYCSH_OTHER_ARGS"; then
     bilderBuild Python $FORPYTHON_SHARED_BUILD
   fi
@@ -146,16 +148,40 @@ testPython() {
 ######################################################################
 
 installPython() {
-  local pydir=${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD
+
+  techo -2 "PYTHON_PREFIX_DIR = $PYTHON_PREFIX_DIR"
   if bilderInstall -r Python $FORPYTHON_SHARED_BUILD python; then
     case `uname` in
+
+      CYGWIN*)
+        cmd="$PYTHON_PREFIX_DIR/python -c 'import ssl; print(ssl.__file__)'"
+        techo "$cmd"
+        local sslimported=
+        if eval "$cmd"; then
+          sslimported=true
+          techo "ssl imported."
+        else
+          sslimported=false
+          libeay32=`which libeay32.dll`
+          techo "WARNING: [$FUNCNAME] ssl did not import. libeay32 = $libeay32."
+        fi
+        wget https://bootstrap.pypa.io/get-pip.py
+        if $sslimported; then
+          cmd="$PYTHON_PREFIX_DIR/python get-pip.py"
+          techo "$cmd"
+          if ! $cmd; then
+            techo "ERROR: '$cmd' failed to run.  Must build numpy."
+            BLDR_BUILD_NUMPY=true
+          fi
+        fi
+        ;;
 
       Linux)
 # Fix rpath if known how
         if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-          bilderFixRpath ${pydir}/bin/python${PYTHON_MAJMIN}
-          bilderFixRpath ${pydir}/lib/libpython${PYTHON_MAJMIN}.so
-          bilderFixRpath ${pydir}/lib/python${PYTHON_MAJMIN}/lib-dynload
+          bilderFixRpath ${PYTHON_PREFIX_DIR}/bin/python${PYTHON_MAJMIN}
+          bilderFixRpath ${PYTHON_PREFIX_DIR}/lib/libpython${PYTHON_MAJMIN}.so
+          bilderFixRpath ${PYTHON_PREFIX_DIR}/lib/python${PYTHON_MAJMIN}/lib-dynload
         fi
 # Remove any backups
         rm -f $CONTRIB_DIR/bin/python.bak
@@ -176,5 +202,6 @@ installPython() {
         ;;
     esac
   fi
+
 }
 

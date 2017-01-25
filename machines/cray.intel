@@ -32,21 +32,29 @@ case $UQMAILHOST in
     ATLAS_BUILDS=NONE
     LAPACK_BUILDS=NONE
 
-# System linear algebra, note sandybridge for Edison.
-    libsciroot=/opt/cray/libsci/default
-    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/haswell/lib/libsci_intel.a
-    SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/haswell/lib/libsci_gnu.a
+# Determine if we're building for the mic or the cpu
+    arch=haswell
+    if modulecmd bash list 2>&1 | grep craype-mic-knl 1>/dev/null 2>&1; then
+      arch=mic_knl
+    fi
+
+# System linear algebra
+    libsciroot=/opt/cray/pe/libsci/default
+    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/150/${arch}/lib/libsci_intel.a
+# JRK: There is no 4.8 version so the above automatic lines fail with 4.8.5
+    gccvers=49 
+    SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/${arch}/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=$SYSTEM_BLAS_SER_LIB
     SYSTEM_LAPACK_PYCSH_LIB=$SYSTEM_BLAS_PYCSH_LIB
-    MKL_ROOT_DIR=/opt/intel/composerxe/mkl
+    MKL_ROOT_DIR=/opt/intel/compilers_and_libraries_2017/linux/mkl
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
-    SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
-    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
+    SYSTEM_HDF5_SER_DIR=/opt/cray/pe/hdf5/default/intel/150
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/pe/hdf5-parallel/default/intel/150
+    SYSTEM_HDF5_PYCST_DIR=/opt/cray/pe/hdf5/default/gnu/$gccvers
+    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/pe/hdf5/default/gnu/$gccvers
+    SYSTEM_NETCDF_SER_DIR=/opt/cray/pe/netcdf/default/intel/150
+    SYSTEM_NETCDF_PAR_DIR=/opt/cray/pe/netcdf-hdf5parallel/default/intel/150
 
     ;;
 
@@ -57,15 +65,15 @@ case $UQMAILHOST in
 
 # System linear algebra, note sandybridge for Edison.
     libsciroot=/opt/cray/libsci/default
-    SYSTEM_BLAS_SER_LIB=$libsciroot/intel/140/sandybridge/lib/libsci_intel.a
+    SYSTEM_BLAS_SER_LIB=$libsciroot/INTEL/15.0/sandybridge/lib/libsci_intel.a
     SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
-    SYSTEM_LAPACK_SER_LIB=$libsciroot/intel/140/sandybridge/lib/libsci_intel.a
+    SYSTEM_LAPACK_SER_LIB=$libsciroot/INTEL/15.0/sandybridge/lib/libsci_intel.a
     SYSTEM_LAPACK_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
     MKL_ROOT_DIR=/opt/intel/composer_xe_2013.5.192/mkl
 
 # System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
+    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/INTEL/15.0
+    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/INTEL/15.0
     SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
     SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
@@ -77,30 +85,10 @@ case $UQMAILHOST in
     PYC_CXX=`which g++`
     PYC_FC=`which gfortran`
     PYC_F77=${PYC_F77:-"${PYC_FC}"}
-    ;;
 
-  hopper*)
-# System linear algebra libraries.  mc12 (Magny-Cours) for Hopper.
-# These are used together.  Not really the right division by name, but with
-# these definitions one gets the libraries in the right order.
-    SYSTEM_LAPACK_SER_LIB=/opt/cray/libsci/default/intel/140/mc12/lib/libsci_intel.a
-    SYSTEM_BLAS_SER_LIB=/opt/cray/libsci/default/intel/140/mc12/lib/libsci_intel_mp.a
-# These are used together.  Not really the right division by name, but with
-# these definitions one gets the libraries in the right order.
-    SYSTEM_LAPACK_PYCSH_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu.a
-    SYSTEM_BLAS_PYCSH_LIB=/opt/cray/libsci/default/gnu/48/mc12/lib/libsci_gnu_mp.a
+# Use optimization-reducing compilers
+    REPLACE_COMPILERS=true
 
-# System IO libs
-    SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/intel/140
-    SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/intel/140
-    SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
-    SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
-
-    PETSC_MPIEXEC=/usr/common/acts/PETSc/3.1/bin/mpiexec.aprun
-    PETSC_MPIEXEC_ARG="--with-mpiexec=${PETSC_MPIEXEC}"
-    PETSC_PAR_OTHER_ARGS=${PETSC_PAR_OTHER_ARGS:-"--with-mpi-dir=${CRAY_MPICH2_DIR} --with-shared=0 --with-clib-autodetect=0 --with-cxxlib-autodetect=0 --with-fortranlib-autodetect=0 $PETSC_MPIEXEC_ARG"}
-
-    LIBGFORTRAN_DIR=${LIBGFORTRAN_DIR:-"/opt/gcc/mpc/0.8.1/lib"}
     ;;
 
   titan*)
@@ -1230,12 +1218,13 @@ TXBASE_SER_OTHER_ARGS=${TXBASE_SER_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXPHYSICS_SERSH_OTHER_ARGS=${TXPHYSICS_SERSH_OTHER_ARGS:-""}
 
 # TXSIM_BLDRVERSION=${TXSIM_BLDRVERSION:-""}
-TXSIM_BUILDS=${TXSIM_BUILDS:-"ser,par,pycsh"}
+# TXSIM_BUILDS=${TXSIM_BUILDS:-"ser,par,pycsh"}
 # TXSIM_BEN_OTHER_ARGS=${TXSIM_BEN_OTHER_ARGS:-""}
 # TXSIM_DEVELDOCS_OTHER_ARGS=${TXSIM_DEVELDOCS_OTHER_ARGS:-""}
 TXSIM_PAR_OTHER_ARGS=${TXSIM_PAR_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXSIM_PARSH_OTHER_ARGS=${TXSIM_PARSH_OTHER_ARGS:-""}
 # TXSIM_PYCSH_OTHER_ARGS=${TXSIM_PYCSH_OTHER_ARGS:-""}
+TXSIM_PYCST_OTHER_ARGS=${TXSIM_PYCST_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 TXSIM_SER_OTHER_ARGS=${TXSIM_SER_OTHER_ARGS:-"-DUSE_STATIC_SYSLIBS:BOOL=TRUE"}
 # TXSIM_SERMD_OTHER_ARGS=${TXSIM_SERMD_OTHER_ARGS:-""}
 # TXSIM_SERSH_OTHER_ARGS=${TXSIM_SERSH_OTHER_ARGS:-""}

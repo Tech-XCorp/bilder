@@ -80,7 +80,7 @@ _
 }
 
 # Name of script, get hosts
-SCRIPT_NAME=$0
+SCRIPT_NAME=`echo $0 | sed -e 's?//*?/?g'`
 PROJECT_DIR=`dirname $SCRIPT_NAME`
 PROJECT_DIR=${PROJECT_DIR:-"."}
 PROJECT_DIR=`(cd $PROJECT_DIR; pwd -P)`

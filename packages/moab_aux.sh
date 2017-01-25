@@ -17,7 +17,7 @@
 
 setMoabTriggerVars() {
   MOAB_REPO_URL=https://bitbucket.org/cadg4/moab.git
-  MOAB_REPO_BRANCH_STD=stable
+  MOAB_REPO_BRANCH_STD=stable-20170106
   MOAB_REPO_BRANCH_EXP=master
   MOAB_UPSTREAM_URL=https://bitbucket.org/fathomteam/moab.git
   MOAB_UPSTREAM_BRANCH_STD=master
@@ -31,48 +31,38 @@ setMoabTriggerVars() {
   fi
   MOAB_USE_CMAKE=${MOAB_USE_CMAKE:-"true"}
 
-# Determine Moab builds
+# Determined Moab builds
   if test -z "$MOAB_BUILD_SET"; then
-    MOAB_BUILD_SET=fullForPython
+    MOAB_BUILD_SET=""
   fi
+  local MOAB_ADD_PYBUILDS=false
   if test -z "$MOAB_DESIRED_BUILDS"; then
-# full depends on oce, cgm, but not on trilinos.  Can be used for composers.
-    if [[ $MOAB_BUILD_SET = full ]]; then
-      MOAB_DESIRED_BUILDS=ser
-    elif [[ $MOAB_BUILD_SET = fullForPython ]]; then
-# full depends on oce, cgm, but not on trilinos.  Uses the compiler that
-# compiled python.
-# Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=ser,${FORPYTHON_STATIC_BUILD}
-# Python shared build needed for composers
-      if ! [[ `uname` =~ CYGWIN ]]; then
-        MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
-      fi
-    elif [[ $MOAB_BUILD_SET = lite ]]; then
-# Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=serLite,parLite,
-    elif [[ $MOAB_BUILD_SET = liteForPython ]]; then
-# Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=serLite,parLite,${FORPYTHON_STATIC_BUILD}Lite
-# Python shared build needed for composers
-# Python shared build needed for dagmc
-      if ! [[ `uname` =~ CYGWIN ]]; then
-        MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}Lite
-      fi
-    else
-      techo "moab_aux.sh: MOAB_BUILD_SET = ${MOAB_BUILD_SET} not one of full,fullForPython,lite,liteForPython"
-      techo "moab_aux.sh: Setting MOAB_BUILD_SET = fullForPython"
-      MOAB_BUILD_SET=fullForPython
-# Static serial and parallel builds needed for ulixes
-      MOAB_DESIRED_BUILDS=ser,par,${FORPYTHON_STATIC_BUILD}
-# Python shared build needed for composers
-      if ! [[ `uname` =~ CYGWIN ]]; then
-        MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS},${FORPYTHON_SHARED_BUILD}
-      fi
+    MOAB_DESIRED_BUILDS=ser,par
+    if ! [[ `uname` =~ CYGWIN ]]; then
+      MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILDS}
     fi
+    MOAB_ADD_PYBUILDS=true
   fi
+
+  local MOAB_DESIRED_BUILD_WITH_SET=""
+  for i in $(echo $MOAB_DESIRED_BUILDS | sed "s/,/ /g")
+  do
+    # call your procedure/other scripts here below
+    MOAB_DESIRED_BUILD_WITH_SET="${i}${MOAB_BUILD_SET},${MOAB_DESIRED_BUILD_WITH_SET}"
+  done
+  MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILD_WITH_SET}
+
   echo "Next, MOAB_DESIRED_BUILDS = $MOAB_DESIRED_BUILDS"
   computeBuilds moab
+  if $MOAB_ADD_PYBUILDS; then
+    addBuild moab sersh${MOAB_BUILD_SET} pycsh${MOAB_BUILD_SET}
+    if [[ `uname` =~ CYGWIN ]]; then
+      addBuild $* sermd${MOAB_BUILD_SET} pycst${MOAB_BUILD_SET}
+    else
+      addBuild $* ser${MOAB_BUILD_SET} pycst${MOAB_BUILD_SET}
+    fi
+  fi
+
 
 # Determine moab deps
   MOAB_DEPS=netcdf,boost
@@ -84,8 +74,9 @@ setMoabTriggerVars() {
       TRILINOS_BUILD_SET=commio
     fi
   fi
-  if echo "$MOAB_BUILD_SET" | grep -q "full"; then
-    MOAB_DEPS=$MOAB_DEPS,oce,cgm
+  if echo "$MOAB_BUILD_SET" | grep -q "Full"; then
+# No need to specify $OCC as that is a dependency of cgm
+    MOAB_DEPS=$MOAB_DEPS,cgm
   fi
   if echo "$MOAB_BUILDS" | grep -q "par"; then
     MOAB_DEPS=$MOAB_DEPS,trilinosrepo
@@ -101,11 +92,7 @@ setMoabTriggerVars
 ######################################################################
 
 findMoab() {
-  local moabBuildSet=""
-  if [[ $MOAB_BUILD_SET = lite ]]; then
-    moabBuildSet=Lite
-  fi
-  srchbuilds="ser${moabBuildSet} pycst${moabBuildSet} sersh${moabBuildSet} pycsh${moabBuildSet} par${moabBuildSet}"
+  srchbuilds="ser${MOAB_BUILD_SET} pycst${MOAB_BUILD_SET} sersh${MOAB_BUILD_SET} pycsh${MOAB_BUILD_SET} par${MOAB_BUILD_SET}"
   findPackage Moab MOAB "$BLDR_INSTALL_DIR" $srchbuilds
   techo
   findPycshDir Moab

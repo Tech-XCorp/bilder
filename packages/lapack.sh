@@ -46,27 +46,27 @@ buildLapack() {
 # A. Pletzer: building the testing code fails with a seg fault on
 # Linux systems running gfortran 4.4.6. Turn off BUILD_TESTING
 # for these cases
-  if [ `uname` = "Linux" -a "gfortran" = `basename $FC` ]; then
+  local LAPACK_ALL_ADDL_ARGS="-DBUILD_DEPRECATED:BOOL=TRUE"
+  if test `uname` = "Linux" -a "gfortran" = `basename $FC`; then
     version=`$FC --version | tr '\n' ' ' | awk '{print $4}'`
-    if [ "4.4.6" = $version ]; then
-      LAPACK_SER_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
-	LAPACK_SERSH_OTHER_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_SER_OTHER_ARGS"
+    if test $version = "4.4.6"; then
+      LAPACK_ALL_ADDL_ARGS="-DBUILD_TESTING:BOOL=OFF $LAPACK_ALL_ADDL_ARGS"
     fi
   fi
 
-  if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SER_OTHER_ARGS"; then
+  if bilderConfig lapack ser "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_ALL_ADDL_ARGS $LAPACK_SER_OTHER_ARGS"; then
     bilderBuild $buildargs lapack ser
   fi
-  if bilderConfig lapack sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERMD_OTHER_ARGS"; then
+  if bilderConfig lapack sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_ALL_ADDL_ARGS $LAPACK_SERMD_OTHER_ARGS"; then
     bilderBuild $buildargs lapack sermd
   fi
-  if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_SERSH_OTHER_ARGS"; then
+  if bilderConfig lapack sersh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $LAPACK_ALL_ADDL_ARGS $LAPACK_SERSH_OTHER_ARGS"; then
     bilderBuild $buildargs lapack sersh
   fi
-  if bilderConfig lapack pycsh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_PYCSH_OTHER_ARGS"; then
+  if bilderConfig lapack pycsh "-DBUILD_SHARED_LIBS:BOOL=ON $CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $LAPACK_ALL_ADDL_ARGS $LAPACK_PYCSH_OTHER_ARGS"; then
     bilderBuild $buildargs lapack pycsh
   fi
-  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $LAPACK_BEN_OTHER_ARGS"; then
+  if bilderConfig lapack ben "$CMAKE_COMPILERS_BEN $CMAKE_COMPFLAGS_BEN $LAPACK_ALL_ADDL_ARGS $LAPACK_BEN_OTHER_ARGS"; then
     bilderBuild $buildargs lapack ben
   fi
 

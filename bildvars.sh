@@ -130,6 +130,8 @@ case `uname` in
     LIBEXT=.lib
     unset LIBPREFIX
     techo "Getting number of cores."
+# BLDR_BUILD_NUMPY: whether numpy is built (versus installed from a whl)
+    BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"false"}
     NUM_PHYS_CORES=${NUMBER_OF_PROCESSORS}
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
@@ -179,7 +181,7 @@ case `uname` in
     ;;
 
   Darwin)
-    ATLAS_BUILDS=NONE	# Since using framework Accelerate
+    ATLAS_BUILDS=NONE   # Since using framework Accelerate
     if test -n "$ARCHFLAGS"; then
       techo "WARNING: [bildvars.sh] ARCHFLAGS = $ARCHFLAGS.  Potential Python package build problems."
     fi
@@ -228,30 +230,29 @@ case `uname` in
           FC=${FC:-"gfortran-4.9"}
           F77=${F77:-"gfortran-4.9"}
         fi
-        # -std=c++11 breaks too many codes
-        # CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-        # echo "CXXFLAGS = $CXXFLAGS"
-        if [[ $CXX =~ clang ]] && ! echo $CXXFLAGS | grep stdlib; then
-          CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
-        fi
-        # echo "CXXFLAGS = $CXXFLAGS"
+# -stdlib=libc++ is the default since Mavericks and gives c++11 support.
+# http://stackoverflow.com/questions/19774778/when-is-it-necessary-to-use-use-the-flag-stdlib-libstdc
+# But tests show still needed at link.
+        CXXFLAGS=${CXXFLAGS:-"-std=c++11 -stdlib=libc++"}
         PYC_CC=${PYC_CC:-"clang"}
         PYC_CXX=${PYC_CXX:-"clang++"}
-        # PYC_CXXFLAGS="$PYC_CXXFLAGS -std=c++11 -stdlib=libc++"
-        if [[ $CXX =~ clang ]] && ! echo $PYC_CXXFLAGS | grep stdlib; then
-          PYC_CXXFLAGS="$PYC_CXXFLAGS -stdlib=libstdc++"
-        fi
+# txbase must have -std=c++11 to compile as it uses C++11 extensions
+# txbase fails linking to self:
+# txbase links to self, so -stdlib=libc++ is NOT a default at link:
+        PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-std=c++11 -stdlib=libc++"}
         PYC_FC=${PYC_FC:-"$FC"}
         PYC_F77=${PYC_F77:-"$F77"}
         ;;
     esac
-    RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}	# For 10.5 and higher
+    RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}     # For 10.5 and higher
     SHOBJEXT=.dylib
     SHOBJFLAGS=${SHOBJFLAGS:-"-dynamic -flat_namespace -undefined suppress"}
     ;;
 
   Linux)
     ARCHIVER=ar
+    # CXXFLAGS=${CXXFLAGS:-"-std=c++11"}
+    # PYC_CXXFLAGS=${PYC_CXXFLAGS:-"-std=c++11"}
     CPUINFO=`grep "model name" /proc/cpuinfo | head -1 | sed 's/^.*:  *//'`
     GLIBC_VERSION=`ldd --version | head -1 | sed 's/^.* //'`
     LIBEXT=.a
@@ -271,7 +272,7 @@ case `uname` in
           SYS_LIBSUBDIRS=lib64
           CMAKE_LIBRARY_PATH_ARG=
         fi
-        sfxorder="so"	# Need shared libs for uedge
+        sfxorder="so"   # Need shared libs for uedge
         ;;
       i?86)
         SYS_LIBSUBDIRS=lib
@@ -296,6 +297,8 @@ techo "Found $NUM_LOG_CORES logical cores."
 techo "Found $NUM_PHYS_CORES physical cores."
 MAKEJ_TOTAL=$NUM_PHYS_CORES
 IS_MINGW=${IS_MINGW:-"false"}
+BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"true"}
+export BLDR_BUILD_NUMPY
 
 ######################################################################
 #
@@ -326,6 +329,8 @@ if test -z "$HAVE_SER_FORTRAN"; then
 fi
 # Giving up
 HAVE_SER_FORTRAN=${HAVE_SER_FORTRAN:-"false"}
+# Needed for setinstald.sh for numpy
+export HAVE_SER_FORTRAN
 
 # Backend node serial compilers:
 BENCC=${BENCC:-"$CC"}
@@ -474,7 +479,7 @@ if test -n "$WAIT_PACKAGE"; then
   elif test -f $BILDER_DIR/packages/${WAIT_PACKAGE}.sh; then
     waitPkg="$BILDER_DIR/packages/${WAIT_PACKAGE}.sh"
   fi
-  echo "----------------------- Found $waitPkg ------------------------------ "
+  echo "---------- Found $waitPkg ----------"
 
   if source $waitPkg; then
     bldsvar=`genbashvar ${WAIT_PACKAGE}`_BUILDS
@@ -711,6 +716,10 @@ else
 fi
 PATH="$PATHSAV"
 
+# Determine opencascade or oce
+USE_OCC=${USE_OCC:-"oce"}
+export USE_OCC
+
 ######################################################################
 #
 # Determine whether to ignore cmake for some hosts.
@@ -810,10 +819,10 @@ compvars="FORPYTHON_STATIC_BUILD FORPYTHON_SHARED_BUILD USE_MPI MPI_BUILD CONFIG
 flagvars="CONFIG_COMPFLAGS_SER CONFIG_COMPFLAGS_PAR CONFIG_COMPFLAGS_PYC CMAKE_COMPFLAGS_SER CMAKE_COMPFLAGS_PAR CMAKE_COMPFLAGS_PYC"
 cmakevars="PREFER_CMAKE USE_CMAKE_ARG CMAKE_LIBRARY_PATH_ARG REPO_NODEFLIB_FLAGS TARBALL_NODEFLIB_FLAGS CUDA_ALL_COMPUTE_CAPABILITIES"
 testvars="BILDER_CTEST_MODEL"
-mkjvars="NUM_PHYS_CORES NUM_LOG_CORES MAKEJ_TOTAL MAKEJ_DEFVAL"
+mkjvars="NUM_PHYS_CORES NUM_LOG_CORES MAKEJ_TOTAL MAKEJ_DEFVAL JMAKE"
 ldvars="GLIBC_VERSION LIBGFORTRAN_DIR SER_EXTRA_LDFLAGS PAR_EXTRA_LDFLAGS PYC_EXTRA_LDFLAGS SER_CONFIG_LDFLAGS PAR_CONFIG_LDFLAGS"
 instvars="BUILD_INSTALLERS INSTALLER_HOST INSTALLER_ROOTDIR"
-othervars="USE_ATLAS_PYCSH DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
+othervars="BLDR_BUILD_NUMPY USE_ATLAS_PYCSH USE_OCC DOCS_BUILDS BILDER_TOPURL BLDR_PROJECT_URL BLDR_BUILD_URL"
 
 techo ""
 techo "Environment settings:"

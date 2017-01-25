@@ -25,7 +25,6 @@ setTrilinosTriggerVars() {
   TRILINOS_BLDRVERSION_STD=11.14.3
 # 11.12.1 is the last version to configure and build with vs12
 # But it does not build Zoltan?
-  # TRILINOS_BLDRVERSION_EXP=11.12.1
   TRILINOS_BLDRVERSION_EXP=11.14.3
 # Below fails to compile
 # trilinos-12.0.1\packages\amesos\src\SuiteSparse\AMD\Source\amesos_amd_1.c
@@ -44,12 +43,11 @@ setTrilinosTriggerVars() {
     Darwin) TRILINOS_NOBUILDS=${TRILINOS_NOBUILDS},parbaresh,parfullsh,parcommsh;;
   esac
   computeBuilds trilinos
-
 # Add in superlu all the time.  May be needed elsewhere
   TRILINOS_DEPS=${TRILINOS_DEPS:-"mumps,superlu_dist,boost,$MPI_BUILD,superlu,swig,numpy,atlas,lapack"}
 # commio builds depend on netcdf and hdf5.
 # Only add in if these builds are present.
-  if $BUILD_TRILINOS_EXPERIMENTAL || echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
+  if echo "$TRILINOS_BUILDS" | grep -q "commio" ; then
     TRILINOS_DEPS="netcdf,hdf5,${TRILINOS_DEPS}"
   fi
   case `uname` in
@@ -73,6 +71,28 @@ setTrilinosTriggerVars
 ######################################################################
 
 findTrilinos() {
-  :
+# This needs to be generalized to find the library associated with each package
+# requested in the build. For now, just find teuchos core as that always has to be built.
+  local srchbuilds="serbare parbare sercomm parcomm sercommio parcommio serfull parfull"
+  local srchbuilds="$srchbuilds serbaresh parbaresh sercommsh parcommsh sercommiosh parcommiosh"
+  findPackage Trilinos teuchoscore "$BLDR_INSTALL_DIR" $srchbuilds
+  techo
+# Find cmake configuration directories
+  for bld in $srcbuilds; do
+    local blddirvar=`genbashvar TRILINOS_${bld}`_DIR
+    local blddir=`deref $blddirvar`
+    if test -d "$blddir"; then
+      local dir=$blddir/lib/cmake
+      if [[ `uname` =~ CYGWIN ]]; then
+        dir=`cygpath -am $dir`
+      fi
+      local varname=`genbashvar TRILINOS_${bld}`_CMAKE_LIBDIR
+      eval $varname=$dir
+      printvar $varname
+      varname=`genbashvar TRILINOS_${bld}`_CMAKE_LIBDIR_ARG
+      eval $varname="\"-DTrilinos_ROOT_DIR:PATH='$dir'\""
+      printvar $varname
+    fi
+  done
 }
 

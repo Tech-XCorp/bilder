@@ -18,8 +18,8 @@
 setPythonTriggerVars() {
 
 # Patch number needed for repo and tarball
-  PY_BLDRVERSION_PATCH_STD=10
-  PY_BLDRVERSION_PATCH_EXP=12
+  PY_BLDRVERSION_PATCH_STD=13
+  PY_BLDRVERSION_PATCH_EXP=13
   PY_BLDRVERSION_PATCH=$PY_BLDRVERSION_PATCH_STD
   $BUILD_EXPERIMENTAL && PY_BLDRVERSION_PATCH=$PY_BLDRVERSION_PATCH_EXP
 
@@ -50,6 +50,7 @@ setPythonTriggerVars() {
     else
       techo "NOTE: [$FUNCNAME] Not removing $PROJECT_DIR/python."
     fi
+    PY_DL_VERSION=2.7.$PY_BLDRVERSION_PATCH
   else
     PYTHON_BLDRVERSION_STD=2.7.$PY_BLDRVERSION_PATCH_STD
     PYTHON_BLDRVERSION_EXP=2.7.$PY_BLDRVERSION_PATCH_EXP
@@ -80,8 +81,10 @@ setPythonTriggerVars
 
 findPython() {
   source $BILDER_DIR/bilderpy.sh
-  if test `uname` = Linux; then
-    addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
-  fi
+  case `uname` in
+    Linux)
+      addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/python/lib
+      ;;
+  esac
 }
 

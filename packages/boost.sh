@@ -46,29 +46,38 @@ fixBoost() {
   local bld=$1
   local cxxbase=
   case $bld in
-    pycsh) cxxbase=`basename $PYC_CXX`;;
+    py*) cxxbase=`basename $PYC_CXX`;;
     *) cxxbase=`basename $CXX`;;
   esac
-  if test $bld != pycsh; then
-    local cxxversfx=
-    if [[ "$cxxbase" =~ 'g++' ]]; then
-      echo "Executing sed."
-      cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
-    fi
-    if test -n "$cxxversfx"; then
-      local userconfigfile=
-      if test -f tools/build/v2/user-config.jam; then
-        userconfigfile=tools/build/v2/user-config.jam
-      elif test -f tools/build/example/user-config.jam; then
-        userconfigfile=tools/build/example/user-config.jam
+  case $bld in
+    pycsh | pycst) ;;
+    *)
+      local cxxversfx=
+      if [[ "$cxxbase" =~ 'g++' ]]; then
+        echo "Executing sed."
+        cxxversfx=`echo $cxxbase | sed 's/^g\+\+-//'`
       fi
-      if test -n "$userconfigfile"; then
-        cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : g++-$cxxversfx ;/' $userconfigfile"
-        techo "$cmd"
-        eval "$cmd"
+      if test -n "$cxxversfx"; then
+        local exampconfigfile=
+        local cmd=
+        if test -f tools/build/v2/user-config.jam; then
+          exampconfigfile=tools/build/v2/user-config.jam
+# Need using darwin to get assembler correct.
+# https://svn.boost.org/trac/boost/ticket/9306
+          cmd="sed -i.bak 's/# using gcc : 3.*$/using darwin : $cxxversfx : $cxxbase ;/' $exampconfigfile"
+        elif test -f tools/build/example/user-config.jam; then
+          exampconfigfile=tools/build/example/user-config.jam
+# Now config file must show up in directory below.
+          local userconfigfile=tools/build/src/user-config.jam
+          cmd="sed 's/# using gcc : 3.*$/using darwin : $cxxversfx : $cxxbase ;/' $exampconfigfile >$userconfigfile"
+        fi
+        if test -n "$cmd"; then
+          techo "$cmd"
+          eval "$cmd"
+        fi
       fi
-    fi
-  fi
+      ;;
+  esac
   case $bld in
     sersh | pycsh)
       local jamdir=
@@ -119,7 +128,15 @@ buildBoost() {
   case `uname`-`uname -r` in
     CYGWIN*)
       if $IS_64BIT; then
-        toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+# We can't just use a case statement on CXX because
+# the Intel compiler is named icl and the Microsoft compiler
+# is named cl. So leading wildcards will match. Instead search
+# for Intel
+        if echo "$CXX" | grep -q "Intel"; then
+          toolsetarg_ser="toolset=intel-15.0-vc12"
+        else
+          toolsetarg_ser="toolset=msvc-${VISUALSTUDIO_VERSION}.0"
+        fi
       fi
       ;;
     Darwin-*)
@@ -133,7 +150,11 @@ buildBoost() {
 # g++ is clang++ on Darwin-11+
           toolsetarg_ser="toolset=clang"
 	  ;;
-        *g++-*) ;; # toolsetarg_ser="toolset=`basename $CC`";;
+        *g++-*)
+# For the real g++ installations (ser, sersh using gcc from homebrew, e.g.)
+# no toolset as have 'using' in user-config.jam
+	  # toolsetarg_ser="toolset=darwin"
+	  ;;
         *icpc) toolsetarg_ser="toolset=icpc";;
       esac
       ;;
@@ -150,6 +171,7 @@ buildBoost() {
   esac
   toolsetarg_pycst=${toolsetarg_pycst:-"$toolsetarg_ser"}
   toolsetarg_pycsh=${toolsetarg_pycsh:-"$toolsetarg_ser"}
+  techo "Boost toolsetarg_ser=${toolserarg_ser}"
 
 # These args are actually to bilderBuild
   local BOOST_ALL_ADDL_ARGS="threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi --abbreviate-paths"
@@ -166,8 +188,9 @@ buildBoost() {
   fi
 # Only the shared and pycsh build boost python, as shared libs required.
 # runtime-link=static gives the /MT flags, which does not work with python.
+# boost_numpy fails to build with msvc in sersh so disable
   BOOST_SER_ADDL_ARGS="$toolsetarg_ser $staticlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
-  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} $BOOST_ALL_ADDL_ARGS"
+  BOOST_SERSH_ADDL_ARGS="$toolsetarg_ser $sharedlinkargs ${stdlibargs_ser} --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_SERMD_ADDL_ARGS="$toolsetarg_ser $sermdlinkargs --without-python $BOOST_ALL_ADDL_ARGS"
   BOOST_PYCST_ADDL_ARGS="$toolsetarg_pycst $sermdlinkargs --without-python ${stdlibargs_pycst} $BOOST_ALL_ADDL_ARGS"
   BOOST_PYCSH_ADDL_ARGS="$toolsetarg_pycsh $sharedlinkargs ${stdlibargs_pycsh} $BOOST_ALL_ADDL_ARGS"

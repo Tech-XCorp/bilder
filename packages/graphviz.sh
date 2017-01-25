@@ -64,9 +64,14 @@ bilder/extras/osxperl.patch in /System/Library/Perl/5.16/darwin-thread-multi-2le
 
 # Configure and build
   local GRAPHVIZ_PYC_ADDL_ARGS="--with-qt=no"
-  if test `uname` = Linux; then
-    GRAPHVIZ_PYC_ADDL_ARGS="$GRAPHVIZ_PYC_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
-  fi
+  case `uname` in
+    Darwin)
+      GRAPHVIZ_PYC_ADDL_ARGS="$GRAPHVIZ_PYC_ADDL_ARGS --enable-tcl=no"
+      ;;
+    Linux)
+      GRAPHVIZ_PYC_ADDL_ARGS="$GRAPHVIZ_PYC_ADDL_ARGS --with-extralibdir='$PYTHON_LIBDIR'"
+      ;;
+  esac
   if bilderConfig graphviz $FORPYTHON_STATIC_BUILD "$CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC --enable-static $GRAPHVIZ_PYC_ADDL_ARGS $GRAPHVIZ_PYC_OTHER_ARGS"; then
     bilderBuild graphviz $FORPYTHON_STATIC_BUILD
   fi

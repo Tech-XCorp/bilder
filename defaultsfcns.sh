@@ -243,7 +243,8 @@ runBilderCmd() {
 # Find script
 # Do not strip leading ./ as if on basic script, then needed for next one
   script=`echo $SCRIPT_NAME | sed -e "s/-default.sh\$/.sh/"`
-  local SCRIPT_BASE=`echo $script | sed -e 's/.sh$//' -e 's?^\./??g'`
+  local SCRIPT_BASE=`echo $script | sed -e 's/.sh$//' -e 's?^\./??g' -e 's?//*?/?g'`
+  echo "SCRIPT_BASE = $SCRIPT_BASE."
 
 # For email, it is to difficult to figure out the proper mail address
 # and laptops typically do not have email to user set up properly.
@@ -290,8 +291,12 @@ EOF
   if $USE_NOHUP; then
     local inst_subdir=`basename $BLDR_INSTALL_DIR`
     ofilename=$SCRIPT_BASE-$UQMAILHOST-$inst_subdir.out
+    # echo "Removing ^/ from output file name, $ofilename."
+    # ofilename=`echo $ofilename | sed -e 's?//*?/?g'`
+    # echo "Output file name is $ofilename."
     echo "Removing $PWD/ from output file name, $ofilename."
-    ofilename=`echo $ofilename | sed "s?^$PWD/??"`
+    ofilename=`echo $ofilename | sed -e 's?//*?/?g' -e "s?^$PWD/??"`
+    echo "Output file name is $ofilename."
   fi
 
 # Print and/or execute the command

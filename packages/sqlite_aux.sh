@@ -2,10 +2,10 @@
 #
 # Trigger vars and find information
 #
-# Package retarred from sqlite-autoconf-3070800.tar.gz:
-# tar xzf sqlite-autoconf-3070800.tar.gz
-# mv sqlite-autoconf-3070800 sqlite-3070800
-# tar czf sqlite-3070800.tar.gz sqlite-3070800
+# Package retarred from sqlite-autoconf-3160000.tar.gz:
+# tar xzf sqlite-autoconf-3160000.tar.gz
+# mv sqlite-autoconf-3160000 sqlite-3160000
+# env COPYFILE_DISABLE=true tar czf sqlite-3160000.tar.gz sqlite-3160000
 #
 # $Id$
 #
@@ -21,8 +21,8 @@
 ######################################################################
 
 setSqliteTriggerVars() {
-  SQLITE_BLDRVERSION_STD=${SQLITE_BLDRVERSION_STD:-"3080200"}
-  SQLITE_BLDRVERSION_EXP=${SQLITE_BLDRVERSION_EXP:-"3081002"}
+  SQLITE_BLDRVERSION_STD=${SQLITE_BLDRVERSION_STD:-"3160000"}
+  SQLITE_BLDRVERSION_EXP=${SQLITE_BLDRVERSION_EXP:-"3160000"}
 # Apparently sqlite does build on Windows?
   # case `uname` in
   # Linux | Darwin)

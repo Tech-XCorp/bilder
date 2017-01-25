@@ -31,6 +31,25 @@ setTxphysicsTriggerVars
 ######################################################################
 
 findTxphysics() {
-  :
+  srchbuilds="ser"
+  findPackage TxPhysics TXPHYSICS "$BLDR_INSTALL_DIR" $srchbuilds
+  techo
+# Find cmake configuration directories
+  for bld in $srcbuilds; do
+    local blddirvar=`genbashvar TXPHYSICS_${bld}`_DIR
+    local blddir=`deref $blddirvar`
+    if test -d "$blddir"; then
+      local dir=$blddir/lib/cmake
+      if [[ `uname` =~ CYGWIN ]]; then
+        dir=`cygpath -am $dir`
+      fi
+      local varname=`genbashvar TXPHYSICS_${bld}`_CMAKE_LIBDIR
+      eval $varname=$dir
+      printvar $varname
+      varname=`genbashvar TXPHYSICS_${bld}`_CMAKE_LIBDIR_ARG
+      eval $varname="\"-DTxPhysics_ROOT_DIR:PATH='$dir'\""
+      printvar $varname
+    fi
+  done
 }
 

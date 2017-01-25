@@ -116,10 +116,8 @@ EOF
 # Below definitely not needed with experimental version
   trimvar ompcxxflags ' '
 # http://www.open-mpi.org/community/lists/users/2015/01/26134.php
-  if $BUILD_EXPERIMENTAL; then
-    ompcompflags="$CONFIG_COMPFLAGS_SER" # Perhaps good for all.
-  else
-    ompcompflags="CFLAGS='$CFLAGS -fgnu89-inline' CXXFLAGS='$CXXFLAGS -fgnu89-inline'"
+  ompcompflags="$CONFIG_COMPFLAGS_SER" # Perhaps good for all.
+  if ! $BUILD_EXPERIMENTAL; then
     if test -n "$FCFLAGS"; then
       ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
     fi
@@ -228,6 +226,33 @@ installOpenmpi() {
         done
       done
     fi
+    case `uname` in
+      Darwin)
+        for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
+          omf=`ls $CONTRIB_DIR/openmpi-$bld/lib/libmpi_usempi*.dylib | head -1`
+          if test -n "$omf"; then
+            local gflib=`otool -L $omf | grep libgfortran | tr -d '\t' | sed -e 's/ (com.*//'`
+            if ! test -f "$gflib"; then
+              local gflibn=`echo $gflib | sed -e 's/gcc4.9/gcc@4.9/'`
+              if test -f "$gflibn"; then
+                local cmd="install_name_tool -change '$gflib' '$gflibn' $omf"
+                echo "$cmd"
+                eval "$cmd"
+              fi
+            fi
+            local gqlib=`otool -L $omf | grep libquadmath | tr -d '\t' | sed -e 's/ (com.*//'`
+            if ! test -f "$gqlib"; then
+              local gqlibn=`echo $gqlib | sed -e 's/gcc4.9/gcc@4.9/'`
+              if test -f "$gqlibn"; then
+                cmd="install_name_tool -change '$gqlib' '$gqlibn' $omf"
+                echo "$cmd"
+                eval "$cmd"
+              fi
+            fi
+          fi
+        done
+        ;;
+    esac
   fi
 }
 

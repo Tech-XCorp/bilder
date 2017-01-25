@@ -8,25 +8,25 @@
 
 ######################################################################
 #
-# Version
+# Trigger variables set in scotch_aux.sh
 #
 ######################################################################
 
-PARMETIS_BLDRVERSION=${PARMETIS_BLDRVERSION:-"4.0.3"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/parmetis_aux.sh
 
 ######################################################################
 #
-# Builds, deps, mask, auxdata, paths, builds of other packages
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-if test -z "$PARMETIS_BUILDS"; then
-  case `uname` in
-    Linux) PARMETIS_BUILDS=par,parsh;;
-  esac
-fi
-PARMETIS_DEPS=${PARMETIS_DEPS:-"cmake,$MPI_BUILD"}
-PARMETIS_UMASK=002
+setParmetisNonTriggerVars() {
+  PARMETIS_UMASK=002
+}
+setParmetisNonTriggerVars
 
 ######################################################################
 #
@@ -35,6 +35,7 @@ PARMETIS_UMASK=002
 ######################################################################
 
 buildParmetis() {
+  local PARMETIS_CMAKE_COMPFLAGS_PAR="$CMAKE_COMPFLAGS_PAR -I/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/sys/malloc.h"
   if bilderUnpack parmetis; then
     if bilderConfig parmetis par "-DENABLE_PARALLEL:BOOL=TRUE $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG $PARMETIS_PAR_OTHER_ARGS"; then
       bilderBuild parmetis par
