@@ -63,19 +63,22 @@ case $UQMAILHOST in
 # JRC 20130407: Bzip2 is not installed on edison.
     BZIP2_BUILDS=$FORPYTHON_SHARED_BUILD
 
+# Hard-code until we can make case statement
+    gccvers=5.1
+
 # System linear algebra, note sandybridge for Edison.
     libsciroot=/opt/cray/libsci/default
     SYSTEM_BLAS_SER_LIB=$libsciroot/INTEL/15.0/sandybridge/lib/libsci_intel.a
-    SYSTEM_BLAS_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
+    SYSTEM_BLAS_PYCSH_LIB=$libsciroot/GNU/$gccvers/sandybridge/lib/libsci_gnu.a
     SYSTEM_LAPACK_SER_LIB=$libsciroot/INTEL/15.0/sandybridge/lib/libsci_intel.a
-    SYSTEM_LAPACK_PYCSH_LIB=$libsciroot/gnu/$gccvers/sandybridge/lib/libsci_gnu.a
+    SYSTEM_LAPACK_PYCSH_LIB=$libsciroot/GNU/$gccvers/sandybridge/lib/libsci_gnu.a
     MKL_ROOT_DIR=/opt/intel/composer_xe_2013.5.192/mkl
 
 # System IO libs
     SYSTEM_HDF5_SER_DIR=/opt/cray/hdf5/default/INTEL/15.0
     SYSTEM_HDF5_PAR_DIR=/opt/cray/hdf5-parallel/default/INTEL/15.0
-    SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/gnu/$gccvers
-    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/gnu/$gccvers
+    SYSTEM_HDF5_PYCST_DIR=/opt/cray/hdf5/default/GNU/$gccvers
+    SYSTEM_HDF5_PYCSH_DIR=/opt/cray/hdf5/default/GNU/$gccvers
     SYSTEM_NETCDF_SER_DIR=/opt/cray/netcdf/default/intel/140
     SYSTEM_NETCDF_PAR_DIR=/opt/cray/netcdf-hdf5parallel/default/intel/140
 
