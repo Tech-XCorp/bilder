@@ -86,8 +86,8 @@ setBilderHostVars() {
 #   Determine the compiler and version for machinefile and namespacing
 #
   # echo "setBilderHostVars entered."
-  local compkey=`modulecmd bash -t list 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
-  # echo compkey = $compkey
+  compkey=`modulecmd bash -t list 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
+  echo compkey = $compkey
   if test -z "$compkey"; then
     local comp=
     for comp in pgi gcc gnu; do
@@ -101,9 +101,9 @@ setBilderHostVars() {
     echo "Cannot determine the compkey.  Quitting."
     exit 1
   fi
-  # echo "compkey = $compkey."
-  # Cray doesn't have a straightforward listing so put in a temporary
-  # compkey so that the version works and then reset
+  echo "compkey = $compkey."
+# Cray doesn't have a straightforward listing so put in a temporary
+# compkey so that the version works and then reset
   case $compkey in
     gnu)   compkey=gcc;;
     path*) compkey=path;;
