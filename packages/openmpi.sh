@@ -213,19 +213,25 @@ installOpenmpi() {
     rm -f $CONTRIB_DIR/mpi
   fi
   if bilderInstallAll openmpi; then
+    case `uname`-`uname -r` in
+      Darwin-1[6-9].*) OPENMPI_ALLOW_RSH=false;;
+    esac
     OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
-    if $OPENMPI_ALLOW_RSH; then
-      for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
-        prmsfile=$CONTRIB_DIR/openmpi-$bld/etc/openmpi-mca-params.conf
-# Allow rsh use, oversubscription
+    for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
+      prmsfile=$CONTRIB_DIR/openmpi-$bld/etc/openmpi-mca-params.conf
 # "hwloc_base_binding_policy = core:overload-allowed" fails on osx.
-        for line in "rmaps_base_oversubscribe = true" "plm_rsh_agent = rsh"; do
-          if ! grep -q "^$line" $prmsfile; then
-            echo "$line" >>$prmsfile
-          fi
-        done
-      done
-    fi
+      line="rmaps_base_oversubscribe = true"
+      if ! grep -q "^$line" $prmsfile; then
+        echo "$line" >>$prmsfile
+      fi
+      if $OPENMPI_ALLOW_RSH; then
+# Allow rsh use.
+        line="plm_rsh_agent = rsh"
+        if ! grep -q "^$line" $prmsfile; then
+          echo "$line" >>$prmsfile
+        fi
+      fi
+    done
     case `uname` in
       Darwin)
         for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
