@@ -101,19 +101,6 @@ setupNumpyBuild() {
         flibdir=`dirname $flibdir`
         flibdir=`cygpath -aw "$flibdir" | sed 's/\\\\/\\\\\\\\/g'`
       fi
-      local atlasdir=
-      local atlaslibdir=
-      local atlasincdir=
-      if $NUMPY_USE_ATLAS; then
-        if $NUMPY_WIN_USE_FORTRAN && test -n "$ATLAS_SER_DIR"; then
-          atlasdir="$ATLAS_SER_DIR"
-        elif test -n "$ATLAS_CLP_DIR"; then
-          atlasdir="$ATLAS_CLP_DIR"
-        fi
-        atlaslibdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\lib
-        atlasincdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\include
-        atlasdir=`cygpath -aw $atlasdir | sed 's/\\\\/\\\\\\\\/g'`\\\\
-      fi
       ;;
 
     Linux-*)
@@ -150,9 +137,6 @@ setupNumpyBuild() {
       # sed -i.bak -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" numpy/distutils/site.cfg
       sed -i.bak -e "/^include_dirs =/a\
 libraries = $lapacknames,$blasnames" numpy/distutils/site.cfg
-      if test -n "$atlasdir"; then
-        sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
-      fi
     else
       techo "WARNING: [$FUNCNAME] site.cfg.example not found in $PWD.  Will not create numpy/distutils/site.cfg."
     fi
@@ -160,7 +144,6 @@ libraries = $lapacknames,$blasnames" numpy/distutils/site.cfg
     techo "lapacknames or serial fortran not defined.  Will not create numpy/distutils/site.cfg."
   fi
 
-# Accumulate link flags for modules, and make ATLAS modifications.
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
 #   but not PYC_LDSHARED
 # Linux defines PYC_MODFLAGS = "-shared", but not PYC_LDSHARED
