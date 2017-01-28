@@ -122,26 +122,42 @@ setupNumpyBuild() {
       blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
       blslpckincdir="$LAPACK_PYCSH_DIR"/include
       blslpckdir="$LAPACK_PYCSH_DIR"/
+      lapackname=`echo $lapacknames | sed 's/,.*$//'`
+      lapacklibname=$blslpcklibdir/lib${lapackname}.so
+      blasname=`echo $blasnames | sed 's/,.*$//'`
+      blaslibname=$blslpcklibdir/lib${blasname}.so
       ;;
 
   esac
 
 # Create site.cfg
-# Format changed with 1.8.0.  All lines begin with '#', and lapack_libs
-# and blas_libs no longer specified.  They come from the section by default?
-  local sep=','
-  if [[ `uname` =~ CYGWIN ]]; then
-# In spite of documentation, need semicolon, not comma.
-    sep=';'
-  fi
 # If lapack libs are defined, even clapack, numpy will search for
 # a fortran and use it.  If it is going to find cygwin's fortran,
-# prevent this by not defining the blas and lapack libraries
-  if test -n "$lapacknames" && $NUMPY_WIN_USE_FORTRAN; then
-    sed -e "s/^#\[ALL/\[ALL/" -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" <site.cfg.example >numpy/distutils/site.cfg
-    if test -n "$atlasdir"; then
-      sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+# prevent this by not defining the blas and lapack libraries.
+  if test -n "$lapacknames" && $HAVE_SER_FORTRAN; then
+    local sep=','
+    if [[ `uname` =~ CYGWIN ]]; then
+# In spite of documentation, need semicolon, not comma.
+      sep=';'
     fi
+    if test -f site.cfg.example; then
+# On Crays this is ignored, and one needs to set LAPACK and BLAS
+      techo "Creating site.cfg."
+# Format changed with 1.8.0.  All lines begin with '#', and lapack_libs
+# and blas_libs no longer specified.  They come from the section by default?
+      sed -e "s/^#\[ALL/\[ALL/" -e "s/^#\[DEFAULT/\[DEFAULT/" -e "s?^#include_dirs = /usr/local/include?include_dirs = $blslpckincdir?" -e "s?^#library_dirs = /usr/local/lib?library_dirs = ${blslpcklibdir}${sep}$flibdir?" <site.cfg.example >numpy/distutils/site.cfg
+# As of 1.11, the line beginning with #libraries disappeared.
+      # sed -i.bak -e "s?^#libraries = lapack,blas?libraries = $lapacknames,$blasnames?" numpy/distutils/site.cfg
+      sed -i.bak -e "/^include_dirs =/a\
+libraries = $lapacknames,$blasnames" numpy/distutils/site.cfg
+      if test -n "$atlasdir"; then
+        sed -i.bak -e "s?^# *include_dirs = /opt/atlas/?include_dirs = $atlasdir?" -e "s?^# *library_dirs = /opt/atlas/lib?library_dirs = ${atlaslibdir}${sep}$flibdir?" -e "s/^# *\[atlas/\[atlas/" numpy/distutils/site.cfg
+      fi
+    else
+      techo "WARNING: [$FUNCNAME] site.cfg.example not found in $PWD.  Will not create numpy/distutils/site.cfg."
+    fi
+  else
+    techo "lapacknames or serial fortran not defined.  Will not create numpy/distutils/site.cfg."
   fi
 
 # Accumulate link flags for modules, and make ATLAS modifications.
@@ -199,11 +215,13 @@ setupNumpyBuild() {
       NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
       ;;
     Linux-*)
-	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
+      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
 # Handle the case where PYC_FC may not be in path
       NUMPY_ARGS="--fcompiler=`basename ${PYC_FC}`"
       local fcpath=`dirname ${PYC_FC}`
       NUMPY_ENV="$DISTUTILS_ENV2 PATH=${PATH}:${fcpath}"
+# The line below found to be critical to finding lapack on cray
+      NUMPY_ENV="$DISTUTILS_ENV2 LAPACK='$lapacklibname' BLAS='$blaslibname'"
       ;;
     *)
       techo "WARNING: [numpy.sh] uname `uname` not recognized.  Not building."
@@ -232,6 +250,8 @@ buildNumpy() {
   fi
   local cmd=
 
+# Move to build directory
+  cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION} # Needed for setupNumpyBuild or pip
 # Build/install
   if $BLDR_BUILD_NUMPY; then
     setupNumpyBuild
@@ -243,8 +263,6 @@ buildNumpy() {
     fi
     bilderDuBuild numpy "$NUMPY_ARGS" "$NUMPY_ENV"
   else
-# Move to build directory
-    cd $BUILD_DIR/numpy-${NUMPY_BLDRVERSION}
 # We know we should build this, as there is only one build.
     cmd="python -m pip install --upgrade --target=$MIXED_PYTHON_SITEPKGSDIR -i https://pypi.binstar.org/carlkl/simple numpy"
     techo "$cmd"
