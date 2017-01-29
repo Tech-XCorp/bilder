@@ -22,16 +22,16 @@ getOpenblasTriggerVars() {
 
 # Set the builds.
   if test -z "$OPENBLAS_DESIRED_BUILDS"; then
-# Standard build of blas contains both ser and sersh
-    OPENBLAS_DESIRED_BUILDS=sersh
+# Standard build of openblas contains both ser and sersh
     case `uname` in
       CYGWIN*)
-        OPENBLAS_DESIRED_BUILDS="$OPENBLAS_DESIRED_BUILDS,sermd"
+        if which x86_64-w64-mingw32-gfortran.exe 2>/dev/null 1>&2; then
+          OPENBLAS_DESIRED_BUILDS=sersh
+        fi
         ;;
     esac
   fi
   computeBuilds openblas
-  addPycshBuild openblas
 
 # Deps and other
   OPENBLAS_DEPS=
@@ -49,11 +49,6 @@ findOpenblas() {
 
 # Find installation directories
   local srchbuilds="sersh"
-  case `uname` in
-    CYGWIN*)
-      srchbuilds="$srchbuilds sermd"
-      ;;
-  esac
   findContribPackage Openblas openblas $srchbuilds
   findPycshDir Openblas
 
