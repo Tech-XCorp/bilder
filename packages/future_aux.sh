@@ -15,22 +15,22 @@
 #
 ######################################################################
 
-setEMpyTriggerVars() {
-  EMPY_BLDRVERSION_STD=1.1.45
-  EMPY_BLDRVERSION_EXP=1.1.45
-  EMPY_BUILDS=${EMPY_BUILDS:-"pycsh"}
-  EMPY_DEPS=future,setuptools,Python
+setFutureTriggerVars() {
+  FUTURE_BLDRVERSION_STD=0.16.0
+  FUTURE_BLDRVERSION_EXP=0.16.0
+  FUTURE_BUILDS=${EMPY_BUILDS:-"pycsh"}
+  FUTURE_DEPS=setuptools,Python
 }
-setEMpyTriggerVars
+setFutureTriggerVars
 
 ######################################################################
 #
-# Find EMpy
+# Find uture
 #
 ######################################################################
 
-findEMpy() {
+findFuture() {
   :
 }
-findEMpy
+findFuture
 
