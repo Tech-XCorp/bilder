@@ -98,8 +98,8 @@ installEMpy() {
       res=$?
       ;;
   esac
-  if test $res = 0; then
-    chmod a+r $PYTHON_SITEPKGSDIR/EMpy.py*
-  fi
+#  if test $res = 0; then
+#    chmod a+r $PYTHON_SITEPKGSDIR/EMpy.py*
+#  fi
 }
 

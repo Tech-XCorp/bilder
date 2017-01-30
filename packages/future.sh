@@ -47,21 +47,21 @@ buildFuture() {
   cmd="rmall ${PYTHON_SITEPKGSDIR}/future*"
   techo "$cmd"
   $cmd
-  future_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/FUTURE.files'"
+  FUTURE_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/future.files'"
   case `uname`-"$CC" in
     CYGWIN*-*cl*)
-      future_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $FUTURE_INSTALL_ARGS $BDIST_WININST_ARG"
-      future_ENV_USED="$DISTUTILS_ENV"
+      FUTURE_ARGS="--compiler=msvc install --prefix='$NATIVE_CONTRIB_DIR' $FUTURE_INSTALL_ARGS $BDIST_WININST_ARG"
+      FUTURE_ENV_USED="$DISTUTILS_ENV"
       ;;
     CYGWIN*-mingw*)
 # Have to install with build to get both prefix and compiler correct.
-      future_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $FUTURE_INSTALL_ARGS $BDIST_WININST_ARG"
+      FUTURE_ARGS="--compiler=mingw32 install --prefix='$NATIVE_CONTRIB_DIR' $FUTURE_INSTALL_ARGS $BDIST_WININST_ARG"
       local mingwgcc=`which mingw32-gcc`
       local mingwdir=`dirname $mingwgcc`
-      future_ENV_USED="PATH=$mingwdir:'$PATH'"
+      FUTURE_ENV_USED="PATH=$mingwdir:'$PATH'"
       ;;
     *)
-      future_ENV_USED="$DISTUTILS_ENV"
+      FUTURE_ENV_USED="$DISTUTILS_ENV"
       ;;
   esac
   bilderDuBuild future "$FUTURE_ARGS" "$FUTURE_ENV_USED"
@@ -98,8 +98,8 @@ installFuture() {
       res=$?
       ;;
   esac
-  if test $res = 0; then
-    chmod a+r $PYTHON_SITEPKGSDIR/future.py*
-  fi
+#  if test $res = 0; then
+#    chmod a+r $PYTHON_SITEPKGSDIR/future.py*
+#  fi
 }
 
