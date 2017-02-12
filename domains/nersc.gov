@@ -87,7 +87,7 @@ setBilderHostVars() {
 #
   # echo "setBilderHostVars entered."
   compkey=`modulecmd bash -t list 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
-  echo compkey = $compkey
+  # echo compkey = $compkey
   if test -z "$compkey"; then
     local comp=
     for comp in pgi gcc gnu; do
@@ -101,7 +101,7 @@ setBilderHostVars() {
     echo "Cannot determine the compkey.  Quitting."
     exit 1
   fi
-  echo "compkey = $compkey."
+  # echo "compkey = $compkey."
 # Cray doesn't have a straightforward listing so put in a temporary
 # compkey so that the version works and then reset
   case $compkey in
@@ -116,12 +116,12 @@ setBilderHostVars() {
   if test "$compkey" = "PrgEnv-cray"; then
     compkey="cray"
   fi
-  echo compkey = $compkey
+  # echo compkey = $compkey
   # echo compver = $compver
   # echo exit; exit
   local majorminor=`echo $compver | sed -e "s/\(^[^\.]*\.[^\.]*\).*/\1/"`
   compver=$majorminor
-  echo compver = $compver
+  # echo compver = $compver
   # echo "Quitting in nersc.gov."; exit
 
 # Set the installation and project subdirs

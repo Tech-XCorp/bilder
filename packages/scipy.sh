@@ -44,12 +44,6 @@ setupScipyBuild() {
 
 # Accumulate linkflags for modules
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
-
-# Determine whether to use atlas.  SciPy must go with NumPy in all things.
-  if $NUMPY_USE_ATLAS; then
-    techo "Building scipy with ATLAS."
-    techo "ATLAS_PYCSH_DIR = $ATLAS_PYCSH_DIR,  ATLAS_PYCSH_LIBDIR = $ATLAS_PYCSH_LIBDIR."
-  fi
   SCIPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/scipy.files'"
 
 # Get env and args
@@ -59,13 +53,9 @@ setupScipyBuild() {
 # Determine basic args
       SCIPY_BUILD_ARGS="--compiler=$NUMPY_WIN_CC_TYPE install --prefix='$NATIVE_CONTRIB_DIR' $BDIST_WININST_ARG"
       SCIPY_BUILD_ARGS="--fcompiler=gnu95 $SCIPY_BUILD_ARGS"
-      if $NUMPY_USE_ATLAS; then
-        SCIPY_ENV="$DISTUTILS_ENV ATLAS='$ATLAS_PYCSH_LIBDIR'"
-      else
-        local blslpcklibdir="$CONTRIB_LAPACK_SERMD_DIR"/lib
-        blslpcklibdir=`cygpath -aw $blslpcklibdir | sed 's/\\\\/\\\\\\\\/g'`
-        SCIPY_ENV="$DISTUTILS_ENV LAPACK='${blslpcklibdir}' BLAS='${blslpcklibdir}'"
-      fi
+      local blslpcklibdir="$CONTRIB_LAPACK_SERMD_DIR"/lib
+      blslpcklibdir=`cygpath -aw $blslpcklibdir | sed 's/\\\\/\\\\\\\\/g'`
+      SCIPY_ENV="$DISTUTILS_ENV LAPACK='${blslpcklibdir}' BLAS='${blslpcklibdir}'"
       local fcbase=`basename "$PYC_FC"`
       if ! eval "$SCIPY_ENV" which $fcbase 1>/dev/null 2>&1; then
         techo "ERROR: [$FUNCNAME] Cannot build scipy, as $fcbase is not in PATH."
@@ -94,8 +84,15 @@ setupScipyBuild() {
       ;;
 
     Linux-*)
-      local LAPACK_LIB_DIR=${CONTRIB_DIR}/lapack-${LAPACK_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
-      SCIPY_ENV="$DISTUTILS_ENV $SCIPY_GFORTRAN BLAS='$LAPACK_LIB_DIR' LAPACK='$LAPACK_LIB_DIR'"
+      SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN"
+# This is the only way to specify different libraries:
+# https://www.scipy.org/scipylib/building/linux.html
+      blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
+      lapacklibname=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ .*$//'`
+      blaslibname=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ .*$//g'`
+      lapacklibname=$blslpcklibdir/lib${lapacklibname}.so
+      blaslibname=$blslpcklibdir/lib${blaslibname}.so
+      SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$lapacklibname' BLAS='$blaslibname'"
       linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
       ;;
 

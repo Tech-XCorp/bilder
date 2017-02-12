@@ -36,16 +36,25 @@ setOpenblasNonTriggerVars
 
 buildOpenblas() {
 
-  if ! bilderUnpack openblas; then
+  if ! bilderUnpack -i openblas; then
     return
   fi
 
+# Compilers
+  case `uname` in
+    CYGWIN*)
+      gccver=`x86_64-w64-mingw32-gcc.exe  --version | head -1 | sed -e 's/^.*) //'`
+      OPENBLAS_ENV="PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/bin:'$PATH'"
+      OPENBLAS_ARGS="CC=x86_64-w64-mingw32-gcc.exe FC=x86_64-w64-mingw32-gfortran.exe LDFLAGS=-L/usr/lib/gcc/x86_64-w64-mingw32/$gccver DYNAMIC_ARCH=1 USE_THREAD=0 NO_PARALLEL_MAKE=0"
+      ;;
+    *)
+      OPENBLAS_ARGS="CC=$CC FC=$FC DYNAMIC_ARCH=1 USE_THREAD=0"
+      ;;
+  esac
+
 # OpenBLAS builds ser and sersh by default
-  if bilderConfig -c openblas sersh "$CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $OPENBLAS_SERSH_OTHER_ARGS"; then
-    bilderBuild openblas sersh "$OPENBLAS_MAKEJ_ARGS"
-  fi
-  if bilderConfig -c openblas pycsh "$CMAKE_COMPILERS_PYC $CMAKE_COMPFLAGS_PYC $OPENBLAS_PYCSH_OTHER_ARGS"; then
-    bilderBuild openblas pycsh "$OPENBLAS_MAKEJ_ARGS"
+  if bilderConfig -i -C : openblas sersh; then
+    bilderBuild -m make openblas sersh "$OPENBLAS_ARGS" "$OPENBLAS_ENV"
   fi
 
 }
@@ -66,23 +75,10 @@ testOpenblas() {
 #
 ######################################################################
 
-# Move the shared openblas libraries to their legacy names.
-# Allows shared and static to be installed in same place.
-#
-# 1: The installation directory
-#
 installOpenblas() {
 
-# Install one by one and correct
-  local instdir
-  local openblasinstalled=false
-
-# Static installations first, so static tools can be moved up and saved
-# just under bin.
-# Remove (-r) old installations.  This assumee that the shared libs
-# will subsequently be reinstalled if needed.
   for bld in `echo $OPENBLAS_BUILDS | tr ',' ' '`; do
-    if bilderInstall -p open -r openblas $bld; then
+    if bilderInstall -m make -p open openblas $bld "" "" "PREFIX=${CONTRIB_DIR}/openblas-${OPENBLAS_BLDRVERSION}-$bld"; then
       :
     fi
   done
