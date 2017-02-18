@@ -4912,7 +4912,10 @@ bilderConfig() {
   esac
 
 # Add specified args
-  configargs="$configargs $3"
+  case $cmval in
+    qmake) configargs="$3 $configargs";;
+    *) configargs="$configargs $3";;
+  esac
   #trimvar configargs ' '
 
 # Create final command

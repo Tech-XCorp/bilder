@@ -48,23 +48,15 @@ buildQwt() {
   QWT_INSTALL_DIRS=$CONTRIB_DIR
 
   local makerargs=
+  qwtinstdir="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
   case `uname` in
     CYGWIN*)
-      case `uname -m` in
-        i686) makerargs="-m nmake";;
-      esac
+      makerargs="-m nmake"
+      qwtinstdir=`cygpath -aw "$qwtinstdir"`
       ;;
   esac
-  if bilderConfig $makerargs -q qwt.pro qwt $QWT_BUILD "$QMAKESPECARG"; then
-    local QWT_PLATFORM_BUILD_ARGS=
-    case `uname`-`uname -r` in
-      Darwin-1[2-3].*) QWT_PLATFORM_BUILD_ARGS="CXX=clang++";;
-      CYGWIN*)     QWT_PLATFORM_BUILD_ARGS="CXX=$(basename "${CXX}")";;
-      *)           QWT_PLATFORM_BUILD_ARGS="CXX=g++";;
-    esac
-# During testing, do not "make clean".
-    # bilderBuild $makerargs -k qwt $QWT_BUILD "all $QWT_PLATFORM_BUILD_ARGS"
-    bilderBuild $makerargs qwt $QWT_BUILD "all"
+  if bilderConfig $makerargs -q qwt.pro qwt $QWT_BUILD "" "" "QWT_INSTALL_PREFIX='$qwtinstdir'"; then
+    bilderBuild $makerargs qwt $QWT_BUILD
   fi
 }
 
@@ -86,7 +78,7 @@ testQwt() {
 
 installQwt() {
 # JRC 20130320: Qwt is installed from just "make all".
-  if bilderInstall -L qwt $QWT_BUILD; then
+  if bilderInstall qwt $QWT_BUILD; then
     :
   fi
 }
