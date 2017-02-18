@@ -4517,7 +4517,6 @@ bilderConfig() {
 
 # Work through the specified, mutually exclusive cases
   if $forceqmake; then
-    techo -2 "qmake forced."
 # qmake configure
     configexec=qmake
     cmval=qmake
@@ -4703,7 +4702,6 @@ bilderConfig() {
       local builddir=$buildtopdir/$2
     fi
   fi
-  techo -2 "builddir = $builddir"
 # Store build directory
   eval $builddirvar=$builddir
   cmd="cd $builddir"
@@ -4758,18 +4756,12 @@ bilderConfig() {
   local hasctest=false
   local hasscimake=false
 # Add other, default args
-  techo -2 "cmval = $cmval"
   case $cmval in
     qmake)
-      techo -2 "buildtopdir = $buildtopdir"
-      techo -2 "builddir = $builddir"
-      techo -2 "QMAKE_PRO_FILENAME = $QMAKE_PRO_FILENAME"
       local profilename=
-      if test -f "$PROJECT_DIR/$1$QMAKE_PRO_FILENAME"; then
-        # profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
+      if test -f "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"; then
         profilename="$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"
       elif test -f "$builddir/$QMAKE_PRO_FILENAME"; then
-        # profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
         profilename="$builddir/$QMAKE_PRO_FILENAME"
       elif test -f "$builddir/../$QMAKE_PRO_FILENAME"; then
         profilename=`(cd $builddir/..; pwd -P)`/"$QMAKE_PRO_FILENAME"
@@ -4780,7 +4772,6 @@ bilderConfig() {
       if [[ `uname` =~ CYGWIN ]]; then
         profilename="$(cygpath -aw ${profilename})"
       fi
-      techo -2 "profilename = $profilename "
       configargs="${configargs} '${profilename}'"
       ;;
     cmake)

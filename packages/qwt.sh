@@ -63,7 +63,8 @@ buildQwt() {
       *)           QWT_PLATFORM_BUILD_ARGS="CXX=g++";;
     esac
 # During testing, do not "make clean".
-    bilderBuild $makerargs -k qwt $QWT_BUILD "all docs $QWT_PLATFORM_BUILD_ARGS"
+    # bilderBuild $makerargs -k qwt $QWT_BUILD "all $QWT_PLATFORM_BUILD_ARGS"
+    bilderBuild $makerargs qwt $QWT_BUILD "all"
   fi
 }
 
@@ -85,7 +86,7 @@ testQwt() {
 
 installQwt() {
 # JRC 20130320: Qwt is installed from just "make all".
-  if bilderInstall -L -T all qwt $QWT_BUILD; then
+  if bilderInstall -L qwt $QWT_BUILD; then
     :
   fi
 }
