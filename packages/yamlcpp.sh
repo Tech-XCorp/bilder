@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version and build information for yaml library.
+# Version and build information for yamlcpp library.
 #
 # $Id$
 #
@@ -20,7 +20,7 @@
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/yaml_aux.sh
+source $mydir/yamlcpp_aux.sh
 
 ######################################################################
 #
@@ -30,46 +30,52 @@ source $mydir/yaml_aux.sh
 #
 ######################################################################
 
-setYamlNonTriggerVars() {
-  YAML_UMASK=002
+setYamlcppNonTriggerVars() {
+  YAMLCPP_UMASK=002
 }
-setYamlNonTriggerVars
+setYamlcppNonTriggerVars
 
 ######################################################################
 #
-# Launch yaml builds.
+# Launch yamlcpp builds.
 #
 ######################################################################
 
-buildYaml() {
-  if bilderUnpack yaml; then
-    for bld in ${YAML_BUILDS}; do
-      if bilderConfig yaml $bld; then
-        bilderBuild yaml $bld
-      fi
-    done
+buildYamlcpp() {
+
+# Get moab from repo, determine whether to build
+  updateRepo yamlcpp
+  getVersion yamlcpp
+  if ! bilderPreconfig -c yamlcpp; then
+    return 1
   fi
+
+  for bld in ${YAMLCPP_BUILDS}; do
+      if bilderConfig -c yamlcpp $bld; then
+        bilderBuild yamlcpp $bld
+      fi
+  done
 }
 
 
 ######################################################################
 #
-# Test yaml
+# Test yamlcpp
 #
 ######################################################################
 
-testYaml() {
-  techo "Not testing yaml."
+testYamlcpp() {
+  techo "Not testing yamlcpp."
 }
 
 ######################################################################
 #
-# Install yaml
+# Install yamlcpp
 #
 ######################################################################
 
-installYaml() {
-  for bld in ${YAML_BUILDS}; do
-    bilderInstall yaml ${bld}
+installYamlcpp() {
+  for bld in ${YAMLCPP_BUILDS}; do
+    bilderInstall yamlcpp ${bld}
   done
 }
