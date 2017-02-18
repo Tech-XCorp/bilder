@@ -2589,10 +2589,10 @@ findLibraries() {
 # but if found as a SYSTEM_ variable, use that.
 #
 # Args:
-# 1:  The name of the package, appropriately capitalized, pkgnamelc is a
-#     package.sh bilder script, but pkgname is the installation dir start.
-# 2:  Library name to look for
-# 3:  The directory to look in
+# 1: The name of the package, appropriately capitalized, pkgnamelc is a
+#    package.sh bilder script, but pkgname is the installation dir start.
+# 2: Library name to look for
+# 3: The directory to look in
 # 4: The different builds to look for.  If empty, use the _BUILDS variable.
 #
 # Named args (must come first):
