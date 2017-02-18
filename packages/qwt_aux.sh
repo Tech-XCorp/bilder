@@ -33,6 +33,8 @@ setQwtTriggerVars
 ######################################################################
 
 findQwt() {
-  :
+  findContribPackage qwt qwt sersh
+  findPycshDir qwt
+  techo "QWT_PYCSH_DIR = $QWT_PYCSH_DIR"
 }
 
