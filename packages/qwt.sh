@@ -48,14 +48,18 @@ buildQwt() {
   QWT_INSTALL_DIRS=$CONTRIB_DIR
 
   local makerargs=
-  qwtinstdir="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
+  qwtprefix="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
   case `uname` in
     CYGWIN*)
       makerargs="-m nmake"
-      qwtinstdir=`cygpath -aw "$qwtinstdir"`
+      qwtprefix=`cygpath -aw "$qwtprefix"`
+      ;;
+    Linux)
+      sed -i.bak -e "/^QWT_INSTALL_PREFIX_UNIX/s?=.*\$?= $qwtprefix?" $BUILD_DIR/qwt-${QWT_BLDRVERSION}/qwtconfig.pri
       ;;
   esac
-  if bilderConfig $makerargs -q qwt.pro qwt $QWT_BUILD "" "" "QWT_INSTALL_PREFIX='$qwtinstdir'"; then
+
+  if bilderConfig $makerargs -q qwt.pro qwt $QWT_BUILD; then
     bilderBuild $makerargs qwt $QWT_BUILD
   fi
 }
