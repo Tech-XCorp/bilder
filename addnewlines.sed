@@ -1,6 +1,6 @@
 # Add needed newlines to the configure script
 #
-# $Id: addnewlines.sed 3935 2011-07-30 12:45:37Z cary $
+# $Id$
 #
 # Removes duplicating spaces
 s/  *$//

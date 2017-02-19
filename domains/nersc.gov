@@ -86,7 +86,7 @@ setBilderHostVars() {
 #   Determine the compiler and version for machinefile and namespacing
 #
   # echo "setBilderHostVars entered."
-  local compkey=`modulecmd bash -t list 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
+  compkey=`modulecmd bash -t list 2>&1 | grep PrgEnv | sed -e 's/^PrgEnv-//' -e 's?/.*??'`
   # echo compkey = $compkey
   if test -z "$compkey"; then
     local comp=
@@ -102,8 +102,8 @@ setBilderHostVars() {
     exit 1
   fi
   # echo "compkey = $compkey."
-  # Cray doesn't have a straightforward listing so put in a temporary
-  # compkey so that the version works and then reset
+# Cray doesn't have a straightforward listing so put in a temporary
+# compkey so that the version works and then reset
   case $compkey in
     gnu)   compkey=gcc;;
     path*) compkey=path;;
@@ -116,12 +116,12 @@ setBilderHostVars() {
   if test "$compkey" = "PrgEnv-cray"; then
     compkey="cray"
   fi
-  echo compkey = $compkey
+  # echo compkey = $compkey
   # echo compver = $compver
   # echo exit; exit
   local majorminor=`echo $compver | sed -e "s/\(^[^\.]*\.[^\.]*\).*/\1/"`
   compver=$majorminor
-  echo compver = $compver
+  # echo compver = $compver
   # echo "Quitting in nersc.gov."; exit
 
 # Set the installation and project subdirs
@@ -152,8 +152,15 @@ setBilderHostVars() {
     BUILD_ROOTDIR=${BUILD_ROOTDIR:-"$GSCRATCH/builds-${UQMAILHOST}-$compkey"}
   fi
 
-# Add to BILDER_ARGS
-  BILDER_ADDL_ARGS="-j4"
+# Set default make -j argument
+  case $machinedir in
+    cori)
+      export MAKEJ_DEFVAL=12
+      ;;
+    *)
+      export MAKEJ_DEFVAL=8
+      ;;
+  esac
 
 # Set machine file and any other env vars
   case $machinedir in

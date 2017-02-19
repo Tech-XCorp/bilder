@@ -80,8 +80,7 @@ installMpich() {
     rm -f $CONTRIB_DIR/mpi
   fi
   bilderInstallAll mpich
-  # static and shared are linked but not mpich directories.  
-  # Using static here
+# static and shared are linked but not mpich directories.  Using static here
   mkLink $CONTRIB_DIR mpich-static mpich
 }
 

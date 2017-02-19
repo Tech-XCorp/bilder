@@ -16,8 +16,8 @@
 ######################################################################
 
 setCmakeTriggerVars() {
-  CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"3.4.1"}
-  CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"3.4.1"}
+  CMAKE_BLDRVERSION_STD=${CMAKE_BLDRVERSION_STD:-"3.7.1"}
+  CMAKE_BLDRVERSION_EXP=${CMAKE_BLDRVERSION_EXP:-"3.7.1"}
   CMAKE_BUILDS=${CMAKE_BUILDS:-"ser"}
   CMAKE_DEPS=
 }
@@ -32,5 +32,9 @@ setCmakeTriggerVars
 findCmake() {
   addtopathvar PATH $CONTRIB_DIR/cmake/bin
   CMAKE=`which cmake`
+  if test -z "$CMAKE"; then
+    echo "No cmake.  PATH = $PATH."
+    exit
+  fi
 }
 

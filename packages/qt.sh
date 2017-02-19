@@ -76,8 +76,8 @@ buildQt() {
         QT_ADDL_ARGS="$QT_ADDL_ARGS -platform macx-g++"
       fi
       case `uname -r` in
-        13.*)
-# This will need to be clang
+        1[6-9].*)
+          QT_PHONON_ARGS=-no-phonon  # Phonon fails to build on Sierra.
           ;;
         1[0-2].*)
           case `uname -m` in

@@ -116,9 +116,11 @@ EOF
 # Below definitely not needed with experimental version
   trimvar ompcxxflags ' '
 # http://www.open-mpi.org/community/lists/users/2015/01/26134.php
-  ompcompflags="CFLAGS='$CFLAGS -fgnu89-inline' CXXFLAGS='$CXXFLAGS -fgnu89-inline'"
-  if test -n "$FCFLAGS"; then
-    ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
+  ompcompflags="$CONFIG_COMPFLAGS_SER" # Perhaps good for all.
+  if ! $BUILD_EXPERIMENTAL; then
+    if test -n "$FCFLAGS"; then
+      ompcompflags="$ompcompflags FCFLAGS='$FCFLAGS'"
+    fi
   fi
 
 #
@@ -211,19 +213,52 @@ installOpenmpi() {
     rm -f $CONTRIB_DIR/mpi
   fi
   if bilderInstallAll openmpi; then
+    case `uname`-`uname -r` in
+      Darwin-1[6-9].*) OPENMPI_ALLOW_RSH=false;;
+    esac
     OPENMPI_ALLOW_RSH=${OPENMPI_ALLOW_RSH:-"true"}
-    if $OPENMPI_ALLOW_RSH; then
-      for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
-        prmsfile=$CONTRIB_DIR/openmpi-$bld/etc/openmpi-mca-params.conf
-# Allow rsh use, oversubscription
+    for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
+      prmsfile=$CONTRIB_DIR/openmpi-$bld/etc/openmpi-mca-params.conf
 # "hwloc_base_binding_policy = core:overload-allowed" fails on osx.
-        for line in "rmaps_base_oversubscribe = true" "plm_rsh_agent = rsh"; do
-          if ! grep -q "^$line" $prmsfile; then
-            echo "$line" >>$prmsfile
+      line="rmaps_base_oversubscribe = true"
+      if ! grep -q "^$line" $prmsfile; then
+        echo "$line" >>$prmsfile
+      fi
+      if $OPENMPI_ALLOW_RSH; then
+# Allow rsh use.
+        line="plm_rsh_agent = rsh"
+        if ! grep -q "^$line" $prmsfile; then
+          echo "$line" >>$prmsfile
+        fi
+      fi
+    done
+    case `uname` in
+      Darwin)
+        for bld in `echo $OPENMPI_BUILDS | tr ',' ' '`; do
+          omf=`ls $CONTRIB_DIR/openmpi-$bld/lib/libmpi_usempi*.dylib | head -1`
+          if test -n "$omf"; then
+            local gflib=`otool -L $omf | grep libgfortran | tr -d '\t' | sed -e 's/ (com.*//'`
+            if ! test -f "$gflib"; then
+              local gflibn=`echo $gflib | sed -e 's/gcc4.9/gcc@4.9/'`
+              if test -f "$gflibn"; then
+                local cmd="install_name_tool -change '$gflib' '$gflibn' $omf"
+                echo "$cmd"
+                eval "$cmd"
+              fi
+            fi
+            local gqlib=`otool -L $omf | grep libquadmath | tr -d '\t' | sed -e 's/ (com.*//'`
+            if ! test -f "$gqlib"; then
+              local gqlibn=`echo $gqlib | sed -e 's/gcc4.9/gcc@4.9/'`
+              if test -f "$gqlibn"; then
+                cmd="install_name_tool -change '$gqlib' '$gqlibn' $omf"
+                echo "$cmd"
+                eval "$cmd"
+              fi
+            fi
           fi
         done
-      done
-    fi
+        ;;
+    esac
   fi
 }
 

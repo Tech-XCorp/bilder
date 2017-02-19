@@ -125,17 +125,17 @@ buildCmake() {
     res=$?
     if test $res != 99; then
       techo "WARNING: $cmakepath cannot configure cmake."
-      if [[ $cmakepath =~ "$CONTRIB_DIR" ]]; then
-        techo "WARNING: Will remove old and exit."
-        cmd="rm -rf $CONTRIB_DIR/cmake* $CONTRIB_DIR/bin/cmake"
-        techo "$cmd"
-        $cmd
-        cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR cmake,ser"
-        techo "$cmd"
-        $cmd
-      else
-        techo "WARNING: $cmakepath does not match $CONTRIB_DIR."
-      fi
+      #if [[ $cmakepath =~ "$CONTRIB_DIR" ]]; then
+      #  techo "WARNING: Will remove old and exit."
+      #  cmd="rm -rf $CONTRIB_DIR/cmake* $CONTRIB_DIR/bin/cmake"
+      #  techo "$cmd"
+      #  $cmd
+      #  cmd="$BILDER_DIR/setinstald.sh -r -i $CONTRIB_DIR cmake,ser"
+      #  techo "$cmd"
+      #  $cmd
+      #else
+      #  techo "WARNING: $cmakepath does not match $CONTRIB_DIR."
+      #fi
       techo "Quitting."; cleanup
     fi
   fi

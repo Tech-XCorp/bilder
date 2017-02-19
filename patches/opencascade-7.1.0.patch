@@ -1,0 +1,12 @@
+diff -ruN opencascade-7.1.0/CMakeLists.txt opencascade-7.1.0-new/CMakeLists.txt
+--- opencascade-7.1.0/CMakeLists.txt	2016-11-25 02:52:00.000000000 -0700
++++ opencascade-7.1.0-new/CMakeLists.txt	2016-12-24 02:53:48.265795900 -0700
+@@ -624,7 +624,7 @@
+ 
+ # check all 3rdparty paths
+ if (3RDPARTY_NOT_INCLUDED)
+-  message (FATAL_ERROR "NOT FOUND: ${3RDPARTY_NOT_INCLUDED}" )
++  # message (FATAL_ERROR "NOT FOUND: ${3RDPARTY_NOT_INCLUDED}" )
+ endif()
+ 
+ if (3RDPARTY_INCLUDE_DIRS)

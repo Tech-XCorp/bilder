@@ -16,10 +16,10 @@
 ######################################################################
 
 setMockTriggerVars() {
-  MOCK_BLDRVERSION_STD=${MOCK_BLDRVERSION_STD:-"1.3.0"}
-  MOCK_BLDRVERSION_EXP=${MOCK_BLDRVERSION_EXP:-"1.3.0"}
+  MOCK_BLDRVERSION_STD=${MOCK_BLDRVERSION_STD:-"2.0.0"}
+  MOCK_BLDRVERSION_EXP=${MOCK_BLDRVERSION_EXP:-"2.0.0"}
   MOCK_BUILDS=${MOCK_BUILDS:-"pycsh"}
-  MOCK_DEPS=setuptools,Python
+  MOCK_DEPS=pbr,setuptools,Python
 }
 setMockTriggerVars
 

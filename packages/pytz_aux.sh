@@ -17,8 +17,8 @@
 ######################################################################
 
 setPytzTriggerVars() {
-  PYTZ_BLDRVERSION_STD=${PYTZ_BLDRVERSION_STD:-"2015.4"}
-  PYTZ_BLDRVERSION_EXP=${PYTZ_BLDRVERSION_EXP:-"2015.4"}
+  PYTZ_BLDRVERSION_STD=${PYTZ_BLDRVERSION_STD:-"2016.10"}
+  PYTZ_BLDRVERSION_EXP=${PYTZ_BLDRVERSION_EXP:-"2016.10"}
   PYTZ_BUILDS=${PYTZ_BUILDS:-"pycsh"}
   PYTZ_DEPS=Python
 }

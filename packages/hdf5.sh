@@ -39,7 +39,9 @@ setHdf5NonTriggerVars
 # Helper method to determine whether Fortran can compile hdf5
 haveHdf5Fortran() {
 # Check ability of compiler to compile hdf5
+  techo "HdF5: Testing if we have Fortran"
   if $HAVE_SER_FORTRAN; then
+    techo "Hdf5: We have Fortran"
     case "$FC" in
       *gfortran*)
         vertmp=`$FC --version | sed -e 's/^GNU Fortran ([^)]*)//'`
@@ -59,6 +61,7 @@ haveHdf5Fortran() {
     esac
     return 0
   fi
+  techo "Hdf5: We don't have Fortran"
   return 1
 }
 
@@ -81,6 +84,7 @@ buildHdf5() {
   if test `uname` != Darwin; then
     HDF5_SHARED_ENABLE_FORTRAN=$HDF5_STATIC_ENABLE_FORTRAN
   fi
+  techo "Hdf5: HDF5_STATIC_ENABLE_FORTRAN = ${HDF5_STATIC_ENABLE_FORTRAN}"
 
 # Shared: For Linux, add origin to rpath, do not strip rpath
   local HDF5_SER_ADDL_ARGS=
@@ -90,6 +94,10 @@ buildHdf5() {
   local HDF5_PARSH_ADDL_ARGS=
   local HDF5_PYCSH_ADDL_ARGS=
   case `uname` in
+    CYGWIN*)
+      HDF5_SER_ADDL_ARGS="$HDF5_SER_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=FALSE"
+      HDF5_PAR_ADDL_ARGS="$HDF5_PAR_ADDL_ARGS -DBUILD_SHARED_LIBS:BOOL=FALSE"
+      ;;
     Darwin)
 # Shared libs to know their installation names so that builds of
 # dependents link to this for installation to work without DYLD_LIBRARY_PATH
@@ -116,10 +124,10 @@ buildHdf5() {
   if bilderConfig -c hdf5 parsh "-DHDF5_ENABLE_PARALLEL:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HDF5_SHARED_ENABLE_FORTRAN $HDF5_PARSH_ADDL_ARGS $HDF5_PARSH_OTHER_ARGS"; then
     bilderBuild hdf5 parsh "$HDF5_MAKEJ_ARGS"
   fi
-  if bilderConfig -c hdf5 ser "$TARBALL_NODEFLIB_FLAGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
+  if bilderConfig -c hdf5 ser "$TARBALL_NODEFLIB_FLAGS -DBUILD_SHARED_LIBS:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
     bilderBuild hdf5 ser "$HDF5_MAKEJ_ARGS"
   fi
-  if bilderConfig -c hdf5 par "-DHDF5_ENABLE_PARALLEL:BOOL=ON $TARBALL_NODEFLIB_FLAGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HDF5_STATIC_ENABLE_FORTRAN $HDF5_PAR_ADDL_ARGS $HDF5_PAR_OTHER_ARGS"; then
+  if bilderConfig -c hdf5 par "-DHDF5_ENABLE_PARALLEL:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=OFF $TARBALL_NODEFLIB_FLAGS -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $HDF5_STATIC_ENABLE_FORTRAN $HDF5_PAR_ADDL_ARGS $HDF5_PAR_OTHER_ARGS"; then
     bilderBuild hdf5 par "$HDF5_MAKEJ_ARGS"
   fi
   if bilderConfig -c hdf5 sermd "-DBUILD_WITH_SHARED_RUNTIME:BOOL=TRUE -DHDF5_BUILD_TOOLS:BOOL=ON -DHDF5_BUILD_HL_LIB:BOOL=ON $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $HDF5_STATIC_ENABLE_FORTRAN $HDF5_SER_ADDL_ARGS $HDF5_SER_OTHER_ARGS"; then
@@ -210,7 +218,7 @@ fixHdf5StaticLibs() {
         ;;
     esac
     if test "$i" != "$newname"; then
-      cmd="mv $i $newname"
+      cmd="cp $i $newname"
       techo "$cmd"
       $cmd
     else
@@ -229,7 +237,7 @@ fixHdf5StaticLibs() {
 fixHdf5Libs() {
   bld=$1
   case $bld in
-    ser | par | sermd) fixHdf5StaticLibs $bld;;
+    ser | par | sermd | pycst) fixHdf5StaticLibs $bld;;
     *sh) fixHdf5SharedInst $bld;;
   esac
 }

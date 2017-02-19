@@ -16,8 +16,8 @@
 ######################################################################
 
 setOpenmpiTriggerVars() {
-  OPENMPI_BLDRVERSION_STD=1.10.1
-  OPENMPI_BLDRVERSION_EXP=1.10.1
+  OPENMPI_BLDRVERSION_STD=2.0.1
+  OPENMPI_BLDRVERSION_EXP=2.0.1
   if $BUILD_MPIS && test -z "$OPENMPI_BUILDS" && [[ $USE_MPI =~ openmpi ]]; then
     OPENMPI_BUILDS=nodl,static,shared
   fi

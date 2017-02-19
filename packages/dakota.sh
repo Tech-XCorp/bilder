@@ -11,7 +11,7 @@
 # Version
 #
 ######################################################################
-DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"5.3.1"}
+DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"6.4.0"}
 
 ######################################################################
 #
@@ -27,6 +27,11 @@ DAKOTA_BUILDS=${DAKOTA_BUILDS:-"ser,par"}
 #   2. On Darwin lapack build is skipped because system lapack/blas is used.
 #   3. boostdevel used for pure boost builds with all enabled including MPI
 #      Default boost can be used for Dakota
+#   4. Boost recommended version:
+#        1.49 on Linux
+#        1.50 on Mac
+#        1.52 on Windows
+#      https://dakota.sandia.gov/content/boost
 DAKOTA_DEPS=lapack,boost,$MPI_BUILD,cmake
 addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
@@ -47,6 +52,7 @@ addtopathvar PATH $CONTRIB_DIR/dakota/bin
 
 DAKOTA_ADDL_ARGS="-DHAVE_X_GRAPHICS:BOOL=FALSE \
                   -DBoost_NO_SYSTEM_PATHS:BOOL=TRUE \
+                  -DBoost_NO_BOOST_CMAKE:BOOL=TRUE \
                   -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost-sersh"
 
 techo " "

@@ -1,6 +1,6 @@
 diff -ruN trilinos-11.14.3/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake trilinos-11.14.3-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake
 --- trilinos-11.14.3/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2015-09-23 10:31:31.509567691 -0600
++++ trilinos-11.14.3-new/cmake/tribits/core/package_arch/TribitsGlobalMacros.cmake	2017-01-06 16:58:04.000000000 -0700
 @@ -1571,7 +1571,7 @@
      ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE
        -D_CRT_NONSTDC_NO_DEPRECATE  -D_SCL_SECURE_NO_WARNINGS)
@@ -12,7 +12,7 @@ diff -ruN trilinos-11.14.3/cmake/tribits/core/package_arch/TribitsGlobalMacros.c
    IF (WIN32 AND NOT CYGWIN)
 diff -ruN trilinos-11.14.3/packages/amesos/CMakeLists.txt trilinos-11.14.3-new/packages/amesos/CMakeLists.txt
 --- trilinos-11.14.3/packages/amesos/CMakeLists.txt	2015-04-17 13:01:25.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos/CMakeLists.txt	2015-09-23 10:31:31.517567298 -0600
++++ trilinos-11.14.3-new/packages/amesos/CMakeLists.txt	2017-01-06 16:58:04.000000000 -0700
 @@ -11,9 +11,13 @@
  #
  
@@ -29,7 +29,7 @@ diff -ruN trilinos-11.14.3/packages/amesos/CMakeLists.txt trilinos-11.14.3-new/p
  
 diff -ruN trilinos-11.14.3/packages/amesos/src/Amesos_Superludist.cpp trilinos-11.14.3-new/packages/amesos/src/Amesos_Superludist.cpp
 --- trilinos-11.14.3/packages/amesos/src/Amesos_Superludist.cpp	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos/src/Amesos_Superludist.cpp	2015-09-23 10:33:08.796566040 -0600
++++ trilinos-11.14.3-new/packages/amesos/src/Amesos_Superludist.cpp	2017-01-06 16:58:04.000000000 -0700
 @@ -442,7 +442,11 @@
      FactorizationDone_ = true;   // i.e. clean up Superlu data structures in the destructor
  
@@ -71,7 +71,7 @@ diff -ruN trilinos-11.14.3/packages/amesos/src/Amesos_Superludist.cpp trilinos-1
      //  quiet.
 diff -ruN trilinos-11.14.3/packages/amesos2/cmake/Amesos2_config.h.in trilinos-11.14.3-new/packages/amesos2/cmake/Amesos2_config.h.in
 --- trilinos-11.14.3/packages/amesos2/cmake/Amesos2_config.h.in	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos2/cmake/Amesos2_config.h.in	2015-09-23 10:31:31.518567264 -0600
++++ trilinos-11.14.3-new/packages/amesos2/cmake/Amesos2_config.h.in	2017-01-06 16:58:04.000000000 -0700
 @@ -92,7 +92,7 @@
  #cmakedefine HAVE_AMESOS2_SUPERLUMT
  
@@ -83,7 +83,7 @@ diff -ruN trilinos-11.14.3/packages/amesos2/cmake/Amesos2_config.h.in trilinos-1
  #cmakedefine HAVE_AMESOS2_PARDISO_MKL
 diff -ruN trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt trilinos-11.14.3-new/packages/amesos2/src/CMakeLists.txt
 --- trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/amesos2/src/CMakeLists.txt	2015-09-23 10:31:31.518567264 -0600
++++ trilinos-11.14.3-new/packages/amesos2/src/CMakeLists.txt	2017-01-06 16:58:04.000000000 -0700
 @@ -287,20 +287,20 @@
      )
  ENDIF()
@@ -117,9 +117,356 @@ diff -ruN trilinos-11.14.3/packages/amesos2/src/CMakeLists.txt trilinos-11.14.3-
  
  IF (${PACKAGE_NAME}_ENABLE_PARDISO_MKL)
    APPEND_SET(HEADERS
+diff -ruN trilinos-11.14.3/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake trilinos-11.14.3-new/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake
+--- trilinos-11.14.3/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake	1969-12-31 17:00:00.000000000 -0700
++++ trilinos-11.14.3-new/packages/epetra/cmake/CheckHaveEpetraLapackGSSVD3.cmake	2017-01-06 16:58:31.000000000 -0700
+@@ -0,0 +1,40 @@
++# LAPACK 3.6.0 deprecates dggsvd and sggsvd (Issue #480)
++# The new versions of dggsvd and sggsvd are called dggsvd3 and sggsvd3
++#
++# dggsvd (JOBU, JOBV, JOBQ, M, N, P, K, L, A, LDA, B, LDB, ALPHA, BETA, U, LDU, V, LDV, Q, LDQ, WORK, IWORK, INFO)
++# sggsvd (JOBU, JOBV, JOBQ, M, N, P, K, L, A, LDA, B, LDB, ALPHA, BETA, U, LDU, V, LDV, Q, LDQ, WORK, IWORK, INFO)
++#
++# dggsvd3 (JOBU, JOBV, JOBQ, M, N, P, K, L, A, LDA, B, LDB, ALPHA, BETA, U, LDU, V, LDV, Q, LDQ, WORK, LWORK, IWORK, INFO)
++# sggsvd3 (JOBU, JOBV, JOBQ, M, N, P, K, L, A, LDA, B, LDB, ALPHA, BETA, U, LDU, V, LDV, Q, LDQ, WORK, LWORK, IWORK, INFO)
++#
++# The new parameter is LWORK
++#
++#   Information is at:
++#   http://www.netlib.org/lapack/explore-html/d6/db3/dggsvd3_8f_a4a187519e5c71da3b3f67c85e9baf0f2.html#a4a187519e5c71da3b3f67c85e9baf0f2
++
++INCLUDE(CheckFunctionExists)
++
++FUNCTION(CHECK_HAVE_EPETRA_LAPACK_GSSVD3 VARNAME)
++
++  SET(CMAKE_REQUIRED_LIBRARIES ${TPL_LAPACK_LIBRARIES} ${TPL_BLAS_LIBRARIES})
++  IF (HAVE_FORTRAN_SUPPORT)
++    SET(CMAKE_REQUIRED_FLAGS -lgfortran)
++  ENDIF()
++
++  CHECK_FUNCTION_EXISTS( dggsvd3   HAVE_dggsvd3 )
++  CHECK_FUNCTION_EXISTS( dggsvd3_  HAVE_dggsvd3_POST )
++  CHECK_FUNCTION_EXISTS( DGGSVD3   HAVE_DGGSVD3 )
++  CHECK_FUNCTION_EXISTS( DGGSVD3_  HAVE_DGGSVD3_POST )
++
++  IF( HAVE_dggsvd3 OR HAVE_dggsvd3_POST OR HAVE_DGGSVD3 OR HAVE_DGGSVD3_POST )
++    MESSAGE( "Found new version of lapack. dggsvd3 is available." )
++
++    # Note calling CHECK_FUNCTION_EXISTS( dggsvd3_, ${VARNAME} ) is ok for scope
++    # but setting like this after several checks, it seems PARENT_SCOPE must be added
++    SET( ${VARNAME} 1 PARENT_SCOPE )
++
++  ELSE()
++    MESSAGE( "Did not find new version of lapack. dggsvd3 is not available." )
++  ENDIF()
++
++ENDFUNCTION()
+diff -ruN trilinos-11.14.3/packages/epetra/cmake/Epetra_config.h.in trilinos-11.14.3-new/packages/epetra/cmake/Epetra_config.h.in
+--- trilinos-11.14.3/packages/epetra/cmake/Epetra_config.h.in	2015-04-17 13:01:26.000000000 -0600
++++ trilinos-11.14.3-new/packages/epetra/cmake/Epetra_config.h.in	2017-01-06 16:58:31.000000000 -0700
+@@ -104,6 +104,9 @@
+ /* Define if you have LAPACK library. */
+ #cmakedefine HAVE_LAPACK
+ 
++/* Define if you have new LAPACK dgssvd3 and fgssvd3 functions which added a new parameter */
++#cmakedefine HAVE_EPETRA_LAPACK_GSSVD3
++
+ /* Define if want to build libcheck */
+ #cmakedefine HAVE_LIBCHECK
+ 
+diff -ruN trilinos-11.14.3/packages/epetra/cmake/Epetra_config.h.in.orig trilinos-11.14.3-new/packages/epetra/cmake/Epetra_config.h.in.orig
+--- trilinos-11.14.3/packages/epetra/cmake/Epetra_config.h.in.orig	1969-12-31 17:00:00.000000000 -0700
++++ trilinos-11.14.3-new/packages/epetra/cmake/Epetra_config.h.in.orig	2017-01-06 16:58:31.000000000 -0700
+@@ -0,0 +1,152 @@
++/*
++//@HEADER
++// ************************************************************************
++//
++//               Epetra: Linear Algebra Services Package
++//                 Copyright 2011 Sandia Corporation
++//
++// Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
++// the U.S. Government retains certain rights in this software.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are
++// met:
++//
++// 1. Redistributions of source code must retain the above copyright
++// notice, this list of conditions and the following disclaimer.
++//
++// 2. Redistributions in binary form must reproduce the above copyright
++// notice, this list of conditions and the following disclaimer in the
++// documentation and/or other materials provided with the distribution.
++//
++// 3. Neither the name of the Corporation nor the names of the
++// contributors may be used to endorse or promote products derived from
++// this software without specific prior written permission.
++//
++// THIS SOFTWARE IS PROVIDED BY SANDIA CORPORATION "AS IS" AND ANY
++// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SANDIA CORPORATION OR THE
++// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
++// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
++// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
++// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++//
++// Questions? Contact Michael A. Heroux (maherou@sandia.gov)
++//
++// ************************************************************************
++//@HEADER
++*/
++
++/* $Header$ */
++
++/* Copy of the following file, edited to be used with CMake */
++/* src/Epetra_config.h.in.  Generated from configure.ac by autoheader.  */
++
++/* Define the Fortran name mangling to be used for the BLAS */
++#define F77_BLAS_MANGLE@F77_BLAS_MANGLE@
++
++/* Define to dummy `main' function (if any) required to link to the Fortran
++   libraries. */
++#cmakedefine F77_DUMMY_MAIN
++
++/* Define to a macro mangling the given C identifier (in lower and upper
++   case), which must not contain underscores, for linking with Fortran. */
++#define F77_FUNC@F77_FUNC@
++
++/* As F77_FUNC, but for C identifiers containing underscores. */
++#define F77_FUNC_@F77_FUNC_@
++
++/* Define if F77 and FC dummy `main' functions are identical. */
++#cmakedefine FC_DUMMY_MAIN_EQ_F77
++
++/* Define to 1 if you have the <assert.h> header file. */
++#cmakedefine HAVE_ASSERT_H
++
++/* Define if you have a BLAS library. */
++#cmakedefine HAVE_BLAS
++
++#cmakedefine EPETRA_ADDRESS64BIT
++
++/* Define if want to build epetra-abc */
++#cmakedefine HAVE_EPETRA_ARRAY_BOUNDS_CHECK
++
++/* Define if want to build epetra-examples */
++#cmakedefine HAVE_EPETRA_EXAMPLES
++
++/* Define if want to build epetra-tests */
++#cmakedefine HAVE_EPETRA_TESTS
++
++/* Define if want to build with Teuchos enabled */
++#cmakedefine HAVE_EPETRA_TEUCHOS
++
++/* Define if want to build examples */
++#cmakedefine HAVE_EXAMPLES
++
++/* Define if you want to build export makefiles. */
++#cmakedefine HAVE_EXPORT_MAKEFILES
++
++/* Define if want to build with fatal_messages enabled */
++#cmakedefine HAVE_FATAL_MESSAGES
++
++/* Define if want to build with format_io enabled */
++#cmakedefine HAVE_FORMAT_IO
++
++/* Define if want to build with Fortran enabled */
++#cmakedefine HAVE_FORTRAN_SUPPORT
++
++/* Define if you are using gnumake - this will shorten your link lines. */
++#cmakedefine HAVE_GNUMAKE
++
++/* Define if you have LAPACK library. */
++#cmakedefine HAVE_LAPACK
++
++/* Define if you have new LAPACK dgssvd3 and fgssvd3 functions which added a new parameter */
++#cmakedefine HAVE_LAPACK_GSSVD3
++
++/* Define if want to build libcheck */
++#cmakedefine HAVE_LIBCHECK
++
++/* Define to 1 if you have the <math.h> header file. */
++#cmakedefine HAVE_MATH_H
++
++/* Define to 1 if you have the <memory.h> header file. */
++#cmakedefine HAVE_MEMORY_H
++
++/* define if we want to use MPI */
++#cmakedefine HAVE_MPI
++
++/* define if we want to use OpenMP */
++#cmakedefine EPETRA_HAVE_OMP
++
++/* Define if want to build with OSKI enabled */
++#cmakedefine HAVE_OSKI
++
++/* Define if want to build tests */
++#cmakedefine HAVE_TESTS
++
++/* Define if want to build with threads enabled */
++#cmakedefine HAVE_THREADS
++
++/* Define if want to build with warning_messages enabled */
++#cmakedefine HAVE_WARNING_MESSAGES
++
++/* Define to 1 if you have the ANSI C header files. */
++#cmakedefine STDC_HEADERS
++
++#cmakedefine Epetra_ENABLE_CASK
++
++#cmakedefine Epetra_ENABLE_MKL_SPARSE
++
++#cmakedefine Epetra_DISABLE_MKL_SPARSE_MM
++
++/* Define if you want to have long long (64 bit) global indices only. */
++#cmakedefine EPETRA_NO_32BIT_GLOBAL_INDICES
++
++/* Define if you want to have int (32 bit) global indices only. */
++#cmakedefine EPETRA_NO_64BIT_GLOBAL_INDICES
++
++@EPETRA_DEPRECATED_DECLARATIONS@
+diff -ruN trilinos-11.14.3/packages/epetra/src/CMakeLists.txt trilinos-11.14.3-new/packages/epetra/src/CMakeLists.txt
+--- trilinos-11.14.3/packages/epetra/src/CMakeLists.txt	2015-04-17 13:01:26.000000000 -0600
++++ trilinos-11.14.3-new/packages/epetra/src/CMakeLists.txt	2017-01-06 16:58:31.000000000 -0700
+@@ -16,6 +16,10 @@
+ SET(HAVE_LAPACK ON)
+ SET(HAVE_MPI ${Epetra_ENABLE_MPI})
+ 
++INCLUDE(CheckHaveEpetraLapackGSSVD3)
++CHECK_HAVE_EPETRA_LAPACK_GSSVD3(HAVE_EPETRA_LAPACK_GSSVD3)
++
++
+ TRIBITS_CONFIGURE_FILE(${PACKAGE_NAME}_config.h)
+ 
+ # Set the base Trilinos directory in order to find Trilinos_version.h
+diff -ruN trilinos-11.14.3/packages/epetra/src/Epetra_LAPACK.cpp trilinos-11.14.3-new/packages/epetra/src/Epetra_LAPACK.cpp
+--- trilinos-11.14.3/packages/epetra/src/Epetra_LAPACK.cpp	2015-04-17 13:01:26.000000000 -0600
++++ trilinos-11.14.3-new/packages/epetra/src/Epetra_LAPACK.cpp	2017-01-06 16:58:31.000000000 -0700
+@@ -363,19 +363,33 @@
+ //=============================================================================
+ void Epetra_LAPACK::GGSVD(const char JOBU, const char JOBV, const char JOBQ, const int M, const int N, const int P, int * K, int * L,
+ 			  double* A,  const int LDA,  double* B,  const int LDB,
+-                          double* ALPHA,  double* BETA,  double* U,  const int LDU, double* V, const int LDV, double* Q, const int LDQ, double* WORK, int* IWORK,
+-                          int* INFO) const {
++                          double* ALPHA,  double* BETA,  double* U,  const int LDU, double* V, const int LDV, double* Q, const int LDQ, double* WORK,
++          #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++                          const int LWORK,
++          #endif
++                          int* IWORK, int* INFO) const {
+   DGGSVD_F77(CHAR_MACRO(JOBU), CHAR_MACRO(JOBV), CHAR_MACRO(JOBQ), &M, &N, &P, K, L,  A,  &LDA,  B,  &LDB,
+-	     ALPHA,  BETA,  U,  &LDU, V, &LDV, Q, &LDQ, WORK, IWORK, INFO);
++            ALPHA,  BETA,  U,  &LDU, V, &LDV, Q, &LDQ, WORK,
++          #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++            &LWORK,
++          #endif
++            IWORK, INFO);
+ }
+ 
+ //=============================================================================
+ void Epetra_LAPACK::GGSVD(const char JOBU, const char JOBV, const char JOBQ, const int M, const int N, const int P, int * K, int * L,
+ 			  float* A,  const int LDA,  float* B,  const int LDB,
+-                          float* ALPHA,  float* BETA,  float* U,  const int LDU, float* V, const int LDV, float* Q, const int LDQ, float* WORK, int* IWORK,
+-                          int* INFO) const {
++                          float* ALPHA,  float* BETA,  float* U,  const int LDU, float* V, const int LDV, float* Q, const int LDQ, float* WORK,
++          #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++                          const int LWORK,
++          #endif
++                          int* IWORK, int* INFO) const {
+   SGGSVD_F77(CHAR_MACRO(JOBU), CHAR_MACRO(JOBV), CHAR_MACRO(JOBQ), &M, &N, &P, K, L,  A,  &LDA,  B,  &LDB,
+-	     ALPHA,  BETA,  U,  &LDU, V, &LDV, Q, &LDQ, WORK, IWORK, INFO);
++            ALPHA,  BETA,  U,  &LDU, V, &LDV, Q, &LDQ, WORK,
++          #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++            &LWORK,
++          #endif
++            IWORK, INFO);
+ }
+ 
+ //=============================================================================
+diff -ruN trilinos-11.14.3/packages/epetra/src/Epetra_LAPACK.h trilinos-11.14.3-new/packages/epetra/src/Epetra_LAPACK.h
+--- trilinos-11.14.3/packages/epetra/src/Epetra_LAPACK.h	2015-04-17 13:01:26.000000000 -0600
++++ trilinos-11.14.3-new/packages/epetra/src/Epetra_LAPACK.h	2017-01-06 16:58:31.000000000 -0700
+@@ -277,12 +277,18 @@
+ 
+   //! Epetra_LAPACK wrapper to compute the generalized singular value decomposition (GSVD) of an M-by-N real matrix A and P-by-N real matrix B
+   void GGSVD(const char JOBU, const char JOBV, const char JOBQ, const int M, const int N, const int P, int * K, int * L,  double* A,  const int LDA,  double* B,  const int LDB,
+-                          double* ALPHA,  double* BETA,  double* U,  const int LDU, double* V, const int LDV, double* Q, const int LDQ, double* WORK, int* IWORK,
+-                          int* INFO) const;
++                          double* ALPHA,  double* BETA,  double* U,  const int LDU, double* V, const int LDV, double* Q, const int LDQ, double* WORK,
++                        #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++                          const int LWORK,
++                        #endif
++                          int* IWORK, int* INFO) const;
+   //! Epetra_LAPACK wrapper to compute the generalized singular value decomposition (GSVD) of an M-by-N real matrix A and P-by-N real matrix B
+   void GGSVD(const char JOBU, const char JOBV, const char JOBQ, const int M, const int N, const int P, int * K, int * L,  float* A,  const int LDA,  float* B,  const int LDB,
+-                          float* ALPHA,  float* BETA,  float* U,  const int LDU, float* V, const int LDV, float* Q, const int LDQ, float* WORK, int* IWORK,
+-                          int* INFO) const;
++                          float* ALPHA,  float* BETA,  float* U,  const int LDU, float* V, const int LDV, float* Q, const int LDQ, float* WORK,
++                        #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++                          const int LWORK,
++                        #endif
++                          int* IWORK, int* INFO) const;
+    //@}
+ 
+    //! @name Eigenvalue/Eigenvector routines
+diff -ruN trilinos-11.14.3/packages/epetra/src/Epetra_LAPACK_wrappers.h trilinos-11.14.3-new/packages/epetra/src/Epetra_LAPACK_wrappers.h
+--- trilinos-11.14.3/packages/epetra/src/Epetra_LAPACK_wrappers.h	2015-04-17 13:01:26.000000000 -0600
++++ trilinos-11.14.3-new/packages/epetra/src/Epetra_LAPACK_wrappers.h	2017-01-06 16:58:31.000000000 -0700
+@@ -172,7 +172,13 @@
+ #define DGETRS_F77  F77_BLAS_MANGLE(dgetrs,DGETRS)
+ #define DGGEV_F77   F77_BLAS_MANGLE(dggev,DGGEV)
+ #define DGGLSE_F77  F77_BLAS_MANGLE(dgglse,DGGLSE)
++
++#ifdef HAVE_EPETRA_LAPACK_GSSVD3
++#define DGGSVD_F77  F77_BLAS_MANGLE(dggsvd3,DGGSVD)
++#else
+ #define DGGSVD_F77  F77_BLAS_MANGLE(dggsvd,DGGSVD)
++#endif
++
+ #define DHSEQR_F77  F77_BLAS_MANGLE(dhseqr,DHSEQR)
+ #define DLAIC1_F77  F77_BLAS_MANGLE(dlaic1,DLAIC1)
+ #define DLAMCH_F77  F77_BLAS_MANGLE(dlamch,DLAMCH)
+@@ -227,7 +233,13 @@
+ #define SGETRS_F77  F77_BLAS_MANGLE(sgetrs,SGETRS)
+ #define SGGEV_F77   F77_BLAS_MANGLE(sggev,SGGEV)
+ #define SGGLSE_F77  F77_BLAS_MANGLE(sgglse,SGGLSE)
++
++#ifdef HAVE_EPETRA_LAPACK_GSSVD3
++#define SGGSVD_F77  F77_BLAS_MANGLE(sggsvd3,SGGSVD)
++#else
+ #define SGGSVD_F77  F77_BLAS_MANGLE(sggsvd,SGGSVD)
++#endif
++
+ #define SHSEQR_F77  F77_BLAS_MANGLE(shseqr,SHSEQR)
+ #define SLAMCH_F77  F77_BLAS_MANGLE(slamch,SLAMCH)
+ #define SLARFT_F77  F77_BLAS_MANGLE(slarft,SLARFT)
+@@ -305,6 +317,9 @@
+   void PREFIX DGGSVD_F77(Epetra_fcd, Epetra_fcd, Epetra_fcd, const int * m, const int * n, const int * p, int * k, int * l,
+ 			 double * a, const int * lda, double * b, const int * ldb, double * alpha, double * beta,
+ 			 double * u, const int * ldu, double * v, const int * ldv, double * q, const int * ldq, double * work,
++    #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++			 const int * lwork,
++    #endif
+ 			 int * iwork, int * info);
+   void PREFIX DHSEQR_F77(Epetra_fcd job, Epetra_fcd, const int * n, const int * ilo, const int * ihi, double * h, const int * ldh,
+ 			 double * wr, double * wi, double * z, const int * ldz, double * work, const int * lwork, int * info);
+@@ -410,6 +425,9 @@
+   void PREFIX SGGSVD_F77(Epetra_fcd, Epetra_fcd, Epetra_fcd, const int * m, const int * n, const int * p, int * k, int * l,
+ 			 float * a, const int * lda, float * b, const int * ldb, float * alpha, float * beta,
+ 			 float * u, const int * ldu, float * v, const int * ldv, float * q, const int * ldq, float * work,
++    #ifdef HAVE_EPETRA_LAPACK_GSSVD3
++			 const int * lwork,
++    #endif
+ 			 int * iwork, int * info);
+   void PREFIX SHSEQR_F77(Epetra_fcd job, Epetra_fcd, const int * n, const int * ilo, const int * ihi, float * h, const int * ldh,
+ 			 float * wr, float * wi, float * z, const int * ldz, float * work, const int * lwork, int * info);
 diff -ruN trilinos-11.14.3/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h trilinos-11.14.3-new/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h
 --- trilinos-11.14.3/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h	2015-04-17 13:01:26.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h	2015-09-23 10:31:31.518567264 -0600
++++ trilinos-11.14.3-new/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.h	2017-01-06 16:58:04.000000000 -0700
 @@ -465,7 +465,12 @@
                if (Randomize_)
                {
@@ -135,7 +482,7 @@ diff -ruN trilinos-11.14.3/packages/ifpack/src/supportgraph/Ifpack_SupportGraph.
  	      k++;
 diff -ruN trilinos-11.14.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11.14.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp
 --- trilinos-11.14.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2015-04-17 13:01:27.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2015-09-23 10:31:31.519567232 -0600
++++ trilinos-11.14.3-new/packages/ml/src/MLAPI/MLAPI_Workspace.cpp	2017-01-06 16:58:04.000000000 -0700
 @@ -15,6 +15,8 @@
  #include "MLAPI_Workspace.h"
  #ifdef _MSC_VER
@@ -147,7 +494,7 @@ diff -ruN trilinos-11.14.3/packages/ml/src/MLAPI/MLAPI_Workspace.cpp trilinos-11
  namespace MLAPI {
 diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11.14.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp
 --- trilinos-11.14.3/packages/ml/src/Utils/ml_epetra_utils.cpp	2015-04-17 13:01:27.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2015-09-23 10:31:31.521567172 -0600
++++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_epetra_utils.cpp	2017-01-06 16:58:04.000000000 -0700
 @@ -42,6 +42,8 @@
  #endif
  #ifdef _MSC_VER
@@ -159,7 +506,7 @@ diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_epetra_utils.cpp trilinos-11
  #ifdef HAVE_ML_TEUCHOS
 diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_utils.c trilinos-11.14.3-new/packages/ml/src/Utils/ml_utils.c
 --- trilinos-11.14.3/packages/ml/src/Utils/ml_utils.c	2015-04-17 13:01:27.000000000 -0600
-+++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_utils.c	2015-09-23 10:31:31.526567055 -0600
++++ trilinos-11.14.3-new/packages/ml/src/Utils/ml_utils.c	2017-01-06 16:58:04.000000000 -0700
 @@ -1957,13 +1957,15 @@
        if (i == mypid) {
  #if defined(TFLOP) || defined(JANUS_STLPORT) || defined(COUGAR)
@@ -179,7 +526,7 @@ diff -ruN trilinos-11.14.3/packages/ml/src/Utils/ml_utils.c trilinos-11.14.3-new
          sleep(1);
 diff -ruN trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H trilinos-11.14.3-new/packages/nox/src-lapack/NOX_LAPACK_Matrix.H
 --- trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H	2015-04-17 13:05:04.000000000 -0600
-+++ trilinos-11.14.3-new/packages/nox/src-lapack/NOX_LAPACK_Matrix.H	2015-09-23 10:31:31.530566967 -0600
++++ trilinos-11.14.3-new/packages/nox/src-lapack/NOX_LAPACK_Matrix.H	2017-01-06 16:58:04.000000000 -0700
 @@ -104,7 +104,7 @@
          stream << operator()(i,j) << " ";
        stream << "]" << std::endl;
@@ -191,7 +538,7 @@ diff -ruN trilinos-11.14.3/packages/nox/src-lapack/NOX_LAPACK_Matrix.H trilinos-
        //! Returns the number of rows in the matrix
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c
 --- trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c	2015-04-17 13:01:29.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c	2015-09-23 10:31:31.531566941 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/chaco/util/seconds.c	2017-01-06 16:58:04.000000000 -0700
 @@ -36,10 +36,15 @@
   * at Sandia National Laboratories under US Department of Energy        *
   * contract DE-AC04-76DP00789 and is copyrighted by Sandia Corporation. */
@@ -210,7 +557,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/chaco/util/seconds.c trilin
  {
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h
 --- trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-04-17 13:05:05.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2015-09-23 10:31:31.532566917 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/include/exodusII.h	2017-01-06 16:58:04.000000000 -0700
 @@ -51,7 +51,12 @@
  
  #include <stddef.h>
@@ -227,7 +574,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/include/exodus
  #error "NetCDF version 4.1.2 or later is required."
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c
 --- trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2015-04-17 13:01:29.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2015-09-23 10:31:31.536566846 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/exodus/cbind/src/ex_put_cmap_params.c	2017-01-06 16:58:04.000000000 -0700
 @@ -63,7 +63,7 @@
  #include <exodusII_int.h>               // for EX_FATAL, ex_leavedef, etc
  #include <netcdf.h>                     // for NC_NOERR, nc_def_var, etc
@@ -239,7 +586,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/exodus/cbind/src/ex_put_cma
  
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/CMakeLists.txt trilinos-11.14.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt
 --- trilinos-11.14.3/packages/seacas/libraries/nemesis/CMakeLists.txt	2015-04-17 13:01:30.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt	2015-09-23 10:31:31.537566835 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/CMakeLists.txt	2017-01-06 16:58:04.000000000 -0700
 @@ -39,12 +39,11 @@
      NAME ne_ctest_wrap
      NUM_MPI_PROCS 1
@@ -259,7 +606,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/CMakeLists.txt tril
  
 diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trilinos-11.14.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h
 --- trilinos-11.14.3/packages/seacas/libraries/nemesis/ne_nemesisI.h	2015-04-17 13:01:30.000000000 -0600
-+++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2015-09-23 10:31:31.537566835 -0600
++++ trilinos-11.14.3-new/packages/seacas/libraries/nemesis/ne_nemesisI.h	2017-01-06 16:58:04.000000000 -0700
 @@ -46,7 +46,12 @@
  #endif
  
@@ -276,7 +623,7 @@ diff -ruN trilinos-11.14.3/packages/seacas/libraries/nemesis/ne_nemesisI.h trili
    
 diff -ruN trilinos-11.14.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp trilinos-11.14.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp
 --- trilinos-11.14.3/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2015-04-17 13:01:34.000000000 -0600
-+++ trilinos-11.14.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2015-09-23 10:31:31.538566827 -0600
++++ trilinos-11.14.3-new/packages/teuchos/numerics/src/Teuchos_BLAS.cpp	2017-01-06 16:58:04.000000000 -0700
 @@ -111,7 +111,8 @@
  
  //Explicitly instantiating these templates for windows due to an issue with

@@ -1004,7 +1004,6 @@ createConfigFiles() {
 
 # Create setup scripts
   cd $PROJECT_DIR
-  rm -f $BUILD_DIR/${BILDER_PROJECT}.sh
   case `uname` in
     CYGWIN*) sep=';';;
     *) sep=':';;
@@ -2417,7 +2416,8 @@ getCombinedCompVars() {
         case `uname` in
           CYGWIN*)
             compbin=`cygpath -am "$comp"`
-            if ! echo $compbin | grep -q '\.exe$'; then
+# Intel MPI Compiler scripts end with .bat, not .exe
+            if ! echo $compbin | grep -q '\.exe$' && ! echo $compbin | grep -q '\.bat$'; then
               compbin="$compbin".exe
             fi
             ;;
@@ -2745,6 +2745,7 @@ findPackage() {
     elif test -n "$adirval"; then
       techo "Library, ${PKG_LIBNAME}, not found."
       techo "Keeping ${pkgnameprefix}_${BLD}_DIR = $adirval."
+      eval ${pkgnameprefix}_${BLD}_DIR="$adirval"
     else
       techo "Package ${pkgnameprefix}_${BLD} not set or found."
       eval HAVE_${pkgnameprefix}_$BLD=false
@@ -2913,6 +2914,7 @@ setDefaultPkgVars() {
 #
 findBlasLapack() {
 
+  techo -2 "findBlasLapack entered."
 
   USE_ATLAS=${USE_ATLAS:-"false"}
   USE_PTSOLVE_LITE=${USE_PTSOLVE_LITE:-"false"}
@@ -2926,6 +2928,11 @@ findBlasLapack() {
 # First: Determine LAPACK_${BLD}_LIBS and BLAS_${BLD}_LIBS
 # for possible build values, BLD.
 #
+# Empty out to recompute
+  for BLD in SER SERSH PYCSH BEN; do
+    eval LAPACK_${BLD}_LIBS=
+    eval BLAS_${BLD}_LIBS=
+  done
 
 # Use system libraries if defined
   for BLD in SER SERSH PYCSH BEN; do
@@ -3653,22 +3660,8 @@ updateRepo() {
     fi
   fi
 
-# Make sure on tag
-  case $scmexec in
-    git)
-      cmd="git checkout $branchval"
-      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
-      # cmd="$cmd $branchval"
-      ;;
-    hg) cmd="hg update -C $branchval";;
-  esac
-  techo "$cmd"
-  eval "$cmd"
-  if ! eval "$cmd"; then
-    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
-  fi
-
 # Determine whether changesets are available
+# Needs to be done first to handle the case where we need a branch that isn't in our local checkout.
   upurlvar=`genbashvar $pkg`_UPSTREAM_URL
   upurlval=`deref $upurlvar`
   if test -n "$upurlval"; then
@@ -3691,6 +3684,21 @@ updateRepo() {
       techo "No changesets available for $pkg from $upurlval."
     fi
     rm -f bilder_chgsets
+  fi
+
+# Make sure on tag
+  case $scmexec in
+    git)
+      cmd="git checkout $branchval"
+      # $CLEAN_GITHG_SUBREPOS && cmd="$cmd -f"
+      # cmd="$cmd $branchval"
+      ;;
+    hg) cmd="hg update -C $branchval";;
+  esac
+  techo "$cmd"
+  eval "$cmd"
+  if ! eval "$cmd"; then
+    techo "WARNING: [$FUNCNAME] '$cmd' failed for package: $pkg."
   fi
 
 # Return to project dir
@@ -4900,7 +4908,7 @@ bilderConfig() {
 
 # Add specified args
   configargs="$configargs $3"
-  trimvar configargs ' '
+  #trimvar configargs ' '
 
 # Create final command
   local finalcmd=
@@ -5800,7 +5808,7 @@ EOF
       local testScript=$FQMAILHOST-$1-$bld-test.sh
       local MAKER=make
       if [[ `uname` =~ CYGWIN ]]; then
-        MAKER=nmake
+        MAKER=jom
       fi
       cmd="$MAKER $tststarget"
       if test -n "$tstsenv"; then
@@ -6216,6 +6224,7 @@ recordInstallation() {
   echo "$record" >> $1/installations.txt
   installations="$installations $2-$4"
 }
+
 
 #
 # Wait for a package to complete building in a subdir, then install it.
@@ -6677,172 +6686,180 @@ EOF
       eval $buildtimevar=$buildtime
       techo "Package $1-$2 took `myTime $buildtime` to build and install." | tee -a $BILDER_LOGDIR/timers.txt
 
-# Copy the package/installer to the depot dir
-      if test -n "$installersubdir"; then
-        if $POST2DEPOT; then
-          techo "Copying package to the depot."
-          local installer=
-          local installername=
-# Assuming installersubdir is the first part of the name of the package
-# depotdir does not need subdirs as packages are namespaced
-          installerbase=`echo $installersubdir | sed -e 's?^.*/??'`
-          techo -2 "installerbase = $installerbase."
-          local ending=
-          local OS=`uname`
-          local sfx=
-          case $OS in
-            CYGWIN*)
-              if $IS_64BIT; then
-                endings="-Win64.exe -Win64-gpu.exe -win_x64.exe -win_x64.zip"
-              else
-                endings="-Win32.exe -Win32-gpu.exe -win_x86.exe -win_x86.zip"
-              fi
-              ;;
-            Darwin)
-              endings="-MacOSX.dmg"
-              sfx=dmg
-              ;;
-            Linux)
-              endings="-Linux64.tar.gz -Linux64-glibc${GLIBC_VERSION}.tar.gz -Linux32.tar.gz -Linux32-glibc${GLIBC_VERSION}.tar.gz"
-              sfx=tar.gz
-              ;;
-          esac
-          for ending in $endings; do
-            #techo -2 "Looking for installer with pattern: '${installerbase}-*${ending}'."
-            installer=`(shopt -s nocaseglob; \ls ${installerbase}-*${ending} 2>/dev/null)`
-            if test -z "$installer"; then
-              #techo -2 "Looking for installer with pattern: '${installerbase}*${ending}'."
-              installer=`(shopt -s nocaseglob; \ls ${installerbase}*${ending} 2>/dev/null)`
-            fi
-            if test -n "$installer"; then
-              techo "NOTE: [$FUNCNAME] Installer = '${installer}'"
-              sfx=${sfx:-"`echo $ending | sed 's/^[^\.]*\.//'`"}
-              break
-            fi
-          done
-          if test -z "$installer"; then
-            : # techo "WARNING: [$FUNCNAME] No installer found starting with ${installerbase}- and ending with any of $endings."
-          else
-            installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
-          fi
-# Ensure depot root directory exists
-          if test -n "$INSTALLER_HOST"; then
-            local subdir=$INSTALLER_ROOTDIR/$installersubdir
-            if ! ssh ${INSTALLER_HOST} ls ${subdir} 1>/dev/null 2>&1; then
-              techo -2 "Depot Root Directory, ${INSTALLER_HOST}:${subdir}, does not exists, creating it."
-              ssh ${INSTALLER_HOST} mkdir -p ${subdir}
-              ssh ${INSTALLER_HOST} chmod 775 ${subdir}
-            fi
-          fi
-# Ensure depot installer version subdirectory exists
-          local depotdir=$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
-          cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
-          if ! $cmd 1>/dev/null 2>&1; then
-            cmd="ssh ${INSTALLER_HOST} mkdir ${depotdir}"
-            $cmd 1>/dev/null 2>&1
-            cmd="ssh ${INSTALLER_HOST} chmod 775 ${depotdir}"
-            $cmd 1>/dev/null 2>&1
-            cmd="ssh ${INSTALLER_HOST} ls ${depotdir}"
-            if ! $cmd 1>/dev/null 2>&1; then
-              techo "WARNING: [$FUNCNAME] For depot copy, failed to make target directory '${depotdir}' on host '${INSTALLER_HOST}'."
-              depotdir=$INSTALLER_ROOTDIR/$installersubdir
-              techo "WARNING: [$FUNCNAME] For depot copy, falling back to target directory '${depotdir}'."
-            else
-              techo "For depot copy, made new target directory '${depotdir}' on host '${INSTALLER_HOST}."
-            fi
-          else
-            techo "For depot copy, target directory '${depotdir}' exists on host '${INSTALLER_HOST}'."
-          fi
-          if test -n "$installer"; then
-            installername=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
-            installerlink=`echo $installer | sed -e "s%${installerVersion}.*${ending}%${installerVersion}${ending}%"`
-            cmd="scp -v license.txt ${INSTALLER_HOST}:${depotdir}/license.txt"
-            techo "$cmd"
-            $cmd
-            cmd="scp -v $installer ${INSTALLER_HOST}:${depotdir}/${installername}"
-            techo "$cmd"
-            if $cmd 1>/dev/null 2>./error; then
-              local perms=
-              case $umaskval in
-                *7)
-                  perms=g+w,o-wrx
-                  ;;
-                *)
-                  perms=g+w,o+w
-                  ;;
-              esac
-              cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotdir}/${installername}"
-              techo "$cmd"
-              $cmd
-              cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotdir}/license.txt"
-              techo "$cmd"
-              $cmd
-              if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
-                cmd="ssh ${INSTALLER_HOST} ln -sf ${depotdir}/$installername ${depotdir}/${installerlink}"
-                techo "Creating link at depot: $cmd"
-                eval $cmd
-              fi
-            else
-              techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat error`"
-              rm error
-            fi
+# If conditions A,B & C are met, find & copy any package installers to depot.
+#
+# A) Bilder allows to turn off posting altogether with POST2DEPOT=false.
+# B) The depot must be defined with INSTALLER_HOST:INSTALLER_ROOTDIR
+#    or we can not do the post.
+# C) The package file must set an installersubdir with the -s option
+#    to bilderInstall or bilderInstallTestedPkg to flag this code to
+#    look for installers. So, we check all of these conditions up-front
+#    before doing the post.
 
-            if test -n "$WINDOWS_DEPOT"; then
-              local windepotdir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerVersion
-              if test ! -d ${windepotdir}; then
-                techo "NOTE: [$FUNCNAME] Creating Windows depot dir ${windepotdir}."
-                mkdir -p ${windepotdir}
-              fi
-              copycmd="cp -v ${installer} ${windepotdir}/${installername}"
-              techo "$copycmd"
-              if $copycmd 2>&1; then
-                techo -2 "Installer $installaer also being copied to WINDOWS_DEPOT=${windepotdir}."
-                techo -2 "License now being copied to WINDOWS_DEPOT=${windepotdir}."
-                copyLicCmd="cp -v license.txt ${windepotdir}/license.txt"
-                techo "$copyLicCmd"
-                eval $copyLicCmd
-              else
-                techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotdir}."
-              fi
-              if test -n "$installerlink" -a "${installerlink}" != "${installername}" ; then
-                curdir=`pwd -P`
-                if test -s ${windepotdir}/${installerlink}.lnk; then
-                  rmall ${windepotdir}/${installerlink}.lnk
-                fi
-                cmd="cd ${windepotdir}; mkshortcut.exe -n "${installerlink}.lnk" ${installername}; cd ${curdir}"
-                techo "Creating link ${installerlink}.lnk on Windows depot"
-                eval $cmd
-              fi
-            fi
-          else
-# Warn user only if installer is not set and build is sersh were installer
-# is expected to be found.
-            if test "$2" == sersh; then
-              techo "WARNING: [$FUNCNAME] $1 installer ($installer) not found."
-            fi
-          fi
-        else
-          for i in INSTALLER_HOST INSTALLER_ROOTDIR; do
-	    val=`deref $i`
-            techo "$i = $val."
-          done
-        fi
-      else
-        techo "installersubdir not set.  No installer to copy to depot."
+      doPost=$POST2DEPOT
+      if ! $POST2DEPOT; then
+        techo "Skipping post to depot for all packages. POST2DEPOT=false"
       fi
-    else
+      if test -z "$installersubdir"; then
+        techo "Skipping post to depot for $1. No installersubdir for package."
+        techo -2 "[$FUNCNAME] -s 'installersubdir' option not set in pkg file"
+        techo -2 "[$FUNCNAME] call to bilderInstall or bilderInstallTestedPkg."
+        doPost=false;
+      fi
+      if test -z "$INSTALLER_HOST"; then
+        techo "Skipping post to depot for all packages. INSTALLER_HOST not set."
+        doPost=false;
+      else
+        if test -z "$INSTALLER_ROOTDIR"; then
+          techo "Skipping post to depot for all packages. INSTALLER_ROOTDIR not set."
+          doPost=false;
+        fi
+      fi
+
+      if $doPost; then
+        techo "Finding and copying all installers to the depot."
+        local endings=
+        local sfx=
+        case `uname` in
+          CYGWIN*)
+            endings="Win64"
+            sfx=exe
+            ;;
+          Darwin)
+            endings="MacOSX"
+            sfx=dmg
+            ;;
+          Linux)
+            endings="Linux64 Linux64-glibc${GLIBC_VERSION}"
+            sfx=tar.gz
+            ;;
+        esac
+        foundOneInstaller=false
+        for ending in $endings; do
+          installers=`(shopt -s nocaseglob; \ls *-${ending}.${sfx} 2>/dev/null)`
+          if test -z "$installers"; then
+            techo -2 "[$FUNCNAME] No installers with pattern: '*-${ending}.${sfx}'."
+          else
+            for installer in "$installers"; do
+
+# Found Installer
+#    Define some variables based on name
+              techo "NOTE: [$FUNCNAME] Found Installer = ${installer}"
+              foundOneInstaller=true
+              local installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+              techo -2 "[$FUNCNAME] installerVersion = $installerVersion"
+              local installerProduct=`echo $installer | sed -e 's@-.*@@'`
+              local installerProductLC=`echo $installerProduct | tr '[:upper:]' '[:lower:]'`
+              techo -2 "[$FUNCNAME] installerProduct = $installerProduct"
+              techo -2 "[$FUNCNAME] installerProductLC = $installerProductLC"
+
+# Check that subdirectory in Depot exists, where directory name is
+# based on installer ($installerProduct-$installerVersion-****-****-$ending.$sfx)
+              local depotDir=$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
+              techo -2 "[$FUNCNAME] depotDir = $depotDir"
+              local depotDirOk=false
+              if ssh ${INSTALLER_HOST} ls ${depotDir} 1>/dev/null 2>&1; then
+                techo "Depot exists: $INSTALLER_HOST:$depotDir"
+                depotDirOk=true
+              else
+                techo "Depot, $INSTALLER_HOST:$depotDir, does not exist. Will try to create."
+                ssh ${INSTALLER_HOST} mkdir -p ${depotDir} 1>/dev/null 2>&1
+                ssh ${INSTALLER_HOST} chmod 775 ${depotDir} 1>/dev/null 2>&1
+                if ssh ${INSTALLER_HOST} ls ${depotDir} 1>/dev/null 2>&1; then
+                  techo "Depot created."
+                  depotDirOk=true
+                else
+                  techo "WARNING: [$FUNCNAME] Unable to create depot: $INSTALLER_HOST:$depotDir"
+                fi
+              fi
+              if $depotDirOk; then
+                local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
+                techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
+                cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
+                techo -2 "[$FUNCNAME] $cmd"
+                if ! $cmd 1>/dev/null 2>./bilderPostError; then
+                  techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
+                  rm -f bilderPostError
+                fi
+                cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
+                techo -2 "[$FUNCNAME] $cmd"
+                local installerLink="${installerProduct}-${installerVersion}-${ending}.${sfx}"
+                techo -2 "[$FUNCNAME] installerLink = $installerLink"
+                if $cmd 1>/dev/null 2>./bilderPostError; then
+                  local perms=
+                  case $umaskval in
+                    *7)
+                      perms=g+w,o-wrx
+                      ;;
+                    *)
+                      perms=g+w,o+w
+                      ;;
+                  esac
+                  cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotDir}/${installerTarget}"
+                  techo -2 "[$FUNCNAME] $cmd"
+                  $cmd
+                  cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotDir}/license.txt"
+                  techo -2 "[$FUNCNAME] $cmd"
+                  $cmd
+                  if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
+                    cmd="ssh ${INSTALLER_HOST} ln -sf ${depotDir}/$installerTarget ${depotDir}/${installerLink}"
+                    techo -2 "[$FUNCNAME] $cmd"
+                    eval $cmd
+                  fi
+                else
+                  techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
+                  rm -f bilderPostError
+                fi
+                if test -n "$WINDOWS_DEPOT"; then
+                  local windepotDir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
+                  if test ! -d ${windepotDir}; then
+                    techo "NOTE: [$FUNCNAME] Creating Windows depot dir ${windepotDir}."
+                    mkdir -p ${windepotDir}
+                  fi
+                  copycmd="cp -v ${installer} ${windepotDir}/${installerTarget}"
+                  techo "$copycmd"
+                  if $copycmd 2>&1; then
+                    techo -2 "Installer $installaer also being copied to WINDOWS_DEPOT=${windepotDir}."
+                    techo -2 "License now being copied to WINDOWS_DEPOT=${windepotDir}."
+                    copyLicCmd="cp -v license.txt ${windepotDir}/license.txt"
+                    techo "$copyLicCmd"
+                    eval $copyLicCmd
+                  else
+                    techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotDir}."
+                  fi
+                  if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
+                    curdir=`pwd -P`
+                    if test -s ${windepotDir}/${installerLink}.lnk; then
+                      rmall ${windepotDir}/${installerLink}.lnk
+                    fi
+                    cmd="cd ${windepotDir}; mkshortcut.exe -n "${installerLink}.lnk" ${installerTarget}; cd ${curdir}"
+                    techo "Creating link ${installerLink}.lnk on Windows depot"
+                    eval $cmd
+                  fi
+                fi  # if test -n "$WINDOWS_DEPOT"
+              fi  # if $depotDirOk  (unique dir for each installer)
+            done  # loop of installers
+          fi  # if test -z $installers  (i.e. if any installers found)
+        done  # loop of endings
+        if ! $foundOneInstaller; then
+          techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+        fi
+      fi  # if $doPost  (i.e. sanity checks passed and ok to post)
+    else  # if test $RESULT = 0  (i.e. install was not ok)
       installFailures="$installFailures $1-$2"
       anyFailures="$anyFailures $1-$2"
       techo "Package $1-$2 failed to install."
       echo FAILURE >>$install_txt
-    fi
+    fi  # if test $RESULT = 0  (i.e. install was ok)
+
+# Print message and restore umask so that links & installations.txt okay
     if test -n "$BLDR_PROJECT_URL"; then
       local subdir=`pwd -P | sed "s?^$PROJECT_DIR/??"`
       techo "See $BLDR_PROJECT_URL/$subdir/$install_txt."
     fi
-# umask restoration here so that links and installations.txt okay
     umask $origumask
-  fi
+
+  fi  # end of if doinstall
 
   return $RESULT
 }
@@ -7602,7 +7619,9 @@ EOF
       local builddir=`deref $builddirvar`
       if test -d $builddir; then
         local tdir=`echo $tfaildir | sed -e 's/-all//g'`
-        for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log; do
+        local nttstlist=`ls $builddir/nttest/Testing/Temporary/LastTestsFailed*.log 2> /dev/null`
+        nttstlist=`basename $nttstlist 2> /dev/null`
+        for tstlist in vpfailures.txt check-failures.txt ctest.failures Testing/Temporary/LastTestsFailed.log nttest/Testing/Temporary/$nttstlist; do
           local numTestFailures=0
           if test -e "$builddir/${tstlist}"; then
             numTestFailures=`cat $builddir/${tstlist} | wc -l | sed -e 's/^[ ]*//g'`
@@ -8055,6 +8074,11 @@ buildChain() {
 # Trying to trace down a de-installation of numpy
   # printInstallationStatus numpy $CONTRIB_DIR buildChain-begin
 
+# Move Project script to ensure builds are not contaminated by the previous run.
+# Still available as .bak in case of bilder crash.
+  test -f $BUILD_DIR/${BILDER_PROJECT}.sh && mv $BUILD_DIR/${BILDER_PROJECT}.sh $BUILD_DIR/${BILDER_PROJECT}.sh.bak
+  test -f $BUILD_DIR/${BILDER_PROJECT}.csh &&  mv $BUILD_DIR/${BILDER_PROJECT}.csh $BUILD_DIR/${BILDER_PROJECT}.csh.bak
+
 # Get options
   local analyzeonly=false
   set -- "$@"
@@ -8236,4 +8260,5 @@ buildChain() {
 # Ensure 2 blank lines in between examining packages.
   techo ""
 }
+
 

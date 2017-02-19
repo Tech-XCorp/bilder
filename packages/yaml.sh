@@ -10,18 +10,30 @@
 #
 # Version
 #
-######################################################################
-
-YAML_BLDRVERSION=${YAML_BLDRVERSION:-"0.1.4"}
-
-# Built from package only
-######################################################################
-#
-# Other values
+# Putting the version information into moab_aux.sh eliminates the
+# rebuild when one changes that file.  Of course, if the actual version
+# changes, or this file changes, there will be a rebuild.  But with
+# this one can change the experimental version without causing a rebuild
+# in a non-experimental Bilder run.  One can also change any auxiliary
+# functions without sparking a build.
 #
 ######################################################################
 
-YAML_BUILDS=${YAML_BUILDS:-"ser"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/yaml_aux.sh
+
+######################################################################
+#
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
+#
+######################################################################
+
+setYamlNonTriggerVars() {
+  YAML_UMASK=002
+}
+setYamlNonTriggerVars
 
 ######################################################################
 #
@@ -61,4 +73,3 @@ installYaml() {
     bilderInstall yaml ${bld}
   done
 }
-

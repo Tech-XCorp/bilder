@@ -43,6 +43,10 @@ bilderFqdn() {
       fqdn=`host $fqdn | sed 's/ .*$//'`
     fi
   fi
+# At NERSC, strip off "-lb"
+  if [[ $fqdn =~ nersc\.gov ]] ; then
+    fqdn=$(echo $fqdn | sed -e 's/-lb//')
+  fi
   FQHOSTNAME=$fqdn
   # techo "[$FUNCNAME]: fqdn = $fqdn."
 
