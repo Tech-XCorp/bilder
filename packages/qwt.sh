@@ -48,7 +48,9 @@ buildQwt() {
   QWT_INSTALL_DIRS=$CONTRIB_DIR
 
   local makerargs=
-  local qwtprefix="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
+# Install qwt with qt
+  # local qwtprefix="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
+  local qwtprefix="$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$QT_BUILD"
   case `uname` in
     CYGWIN*)
       makerargs="-m nmake"
@@ -57,7 +59,6 @@ buildQwt() {
       ;;
     Darwin)
 # Installing in qt to get framework as needed by visit
-      qwtprefix="$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$QT_BUILD"
       sed -i.bak -e "/^QWT_INSTALL_PREFIX_UNIX/s?=.*\$?= $qwtprefix?" $BUILD_DIR/qwt-${QWT_BLDRVERSION}/qwtconfig.pri
       ;;
     Linux)
