@@ -50,7 +50,7 @@ buildQwt() {
   local makerargs=
 # Install qwt with qt
   # local qwtprefix="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
-  local qwtprefix="$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$QT_BUILD"
+  local qwtprefix="$QTDIR"
   case `uname` in
     CYGWIN*)
       makerargs="-m nmake"
@@ -89,11 +89,7 @@ testQwt() {
 ######################################################################
 
 installQwt() {
-  local instopts=
-  case `uname` in
-    CYGWIN*) ;;
-    Darwin) instopts=-L;;
-  esac
+  local instopts=-L
   if bilderInstall $instopts qwt $QWT_BUILD; then
     :
   fi
