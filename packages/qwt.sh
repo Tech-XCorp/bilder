@@ -48,16 +48,23 @@ buildQwt() {
   QWT_INSTALL_DIRS=$CONTRIB_DIR
 
   local makerargs=
-  qwtprefix="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
+  local qwtprefix="$CONTRIB_DIR/qwt-${QWT_BLDRVERSION}-$QWT_BUILD"
   case `uname` in
     CYGWIN*)
       makerargs="-m nmake"
-      qwtprefix=`cygpath -aw "$qwtprefix"`
+      qwtprefix=`cygpath -am "$qwtprefix"`
+      sed -i.bak -e "/^QWT_INSTALL_PREFIX_WIN32/s?=.*\$?= $qwtprefix?" $BUILD_DIR/qwt-${QWT_BLDRVERSION}/qwtconfig.pri
+      ;;
+    Darwin)
+# Installing in qt to get framework as needed by visit
+      qwtprefix="$CONTRIB_DIR/qt-${QT_BLDRVERSION}-$QT_BUILD"
+      sed -i.bak -e "/^QWT_INSTALL_PREFIX_UNIX/s?=.*\$?= $qwtprefix?" $BUILD_DIR/qwt-${QWT_BLDRVERSION}/qwtconfig.pri
       ;;
     Linux)
       sed -i.bak -e "/^QWT_INSTALL_PREFIX_UNIX/s?=.*\$?= $qwtprefix?" $BUILD_DIR/qwt-${QWT_BLDRVERSION}/qwtconfig.pri
       ;;
   esac
+  techo "Installing qwt into $qwtprefix."
 
   if bilderConfig $makerargs -q qwt.pro qwt $QWT_BUILD; then
     bilderBuild $makerargs qwt $QWT_BUILD
@@ -81,8 +88,12 @@ testQwt() {
 ######################################################################
 
 installQwt() {
-# JRC 20130320: Qwt is installed from just "make all".
-  if bilderInstall qwt $QWT_BUILD; then
+  local instopts=
+  case `uname` in
+    CYGWIN*) ;;
+    Darwin) instopts=-L;;
+  esac
+  if bilderInstall $instopts qwt $QWT_BUILD; then
     :
   fi
 }
