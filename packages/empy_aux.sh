@@ -16,8 +16,8 @@
 ######################################################################
 
 setEMpyTriggerVars() {
-  EMPY_BLDRVERSION_STD=1.1.46
-  EMPY_BLDRVERSION_EXP=1.1.46
+  EMPY_BLDRVERSION_STD=1.1.45a
+  EMPY_BLDRVERSION_EXP=1.1.45a
   EMPY_BUILDS=${EMPY_BUILDS:-"pycsh"}
   EMPY_DEPS=future,setuptools,Python
 }
