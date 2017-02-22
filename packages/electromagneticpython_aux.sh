@@ -15,22 +15,22 @@
 #
 ######################################################################
 
-setEMpyTriggerVars() {
-  EMPY_BLDRVERSION_STD=1.1.45a
-  EMPY_BLDRVERSION_EXP=1.1.45a
-  EMPY_BUILDS=${EMPY_BUILDS:-"pycsh"}
-  EMPY_DEPS=future,setuptools,Python
+setElectroMagneticPythonTriggerVars() {
+  ELECTROMAGNETICPYTHON_BLDRVERSION_STD=1.2.0.1
+  ELECTROMAGNETICPYTHON_BLDRVERSION_EXP=1.2.0.1
+  ELECTROMAGNETICPYTHON_BUILDS=${ELECTROMAGNETICPYTHON_BUILDS:-"pycsh"}
+  ELECTROMAGNETICPYTHON_DEPS=scipy,numpy,distribute,future,setuptools,Python
 }
-setEMpyTriggerVars
+setElectroMagneticPythonTriggerVars
 
 ######################################################################
 #
-# Find EMpy
+# Find ElectroMagneticPython
 #
 ######################################################################
 
-findEMpy() {
+findElectroMagneticPython() {
   :
 }
-findEMpy
+findElectroMagneticPython
 
