@@ -98,8 +98,5 @@ installElectroMagneticPython() {
       res=$?
       ;;
   esac
-#  if test $res = 0; then
-#    chmod a+r $PYTHON_SITEPKGSDIR/ElectroMagneticPython.py*
-#  fi
 }
 

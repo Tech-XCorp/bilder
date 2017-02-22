@@ -19,7 +19,7 @@ setElectroMagneticPythonTriggerVars() {
   ELECTROMAGNETICPYTHON_BLDRVERSION_STD=1.2.0.1
   ELECTROMAGNETICPYTHON_BLDRVERSION_EXP=1.2.0.1
   ELECTROMAGNETICPYTHON_BUILDS=${ELECTROMAGNETICPYTHON_BUILDS:-"pycsh"}
-  ELECTROMAGNETICPYTHON_DEPS=scipy,numpy,distribute,future,setuptools,Python
+  ELECTROMAGNETICPYTHON_DEPS=scipy,numpy,future,setuptools,Python
 }
 setElectroMagneticPythonTriggerVars
 
@@ -32,5 +32,4 @@ setElectroMagneticPythonTriggerVars
 findElectroMagneticPython() {
   :
 }
-findElectroMagneticPython
 
