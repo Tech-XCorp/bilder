@@ -3501,7 +3501,7 @@ getPkg() {
               terminate
             fi
           else
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir). Remove?"
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Error with svn up ($pkgdir). Remove? Not connected to internet?"
             terminate
           fi
           if test $numtarballs -gt 1; then
