@@ -31,6 +31,9 @@ nimversion=nimdevel
 #
 ######################################################################
 
+if $TESTING; then
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",autotools"
+fi
 if $NIMDEVEL_ON_KNL; then
   NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_IOLibs:BOOL=FALSE -DTARGET_MIC:BOOL=TRUE"
   NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_IOLibs:BOOL=FALSE -DTARGET_MIC:BOOL=TRUE"
