@@ -14,6 +14,9 @@ if ! modulecmd bash list 2>&1 | grep PrgEnv-gnu 1>/dev/null 2>&1; then
   echo Wrong programming environment. Should be PrgEnv-gnu.
   exit
 fi
+
+arch=unknown
+
 echo "UQMAILHOST=$UQMAILHOST"
 case $UQMAILHOST in
 
@@ -26,6 +29,9 @@ case $UQMAILHOST in
     arch=haswell
     if modulecmd bash list 2>&1 | grep craype-mic-knl 1>/dev/null 2>&1; then
       arch=mic_knl
+      MKL_ROOT_DIR=/opt/intel/compilers_and_libraries_2017/linux/mkl
+      NIMDEVEL_PAR_OTHER_ARGS="-DTARGET_MIC:BOOL=TRUE -DMkl_ROOT_DIR:FILEPATH=${MKL_ROOT_DIR}"
+      FFTW3_BUILDS=${FFTW3_BUILDS:-"ser,par,ben"}
     fi
 
 # System linear algebra
