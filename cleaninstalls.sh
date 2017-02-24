@@ -414,7 +414,7 @@ $DEBUG && echo "TAC = $TAC."
 
 # Get all dirs
 if test -n "$BASEDIR"; then
-  dirs=`echo ${BASEDIR}/{contrib${SUFFIX},volatile${SUFFIX},internal${SUFFIX}}/{.,userdocs,develdocs}`
+  dirs=`echo ${BASEDIR}/{software${SUFFIX},contrib${SUFFIX},volatile${SUFFIX},internal${SUFFIX}}/{.,userdocs,develdocs}`
 fi
 dirs="$dirs $*"
 

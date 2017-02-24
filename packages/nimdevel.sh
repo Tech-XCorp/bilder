@@ -21,7 +21,7 @@
 ######################################################################
 
 NIMDEVEL_BUILDS=${NIMDEVEL_BUILDS:-"ser,par"}
-NIMDEVEL_DEPS=$MPI_BUILD,superlu,cmake,m4
+NIMDEVEL_DEPS=$MPI_BUILD,superlu,cmake,m4,fciowrappers
 NIMDEVEL_UMASK=002
 nimversion=nimdevel
 
@@ -31,14 +31,15 @@ nimversion=nimdevel
 #
 ######################################################################
 
+if $TESTING; then
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",autotools"
+fi
 if $NIMDEVEL_ON_KNL; then
-  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_IOLibs:BOOL=FALSE -DTARGET_MIC:BOOL=TRUE"
-  NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_IOLibs:BOOL=FALSE -DTARGET_MIC:BOOL=TRUE"
-else
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",fciowrappers"
+  NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DTARGET_MIC:BOOL=TRUE"
+  NIMDEVEL_BUILDS="par"
 fi
 if $NIMDEVEL_WITH_OPENMP; then
-  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist3,superlu_dist5,gperftools"
+  NIMDEVEL_DEPS=${NIMDEVEL_DEPS}",superlu_dist3,superlu_dist5"
   NIMDEVEL_PAR_OTHER_ARGS="$NIMDEVEL_PAR_OTHER_ARGS -DENABLE_OpenMP:BOOL=TRUE"
   NIMDEVEL_SER_OTHER_ARGS="$NIMDEVEL_SER_OTHER_ARGS -DENABLE_OpenMP:BOOL=TRUE"
 else
