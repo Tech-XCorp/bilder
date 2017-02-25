@@ -24,7 +24,7 @@ setBilderOsVars() {
       CONTRIB_ROOTDIR=${CONTRIB_ROOTDIR:-"/winsame"}
       INSTALL_ROOTDIR=${INSTALL_ROOTDIR:-"/winsame"}
       USERINST_ROOTDIR=${USERINST_ROOTDIR:-"/winsame/$USER"}
-      # MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"} # In mkall-default.sh
+      MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"} # In mkall-default.sh
       if test -z "$INSTALL_SUBDIR_SFX"; then
         machsfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
         test -n "$machsfx" && INSTALL_SUBDIR_SFX=-$machsfx
