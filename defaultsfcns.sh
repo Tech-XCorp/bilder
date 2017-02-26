@@ -33,7 +33,7 @@ setBilderOsVars() {
       ;;
 
     Darwin)
-      # MACHINEFILE=${MACHINEFILE:-"darwin.clangcxx11"} # Now the default
+      MACHINEFILE=${MACHINEFILE:-"darwin.clangcxx11"} # Now the default
       machsfx=`echo $MACHINEFILE | sed -e 's/^[^\.]*\.//'`
       if test -n "$machsfx"; then
         INSTALL_SUBDIR_SFX=-$machsfx

@@ -245,6 +245,7 @@ if test -n "$FIXED_INSTALL_SUBDIR"; then
       BLDR_INSTALL_DIR="/winsame/internal-${machinesfx}/${FIXED_INSTALL_SUBDIR}"
       ;;
     Darwin)
+      MACHINEFILE=${MACHINEFILE:-"darwin.clangcxx11"}
       CONTRIB_DIR="/internal/${FIXED_INSTALL_SUBDIR}"
       BLDR_INSTALL_DIR="/internal/${FIXED_INSTALL_SUBDIR}"
       ;;
