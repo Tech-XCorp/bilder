@@ -1638,6 +1638,8 @@ EOF
     sed -e "s/\"'/'/g" -e "s/'\"/'/g" -e 's/""/"/g' -e 's/""/"/g' |\
     sed -e "s/'\(.*\)\"\(.*\)'/'\1\2'/" |\
     sed -e '2,$s/^/  /' -e '1,$s/$/ \\/' -e '$s/ \\$//' >>$configscript
+# Some packages create empty objects that must be deleted.
+  echo "find . -name '*.o' -empty -delete" >> $configscript
   chmod u+rx $configscript
   if test $VERBOSITY -lt 2; then
     rm -f $sedfile
