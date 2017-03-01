@@ -144,15 +144,16 @@ techo "svnversion = `which svnversion`."
 BILDER_VERSION=`bilderSvnversion $BILDER_DIR`
 SVN_BLDRVERSION=`bilderSvn -q --version --quiet | tr -d '\r'`
 techo "Subversion version = $SVN_BLDRVERSION."
-case $SVN_BLDRVERSION in
-  1.[8-9].*)
-    techo "WARNING: [bildinit.sh] Subversion version $SVN_BLDRVERSION is too new to work with Jenkins.  Please have 1.6-7.x installed and fix your path."
-    ;;
-  1.[1-5].*)
-    techo "WARNING: [bildinit.sh] Subversion version $SVN_BLDRVERSION is too old.  Lacks --trust-server-cert.  Please have 1.6-7.x installed and fix your path."
-    ;;
-esac
-# techo exit; exit
+if test -n "$JENKINS_FSROOT"; then
+  case $SVN_BLDRVERSION in
+    1.[8-9].*)
+      techo "WARNING: [bildinit.sh] Subversion version $SVN_BLDRVERSION is too new to work with Jenkins.  Please have 1.6-7.x installed and fix your path."
+      ;;
+    1.[1-5].*)
+      techo "WARNING: [bildinit.sh] Subversion version $SVN_BLDRVERSION is too old.  Lacks --trust-server-cert.  Please have 1.6-7.x installed and fix your path."
+      ;;
+  esac
+fi
 
 # Get various URLs
 PROJECT_SVN_URL=`bilderSvn info $PROJECT_DIR | grep ^URL: | sed -e 's/^URL: *//'`
