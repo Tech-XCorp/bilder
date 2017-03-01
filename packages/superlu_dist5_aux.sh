@@ -16,7 +16,7 @@
 ######################################################################
 
 setSuperlu_Dist5TriggerVars() {
-  SUPERLU_DIST5_BLDRVERSION=${SUPERLU_DIST5_BLDRVERSION:-"5.1.2"}
+  SUPERLU_DIST5_BLDRVERSION=${SUPERLU_DIST5_BLDRVERSION:-"5.1.3"}
   if test -z "$SUPERLU_DIST5_BUILDS"; then
     SUPERLU_DIST5_BUILDS="par,parcomm"
     case `uname` in

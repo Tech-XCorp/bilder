@@ -1638,6 +1638,8 @@ EOF
     sed -e "s/\"'/'/g" -e "s/'\"/'/g" -e 's/""/"/g' -e 's/""/"/g' |\
     sed -e "s/'\(.*\)\"\(.*\)'/'\1\2'/" |\
     sed -e '2,$s/^/  /' -e '1,$s/$/ \\/' -e '$s/ \\$//' >>$configscript
+# Some packages create empty objects that must be deleted.
+  echo "find . -name '*.o' -empty -delete" >> $configscript
   chmod u+rx $configscript
   if test $VERBOSITY -lt 2; then
     rm -f $sedfile
@@ -3501,7 +3503,7 @@ getPkg() {
               terminate
             fi
           else
-            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Problem with ($pkgdir). Remove?"
+            TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Error with svn up ($pkgdir). Remove? Not connected to internet?"
             terminate
           fi
           if test $numtarballs -gt 1; then

@@ -24,6 +24,8 @@ LAPACK_BUILDS=NONE
 gccver=`gcc --version | head -1 | sed -e 's/^.*GCC) //' -e 's/ .*$//'`
 gccvers=`echo $gccver | sed 's/\.[0-9]*$//' | tr -d '.'`
 
+arch=unknown
+
 case $UQMAILHOST in
 
   cori*)

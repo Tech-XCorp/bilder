@@ -235,6 +235,7 @@ fi
 if test -n "$FIXED_INSTALL_SUBDIR"; then
   case `uname` in
     CYGWIN*)
+# Must set MACHINEFILE for subdir names
       MACHINEFILE=${MACHINEFILE:-"cygwin.vs12"}
       machinesfx=`echo $MACHINEFILE | sed -e 's/^.*\.//'`
       if [[ $machinesfx =~ mingw ]]; then
