@@ -1,0 +1,93 @@
+#!/bin/bash
+#
+# Trigger vars and find information
+#
+# $Id: orc_aux.sh 2216 2015-03-04 19:39:24Z techxdws $
+#
+######################################################################
+
+######################################################################
+#
+# Find orc.  This is used below, so must be first.
+#
+######################################################################
+
+findOrc() {
+
+# Look for orc-sersh in contrib directory on windows, but
+# on mac and linux we use pkg-config
+  case `uname` in
+    CYGWIN*)
+      findPackage Orc orc "$CONTRIB_DIR" sersh
+      if test -n "$ORC_SERSH_DIR"; then
+        ORC_SERSH_DIR=`cygpath -am $ORC_SERSH_DIR`
+      else
+        techo "WARNING: orc not found."
+      fi
+      ;;
+    *)
+      local orcconfig=`which orc-config`
+      if test -z "$orcconfig"; then
+        techo "WARNING: [$FUNCNAME] orc not found by bilder. Please install on system.  PATH = $PATH."
+      else
+        local orcdir=`$orcconfig --prefix`
+        techo "Using orc from $orcdir."
+        ORC_SERSH_DIR=$orcdir
+      fi
+      ;;
+  esac
+
+# If found, we set some arguments that can be used in other package
+# configures to make sure orc is consistent in all pkgs that use the args.
+  if test -n "$ORC_SERSH_DIR"; then
+    techo "Setting configure args to use orc in $ORC_SERSH_DIR."
+    CMAKE_ORC_SERSH_DIR_ARG="-DPng_ROOT_DIR:PATH='$ORC_SERSH_DIR'"
+    CONFIG_ORC_SERSH_DIR_ARG="--with-orc-dir='$ORC_SERSH_DIR'"
+    printvar CMAKE_ORC_SERSH_DIR_ARG
+    printvar CONFIG_ORC_SERSH_DIR_ARG
+  fi
+
+# Look for orc in contrib
+  if test -z "$ORC_PYCSH_DIR"; then
+    findPackage Orc png "$CONTRIB_DIR" pycsh sersh
+    findPycshDir Orc
+  fi
+
+  if test -n "$ORC_PYCSH_DIR" -a "$ORC_PYCSH_DIR" != /usr; then
+    addtopathvar PATH $ORC_PYCSH_DIR/bin
+    if [[ `uname` =~ CYGWIN ]]; then
+      ORC_PYCSH_DIR=`cygpath -am $ORC_PYCSH_DIR`
+    fi
+    CMAKE_ORC_PYCSH_DIR_ARG="-DPng_ROOT_DIR:PATH='$ORC_PYCSH_DIR'"
+    CONFIG_ORC_PYCSH_DIR_ARG="--with-orc-dir='$ORC_PYCSH_DIR'"
+  fi
+  printvar CMAKE_ORC_PYCSH_DIR_ARG
+  printvar CONFIG_ORC_PYCSH_DIR_ARG
+
+}
+
+######################################################################
+#
+# Set variables whose change should not trigger a rebuild or will
+# by value change trigger a rebuild, as change of this file will not
+# trigger a rebuild.
+# E.g: version, builds, deps, auxdata, paths, builds of other packages
+#
+######################################################################
+
+setOrcTriggerVars() {
+  ORC_BLDRVERSION=${ORC_BLDRVERSION:-"1.5.7"}
+  case `uname` in
+    CYGWIN*)
+# Only attempt to build on Windows. Must be installed elsewhere.
+      ORC_DESIRED_BUILDS=${ORC_DESIRED_BUILDS:-"sersh"}
+      ;;
+  esac
+  computeBuilds orc
+  if [[ `uname` =~ CYGWIN ]]; then
+    addPycshBuild orc
+  fi
+  ORC_DEPS=zlib,cmake
+}
+setOrcTriggerVars
+

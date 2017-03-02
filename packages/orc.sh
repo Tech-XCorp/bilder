@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for gstpluginsbase
+# Build information for orc
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in gstpluginsbase_aux.sh
+# Trigger variables set in orc_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/gst-plugins-base_aux.sh
+source $mydir/orc_aux.sh
 
 ######################################################################
 #
@@ -23,45 +23,50 @@ source $mydir/gst-plugins-base_aux.sh
 #
 ######################################################################
 
-setGst_plugins_baseNonTriggerVars() {
-  GST_PLUGINS_BASE_UMASK=002
+setOrcNonTriggerVars() {
+  ORC_UMASK=002
 }
-setGst_plugins_baseNonTriggerVars
+setOrcNonTriggerVars
 
 ######################################################################
 #
-# Launch gst-plugins-base builds.
+# Launch orc builds.
 #
 ######################################################################
 
-buildGst_plugins_base() {
+buildOrc() {
 # Unpack
-  if ! bilderUnpack gst-plugins-base; then
+  if ! bilderUnpack orc; then
     return
   fi
 # Build
-  if bilderConfig -p gstreamer-${GSTREAMER_BLDRVERSION}-sersh  gst-plugins-base sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GST_PLUGINS_BASE_SER_OTHER_ARGS"; then
-    bilderBuild gst-plugins-base sersh
+  if bilderConfig orc sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $ORC_SER_OTHER_ARGS"; then
+    bilderBuild orc sersh
+  fi
+  if bilderConfig orc pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $ORC_SER_OTHER_ARGS"; then
+    bilderBuild orc pycsh
   fi
 }
 
 ######################################################################
 #
-# Test gstpluginsbase
+# Test orc
 #
 ######################################################################
 
-testGst_plugins_base() {
-  techo "Not testing gst-plugins-base."
+testOrc() {
+  techo "Not testing orc."
 }
 
 ######################################################################
 #
-# Install gstpluginsbase
+# Install orc
 #
 ######################################################################
 
-installGst_plugins_base() {
-  bilderInstall gst-plugins-base sersh
+installOrc() {
+  bilderInstall orc pycsh
+  bilderInstall orc pycst
+  bilderInstall orc sersh
 }
 

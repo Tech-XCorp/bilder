@@ -54,24 +54,10 @@ addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 # One of these should add the path to texlive if not in path
 case `uname` in
-  Linux)
-    if ! which pdflatex 1>/dev/null; then
-      addtopathvar -e PATH $CONTRIB_DIR/texlive/bin/x86_64-linux
-      if ! which pdflatex 1>/dev/null; then
-        addtopathvar -e PATH /contrib/texlive/bin/x86_64-linux
-      fi
-    fi
-    ;;
+  Linux) addtopathvar PATH $CONTRIB_DIR/texlive/bin/x86_64-linux;;
   Darwin)
-    if ! which pdflatex 1>/dev/null; then
-      addtopathvar -e PATH /usr/local/texlive/2016/bin/x86_64-darwin
-      if ! which pdflatex 1>/dev/null; then
-        addtopathvar -e PATH /usr/local/texlive/2015/bin/x86_64-darwin
-        if ! which pdflatex 1>/dev/null; then
-          addtopathvar -e PATH /usr/local/texlive/2014/bin/x86_64-darwin
-        fi
-      fi
-    fi
+    addtopathvar PATH /usr/local/texlive/2015/bin/x86_64-darwin
+    addtopathvar PATH /usr/local/texlive/2014/bin/x86_64-darwin
     ;;
 esac
 # Add parallel path now before absolute paths determined by getCombinedCompVars

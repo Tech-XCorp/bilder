@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for gstreamer
+# Build information for glib2
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in gstreamer_aux.sh
+# Trigger variables set in glib2_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/gstreamer_aux.sh
+source $mydir/glib2_aux.sh
 
 ######################################################################
 #
@@ -23,52 +23,50 @@ source $mydir/gstreamer_aux.sh
 #
 ######################################################################
 
-setGstreamerNonTriggerVars() {
-  GSTREAMER_UMASK=002
+setGlib2NonTriggerVars() {
+  GLIB2_UMASK=002
 }
-setGstreamerNonTriggerVars
+setGlib2NonTriggerVars
 
 ######################################################################
 #
-# Launch gstreamer builds.
+# Launch glib2 builds.
 #
 ######################################################################
 
-buildGstreamer() {
+buildGlib2() {
 # Unpack
-  if ! bilderUnpack gstreamer; then
+  if ! bilderUnpack glib2; then
     return
   fi
 # Build
-  if bilderConfig gstreamer sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GSTREAMER_SER_OTHER_ARGS"; then
-    bilderBuild gstreamer sersh
+  if bilderConfig glib2 sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GLIB2_SER_OTHER_ARGS"; then
+    bilderBuild glib2 sersh
   fi
-  if bilderConfig gstreamer pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GSTREAMER_SER_OTHER_ARGS"; then
-#    techo "BUILDING GSTREAMER PYCSH WITH PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
-    techo "debug statement: glib2-pycsh is not adding it's bin dir to path" 
-    techo "BUILDING GSTREAMER PYCSH WITH PATH=$PATH"
-    bilderBuild gstreamer pycsh
+  if bilderConfig glib2 pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GLIB2_SER_OTHER_ARGS"; then
+    bilderBuild glib2 pycsh
   fi
 }
 
 ######################################################################
 #
-# Test gstreamer
+# Test glib2
 #
 ######################################################################
 
-testGstreamer() {
-  techo "Not testing gstreamer."
+testGlib2() {
+  techo "Not testing glib2."
 }
 
 ######################################################################
 #
-# Install gstreamer
+# Install glib2
 #
 ######################################################################
 
-installGstreamer() {
-  bilderInstall gstreamer sersh
-  bilderInstall gstreamer pycsh
+installGlib2() {
+  bilderInstall glib2 sersh
+  bilderInstall glib2 pycsh
+  
 }
 

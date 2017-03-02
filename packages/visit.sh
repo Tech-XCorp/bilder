@@ -90,8 +90,15 @@ buildVisit() {
   if test -d $PROJECT_DIR/visit; then
 # Package: so patch and preconfig
 
-# Revert to undo previous patch.
-    bilderSvn revert --recursive $PROJECT_DIR/visit
+# Revert to undo previous patch, unless revert has been explicitly switched off.
+# SVNUP_PKGS is true by default.
+    if SVNUP_PKGS; then 
+      techo "Reverting changes..."
+      bilderSvn revert --recursive $PROJECT_DIR/visit
+    else
+      techo "SVNUP_PKGS is preventing reverting changes, remove -U from bilder"
+      techo "options to revert visit."
+    fi
     rm -f $PROJECT_DIR/visit/Start.ctest
     VISIT_DISTVERSION=`cat $PROJECT_DIR/visit/VERSION`
     getVersion visit
@@ -99,28 +106,32 @@ buildVisit() {
 
 # Determine whether patch in installation matches that in bilder.
 # If differs, set visit as uninstalled so it will be built.
-    VISIT_PATCH=$BILDER_DIR/patches/visit.patch
-    if ! isPatched -s visit-$VISIT_SER_BUILD visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
-      techo "Rebuilding visit as patches differ."
-      for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
-        cmd="$BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR visit,$bld"
-        $cmd 2>&1 | tee -a $LOGFILE
-      done
-    else
-      techo "Patch up to date.  Not a reason to rebuild."
-    fi
+    if SVNUP_PKGS; then 
+      VISIT_PATCH=$BILDER_DIR/patches/visit.patch
+      if ! isPatched -s visit-$VISIT_SER_BUILD visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
+        techo "Rebuilding visit as patches differ."
+        for bld in `echo $VISIT_BUILDS | tr ',' ' '`; do
+          cmd="$BILDER_DIR/setinstald.sh -r -i $BLDR_INSTALL_DIR visit,$bld"
+          $cmd 2>&1 | tee -a $LOGFILE
+        done
+      else
+        techo "Patch up to date.  Not a reason to rebuild."
+      fi
 
 # Patch visit
 # Generate the patch via svn diff visit >numpkgs/visit-${branch}-${lbl}.patch
-    if test -n "$VISIT_PATCH" -a -f "$VISIT_PATCH"; then
-      cmd="(cd $PROJECT_DIR; $BILDER_DIR/patch.sh $VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
-      techo "$cmd"
-      eval "$cmd"
-      techo "VisIt patched. Results in $BUILD_DIR/visit-patch.txt."
-      if grep -qi fail $BUILD_DIR/visit-patch.txt; then
-        grep -i fail $BUILD_DIR/visit-patch.txt | sed 's/^/WARNING: /' >$BUILD_DIR/visit-patch.fail
-        cat $BUILD_DIR/visit-patch.fail | tee -a $LOGFILE
+      if test -n "$VISIT_PATCH" -a -f "$VISIT_PATCH"; then
+        cmd="(cd $PROJECT_DIR; $BILDER_DIR/patch.sh $VISIT_PATCH >$BUILD_DIR/visit-patch.txt 2>&1)"
+        techo "$cmd"
+        eval "$cmd"
+        techo "VisIt patched. Results in $BUILD_DIR/visit-patch.txt."
+        if grep -qi fail $BUILD_DIR/visit-patch.txt; then
+          grep -i fail $BUILD_DIR/visit-patch.txt | sed 's/^/WARNING: /' >$BUILD_DIR/visit-patch.fail
+          cat $BUILD_DIR/visit-patch.fail | tee -a $LOGFILE
+        fi
       fi
+    else
+      techo "Skipping patch checking as -U options was set, so svn revert and svn up were not done"
     fi
     if ! bilderPreconfig -c visit; then
       return 1
@@ -163,6 +174,9 @@ buildVisit() {
       VISIT_ENV="LD_RUN_PATH=$VISIT_LD_RUN_PATH"
 # Belt and suspenders
       VISIT_ADDL_ARGS="$VISIT_ADDL_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING='-Wl,-rpath,$VISIT_LD_RUN_PATH'"
+      if test -d $CONTRIB_DIR/mesa/lib; then
+        VISIT_MESA_DIR=$CONTRIB_DIR/mesa
+      fi
       ;;
   esac
   trimvar VISIT_MAKE_ARGS ' '

@@ -19,9 +19,19 @@ setGst_plugins_baseTriggerVars() {
   GST_PLUGINS_BASE_BLDRVERSION_STD=${GST_PLUGINS_BASE_BLDRVERSION_STD:-"0.10.36"}
   GST_PLUGINS_BASE_BLDRVERSION_EXP=${GST_PLUGINS_BASE_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
-    GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"$FORPYTHON_BUILD"}
+    GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"${FORPYTHON_SERIAL_BUILD},sersh"}
+    GST_PLUGINS_BASE_BUILD="pycsh"   
+    if which gstreamer-0.10; then
+      techo "Gstreamer already in path, "
+      techo "should be OK for phonon to build with this package"
+      techo "If it does not please check gstreamer-devel package"
+      techo "is installed"
+    else
+      techo "Gstreamer was not found, adding to dependencies"
+      GST_PLUGINS_BASE_DEPS=${GST_PLUGINS_BASE_DEPS},gstreamer
+    fi
   fi
-  GST_PLUGINS_BASE_DEPS=gstreamer
+#  GST_PLUGINS_BASE_DEPS=gstreamer
   # GSTREAMER_TARBALLBASE=gst-plugins-base
 }
 setGst_plugins_baseTriggerVars
@@ -33,8 +43,8 @@ setGst_plugins_baseTriggerVars
 ######################################################################
 
 findGst_plugins_base() {
-  : # findContribPackage Gst_plugins_base gstpluginsbase-1.0 sersh pycsh
-  # findPycshDir Gstpluginsbase
-  # addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gstpluginsbase-${GST_PLUGINS_BASE_BLDRVERSION}-sersh/lib/pkgconfig
+  findContribPackage Gst_plugins_base gst-plugins-base-1.0 sersh pycsh
+  findPycshDir Gst_plugins_base
+  addToPathVar PKG_CONFIG_PATH $CONTRIB_DIR/gst_plugins_base-${GST_PLUGINS_BASE_BLDRVERSION}-sersh/lib/pkgconfig
 }
 

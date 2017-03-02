@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build information for gstreamer
+# Build information for flex
 #
 # $Id$
 #
@@ -8,12 +8,12 @@
 
 ######################################################################
 #
-# Trigger variables set in gstreamer_aux.sh
+# Trigger variables set in flex_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
-source $mydir/gstreamer_aux.sh
+source $mydir/flex_aux.sh
 
 ######################################################################
 #
@@ -23,52 +23,49 @@ source $mydir/gstreamer_aux.sh
 #
 ######################################################################
 
-setGstreamerNonTriggerVars() {
-  GSTREAMER_UMASK=002
+setFlexNonTriggerVars() {
+  FLEX_UMASK=002
 }
-setGstreamerNonTriggerVars
+setFlexNonTriggerVars
 
 ######################################################################
 #
-# Launch gstreamer builds.
+# Launch flex builds.
 #
 ######################################################################
 
-buildGstreamer() {
+buildFlex() {
 # Unpack
-  if ! bilderUnpack gstreamer; then
+  if ! bilderUnpack flex; then
     return
   fi
 # Build
-  if bilderConfig gstreamer sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $GSTREAMER_SER_OTHER_ARGS"; then
-    bilderBuild gstreamer sersh
+  if bilderConfig flex sersh "--enable-shared $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $FLEX_SER_OTHER_ARGS"; then
+    bilderBuild flex sersh
   fi
-  if bilderConfig gstreamer pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GSTREAMER_SER_OTHER_ARGS"; then
-#    techo "BUILDING GSTREAMER PYCSH WITH PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
-    techo "debug statement: glib2-pycsh is not adding it's bin dir to path" 
-    techo "BUILDING GSTREAMER PYCSH WITH PATH=$PATH"
-    bilderBuild gstreamer pycsh
+  if bilderConfig flex ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $FLEX_SER_OTHER_ARGS"; then
+    bilderBuild flex ser
   fi
 }
 
 ######################################################################
 #
-# Test gstreamer
+# Test flex
 #
 ######################################################################
 
-testGstreamer() {
-  techo "Not testing gstreamer."
+testFlex() {
+  techo "Not testing flex."
 }
 
 ######################################################################
 #
-# Install gstreamer
+# Install flex
 #
 ######################################################################
 
-installGstreamer() {
-  bilderInstall gstreamer sersh
-  bilderInstall gstreamer pycsh
+installFlex() {
+  bilderInstall flex sersh
+  bilderInstall flex ser
 }
 

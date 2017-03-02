@@ -119,7 +119,7 @@ buildQt() {
 
       local gstprefix=
       local gstlibdir=
-      for gstprefix in $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh $CONTRIB_DIR/extras /usr; do
+      for gstprefix in $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-${FORPYTHON_SHARED_BUILD} $CONTRIB_DIR/extras /usr; do
         techo "Testing for $gstprefix/lib."
         if test -e $gstprefix/lib; then
           techo "Found $gstprefix/lib."
@@ -139,6 +139,12 @@ buildQt() {
 
       local incdir=
 # qt will not compile with gstreamer-1.0, so specifically look for 0.10
+
+# There is a package for libxml2, we should perhaps see if that is populated first
+# There is a package for glib2 (2.38 will do just fine, 2.46 may not)
+# These are both set to add their pkgconfig to PKG_CONFIG_PATH, so perhaps
+# We can locate these libraries via pkg-config? JDAS 12 Feb 2016
+
       local gpkgs="libxml2 dbus-1.0 glib-2.0"
       test -z "${gstprefix}" && gpkgs="$gpkgs gstreamer-0.10"
       for i in $gpkgs; do
@@ -189,7 +195,12 @@ buildQt() {
         techo "$cmd"
         eval "$cmd"
       fi
-      QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
+      if test $FORPYTHON_SHARED_BUILD="pycsh"; then
+        QT_ENV="CC=${PYC_CC} CXX=${PYC_CXX} CFLAGS='${PYC_CFLAGS}' CXXFLAGS='${PYC_CXXFLAGS}' LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
+# Actually, perhaps we need to be using PYC_LD_LIBRARY_PATH too, but since the packages on which it is depending do not add their paths there, but to LD_LIBRARY_PATH, we should stick to using LD_LIBRARY_PATH JDAS 12 Feb 2016.
+      else
+        QT_ENV="LD_RUN_PATH=${CONTRIB_DIR}/mesa-mgl/lib:$LD_RUN_PATH LD_LIBRARY_PATH=$BUILD_DIR/qt-$QT_BLDRVERSION/$QT_BUILD/lib:$LD_LIBRARY_PATH"
+      fi
       ;;
 
   esac
