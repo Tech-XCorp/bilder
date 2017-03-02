@@ -93,7 +93,7 @@ setupScipyBuild() {
       lapacklibname=$blslpcklibdir/lib${lapacklibname}.so
       blaslibname=$blslpcklibdir/lib${blaslibname}.so
       SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$lapacklibname' BLAS='$blaslibname'"
-      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
+      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}:$LAPACK_PYCSH_DIR/lib"
       ;;
 
     *)
