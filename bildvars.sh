@@ -54,24 +54,10 @@ addtopathvar PATH $BLDR_INSTALL_DIR/bin
 addtopathvar PATH $CONTRIB_DIR/cmake/bin
 # One of these should add the path to texlive if not in path
 case `uname` in
-  Linux)
-    if ! which pdflatex 1>/dev/null; then
-      addtopathvar -e PATH $CONTRIB_DIR/texlive/bin/x86_64-linux
-      if ! which pdflatex 1>/dev/null; then
-        addtopathvar -e PATH /contrib/texlive/bin/x86_64-linux
-      fi
-    fi
-    ;;
+  Linux) addtopathvar PATH $CONTRIB_DIR/texlive/bin/x86_64-linux;;
   Darwin)
-    if ! which pdflatex 1>/dev/null; then
-      addtopathvar -e PATH /usr/local/texlive/2016/bin/x86_64-darwin
-      if ! which pdflatex 1>/dev/null; then
-        addtopathvar -e PATH /usr/local/texlive/2015/bin/x86_64-darwin
-        if ! which pdflatex 1>/dev/null; then
-          addtopathvar -e PATH /usr/local/texlive/2014/bin/x86_64-darwin
-        fi
-      fi
-    fi
+    addtopathvar PATH /usr/local/texlive/2015/bin/x86_64-darwin
+    addtopathvar PATH /usr/local/texlive/2014/bin/x86_64-darwin
     ;;
 esac
 # Add parallel path now before absolute paths determined by getCombinedCompVars
@@ -534,21 +520,19 @@ case `uname` in
         /usr/lib/gcc/*) # Do not add system dirs
           ;;
         /*)
-          PYC_LD_LIBRARY_PATH="$gcclibdir":$PYC_LD_LIBRARY_PATH
-          trimvar PYC_LD_LIBRARY_PATH :
-          PYC_LD_RUN_PATH="$gcclibdir":$PYC_LD_RUN_PATH
-          trimvar PYC_LD_RUN_PATH :
+          addtopathvar PYC_LD_LIBRARY_PATH $gcclibdir
+          addtopathvar PYC_LD_RUN_PATH $gcclibdir
           ;;
       esac
     fi
 # If extras installed, add in the libdir
     if test -e $CONTRIB_DIR/extras/lib; then
-      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_LIBRARY_PATH
-      PYC_LD_RUN_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_RUN_PATH
+      addtopathvar PYC_LD_LIBRARY_PATH $CONTRIB_DIR/extras/lib
+      addtopathvar PYC_LD_RUN_PATH $CONTRIB_DIR/extras/lib
     fi
     if test -e $CONTRIB_DIR/lib; then
-      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/lib:$PYC_LD_LIBRARY_PATH
-      PYC_LD_RUN_PATH=$CONTRIB_DIR/lib:$PYC_LD_RUN_PATH
+      addtopathvar PYC_LD_LIBRARY_PATH $CONTRIB_DIR/lib
+      addtopathvar PYC_LD_RUN_PATH $CONTRIB_DIR/lib
     fi
     ;;
 esac

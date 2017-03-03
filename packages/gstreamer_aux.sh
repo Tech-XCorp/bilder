@@ -19,9 +19,28 @@ setGstreamerTriggerVars() {
   GSTREAMER_BLDRVERSION_STD=${GSTREAMER_BLDRVERSION_STD:-"0.10.36"}
   GSTREAMER_BLDRVERSION_EXP=${GSTREAMER_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
+#    GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
+# forpython_shared_build is not always set. can't use JDAS 11th Feb16
+#    GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"pycsh,sersh"}
     GSTREAMER_BUILDS=${GSTREAMER_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   fi
   GSTREAMER_DEPS=libtool,xz
+# Probably shouldn't be just for linux, but this minimizes damage
+# on other platforms where gstreamer building is currently untested
+# JDAS 9th Feb 2016
+  if test `uname` = Linux; then
+    GSTREAMER_DEPS=${GSTREAMER_DEPS},libxml2,pkgconfig,orc,glib2
+    if which flex; then
+      techo "flex is installed, don't need to build"
+    else
+      GSTREAMER_DEPS=${GSTREAMER_DEPS},flex
+    fi
+    if which bison; then
+      techo "bison is installed, don't need to build"
+    else
+      GSTREAMER_DEPS=${GSTREAMER_DEPS},bison
+    fi
+  fi
 }
 setGstreamerTriggerVars
 
@@ -32,13 +51,17 @@ setGstreamerTriggerVars
 ######################################################################
 
 findGstreamer() {
+  techo "findGstreamer..."
+  printvar FORPYTHON_SHARED_BUILD
   findContribPackage Gstreamer gstreamer-0.10 sersh pycsh
   findPycshDir Gstreamer
-  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib/pkgconfig
+  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib/pkgconfig
   printvar PKG_CONFIG_PATH
-  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib
+  addtopathvar PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/bin
+  printvar PATH
+  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
   printvar LD_LIBRARY_PATH
-  addtopathvar LD_RUN_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-sersh/lib
+  addtopathvar LD_RUN_PATH $CONTRIB_DIR/gstreamer-${GSTREAMER_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
   printvar LD_RUN_PATH
 }
 
