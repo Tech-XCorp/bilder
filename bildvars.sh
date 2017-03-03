@@ -520,21 +520,19 @@ case `uname` in
         /usr/lib/gcc/*) # Do not add system dirs
           ;;
         /*)
-          PYC_LD_LIBRARY_PATH="$gcclibdir":$PYC_LD_LIBRARY_PATH
-          trimvar PYC_LD_LIBRARY_PATH :
-          PYC_LD_RUN_PATH="$gcclibdir":$PYC_LD_RUN_PATH
-          trimvar PYC_LD_RUN_PATH :
+          addtopathvar PYC_LD_LIBRARY_PATH $gcclibdir
+          addtopathvar PYC_LD_RUN_PATH $gcclibdir
           ;;
       esac
     fi
 # If extras installed, add in the libdir
     if test -e $CONTRIB_DIR/extras/lib; then
-      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_LIBRARY_PATH
-      PYC_LD_RUN_PATH=$CONTRIB_DIR/extras/lib:$PYC_LD_RUN_PATH
+      addtopathvar PYC_LD_LIBRARY_PATH $CONTRIB_DIR/extras/lib
+      addtopathvar PYC_LD_RUN_PATH $CONTRIB_DIR/extras/lib
     fi
     if test -e $CONTRIB_DIR/lib; then
-      PYC_LD_LIBRARY_PATH=$CONTRIB_DIR/lib:$PYC_LD_LIBRARY_PATH
-      PYC_LD_RUN_PATH=$CONTRIB_DIR/lib:$PYC_LD_RUN_PATH
+      addtopathvar PYC_LD_LIBRARY_PATH $CONTRIB_DIR/lib
+      addtopathvar PYC_LD_RUN_PATH $CONTRIB_DIR/lib
     fi
     ;;
 esac
