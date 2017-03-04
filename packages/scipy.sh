@@ -87,13 +87,19 @@ setupScipyBuild() {
       SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN"
 # This is the only way to specify different libraries:
 # https://www.scipy.org/scipylib/building/linux.html
-      blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
+      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
+      if test -d $LAPACK_PYCSH_DIR/lib; then
+        blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
+        linkflags="$linkflags -Wl,-rpath,${blslpcklibdir}"
+      elif test -d $LAPACK_PYCSH_DIR/lib64; then
+        blslpcklibdir="$LAPACK_PYCSH_DIR"/lib64
+        linkflags="$linkflags -Wl,-rpath,${blslpcklibdir}"
+      fi
       lapacklibname=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ .*$//'`
       blaslibname=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ .*$//g'`
       lapacklibname=$blslpcklibdir/lib${lapacklibname}.so
       blaslibname=$blslpcklibdir/lib${blaslibname}.so
       SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$lapacklibname' BLAS='$blaslibname'"
-      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}:$LAPACK_PYCSH_DIR/lib"
       ;;
 
     *)
