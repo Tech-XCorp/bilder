@@ -2306,10 +2306,13 @@ setDistutilsEnv() {
 # All should be the gcc variables
   if [[ `uname` =~ Linux ]]; then
     for i in LD_RUN_PATH LD_LIBRARY_PATH LDSHARED; do
-      local val=`deref PYC_$i`
       local val2=`deref $i`
+      for j in `echo $val2 | tr ':' ' '`; do
+        addtopathvar PYC_$i $j after
+      done
+      local val=`deref PYC_$i`
       if test -n "$val"; then
-        LDVARS_ENV="$LDVARS_ENV $i='$val:$val2'"
+        LDVARS_ENV="$LDVARS_ENV $i='$val'"
       fi
     done
 # Ensure pick up any libs linked in, as needed for BGP, e.g.

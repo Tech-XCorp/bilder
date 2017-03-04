@@ -88,12 +88,12 @@ setupScipyBuild() {
 # This is the only way to specify different libraries:
 # https://www.scipy.org/scipylib/building/linux.html
       linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
-      if test -d $LAPACK_PYCSH_DIR/lib; then
-        blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
-        linkflags="$linkflags -Wl,-rpath,${blslpcklibdir}"
-      elif test -d $LAPACK_PYCSH_DIR/lib64; then
-        blslpcklibdir="$LAPACK_PYCSH_DIR"/lib64
-        linkflags="$linkflags -Wl,-rpath,${blslpcklibdir}"
+      if test -d ${LAPACK_PYCSH_DIR}/lib; then
+        blslpcklibdir=${LAPACK_PYCSH_DIR}/lib
+        linkflags="$linkflags -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
+      elif test -d ${LAPACK_PYCSH_DIR}/lib64; then
+        blslpcklibdir=${LAPACK_PYCSH_DIR}/lib64
+        linkflags="$linkflags -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib64"
       fi
       lapacklibname=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ .*$//'`
       blaslibname=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ .*$//g'`
