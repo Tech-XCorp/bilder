@@ -20,7 +20,9 @@ setGst_plugins_baseTriggerVars() {
   GST_PLUGINS_BASE_BLDRVERSION_EXP=${GST_PLUGINS_BASE_BLDRVERSION_EXP:-"0.10.36"}
   if test `uname` = Linux; then
     GST_PLUGINS_BASE_BUILDS=${GST_PLUGINS_BASE_BUILDS:-"${FORPYTHON_SERIAL_BUILD},sersh"}
-    GST_PLUGINS_BASE_BUILD="pycsh"   
+    GST_PLUGINS_BASE_BUILD="pycsh"
+# JRC: not understanding.  gstreamer-0.10 is not an executable on my machine,
+# but my build proceeds just fine without this build.
     if which gstreamer-0.10; then
       techo "Gstreamer already in path, "
       techo "should be OK for phonon to build with this package"
@@ -31,8 +33,6 @@ setGst_plugins_baseTriggerVars() {
       GST_PLUGINS_BASE_DEPS=${GST_PLUGINS_BASE_DEPS},gstreamer
     fi
   fi
-#  GST_PLUGINS_BASE_DEPS=gstreamer
-  # GSTREAMER_TARBALLBASE=gst-plugins-base
 }
 setGst_plugins_baseTriggerVars
 
