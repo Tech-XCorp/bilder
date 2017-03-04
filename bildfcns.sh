@@ -3013,8 +3013,10 @@ findBlasLapack() {
 
 # Find the lapack in the contrib dir, but use it only if requested.
   findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
+  setDefaultPkgVars CONTRIB_LAPACK "SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   if test `uname` = Linux -a -e /usr/lib64/liblapack.a; then
 # Old lapacks do not have some symbols, in which case we must use
 # the contrib lapack.
