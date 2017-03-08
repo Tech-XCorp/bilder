@@ -6782,11 +6782,15 @@ EOF
               if $depotDirOk; then
                 local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
                 techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
-                cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
-                techo -2 "[$FUNCNAME] $cmd"
-                if ! $cmd 1>/dev/null 2>./bilderPostError; then
-                  techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
-                  rm -f bilderPostError
+                if test -f "${installerProduct}_license.txt"; then
+                  cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
+                  techo -2 "[$FUNCNAME] $cmd"
+                  if ! $cmd 1>/dev/null 2>./bilderPostError; then
+                    techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
+                    rm -f bilderPostError
+                  fi
+                else
+                  techo "NOTE: [$FUNCNAME] Installer, $installer, found, but no license file found."
                 fi
                 cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
                 techo -2 "[$FUNCNAME] $cmd"
