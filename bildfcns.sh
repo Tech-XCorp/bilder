@@ -6853,7 +6853,11 @@ EOF
           fi  # if test -z $installers  (i.e. if any installers found)
         done  # loop of endings
         if ! $foundOneInstaller; then
-          techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+          local ignorebuildsvar=`genbashvar $1`_INSTALLER_IGNORE_BUILDS
+          local ignorebuildsval=`deref $buildsvar`
+          if ! echo $ignorebuildsval | egrep -q "(^|,)$2($|,)"; then
+            techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+          fi
         fi
       fi  # if $doPost  (i.e. sanity checks passed and ok to post)
     else  # if test $RESULT = 0  (i.e. install was not ok)
