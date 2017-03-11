@@ -34,13 +34,13 @@ setOrcTriggerVars
 findOrc() {
   findContribPackage Orc orc-0.4 sersh pycsh
   findPycshDir Orc
-  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib/pkgconfig
+  addtopathvar -i PKG_CONFIG_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib/pkgconfig
   printvar PKG_CONFIG_PATH
-  addtopathvar PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/bin
+  addtopathvar -e PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/bin
   printvar PATH
-  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
+  addtopathvar -e LD_LIBRARY_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
   printvar LD_LIBRARY_PATH
-  addtopathvar LD_RUN_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
+  addtopathvar -e LD_RUN_PATH $CONTRIB_DIR/orc-${ORC_BLDRVERSION}-${FORPYTHON_SHARED_BUILD}/lib
   printvar LD_RUN_PATH
 }
 

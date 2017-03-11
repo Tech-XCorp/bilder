@@ -2306,10 +2306,13 @@ setDistutilsEnv() {
 # All should be the gcc variables
   if [[ `uname` =~ Linux ]]; then
     for i in LD_RUN_PATH LD_LIBRARY_PATH LDSHARED; do
-      local val=`deref PYC_$i`
       local val2=`deref $i`
+      for j in `echo $val2 | tr ':' ' '`; do
+        addtopathvar PYC_$i $j after
+      done
+      local val=`deref PYC_$i`
       if test -n "$val"; then
-        LDVARS_ENV="$LDVARS_ENV $i='$val:$val2'"
+        LDVARS_ENV="$LDVARS_ENV $i='$val'"
       fi
     done
 # Ensure pick up any libs linked in, as needed for BGP, e.g.
@@ -3013,8 +3016,10 @@ findBlasLapack() {
 
 # Find the lapack in the contrib dir, but use it only if requested.
   findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
+  setDefaultPkgVars CONTRIB_LAPACK "SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
-  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  setDefaultPkgVars CONTRIB_LAPACK "SER BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   if test `uname` = Linux -a -e /usr/lib64/liblapack.a; then
 # Old lapacks do not have some symbols, in which case we must use
 # the contrib lapack.
@@ -6785,11 +6790,15 @@ EOF
               if $depotDirOk; then
                 local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
                 techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
-                cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
-                techo -2 "[$FUNCNAME] $cmd"
-                if ! $cmd 1>/dev/null 2>./bilderPostError; then
-                  techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
-                  rm -f bilderPostError
+                if test -f "${installerProduct}_license.txt"; then
+                  cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
+                  techo -2 "[$FUNCNAME] $cmd"
+                  if ! $cmd 1>/dev/null 2>./bilderPostError; then
+                    techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
+                    rm -f bilderPostError
+                  fi
+                else
+                  techo "NOTE: [$FUNCNAME] Installer, $installer, found, but no license file found."
                 fi
                 cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
                 techo -2 "[$FUNCNAME] $cmd"
@@ -6852,7 +6861,11 @@ EOF
           fi  # if test -z $installers  (i.e. if any installers found)
         done  # loop of endings
         if ! $foundOneInstaller; then
-          techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+          local ignorebuildsvar=`genbashvar $1`_INSTALLER_IGNORE_BUILDS
+          local ignorebuildsval=`deref $buildsvar`
+          if ! echo $ignorebuildsval | egrep -q "(^|,)$2($|,)"; then
+            techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+          fi
         fi
       fi  # if $doPost  (i.e. sanity checks passed and ok to post)
     else  # if test $RESULT = 0  (i.e. install was not ok)
