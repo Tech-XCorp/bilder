@@ -2594,10 +2594,10 @@ findLibraries() {
 # but if found as a SYSTEM_ variable, use that.
 #
 # Args:
-# 1:  The name of the package, appropriately capitalized, pkgnamelc is a
-#     package.sh bilder script, but pkgname is the installation dir start.
-# 2:  Library name to look for
-# 3:  The directory to look in
+# 1: The name of the package, appropriately capitalized, pkgnamelc is a
+#    package.sh bilder script, but pkgname is the installation dir start.
+# 2: Library name to look for
+# 3: The directory to look in
 # 4: The different builds to look for.  If empty, use the _BUILDS variable.
 #
 # Named args (must come first):
@@ -4682,7 +4682,7 @@ bilderConfig() {
 # Find the build directory if not yet known
 #
   if test -z "$builddir"; then
-# In place build with qmake
+# In place build
     if $inplace; then
       if $petscconfig; then
         if test -d $BUILD_DIR/$1; then
@@ -4766,10 +4766,15 @@ bilderConfig() {
   case $cmval in
     qmake)
       local profilename=
-      if test -d $PROJECT_DIR/$1; then
-        profilename=`dirname "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"`
+      if test -f "$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"; then
+        profilename="$PROJECT_DIR/$1/$QMAKE_PRO_FILENAME"
+      elif test -f "$builddir/$QMAKE_PRO_FILENAME"; then
+        profilename="$builddir/$QMAKE_PRO_FILENAME"
+      elif test -f "$builddir/../$QMAKE_PRO_FILENAME"; then
+        profilename=`(cd $builddir/..; pwd -P)`/"$QMAKE_PRO_FILENAME"
       else
-        profilename=`dirname "$buildtopdir/$QMAKE_PRO_FILENAME"`
+        TERMINATE_ERROR_MSG="ERROR: [$FUNCNAME] Cannot find $QMAKE_PRO_FILENAME."
+        terminate
       fi
       if [[ `uname` =~ CYGWIN ]]; then
         profilename="$(cygpath -aw ${profilename})"
@@ -4914,7 +4919,10 @@ bilderConfig() {
   esac
 
 # Add specified args
-  configargs="$configargs $3"
+  case $cmval in
+    qmake) configargs="$3 $configargs";;
+    *) configargs="$configargs $3";;
+  esac
   #trimvar configargs ' '
 
 # Create final command
