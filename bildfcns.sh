@@ -6862,7 +6862,7 @@ EOF
         done  # loop of endings
         if ! $foundOneInstaller; then
           local ignorebuildsvar=`genbashvar $1`_INSTALLER_IGNORE_BUILDS
-          local ignorebuildsval=`deref $buildsvar`
+          local ignorebuildsval=`deref $ignorebuildsvar`
           if ! echo $ignorebuildsval | egrep -q "(^|,)$2($|,)"; then
             techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
           fi
