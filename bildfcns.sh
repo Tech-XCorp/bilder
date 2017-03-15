@@ -6864,7 +6864,7 @@ EOF
           local ignorebuildsvar=`genbashvar $1`_INSTALLER_IGNORE_BUILDS
           local ignorebuildsval=`deref $ignorebuildsvar`
           if ! echo $ignorebuildsval | egrep -q "(^|,)$2($|,)"; then
-            techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1 found."
+            techo "WARNING: [$FUNCNAME] Post to depot requested, but no installers for $1-$2 found."
           fi
         fi
       fi  # if $doPost  (i.e. sanity checks passed and ok to post)
