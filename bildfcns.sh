@@ -6734,131 +6734,133 @@ EOF
       if $doPost; then
         techo "Finding and copying all installers to the depot."
         local endings=
-        local sfx=
+        local sfxs=
         case `uname` in
           CYGWIN*)
             endings="Win64"
-            sfx=exe
+            sfxs="exe"
             ;;
           Darwin)
             endings="MacOSX"
-            sfx=dmg
+            sfxs="dmg tar.gz"
             ;;
           Linux)
             endings="Linux64 Linux64-glibc${GLIBC_VERSION}"
-            sfx=tar.gz
+            sfxs="tar.gz"
             ;;
         esac
         foundOneInstaller=false
         for ending in $endings; do
-          installers=`(shopt -s nocaseglob; \ls *-${ending}.${sfx} 2>/dev/null)`
-          if test -z "$installers"; then
-            techo -2 "[$FUNCNAME] No installers with pattern: '*-${ending}.${sfx}'."
-          else
-            for installer in "$installers"; do
+          for sfx in $sfxs; do
+            installers=`(shopt -s nocaseglob; \ls *-${ending}.${sfx} 2>/dev/null)`
+            if test -z "$installers"; then
+              techo -2 "[$FUNCNAME] No installers with pattern: '*-${ending}.${sfx}'."
+            else
+              for installer in "$installers"; do
 
 # Found Installer
 #    Define some variables based on name
-              techo "NOTE: [$FUNCNAME] Found Installer = ${installer}"
-              foundOneInstaller=true
-              local installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
-              techo -2 "[$FUNCNAME] installerVersion = $installerVersion"
-              local installerProduct=`echo $installer | sed -e 's@-.*@@'`
-              local installerProductLC=`echo $installerProduct | tr '[:upper:]' '[:lower:]'`
-              techo -2 "[$FUNCNAME] installerProduct = $installerProduct"
-              techo -2 "[$FUNCNAME] installerProductLC = $installerProductLC"
+                techo "NOTE: [$FUNCNAME] Found Installer = ${installer}"
+                foundOneInstaller=true
+                local installerVersion=`basename $installer | sed -e 's/[^-]*-//' -e 's/-.*$//'`
+                techo -2 "[$FUNCNAME] installerVersion = $installerVersion"
+                local installerProduct=`echo $installer | sed -e 's@-.*@@'`
+                local installerProductLC=`echo $installerProduct | tr '[:upper:]' '[:lower:]'`
+                techo -2 "[$FUNCNAME] installerProduct = $installerProduct"
+                techo -2 "[$FUNCNAME] installerProductLC = $installerProductLC"
 
 # Check that subdirectory in Depot exists, where directory name is
 # based on installer ($installerProduct-$installerVersion-****-****-$ending.$sfx)
-              local depotDir=$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
-              techo -2 "[$FUNCNAME] depotDir = $depotDir"
-              local depotDirOk=false
-              if ssh ${INSTALLER_HOST} ls ${depotDir} 1>/dev/null 2>&1; then
-                techo "Depot exists: $INSTALLER_HOST:$depotDir"
-                depotDirOk=true
-              else
-                techo "Depot, $INSTALLER_HOST:$depotDir, does not exist. Will try to create."
-                ssh ${INSTALLER_HOST} mkdir -p ${depotDir} 1>/dev/null 2>&1
-                ssh ${INSTALLER_HOST} chmod 775 ${depotDir} 1>/dev/null 2>&1
+                local depotDir=$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
+                techo -2 "[$FUNCNAME] depotDir = $depotDir"
+                local depotDirOk=false
                 if ssh ${INSTALLER_HOST} ls ${depotDir} 1>/dev/null 2>&1; then
-                  techo "Depot created."
+                  techo "Depot exists: $INSTALLER_HOST:$depotDir"
                   depotDirOk=true
                 else
-                  techo "WARNING: [$FUNCNAME] Unable to create depot: $INSTALLER_HOST:$depotDir"
+                  techo "Depot, $INSTALLER_HOST:$depotDir, does not exist. Will try to create."
+                  ssh ${INSTALLER_HOST} mkdir -p ${depotDir} 1>/dev/null 2>&1
+                  ssh ${INSTALLER_HOST} chmod 775 ${depotDir} 1>/dev/null 2>&1
+                  if ssh ${INSTALLER_HOST} ls ${depotDir} 1>/dev/null 2>&1; then
+                    techo "Depot created."
+                    depotDirOk=true
+                  else
+                    techo "WARNING: [$FUNCNAME] Unable to create depot: $INSTALLER_HOST:$depotDir"
+                  fi
                 fi
-              fi
-              if $depotDirOk; then
-                local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
-                techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
-                if test -f "${installerProduct}_license.txt"; then
-                  cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
+                if $depotDirOk; then
+                  local installerTarget=`basename $installer .${sfx}`-${UQMAILHOST}.${sfx}
+                  techo -2 "[$FUNCNAME] installerTarget = $installerTarget"
+                  if test -f "${installerProduct}_license.txt"; then
+                    cmd="scp -v ${installerProduct}_license.txt ${INSTALLER_HOST}:${depotDir}/license.txt"
+                    techo -2 "[$FUNCNAME] $cmd"
+                    if ! $cmd 1>/dev/null 2>./bilderPostError; then
+                      techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
+                      rm -f bilderPostError
+                    fi
+                  else
+                    techo "NOTE: [$FUNCNAME] Installer, $installer, found, but no license file found."
+                  fi
+                  cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
                   techo -2 "[$FUNCNAME] $cmd"
-                  if ! $cmd 1>/dev/null 2>./bilderPostError; then
+                  local installerLink="${installerProduct}-${installerVersion}-${ending}.${sfx}"
+                  techo -2 "[$FUNCNAME] installerLink = $installerLink"
+                  if $cmd 1>/dev/null 2>./bilderPostError; then
+                    local perms=
+                    case $umaskval in
+                      *7)
+                        perms=g+w,o-wrx
+                        ;;
+                      *)
+                        perms=g+w,o+w
+                        ;;
+                    esac
+                    cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotDir}/${installerTarget}"
+                    techo -2 "[$FUNCNAME] $cmd"
+                    $cmd
+                    cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotDir}/license.txt"
+                    techo -2 "[$FUNCNAME] $cmd"
+                    $cmd
+                    if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
+                      cmd="ssh ${INSTALLER_HOST} ln -sf ${depotDir}/$installerTarget ${depotDir}/${installerLink}"
+                      techo -2 "[$FUNCNAME] $cmd"
+                      eval $cmd
+                    fi
+                  else
                     techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
                     rm -f bilderPostError
                   fi
-                else
-                  techo "NOTE: [$FUNCNAME] Installer, $installer, found, but no license file found."
-                fi
-                cmd="scp -v $installer ${INSTALLER_HOST}:${depotDir}/${installerTarget}"
-                techo -2 "[$FUNCNAME] $cmd"
-                local installerLink="${installerProduct}-${installerVersion}-${ending}.${sfx}"
-                techo -2 "[$FUNCNAME] installerLink = $installerLink"
-                if $cmd 1>/dev/null 2>./bilderPostError; then
-                  local perms=
-                  case $umaskval in
-                    *7)
-                      perms=g+w,o-wrx
-                      ;;
-                    *)
-                      perms=g+w,o+w
-                      ;;
-                  esac
-                  cmd="ssh ${INSTALLER_HOST} chmod $perms ${depotDir}/${installerTarget}"
-                  techo -2 "[$FUNCNAME] $cmd"
-                  $cmd
-                  cmd="ssh ${INSTALLER_HOST} chmod g+r,o+r ${depotDir}/license.txt"
-                  techo -2 "[$FUNCNAME] $cmd"
-                  $cmd
-                  if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
-                    cmd="ssh ${INSTALLER_HOST} ln -sf ${depotDir}/$installerTarget ${depotDir}/${installerLink}"
-                    techo -2 "[$FUNCNAME] $cmd"
-                    eval $cmd
-                  fi
-                else
-                  techo "WARNING: [$FUNCNAME] '$cmd' failed: `cat bilderPostError`"
-                  rm -f bilderPostError
-                fi
-                if test -n "$WINDOWS_DEPOT"; then
-                  local windepotDir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
-                  if test ! -d ${windepotDir}; then
-                    techo "NOTE: [$FUNCNAME] Creating Windows depot dir ${windepotDir}."
-                    mkdir -p ${windepotDir}
-                  fi
-                  copycmd="cp -v ${installer} ${windepotDir}/${installerTarget}"
-                  techo "$copycmd"
-                  if $copycmd 2>&1; then
-                    techo -2 "Installer $installaer also being copied to WINDOWS_DEPOT=${windepotDir}."
-                    techo -2 "License now being copied to WINDOWS_DEPOT=${windepotDir}."
-                    copyLicCmd="cp -v license.txt ${windepotDir}/license.txt"
-                    techo "$copyLicCmd"
-                    eval $copyLicCmd
-                  else
-                    techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotDir}."
-                  fi
-                  if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
-                    curdir=`pwd -P`
-                    if test -s ${windepotDir}/${installerLink}.lnk; then
-                      rmall ${windepotDir}/${installerLink}.lnk
+                  if test -n "$WINDOWS_DEPOT"; then
+                    local windepotDir=${WINDOWS_DEPOT}/$INSTALLER_ROOTDIR/$installersubdir/$installerProductLC/$installerVersion
+                    if test ! -d ${windepotDir}; then
+                      techo "NOTE: [$FUNCNAME] Creating Windows depot dir ${windepotDir}."
+                      mkdir -p ${windepotDir}
                     fi
-                    cmd="cd ${windepotDir}; mkshortcut.exe -n "${installerLink}.lnk" ${installerTarget}; cd ${curdir}"
-                    techo "Creating link ${installerLink}.lnk on Windows depot"
-                    eval $cmd
-                  fi
-                fi  # if test -n "$WINDOWS_DEPOT"
-              fi  # if $depotDirOk  (unique dir for each installer)
-            done  # loop of installers
-          fi  # if test -z $installers  (i.e. if any installers found)
+                    copycmd="cp -v ${installer} ${windepotDir}/${installerTarget}"
+                    techo "$copycmd"
+                    if $copycmd 2>&1; then
+                      techo -2 "Installer $installaer also being copied to WINDOWS_DEPOT=${windepotDir}."
+                      techo -2 "License now being copied to WINDOWS_DEPOT=${windepotDir}."
+                      copyLicCmd="cp -v license.txt ${windepotDir}/license.txt"
+                      techo "$copyLicCmd"
+                      eval $copyLicCmd
+                    else
+                      techo "WARNING: [$FUNCNAME] $installer did not copy to WINDOWS_DEPOT=${windepotDir}."
+                    fi
+                    if test -n "$installerLink" -a "${installerLink}" != "${installerTarget}" ; then
+                      curdir=`pwd -P`
+                      if test -s ${windepotDir}/${installerLink}.lnk; then
+                        rmall ${windepotDir}/${installerLink}.lnk
+                      fi
+                      cmd="cd ${windepotDir}; mkshortcut.exe -n "${installerLink}.lnk" ${installerTarget}; cd ${curdir}"
+                      techo "Creating link ${installerLink}.lnk on Windows depot"
+                      eval $cmd
+                    fi
+                  fi  # if test -n "$WINDOWS_DEPOT"
+                fi  # if $depotDirOk  (unique dir for each installer)
+              done  # loop of installers
+            fi  # if test -z $installers  (i.e. if any installers found)
+          done  # loop of sfxs
         done  # loop of endings
         if ! $foundOneInstaller; then
           local ignorebuildsvar=`genbashvar $1`_INSTALLER_IGNORE_BUILDS
