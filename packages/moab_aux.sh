@@ -52,7 +52,6 @@ setMoabTriggerVars() {
   done
   MOAB_DESIRED_BUILDS=${MOAB_DESIRED_BUILD_WITH_SET}
 
-  echo "Next, MOAB_DESIRED_BUILDS = $MOAB_DESIRED_BUILDS"
   computeBuilds moab
   if $MOAB_ADD_PYBUILDS; then
     addBuild moab sersh${MOAB_BUILD_SET} pycsh${MOAB_BUILD_SET}
@@ -94,19 +93,24 @@ setMoabTriggerVars
 findMoab() {
   srchbuilds="ser${MOAB_BUILD_SET} pycst${MOAB_BUILD_SET} sersh${MOAB_BUILD_SET} pycsh${MOAB_BUILD_SET} par${MOAB_BUILD_SET}"
   findPackage Moab MOAB "$BLDR_INSTALL_DIR" $srchbuilds
-  techo
-  findPycshDir Moab
-  findPycstDir Moab
-  if test -n "$MOAB_PYCSH_DIR"; then
-    addtopathvar PATH ${MOAB_PYCSH_DIR}/bin
+  if echo "$MOAB_BUILDS" | grep -q "sersh"; then
+    techo "Moab has sersh build, so finding pycsh dir."
+    findPycshDir Moab
+    if test -n "$MOAB_PYCSH_DIR"; then
+      addtopathvar PATH ${MOAB_PYCSH_DIR}/bin
+    fi
   fi
-  techo "Done with finding packages"
+  if echo "$MOAB_BUILDS" | grep -q "ser"; then
+    techo "Moab has ser build, so finding pycst dir."
+    findPycstDir Moab
+  fi
 # Find cmake configuration directories
 # This appends lib to the end of the CMAKE_BUILD_
   for bld in $srchbuilds; do
     local blddirvar=`genbashvar MOAB_${bld}`_DIR
     local blddir=`deref $blddirvar`
     if test -d "$blddir"; then
+      techo "Defining variables for moab-${bld}."
       for subdir in lib; do
         if test -d $blddir/$subdir; then
           local dir=$blddir/$subdir
@@ -124,6 +128,5 @@ findMoab() {
       done
     fi
   done
-  techo "Done with defining variables"
 }
 

@@ -3270,6 +3270,7 @@ findAltPkgDir() {
       val=`deref ${pkgnameuc}_${blduc}_DIR`
       if test -n "$val"; then
         eval ${pkgnameuc}_${desblduc}_DIR="$val"
+        techo "Alternative build found: ${desblduc}"
         printvar ${pkgnameuc}_${desblduc}_DIR
         break
       else
@@ -3278,8 +3279,8 @@ findAltPkgDir() {
     done
   fi
   if test -z "$val"; then
-    # On Windows, we are building Python with the system compiler, so it's
-    # not an issue that there is no pycst build found.
+# Only warn for non-Windows, because on Windows, we are building Python with
+# the system compiler, so it's not an issue that there is no pycst build found.
     if ! [[ `uname` =~ CYGWIN ]]; then
       techo "WARNING: [$FUNCNAME] Cannot find ${desbld} build of ${pkgnameuc}."
     fi
