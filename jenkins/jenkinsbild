@@ -170,23 +170,24 @@ fi
 #
 # Make sure Windows svnversion is used, if found.
 #
-export BLDR_SVNVERSION
+svnformat=`od -An -j63 -N1 -t dC .svn/wc.db | sed -e 's/^ *//'`
+lecho "svnformat = ${svnformat}."
+if test ${svnformat} -lt 29; then
+  lecho "WARNING: svnformat is too old.  Upgrade subversion."
+fi
 if [[ `uname` =~ CYGWIN ]]; then
 # Convert some env vars
   if test -n "$JENKINS_HOME"; then
     JENKINS_HOME=`cygpath -au $JENKINS_HOME`
   fi
 # Subversion must be compatible with the svnkit used by jenkins, which is
-# version 1.4-7, as selected in jenkins.  Try a custom installation:
+# version 1.4-8, as selected in jenkins.  Try a custom installation:
   BLDR_SVNVERSION=
   BILDER_SVN=
   for cand in \
-      "/cygdrive/c/Program Files/CollabNet/Subversion Server 1.6.17/svnversion.exe" \
-      "/cygdrive/c/Program Files/CollabNet/Subversion Server/svnversion.exe" \
-      "/cygdrive/c/Program Files/CollabNet/Subversion Client 1.6.17/svnversion.exe" \
-      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client 1.6.17/svnversion.exe" \
-      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client/svnversion.exe" \
       "/cygdrive/c/Program Files/CollabNet/Subversion Client/svnversion.exe"; do
+      "/cygdrive/c/Program Files/CollabNet/Subversion Server/svnversion.exe" \
+      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client/svnversion.exe" \
     if test -f "$cand"; then
       BLDR_SVNVERSION="$cand"
       break
@@ -204,10 +205,33 @@ if [[ `uname` =~ CYGWIN ]]; then
   BILDER_SVN="$BILDER_SVNDIR/svn.exe"
   if ! test -e "$BILDER_SVN"; then
      lecho "svn not found in $BILDER_SVNDIR.  Fix the path."
-	 exit 1
+     exit 1
   fi
 fi
+export BLDR_SVNVERSION
 export BILDER_SVN
+svnversion=`"$BILDER_SVN" --version`
+case $svnversion in
+  1.7.*)
+   svnreqfmt=29
+   ;;
+  1.8.* | 1.9.*)
+   svnreqfmt=31
+   ;;
+  *)
+   svnreqfmt=unknown
+   ;;
+esac
+if test $svnreqfmt = unknown; then
+  lecho "Required subversion format unknown for subversion version, $svnversion.  Please update jenkinsbild."
+  exit 1
+elif test $svnformat -lt $svnreqfmt; then
+  lecho "Subversion format, $svnformat, less than $svnreqfmt.  Wipe out jenkins workspace?"
+  # "$BILDER_SVN" upgrade .
+elif test $svnformat -gt $svnreqfmt; then
+  lecho "Subversion format, $svnformat, greater than $svnreqfmt.  Subversion needs to be updated."
+  exit 1
+fi
 
 # By default, Jenkins builds are Nightlies
 BILDER_CTEST_MODEL=${BILDER_CTEST_MODEL:-"Nightly"}
