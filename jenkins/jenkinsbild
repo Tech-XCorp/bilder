@@ -185,9 +185,10 @@ if [[ `uname` =~ CYGWIN ]]; then
   BLDR_SVNVERSION=
   BILDER_SVN=
   for cand in \
-      "/cygdrive/c/Program Files/CollabNet/Subversion Client/svnversion.exe"; do
+      "/cygdrive/c/Program Files/CollabNet/Subversion Client/svnversion.exe" \
       "/cygdrive/c/Program Files/CollabNet/Subversion Server/svnversion.exe" \
-      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client/svnversion.exe" \
+      "/cygdrive/c/Program Files (x86)/CollabNet/Subversion Client/svnversion.exe"
+      do
     if test -f "$cand"; then
       BLDR_SVNVERSION="$cand"
       break
