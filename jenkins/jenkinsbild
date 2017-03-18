@@ -229,6 +229,7 @@ if test $svnreqfmt = unknown; then
 elif test $svnformat -lt $svnreqfmt; then
   lecho "Subversion format, $svnformat, less than $svnreqfmt.  Wipe out jenkins workspace?"
   # "$BILDER_SVN" upgrade .
+  exit 1
 elif test $svnformat -gt $svnreqfmt; then
   lecho "Subversion format, $svnformat, greater than $svnreqfmt.  Subversion needs to be updated."
   exit 1
