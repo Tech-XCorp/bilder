@@ -208,6 +208,9 @@ if [[ `uname` =~ CYGWIN ]]; then
      lecho "svn not found in $BILDER_SVNDIR.  Fix the path."
      exit 1
   fi
+else
+  BLDR_SVNVERSION=`which svnversion`
+  BILDER_SVN=`which svn`
 fi
 export BLDR_SVNVERSION
 export BILDER_SVN
