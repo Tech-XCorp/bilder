@@ -211,7 +211,7 @@ if [[ `uname` =~ CYGWIN ]]; then
 fi
 export BLDR_SVNVERSION
 export BILDER_SVN
-svnversion=`"$BILDER_SVN" --version`
+svnversion=`"$BILDER_SVN" --version --quiet`
 case $svnversion in
   1.7.*)
    svnreqfmt=29
