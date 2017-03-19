@@ -69,13 +69,13 @@ setNumpyNonTriggerVars
 
 setupNumpyBuild() {
 
-# Set the blas and lapack names for site.cfg.  Getting this done
-# here also fixes it for scipy, which relies on the distutils that
-# gets installed with numpy.
+# Set the blas and lapack names.
+  local blslpcklibdir=
+  local blslpckincdir=
   local lapacknames=
   local blasnames=
-# Assuming blas and lapack are in the same directory.
   local blslpckdir=
+
   case `uname`-"$CC" in
 
     CYGWIN*-*cl | CYGWIN*-*cl.exe)
@@ -83,8 +83,6 @@ setupNumpyBuild() {
 # Add /NODEFAULTLIB:LIBCMT to get this on the link line.
 # Worked with 1.6.x, but may not be working with 1.8.X
 # LDFLAGS did not work.  Nor did -Xlinker.
-      local blslpcklibdir=
-      local blslpckincdir=
       if $NUMPY_WIN_USE_FORTRAN && test -n "$CONTRIB_LAPACK_SERMD_DIR"; then
         blslpckdir="$CONTRIB_LAPACK_SERMD_DIR"
         blasnames=blas
@@ -106,27 +104,27 @@ setupNumpyBuild() {
     Linux-*)
       lapacknames=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
       blasnames=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
-      blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
+      if test -d "$LAPACK_PYCSH_DIR"/lib64; then
+        blslpcklibdir="$LAPACK_PYCSH_DIR"/lib64
+      elif test -d "$LAPACK_PYCSH_DIR"/lib; then
+        blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
+      fi
       blslpckincdir="$LAPACK_PYCSH_DIR"/include
       blslpckdir="$LAPACK_PYCSH_DIR"/
-      lapackname=`echo $lapacknames | sed 's/,.*$//'`
-      lapacklibname=$blslpcklibdir/lib${lapackname}.so
-      blasname=`echo $blasnames | sed 's/,.*$//'`
-      blaslibname=$blslpcklibdir/lib${blasname}.so
       ;;
 
   esac
 
 # Create site.cfg
+# Not needed on Linux
 # If lapack libs are defined, even clapack, numpy will search for
 # a fortran and use it.  If it is going to find cygwin's fortran,
 # prevent this by not defining the blas and lapack libraries.
+  local sep=','
+  if [[ `uname` =~ CYGWIN ]]; then
+    sep=';'
   if test -n "$lapacknames" && $HAVE_SER_FORTRAN; then
-    local sep=','
-    if [[ `uname` =~ CYGWIN ]]; then
 # In spite of documentation, need semicolon, not comma.
-      sep=';'
-    fi
     if test -f site.cfg.example; then
 # On Crays this is ignored, and one needs to set LAPACK and BLAS
       techo "Creating site.cfg."
@@ -142,6 +140,7 @@ libraries = $lapacknames,$blasnames" numpy/distutils/site.cfg
     fi
   else
     techo "lapacknames or serial fortran not defined.  Will not create numpy/distutils/site.cfg."
+  fi
   fi
 
 # Darwin defines PYC_MODFLAGS = "-undefined dynamic_lookup",
@@ -198,13 +197,15 @@ libraries = $lapacknames,$blasnames" numpy/distutils/site.cfg
       NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
       ;;
     Linux-*)
-      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
+      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
 # Handle the case where PYC_FC may not be in path
       NUMPY_ARGS="--fcompiler=`basename ${PYC_FC}`"
       local fcpath=`dirname ${PYC_FC}`
       NUMPY_ENV="$DISTUTILS_ENV2 PATH=${PATH}:${fcpath}"
-# The line below found to be critical to finding lapack on cray
-      NUMPY_ENV="$DISTUTILS_ENV2 LAPACK='$lapacklibname' BLAS='$blaslibname'"
+# With these environment variables set, rpath, library dirs, ... all found
+      if test -n "$blslpcklibdir"; then
+        NUMPY_ENV="$DISTUTILS_ENV2 LAPACK='$blslpcklibdir' BLAS='$blslpcklibdir'"
+      fi
       ;;
     *)
       techo "WARNING: [numpy.sh] uname `uname` not recognized.  Not building."

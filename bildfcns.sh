@@ -2316,10 +2316,15 @@ setDistutilsEnv() {
       fi
     done
 # Ensure pick up any libs linked in, as needed for BGP, e.g.
-    PYC_MODFLAGS="$PYC_MODFLAGS -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
+    local addflags="-L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
     if test -n "$PYC_LD_LIBRARY_PATH"; then
-      PYC_MODFLAGS="$PYC_MODFLAGS -Wl,-rpath,$PYC_LD_LIBRARY_PATH"
+      addflags="$addflags -Wl,-rpath,$PYC_LD_LIBRARY_PATH"
     fi
+    for f in $addflags; do
+      if ! echo $PYC_MODFLAGS | egrep -q "(^| )$f($| )"; then
+        PYC_MODFLAGS="$PYC_MODFLAGS $f"
+      fi
+    done
   fi
 
 # Add in pythonpath, so that unambiguous when rerunning the build script
@@ -2940,7 +2945,7 @@ findBlasLapack() {
   done
 
 # Use system libraries if defined
-  for BLD in SER SERSH PYCSH BEN; do
+  for BLD in SER SERSH PYCSH PYCST BEN; do
     lapack_libs=`deref SYSTEM_LAPACK_${BLD}_LIB`
     blas_libs=`deref SYSTEM_BLAS_${BLD}_LIB`
     if test -n "$lapack_libs" -a -n "$blas_libs"; then
@@ -2965,7 +2970,6 @@ findBlasLapack() {
     techo -2 "CONFIG_ATLAS_${BLD}_DIR_ARG = `deref CONFIG_ATLAS_${BLD}_DIR_ARG`."
   done
 # Compute vars
-  USE_ATLAS_PYCSH=${USE_ATLAS_PYCSH:-"true"}
   for BLD in SER SERSH PYCSH BEN CLP; do
     lapack_libs=`deref LAPACK_${BLD}_LIBS`
     blas_libs=`deref BLAS_${BLD}_LIBS`
@@ -3015,11 +3019,16 @@ findBlasLapack() {
   done
 
 # Find the lapack in the contrib dir, but use it only if requested.
-  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh ben
+  findContribPackage -p CONTRIB_ LAPACK lapack ser sermd sersh pycsh pycst ben
   setDefaultPkgVars CONTRIB_LAPACK "SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SER SERMD SERSH PYCSH" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
   setDefaultPkgVars CONTRIB_LAPACK "SER BEN" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  if [[ `uname` =~ CYGWIN ]]; then
+    setDefaultPkgVars CONTRIB_LAPACK "SERMD PYCST" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  else
+    setDefaultPkgVars CONTRIB_LAPACK "SER PYCST" "LIB DIR LIBDIR" "CMAKE CONFIG" DIR_ARG
+  fi
   if test `uname` = Linux -a -e /usr/lib64/liblapack.a; then
 # Old lapacks do not have some symbols, in which case we must use
 # the contrib lapack.
@@ -3154,7 +3163,7 @@ findBlasLapack() {
 # Find all library variables.
 # Not done for Darwin, as Accelerate framework there.
   if ! test `uname` = Darwin; then
-    for BLD in SER SERSH PYCSH BEN; do
+    for BLD in SER SERSH PYCSH PYCST BEN; do
       lapack_libs=`deref LAPACK_${BLD}_LIBS`
       blas_libs=`deref BLAS_${BLD}_LIBS`
       eval LINLIB_${BLD}_LIBS="\"$lapack_libs $blas_libs\""
@@ -3188,7 +3197,7 @@ findBlasLapack() {
   fi
 
 # Print out results
-  for BLD in SER SERSH PYCSH BEN; do
+  for BLD in SER SERSH PYCSH PYCST BEN; do
     printvar LINLIB_${BLD}_LIBS
     printvar CMAKE_LINLIB_${BLD}_ARGS
     printvar CONFIG_LINLIB_${BLD}_ARGS

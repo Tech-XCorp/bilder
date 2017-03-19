@@ -27,13 +27,10 @@ setLapackTriggerVars() {
 # ATLAS library, which is needed for numpy.
   if $HAVE_SER_FORTRAN && test -z "$LAPACK_BUILDS"; then
     case `uname`-$CC in
-      CYGWIN*-mingw*)
-        LAPACK_BUILDS=ser,sersh,sermd
-        addPycshBuild lapack
-        ;;
       CYGWIN*) # If this works, consolidate with above
         LAPACK_BUILDS=ser,sersh,sermd
         addPycshBuild lapack
+        addPycstBuild lapack
         ;;
       Darwin-*) # Darwin has -framework Accelerate
         LAPACK_BUILDS=NONE
@@ -41,6 +38,7 @@ setLapackTriggerVars() {
       Linux-*)
         LAPACK_BUILDS=ser,sersh
         addPycshBuild lapack
+        addPycstBuild lapack
         addBenBuild lapack
         ;;
     esac

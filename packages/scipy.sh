@@ -42,6 +42,11 @@ setupScipyBuild() {
     SCIPY_FC=`cygpath -u "$SCIPY_FC"`
   fi
 
+# Set the blas and lapack names.
+  local blslpcklibdir=
+  local blslpckincdir=
+  local blslpckdir=
+
 # Accumulate linkflags for modules
   local linkflags="$PYCSH_ADDL_LDFLAGS $PYC_LDSHARED $PYC_MODFLAGS"
   SCIPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/scipy.files'"
@@ -88,18 +93,14 @@ setupScipyBuild() {
 # This is the only way to specify different libraries:
 # https://www.scipy.org/scipylib/building/linux.html
       linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
-      if test -d ${LAPACK_PYCSH_DIR}/lib; then
-        blslpcklibdir=${LAPACK_PYCSH_DIR}/lib
-        linkflags="$linkflags -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib"
-      elif test -d ${LAPACK_PYCSH_DIR}/lib64; then
+      if test -d ${LAPACK_PYCSH_DIR}/lib64; then
         blslpcklibdir=${LAPACK_PYCSH_DIR}/lib64
-        linkflags="$linkflags -Wl,-rpath,${LAPACK_PYCSH_DIR}/lib64"
+      elif test -d ${LAPACK_PYCSH_DIR}/lib; then
+        blslpcklibdir=${LAPACK_PYCSH_DIR}/lib
       fi
-      lapacklibname=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ .*$//'`
-      blaslibname=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ .*$//g'`
-      lapacklibname=$blslpcklibdir/lib${lapacklibname}.so
-      blaslibname=$blslpcklibdir/lib${blaslibname}.so
-      SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$lapacklibname' BLAS='$blaslibname'"
+      if test -n "$blslpcklibdir"; then
+        SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$blslpcklibdir' BLAS='$blslpcklibdir'"
+      fi
       ;;
 
     *)
@@ -147,23 +148,6 @@ buildScipy() {
     fi
   fi
 
-if false; then
-# On CYGWIN, build may have to be run twice
-  if [[ `uname` =~ CYGWIN ]] && ! waitAction -n scipy-pycsh; then
-    cd $BUILD_DIR/scipy-$SCIPY_BLDRVERSION
-    local buildscript=`ls *-build.sh`
-    if test -z "$buildscript"; then
-      techo "WARNING: [$FUNCNAME] SciPy build script not found."
-    else
-      techo "Re-executing $buildscript."
-      local build_txt=`basename $buildscript .sh`.txt
-      ./$buildscript >>$build_txt 2>&1 &
-      pid=$!
-      addActionToLists scipy-pycsh $pid
-    fi
-  fi
-fi
-
 }
 
 ######################################################################
@@ -187,6 +171,5 @@ installScipy() {
     CYGWIN*) bilderDuInstall -n scipy "-" "$SCIPY_ENV";;
     *) bilderDuInstall -r scipy scipy "$SCIPY_INSTALL_ARGS" "$SCIPY_ENV";;
   esac
-  # techo "WARNING: Quitting at the end of scipy.sh."; cleanup
 }
 

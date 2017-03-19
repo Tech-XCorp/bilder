@@ -146,7 +146,6 @@ case `uname` in
     else
       techo "Correct sort, $mysort, found."
     fi
-    USE_ATLAS_PYCSH=true
     case $CC in
       *cl)
 # Less efficient, but records these flags
@@ -274,7 +273,6 @@ case `uname` in
       addtopathvar PKG_CONFIG_PATH /usr/lib64/pkgconfig
     fi
     PYC_MODFLAGS=${PYC_MODFLAGS:-"-shared"}
-    USE_ATLAS_PYCSH=true
     READLINK=readlink
     RPATH_FLAG=${RPATH_FLAG:-"-Wl,-rpath,"}
     SHOBJEXT=.so
