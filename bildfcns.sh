@@ -6630,7 +6630,7 @@ EOF
 # Install any patch
       local patchvar=`genbashvar $1`_PATCH
       local patchval=`deref $patchvar`
-      if test -n "$patchval"; then
+      if test -f "$patchval"; then
         local patchname=`basename $patchval`
         cmd="/usr/bin/install -m 664 $patchval $instdirval/$instsubdirval/$patchname"
         techo "$cmd"
