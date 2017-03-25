@@ -1,8 +1,14 @@
-# #!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for qt5.
+# @file    qt5.sh
 #
-# $Id: qt5.sh 2982 2016-02-06 21:19:04Z cary $
+# @brief   Build information for qt5.
+#
+# @version $Rev: 3694 $ $Date: 2017-03-25 13:15:16 -0600 (Sat, 25 Mar 2017) $
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -69,14 +75,14 @@ buildQt5() {
       ;;
 
     Darwin)
-        
+
 # jpeg present, but qt5 cannot find headers
 #      if echo $CXXFLAGS | grep -q stdlib=libc++; then
 #        QT5_ADDL_ARGS="$QT5_ADDL_ARGS -platform unsupported/macx-clang-libc++"
 #      else
 #        QT5_ADDL_ARGS="$QT5_ADDL_ARGS -platform macx-g++"
 #      fi
-      
+
       case `uname -r` in
         13.*)
       # This will need to be clang
@@ -227,7 +233,7 @@ buildQt5() {
   local otherargsval=`deref ${otherargsvar}`
 #  if bilderConfig -i qt5 $QT5_BUILD "$QT5_ADDL_ARGS $QT5_VERSION_ARGS -confirm-license -make libs -make tools -fast -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -no-javascript-jit -nomake docs -nomake examples -nomake demos $otherargsval" "" "$QT5_ENV"; then
   if bilderConfig -i qt5 $QT5_BUILD "$QT5_ADDL_ARGS $QT5_VERSION_ARGS -confirm-license -make libs -make tools -opensource -opengl -no-separate-debug-info -no-sql-db2 -no-sql-ibase -no-sql-mysql -no-sql-oci -no-sql-odbc -no-sql-psql -no-sql-sqlite -no-sql-sqlite2 -no-sql-tds -nomake examples $otherargsval" "" "$QT5_ENV"; then
-      
+
 # Make clean seems to hang
     bilderBuild -k qt5 $QT5_BUILD "$QT5_MAKEJ_USEARGS" "$QT5_ENV"
   else

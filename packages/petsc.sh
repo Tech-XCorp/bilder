@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for petsc
+# @file    petsc.sh
 #
-# $Id$
+# @brief   Version and build information for petsc.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -192,7 +198,6 @@ buildPetsc() {
       PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS  --download-txpetscgpu "
     fi
 
-
 # Add in other C, C++, and Fortran flags
     if test -n "$CFLAGS"; then
       PETSC_SER_FLAG_ARGS="$PETSC_SER_FLAG_ARGS --CFLAGS='$CFLAGS'"
@@ -321,7 +326,6 @@ END
 
   bilderInstall -r petsc parcplxdbg "" "" "$PETSC_ENV PETSC_DIR=$BUILD_DIR/petsc-$PETSC_BLDRVERSION/parcplxdbg PETSC_ARCH=facets-parcplxdbg"
   parcplxdbg_installed=$?
-
 
 # Post-installation
 # Create other shared libs, modules

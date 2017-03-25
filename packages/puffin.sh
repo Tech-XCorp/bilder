@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for puffin
+# @file    puffin.sh
 #
-# $Id$
+# @brief   Build information for puffin.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -48,10 +54,10 @@ buildPuffin() {
 # Shared libs to know their installation names so that builds of
 # dependents link to this for installation to work without DYLD_LIBRARY_PATH
       PUFFIN_DARWIN_ADDL_ARGS=" -DDEBUG_CMAKE:BOOL=TRUE "
-      PUFFIN_SERSH_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS " 
+      PUFFIN_SERSH_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS "
       PUFFIN_SER_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS  "
-      PUFFIN_PARSH_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS " 
-      PUFFIN_PAR_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS " 
+      PUFFIN_PARSH_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS "
+      PUFFIN_PAR_ADDL_ARGS="$PUFFIN_DARWIN_ADDL_ARGS "
       ;;
     Linux)
       PUFFIN_LINUX_ADDL_ARGS=" -DDEBUG_CMAKE:BOOL=TRUE "
@@ -64,9 +70,9 @@ buildPuffin() {
 #     PUFFIN_SERSH_ADDL_ARGS="$PUFFIN_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
   esac
-  
+
 #  if (INTEL); then
-   
+
 #  -DCMAKE_INSTALL_PREFIX:PATH='/gpfs/stfc/local/HCP084/bwm06/shared/volatile-intel2015-openmpi/puffin-29.0Beta5-ser/' \
 #  -DNCURSES_INCLUDE_DIR:PATH='/gpfs/stfc/local/HCP084/bwm06/shared/contrib-intel2015-openmpi/ncurses-sersh/include' \
 #  -DDEBUG_CMAKE:BOOL=TRUE \
@@ -77,7 +83,6 @@ buildPuffin() {
 #  -DBUILD_UTILS:BOOL=TRUE \
 #  -DSUPRA_SEARCH_PATH:PATH='/gpfs/stfc/local/HCP084/bwm06/shared/contrib-intel2015-openmpi' \
 #  /gpfs/stfc/local/HCP084/bwm06/shared/GPUpuffin
-
 
 # Build
   techo "Looking for FFTW"

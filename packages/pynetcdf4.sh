@@ -1,13 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for pynetcdf4:
+# @file    pynetcdf4.sh
+#
+# @brief   Version and build information for pynetcdf4.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
 #   NOTE: On the web this is called netCDF4, but I've renamed it for
 #   bilder because the difference between netcdf4 and netCDF4 is
-#   ridiculously confusing.  The web page is here:
+#   confusing.  The web page is here:
 #   http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
-#
-# $Id$
-#
 #
 ######################################################################
 
@@ -62,7 +68,7 @@ buildPynetcdf4() {
         return 1
       fi
     fi
-# pynetcdf4 uses environment variables rather than command-line 
+# pynetcdf4 uses environment variables rather than command-line
 # arguments.  Urgh.
     PYNETCDF4_ENV="HDF5_DIR=$PYNETCDF4_HDF5_DIR NETCDF4_DIR=$PYNETCDF4_NETCDF_DIR"
 
@@ -110,7 +116,6 @@ addDarwinRpathToDynLib() {
 
   done
 }
-
 
 ######################################################################
 #

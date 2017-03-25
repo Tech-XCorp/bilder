@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for qd
+# @file    qd.sh
 #
-# $Id$
+# @brief   Version and build information for qd.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,8 +17,8 @@
 # Version
 #
 ######################################################################
-QD_BLDRVERSION=${QD_BLDRVERSION:-"2.3.13"}
 
+QD_BLDRVERSION=${QD_BLDRVERSION:-"2.3.13"}
 
 ######################################################################
 #

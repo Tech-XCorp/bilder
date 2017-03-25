@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for qscintilla
+# @file    qscintilla.sh
 #
-# $Id$
+# @brief   Version and build information for qscintilla.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -73,7 +79,7 @@ buildQScintilla() {
       Linux)
         QSCINTILLA_MAKE_ARGS="$QSCINTILLA_MAKEJ_ARGS"
         ;;
-      *)	# make -j can fail on Darwin
+      *)        # make -j can fail on Darwin
         QSCINTILLA_MAKE_ARGS=""
         ;;
     esac

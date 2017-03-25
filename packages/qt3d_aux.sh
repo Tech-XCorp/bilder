@@ -1,11 +1,17 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    qt3d_aux.sh
+#
+# @brief   Trigger vars and find information for qt3d.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Using qt3d-1.0 now, but if we need to change:
 # http://qt-project.org/wiki/Using_3D_engines_with_Qt
-#
-# $Id$
 #
 ######################################################################
 

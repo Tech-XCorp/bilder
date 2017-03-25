@@ -1,6 +1,14 @@
-# #!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    qt5_aux.sh
+#
+# @brief   Trigger vars and find information for qt5.
+#
+# @version $Rev: 3694 $ $Date: 2017-03-25 13:15:16 -0600 (Sat, 25 Mar 2017) $
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # NOTE: As of 10/21/2016 these instructions need updating once
 # the package details are settled.
@@ -19,8 +27,6 @@
 #
 # Tar up on an older dist, or one may get errors like
 # gtar: Ignoring unknown extended header keyword `SCHILY.dev'
-#
-# $Id: qt_aux.sh 2980 2016-02-06 19:46:15Z cary $
 #
 ######################################################################
 
@@ -122,11 +128,11 @@ findQt5() {
 # Seek Qt5 in the contrib directory
   local libname=
   if [[ `uname` =~ CYGWIN ]]; then
-      libname=QtCore4 
+      libname=QtCore4
   else
       libname=QtCore
   fi
-  
+
   findContribPackage Qt5 $libname sersh pycsh
   techo "QT5_SERSH_DIR = $QT5_SERSH_DIR."
   findPycshDir Qt5
