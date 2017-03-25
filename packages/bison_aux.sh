@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    bison_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for bison.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -20,7 +26,7 @@ setBisonTriggerVars() {
   BISON_BLDRVERSION_EXP=${BISON_BLDRVERSION_EXP:-"2.7.1"}
   if test `uname` = Linux; then
 #    BISON_BUILDS=${BISON_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD"}
-    BISON_BUILDS=${BISON_BUILDS:-"$FORPYTHON_SHARED_BUILD","$FORPYTHON_STATIC_BUILD",ser,sersh}
+    BISON_BUILDS=${BISON_BUILDS:-"${FORPYTHON_SHARED_BUILD},${FORPYTHON_STATIC_BUILD},ser,sersh"}
   fi
   BISON_DEPS="libtool,pkgconfig"
 }

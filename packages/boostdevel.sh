@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for boost
+# @file    boostdevel.sh
 #
-# $Id$
+# @brief   Version and build information for boost.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -117,14 +123,14 @@ buildBoostdevel() {
       # Adds 'using mpi ;" line to user-config.jam in parsh build dir
       DOMAIN_NAME=`hostname -d`
       case $DOMAIN_NAME in
-	  hpc.nrel.gov )
-	      techo "boostdevel.sh: Assuming Peregrine"
+          hpc.nrel.gov )
+              techo "boostdevel.sh: Assuming Peregrine"
               # MPICXX should be set by module (intel too?)
-	      jamCmd=`echo -e "\nusing mpi : $MPICXX ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam`
-	      ;;
-	  * )
-	      techo "boostdevel.sh: Assuming default linux"
-	      jamCmd=`echo -e "\nusing mpi ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam`
+              jamCmd=`echo -e "\nusing mpi : $MPICXX ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam`
+              ;;
+          * )
+              techo "boostdevel.sh: Assuming default linux"
+              jamCmd=`echo -e "\nusing mpi ;" >> $BUILD_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION_STD/parsh/tools/build/v2/user-config.jam`
       esac
 
       techo " "
@@ -166,7 +172,6 @@ findBoostdevel() {
   fi
 }
 
-
 installBoostdevel() {
   for bld in `echo $BOOSTDEVEL_BUILDS | tr ',' ' '`; do
     local boostdevel_instdir=$CONTRIB_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION-$bld
@@ -189,12 +194,12 @@ installBoostdevel() {
     # Creates link in a 'boost' directory for backward compatibility eg 'import boost.mpi'
     # only for parsh version. Note: these paths are dependent for use on module settings
     case $bld in
-      parsh) 
+      parsh)
         local boostdevel_instdir=$CONTRIB_DIR/boostdevel-$BOOSTDEVEL_BLDRVERSION-$bld
-	mkdir $boostdevel_instdir/lib/boost
-	ln -s $boostdevel_instdir/lib/mpi.so $boostdevel_instdir/lib/boost
-	touch $boostdevel_instdir/lib/boost/__init__.py
-	;;
+        mkdir $boostdevel_instdir/lib/boost
+        ln -s $boostdevel_instdir/lib/mpi.so $boostdevel_instdir/lib/boost
+        touch $boostdevel_instdir/lib/boost/__init__.py
+        ;;
     esac
 
   done

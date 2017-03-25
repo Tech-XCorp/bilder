@@ -1,12 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for blender
+# @file    blender.sh
+#
+# @brief   Version and build information for blender.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
 # Get via
 # svn co https://svn.blender.org/svnroot/bf-blender/branches/carve_booleans/ bf-blender
 #
 # Building: http://wiki.blender.org/index.php/Dev:Doc/Building_Blender
-#
-# $Id$
 #
 ######################################################################
 
