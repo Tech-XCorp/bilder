@@ -1,8 +1,22 @@
+#!/bin/sh
+######################################################################
+#
+# @file    fftw.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
 # Build information for fftw
 #
-# $Id$
+# $Rev$ $Date$
 #
 ######################################################################
 
@@ -56,20 +70,18 @@ FFTW_DEPS=$MPI_BUILD
 #
 ######################################################################
 
-
 buildFftw() {
     case `uname` in
-	CYGWIN* | Darwin )
-	    # cmake-ed version of fftw (not working on linux)
-	    buildFftw_Cmake
-	    ;;
-	Linux)
-	    # standard autotools build (cmake not working on linux)
-	    buildFftw_Autotools
-	    ;;
+        CYGWIN* | Darwin )
+            # cmake-ed version of fftw (not working on linux)
+            buildFftw_Cmake
+            ;;
+        Linux)
+            # standard autotools build (cmake not working on linux)
+            buildFftw_Autotools
+            ;;
     esac
 }
-
 
 #
 # All defaults are set for cmake build currently. If options in configure.in
@@ -89,7 +101,6 @@ buildFftw_Cmake() {
     fi
   fi
 }
-
 
 buildFftw_Autotools() {
 
@@ -119,8 +130,6 @@ buildFftw_Autotools() {
   fi
 
 }
-
-
 
 ######################################################################
 #

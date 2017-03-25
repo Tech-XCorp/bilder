@@ -1,8 +1,22 @@
+#!/bin/sh
+######################################################################
+#
+# @file    expat.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
 # Version and build information for Expat
 #
-# $Id$
+# $Rev$ $Date$
 #
 ######################################################################
 
@@ -24,7 +38,6 @@ EXPAT_BLDRVERSION=${EXPAT_BLDRVERSION:-"2.1.0"}
 EXPAT_BUILDS=${EXPAT_BUILDS:-"ser"}
 #EXPAT_DEPS=fftw3,boost,gsl
 ######################################################################
-
 
 ######################################################################
 #
@@ -65,5 +78,4 @@ testExpat() {
 installExpat() {
   bilderInstall expat ser expat
 }
-
 

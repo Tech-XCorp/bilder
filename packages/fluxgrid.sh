@@ -1,8 +1,22 @@
+#!/bin/sh
+######################################################################
+#
+# @file    fluxgrid.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
 # Version and build information for fluxgrid
 #
-# $Id$
+# $Rev$ $Date$
 #
 ######################################################################
 
@@ -11,7 +25,6 @@
 # Version
 #
 ######################################################################
-
 
 ######################################################################
 #
@@ -32,7 +45,7 @@ FLUXGRID_UMASK=002
 
 buildFluxgridCM() {
   getVersion fluxgrid
-  case `uname` in 
+  case `uname` in
    Linux)
     FLUXGRID_SER_OTHER_ARGS="${FLUXGRID_SER_OTHER_ARGS} -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
   esac

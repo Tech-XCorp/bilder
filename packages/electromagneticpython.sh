@@ -1,10 +1,24 @@
+#!/bin/sh
+######################################################################
+#
+# @file    electromagneticpython.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2017-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
 # Build information for ElectroMagneticPython Python module.
 #
 #    see http://lbolla.github.io/ElectroMagneticPython
 #
-# $Id$
+# $Rev$ $Date$
 #
 ######################################################################
 

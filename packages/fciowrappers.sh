@@ -1,8 +1,22 @@
+#!/bin/sh
+######################################################################
+#
+# @file    fciowrappers.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
 # Version and build information for fciowrappers
 #
-# $Id$
+# $Rev$ $Date$
 #
 ######################################################################
 
@@ -22,7 +36,7 @@ FCIOWRAPPERS_BLDRVERSION=${FCIOWRAPPERS_BLDRVERSION:-"1.1.1-r175"}
 
 FCIOWRAPPERS_BUILDS=${FCIOWRAPPERS_BUILDS:-"ser,par"}
 FCIOWRAPPERS_DEPS=hdf5,$MPI_BUILD
-# Right now netcdf has separated the C and fortran libraries 
+# Right now netcdf has separated the C and fortran libraries
 # which is a total pain so just skip it.
 FCIOWRAPPERS_DEPS=hdf5,netcdf,netcdf_fortran,$MPI_BUILD
 

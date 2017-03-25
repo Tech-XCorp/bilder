@@ -1,3 +1,17 @@
+#!/bin/sh
+######################################################################
+#
+# @file    f2c.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
 # Version and build information for f2c.  The buildf2c script
@@ -7,7 +21,7 @@
 # creation of a completely unpacked tarball, which can then
 # be put into the repo.
 #
-# $Id$
+# $Rev$ $Date$
 #
 ######################################################################
 
@@ -47,19 +61,19 @@ BINDIR = \$(PREFIX)/bin
 MANDIR = \$(PREFIX)/man/man1
 
 all:
-	for dir in libf2c src; do (cd \$\$dir; make); done
+        for dir in libf2c src; do (cd \$\$dir; make); done
 
 install: all
-	/usr/bin/install -m 2775 -d \$(INCDIR)
-	/usr/bin/install -m 664 libf2c/f2c.h \$(INCDIR)
-	/usr/bin/install -m 2775 -d \$(LIBDIR)
-	/usr/bin/install -m 664 libf2c/libf2c.a \$(LIBDIR)
-	/usr/bin/install -m 2775 -d \$(BINDIR)
-	/usr/bin/install -m 775 src/f2c \$(BINDIR)
-	sed -i.bak -e "s?/usr/local?\$(PREFIX)?g" fc
-	/usr/bin/install -m 775 fc \$(BINDIR)
-	/usr/bin/install -m 2775 -d \$(MANDIR)
-	/usr/bin/install -m 664 f2c.1t \$(MANDIR)/f2c.1
+        /usr/bin/install -m 2775 -d \$(INCDIR)
+        /usr/bin/install -m 664 libf2c/f2c.h \$(INCDIR)
+        /usr/bin/install -m 2775 -d \$(LIBDIR)
+        /usr/bin/install -m 664 libf2c/libf2c.a \$(LIBDIR)
+        /usr/bin/install -m 2775 -d \$(BINDIR)
+        /usr/bin/install -m 775 src/f2c \$(BINDIR)
+        sed -i.bak -e "s?/usr/local?\$(PREFIX)?g" fc
+        /usr/bin/install -m 775 fc \$(BINDIR)
+        /usr/bin/install -m 2775 -d \$(MANDIR)
+        /usr/bin/install -m 664 f2c.1t \$(MANDIR)/f2c.1
 EOF1
 EOF
 
@@ -127,5 +141,4 @@ installF2c() {
   fi
   # techo "WARNING: Quitting at end of f2c.sh."; cleanup
 }
-
 
