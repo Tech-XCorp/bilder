@@ -1,6 +1,20 @@
+#!/bin/sh
+######################################################################
+#
+# @file    gstreamer.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 #
-# $Id$
+# $Rev$ $Date$
 #
 # This documents the sequence of actions taken to get the packages
 # needed for phonon to build at NERSC and Janus
