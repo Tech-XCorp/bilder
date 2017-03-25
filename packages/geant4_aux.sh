@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    geant4_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for geant4.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -17,7 +23,7 @@ setGeant4TriggerVars() {
 # and then add the above tarball to svnpkgs
 # p03 is recommended for GRAS 03-03
   #GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"9.6.p03"}
-# For GEAS 03-04 we need Geant 10: 
+# For GEAS 03-04 we need Geant 10:
   GEANT4_BLDRVERSION=${GEANT4_BLDRVERSION:-"10.0.3"}
   GEANT4_BUILDS=${GEANT4_BUILDS:-"$FORPYTHON_SHARED_BUILD"}
   GEANT4_DEPS=qt,pcre,xercesc,cmake

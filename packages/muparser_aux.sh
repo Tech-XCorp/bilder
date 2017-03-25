@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    muparser_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for muparser.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # To create the tarball, unzip, change first _ to -, tar up.
 # The patch is created by

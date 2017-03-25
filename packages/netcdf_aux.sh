@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    netcdf_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for netcdf.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -50,7 +56,7 @@ findNetcdf() {
 
 # Don't try to find pycst build of netcdf because sermd doesn't build on
 # Windows. See above.
-  # findPycstDir Netcdf 
+  # findPycstDir Netcdf
   findPycshDir Netcdf
 
 # Find cmake configuration directories

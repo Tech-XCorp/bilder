@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for glib2
+# @file    glib2.sh
 #
-# $Id$
+# @brief   Build information for glib2.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -67,6 +73,6 @@ testGlib2() {
 installGlib2() {
   bilderInstall glib2 sersh
   bilderInstall glib2 pycsh
-  
+
 }
 

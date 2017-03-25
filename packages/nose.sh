@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for nose
+# @file    nose.sh
 #
-# $Id$
+# @brief   Build information for nose.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

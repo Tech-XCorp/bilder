@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for geant4
+# @file    geant4.sh
 #
-# $Id$
+# @brief   Build information for geant4.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

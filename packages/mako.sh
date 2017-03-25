@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for mako
+# @file    mako.sh
 #
-# $Id$
+# @brief   Build information for mako.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

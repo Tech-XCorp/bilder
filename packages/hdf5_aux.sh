@@ -1,10 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    hdf5_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for hdf5.
 #
-# For mingw: http://www.swarm.org/index.php/Swarm_and_MinGW#HDF5_.28Optional.29
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

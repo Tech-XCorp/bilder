@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for lammps
+# @file    lammps.sh
 #
-# $Id$
+# @brief   Version and build information for lammps.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -47,7 +53,7 @@ buildLammps() {
   LAMMPS_SER_COMP_ARGS="CC=$CXX LINK=$CXX"
   LAMMPS_SER_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw/include' \
                    FFT_PATH='-L$CONTRIB_DIR/fftw/lib' \
-                   FFT_LIB='-lfftw -lrfftw'" 
+                   FFT_LIB='-lfftw -lrfftw'"
   LAMMPS_SER_ARGS="$LAMMPS_SER_COMP_ARGS $LAMMPS_SER_ARGS $LAMMPS_OTHER_ARGS"
 
   # Par flags (check mpi version) ( CC/LINK is defined by lammps make system)
@@ -61,7 +67,6 @@ buildLammps() {
   #                MPI_INC='-I$CONTRIB_DIR/openmpi/include'
   #                MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
-
 
   # Status
   techo "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
@@ -79,8 +84,6 @@ buildLammps() {
   fi
 
 }
-
-
 
 ######################################################################
 #
@@ -125,11 +128,11 @@ makeLammps() {
     # Special make target for serial
     # Going to STUBS directly because stubs target not working
     if [ $BLDTYPE == "ser" ]; then
-	techo -2 "-- Making stubs target by default"
-	cd $LAMMPS_BUILD_DIR/STUBS
-	echo "current directory `pwd`"
-	make
-	cd $LAMMPS_BUILD_TOPDIR
+        techo -2 "-- Making stubs target by default"
+        cd $LAMMPS_BUILD_DIR/STUBS
+        echo "current directory `pwd`"
+        make
+        cd $LAMMPS_BUILD_TOPDIR
     fi
 
     # Build lammps (because of the bizarre make file structure
@@ -145,7 +148,6 @@ makeLammps() {
 
   fi
 }
-
 
 ######################################################################
 #

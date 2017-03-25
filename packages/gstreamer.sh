@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for gstreamer
+# @file    gstreamer.sh
 #
-# $Id$
+# @brief   Build information for gstreamer.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -45,7 +51,7 @@ buildGstreamer() {
   fi
   if bilderConfig gstreamer pycsh "--enable-shared $CONFIG_COMPILERS_PYC $CONFIG_COMPFLAGS_PYC $GSTREAMER_SER_OTHER_ARGS"; then
 #    techo "BUILDING GSTREAMER PYCSH WITH PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
-    techo "debug statement: glib2-pycsh is not adding it's bin dir to path" 
+    techo "debug statement: glib2-pycsh is not adding it's bin dir to path"
     techo "BUILDING GSTREAMER PYCSH WITH PATH=$PATH"
     bilderBuild gstreamer pycsh
   fi

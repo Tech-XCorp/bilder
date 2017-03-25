@@ -1,14 +1,18 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for moab
+# @file    moab.sh
 #
-# $Id$
+# @brief   Build information for moab.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
 ######################################################################
-#
-# Version
 #
 # Putting the version information into moab_aux.sh eliminates the
 # rebuild when one changes that file.  Of course, if the actual version

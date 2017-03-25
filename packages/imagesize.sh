@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for imagesize
+# @file    imagesize.sh
 #
-# $Id$
+# @brief   Build information for imagesize.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2017-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

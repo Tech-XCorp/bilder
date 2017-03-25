@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for metis
+# @file    metis.sh
 #
-# $Id$
+# @brief   Version and build information for metis.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,8 +17,8 @@
 # Version
 #
 ######################################################################
-METIS_BLDRVERSION=${METIS_BLDRVERSION:-"4.0.3"}
 
+METIS_BLDRVERSION=${METIS_BLDRVERSION:-"4.0.3"}
 
 ######################################################################
 #
