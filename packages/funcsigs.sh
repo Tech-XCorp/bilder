@@ -3,20 +3,12 @@
 #
 # @file    funcsigs.sh
 #
-# @brief   Documentation goes here.
+# @brief   Build information for funcsigs.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Build information for funcsigs
-#
-# $Rev$ $Date$
 #
 ######################################################################
 

@@ -3,20 +3,12 @@
 #
 # @file    facetsifc.sh
 #
-# @brief   Documentation goes here.
+# @brief   Version and build information for facetsifc.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Version and build information for facetsifc
-#
-# $Rev$ $Date$
 #
 ######################################################################
 

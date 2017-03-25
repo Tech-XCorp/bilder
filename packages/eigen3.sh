@@ -3,20 +3,12 @@
 #
 # @file    eigen3.sh
 #
-# @brief   Documentation goes here.
+# @brief   Version and build information for eigen3.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Version and build information for eigen3
-#
-# $Rev$ $Date$
 #
 # To fix the package:
 #

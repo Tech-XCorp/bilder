@@ -3,19 +3,14 @@
 #
 # @file    f2c.sh
 #
-# @brief   Documentation goes here.
+# @brief   Version and build information for f2c.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
-######################################################################
-
-#!/bin/bash
-#
-# Version and build information for f2c.  The buildf2c script
-# can be found at http://hpc.sourceforge.net/buildf2c.
+# The buildf2c script can be found at http://hpc.sourceforge.net/buildf2c.
 #
 # For bilder, we separate this into two parts, the first is
 # creation of a completely unpacked tarball, which can then

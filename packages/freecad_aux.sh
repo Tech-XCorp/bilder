@@ -3,20 +3,12 @@
 #
 # @file    freecad_aux.sh
 #
-# @brief   Documentation goes here.
+# @brief   Trigger vars and find information for freecad.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Trigger vars and find information
-#
-# $Rev$ $Date$
 #
 ######################################################################
 

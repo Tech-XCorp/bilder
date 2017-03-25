@@ -3,20 +3,12 @@
 #
 # @file    elegant.sh
 #
-# @brief   Documentation goes here.
+# @brief   Build information for elegant.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Build information for elegant
-#
-# $Rev$ $Date$
 #
 ######################################################################
 

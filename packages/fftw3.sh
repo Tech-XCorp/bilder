@@ -3,20 +3,12 @@
 #
 # @file    fftw3.sh
 #
-# @brief   Documentation goes here.
+# @brief   Version and build information for fftw3.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Version and build information for fftw3
-#
-# $Rev$ $Date$
 #
 ######################################################################
 

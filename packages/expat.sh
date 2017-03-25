@@ -3,20 +3,12 @@
 #
 # @file    expat.sh
 #
-# @brief   Documentation goes here.
+# @brief   Version and build information for Expat.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Version and build information for Expat
-#
-# $Rev$ $Date$
 #
 ######################################################################
 

@@ -3,20 +3,12 @@
 #
 # @file    freetype.sh
 #
-# @brief   Documentation goes here.
+# @brief   Build information for freetype.
 #
 # @version $Rev$ $Date$
 #
 # Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
-#
-######################################################################
-
-#!/bin/bash
-#
-# Build information for freetype
-#
-# $Rev$ $Date$
 #
 ######################################################################
 
