@@ -1,6 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    icl11.sh
+#
+# @brief   Define variables for Intel-11
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Define variables.
 # Do not override existing definitions.
@@ -8,7 +16,6 @@
 # and ending with '# END KEEP THIS'
 #
 ######################################################################
-
 
 # Serial compilers
 # FC should be a compiler that compiles F77 or F90 but takes free format.
