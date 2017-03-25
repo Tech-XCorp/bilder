@@ -1,9 +1,16 @@
 #!/bin/sh
+######################################################################
 #
-# Set the machine file for default builds
+# @file    cxx11def.sh
 #
-# $Id$
+# @brief   Set the machine file for default builds
 #
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 MACHINEFILE=
 case `uname` in

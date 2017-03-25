@@ -1,11 +1,15 @@
 @echo off
-rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
-rem
-rem Purpose: This starts jenkinsrun through cygwin on windows.
-rem
-rem $Id$
-rem
-rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
+REMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREM
+REM
+REM @file    jenkinsrun.bat
+REM
+REM @brief   This starts jenkinsrun through cygwin on windows.
+REM
+REM @version $Rev$ $Date$
+REM
+REM Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+REM
+REMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREM
 
 DEL /Q jenkinsrun.log
 LECHO ========= EXECUTING jenkinsrun.bat ========

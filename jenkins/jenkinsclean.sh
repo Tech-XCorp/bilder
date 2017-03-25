@@ -1,7 +1,17 @@
 #!/bin/sh
-
-# The artifacts we want to save are mk*all.sh and what is
-# removed below, except that jenkins uses comma separators
+######################################################################
+#
+# @file    jenkinsclean.sh
+#
+# @brief   The artifacts we want to save are mk*all.sh and what is
+#          removed below, except that jenkins uses comma separators
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 # These artifacts are already created at clean time
 keepartifacts='jenkinsbild.log,builds*/*.log'
