@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Cron script to build vorpal and run tests, possibly in queue.
+# @file    runnrall.sh
 #
-# $Id$
+# @brief   Cron script to build vorpal and run tests, possibly in queue.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -31,7 +37,7 @@ _
 # Defaults
 TESTING=false
 BUILDING=true
-RUNNR_RUNTIME=01:00:00	# Default value
+RUNNR_RUNTIME=01:00:00  # Default value
 FORCE_NO_QUEUE=false
 # Get args
 while getopts "hm:Nn:s:T:" arg; do
