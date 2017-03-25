@@ -1,10 +1,16 @@
 #!/bin/sh
+######################################################################
 #
-# scipygfortran.sh
+# @file    scipygfortran.sh
 #
-# Script to remove arch args before running gfortran
+# @brief   Script to remove arch args before running gfortran
 #
-# $Id$
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 unset args
 while test -n "$1"; do

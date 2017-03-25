@@ -1,8 +1,14 @@
+#!/bin/sh
 ######################################################################
 #
-# $Id$
+# @file    bildopts.sh
 #
-# General stuff for extracting options
+# @brief   General stuff for extracting options
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -137,8 +143,8 @@ processBilderArgs() {
     M) MAX_THREADS=true;;
     N) REPO_BUILD_TYPE=Release;;
     o) case `uname` in
-	 CYGWIN*) ;;
-	       *) BUILD_MPIS=true;;
+         CYGWIN*) ;;
+               *) BUILD_MPIS=true;;
        esac;;
     O) BUILD_OPTIONAL=true;;
     p) SUPRA_SP=$OPTARG;;

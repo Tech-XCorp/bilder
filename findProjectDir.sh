@@ -1,9 +1,17 @@
+#!/bin/sh
+######################################################################
 #
-# This fragment is keep here for copying into top level bilder scripts
-# Changes should be made here then copied over
+# @file    findProjectDir.sh
 #
-# $Id$
+# @brief   This fragment is keep here for copying into top level bilder scripts
+#          Changes should be made here then copied over
 #
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 ######################################################################
 #

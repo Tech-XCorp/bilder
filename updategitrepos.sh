@@ -1,6 +1,16 @@
 #!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    updategitrepos.sh
+#
+# @brief   Update git repos under a Bilder project.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 topdir=`pwd`
 for i in *; do

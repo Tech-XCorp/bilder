@@ -1,7 +1,17 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Clean out installations
+# @file    cleaninstallers.sh
 #
+# @brief   Clean out installations
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 mydir=`dirname $0`
 mydir=`(cd $mydir; pwd -P)`
 swdir=$1

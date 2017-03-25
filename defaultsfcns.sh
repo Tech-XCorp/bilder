@@ -1,12 +1,17 @@
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    defaultsfcns.sh
 #
-# Defines the following functions
+# @brief   Defines the following functions
+#          setBilderOsVars: set bilder args based on hosts
+#          setBilderDirsVars: set remaining Bilder default args after
+#            knowing host information, based on directory existence, OS, ...
 #
-# setBilderOsVars: set bilder args based on hosts
+# @version $Rev$ $Date$
 #
-# setBilderDirsVars: set remaining Bilder default args after knowing host
-#                   information, based on directory existence, OS, ...
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

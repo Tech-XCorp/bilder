@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    bilderpy.sh
 #
-# Determine the python version and library path
+# @brief   For updating python variables.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -162,11 +168,11 @@ if ! $NO_PYTHON; then
 # Below ensures the final sourced file is correct
   addtopathvar PYTHONPATH "$PYTHON_SITEPKGSDIR"
   case `uname` in
-    CYGWIN*) 
+    CYGWIN*)
        for dirpart in DLLs Lib; do
          pathpart=`python -c "import sys; print sys.path" | \
              tr , '\n' | grep "$dirpart'" | sed -e "s/'//g"`
- 	 pathpart=`cygpath -m $pathpart`
+         pathpart=`cygpath -m $pathpart`
          addtopathvar PYTHONPATH "$pathpart"
        done
        trimvar PYTHONPATH ';' ;;

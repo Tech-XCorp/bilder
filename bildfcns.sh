@@ -1,8 +1,14 @@
+#!/bin/sh
 ######################################################################
 #
-# bildfcns.sh: A set of methods for configuring and building packages
+# @file    bildfcns.sh
 #
-# $Rev$ $Date$
+# @brief   A set of methods for configuring and building packages
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -357,7 +363,6 @@ bilderSvnCleanup() {
     done
   done
 }
-
 
 #
 # svn version on a node.  This
@@ -1666,7 +1671,6 @@ instConfigScript() {
   fi
 }
 
-
 #
 # Determine whether a set of builds is installed.
 #
@@ -1776,7 +1780,7 @@ shouldInstall() {
     currentPkgScriptRev=`bilderSvn info $currentPkgScriptDir/${lcproj}.sh |\
         grep 'Last Changed Rev:' | sed 's/.* //'`
     if test -z "$currentPkgScriptRev"; then
-      currentPkgScriptRev=`sed -n '/$Id/p' < $currentPkgScriptDir/${lcproj}.sh |  cut -f 4 -d ' '`
+      currentPkgScriptRev=`sed -n '/$Rev$ $Date${lcproj}.sh |  cut -f 4 -d ' '`
     fi
     currentPkgScriptRev=${currentPkgScriptRev:-"unknown"}
     eval $currPkgScriptRevVar=$currentPkgScriptRev
@@ -5015,7 +5019,6 @@ bilderConfig() {
     techo "See $BLDR_PROJECT_URL/$subdir/$configure_txt."
   fi
 
-
 # Finally, if building in a separate place, need to fix that.
   if test -n "$buildsubdir"; then
     if ! $build_inplace; then
@@ -6079,7 +6082,7 @@ installRelShlib() {
 # -b <builds>  Builds that could have been tested
 # -h           Whether builds have tests
 # -n <tests>   Name of tests if not found from lower-casing $2
-# -I 	       Ignore test results
+# -I           Ignore test results
 #
 # Return true if should be installed
 #
@@ -6249,7 +6252,6 @@ recordInstallation() {
   echo "$record" >> $1/installations.txt
   installations="$installations $2-$4"
 }
-
 
 #
 # Wait for a package to complete building in a subdir, then install it.
@@ -7484,7 +7486,6 @@ writeStepRes (){
 #
 summarize() {
 
-
 # Compute elapsed time, timestamp
   local END_TIME=`date +%s`
   cd $PROJECT_DIR
@@ -8295,5 +8296,4 @@ buildChain() {
 # Ensure 2 blank lines in between examining packages.
   techo ""
 }
-
 

@@ -1,6 +1,6 @@
 WORKING WITH REMOTE GIT REPOS
 
-  $Id$
+  $Rev$ $Date$
 
 See: https://internal.txcorp.com/it/wiki/UpstreamGit
 
