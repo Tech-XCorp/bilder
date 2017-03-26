@@ -1,10 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    cygwin.sh
 #
-# Modify the environment as needed by Visual Studio if not already
-# done.  Looks for Visual Studio 10 first, then 9.  Environment
-# modified according to which is found first.
+# @brief   Modify the environment as needed by Visual Studio if not already
+#          done.  Looks for Visual Studio 12 first.  Environment
+#          modified according to which is found first.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Compiling 64 bit using express: http://jenshuebel.wordpress.com/2009/02/12/visual-c-2008-express-edition-and-64-bit-targets/
 #
@@ -254,7 +260,7 @@ else
       if test -d "/cygdrive/c/$programfiles/Microsoft Visual Studio ${ver}.0/Common7/IDE"; then
         VISUALSTUDIO_VERSION=$ver
         $TECHO "Found Visual Studio $ver"
-	break
+        break
       fi
     done
   fi

@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for atlas
+# @file    atlas.sh
 #
-# $Id$
+# @brief   Build information for atlas
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -78,7 +84,6 @@ buildAtlas() {
   else
     techo "atlas-${ATLAS_BLDRVERSION}-sersh is installed."
   fi
-
 
 # All builds and deps now taken from global variables
   if ! bilderUnpack atlas; then

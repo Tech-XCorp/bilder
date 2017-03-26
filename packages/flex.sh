@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for flex
+# @file    flex.sh
 #
-# $Id$
+# @brief   Build information for flex.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

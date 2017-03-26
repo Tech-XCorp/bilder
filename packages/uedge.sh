@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for uedge
+# @file    uedge.sh
 #
-# $Id$
+# @brief   Version and build information for uedge.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,7 +17,6 @@
 # Version
 #
 ######################################################################
-
 
 ######################################################################
 #
@@ -85,12 +90,12 @@ buildUedge() {
 
 # Order is longest to shortest to build
     if bilderConfig uedge partau "$CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR --enable-parallel $CPP_BABEL_ARG $CONFIG_LDFLAGS $UEDGE_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG --with-tau"; then
-      rm -f $BUILD_DIR/uedge/partau/compfailures.txt	# File for debugging
+      rm -f $BUILD_DIR/uedge/partau/compfailures.txt    # File for debugging
 bilderBuild uedge partau "$UEDGE_BUILD_ARGS"
     fi
 
     if bilderConfig uedge par "$CONFIG_COMPILERS_PAR $UEDGE_COMPFLAGS_PAR --enable-parallel $CPP_BABEL_ARG $CONFIG_LDFLAGS $UEDGE_PAR_OTHER_ARGS $CONFIG_HDF5_PAR_DIR_ARG $CONFIG_SUPRA_SP_ARG"; then
-      rm -f $BUILD_DIR/uedge/par/compfailures.txt	# File for debugging
+      rm -f $BUILD_DIR/uedge/par/compfailures.txt       # File for debugging
       bilderBuild uedge par "$UEDGE_BUILD_ARGS"
     fi
 

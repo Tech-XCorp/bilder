@@ -1,11 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for visit
+# @file    visit.sh
 #
-# See http://portal.nersc.gov/svn/visit/branches/txc/README
-# for the branch usage for Composer.
+# @brief   Build information for visit.
 #
-# $Id$
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -92,7 +95,7 @@ buildVisit() {
 
 # Revert to undo previous patch, unless revert has been explicitly switched off.
 # SVNUP_PKGS is true by default.
-    if SVNUP_PKGS; then 
+    if SVNUP_PKGS; then
       techo "Reverting changes..."
       bilderSvn revert --recursive $PROJECT_DIR/visit
     else
@@ -106,7 +109,7 @@ buildVisit() {
 
 # Determine whether patch in installation matches that in bilder.
 # If differs, set visit as uninstalled so it will be built.
-    if SVNUP_PKGS; then 
+    if SVNUP_PKGS; then
       VISIT_PATCH=$BILDER_DIR/patches/visit.patch
       if ! isPatched -s visit-$VISIT_SER_BUILD visit-$VISIT_BLDRVERSION-$VISIT_SER_BUILD; then
         techo "Rebuilding visit as patches differ."

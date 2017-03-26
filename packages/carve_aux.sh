@@ -1,6 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    carve_aux.sh
+#
+# @brief   # Trigger vars and find information for carve.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Cloned at 475:be054bc7ed86
 # Pulled in changes via
@@ -13,8 +21,6 @@ EOF
 # Changes now in cary-carve4bilder
 # Blender maintains carve in the repo
 #   https://svn.blender.org/svnroot/bf-blender/trunk/blender/extern/carve
-#
-# $Id$
 #
 ######################################################################
 

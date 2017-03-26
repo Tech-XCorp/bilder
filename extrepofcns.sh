@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    extrepofcns.sh
 #
-# Get other repos that aren't normally needed for
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -71,16 +77,16 @@ getRepo() {
         res=$?
       else
         git clone --no-checkout $repoUrl $localDir
-	res=$?
-	if test $res = 0; then
+        res=$?
+        if test $res = 0; then
           cd $localDir
           res=$?
-	fi
-	if test $res = 0; then
+        fi
+        if test $res = 0; then
           git checkout -b "${gitBranch}" "origin/${gitBranch}"
           res=$?
-	  cd ..
-	fi
+          cd ..
+        fi
       fi
     else
       echo "Unknown repository type, $repotype, do not know how to create"

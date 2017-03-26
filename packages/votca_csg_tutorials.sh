@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for Votca
+# @file    votca_csg_tutorials.sh
 #
-# $Id$
+# @brief   Version and build information for votca_csg.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -72,7 +78,7 @@ installVotca_Csg_Tutorials() {
     mkdir $VOTCA_CSG_TUTORIALS_INSTALL_DIR
   fi
 
-  # 
+  #
   # Copy files/directories manually
   #
   # VOTCA_CSG_TUTORIALS_INSTTARG="README hexane methanol propane spce urea-water"

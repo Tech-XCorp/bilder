@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for python
+# @file    pythondevel.sh
 #
-# $Id$
+# @brief   Version and build information devel version of python.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -68,7 +74,7 @@ buildPython() {
       Linux)
 # Ensure python can find its own library and any libraries linked into contrib
         pyldflags="$pyldflags -Wl,-rpath,${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/lib -L$CONTRIB_DIR/lib -Wl,-rpath,$CONTRIB_DIR/lib"
-	if cd $CONTRIB_DIR/sqlite; then
+        if cd $CONTRIB_DIR/sqlite; then
           local preswd=`pwd -P`
           pyldflags="$pyldflags -L$preswd/lib"
           pycppflags="-I$preswd/include"
@@ -121,9 +127,9 @@ installPython() {
     case `uname` in
       Linux)
 # Fix rpath if known how
-	if declare -f bilderFixRpath 1>/dev/null 2>&1; then
-	  bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
-	fi
+        if declare -f bilderFixRpath 1>/dev/null 2>&1; then
+          bilderFixRpath ${CONTRIB_DIR}/Python-${PYTHON_BLDRVERSION}-$FORPYTHON_SHARED_BUILD/bin/python${PYTHON_MAJMIN}
+        fi
         ;;
     esac
 # If python reinstalled, then must recompute the python variables.

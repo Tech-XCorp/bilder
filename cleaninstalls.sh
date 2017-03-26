@@ -1,9 +1,15 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    cleaninstalls.sh
 #
-# To clean up installations.txt, removing records of installations
-# that are no longer present.
+# @brief   To clean up installations.txt, removing records of installations
+#          that are no longer present.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

@@ -1,10 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build and installation of sip
+# @file    sip.sh
 #
-# $Id$
+# @brief   Build and installation of sip.
 #
-########################################################################
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 ########################################################################
 #

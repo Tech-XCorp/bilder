@@ -1,11 +1,17 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    bildvars.sh
 #
-# There are three parts to this file
+# @brief   There are three parts to this file
 # 1. Get per-machine parameters
 # 2. Set default parameters per OS (if not set)
 # 3. Set derived parameters
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -457,7 +463,6 @@ techo -2 "FORPYTHON_STATIC_BUILD = $FORPYTHON_STATIC_BUILD."
 # Chain is needed for subject
 #
 ######################################################################
-
 
 if test -n "$WAIT_PACKAGE"; then
 

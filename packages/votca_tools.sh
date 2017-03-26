@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for Votca
+# @file    votca_tools.sh
 #
-# $Id$
+# @brief   Version and build information for Votca_tools.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -27,15 +33,12 @@ VOTCA_TOOLS_DEPS=fftw3,boost,gsl,expat,sqlite,cmake
 
 case `uname` in
     CYGWIN* | Darwin)
-	addtopathvar DYLD_LIBRARY_PATH $CONTRIB_DIR/votca_tools-ser/lib
-	;;
+        addtopathvar DYLD_LIBRARY_PATH $CONTRIB_DIR/votca_tools-ser/lib
+        ;;
     Linux)
-	addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/votca_tools-ser/lib
-	;;
+        addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/votca_tools-ser/lib
+        ;;
 esac
-
-
-
 
 ######################################################################
 #
@@ -58,13 +61,13 @@ buildVotca_Tools() {
   VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DSQLITE3_INCLUDE_DIR:PATH='$CONTRIB_DIR/sqlite-sersh/include'"
   case `uname` in
       CYGWIN* | Darwin)
-	  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
-	  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DSQLITE3_LIBRARY:FILEPATH='$CONTRIB_DIR/sqlite-sersh/lib/libsqlite3.dylib'"
-	  ;;
+          VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.dylib'"
+          VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DSQLITE3_LIBRARY:FILEPATH='$CONTRIB_DIR/sqlite-sersh/lib/libsqlite3.dylib'"
+          ;;
       Linux)
-	  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.so'"
-	  VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DSQLITE3_LIBRARY:FILEPATH='$CONTRIB_DIR/sqlite-sersh/lib/libsqlite3.so'"
-	  ;;
+          VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DEXPAT_LIBRARY:FILEPATH='$CONTRIB_DIR/expat/lib/libexpat.so'"
+          VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DSQLITE3_LIBRARY:FILEPATH='$CONTRIB_DIR/sqlite-sersh/lib/libsqlite3.so'"
+          ;;
   esac
 
   #
@@ -72,7 +75,7 @@ buildVotca_Tools() {
   # Fixing this on Peregrine through machine file
   # VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS BOOST_INCLUDEDIR=$CONTRIB_DIR/boost/include"
   # VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS BOOST_LIBRARYDIR=$CONTRIB_DIR/boost/lib"
-  # 
+  #
   if [[ -z $BOOST_INCLUDEDIR ]]; then
       techo -2 "BOOST_INCLUDEDIR enviroment var is unset. Will set BOOST_ROOT"
       VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost"
@@ -81,7 +84,6 @@ buildVotca_Tools() {
       VOTCA_TOOLS_ARGS="$VOTCA_TOOLS_ARGS BOOST_LIBRARYDIR=$CONTRIB_DIR/boost/lib"
       techo -2 "BOOST_INCLUDEDIR enviroment var is set. Assuming BOOST_LIBRARYDIR is set."
   fi
-
 
   if bilderUnpack votca_tools; then
 

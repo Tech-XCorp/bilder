@@ -1,11 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    visit_aux.sh
 #
-# See http://portal.nersc.gov/svn/visit/branches/txc/README
-# for the branch usage for Composer.
+# @brief   Trigger vars and find information for visit.
 #
-# $Id$
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

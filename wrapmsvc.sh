@@ -1,11 +1,20 @@
 #!/bin/sh
+######################################################################
 #
-# Wrapper script for the Microsoft Visual C++ compiler (cl) to allow it
-# to work with Cygwin based makefiles.
+# @file    wrapmsvc.sh
+#
+# @brief   Wrapper script for the Microsoft Visual C++ compiler (cl) to
+#          allow it to work with Cygwin based makefiles.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # http://comments.gmane.org/gmane.os.cygwin/16874
+#
+######################################################################
 
-# cmd="/c/Program\ Files/Microsoft\ Visual\ Studio/VC98/Bin/cl"
 cmd=cl
 
 for option; do

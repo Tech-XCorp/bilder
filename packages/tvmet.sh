@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for tvmet
+# @file    tvmet.sh
 #
-# $Id$
+# @brief   Version and build information for tvmet.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -12,7 +18,6 @@
 #
 ######################################################################
 TVMET_BLDRVERSION=${TVMET_BLDRVERSION:-"1.7.2"}
-
 
 ######################################################################
 #

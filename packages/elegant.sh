@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for elegant
+# @file    elegant.sh
 #
-# $Id$
+# @brief   Build information for elegant.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -49,12 +55,12 @@ buildElegant() {
 # dependents link to this for installation to work without DYLD_LIBRARY_PATH
 #      ELEGANT_DARWIN_ADDL_ARGS=" -DDEBUG_CMAKE:BOOL=TRUE  -DCMAKE_BUILD_TYPE:STRING='Release' -DENABLE_VALIDATE_GPU:BOOL=FALSE -DBUILD_UTILS:BOOL=TRUE"
       ELEGANT_DARWIN_ADDL_ARGS=" -DDEBUG_CMAKE:BOOL=TRUE  -DENABLE_VALIDATE_GPU:BOOL=FALSE -DBUILD_UTILS:BOOL=TRUE"
-      ELEGANT_SERSH_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARG  -DENABLE_GPU:BOOL=FALSE " 
+      ELEGANT_SERSH_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARG  -DENABLE_GPU:BOOL=FALSE "
       ELEGANT_SER_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS  -DENABLE_GPU:BOOL=FALSE "
-      ELEGANT_SERGPU_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=TRUE " 
-      ELEGANT_PARSH_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=FALSE " 
-      ELEGANT_PAR_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=FALSE " 
-      ELEGANT_PARGPU_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=TRUE " 
+      ELEGANT_SERGPU_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=TRUE "
+      ELEGANT_PARSH_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=FALSE "
+      ELEGANT_PAR_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=FALSE "
+      ELEGANT_PARGPU_ADDL_ARGS="$ELEGANT_DARWIN_ADDL_ARGS -DENABLE_GPU:BOOL=TRUE "
       ;;
     Linux)
       ELEGANT_LINUX_ADDL_ARGS=" -DDEBUG_CMAKE:BOOL=TRUE  -DENABLE_VALIDATE_GPU:BOOL=FALSE -DBUILD_UTILS:BOOL=TRUE"
@@ -67,9 +73,9 @@ buildElegant() {
 #     ELEGANT_SERSH_ADDL_ARGS="$ELEGANT_SERSH_ADDL_ARGS -DCMAKE_INSTALL_RPATH:PATH=XORIGIN:XORIGIN/../lib:$LD_LIBRARY_PATH"
       ;;
   esac
-  
+
 #  if (INTEL); then
-   
+
 #  -DCMAKE_INSTALL_PREFIX:PATH='/gpfs/stfc/local/HCP084/bwm06/shared/volatile-intel2015-openmpi/elegant-29.0Beta5-ser/' \
 #  -DNCURSES_INCLUDE_DIR:PATH='/gpfs/stfc/local/HCP084/bwm06/shared/contrib-intel2015-openmpi/ncurses-sersh/include' \
 #  -DDEBUG_CMAKE:BOOL=TRUE \
@@ -80,7 +86,6 @@ buildElegant() {
 #  -DBUILD_UTILS:BOOL=TRUE \
 #  -DSUPRA_SEARCH_PATH:PATH='/gpfs/stfc/local/HCP084/bwm06/shared/contrib-intel2015-openmpi' \
 #  /gpfs/stfc/local/HCP084/bwm06/shared/GPUelegant
-
 
 # Build
   if bilderConfig -c elegant sersh "-DBUILD_SHARED_LIBS:BOOL=ON  $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $ELEGANT_SERSH_ADDL_ARGS $ELEGANT_SERSH_OTHER_ARGS"; then

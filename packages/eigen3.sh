@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for eigen3
+# @file    eigen3.sh
 #
-# $Id$
+# @brief   Version and build information for eigen3.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # To fix the package:
 #
@@ -51,7 +57,7 @@ buildEigen3() {
 # If worked, preigen3ed to configure and build
   if bilderUnpack eigen3; then
 
-    # This makes eigen3 configure/installs more robust as it's 
+    # This makes eigen3 configure/installs more robust as it's
     # not strictly needed.  Had it installing into cuda for some reason
     EIGEN3_OTHER_ARGS="-DEIGEN_BUILD_PKGCONFIG:BOOL=FALSE ${EIGEN3_OTHER_ARGS}"
 # Configure and build

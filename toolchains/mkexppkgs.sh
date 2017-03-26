@@ -1,14 +1,20 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    mkexppkgs.sh
 #
-# This is for compiling varioius experimental tarballs that may 
-# or may not become part of the normal toolchain for other packages.
-# By keeping it separate but in bilder, we allow many people to
-# experiment with these packages.
+# @brief   This is for compiling varioius experimental tarballs that may
+#          or may not become part of the normal toolchain for other packages.
+#          By keeping it separate but in bilder, we allow many people to
+#          experiment with these packages.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # To use: it has to be run from a PROJECT_DIR.  The easiest method is
-# to:  
+# to:
 #      ln -sf bilder/toolchains/mkexppkgs.sh .
 #      ./mkexppkgs.sh  <options>
 #
@@ -55,7 +61,7 @@ findBilderTopdir() {
 #
 # Set names and determine top directory
 #
-BILDER_NAME=mkexppkgs		# Set since program name different under PBS
+BILDER_NAME=mkexppkgs           # Set since program name different under PBS
 findBilderTopdir
 #BILDER_DASHBOARD_URL=https://orbiter.txcorp.com/BilderDashboard/facets
 
@@ -89,7 +95,6 @@ installSimplejson
 ######################################################################
 
 installTrilinos
-
 
 source $BILDER_DIR/packages/dakota.sh
 source $BILDER_DIR/packages/qhull.sh

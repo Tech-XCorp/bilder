@@ -1,10 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for Future Python module.
+# @file    future.sh
+#
+# @brief   Build information for the future Python module.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2017-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 #    see https://pypi.python.org/pypi/future
-#
-# $Id$
 #
 ######################################################################
 

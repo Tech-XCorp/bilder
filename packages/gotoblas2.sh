@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for gotoblas2
+# @file    gotoblas2.sh
 #
-# $Id$
+# @brief   Version and build information for gotoblas2.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Notes on building gotoblas2 are at
 # http://www.pgroup.com/resources/gotoblas/gotoblas_pgi2011.htm

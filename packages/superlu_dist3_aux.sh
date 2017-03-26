@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and fine information for superlu_dist3
+# @file    superlu_dist3_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and fine information for superlu_dist3.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

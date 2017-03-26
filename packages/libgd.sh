@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for libgd
+# @file    libgd.sh
 #
-# $Id$
+# @brief   Build information for libgd.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

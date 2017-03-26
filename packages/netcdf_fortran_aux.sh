@@ -1,10 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and find information for netcdf_fortran
+# @file    netcdf_fortran_aux.sh
 #
-# Repacked netcdf-fortran as netcdf_fortran for version issues.
+# @brief   Trigger vars and find information for netcdf_fortran.
 #
-# $Id$
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

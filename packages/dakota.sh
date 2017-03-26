@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for dakota
+# @file    dakota.sh
 #
-# $Id$
+# @brief   Version and build information for dakota.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,6 +17,7 @@
 # Version
 #
 ######################################################################
+
 DAKOTA_BLDRVERSION=${DAKOTA_BLDRVERSION:-"6.4.0"}
 
 ######################################################################
@@ -64,23 +71,23 @@ techo " "
 
 case `uname` in
     CYGWIN* | Darwin)
-	DAKOTA_PAR_OTHER_ARGS="-DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib"
-	;;
+        DAKOTA_PAR_OTHER_ARGS="-DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.dylib"
+        ;;
     Linux)
         # On all but Mac need to find bilder versions of shared lapack builds
-	DAKOTA_ADDL_ARGS="-DBLAS_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/libblas.so' \
+        DAKOTA_ADDL_ARGS="-DBLAS_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/libblas.so' \
                           -DLAPACK_LIBS:FILEPATH='$CONTRIB_DIR/lapack-sersh/lib/liblapack.so' \
                            $DAKOTA_ADDL_ARGS"
         DAKOTA_PAR_OTHER_ARGS="-DMPI_LIBRARY:FILEPATH=$CONTRIB_DIR/openmpi/lib/libmpi_cxx.a"
 
-	DOMAIN_NAME=`hostname -d`
-	case $DOMAIN_NAME in
-	    hpc.nrel.gov )
-		echo "Assuming Peregrine"
+        DOMAIN_NAME=`hostname -d`
+        case $DOMAIN_NAME in
+            hpc.nrel.gov )
+                echo "Assuming Peregrine"
                 # MPI_SHARED_LIBPATH should be set my module (intel too?)
-		DAKOTA_PAR_OTHER_ARGS="-DMPI_LIBRARY:FILEPATH=$MPI_SHARED_LIBPATH/libmpi.so"
-	esac
-	;;
+                DAKOTA_PAR_OTHER_ARGS="-DMPI_LIBRARY:FILEPATH=$MPI_SHARED_LIBPATH/libmpi.so"
+        esac
+        ;;
 esac
 
 ######################################################################
@@ -125,7 +132,6 @@ installDakota() {
   bilderInstall dakota ser dakota-ser
   bilderInstall dakota par dakota-par
 }
-
 
 ######################################################################
 #

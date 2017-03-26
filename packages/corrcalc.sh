@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for corrcalc
+# @file    corrcalc.sh
 #
-# $Id$
+# @brief   Version and build information for corrcalc.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -37,7 +43,6 @@ buildCorrcalc() {
   local CORRCALC_PAR_OTHER_ARGS="$CORRCALC_PAR_CMAKE_OTHER_ARGS"
   local CORRCALC_SER_OTHER_ARGS="$CORRCALC_SER_CMAKE_OTHER_ARGS"
 
-
 # If python not present in other args, add the gen arg
   if echo $CORRCALC_PAR_OTHER_ARGS | grep -iqv python; then
     CORRCALC_PAR_OTHER_ARGS="$CORRCALC_PAR_OTHER_ARGS $PYTHON_GEN_ARG"
@@ -57,19 +62,18 @@ buildCorrcalc() {
       ;;
   esac
 
-
   # Configure and build serial and parallel
   getVersion corrcalc
   if bilderPreconfig corrcalc; then
 
       # Parallel build
       if bilderConfig $USE_CMAKE_ARG corrcalc par "$ENABLE_PARALLEL_GEN_ARG $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CORRCALC_PAR_OTHER_ARGS $CMAKE_HDF5_PAR_DIR_ARG $CMAKE_SUPRA_SP_ARG" corrcalc; then
-	  bilderBuild corrcalc par "$CORRCALC_MAKEJ_ARGS $CORRCALC_MAKE_ARGS CXX=$BUILD_DIR/corrcalc/par/txutils/cxx"
+          bilderBuild corrcalc par "$CORRCALC_MAKEJ_ARGS $CORRCALC_MAKE_ARGS CXX=$BUILD_DIR/corrcalc/par/txutils/cxx"
       fi
 
       # Serial build
       if bilderConfig $USE_CMAKE_ARG corrcalc ser "$DISABLE_PARALLEL_GEN_ARG $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CORRCALC_SER_OTHER_ARGS $CMAKE_HDF5_SER_DIR_ARG $CMAKE_SUPRA_SP_ARG" corrcalc; then
-	  bilderBuild corrcalc ser "$CORRCALC_MAKEJ_ARGS $CORRCALC_MAKE_ARGS CXX=$BUILD_DIR/corrcalc/ser/txutils/cxx"
+          bilderBuild corrcalc ser "$CORRCALC_MAKEJ_ARGS $CORRCALC_MAKE_ARGS CXX=$BUILD_DIR/corrcalc/ser/txutils/cxx"
       fi
   fi
 

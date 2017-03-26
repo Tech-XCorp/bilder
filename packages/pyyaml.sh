@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for pyyaml
+# @file    pyyaml.sh
 #
-# $Id$
+# @brief   Version and build information for pyyaml.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

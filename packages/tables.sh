@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for tables
+# @file    tables.sh
 #
-# $Id$
+# @brief   Build information for tables.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -105,7 +111,7 @@ buildTables() {
       TABLES_ENV="$DISTUTILS_NOLV_ENV"
       ;;
     Linux-*)
-	linkflags="$linkflags -Wl,-rpath,$TABLES_HDF5_DIR/lib"
+        linkflags="$linkflags -Wl,-rpath,$TABLES_HDF5_DIR/lib"
       TABLES_ARGS="--hdf5=$TABLES_HDF5_DIR"
       TABLES_ENV="$DISTUTILS_NOLV_ENV"
       ;;

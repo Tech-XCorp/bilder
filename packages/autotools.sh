@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for autotools
+# @file    autotools.sh
 #
-# $Id$
+# @brief   Version and build information for autotools
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -40,7 +46,7 @@ buildAutotools() {
 
 ######################################################################
 #
-# Test autotools 
+# Test autotools
 #
 ######################################################################
 
@@ -50,7 +56,7 @@ testAutotools() {
 
 ######################################################################
 #
-# Install autotools 
+# Install autotools
 #
 ######################################################################
 
@@ -58,5 +64,4 @@ installAutotools() {
   :
   # techo "WARNING: Quitting at end of installAutotools."; cleanup
 }
-
 

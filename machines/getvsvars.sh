@@ -1,4 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
+#
+# @file    getvsvars.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 # Set the version of vs
 vsver=9

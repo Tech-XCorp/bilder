@@ -1,16 +1,22 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    extrepodrive.sh
 #
-# Get other repos that aren't normally needed for 
+# @brief   Get other repos that aren't normally needed for Bilder.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
 usage() {
     echo "Usage: $0 [options]"
     echo "  -h      print this message"
-    echo "  -a      checkout or update all repos in the list of repositories" 
-    echo "          (Default shown below)" 
+    echo "  -a      checkout or update all repos in the list of repositories"
+    echo "          (Default shown below)"
     echo "  -l      specify a repo list (space delimited)"
     echo "          repository will be of form: <repository_root><repo_name><trunk>"
     echo "  -r      specify a different repository root"
@@ -31,11 +37,10 @@ while getopts "ahl:r:s:t" arg; do
     l) GET_ALL=true; repos=$OPTARG;;
     r) repo_root=$OPTARG;;
     t) GET_RESULTS=true;;
-    *) echo Option $arg not recognized. 
+    *) echo Option $arg not recognized.
        usage;;
   esac
 done
-
 
 ## Get external repos
 if $GET_ALL; then

@@ -1,13 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for tbb
+# @file    tbb.sh
+#
+# @brief   Build information for tbb.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # From http://software.intel.com/en-us/intel-tbb
 # tar xzf tbb43_20140724oss_src.tgz
 # mv tbb41_20140724oss tbb-41_20140724oss
 # COPY_EXTENDED_ATTRIBUTES_DISABLE=1 tar czf tbb-43_20140724oss.tar.gz tbb-43_20140724oss
-#
-# $Id$
 #
 ######################################################################
 

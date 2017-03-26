@@ -1,4 +1,4 @@
-$Id$
+$Rev$ $Date$
 
 MULTI_USER_ROOT
   Windows: /winsame
@@ -17,6 +17,5 @@ The important options are:
     i) REPODIR_IS_INTERNAL=true;;
     k) COMMON_CONTRIB=true;;
     r) ROOTDIR_CVI=$OPTARG;;
-
 
 :1,$s/INSTALL_ROOTDIR/REPO_INSTROOT/g

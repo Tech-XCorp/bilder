@@ -1,10 +1,18 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
+#
+# @file    lapack_aux.sh
+#
+# @brief   Trigger vars and find information for lapack.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Version and build information for lapack.
 # The original tarball was obtained here:
 #   http://www.netlib.org/lapack/lapack-3.4.0.tgz
-#
-# $Id$
 #
 ######################################################################
 

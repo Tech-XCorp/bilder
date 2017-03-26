@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for simyan
+# @file    simyan.sh
 #
-# $Id$
+# @brief   Version and build information for simyan.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -45,7 +51,7 @@ buildSimyan() {
   SIMYAN_MACHINE_ARGS="-DMPIRUN:STRING=aprun -DNODE_DETECTION:STRING=manual -DCORES_PER_NODE:INTEGER=4 -DSOCKETS_PER_NODE:INTEGER=2 -DNODE_ALLOCATION_MODE:SHARED=shared"
       # Parallel build
       if bilderConfig -c simyan pycsh "$CMAKE_COMPILERS_PYC $SIMYAN_OTHER_ARGS $SIMYAN_MACHINE_ARGS $CMAKE_SUPRA_SP_ARG" simyan; then
-	  bilderBuild simyan pycsh "$SIMYAN_MAKEJ_ARGS"
+          bilderBuild simyan pycsh "$SIMYAN_MAKEJ_ARGS"
       fi
 
   fi

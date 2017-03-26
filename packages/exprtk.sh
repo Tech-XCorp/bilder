@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for exprtk
+# @file    exprtk.sh
 #
-# $Id$
+# @brief   Build information for exprtk.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

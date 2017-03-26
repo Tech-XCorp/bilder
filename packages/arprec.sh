@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for arprec
+# @file    arprec.sh
 #
-# $Id$
+# @brief   Version and build information for arprec
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,8 +17,8 @@
 # Version
 #
 ######################################################################
-ARPREC_BLDRVERSION=${ARPREC_BLDRVERSION:-"2.2.13"}
 
+ARPREC_BLDRVERSION=${ARPREC_BLDRVERSION:-"2.2.13"}
 
 ######################################################################
 #

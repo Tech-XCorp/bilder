@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for sphinx_bootstrap_theme
+# @file    sphinx_bootstrap_theme.sh
 #
-# $Id$
+# @brief   Build information for sphinx_bootstrap_theme.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

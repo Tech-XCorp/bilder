@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    mesa_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for mesa.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Repackage for bilder (do on Linux to avoid resource files):
 #   tar xzf MesaLib-7.10.2.tar.gz

@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    openblas_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for openblas.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2017-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

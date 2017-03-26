@@ -1,13 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    imagesize_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for imagesize.
 #
-# This package was taken from bitbucket and put into sourceforge:
-# https://svn.code.sf.net/p/numfig/code-0/trunk
+# @version $Rev$ $Date$
 #
-# Create the tarball by running tarup.sh in the checked out repo.
+# Copyright &copy; 2017-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

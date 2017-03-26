@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for trilinos
+# @file    trilinos.sh
 #
-# $Id$
+# @brief   Build information for trilinos.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -116,7 +122,7 @@ getTriTPLs() {
           continue  # parallel only
         fi
         tplLibName="mpi"
-        ;;	   
+        ;;
 
       Netcdf)
         if test "$parflag" == "ser"; then
@@ -323,16 +329,16 @@ buildTrilinos() {
   local triPkgs=" "
   local sigPkgs=0
   if echo "$TRILINOS_BUILDS" | grep -q "ser" || echo "$TRILINOS_BUILDS" | grep -q "par" || echo "$TRILINOS_BUILDS" | grep -q "ben" ; then
-# Here, we are making a build for an application. 
+# Here, we are making a build for an application.
       triPkgs="ML AztecOO Amesos Galeri Shards Intrepid Komplex NOX EpetraExt Epetra Triutils Teuchos Ifpack"
       if test `uname` = Linux; then
-	  triPkgs="$triPkgs Amesos2"
+          triPkgs="$triPkgs Amesos2"
       fi
       BUILD_TRILINOS_EXPERIMENTAL=${BUILD_TRILINOS_EXPERIMENTAL:-"false"}
       if $BUILD_TRILINOS_EXPERIMENTAL; then
-	  triPkgs="$triPkgs Phalanx SEACAS Zoltan"
+          triPkgs="$triPkgs Phalanx SEACAS Zoltan"
       elif $TRILINOS_MAJORVER -lt 12; then
-	  triPkgs="$triPkgs Phalanx"
+          triPkgs="$triPkgs Phalanx"
       fi
   else
 # Here we are building a specific package
@@ -340,7 +346,6 @@ buildTrilinos() {
       triPkgs="$TRILINOS_BUILDS"
   fi
   local triCommonArgs="`getTriPackages $triPkgs` $triConfigArgs"
-
 
 # Potential external packages
 # Casing has to match those given in getTriTPLs, which in turn
@@ -428,7 +433,7 @@ buildTrilinos() {
   fi
   if [ $sigPkgs = 1 ]; then
       if bilderConfig trilinos $TRILINOS_BUILDS "-DTPL_ENABLE_MPI:BOOL=ON $TRILINOS_ALL_ADDL_ARGS $TRILINOS_PAR_ADDL_ARGS $TRILINOS_PAR_OTHER_ARGS $TRILINOS_ALL_PAR_ADDL_ARGS $TRILINOS_OTHER_BUILD_ADDL_ARGS"; then
-	  bilderBuild trilinos $TRILINOS_BUILDS "$TRILINOS_MAKEJ_ARGS"
+          bilderBuild trilinos $TRILINOS_BUILDS "$TRILINOS_MAKEJ_ARGS"
       fi
   fi
 

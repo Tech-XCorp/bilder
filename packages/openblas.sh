@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for openblas
+# @file    openblas.sh
 #
-# $Id$
+# @brief   Build information for openblas.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2017-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

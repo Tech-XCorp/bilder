@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for qhull
+# @file    qhull.sh
 #
-# $Id$
+# @brief   Version and build information for qhull.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -50,7 +56,7 @@ buildQhull() {
 
   if bilderUnpack qhull; then
       if bilderConfig $USE_CMAKE_ARG qhull ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $QHULL_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-	        bilderBuild qhull ser "$QHULL_MAKEJ_ARGS $QHULL_MAKE_ARGS"
+                bilderBuild qhull ser "$QHULL_MAKEJ_ARGS $QHULL_MAKE_ARGS"
       fi
   fi
 

@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for numexpr
+# @file    numexpr.sh
 #
-# $Id$
+# @brief   Build information for numexpr.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -82,7 +88,7 @@ buildNumexpr() {
       NUMEXPR_ENV="$DISTUTILS_ENV CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
       ;;
     Linux-*)
-	linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}"
+        linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR} -Wl,-rpath,${LAPACK_PYCSH_DIR}"
       NUMEXPR_ARGS=""
       NUMEXPR_ENV="$DISTUTILS_ENV"
       ;;

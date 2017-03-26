@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for fftw3
+# @file    fftw3.sh
 #
-# $Id$
+# @brief   Version and build information for fftw3.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -59,8 +65,6 @@ buildFftw3() {
   fi
 
 }
-
-
 
 ######################################################################
 #

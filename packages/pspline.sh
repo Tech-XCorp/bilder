@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for pspline
+# @file    pspline.sh
 #
-# $Id$
+# @brief   Build information for pspline.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -79,7 +85,6 @@ buildPspline() {
   # techo "For pspline, PREFER_CMAKE = $PREFER_CMAKE."
   buildPsplineCM
 }
-
 
 ######################################################################
 #

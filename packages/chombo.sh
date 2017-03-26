@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for chombo
+# @file    chombo.sh
 #
-# $Id$
+# @brief   Version and build information for chombo.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -57,7 +63,7 @@ buildChombo() {
   else
     LINK_WITH_MKL_ARGS="-DLINK_WITH_MKL:BOOL=ON"
   fi
-  
+
   case `uname` in
     CYGWIN*)
       # on windows, we don't want the full path, which may contain spaces
@@ -69,31 +75,31 @@ buildChombo() {
       MPICXX=`basename "$MPICXX"`
       ;;
   esac
-  
+
   if bilderUnpack chombo; then
 
-     # pletzer: turning off petsc/superlu 
+     # pletzer: turning off petsc/superlu
      # -DPETSC_FIND_VERSION:STRING=3.4 -DSUPERLU_FIND_VERSION:STRING=-$SUPERLU_BLDRVERSION-ser
 
      # ser2d
      if bilderConfig -c chombo ser2d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DCMAKE_C_COMPILER:FILEPATH=$CC -DCMAKE_CXX_COMPILER:FILEPATH=$CXX $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo ser2d "$CHOMBO_MAKEJ_ARGS"
-     fi 
+     fi
 
      # ser3d
      if bilderConfig -c chombo ser3d "-DENABLE_PARALLEL:BOOL=OFF -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$FC -DCMAKE_C_COMPILER:FILEPATH=$CC -DCMAKE_CXX_COMPILER:FILEPATH=$CXX $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo ser3d "$CHOMBO_MAKEJ_ARGS"
-     fi 
+     fi
 
      # par2d
      if bilderConfig -c chombo par2d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=2 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$MPIFC -DCMAKE_C_COMPILER:FILEPATH=$MPICC -DCMAKE_CXX_COMPILER:FILEPATH=$MPICXX $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo par2d "$CHOMBO_MAKEJ_ARGS"
-     fi 
+     fi
 
      # par3d
      if bilderConfig -c chombo par3d "-DENABLE_PARALLEL:BOOL=ON -DSPACEDIM:INT=3 -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_EB:BOOL=ON $LINK_WITH_MKL_ARGS -DCMAKE_Fortran_COMPILER:FILEPATH=$MPIFC -DCMAKE_C_COMPILER:FILEPATH=$MPICC -DCMAKE_CXX_COMPILER:FILEPATH=$MPICXX $CMAKE_SUPRA_SP_ARG"; then
         bilderBuild chombo par3d "$CHOMBO_MAKEJ_ARGS"
-     fi 
+     fi
 
   fi
 

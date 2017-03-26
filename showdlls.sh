@@ -1,3 +1,17 @@
+#!/bin/sh
+######################################################################
+#
+# @file    showdlls.sh
+#
+# @brief   To find dependency DLLs.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 
 mydir=`dirname $0`

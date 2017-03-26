@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    mkvars.sh
 #
-# For creating a template file with all needed variables
+# @brief   For creating a template file with all needed variables
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -122,7 +128,7 @@ fi
 cat <<END
 #!/bin/bash
 #
-# \$Id$
+# \$Rev$ $Date$
 # /* vim: set filetype=sh : */
 #
 # Define variables.

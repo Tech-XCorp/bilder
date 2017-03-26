@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for ne7ssh
+# @file    ne7ssh.sh
 #
-# $Id$
+# @brief   Version and build information for ne7ssh.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -71,7 +77,6 @@ buildNe7ssh() {
 testNe7ssh() {
   techo "Not testing ne7ssh."
 }
-
 
 ######################################################################
 #
