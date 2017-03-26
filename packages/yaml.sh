@@ -1,21 +1,20 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for yaml library.
+# @file    yaml.sh
 #
-# $Id$
+# @brief   Build information for yaml library.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
 ######################################################################
 #
 # Version
-#
-# Putting the version information into moab_aux.sh eliminates the
-# rebuild when one changes that file.  Of course, if the actual version
-# changes, or this file changes, there will be a rebuild.  But with
-# this one can change the experimental version without causing a rebuild
-# in a non-experimental Bilder run.  One can also change any auxiliary
-# functions without sparking a build.
 #
 ######################################################################
 
@@ -50,7 +49,6 @@ buildYaml() {
     done
   fi
 }
-
 
 ######################################################################
 #

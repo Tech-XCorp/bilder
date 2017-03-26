@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for xdmf
+# @file    xdmf.sh
 #
-# $Id$
+# @brief   Version and build information for xdmf.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -12,7 +18,6 @@
 #
 ######################################################################
 XDMF_BLDRVERSION=${XDMF_BLDRVERSION:-"unknown"}
-
 
 ######################################################################
 #

@@ -1,10 +1,17 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for vtk
+# @file    vtk.sh
+#
+# @brief   Version and build information for vtk.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
 # Build info taken from
 # svn export svn export http://portal.nersc.gov/svn/visit/trunk/src/svn_bin/bv_support/bv_vtk.sh
-#
-# $Id$
 #
 ######################################################################
 
@@ -65,7 +72,7 @@ buildVtk() {
 # Protect against jom, as dependencies not right
       VTK_MAKER_ARGS="-m nmake"
       ;;
-    Darwin)	# make -j can fail on Darwin
+    Darwin)     # make -j can fail on Darwin
       VTK_OS_ARGS="$VTK_OS_ARGS -DVTK_USE_CARBON:BOOL=OFF -DVTK_USE_COCOA:BOOL=ON"
 
 # Get references to libs correct

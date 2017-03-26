@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for Votca
+# @file    votca_csg.sh
 #
-# $Id$
+# @brief   Version and build information for Votca.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -41,18 +47,18 @@ buildVotca_Csg() {
   VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_INCLUDE_DIR:PATH='$CONTRIB_DIR/votca_tools-ser/include'"
   case `uname` in
       CYGWIN* | Darwin)
-	  # lib path needed because a built executable is called as part of build
-	  export DYLD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$DYLD_LIBRARY_PATH
-	  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.dylib'" ;;
+          # lib path needed because a built executable is called as part of build
+          export DYLD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$DYLD_LIBRARY_PATH
+          VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.dylib'" ;;
       Linux)
-	  export LD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$LD_LIBRARY_PATH
-	  VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.so'" ;;
+          export LD_LIBRARY_PATH=$CONTRIB_DIR/votca_tools-ser/lib:$LD_LIBRARY_PATH
+          VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DVOTCA_TOOLS_LIBRARY:FILEPATH='$CONTRIB_DIR/votca_tools-ser/lib/libvotca_tools.so'" ;;
   esac
 
   #
   # Votca cmake modules will corrupt lib finding if another boost is found
   # Fixing this on Peregrine through machine file
-  # 
+  #
   if [[ -z $BOOST_INCLUDEDIR ]]; then
       techo -2 "BOOST_INCLUDEDIR enviroment var is unset. Will set BOOST_ROOT"
       VOTCA_CSG_ARGS="$VOTCA_CSG_ARGS -DBOOST_ROOT:PATH=$CONTRIB_DIR/boost"
