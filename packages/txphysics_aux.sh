@@ -1,10 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    txphysics_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for txphysics.
 #
-##################################################################
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 ######################################################################
 #

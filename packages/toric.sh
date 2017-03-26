@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for toric
+# @file    toric.sh
 #
-# $Id$
+# @brief   Version and build information for toric.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -39,10 +45,10 @@ buildToric() {
     local TORIC_CONFIG_COMPILERS_PAR="CC=$MPICC CXX=$MPICXX FC=$MPIFC F77=$MPIFC"
     if bilderConfig toric par "--enable-parallel $TORIC_CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $TORIC_PAR_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
 #    bilderBuild toric par "$TORIC_MAKEJ_ARGS"
-      bilderBuild toric par	# Cannot use TORIC_MAKEJ_ARGS since Fortran
+      bilderBuild toric par     # Cannot use TORIC_MAKEJ_ARGS since Fortran
     fi
     if bilderConfig toric ser "--disable-parallel $CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $TORIC_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
-      bilderBuild toric ser	# Cannot use TORIC_MAKEJ_ARGS since Fortran
+      bilderBuild toric ser     # Cannot use TORIC_MAKEJ_ARGS since Fortran
     fi
   fi
 }

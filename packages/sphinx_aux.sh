@@ -1,13 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    sphinx_aux.sh
+#
+# @brief   Trigger vars and find information for sphinx.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Repackage by, e.g.,
 #  tar xjf birkenfeld-sphinx-869bf6d21292.tar.bz2
 #  mv birkenfeld-sphinx-869bf6d21292.tar.bz2 sphinx-1.3a0
 #  env COPYFILE_DISABLE=true tar cjf sphinx-1.3a0.tar.bz2 sphinx-1.3a0
-#
-# $Id$
 #
 ######################################################################
 

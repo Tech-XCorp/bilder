@@ -1,9 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for scotch
-# PETSc does not allow serial build w/scotch
+# @file    scotch.sh
 #
-# $Id$
+# @brief   Build information for scotch.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -43,17 +48,17 @@ buildScotch() {
 
       local cmd=''
       case `uname` in
-	  Darwin)
-	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
-	      ;;
-	  Linux)
-	      cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_pc_linux2.nothreads $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
-	      ;;
+          Darwin)
+              cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_mac_darwin10_mpi_nopthread $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
+              ;;
+          Linux)
+              cmd="cp $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Make.inc/Makefile.inc.i686_pc_linux2.nothreads $BUILD_DIR/scotch-$SCOTCH_BLDRVERSION/src/Makefile.inc"
+              ;;
       esac
       techo $cmd
       $cmd
       if bilderConfig -B src scotch par "$CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR"; then
-	  bilderBuild -m "cd src/; make $SCOTCH_MAKEJ_ARGS ptscotch; cd ../" scotch par
+          bilderBuild -m "cd src/; make $SCOTCH_MAKEJ_ARGS ptscotch; cd ../" scotch par
       fi
 
 }

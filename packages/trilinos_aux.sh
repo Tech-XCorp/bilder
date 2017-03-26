@@ -1,13 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    trilinos_aux.sh
+#
+# @brief   Trigger vars and find information for trilinos.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # This is repacked to obey bilder conventions
 # tar xzf trilinos-10.2.0-Source.tar.gz
 # mv trilinos-10.2.0-Source trilinos-10.2.0
 # tar czf trilinos-10.2.0.tar.gz trilinos-10.2.0
-#
-# $Id$
 #
 ######################################################################
 

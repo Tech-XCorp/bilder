@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    scotch_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for scotch.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -38,7 +44,7 @@ setScotchTriggerVars
 
 findScotch() {
 # Find installation directories
-  findContribPackage Scotch scotch par 
+  findContribPackage Scotch scotch par
   local builds="par"
   techo
 
