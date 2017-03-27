@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for nuitka
+# @file    nuitka.sh
 #
-# $Id$
+# @brief   Build information for nuitka.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

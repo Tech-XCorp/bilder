@@ -1,14 +1,18 @@
-##########
+#!/bin/sh
+######################################################################
 #
-# File:    fqdn.sh
+# @file    fqdn.sh
 #
-# Purpose: Set the fully qualified domain name for systems that
+# @brief   Set the fully qualified domain name for systems that
 #          do not return this from hostname or hostname -f.  This
 #          can set FQHOSTNAME, FQMAILHOST, DOMAINNAME, RUNNRSYSTEM
 #
-# Version: $Id$
+# @version $Rev$ $Date$
 #
-##########
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 bilderFqdn() {
 

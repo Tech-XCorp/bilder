@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for libffi
+# @file    libffi.sh
 #
-# $Id$
+# @brief   Build information for libffi.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -68,8 +74,8 @@ testLibffi() {
 ######################################################################
 
 installLibffi() {
-  bilderInstall libffi sersh 
-  bilderInstall libffi pycsh 
-  bilderInstall libffi ser 
+  bilderInstall libffi sersh
+  bilderInstall libffi pycsh
+  bilderInstall libffi ser
 }
 

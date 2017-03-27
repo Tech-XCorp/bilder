@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for c2html
+# @file    c2html.sh
 #
-# $Id$
+# @brief   Build and version information for c2html.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -45,7 +51,7 @@ testC2html() {
 
 installC2html() {
   for bld in ${C2HTML_BUILDS}; do
-    bilderInstall c2html ser 
+    bilderInstall c2html ser
   done
 }
 ######################################################################

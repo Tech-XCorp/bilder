@@ -1,11 +1,17 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for freecad.
+# @file    freecad.sh
+#
+# @brief   Build information for freecad.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # To run this, for OS X:
 #  export DYLD_LIBRARY_PATH=/volatile/freecad/lib:/volatile/freecad/Mod/PartDesign:/contrib/boost-1_47_0-ser/lib:/volatile/oce-r747-ser/lib
-#
-# $Id$
 #
 ######################################################################
 

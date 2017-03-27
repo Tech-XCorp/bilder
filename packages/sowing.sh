@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for sowing
+# @file    sowing.sh
 #
-# $Id$
+# @brief   Version and build information for sowing.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -45,7 +51,7 @@ testSowing() {
 
 installSowing() {
   for bld in ${SOWING_BUILDS}; do
-    bilderInstall sowing ser 
+    bilderInstall sowing ser
   done
 }
 ######################################################################

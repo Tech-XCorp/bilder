@@ -1,11 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Change to a new programming environment
+# @file    changeprogenv.sh
+#
+# @brief   Change to a new programming environment
 # Source this file above the bilder directory.  E.g.,
 #   source ./bilder/changeprogenv.sh pgi
 # to change to pgi paths.
 #
-# $Id$
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 #
 # Method to print out general and script specific options

@@ -1,12 +1,18 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# For setting the defaults for the mkxxxx-default.sh scripts.
+# @file    mkall-default.sh
 #
-# $Id$
+# @brief   For setting the defaults for the mkxxxx-default.sh scripts.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Also see defaultsfcns.sh for concomitant functions
 #
-# ---------------------------------------------------------------------
+######################################################################
 
 defaultsUsage() {
   script=`basename $SCRIPT_NAME -default.sh`.sh

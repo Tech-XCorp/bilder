@@ -1,12 +1,16 @@
-## ######################################################################
-##
-## File:	runnrfcns.sh
-##
-## Purpose: Define helper functions for running simulations.
-##
-## Version: $Id$
-##
-## ######################################################################
+#!/bin/sh
+######################################################################
+#
+# @file    runnrfcns.sh
+#
+# @brief   Define helper functions for running simulations.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 #
 # Find the value of a variable whose name is in a variable
@@ -204,7 +208,6 @@ runnrExec() {
   return 0
 }
 
-
 #
 # Set the following variables:
 #  FQHOSTNAME:  fully qualified hostname (different per node on a cluster)
@@ -313,7 +316,7 @@ runnrGetHostVars() {
       fi
     fi
   fi
-  UQHOSTNAME=`echo $FQHOSTNAME |  sed 's/\..*//'`	# Unqualified name
+  UQHOSTNAME=`echo $FQHOSTNAME |  sed 's/\..*//'`       # Unqualified name
 
 #
 # Get the domainname
@@ -484,7 +487,7 @@ runnrGetQSubCmd() {
   local account=$5
 
 # Set variables from new names
-  account=${account:-"$RUNNR_ACCOUNT"}	# ComPASS
+  account=${account:-"$RUNNR_ACCOUNT"}  # ComPASS
   queue=${queue:-"$RUNNR_QUEUE"}
   if test -z "$queue"; then
     techo "Catastrophic failure: Queue unknown.  Quitting." 1>&2
@@ -670,7 +673,7 @@ runnrRun() {
     local cmd="$qsubcmd $script"
     techo "$cmd"
     # techo exit; exit
-    RUNNR_QJOB=`$cmd`	# Global needed for error out.
+    RUNNR_QJOB=`$cmd`   # Global needed for error out.
     RUNNR_QJOB_NUM=`echo $RUNNR_QJOB | sed 's/\..*//'`
     if test -z "$RUNNR_QJOB"; then
       techo "Catastrophic error. No queue job number.  Quitting"

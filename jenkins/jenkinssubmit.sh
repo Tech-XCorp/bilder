@@ -1,6 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    jenkinssubmit.sh
+#
+# @brief   Launch a test job on Jenkins.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # https://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Builds
 #
@@ -15,7 +23,6 @@
 #    ]}
 #
 # The defaults are given is the above example.
-#
 ######################################################################
 
 myname=`basename $BASH_SOURCE`
@@ -132,5 +139,4 @@ if test $res = 0; then
 else
   echo "[$myname] ERROR.  Return code of curl is $res.  Received '$returnHtml'."
 fi
-
 

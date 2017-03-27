@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for qdstests
+# @file    qdstests.sh
 #
-# $Id$
+# @brief   Version and build information for qdstests.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -34,9 +40,7 @@ RESULTS=
 #
 ######################################################################
 
-
 QDSTESTS_SER_OTHER_ARGS="-DQUIDS=$PROJECT_DIR/ddsflow -DQUIDS_BUILD=$PROJECT_DIR/builds/ddsflow -DQUIDS_PROC=ser"
-
 
 buildQdstests() {
   techo "start qdstests build"
@@ -74,7 +78,6 @@ buildQdsTests() {
   (cd $PROJECT_DIR/builds/qdstests/ser/;./runTests.sh)
 
 }
-
 
 ######################################################################
 #

@@ -1,9 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for graphviz
-# PETSc does not allow serial build w/graphviz
+# @file    graphviz.sh
 #
-# $Id$
+# @brief   Build information for graphviz.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 

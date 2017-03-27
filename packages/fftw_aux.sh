@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    fftw_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for fftw.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -24,7 +30,7 @@ setFftwTriggerVars() {
 ######################################################################
 
 #FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"}
-FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}    
+FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}
 
 ######################################################################
 #

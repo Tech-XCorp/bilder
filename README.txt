@@ -1,6 +1,6 @@
 Bilder: a cross-platform, package management system.
 
-$Id$
+$Rev$ $Date$
 
 See https://sourceforge.net/p/bilder/wiki/Home/
 

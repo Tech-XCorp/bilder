@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for muparser
+# @file    muparser.sh
 #
-# $Id$
+# @brief   Build information for muparser.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -139,7 +145,7 @@ installMuparser() {
           cmd="mkdir -p $CONTRIB_DIR/muparser-${MUPARSER_BLDRVERSION}-$bld/$dir"
           techo "$cmd"
           $cmd
-	done
+        done
         cmd="cd $BUILD_DIR/muparser-${MUPARSER_BLDRVERSION}/build"
         techo "$cmd"
         $cmd

@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    moab_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for moab.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -61,7 +67,6 @@ setMoabTriggerVars() {
       addBuild $* ser${MOAB_BUILD_SET} pycst${MOAB_BUILD_SET}
     fi
   fi
-
 
 # Determine moab deps
   MOAB_DEPS=netcdf,boost

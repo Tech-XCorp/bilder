@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for facetsifc
+# @file    facetsifc.sh
 #
-# $Id$
+# @brief   Version and build information for facetsifc.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -101,5 +107,4 @@ findFacetsifc() {
     fi
   done
 }
-
 

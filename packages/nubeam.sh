@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for nubeam
+# @file    nubeam.sh
 #
-# $Id$
+# @brief   Version and build information for nubeam.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,7 +17,6 @@
 # Version
 #
 ######################################################################
-
 
 ######################################################################
 #
@@ -42,7 +47,7 @@ buildNubeam() {
 # Order is longest to shortest to build
     if bilderConfig nubeam par "--enable-parallel $CONFIG_COMPILERS_PAR $CONFIG_COMPFLAGS_PAR $NUBEAM_CONF_FFLAGS --disable-mdsplus $CONFIG_LINLIB_BEN_ARGS $NUBEAM_PAR_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
       rm -f $BUILD_DIR/nubeam/par/compfailures.txt
-      bilderBuild nubeam par 
+      bilderBuild nubeam par
     fi
     if bilderConfig nubeam ser "$CONFIG_COMPILERS_SER $CONFIG_COMPFLAGS_SER $NUBEAM_CONF_FFLAGS --disable-mdsplus $CONFIG_LINLIB_SER_ARGS $NUBEAM_SER_OTHER_ARGS $CONFIG_SUPRA_SP_ARG"; then
       rm -f $BUILD_DIR/nubeam/ser/compfailures.txt

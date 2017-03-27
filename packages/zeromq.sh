@@ -1,9 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for ZeroMQ
+# @file    zeromq.sh
+#
+# @brief   Version and build information for ZeroMQ.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
 # http://zeromq.org/intro:get-the-software
-#
-# $Id$
 #
 ######################################################################
 

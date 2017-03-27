@@ -1,7 +1,16 @@
 #!/bin/sh
-# script for updating svn repos and git repos
+######################################################################
 #
-# $Id$
+# @file    updaterepos.sh
+#
+# @brief   script for updating svn repos and git repos
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
 
 updir=${1:-"."}
 updir=`(cd $updir; pwd -P)`

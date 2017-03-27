@@ -1,12 +1,18 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for boost
+# @file    boost.sh
+#
+# @brief   Build information for boost.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # ./bootstrap.sh -show-libraries
 # ./b2 --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi stage
 # ./b2 --prefix=/contrib/boost-1_50_0-ser --build-dir=ser --stagedir=ser/stage link=static --without-python threading=multi variant=release -s NO_COMPRESSION=1 --layout=system --without-mpi install
-#
-# $Id$
 #
 ######################################################################
 
@@ -149,12 +155,12 @@ buildBoost() {
         *clang++ | *g++)
 # g++ is clang++ on Darwin-11+
           toolsetarg_ser="toolset=clang"
-	  ;;
+          ;;
         *g++-*)
 # For the real g++ installations (ser, sersh using gcc from homebrew, e.g.)
 # no toolset as have 'using' in user-config.jam
-	  # toolsetarg_ser="toolset=darwin"
-	  ;;
+          # toolsetarg_ser="toolset=darwin"
+          ;;
         *icpc) toolsetarg_ser="toolset=icpc";;
       esac
       ;;

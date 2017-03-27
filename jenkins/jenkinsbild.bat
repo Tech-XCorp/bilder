@@ -1,11 +1,15 @@
 @echo off
-rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
-rem
-rem Purpose: This starts jenkinsbild through cygwin on windows.
-rem
-rem $Id$
-rem
-rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
+REMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREM
+REM
+REM @file    jenkinsbild.bat
+REM
+REM @brief   This starts jenkinsbild through cygwin on windows.
+REM
+REM @version $Rev$ $Date$
+REM
+REM Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+REM
+REMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREM
 
 echo jenkinsbild.bat: ========= EXECUTING jenkinsbild.bat ========
 echo jenkinsbild.bat: ========= EXECUTING jenkinsbild.bat ======== > jenkinsbild.log

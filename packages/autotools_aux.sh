@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    autotools_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for autotools.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -42,7 +48,7 @@ setAutotoolsTriggerVars
 
 ######################################################################
 #
-# Find autotools 
+# Find autotools
 #
 ######################################################################
 

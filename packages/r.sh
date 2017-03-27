@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for R
+# @file    r.sh
 #
-# $Id$
+# @brief   Version and build information for R.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -21,10 +27,11 @@ R_DEPS=
 # Other values
 #
 ######################################################################
+
 case `uname` in
     CYGWIN*)
-	unset R_BUILDS
-	;;
+        unset R_BUILDS
+        ;;
 esac
 
 ######################################################################

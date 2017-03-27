@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    sphinx_bootstrap_theme_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for sphinx_bootstrap_theme.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2015-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # tar xzf sphinx-bootstrap-theme-0.4.13.tar.gz
 # mv sphinx-bootstrap-theme-0.4.13 sphinx_bootstrap_theme-0.4.13

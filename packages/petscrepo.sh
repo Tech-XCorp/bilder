@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for petsc developer version
+# @file    petscrepo.sh
 #
-# $Id$
+# @brief   Version and build information for petsc developer version.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -45,7 +51,6 @@ fi
 PETSCREPO_UMASK=002
 BUILD_PETSC_WITH_HYPRE=${BUILD_PETSC_WITH_HYPRE:-false}
 BUILD_PETSC_WITH_SUPERLU=${BUILD_PETSC_WITH_SUPERLU:-false}
-
 
 ######################################################################
 #  Functions that are going to be used to enable looping over all of the
@@ -135,12 +140,12 @@ buildPetscrepo() {
   # Start by specifying the following variables (SER/PAR):
   #   PETSC_PAR_COMPILERS: Put the compilers into the form that petsc wants
   #   PETSC_PAR_FLAG_ARGS: Put the flags into the form that petsc wants
-  #   PETSC_PAR_OTHER_ARGS 
-  #   PETSC_PAR_ADDL_ARGS 
+  #   PETSC_PAR_OTHER_ARGS
+  #   PETSC_PAR_ADDL_ARGS
   #   PETSC_PAR_PKGS:      Specify the packages
-  #   PETSC_ENV 
+  #   PETSC_ENV
   #   PETSC_DIRARG
-  #   CONFIG_LINLIB_SER_ARGS  
+  #   CONFIG_LINLIB_SER_ARGS
   # Do not put any of the debug/opt or real/cplx into the above: They are
   # handled by the build name and the above functions
   ###---------------------------------------------------------------------------
@@ -212,14 +217,14 @@ buildPetscrepo() {
     fi
 
     ###---------------------------------------------------------------------------
-    ## SEK: The difference between OTHER_ARGS and ADDL_ARGS 
+    ## SEK: The difference between OTHER_ARGS and ADDL_ARGS
     ## SEK:     is always somewhat confusing to me
     ## SEK: For now: ADDL_ARGS are platform-dependen args
-    ## 
+    ##
     ## No build includes X windows support
     ##
     ## c2html removed because petsc team says flex is needed for c2html
-    ## For hg based repo, petsc configure tries to build it by default. -- CJ 
+    ## For hg based repo, petsc configure tries to build it by default. -- CJ
     #
     #PETSC_SER_OTHER_ARGS=${PETSC_SER_ADDL_ARGS:-"--with-x=0 --with-make-np=$JMAKE"}
     #PETSC_PAR_OTHER_ARGS=${PETSC_PAR_ADDL_ARGS:-"--with-x=0 --with-make-np=$JMAKE"}
@@ -232,7 +237,7 @@ buildPetscrepo() {
     case `uname` in
       CYGWIN*)
         PETSC_ENV="PATH=/usr/bin:\"$PATH\" LIB=\"$LIB\" INCLUDE=\"$INCLUDE\""
-		# Turn-off x-windows capabilities for Windows
+                # Turn-off x-windows capabilities for Windows
         PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --with-x=0 --with-make=/usr/bin/make --with-blas-lapack-lib='${LAPACK_SER_DIR}/lib/lapack.lib ${LAPACK_SER_DIR}/lib/blas.lib ${LAPACK_SER_DIR}/lib/f2c.lib'"
         PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --with-x=0 --with-make=/usr/bin/make --with-blas-lapack-lib='${LAPACK_SER_DIR}/lib/lapack.lib ${LAPACK_SER_DIR}/lib/blas.lib ${LAPACK_SER_DIR}/lib/f2c.lib'"
         PETSC_OUTOFPLACE=false
@@ -244,8 +249,8 @@ buildPetscrepo() {
         PETSC_OUTOFPLACE=true
         ;;
       Darwin)
-	    PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --with-x=1"
-	    PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --with-x=1"
+            PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --with-x=1"
+            PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --with-x=1"
         if test -n "$LINLIB_SER_LIBS"; then
           PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --LIBS='$LINLIB_SER_LIBS'"
           PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --LIBS='$LINLIB_BEN_LIBS'"
@@ -253,8 +258,8 @@ buildPetscrepo() {
         PETSC_OUTOFPLACE=true
         ;;
       *)
-	    PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --with-x=1"
-	    PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --with-x=1"
+            PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --with-x=1"
+            PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --with-x=1"
         if test -n "$LINLIB_SER_LIBS"; then
           PETSC_SER_ADDL_ARGS="$PETSC_SER_ADDL_ARGS --with-blas-lapack-dir='$LINLIB_SER_LIBS'"
           PETSC_PAR_ADDL_ARGS="$PETSC_PAR_ADDL_ARGS --with-blas-lapack-dir='$LINLIB_BEN_LIBS'"
@@ -280,15 +285,15 @@ buildPetscrepo() {
     ##
     if $BUILD_PETSC_WITH_HYPRE; then
       case `uname` in
-	    CYGWIN*)
+            CYGWIN*)
           PETSC_PAR_PKGS="$PETSC_PAR_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/HYPRE.lib"
           PETSC_PARSH_PKGS="$PETSC_PARSH_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/HYPRE.dll"
-	      ;;
-	    *)
-	      PETSC_PAR_PKGS="$PETSC_PAR_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.a"
+              ;;
+            *)
+              PETSC_PAR_PKGS="$PETSC_PAR_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.a"
           PETSC_PARSH_PKGS="$PETSC_PARSH_PKGS --with-hypre=1 --with-hypre-include=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/include --with-hypre-lib=$CONTRIB_DIR/hypre-${HYPRE_BLDRVERSION}-par/lib/libHYPRE.so"
           ;;
-	  esac
+          esac
     fi
 
     ###
@@ -296,18 +301,18 @@ buildPetscrepo() {
     ##
     if $BUILD_PETSC_WITH_SUPERLU; then
       case `uname` in
-	    CYGWIN*)
+            CYGWIN*)
           PETSC_SER_PKGS="$PETSC_SER_PKGS  --with-superlu=1 --with-superlu-include=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include --with-superlu-lib=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib/superlu.lib "
           PETSC_SERSH_PKGS="$PETSC_SERSH_PKGS  --with-superlu=1 --with-superlu-include=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include --with-superlu-lib=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib/superlu.dll"
           PETSC_PAR_PKGS="$PETSC_PAR_PKGS  --with-superlu_dist=1 --with-superlu_dist-include=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include --with-superlu_dist-lib=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib/superlu_dist.lib "
           PETSC_PARSH_PKGS="$PETSC_PARSH_PKGS  --with-superlu_dist=1 --with-superlu_dist-include=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/include --with-superlu_dist-lib=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/lib/superlu_dist.dll"
-	      ;;
-	    *)
+              ;;
+            *)
           PETSC_SER_PKGS="$PETSC_SER_PKGS  --with-superlu=1 --with-superlu-include=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include --with-superlu-lib=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib/libsuperlu.a"
           PETSC_SERSH_PKGS="$PETSC_SERSH_PKGS  --with-superlu=1 --with-superlu-include=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/include --with-superlu-lib=$CONTRIB_DIR/superlu-${SUPERLU_BLDRVERSION}-ser/lib/libsuperlu.so"
           PETSC_PAR_PKGS="$PETSC_PAR_PKGS  --with-superlu_dist=1 --with-superlu_dist-include=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/include --with-superlu_dist-lib=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcomm/lib/libsuperlu_dist.a"
           PETSC_PARSH_PKGS="$PETSC_PARSH_PKGS  --with-superlu_dist=1 --with-superlu_dist-include=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-parcommsh/include --with-superlu_dist-lib=$CONTRIB_DIR/superlu_dist-${SUPERLU_DIST_BLDRVERSION}-par/lib/libsuperlu_dist.so"
-		  ;;
+                  ;;
       esac
     fi
 
@@ -328,7 +333,7 @@ buildPetscrepo() {
       config_args="$config_args `get_petsc_vardefined $build PKGS`"
       PETSC_DIRARG=`get_petsc_env $build`
       #if bilderConfig -i petscrepo $build "$config_args" "" "$PETSC_DIRARG"; then
-      if $PETSC_OUTOFPLACE; then 
+      if $PETSC_OUTOFPLACE; then
             barg="-b $build"
             config_args="--with-cmake=`which cmake` $config_args"
       else
@@ -365,9 +370,9 @@ installPetscrepo() {
 
   for build in `echo $PETSCREPO_BUILDS | tr , " "`; do
     PETSC_DIRARG=`get_petsc_env $build`
-	echo " "
-	echo "PETSC_DIRARG = $PETSC_DIRARG"
-	echo " "
+        echo " "
+        echo "PETSC_DIRARG = $PETSC_DIRARG"
+        echo " "
     if test $build == "ser"; then
       lnpetscname="petsc3.3"
     else

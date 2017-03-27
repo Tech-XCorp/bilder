@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for nimdevel
+# @file    nimdevel.sh
 #
-# $Id$
+# @brief   Version and build information for nimdevel.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -112,14 +118,14 @@ fi
 ######################################################################
 
 buildNimdevel() {
-  # Find tau here as it may have been built as a dependency by bilder. 
+  # Find tau here as it may have been built as a dependency by bilder.
   if $NIMDEVEL_WITH_TAU; then
     NIMDEVEL_PARTAU_COMPILERS=${NIMDEVEL_PARTAU_COMPILERS:-"-DCMAKE_C_COMPILER:FILEPATH=`which taucc` -DCMAKE_CXX_COMPILER:FILEPATH=`which taucc` -DCMAKE_Fortran_COMPILER:FILEPATH=`which tauf90`"}
     if test -z "$TAU_MAKEFILE"; then
       techo "No tau makefile specified.  I'll try to find one, but it is best to specify one on the command line with -E TAU_MAKEFILE=\"</path-to-makefile/Makefile-*>\"."
       # Find an appropriate tau makefile.
-      # Check the contrib and install directories but do not include python files, 
-      # the awk statement puts everything on one line, an the sed statement trims 
+      # Check the contrib and install directories but do not include python files,
+      # the awk statement puts everything on one line, an the sed statement trims
       # down to the first acceptable file.
       TAU_MAKEFILE=`ls -m --hide=python /{${CONTRIB_DIR},${BLDR_INSTALL_DIR}}/tau/lib/Makefile.tau* 2> /dev/null |  awk '{ ORS=" "; print; }' | sed 's/,.*//'`
     fi

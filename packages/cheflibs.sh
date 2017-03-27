@@ -1,14 +1,20 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for CHEF
+# @file    cheflibs.sh
 #
-# $Id$
+# @brief   Version and build information for CHEF.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
 # Need getRepo
 if test -z "$SCRIPT_DIR"; then
-    SCRIPT_DIR="${PROJECT_DIR}"
+  SCRIPT_DIR="${PROJECT_DIR}"
 fi
 techo -2 "SCRIPT_DIR = $SCRIPT_DIR"
 source $SCRIPT_DIR/bilder/extrepofcns.sh
@@ -121,7 +127,6 @@ buildCheflibs() {
   if test $res = 0; then
     eval ${BOOST_INCDIR_ARG:2}
   fi
-
 
 # Set up the particular config args for CHEF
   CHEF_LIBS_SER_OTHER_ARGS="${CHEF_LIBS_SER_OTHER_ARGS} CXXFLAGS=-DBOOST_PYTHON_NO_PY_SIGNATURES FFTW3_INC=${FFTW3_INSTALL_DIR}/fftw3/include FFTW3_LIB=${FFTW3_INSTALL_DIR}/fftw3/lib GLIB_INC=${GLIB_INC} GLIBCONFIG_INC=${GLIBCONFIG_INC} GLIB_LIB=${GLIB_LIB} PYTHON_INC=${PYTHON_INCDIR} BOOST_INC=${Boost_INCLUDE_DIR}"

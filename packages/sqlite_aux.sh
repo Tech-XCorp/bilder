@@ -1,13 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    sqlite_aux.sh
+#
+# @brief   Trigger vars and find information fo sqlite.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Package retarred from sqlite-autoconf-3160000.tar.gz:
 # tar xzf sqlite-autoconf-3160000.tar.gz
 # mv sqlite-autoconf-3160000 sqlite-3160000
 # env COPYFILE_DISABLE=true tar czf sqlite-3160000.tar.gz sqlite-3160000
-#
-# $Id$
 #
 ######################################################################
 

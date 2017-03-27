@@ -1,9 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Build information for hypre
+# @file    hypre.sh
+#
+# @brief   Build information for hypre.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
 # PETSc does not allow serial build w/hypre
-#
-# $Id$
 #
 ######################################################################
 

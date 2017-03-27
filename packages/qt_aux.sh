@@ -1,6 +1,14 @@
-# #!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    qt_aux.sh
+#
+# @brief   Trigger vars and find information for qt.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; version-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 # Latest source packages available from
 #   http://get.qt.nokia.com/qt/source/.
@@ -16,8 +24,6 @@
 #
 # Tar up on an older dist, or one may get errors like
 # gtar: Ignoring unknown extended header keyword `SCHILY.dev'
-#
-# $Id$
 #
 ######################################################################
 

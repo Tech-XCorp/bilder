@@ -1,7 +1,15 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
-
+# @file    numpy_aux.sh
+#
+# @brief   Trigger vars and find information.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
 # On Windows numpy can be built with any of
 #   no linear algebra libraries
 #   clapack_cmake (no fortran need)
@@ -12,8 +20,6 @@
 #
 # There is also a move to using OpenBLAS
 #  http://numpy-discussion.10968.n7.nabble.com/Default-builds-of-OpenBLAS-development-branch-are-now-fork-safe-td36523.html
-#
-# $Id$
 #
 ######################################################################
 

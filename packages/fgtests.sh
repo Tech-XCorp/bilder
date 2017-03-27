@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for fctests
+# @file    fgtests.sh
 #
-# $Id$
+# @brief   Version and build information for fctests.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -23,9 +29,6 @@
 FGTESTS_BUILDS=${FGTESTS_BUILDS:-"all"}
 FGTESTS_DEPS=autotools
 FGTESTS_TESTDATA=fgresults
-
-# JRC: This is not thread safe
-# TESTPROJ=fluxgrid
 
 ######################################################################
 #

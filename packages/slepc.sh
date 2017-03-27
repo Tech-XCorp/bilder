@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for slepc
+# @file    slepc.sh
 #
-# $Id$
+# @brief   Version and build information for slepc.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -35,9 +41,9 @@ fi
 buildSlepc() {
 
   if bilderUnpack -i slepc; then
-   
+
     # save PETSC_DIR so it can be restored
-    PETSC_DIR_SAVE=${PETSC_DIR} 
+    PETSC_DIR_SAVE=${PETSC_DIR}
 
     # serial build
     # slepc configure needs PETSC_DIR set in the environment
@@ -132,15 +138,15 @@ installSlepc() {
   if test -z "$instdirval"; then
     instdirval=$CONTRIB_DIR
   fi
-  
+
   # Save PETSC_DIR so it can be restored
-  PETSC_DIR_SAVE=${PETSC_DIR} 
+  PETSC_DIR_SAVE=${PETSC_DIR}
 
   # slepc needs PETSC_DIR set in the environment for make install
   export PETSC_DIR=${PETSC_SER_DIR}
   bilderInstall slepc ser slepc "SLEPC_DIR=$BUILD_DIR/slepc-$SLEPC_BLDRVERSION/ser PETSC_ARCH=installed-petsc"
   ser_installed=$?
- 
+
   # slepc needs PETSC_DIR set in the environment for make install
   export PETSC_DIR=${PETSC_PAR_DIR}
   bilderInstall slepc par slepc-par  "SLEPC_DIR=$BUILD_DIR/slepc-$SLEPC_BLDRVERSION/par PETSC_ARCH=installed-petsc"
@@ -155,7 +161,7 @@ installSlepc() {
   export PETSC_DIR=${PETSC_CPLX_DIR}
   bilderInstall slepc sercplx slepc-cplx "SLEPC_DIR=$BUILD_DIR/slepc-$SLEPC_BLDRVERSION/sercplx PETSC_ARCH=installed-petsc"
   sercplx_installed=$?
- 
+
   # slepc needs PETSC_DIR set in the environment for make install
   export PETSC_DIR=${PETSC_PARCPLX_DIR}
   bilderInstall slepc parcplx slepc-parcplx  "SLEPC_DIR=$BUILD_DIR/slepc-$SLEPC_BLDRVERSION/parcplx PETSC_ARCH=installed-petsc"

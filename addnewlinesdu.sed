@@ -1,6 +1,6 @@
 # Add needed newlines to the configure script
 #
-# $Id$
+# $Rev$ $Date$
 #
 # Removes duplicating spaces
 s/  *$//

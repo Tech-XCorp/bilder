@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for Moltemplate
+# @file    moltemplate.sh
 #
-# $Id$
+# @brief   Version and build information for Moltemplate.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -72,10 +78,10 @@ installMoltemplate() {
     mkdir $MOLTEMPLATE_INSTALL_DIR
   fi
 
-  # 
+  #
   # Copy files/directories manually
   #
-  MOLTEMPLATE_INSTTARG="LICENSE.TXT README.TXT common examples_2013-8-29 moltemplate_manual.pdf	src"
+  MOLTEMPLATE_INSTTARG="LICENSE.TXT README.TXT common examples_2013-8-29 moltemplate_manual.pdf src"
   for targ in $MOLTEMPLATE_INSTTARG
   do
       cmd="cp -R $builddir/$targ $MOLTEMPLATE_INSTALL_DIR"

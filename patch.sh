@@ -1,3 +1,17 @@
+#!/bin/sh
+######################################################################
+#
+# @file    patch.sh
+#
+# @brief   Documentation goes here.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2014-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
+#
+######################################################################
+
 #!/bin/bash
 # To be run from the top level
 # This gets this files from a patch

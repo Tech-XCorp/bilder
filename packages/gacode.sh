@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for gacode
+# @file    gacode.sh
 #
-# $Id$
+# @brief   Version and build information for gacode.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -44,7 +50,7 @@ buildGacodeCM() {
   fi
 
   if test $res = 0; then
-    case `uname` in 
+    case `uname` in
      Linux)
       GACODE_EXTRA_LIBS="LIBS=-ldl"
     esac
@@ -58,7 +64,6 @@ buildGacodeCM() {
   fi
 
 }
-
 
 buildGacodeAT() {
 

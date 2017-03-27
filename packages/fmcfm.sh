@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Version and build information for fmcfm
+# @file    fmcfm.sh
 #
-# $Id$
+# @brief   Version and build information for fmcfm.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -11,7 +17,6 @@
 # Version
 #
 ######################################################################
-
 
 ######################################################################
 #
@@ -47,7 +52,6 @@ buildFmcfmCM() {
 
   fi
 }
-
 
 # For easy switching
 buildFmcfm() {

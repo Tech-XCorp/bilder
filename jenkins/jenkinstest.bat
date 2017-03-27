@@ -1,11 +1,15 @@
 @ECHO off
-rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
-rem
-rem Purpose: This starts jenkinstest through cygwin on windows.
-rem
-rem $Id$
-rem
-rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem rem
+REMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREM
+REM
+REM @file    jenkinstest.bat
+REM
+REM @brief   This starts jenkinstest through cygwin on windows.
+REM
+REM @version $Rev$ $Date$
+REM
+REM Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+REM
+REMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREMREM
 
 ECHO jenkinstest.bat starting up in %CD% with arguments, %*.
 ECHO jenkinstest.bat starting up in %CD% with arguments, %*. >jenkinstest.log

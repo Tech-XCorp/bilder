@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# Trigger vars and find information
+# @file    puffin_aux.sh
 #
-# $Id$
+# @brief   Trigger vars and find information for puffin.
+#
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2016-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
@@ -20,7 +26,6 @@ setPuffinTriggerVars() {
   PUFFIN_BLDRVERSION_EXP=${PUFFIN_BLDRVERSION_EXP:-"1.5.2betanw"}
   if test `uname` = Linux; then
     PUFFIN_BUILDS=${PUFFIN_BUILDS:-"par"}
-#    PUFFIN_BUILDS=${PUFFIN_BUILDS:-"par,parmic"}
   fi
   PUFFIN_DEPS="hdf5,fftw,cmake"
 }

@@ -1,10 +1,15 @@
-#!/bin/bash
+#!/bin/sh
+######################################################################
 #
-# $Id$
+# @file    chgfreq.sh
 #
-# Change the clock frequency (throttling).
+# @brief   Change the clock frequency (throttling).
+# With cpufrequtils installed, can use, e.g., chgfreq.sh performance
 #
-# With cpufrequtils installed, can use, e.g., chgfreq.sh performance 
+# @version $Rev$ $Date$
+#
+# Copyright &copy; 2012-2017, Tech-X Corporation, Boulder, CO.
+# See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
 
