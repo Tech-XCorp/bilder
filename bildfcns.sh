@@ -417,7 +417,7 @@ bilderSvnversion() {
 getNumPhysCores() {
   case `uname` in
     CYGWIN*)
-      WMIC CPU Get NumberOfCores /VALUE | grep NumberOfCores | sed 's/.*\=//'
+      WMIC CPU Get NumberOfCores /VALUE | grep NumberOfCores | sed 's/.*\=//' | tr -d '\015'
       ;;
     Darwin) sysctl -n hw.physicalcpu;;
     Linux | CYGWIN*)
