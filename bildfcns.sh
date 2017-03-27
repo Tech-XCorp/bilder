@@ -416,7 +416,9 @@ bilderSvnversion() {
 #
 getNumPhysCores() {
   case `uname` in
-    # CYGWIN*) echo ${NUMBER_OF_PROCESSORS};;
+    CYGWIN*)
+      WMIC CPU Get NumberOfCores /VALUE | grep NumberOfCores | sed 's/.*\=//'
+      ;;
     Darwin) sysctl -n hw.physicalcpu;;
     Linux | CYGWIN*)
       NUM_PHYS_CPUS=`grep "physical id" /proc/cpuinfo | sort -u | wc -l`
