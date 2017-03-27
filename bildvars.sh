@@ -128,7 +128,8 @@ case `uname` in
     techo "Getting number of cores."
 # BLDR_BUILD_NUMPY: whether numpy is built (versus installed from a whl)
     BLDR_BUILD_NUMPY=${BLDR_BUILD_NUMPY:-"false"}
-    NUM_PHYS_CORES=${NUMBER_OF_PROCESSORS}
+    # NUM_PHYS_CORES=${NUMBER_OF_PROCESSORS}
+    NUM_LOG_CORES=`grep ^processor /proc/cpuinfo | wc -l`
     MPICC=${MPICC:-"cl"}
     MPICXX=${MPICXX:-"cl"}
     PREFER_CMAKE=${PREFER_CMAKE:-"true"}
