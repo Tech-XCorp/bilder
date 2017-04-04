@@ -30,7 +30,7 @@ LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
 echo "-------------- MPI_BUILD=$MPI_BUILD --------------"
 #LAMMPS_DEPS=fftw,fftw3,gsl,$MPI_BUILD,votca_csg,votca_csg_tutorials,moltemplate
-LAMMPS_DEPS=cmake,fftw,fftw3,$MPI_BUILD
+LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools
 
 # These targets are not needed, but the flags below are
 # expecting the setup in these files

@@ -54,7 +54,7 @@ FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}
 # PolySwift requires the parallel build
 FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}
 addBenBuild fftw
-FFTW_DEPS=$MPI_BUILD
+FFTW_DEPS=$MPI_BUILD,cmake
 
 ######################################################################
 #
