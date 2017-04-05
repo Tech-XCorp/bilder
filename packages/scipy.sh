@@ -98,15 +98,29 @@ setupScipyBuild() {
       SCIPY_ENV="$DISTUTILS_ENV2 $SCIPY_GFORTRAN"
 # This is the only way to specify different libraries:
 # https://www.scipy.org/scipylib/building/linux.html
-      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
+      lapacknames=`echo $LAPACK_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
+      blasnames=`echo $BLAS_PYCSH_LIBRARY_NAMES | sed 's/ /, /g'`
       if test -d ${LAPACK_PYCSH_DIR}/lib64; then
         blslpcklibdir=${LAPACK_PYCSH_DIR}/lib64
       elif test -d ${LAPACK_PYCSH_DIR}/lib; then
         blslpcklibdir=${LAPACK_PYCSH_DIR}/lib
       fi
-      if test -n "$blslpcklibdir"; then
-        SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$blslpcklibdir' BLAS='$blslpcklibdir'"
+# If the name is not lapack or blas, then BLAS and LAPACK should be the
+# full path to the library.  Seen on crays.  Assumes a single name.
+      if test $blasnames != blas; then
+        BLASVAL="$blslpcklibdir"/lib${blasnames}.so
+      else
+        BLASVAL="$blslpcklibdir"
       fi
+      if test $lapacknames != lapack; then
+        LAPACKVAL="$blslpcklibdir"/lib${lapacknames}.so
+      else
+        LAPACKVAL="$blslpcklibdir"
+      fi
+      if test -n "$blslpcklibdir"; then
+        SCIPY_ENV="$DISTUTILS_ENV2 LAPACK='$LAPACKVAL' BLAS='$BLASVAL'"
+      fi
+      linkflags="$linkflags -Wl,-rpath,${PYTHON_LIBDIR}"
       ;;
 
     *)

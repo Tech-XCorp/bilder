@@ -116,7 +116,18 @@ setupNumpyBuild() {
         blslpcklibdir="$LAPACK_PYCSH_DIR"/lib
       fi
       blslpckincdir="$LAPACK_PYCSH_DIR"/include
-      blslpckdir="$LAPACK_PYCSH_DIR"/
+# If the name is not lapack or blas, then BLAS and LAPACK should be the
+# full path to the library.  Seen on crays.  Assumes a single name.
+      if test $blasnames != blas; then
+        BLASVAL="$blslpcklibdir"/lib${blasnames}.so
+      else
+        BLASVAL="$blslpcklibdir"
+      fi
+      if test $lapacknames != lapack; then
+        LAPACKVAL="$blslpcklibdir"/lib${lapacknames}.so
+      else
+        LAPACKVAL="$blslpcklibdir"
+      fi
       ;;
 
   esac
@@ -210,7 +221,7 @@ libraries = $lapacknames,$blasnames" numpy/distutils/site.cfg
       NUMPY_ENV="$DISTUTILS_ENV2 PATH=${PATH}:${fcpath}"
 # With these environment variables set, rpath, library dirs, ... all found
       if test -n "$blslpcklibdir"; then
-        NUMPY_ENV="$DISTUTILS_ENV2 LAPACK='$blslpcklibdir' BLAS='$blslpcklibdir'"
+        NUMPY_ENV="$DISTUTILS_ENV2 LAPACK='$LAPACKVAL' BLAS='$BLASVAL'"
       fi
       ;;
     *)
