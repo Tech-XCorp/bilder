@@ -26,7 +26,8 @@ LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 #
 ######################################################################
 
-LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
+# LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
+LAMMPS_BUILDS=${LAMMPS_BUILDS:-"par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
 echo "-------------- MPI_BUILD=$MPI_BUILD --------------"
 #LAMMPS_DEPS=fftw,fftw3,gsl,$MPI_BUILD,votca_csg,votca_csg_tutorials,moltemplate
@@ -37,6 +38,60 @@ LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools
 SER_TARGET='mac'
 PAR_TARGET='mac_mpi'
 
+LAMMPS_LINKFLAGS=''
+
+######################################################################
+#
+# Setup install locations for packaged LAMMPS
+#
+######################################################################
+
+setupLammpsPkg() {
+
+  MPI_VERSION_NAME="openmpi-nodl"
+  MPI_LIB_NAME="libmpi.20.dylib"
+  LAMMPS_PKG_NAME="lammps-pkg"
+
+  MPI_LIB_PKG_DIR="$CONTRIB_DIR/$LAMMPS_PKG_NAME"
+  MPI_LIB_PATH="$CONTRIB_DIR/$MPI_VERSION_NAME/lib"
+
+  # Check/create LAMMPS pkg directory
+  if ! test -d $MPI_LIB_PKG_DIR; then
+      mkdir -p $MPI_LIB_PKG_DIR
+  fi
+
+  # Check/create LAMMPS pkg lib directory
+  if ! test -d $MPI_LIB_PKG_DIR/lib; then
+      mkdir -p $MPI_LIB_PKG_DIR/lib
+  fi
+
+  # Check/create LAMMPS pkg bin directory
+  if ! test -d $MPI_LIB_PKG_DIR/bin; then
+      mkdir -p $MPI_LIB_PKG_DIR/bin
+  fi
+
+  # Copy installed MPI lib into the 'package' directory
+  cmd="cp $MPI_LIB_PATH/$MPI_LIB_NAME $MPI_LIB_PKG_DIR/lib"
+  $cmd
+
+  # Set link flags with appropriate rpath
+  LAMMPS_LINKFLAGS="-Wl,-rpath,\$ORIGIN/../lib -L $CONTRIB_DIR/openmpi-nodl/lib -lmpi"
+
+  techo -2 " "
+  techo -2 "=================================================================================================="
+  techo -2 "                  Copy OpenMPI shared dynamic libs to package directory"
+  techo -2 "=================================================================================================="
+  techo -2 " "
+  techo -2 "  -- Full mpi file location = $MPI_LIB_PATH/$MPI_LIB_NAME"
+  techo -2 "  --          Pkg directory = $MPI_LIB_PKG_DIR"
+  techo -2 "  -- $cmd"
+  techo -2 " LAMMPS_LINKFLAGS = $LAMMPS_LINKFLAGS"
+  techo -2 "=================================================================================================="
+  techo -2 " "
+}
+
+
+
 ######################################################################
 #
 # Launch lammps builds.
@@ -44,6 +99,14 @@ PAR_TARGET='mac_mpi'
 ######################################################################
 
 buildLammps() {
+
+
+  techo -2 " inside buildLammps:LAMMPS_LINKFLAGS = $LAMMPS_LINKFLAGS"
+
+
+  # Helper function to copy shared libs into correct pkg location
+  # and setup rpath names and logic
+  setupLammpsPkg
 
   # NOTE: all variables for make cmd line need ' ' quotes so other
   # args in line are parsed correctly
@@ -53,21 +116,33 @@ buildLammps() {
 
   # Serial flags ( CC/LINK is defined by lammps make system)
   LAMMPS_SER_COMP_ARGS="CC=$CXX LINK=$CXX"
+
   LAMMPS_SER_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw/include' \
                    FFT_PATH='-L$CONTRIB_DIR/fftw/lib' \
                    FFT_LIB='-lfftw -lrfftw'"
+
   LAMMPS_SER_ARGS="$LAMMPS_SER_COMP_ARGS $LAMMPS_SER_ARGS $LAMMPS_OTHER_ARGS"
+
 
   # Par flags (check mpi version) ( CC/LINK is defined by lammps make system)
   techo "----- Note: check MPI_INC and MPI_PATH vars ------------------"
+
   LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICXX \
-                        CCFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK' LINKFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK'"
+                        CCFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK' \
+                        LINKFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK $LAMMPS_LINKFLAGS'"
+
+  techo -2 " "
+  techo -2 "LAMMPS_PAR_COMP_ARGS=$LAMMPS_PAR_COMP_ARGS"
+  techo -2 " "
+
   LAMMPS_PAR_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
                    FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' \
                    FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi' \
-                   MPI_INC='' MPI_PATH=''"
-  #                MPI_INC='-I$CONTRIB_DIR/openmpi/include'
-  #                MPI_PATH='-L$CONTRIB_DIR/openmpi/lib'"
+                   MPI_INC='' MPI_PATH='' MPI_LIB='' "
+#                   MPI_INC='-I$CONTRIB_DIR/openmpi-nodl/include' \
+#                   MPI_PATH='-L$CONTRIB_DIR/openmpi-nodl/lib'  \
+#                   MPI_LIB='-lmpi'"
+
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
 
   # Status
@@ -87,6 +162,7 @@ buildLammps() {
 
 }
 
+
 ######################################################################
 #
 # Install lammps
@@ -97,6 +173,18 @@ installLammps() {
   putLammps ser
   putLammps par
 }
+
+
+######################################################################
+#
+# Test Lammps
+#
+######################################################################
+
+testLammps() {
+  techo "Not testing LAMMPS."
+}
+
 
 ######################################################################
 #
@@ -140,13 +228,6 @@ makeLammps() {
     # Build lammps (because of the bizarre make file structure
     # this build is in-place in the src subdirectory)
     bilderBuild lammps $BLDTYPE "$JMAKEARGS $ARGS"
-
-    # Wait for build, move lib*.a to /lib
-    # waitAction lammps-$BLDTYPE
-    # if ! test -d $LAMMPS_BUILD_DIR/lib; then
-    #    echo "creating directory $LAMMPS_BUILD_DIR"
-    #    mkdir $LAMMPS_BUILD_DIR/lib
-    # fi
 
   fi
 }
