@@ -2297,13 +2297,13 @@ setDistutilsEnv() {
           local compflagsval="$compval $flagsval"
           trimvar compval ' '
           DISTUTILS_ENV="$DISTUTILS_ENV $i='$compval' ${flagsprfx}FLAGS='$flagsval'"
-# Second form required to get, e.g., CFLAGS, not CCFLAGS.
-          DISTUTILS_ENV2="$DISTUTILS_ENV2 $i='$compflagsval'"
+# Second form did put flags with compiler.  Once was needed for {num,sci}py.
+          # DISTUTILS_ENV2="$DISTUTILS_ENV2 $i='$compflagsval'"
         fi
       done
       DISTUTILS_ENV="$DISTUTILS_ENV F90='$PYC_FC' F90FLAGS='$PYC_FCFLAGS'"
-# Numpy uses F90 with flags
-      DISTUTILS_ENV2="$DISTUTILS_ENV2 F90='$PYC_FC $PYC_FCFLAGS'"
+      # DISTUTILS_ENV2="$DISTUTILS_ENV2 F90='$PYC_FC $PYC_FCFLAGS'"
+      DISTUTILS_ENV2="$DISTUTILS_ENV"
       ;;
   esac
 

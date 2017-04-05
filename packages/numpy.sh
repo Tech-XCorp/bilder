@@ -92,11 +92,7 @@ setNumpyBuildVars() {
 # With the new setuptools, package managers that want to manage the
 # installations need the following arguments.  Otherwise, the installation
 # is inside an egg, and the regular python path does not work.
-# Doing this on CYGWIN and Darwin.
-# Ivy build indicates need to do this on Linux
-  if [[ $NUMPY_BLDRVERSION =~ 1.1[0-9] ]]; then
-    NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
-  fi
+  NUMPY_INSTALL_ARGS="--single-version-externally-managed --record='$PYTHON_SITEPKGSDIR/numpy.files'"
 
 # Set the blas and lapack names.
   local blslpcklibdir=
@@ -111,7 +107,8 @@ setNumpyBuildVars() {
     Darwin-*)
 # linkflags="$linkflags -bundle -Wall"
       linkflags="$linkflags -Wall"
-      NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
+      # NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
+      NUMPY_ENV="$DISTUTILS_ENV2"
       ;;
 
     Linux-*)
