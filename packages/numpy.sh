@@ -105,9 +105,9 @@ setNumpyBuildVars() {
 
 # For non-Cygwin builds, the build stage does not install.
     Darwin-*)
-# linkflags="$linkflags -bundle -Wall"
-      linkflags="$linkflags -Wall"
-      # NUMPY_ENV="$DISTUTILS_ENV2 CFLAGS='-arch i386 -arch x86_64' FFLAGS='-m32 -m64'"
+# -bundle in scipy prevents build error of undefined _main in EMpy.
+# Putting here for simplicity.
+      linkflags="$linkflags -bundle -Wall"
       NUMPY_ENV="$DISTUTILS_ENV2"
       ;;
 
