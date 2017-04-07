@@ -27,7 +27,7 @@ LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 ######################################################################
 
 # LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
-LAMMPS_BUILDS=${LAMMPS_BUILDS:-"par"}
+LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
 LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools,chrpath
 
@@ -36,7 +36,6 @@ LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools,chrpath
 # names as the ser/par executable targets
 SER_TARGET='mac'
 PAR_TARGET='mac_mpi'
-
 
 
 ######################################################################
@@ -89,10 +88,10 @@ buildLammps() {
   if bilderUnpack lammps; then
 
     ARGS="$LAMMPS_SER_ARGS $SER_TARGET"
-#    makeLammps ser "$ARGS"
+    makeLammps ser "$ARGS"
 
     ARGS="$LAMMPS_PAR_ARGS $PAR_TARGET"
-#    makeLammps par "$ARGS"
+    makeLammps par "$ARGS"
 
   fi
 }
