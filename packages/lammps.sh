@@ -107,6 +107,7 @@ installLammps() {
   putLammps ser
   putLammps par
 
+  fixDynLammps ser
   fixDynLammps par
 
   # Tar up the lammps pkg directory created by fixDynLammps
@@ -151,22 +152,34 @@ testLammps() {
 
 fixDynLammps() {
 
+  # First argument
+  BLDTYPE=$1
+
   echo "====================================================================================="
   echo "                Running fixDynLammps on the executable to package                    "
   echo "                up libs and fix rpath settings for lammps-$BLDTYPE                   "
   echo "====================================================================================="
+
+  # Select exectuable name
+  if [ $BLDTYPE == "ser" ]; then
+    LAMMPS_EXE_NAME="lammps_ser"
+  elif [ $BLDTYPE == "par" ]; then
+    LAMMPS_EXE_NAME="lammps"
+  else
+    echo "Build name not recognized"
+  fi
 
   LAMMPS_PKG_NAME="lammps-pkg"
   MPIPKG='mpich-shared'
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
 
-  # First argument
-  BLDTYPE=$1
-
   # Find paths for BLDTYPE value
   local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
   local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
+
+  echo "----------------- LAMMPS_INSTALL_DIR=$LAMMPS_INSTALL_DIR"
+
 
   # Set lammps package directory
   PKG_DIR="$CONTRIB_DIR/$LAMMPS_PKG_NAME"
@@ -187,44 +200,51 @@ fixDynLammps() {
   fi
 
   # Copy over executable to package-able executable bin location
-  cmd="cp $LAMMPS_INSTALL_DIR/bin/lammps $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin"
+  cmd="cp $LAMMPS_INSTALL_DIR/bin/$LAMMPS_EXE_NAME $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin"
   echo "$cmd"
   $cmd
 
-  # Copy over MPI libs to package-able lib location
-  cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
-  echo "$cmd"
-  $cmd
 
-  # Copy over LIB64 libs to package-able lib location
-  # NOTE: -a option must be used to maintain symbolic links
-  cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
-  echo "$cmd"
-  $cmd
-  cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
-  echo "$cmd"
-  $cmd
+  # Needed Only fixing up libs for parallel version (because of mpi and related)
+  if [ $BLDTYPE == "par" ]; then
 
-  # Fix rpath settings (using chrpath built in contrib)
-  # Syntax with $ORIGIN is very specific in order that correct format is
-  # maintained through a bash script to the format expected by cmd line chrpath call
-  echo "Running chrpath on lammps executable"
-  cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin/lammps"
-  echo "$cmd"
-  $cmd
+    # Copy over MPI libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
 
-  # Find all .so libraries in pkg lib directory and run chrpath on those
-  # as well. This skips running chrpath on symbolic links
-  SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
+    # Copy over LIB64 libs to package-able lib location
+    # NOTE: -a option must be used to maintain symbolic links
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
 
-  for lib in $SHAREDLIBS; do
-    if ! test -L $lib; then
-      echo "*.so lib to fix rpath = $lib"
-      cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
-      echo "$cmd"
-      $cmd
-    fi
-  done
+    # Fix rpath settings (using chrpath built in contrib)
+    # Syntax with $ORIGIN is very specific in order that correct format is
+    # maintained through a bash script to the format expected by cmd line chrpath call
+    echo "Running chrpath on lammps executable"
+    cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin/$LAMMPS_EXE_NAME"
+    echo "$cmd"
+    $cmd
+
+    # Find all .so libraries in pkg lib directory and run chrpath on those
+    # as well. This skips running chrpath on symbolic links
+    SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
+
+    for lib in $SHAREDLIBS; do
+      if ! test -L $lib; then
+          echo "*.so lib to fix rpath = $lib"
+          cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
+          echo "$cmd"
+          $cmd
+      fi
+    done
+
+  fi
+
 
   echo "====================================================================================="
 }
