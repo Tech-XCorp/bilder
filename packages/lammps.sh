@@ -29,66 +29,13 @@ LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 # LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 LAMMPS_BUILDS=${LAMMPS_BUILDS:-"par"}
 echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
-echo "-------------- MPI_BUILD=$MPI_BUILD --------------"
-#LAMMPS_DEPS=fftw,fftw3,gsl,$MPI_BUILD,votca_csg,votca_csg_tutorials,moltemplate
-LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools
+LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools,chrpath
 
 # These targets are not needed, but the flags below are
-# expecting the setup in these files
+# expecting the setup in these files, hardcoded Makefile-s use these
+# names as the ser/par executable targets
 SER_TARGET='mac'
 PAR_TARGET='mac_mpi'
-
-LAMMPS_LINKFLAGS=''
-
-######################################################################
-#
-# Setup install locations for packaged LAMMPS
-#
-######################################################################
-
-setupLammpsPkg() {
-
-  MPI_VERSION_NAME="openmpi-nodl"
-  MPI_LIB_NAME="libmpi.20.dylib"
-  LAMMPS_PKG_NAME="lammps-pkg"
-
-  MPI_LIB_PKG_DIR="$CONTRIB_DIR/$LAMMPS_PKG_NAME"
-  MPI_LIB_PATH="$CONTRIB_DIR/$MPI_VERSION_NAME/lib"
-
-  # Check/create LAMMPS pkg directory
-  if ! test -d $MPI_LIB_PKG_DIR; then
-      mkdir -p $MPI_LIB_PKG_DIR
-  fi
-
-  # Check/create LAMMPS pkg lib directory
-  if ! test -d $MPI_LIB_PKG_DIR/lib; then
-      mkdir -p $MPI_LIB_PKG_DIR/lib
-  fi
-
-  # Check/create LAMMPS pkg bin directory
-  if ! test -d $MPI_LIB_PKG_DIR/bin; then
-      mkdir -p $MPI_LIB_PKG_DIR/bin
-  fi
-
-  # Copy installed MPI lib into the 'package' directory
-  cmd="cp $MPI_LIB_PATH/$MPI_LIB_NAME $MPI_LIB_PKG_DIR/lib"
-  $cmd
-
-  # Set link flags with appropriate rpath
-  LAMMPS_LINKFLAGS="-Wl,-rpath,\$ORIGIN/../lib -L $CONTRIB_DIR/openmpi-nodl/lib -lmpi"
-
-  techo -2 " "
-  techo -2 "=================================================================================================="
-  techo -2 "                  Copy OpenMPI shared dynamic libs to package directory"
-  techo -2 "=================================================================================================="
-  techo -2 " "
-  techo -2 "  -- Full mpi file location = $MPI_LIB_PATH/$MPI_LIB_NAME"
-  techo -2 "  --          Pkg directory = $MPI_LIB_PKG_DIR"
-  techo -2 "  -- $cmd"
-  techo -2 " LAMMPS_LINKFLAGS = $LAMMPS_LINKFLAGS"
-  techo -2 "=================================================================================================="
-  techo -2 " "
-}
 
 
 
@@ -100,48 +47,37 @@ setupLammpsPkg() {
 
 buildLammps() {
 
-
-  techo -2 " inside buildLammps:LAMMPS_LINKFLAGS = $LAMMPS_LINKFLAGS"
-
-
-  # Helper function to copy shared libs into correct pkg location
-  # and setup rpath names and logic
-  setupLammpsPkg
-
   # NOTE: all variables for make cmd line need ' ' quotes so other
   # args in line are parsed correctly
 
   # Specific variables for LAMMPS 'by-hand' make files
   LAMMPS_OTHER_ARGS="LMP_INC='-DLAMMPS_GZIP' JPG_INC='' JPG_PATH='' JPG_LIB=''"
 
+  #
   # Serial flags ( CC/LINK is defined by lammps make system)
+  #
   LAMMPS_SER_COMP_ARGS="CC=$CXX LINK=$CXX"
 
-  LAMMPS_SER_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw/include' \
-                   FFT_PATH='-L$CONTRIB_DIR/fftw/lib' \
-                   FFT_LIB='-lfftw -lrfftw'"
+  LAMMPS_SER_ARGS="\
+    FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw/include' \
+    FFT_PATH='-L$CONTRIB_DIR/fftw/lib' \
+    FFT_LIB='-lfftw -lrfftw'"
 
   LAMMPS_SER_ARGS="$LAMMPS_SER_COMP_ARGS $LAMMPS_SER_ARGS $LAMMPS_OTHER_ARGS"
 
-
+  #
   # Par flags (check mpi version) ( CC/LINK is defined by lammps make system)
-  techo "----- Note: check MPI_INC and MPI_PATH vars ------------------"
+  #
+  LAMMPS_PAR_COMP_ARGS="\
+    CC=$MPICXX LINK=$MPICXX \
+    CCFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK' \
+    LINKFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK'"
 
-  LAMMPS_PAR_COMP_ARGS="CC=$MPICXX LINK=$MPICXX \
-                        CCFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK' \
-                        LINKFLAGS='-O3 -DMPICH_IGNORE_CXX_SEEK $LAMMPS_LINKFLAGS'"
-
-  techo -2 " "
-  techo -2 "LAMMPS_PAR_COMP_ARGS=$LAMMPS_PAR_COMP_ARGS"
-  techo -2 " "
-
-  LAMMPS_PAR_ARGS="FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
-                   FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' \
-                   FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi' \
-                   MPI_INC='' MPI_PATH='' MPI_LIB='' "
-#                   MPI_INC='-I$CONTRIB_DIR/openmpi-nodl/include' \
-#                   MPI_PATH='-L$CONTRIB_DIR/openmpi-nodl/lib'  \
-#                   MPI_LIB='-lmpi'"
+  LAMMPS_PAR_ARGS="\
+    FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
+    FFT_PATH='-L$CONTRIB_DIR/fftw-par/lib' \
+    FFT_LIB='-lfftw -lrfftw -lfftw_mpi -lrfftw_mpi' \
+    MPI_INC='' MPI_PATH='' MPI_LIB='' "
 
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
 
@@ -153,13 +89,12 @@ buildLammps() {
   if bilderUnpack lammps; then
 
     ARGS="$LAMMPS_SER_ARGS $SER_TARGET"
-    makeLammps ser "$ARGS"
+#    makeLammps ser "$ARGS"
 
     ARGS="$LAMMPS_PAR_ARGS $PAR_TARGET"
-    makeLammps par "$ARGS"
+#    makeLammps par "$ARGS"
 
   fi
-
 }
 
 
@@ -172,6 +107,15 @@ buildLammps() {
 installLammps() {
   putLammps ser
   putLammps par
+
+  fixDynLammps par
+
+  # Tar up the lammps pkg directory created by fixDynLammps
+  cmd1="tar -cvf $CONTRIB_DIR/lammpsInstall.tar -C $CONTRIB_DIR $LAMMPS_PKG_NAME"
+  cmd2="gzip $CONTRIB_DIR/lammpsInstall.tar"
+  echo "$cmd1 + $cmd2"
+  $cmd1
+  $cmd2
 }
 
 
@@ -183,6 +127,107 @@ installLammps() {
 
 testLammps() {
   techo "Not testing LAMMPS."
+}
+
+
+
+
+
+######################################################################
+#                                                                    #
+#                      Helper script methods                         #
+#                                                                    #
+######################################################################
+
+
+######################################################################
+#
+# Fix the dynamic links in executable (for packaging)
+# * this is only for mpich-shared...
+#   1. Creates a special lammps package directory
+#   2. Copies all .so files to lib and executable to bin directory
+#   3. Fixes RPATH manually with chrpath
+#
+######################################################################
+
+fixDynLammps() {
+
+  echo "====================================================================================="
+  echo "                Running fixDynLammps on the executable to package                    "
+  echo "                up libs and fix rpath settings for lammps-$BLDTYPE                   "
+  echo "====================================================================================="
+
+  LAMMPS_PKG_NAME="lammps-pkg"
+  MPIPKG='mpich-shared'
+  LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
+
+  # First argument
+  BLDTYPE=$1
+
+  # Find paths for BLDTYPE value
+  local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
+  local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
+
+  # Set lammps package directory
+  PKG_DIR="$CONTRIB_DIR/$LAMMPS_PKG_NAME"
+
+  # Check/create LAMMPS pkg directory
+  if ! test -d $PKG_DIR; then
+      mkdir -p $PKG_DIR
+  fi
+
+  # Check/create LAMMPS pkg lib directory
+  if ! test -d $PKG_DIR/lib; then
+      mkdir -p $PKG_DIR/lib
+  fi
+
+  # Check/create LAMMPS pkg bin directory
+  if ! test -d $PKG_DIR/bin; then
+      mkdir -p $PKG_DIR/bin
+  fi
+
+  # Copy over executable to package-able executable bin location
+  cmd="cp $LAMMPS_INSTALL_DIR/bin/lammps $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin"
+  echo "$cmd"
+  $cmd
+
+  # Copy over MPI libs to package-able lib location
+  cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+  echo "$cmd"
+  $cmd
+
+  # Copy over LIB64 libs to package-able lib location
+  # NOTE: -a option must be used to maintain symbolic links
+  cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+  echo "$cmd"
+  $cmd
+  cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+  echo "$cmd"
+  $cmd
+
+  # Fix rpath settings (using chrpath built in contrib)
+  # Syntax with $ORIGIN is very specific in order that correct format is
+  # maintained through a bash script to the format expected by cmd line chrpath call
+  echo "Running chrpath on lammps executable"
+  cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin/lammps"
+  echo "$cmd"
+  $cmd
+
+  # Find all .so libraries in pkg lib directory and run chrpath on those
+  # as well. This skips running chrpath on symbolic links
+  SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
+
+  for lib in $SHAREDLIBS; do
+    if ! test -L $lib; then
+      echo "*.so lib to fix rpath = $lib"
+      cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
+      echo "$cmd"
+      $cmd
+    fi
+  done
+
+  echo "====================================================================================="
 }
 
 
@@ -282,6 +327,8 @@ putLammps() {
     techo -2 "Not installing lammps-$verval-$1 since did not build."
     return 1
   fi
+
+  # Generate install names
   echo "lammps-$verval-$1 was built."
   local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
   local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
@@ -303,21 +350,12 @@ putLammps() {
   else
       LAMMPS_INSTTARG="lmp_mac_mpi"
       cmd="cp -R $builddir/$LAMMPS_INSTTARG $LAMMPS_INSTALL_DIR/bin/lammps"
-      lncmd="ln -s ./lammps ./lmp"
   fi
   techo -2 "$cmd"
   $cmd
-  techo -2 "$lncmd"
-  $lncmd
+
   echo "Default is to copy executable into $LAMMPS_INSTALL_DIR/bin"
 
   # Register install
   ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR lammps,$BLDTYPE
-
-  # Make default soft links
-  if ! test -d $CONTRIB_DIR/lammps-$BLDTYPE; then
-    techo "creating soft link directory $CONTRIB_DIR/lammps-$BLDTYPE"
-    ln -s $LAMMPS_INSTALL_DIR $CONTRIB_DIR/lammps-$BLDTYPE
-  fi
-
 }
