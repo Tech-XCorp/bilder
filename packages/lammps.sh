@@ -110,6 +110,9 @@ installLammps() {
   fixDynLammps ser
   fixDynLammps par
 
+  # Clean out old tar files
+  rm -rf $CONTRIB_DIR/lammpsInstall.tar.gz $CONTRIB_DIR/lammpsInstall.tar
+
   # Tar up the lammps pkg directory created by fixDynLammps
   cmd1="tar -cvf $CONTRIB_DIR/lammpsInstall.tar -C $CONTRIB_DIR $LAMMPS_PKG_NAME"
   cmd2="gzip $CONTRIB_DIR/lammpsInstall.tar"
