@@ -97,6 +97,17 @@ testQwt() {
 installQwt() {
   local instopts=-L
   if bilderInstall $instopts qwt $QWT_BUILD; then
-    :
+# On OSX fix the installation dir
+    if test `uname` = Darwin; then
+      local qwtlib=$QTDIR/lib/qwt.framework/Versions/6/qwt
+      if test -e $qwtlib; then
+        cmd="install_name_tool -id $qwtlib $qwtlib"
+        techo "$cmd"
+        eval "$cmd"
+      else
+        techo "WARNING: [$FUNCNAME] $qwtlib not found."
+      fi
+    fi
   fi
 }
+
