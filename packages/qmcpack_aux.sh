@@ -1,9 +1,9 @@
 #!/bin/sh
 ######################################################################
 #
-# @file    fftw_aux.sh
+# @file    qmcpack_aux.sh
 #
-# @brief   Trigger vars and find information for fftw.
+# @brief   Trigger vars and find information for qmcpack.
 #
 # @version $Rev: 3588 $ $Date: 2017-04-04 11:01:32 -0600 (Tue, 04 Apr 2017) $
 #
@@ -21,7 +21,7 @@
 #
 ######################################################################
 
-setFftwTriggerVars() {
+setQmcpackTriggerVars() {
 
 ######################################################################
 #
@@ -29,8 +29,7 @@ setFftwTriggerVars() {
 #
 ######################################################################
 
-#FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"}
-FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}
+QMCPACK_BLDRVERSION=${QMCPACK_BLDRVERSION:-"3.0.0"}
 
 ######################################################################
 #
@@ -38,30 +37,21 @@ FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}
 #
 ######################################################################
 
-# FFTW has both serial and parallel builds
+# QMCPACK has both serial and parallel builds
 # TORIC requires only the serial build
 # PolySwift requires the parallel build
-FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}
-addBenBuild fftw
-FFTW_DEPS=$MPI_BUILD,cmake
+QMCPACK_BUILDS=${QMCPACK_BUILDS:-"ser,par"}
+QMCPACK_DEPS=fftw,fftw3,$MPI_BUILD,lapack,hdf5
 }
-setFftwTriggerVars
+setQmcpackTriggerVars
+
 
 ######################################################################
 #
-# Find fftw
+# Find qmcpack
 #
 ######################################################################
 
-findFftw() {
-  findContribPackage Fftw fftw ser par
-#  findPycshDir Fftw
-##  addtopathvar PKG_CONFIG_PATH $CONTRIB_DIR/fftw-${FFTW_BLDRVERSION}-par/lib/pkgconfig#
-#  printvar PKG_CONFIG_PATH
-#  addtopathvar LD_LIBRARY_PATH $CONTRIB_DIR/fftw-${FFTW_BLDRVERSION}-par/lib
-#  printvar LD_LIBRARY_PATH
-#  addtopathvar PATH $CONTRIB_DIR/fftw-${FFTW_BLDRVERSION}-par/bin
-#  printvar PATH
-#  addtopathvar LD_RUN_PATH $CONTRIB_DIR/fftw-${FFTW_BLDRVERSION}-par/lib
-#  printvar LD_RUN_PATH
+findQmcpack() {
+  findContribPackage Qmcpack qmcpack ser par
 }

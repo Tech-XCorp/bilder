@@ -21,7 +21,6 @@
 mydir=`dirname $BASH_SOURCE`
 source $mydir/qmcpack_aux.sh
 
-
 ######################################################################
 #
 # Set variables that should trigger a rebuild, but which by value change
@@ -34,18 +33,6 @@ setQmcpackNonTriggerVars() {
   QMCPACK_UMASK=002
 }
 setQmcpackNonTriggerVars
-
-
-######################################################################
-#
-# Builds and deps
-#
-######################################################################
-
-# QMCPACK_BUILDS=${QMCPACK_BUILDS:-"ser,par"}
-QMCPACK_BUILDS=${QMCPACK_BUILDS:-"ser,par"}
-echo "QMCPACK_BUILDS=${QMCPACK_BUILDS}"
-QMCPACK_DEPS=fftw,fftw3,$MPI_BUILD,lapack,hdf5
 
 
 ######################################################################

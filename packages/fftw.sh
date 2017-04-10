@@ -36,43 +36,21 @@ setFftwNonTriggerVars
 
 ######################################################################
 #
-# Version
-#
-######################################################################
-
-#FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5"}
-#FFTW_BLDRVERSION=${FFTW_BLDRVERSION:-"2.1.5.1"}
-
-######################################################################
-#
-# Other values
-#
-######################################################################
-
-# FFTW has both serial and parallel builds
-# TORIC requires only the serial build
-# PolySwift requires the parallel build
-FFTW_BUILDS=${FFTW_BUILDS:-"ser,par"}
-addBenBuild fftw
-FFTW_DEPS=$MPI_BUILD,cmake
-
-######################################################################
-#
 # Launch FFTW builds.
 #
 ######################################################################
 
 buildFftw() {
-    case `uname` in
-        CYGWIN* | Darwin )
-            # cmake-ed version of fftw (not working on linux)
-            buildFftw_Cmake
-            ;;
-        Linux)
-            # standard autotools build (cmake not working on linux)
-            buildFftw_Autotools
-            ;;
-    esac
+  case `uname` in
+    CYGWIN* | Darwin )
+        # cmake-ed version of fftw (not working on linux)
+        buildFftw_Cmake
+        ;;
+    Linux)
+        # standard autotools build (cmake not working on linux)
+        buildFftw_Autotools
+        ;;
+  esac
 }
 
 #
