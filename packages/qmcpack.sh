@@ -14,6 +14,16 @@
 
 ######################################################################
 #
+# Trigger variables and versions set in qmcpack_aux.sh
+#
+######################################################################
+
+mydir=`dirname $BASH_SOURCE`
+source $mydir/qmcpack_aux.sh
+
+
+######################################################################
+#
 # Version
 #
 ######################################################################
@@ -40,31 +50,21 @@ QMCPACK_DEPS=fftw,fftw3,$MPI_BUILD,lapack,hdf5
 
 buildQmcpack() {
 
-  # NOTE: all variables for make cmd line need ' ' quotes so other
-  # args in line are parsed correctly
-
-  # Specific variables for QMCPACK 'by-hand' make files
-  #  QMCPACK_OTHER_ARGS="LMP_INC='-DQMCPACK_GZIP' JPG_INC='' JPG_PATH='' JPG_LIB=''"
-
-  #
-  # Serial flags ( CC/LINK is defined by qmcpack make system)
-  #
-  # QMCPACK_SER_ARGS="CC=$CXX LINK=$CXX"
-
-  #
-  # Par flags (check mpi version) ( CC/LINK is defined by qmcpack make system)
-  #
-  #  QMCPACK_PAR_ARGS="\
-  #    FFT_INC='-DFFT_FFTW -I$CONTRIB_DIR/fftw-par/include' \
-
-  # Status
-  techo "QMCPACK_SER_ARGS = $QMCPACK_SER_ARGS"
-  techo "QMCPACK_PAR_ARGS = $QMCPACK_PAR_ARGS"
-
-  # Builds
   if bilderUnpack qmcpack; then
-    techo "Will run bilder build step (unpack)"
+
+   techo "==========================================================================================="
+   techo " Will run bilder build step (if unpack-ed)"
+   techo " TARBALL_NODEFLIB_FLAGS = $TARBALL_NODEFLIB_FLAGS"
+   techo "==========================================================================================="
+
+    if bilderConfig -c qmcpack ser "$TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+    fi
+    if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR $CMAKE_SUPRA_SP_ARG"; then
+      bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+    fi
   fi
+
 }
 
 
@@ -75,7 +75,9 @@ buildQmcpack() {
 ######################################################################
 
 installQmcpack() {
-  techo "Will run bilder install steps"
+  techo "Will run bilder install steps for QMCPack"
+  bilderInstall qmcpack ser qmcpack
+  bilderInstall qmcpack par qmcpack-par
 }
 
 
