@@ -24,11 +24,17 @@ source $mydir/qmcpack_aux.sh
 
 ######################################################################
 #
-# Version
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-QMCPACK_BLDRVERSION=${QMCPACK_BLDRVERSION:-"3.0.0"}
+setQmcpackNonTriggerVars() {
+  QMCPACK_UMASK=002
+}
+setQmcpackNonTriggerVars
+
 
 ######################################################################
 #
