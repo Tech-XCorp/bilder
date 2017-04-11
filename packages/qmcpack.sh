@@ -64,6 +64,9 @@ buildQmcpack() {
     # Add boost
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
+    # Add xml
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_HOME=$CONTRIB_DIR/libxml2"
+
     # Add fftw3
     QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS -DFFTW_HOME=$CONTRIB_DIR/fftw3"
     QMCPACK_PAR_OTHER_ARGS="$QMCPACK_PAR_OTHER_ARGS -DFFTW_HOME=$CONTRIB_DIR/fftw3-par"
@@ -71,6 +74,8 @@ buildQmcpack() {
     # Add hdf5
     QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS -DHDF5_ROOT=$CONTRIB_DIR/hdf5"
     QMCPACK_PAR_OTHER_ARGS="$QMCPACK_PAR_OTHER_ARGS -DHDF5_ROOT=$CONTRIB_DIR/hdf5-par"
+
+
 
     # ================================================================
     # Run bilder configure/build
@@ -80,7 +85,7 @@ buildQmcpack() {
         bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
     fi
 
-    if bilderConfig -c qmcpack par "$QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
+    if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
         bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
     fi
 
