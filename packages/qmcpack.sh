@@ -60,7 +60,15 @@ buildQmcpack() {
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
     # Add xml (shared libs)
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_HOME=$CONTRIB_DIR/libxml2-sersh"
+    # These parameters are broken and/or poorly documented even in the incl. cmake files
+    # Had to use the following variables to get around these problems, and even still
+    # the output from configure will be misleading (note setting LIBXML2_HOME does not work)
+    # QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_HOME=$CONTRIB_DIR/libxml2-sersh"
+    # QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_INCLUDE_DIRS:PATH=$CONTRIB_DIR/libxml2-sersh/include"
+    # QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_LIBRARIES=libxml2.so"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_INCLUDE_DIRS=$CONTRIB_DIR/libxml2-sersh/include"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_LIBRARY_DIRS=$CONTRIB_DIR/libxml2-sersh/lib"
+
 
     # Add compiler and compiler flags
     QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"
