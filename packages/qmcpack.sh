@@ -45,11 +45,6 @@ buildQmcpack() {
 
   if bilderUnpack qmcpack; then
 
-    techo "==========================================================================================="
-    techo " Will run bilder build step (if unpack-ed)"
-    techo " TARBALL_NODEFLIB_FLAGS = $TARBALL_NODEFLIB_FLAGS"
-    techo "==========================================================================================="
-
     # ================================================================
     # QMCPack needs specific environment variables set for packages
     # ================================================================
@@ -59,13 +54,17 @@ buildQmcpack() {
     local QMCPACK_PAR_OTHER_ARGS="$QMCPACK_PAR_OTHER_ARGS"
 
     # Standard configure parameters
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER $CMAKE_SUPRA_SP_ARG"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG"
 
     # Add boost
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
-    # Add xml
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_HOME=$CONTRIB_DIR/libxml2"
+    # Add xml (shared libs)
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_HOME=$CONTRIB_DIR/libxml2-sersh"
+
+    # Add compiler and compiler flags
+    QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"
+    QMCPACK_PAR_OTHER_ARGS="$QMCPACK_PAR_OTHER_ARGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"
 
     # Add fftw3
     QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS -DFFTW_HOME=$CONTRIB_DIR/fftw3"
@@ -84,13 +83,11 @@ buildQmcpack() {
     if bilderConfig -c qmcpack ser "$QMCPACK_SER_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
         bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
     fi
-
     if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
         bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
     fi
 
   fi
-
 }
 
 
