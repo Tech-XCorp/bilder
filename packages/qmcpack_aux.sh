@@ -40,7 +40,7 @@ QMCPACK_BLDRVERSION=${QMCPACK_BLDRVERSION:-"3.0.0"}
 # QMCPACK has both serial and parallel builds
 # $QMCPACK_BUILDS=${QMCPACK_BUILDS:-"ser,par"}
 QMCPACK_BUILDS=${QMCPACK_BUILDS:-"par"}
-QMCPACK_DEPS=fftw,fftw3,$MPI_BUILD,lapack,boost,hdf5
+QMCPACK_DEPS=fftw,fftw3,$MPI_BUILD,lapack,boost,hdf5,libxml2
 }
 setQmcpackTriggerVars
 
