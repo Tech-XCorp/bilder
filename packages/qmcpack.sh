@@ -56,6 +56,9 @@ buildQmcpack() {
     # Standard configure parameters
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG"
 
+    # Ensure correct linker picked up
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
+
     # Add boost
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
