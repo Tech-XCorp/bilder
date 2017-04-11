@@ -60,7 +60,7 @@ buildQmcpack() {
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
     # Add lapack
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLAPACK_LIBRARIES=$CONTRIB_DIR/lapack-sersh/liblapack.so;$CONTRIB_DIR/lapack-sersh/libblas.so"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLAPACK_LIBRARIES='$CONTRIB_DIR/lapack-sersh/lib64/liblapack.so;$CONTRIB_DIR/lapack-sersh/lib64/libblas.so'"
 
     # Add xml (shared libs)
     # These parameters are broken and/or poorly documented even in the incl. cmake files
