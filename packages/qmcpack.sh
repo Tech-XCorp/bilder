@@ -59,6 +59,10 @@ buildQmcpack() {
     # Ensure correct linker picked up
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
 
+    # Adding compiler lib64 directory to rpath so initial
+    # build good (this assumes -fPIC -pipe)
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_CXX_FLAGS:STRING='-fPIC -pipe  -Wl,-rpath,/contrib/gcc-4.9.3/lib64'"
+
     # Add boost
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
@@ -69,9 +73,6 @@ buildQmcpack() {
     # These parameters are broken and/or poorly documented even in the incl. cmake files
     # Had to use the following variables to get around these problems, and even still
     # the output from configure will be misleading (note setting LIBXML2_HOME does not work)
-    # QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_HOME=$CONTRIB_DIR/libxml2-sersh"
-    # QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_INCLUDE_DIRS:PATH=$CONTRIB_DIR/libxml2-sersh/include"
-    # QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLIBXML2_LIBRARIES=libxml2.so"
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_INCLUDE_DIRS=$CONTRIB_DIR/libxml2-sersh/include"
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_LIBRARY_DIRS=$CONTRIB_DIR/libxml2-sersh/lib"
 
