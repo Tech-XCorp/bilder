@@ -132,12 +132,18 @@ buildQmcpack() {
 
 installQmcpack() {
 
-  techo "====== Will run bilder install steps for QMCPack (still needs work) ===== "
+  techo "Will run bilder install steps for QMCPack (still needs work) ===== "
 
   # putQmcpack ser
   putQmcpack par
 
-  fixDynQmcpack par
+  # Only fix up libs for packaging on linux platform
+  case `uname` in
+    Linux*)
+      # fixDynQmcpack ser
+      fixDynQmcpack par
+      ;;
+  esac
 }
 
 
@@ -308,17 +314,14 @@ fixDynQmcpack() {
     cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-
     # Copy over XML libs to package-able lib location
     cmd="cp -R $CONTRIB_DIR/$XML_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-
     # Copy over LAPACK/BLAS libs to package-able lib location
     cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-
 
     # Copy over LIB64 libs to package-able lib location
     # NOTE: -a option must be used to maintain symbolic links
@@ -351,11 +354,11 @@ fixDynQmcpack() {
 
     for lib in $SHAREDLIBS; do
       if ! test -L $lib; then
-          echo "*.so lib to fix rpath = $lib"
-          cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
-          echo "$cmd"
-          $cmd
-          echo ""
+        echo "*.so lib to fix rpath = $lib"
+        cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
+        echo "$cmd"
+        $cmd
+        echo ""
       fi
     done
 
