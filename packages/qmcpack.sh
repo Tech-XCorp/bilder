@@ -113,10 +113,12 @@ buildQmcpack() {
     # ================================================================
 
     if bilderConfig -c qmcpack ser "$QMCPACK_SER_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-        bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+        echo "Skipping build"
+#        bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
     fi
     if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-        bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+#        bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+        echo "Skipping build"
     fi
 
   fi
@@ -130,15 +132,13 @@ buildQmcpack() {
 ######################################################################
 
 installQmcpack() {
-  techo "Will run bilder install steps for QMCPack (still needs work)"
 
-  # bilderInstall qmcpack ser qmcpack
-  bilderInstall qmcpack par qmcpack-par
+  techo "====== Will run bilder install steps for QMCPack (still needs work) ===== "
 
-  # Register install
-  #  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,$BLDTYPE
-  #  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,"par"
+  # putQmcpack ser
+  putQmcpack par
 
+  fixDynQmcpack par
 }
 
 
@@ -150,4 +150,217 @@ installQmcpack() {
 
 testQmcpack() {
   techo "Not testing QMCPACK."
+}
+
+
+
+
+
+######################################################################
+#
+# Local helper function to install a particular Qmcpack config
+# and log installation
+#
+# Args:
+#  1: build type (eg par2d ser3d ....)
+#
+######################################################################
+
+putQmcpack() {
+
+  techo -2 "Calling putQmcpack with $1"
+
+  local builddir
+  # If there was a build, the builddir was set
+  local builddirvar=`genbashvar qmcpack-$1`_BUILD_DIR
+  local builddir=`deref $builddirvar`
+  local vervar=`genbashvar qmcpack`_BLDRVERSION
+  local verval=`deref $vervar`
+  local BLDTYPE=$1
+  local QMCPACK_INSTALL_NAME=qmcpack-${QMCPACK_BLDRVERSION}-$BLDTYPE
+
+  # see if qmcpack build was attempted
+  if test -z "$builddir"; then
+    techo -2 "Not installing qmcpack-$verval-$1 since not built."
+    # Check for previous installation
+    if isInstalled -i $CONTRIB_DIR $QMCPACK_INSTALL_NAME; then
+      # Still make qmcpack find-able
+      # findContribPackage qmcpack qmcpack $BLDTYPE
+      echo "Yes QMCPACK installed"
+    else
+      techo -2 "WARNING: $QMCPACK_INSTALL_NAME not found, and not installing"
+    fi
+    return 1
+  fi
+
+  # Install any patch
+  echo "Installing no patches for qmcpack-$BLDTYPE"
+
+  # wait for build to complete
+  waitAction qmcpack-$1
+
+  # if build was successful, then continue
+  resvarname=`genbashvar qmcpack_$1`_RES
+  local res=`deref $resvarname`
+  if test "$res" != 0; then
+    techo -2 "Not installing qmcpack-$verval-$1 since did not build."
+    return 1
+  fi
+
+  # Generate install names
+  echo "qmcpack-$verval-$1 was built."
+  local QMCPACK_INSTALL_TAG=$CONTRIB_DIR/qmcpack-$QMCPACK_BLDRVERSION
+  local QMCPACK_INSTALL_DIR=${QMCPACK_INSTALL_TAG}-$BLDTYPE
+
+  # Check/create install directory
+  if ! test -d $QMCPACK_INSTALL_DIR; then
+    mkdir $QMCPACK_INSTALL_DIR
+  fi
+
+  # Check/create install bin directory
+  if ! test -d $QMCPACK_INSTALL_DIR/bin; then
+    mkdir $QMCPACK_INSTALL_DIR/bin
+  fi
+
+  # Install command (if not build this time QMCPACK_BUILD_DIR fails)
+  cmd="cp -R $builddir/bin $QMCPACK_INSTALL_DIR"
+  techo -2 "$cmd"
+  $cmd
+
+  # Register install
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,$BLDTYPE
+}
+
+
+
+
+######################################################################
+#
+# Fix the dynamic links in executable (for packaging)
+# * this is only for mpich-shared...
+#   1. Creates a special qmcpack package directory
+#   2. Copies all .so files to lib and executable to bin directory
+#   3. Fixes RPATH manually with chrpath
+#
+######################################################################
+
+fixDynQmcpack() {
+
+  # First argument
+  BLDTYPE=$1
+
+  echo "====================================================================================="
+  echo "                Running fixDynQmcpack on the executable to package                    "
+  echo "                up libs and fix rpath settings for qmcpack-$BLDTYPE                   "
+  echo "====================================================================================="
+
+  # Select exectuable name
+  if [ $BLDTYPE == "ser" ]; then
+    QMCPACK_EXE_NAME="qmcpack_ser"
+  elif [ $BLDTYPE == "par" ]; then
+    QMCPACK_EXE_NAME="qmcpack"
+  else
+    echo "Build name not recognized"
+  fi
+
+  QMCPACK_PKG_NAME="qmcpack-pkg"
+  MPI_PKG='mpich-shared/lib'
+  XML_PKG='libxml2-sersh/lib'
+  LAPACK_PKG='lapack-sersh/lib64'
+
+  LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_3='libgomp'        # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_4='libstdc++'      # Located in LIBGFORTRAN_DIR
+
+  # Find paths for BLDTYPE value
+  local QMCPACK_INSTALL_TAG=$CONTRIB_DIR/qmcpack-$QMCPACK_BLDRVERSION
+  local QMCPACK_INSTALL_DIR=${QMCPACK_INSTALL_TAG}-$BLDTYPE
+
+
+  # Set qmcpack package directory
+  PKG_DIR="$CONTRIB_DIR/$QMCPACK_PKG_NAME"
+
+  # Check/create QMCPACK pkg directory
+  if ! test -d $PKG_DIR; then
+      mkdir -p $PKG_DIR
+  fi
+
+  # Check/create QMCPACK pkg lib directory
+  if ! test -d $PKG_DIR/lib; then
+      mkdir -p $PKG_DIR/lib
+  fi
+
+  # Check/create QMCPACK pkg bin directory
+  if ! test -d $PKG_DIR/bin; then
+      mkdir -p $PKG_DIR/bin
+  fi
+
+  # Copy over executable to package-able executable bin location
+  cmd="cp $QMCPACK_INSTALL_DIR/bin/$QMCPACK_EXE_NAME $CONTRIB_DIR/$QMCPACK_PKG_NAME/bin"
+  echo "$cmd"
+  $cmd
+
+
+  # Needed Only fixing up libs for parallel version (because of mpi and related)
+  if [ $BLDTYPE == "par" ]; then
+
+    # Copy over MPI libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+
+    # Copy over XML libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$XML_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+
+    # Copy over LAPACK/BLAS libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+
+
+    # Copy over LIB64 libs to package-able lib location
+    # NOTE: -a option must be used to maintain symbolic links
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_4.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+
+    # Fix rpath settings (using chrpath built in contrib)
+    # Syntax with $ORIGIN is very specific in order that correct format is
+    # maintained through a bash script to the format expected by cmd line chrpath call
+    echo ""
+    echo "Running chrpath on qmcpack executable"
+    cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $CONTRIB_DIR/$QMCPACK_PKG_NAME/bin/$QMCPACK_EXE_NAME"
+    echo "$cmd"
+    $cmd
+
+    # Find all .so libraries in pkg lib directory and run chrpath on those
+    # as well. This skips running chrpath on symbolic links
+    SHAREDLIBS=`ls -1 $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib/*.so*`
+    echo ""
+
+    for lib in $SHAREDLIBS; do
+      if ! test -L $lib; then
+          echo "*.so lib to fix rpath = $lib"
+          cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
+          echo "$cmd"
+          $cmd
+          echo ""
+      fi
+    done
+
+  fi
+
+  echo "====================================================================================="
 }

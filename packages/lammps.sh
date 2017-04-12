@@ -250,7 +250,6 @@ fixDynLammps() {
 
   fi
 
-
   echo "====================================================================================="
 }
 
@@ -323,6 +322,8 @@ putLammps() {
   local verval=`deref $vervar`
   local BLDTYPE=$1
   local LAMMPS_INSTALL_NAME=lammps-${LAMMPS_BLDRVERSION}-$BLDTYPE
+
+  echo "putLammps: builddir=$builddir"
 
   # see if lammps build was attempted
   if test -z "$builddir"; then
