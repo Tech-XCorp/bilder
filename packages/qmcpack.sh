@@ -113,11 +113,13 @@ buildQmcpack() {
     # ================================================================
 
     if bilderConfig -c qmcpack ser "$QMCPACK_SER_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+      #      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+      echo""
     fi
 
     if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-      bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+      # bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+      echo""
     fi
 
   fi
@@ -138,12 +140,20 @@ installQmcpack() {
   putQmcpack par
 
   # Only fix up libs for packaging on linux platform
-  case `uname` in
-    Linux*)
-      # fixDynQmcpack ser
-      fixDynQmcpack par
-      ;;
-  esac
+  # fixDynQmcpack ser
+  fixDynQmcpack par
+
+
+  # Clean out old tar files
+  rm -rf $CONTRIB_DIR/qmcpackInstall.tar.gz $CONTRIB_DIR/qmcpackInstall.tar
+
+  # Tar up the qmcpack pkg directory created by fixDynQmcpack
+  cmd1="tar -cvf $CONTRIB_DIR/qmcpackInstall.tar -C $CONTRIB_DIR $QMCPACK_PKG_NAME"
+  cmd2="gzip $CONTRIB_DIR/qmcpackInstall.tar"
+  echo "$cmd1 + $cmd2"
+  $cmd1
+  $cmd2
+
 }
 
 
