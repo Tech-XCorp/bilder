@@ -113,12 +113,12 @@ buildQmcpack() {
     # ================================================================
 
     if bilderConfig -c qmcpack ser "$QMCPACK_SER_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-      #      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+      #bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
       echo""
     fi
 
     if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-      # bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+      #bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
       echo""
     fi
 
@@ -153,7 +153,6 @@ installQmcpack() {
   echo "$cmd1 + $cmd2"
   $cmd1
   $cmd2
-
 }
 
 
@@ -252,7 +251,7 @@ putQmcpack() {
 ######################################################################
 #
 # Fix the dynamic links in executable (for packaging)
-# * this is only for mpich-shared...
+# this is only for mpich-shared...
 #   1. Creates a special qmcpack package directory
 #   2. Copies all .so files to lib and executable to bin directory
 #   3. Fixes RPATH manually with chrpath
@@ -348,31 +347,84 @@ fixDynQmcpack() {
     echo "$cmd"
     $cmd
 
-    # Fix rpath settings (using chrpath built in contrib)
-    # Syntax with $ORIGIN is very specific in order that correct format is
-    # maintained through a bash script to the format expected by cmd line chrpath call
-    echo ""
-    echo "Running chrpath on qmcpack executable"
-    cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $CONTRIB_DIR/$QMCPACK_PKG_NAME/bin/$QMCPACK_EXE_NAME"
-    echo "$cmd"
-    $cmd
+    # Uses helper method to run chrpath on a single executable
+    fixRpathForExec "$CONTRIB_DIR/$QMCPACK_PKG_NAME/bin/$QMCPACK_EXE_NAME" "\$ORIGIN/../lib"
 
-    # Find all .so libraries in pkg lib directory and run chrpath on those
-    # as well. This skips running chrpath on symbolic links
-    SHAREDLIBS=`ls -1 $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib/*.so*`
-    echo ""
-
-    for lib in $SHAREDLIBS; do
-      if ! test -L $lib; then
-        echo "*.so lib to fix rpath = $lib"
-        cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
-        echo "$cmd"
-        $cmd
-        echo ""
-      fi
-    done
+    # Uses helper method to run chrpath on all .so files in a directory
+    fixRpathForSharedLibs "$CONTRIB_DIR/$QMCPACK_PKG_NAME/lib" "\$ORIGIN/../lib"
 
   fi
 
   echo "====================================================================================="
+}
+
+
+######################################################################
+#
+# Local helper function:
+# Takes a directory name/executable that needs its rpath edited.
+#
+# Args:
+#  1. full path to directory/executable-name to be edited
+#  2. location for rpath to be changed to
+#
+######################################################################
+
+fixRpathForExec() {
+
+  EXEC_PATH=$1
+  RPATH=$2
+
+  echo ""
+  echo "fixRpathForExec: EXEC_PATH=$EXEC_PATH"
+  echo "fixRpathForExec:     RPATH=$RPATH"
+
+  # Fix rpath settings (using chrpath built in contrib)
+  # Syntax with $ORIGIN is very specific in order that correct format is
+  # maintained through a bash script to the format expected by cmd line chrpath call
+  echo ""
+  cmd="$CONTRIB_DIR/bin/chrpath -r $RPATH $EXEC_PATH"
+  echo "$cmd"
+  $cmd
+}
+
+
+
+
+######################################################################
+#
+# Local helper function:
+# Takes a directory name to shared libs that need to have their
+# rpath-s edited. Will check all files in directory and will run
+# chrpath only on library files
+#
+# Args:
+#  1. full path to directory with .so libs to be edited
+#  2. location for rpath to be changed to
+#
+######################################################################
+
+fixRpathForSharedLibs() {
+
+  SHAREDLIB_PATH=$1
+  RPATH=$2
+
+  echo ""
+  echo "fixRpathForSharedLibs: SHAREDLIB_PATH=$SHAREDLIB_PATH"
+  echo "fixRpathForSharedLibs:          RPATH=$RPATH"
+
+  # Find all .so libraries in pkg lib directory and run chrpath on those
+  # as well. This skips running chrpath on symbolic links
+  # SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
+  local SHAREDLIBS=`ls -1 $SHAREDLIB_PATH/*.so*`
+
+  for lib in $SHAREDLIBS; do
+    if ! test -L $lib; then
+      echo ""
+      echo "*.so lib to fix rpath = $lib"
+      cmd="$CONTRIB_DIR/bin/chrpath -r $RPATH  $lib"
+      echo "$cmd"
+      $cmd
+    fi
+  done
 }

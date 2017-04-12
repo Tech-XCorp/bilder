@@ -235,18 +235,22 @@ fixDynLammps() {
     echo "$cmd"
     $cmd
 
+    fixRpathForSharedLibs $CONTRIB_DIR/$LAMMPS_PKG_NAME  $CONTRIB_DIR
+
+
+
     # Find all .so libraries in pkg lib directory and run chrpath on those
     # as well. This skips running chrpath on symbolic links
-    SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
+    #SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
 
-    for lib in $SHAREDLIBS; do
-      if ! test -L $lib; then
-          echo "*.so lib to fix rpath = $lib"
-          cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
-          echo "$cmd"
-          $cmd
-      fi
-    done
+    #for lib in $SHAREDLIBS; do
+    #  if ! test -L $lib; then
+    #      echo "*.so lib to fix rpath = $lib"
+    #      cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
+    #      echo "$cmd"
+    #      $cmd
+    #  fi
+    #done
 
   fi
 
