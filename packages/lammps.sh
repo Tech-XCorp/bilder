@@ -81,8 +81,10 @@ buildLammps() {
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
 
   # Status
+  techo "========================================================================================"
   techo "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
   techo "LAMMPS_PAR_ARGS = $LAMMPS_PAR_ARGS"
+  techo "========================================================================================"
 
   # Builds
   if bilderUnpack lammps; then

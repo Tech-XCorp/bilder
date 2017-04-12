@@ -60,8 +60,11 @@ buildQmcpack() {
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
 
     # Adding compiler lib64 directory to rpath so initial
-    # build good (this assumes -fPIC -pipe)
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_CXX_FLAGS:STRING='-fPIC -pipe  -Wl,-rpath,/contrib/gcc-4.9.3/lib64'"
+    # build good (this assumes -fPIC -pipe). The LD_LIBRARY_PATH is set during this session,
+    # do NOT set for main environment. (Also try LIBGFORTRAN_DIR if this stops working)
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_CXX_FLAGS:STRING='-fPIC -pipe  -Wl,-rpath,$LD_LIBRARY_PATH'"
+
+    echo "QMCPACK_OTHER_ARGS=$QMCPACK_OTHER_ARGS"
 
     # Add boost
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
@@ -88,7 +91,16 @@ buildQmcpack() {
     QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS -DHDF5_ROOT=$CONTRIB_DIR/hdf5"
     QMCPACK_PAR_OTHER_ARGS="$QMCPACK_PAR_OTHER_ARGS -DHDF5_ROOT=$CONTRIB_DIR/hdf5-par"
 
-
+    techo " "
+    techo "========================================================================================"
+    techo "QMCPACK arguments for bilder configure/build steps                                      "
+    techo "                                                                                        "
+    techo "QMCPACK_OTHER_ARGS     = $QMCPACK_OTHER_ARGS                                            "
+    techo "QMCPACK_SER_OTHER_ARGS = $QMCPACK_SER_OTHER_ARGS                                        "
+    techo "QMCPACK_PAR_OTHER_ARGS = $QMCPACK_PAR_OTHER_ARGS                                        "
+    techo "                                                                                        "
+    techo "========================================================================================"
+    techo " "
 
     # ================================================================
     # Run bilder configure/build
@@ -112,9 +124,15 @@ buildQmcpack() {
 ######################################################################
 
 installQmcpack() {
-  techo "Will run bilder install steps for QMCPack"
-  bilderInstall qmcpack ser qmcpack
-  bilderInstall qmcpack par qmcpack-par
+  techo "Will run bilder install steps for QMCPack (still needs work)"
+
+  #  bilderInstall qmcpack ser qmcpack
+  #  bilderInstall qmcpack par qmcpack-par
+
+  # Register install
+  #  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,$BLDTYPE
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,"par"
+
 }
 
 
