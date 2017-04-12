@@ -45,6 +45,9 @@ buildQmcpack() {
 
   if bilderUnpack qmcpack; then
 
+    LAPACK_LIB="lapack-sersh/lib64"
+    XML_LIB="libxml2-sersh"
+
     # ================================================================
     # QMCPack needs specific environment variables set for packages
     # ================================================================
@@ -62,7 +65,9 @@ buildQmcpack() {
     # Adding compiler lib64 directory to rpath so initial
     # build good (this assumes -fPIC -pipe). The LD_LIBRARY_PATH is set during this session,
     # do NOT set for main environment. (Also try LIBGFORTRAN_DIR if this stops working)
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DCMAKE_CXX_FLAGS:STRING='-fPIC -pipe  -Wl,-rpath,$LD_LIBRARY_PATH'"
+
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS \
+      -DCMAKE_CXX_FLAGS:STRING='-fPIC -pipe  -Wl,-rpath,$LD_LIBRARY_PATH'"
 
     echo "QMCPACK_OTHER_ARGS=$QMCPACK_OTHER_ARGS"
 
@@ -70,14 +75,15 @@ buildQmcpack() {
     QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
 
     # Add lapack
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLAPACK_LIBRARIES='$CONTRIB_DIR/lapack-sersh/lib64/liblapack.so;$CONTRIB_DIR/lapack-sersh/lib64/libblas.so'"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS \
+     -DLAPACK_LIBRARIES='$CONTRIB_DIR/$LAPACK_LIB/liblapack.so;$CONTRIB_DIR/$LAPACK_LIB/libblas.so'"
 
     # Add xml (shared libs)
     # These parameters are broken and/or poorly documented even in the incl. cmake files
     # Had to use the following variables to get around these problems, and even still
     # the output from configure will be misleading (note setting LIBXML2_HOME does not work)
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_INCLUDE_DIRS=$CONTRIB_DIR/libxml2-sersh/include"
-    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_LIBRARY_DIRS=$CONTRIB_DIR/libxml2-sersh/lib"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_INCLUDE_DIRS=$CONTRIB_DIR/$XML_LIB/include"
+    QMCPACK_OTHER_ARGS="$QMCPACK_OTHER_ARGS -DLibxml2_LIBRARY_DIRS=$CONTRIB_DIR/$XML_LIB/lib"
 
     # Add compiler and compiler flags
     QMCPACK_SER_OTHER_ARGS="$QMCPACK_SER_OTHER_ARGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"
@@ -93,11 +99,11 @@ buildQmcpack() {
 
     techo " "
     techo "========================================================================================"
-    techo "QMCPACK arguments for bilder configure/build steps                                      "
+    techo " QMCPACK arguments for bilder configure/build steps                                     "
     techo "                                                                                        "
-    techo "QMCPACK_OTHER_ARGS     = $QMCPACK_OTHER_ARGS                                            "
-    techo "QMCPACK_SER_OTHER_ARGS = $QMCPACK_SER_OTHER_ARGS                                        "
-    techo "QMCPACK_PAR_OTHER_ARGS = $QMCPACK_PAR_OTHER_ARGS                                        "
+    techo "   QMCPACK_OTHER_ARGS     = $QMCPACK_OTHER_ARGS                                         "
+    techo "   QMCPACK_SER_OTHER_ARGS = $QMCPACK_SER_OTHER_ARGS                                     "
+    techo "   QMCPACK_PAR_OTHER_ARGS = $QMCPACK_PAR_OTHER_ARGS                                     "
     techo "                                                                                        "
     techo "========================================================================================"
     techo " "
@@ -126,12 +132,12 @@ buildQmcpack() {
 installQmcpack() {
   techo "Will run bilder install steps for QMCPack (still needs work)"
 
-  #  bilderInstall qmcpack ser qmcpack
-  #  bilderInstall qmcpack par qmcpack-par
+  # bilderInstall qmcpack ser qmcpack
+  bilderInstall qmcpack par qmcpack-par
 
   # Register install
   #  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,$BLDTYPE
-  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,"par"
+  #  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,"par"
 
 }
 
