@@ -283,11 +283,11 @@ makeLammps() {
     # Special make target for serial
     # Going to STUBS directly because stubs target not working
     if [ $BLDTYPE == "ser" ]; then
-        techo -2 "-- Making stubs target by default"
-        cd $LAMMPS_BUILD_DIR/STUBS
-        echo "current directory `pwd`"
-        make
-        cd $LAMMPS_BUILD_TOPDIR
+      techo -2 "-- Making stubs target by default"
+      cd $LAMMPS_BUILD_DIR/STUBS
+      echo "current directory `pwd`"
+      make
+      cd $LAMMPS_BUILD_TOPDIR
     fi
 
     # Build lammps (because of the bizarre make file structure

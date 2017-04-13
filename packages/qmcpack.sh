@@ -122,12 +122,12 @@ buildQmcpack() {
     # ================================================================
 
     if bilderConfig -c qmcpack ser "$QMCPACK_SER_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-#      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
       echo""
     fi
 
     if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-#      bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+      bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
       echo""
     fi
 
