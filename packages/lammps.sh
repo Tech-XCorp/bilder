@@ -121,14 +121,14 @@ installLammps() {
   fixDynLammps par
 
   # Clean out old tar files
-  rm -rf $CONTRIB_DIR/lammpsInstall.tar.gz $CONTRIB_DIR/lammpsInstall.tar
+  rm -rf $BLDR_INSTALL_DIR/lammpsInstall.tar.gz $BLDR_INSTALL_DIR/lammpsInstall.tar
 
   # Tar up the lammps pkg directory created by fixDynLammps
   echo ""
   echo "Creating an archive file for installer for Lammps"
   echo ""
-  cmd1="tar -cvf $CONTRIB_DIR/lammpsInstall.tar -C $CONTRIB_DIR $LAMMPS_PKG_NAME"
-  cmd2="gzip $CONTRIB_DIR/lammpsInstall.tar"
+  cmd1="tar -cvf $BLDR_INSTALL_DIR/lammpsInstall.tar -C $BLDR_INSTALL_DIR $LAMMPS_PKG_NAME"
+  cmd2="gzip $BLDR_INSTALL_DIR/lammpsInstall.tar"
   echo "$cmd1 + $cmd2"
   $cmd1
   $cmd2
@@ -191,7 +191,7 @@ fixDynLammps() {
   LIB64_PKG_3='libstdc++'      # Located in LIBGFORTRAN_DIR
 
   # Find paths for BLDTYPE value
-  local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
+  local LAMMPS_INSTALL_TAG=$BLDR_INSTALL_DIR/lammps-$LAMMPS_BLDRVERSION
   local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
 
   # Set lammps package directory
@@ -352,7 +352,7 @@ putLammps() {
 
   # Generate install names
   echo "lammps-$verval-$1 was built."
-  local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
+  local LAMMPS_INSTALL_TAG=$BLDR_INSTALL_DIR/lammps-$LAMMPS_BLDRVERSION
   local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
 
   # Check/create install directory
@@ -379,5 +379,5 @@ putLammps() {
   echo "Default is to copy executable into $LAMMPS_INSTALL_DIR/bin"
 
   # Register install
-  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR lammps,$BLDTYPE
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DID lammps,$BLDTYPE
 }
