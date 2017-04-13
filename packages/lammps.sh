@@ -124,12 +124,16 @@ installLammps() {
   rm -rf $CONTRIB_DIR/lammpsInstall.tar.gz $CONTRIB_DIR/lammpsInstall.tar
 
   # Tar up the lammps pkg directory created by fixDynLammps
+  echo ""
+  echo "Creating an archive file for installer for Lammps"
+  echo ""
   cmd1="tar -cvf $CONTRIB_DIR/lammpsInstall.tar -C $CONTRIB_DIR $LAMMPS_PKG_NAME"
   cmd2="gzip $CONTRIB_DIR/lammpsInstall.tar"
   echo "$cmd1 + $cmd2"
   $cmd1
   $cmd2
 }
+
 
 
 ######################################################################
@@ -141,8 +145,6 @@ installLammps() {
 testLammps() {
   techo "Not testing LAMMPS."
 }
-
-
 
 
 
@@ -186,13 +188,14 @@ fixDynLammps() {
   MPIPKG='mpich-shared'
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_3='libstdc++'      # Located in LIBGFORTRAN_DIR
 
   # Find paths for BLDTYPE value
   local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
   local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
 
   # Set lammps package directory
-  PKG_DIR="$CONTRIB_DIR/$LAMMPS_PKG_NAME"
+  PKG_DIR="$BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME"
 
   # Check/create LAMMPS pkg directory
   if ! test -d $PKG_DIR; then
@@ -229,20 +232,18 @@ fixDynLammps() {
     cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
     echo "$cmd"
     $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
 
-    # Fix rpath settings (using chrpath built in contrib)
     # Syntax with $ORIGIN is very specific in order that correct format is
     # maintained through a bash script to the format expected by cmd line chrpath call
-#    echo "Running chrpath on lammps executable"
-#    cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/bin/$LAMMPS_EXE_NAME"
-#    echo "$cmd"
-#    $cmd
 
-    # Uses helper method to run chrpath on a single executable
+    # Uses helper method to run chrpath on executable(s)
     fixRpathForExec "$BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/bin" "\$ORIGIN/../lib"
 
-    # fixRpathForSharedLibs $CONTRIB_DIR/$LAMMPS_PKG_NAME  $CONTRIB_DIR
-    fixRpathForSharedLibs "BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"  "\$ORIGIN/../lib"
+    # Uses helper method to run chrpath on all .so files in a directory
+    fixRpathForSharedLibs "$BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"  "\$ORIGIN/../lib"
 
   fi
 
