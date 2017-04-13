@@ -232,7 +232,7 @@ putQmcpack() {
 
   # Generate install names
   echo "qmcpack-$verval-$1 was built."
-  local QMCPACK_INSTALL_TAG=$CONTRIB_DIR/qmcpack-$QMCPACK_BLDRVERSION
+  local QMCPACK_INSTALL_TAG=$BLDR_INSTALL_DIR/qmcpack-$QMCPACK_BLDRVERSION
   local QMCPACK_INSTALL_DIR=${QMCPACK_INSTALL_TAG}-$BLDTYPE
 
   # Check/create install directory
@@ -251,7 +251,7 @@ putQmcpack() {
   $cmd
 
   # Register install
-  ${PROJECT_DIR}/bilder/setinstald.sh -i $CONTRIB_DIR qmcpack,$BLDTYPE
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DIR qmcpack,$BLDTYPE
 }
 
 
@@ -298,7 +298,7 @@ fixDynQmcpack() {
   LIB64_PKG_4='libstdc++'      # Located in LIBGFORTRAN_DIR
 
   # Find paths for BLDTYPE value
-  local QMCPACK_INSTALL_TAG=$CONTRIB_DIR/qmcpack-$QMCPACK_BLDRVERSION
+  local QMCPACK_INSTALL_TAG=$BLDR_INSTALL_DIR/qmcpack-$QMCPACK_BLDRVERSION
   local QMCPACK_INSTALL_DIR=${QMCPACK_INSTALL_TAG}-$BLDTYPE
 
   # Set qmcpack package directory (in volatile dir)
