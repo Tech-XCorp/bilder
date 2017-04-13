@@ -121,4 +121,3 @@ then
   echo "$conffile exists. sourcing..."
   source $conffile
 fi
-

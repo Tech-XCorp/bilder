@@ -14,6 +14,15 @@
 
 ######################################################################
 #
+# Source common methods to fixup rpaths manually
+#
+######################################################################
+
+source $PROJECT_DIR/bilder/rpathutils.sh
+
+
+######################################################################
+#
 # Trigger variables and versions set in qmcpack_aux.sh
 #
 ######################################################################
@@ -113,12 +122,12 @@ buildQmcpack() {
     # ================================================================
 
     if bilderConfig -c qmcpack ser "$QMCPACK_SER_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-      #bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
+#      bilderBuild qmcpack ser "$QMCPACK_MAKEJ_ARGS"
       echo""
     fi
 
     if bilderConfig -c qmcpack par "-DENABLE_PARALLEL:BOOL=TRUE $QMCPACK_PAR_OTHER_ARGS $QMCPACK_OTHER_ARGS"; then
-      #bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
+#      bilderBuild qmcpack par "$QMCPACK_MAKEJ_ARGS"
       echo""
     fi
 
@@ -134,8 +143,6 @@ buildQmcpack() {
 
 installQmcpack() {
 
-  techo "Will run bilder install steps for QMCPack (still needs work) ===== "
-
   # putQmcpack ser
   putQmcpack par
 
@@ -143,13 +150,15 @@ installQmcpack() {
   # fixDynQmcpack ser
   fixDynQmcpack par
 
-
   # Clean out old tar files
-  rm -rf $CONTRIB_DIR/qmcpackInstall.tar.gz $CONTRIB_DIR/qmcpackInstall.tar
+  rm -rf $BLDR_INSTALL_DIR/qmcpackInstall.tar.gz $BLDR_INSTALL_DIR/qmcpackInstall.tar
 
   # Tar up the qmcpack pkg directory created by fixDynQmcpack
-  cmd1="tar -cvf $CONTRIB_DIR/qmcpackInstall.tar -C $CONTRIB_DIR $QMCPACK_PKG_NAME"
-  cmd2="gzip $CONTRIB_DIR/qmcpackInstall.tar"
+  echo ""
+  echo "Creating an archive file for installer for QMCPack"
+  echo ""
+  cmd1="tar -cvf $BLDR_INSTALL_DIR/qmcpackInstall.tar -C $BLDR_INSTALL_DIR $QMCPACK_PKG_NAME"
+  cmd2="gzip $BLDR_INSTALL_DIR/qmcpackInstall.tar"
   echo "$cmd1 + $cmd2"
   $cmd1
   $cmd2
@@ -275,6 +284,7 @@ fixDynQmcpack() {
     QMCPACK_EXE_NAME="qmcpack"
   else
     echo "Build name not recognized"
+    exit
   fi
 
   QMCPACK_PKG_NAME="qmcpack-pkg"
@@ -291,140 +301,64 @@ fixDynQmcpack() {
   local QMCPACK_INSTALL_TAG=$CONTRIB_DIR/qmcpack-$QMCPACK_BLDRVERSION
   local QMCPACK_INSTALL_DIR=${QMCPACK_INSTALL_TAG}-$BLDTYPE
 
-
-  # Set qmcpack package directory
-  PKG_DIR="$CONTRIB_DIR/$QMCPACK_PKG_NAME"
+  # Set qmcpack package directory (in volatile dir)
+  PKG_DIR="$BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME"
 
   # Check/create QMCPACK pkg directory
   if ! test -d $PKG_DIR; then
       mkdir -p $PKG_DIR
   fi
-
   # Check/create QMCPACK pkg lib directory
   if ! test -d $PKG_DIR/lib; then
       mkdir -p $PKG_DIR/lib
   fi
-
   # Check/create QMCPACK pkg bin directory
   if ! test -d $PKG_DIR/bin; then
       mkdir -p $PKG_DIR/bin
   fi
 
-  # Copy over executable to package-able executable bin location
-  cmd="cp $QMCPACK_INSTALL_DIR/bin/$QMCPACK_EXE_NAME $CONTRIB_DIR/$QMCPACK_PKG_NAME/bin"
+  # Copy over executables to package-able bin location
+  cmd="cp -R $QMCPACK_INSTALL_DIR/bin $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME"
   echo "$cmd"
   $cmd
-
 
   # Needed Only fixing up libs for parallel version (because of mpi and related)
   if [ $BLDTYPE == "par" ]; then
 
     # Copy over MPI libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
     # Copy over XML libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$XML_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -R $CONTRIB_DIR/$XML_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
     # Copy over LAPACK/BLAS libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
 
     # Copy over LIB64 libs to package-able lib location
     # NOTE: -a option must be used to maintain symbolic links
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.*so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.*so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_4.*so* $CONTRIB_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_4.*so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
     echo "$cmd"
     $cmd
 
     # Uses helper method to run chrpath on a single executable
-    fixRpathForExec "$CONTRIB_DIR/$QMCPACK_PKG_NAME/bin/$QMCPACK_EXE_NAME" "\$ORIGIN/../lib"
+    fixRpathForExec "$BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/bin" "\$ORIGIN/../lib"
 
     # Uses helper method to run chrpath on all .so files in a directory
-    fixRpathForSharedLibs "$CONTRIB_DIR/$QMCPACK_PKG_NAME/lib" "\$ORIGIN/../lib"
-
+    fixRpathForSharedLibs "$BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib" "\$ORIGIN/../lib"
   fi
 
   echo "====================================================================================="
-}
-
-
-######################################################################
-#
-# Local helper function:
-# Takes a directory name/executable that needs its rpath edited.
-#
-# Args:
-#  1. full path to directory/executable-name to be edited
-#  2. location for rpath to be changed to
-#
-######################################################################
-
-fixRpathForExec() {
-
-  EXEC_PATH=$1
-  RPATH=$2
-
-  echo ""
-  echo "fixRpathForExec: EXEC_PATH=$EXEC_PATH"
-  echo "fixRpathForExec:     RPATH=$RPATH"
-
-  # Fix rpath settings (using chrpath built in contrib)
-  # Syntax with $ORIGIN is very specific in order that correct format is
-  # maintained through a bash script to the format expected by cmd line chrpath call
-  echo ""
-  cmd="$CONTRIB_DIR/bin/chrpath -r $RPATH $EXEC_PATH"
-  echo "$cmd"
-  $cmd
-}
-
-
-
-
-######################################################################
-#
-# Local helper function:
-# Takes a directory name to shared libs that need to have their
-# rpath-s edited. Will check all files in directory and will run
-# chrpath only on library files
-#
-# Args:
-#  1. full path to directory with .so libs to be edited
-#  2. location for rpath to be changed to
-#
-######################################################################
-
-fixRpathForSharedLibs() {
-
-  SHAREDLIB_PATH=$1
-  RPATH=$2
-
-  echo ""
-  echo "fixRpathForSharedLibs: SHAREDLIB_PATH=$SHAREDLIB_PATH"
-  echo "fixRpathForSharedLibs:          RPATH=$RPATH"
-
-  # Find all .so libraries in pkg lib directory and run chrpath on those
-  # as well. This skips running chrpath on symbolic links
-  # SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
-  local SHAREDLIBS=`ls -1 $SHAREDLIB_PATH/*.so*`
-
-  for lib in $SHAREDLIBS; do
-    if ! test -L $lib; then
-      echo ""
-      echo "*.so lib to fix rpath = $lib"
-      cmd="$CONTRIB_DIR/bin/chrpath -r $RPATH  $lib"
-      echo "$cmd"
-      $cmd
-    fi
-  done
 }

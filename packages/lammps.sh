@@ -14,11 +14,21 @@
 
 ######################################################################
 #
+# Source common methods to fixup rpaths manually
+#
+######################################################################
+
+source $PROJECT_DIR/bilder/rpathutils.sh
+
+
+######################################################################
+#
 # Version
 #
 ######################################################################
 
 LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
+
 
 ######################################################################
 #
@@ -26,9 +36,7 @@ LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 #
 ######################################################################
 
-# LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
 LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
-echo "LAMMPS_BUILDS=${LAMMPS_BUILDS}"
 LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools,chrpath
 
 # These targets are not needed, but the flags below are
@@ -183,9 +191,6 @@ fixDynLammps() {
   local LAMMPS_INSTALL_TAG=$CONTRIB_DIR/lammps-$LAMMPS_BLDRVERSION
   local LAMMPS_INSTALL_DIR=${LAMMPS_INSTALL_TAG}-$BLDTYPE
 
-  echo "----------------- LAMMPS_INSTALL_DIR=$LAMMPS_INSTALL_DIR"
-
-
   # Set lammps package directory
   PKG_DIR="$CONTRIB_DIR/$LAMMPS_PKG_NAME"
 
@@ -193,19 +198,17 @@ fixDynLammps() {
   if ! test -d $PKG_DIR; then
       mkdir -p $PKG_DIR
   fi
-
   # Check/create LAMMPS pkg lib directory
   if ! test -d $PKG_DIR/lib; then
       mkdir -p $PKG_DIR/lib
   fi
-
   # Check/create LAMMPS pkg bin directory
   if ! test -d $PKG_DIR/bin; then
       mkdir -p $PKG_DIR/bin
   fi
 
   # Copy over executable to package-able executable bin location
-  cmd="cp $LAMMPS_INSTALL_DIR/bin/$LAMMPS_EXE_NAME $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin"
+  cmd="cp $LAMMPS_INSTALL_DIR/bin/$LAMMPS_EXE_NAME $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/bin"
   echo "$cmd"
   $cmd
 
@@ -214,43 +217,32 @@ fixDynLammps() {
   if [ $BLDTYPE == "par" ]; then
 
     # Copy over MPI libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+    cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
     echo "$cmd"
     $cmd
 
     # Copy over LIB64 libs to package-able lib location
     # NOTE: -a option must be used to maintain symbolic links
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
     echo "$cmd"
     $cmd
 
     # Fix rpath settings (using chrpath built in contrib)
     # Syntax with $ORIGIN is very specific in order that correct format is
     # maintained through a bash script to the format expected by cmd line chrpath call
-    echo "Running chrpath on lammps executable"
-    cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $CONTRIB_DIR/$LAMMPS_PKG_NAME/bin/$LAMMPS_EXE_NAME"
-    echo "$cmd"
-    $cmd
+#    echo "Running chrpath on lammps executable"
+#    cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/bin/$LAMMPS_EXE_NAME"
+#    echo "$cmd"
+#    $cmd
 
-    fixRpathForSharedLibs $CONTRIB_DIR/$LAMMPS_PKG_NAME  $CONTRIB_DIR
+    # Uses helper method to run chrpath on a single executable
+    fixRpathForExec "$BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/bin" "\$ORIGIN/../lib"
 
-
-
-    # Find all .so libraries in pkg lib directory and run chrpath on those
-    # as well. This skips running chrpath on symbolic links
-    #SHAREDLIBS=`ls -1 $CONTRIB_DIR/$LAMMPS_PKG_NAME/lib/*.so*`
-
-    #for lib in $SHAREDLIBS; do
-    #  if ! test -L $lib; then
-    #      echo "*.so lib to fix rpath = $lib"
-    #      cmd="$CONTRIB_DIR/bin/chrpath -r \$ORIGIN/../lib $lib"
-    #      echo "$cmd"
-    #      $cmd
-    #  fi
-    #done
+    # fixRpathForSharedLibs $CONTRIB_DIR/$LAMMPS_PKG_NAME  $CONTRIB_DIR
+    fixRpathForSharedLibs "BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"  "\$ORIGIN/../lib"
 
   fi
 
