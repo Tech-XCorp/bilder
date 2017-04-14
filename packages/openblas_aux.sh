@@ -34,7 +34,11 @@ getOpenblasTriggerVars() {
         if which x86_64-w64-mingw32-gfortran.exe 2>/dev/null 1>&2; then
           OPENBLAS_DESIRED_BUILDS=sersh
         fi
-        ;;
+      ;;
+
+      *)
+        OPENBLAS_DESIRED_BUILDS=ser
+      ;;
     esac
   fi
   computeBuilds openblas
@@ -59,4 +63,3 @@ findOpenblas() {
   findPycshDir Openblas
 
 }
-

@@ -15,16 +15,13 @@
 
 ######################################################################
 #
-# Sanity check
+# Notes:
+#  1. Each method checks for chrpath at call time, because this
+#     will fail on a new build
 #
 ######################################################################
 
-# Check if chrpath program exists in contrib install location
-if ! test -e "$CONTRIB_DIR/bin/chrpath"; then
-  echo "chrpath not found in contrib installation, check build"
-  echo "rpathutils.sh exiting"
-  exit
-fi
+
 
 
 ######################################################################
@@ -39,6 +36,13 @@ fi
 ######################################################################
 
 fixRpathForExec() {
+
+  # Check if chrpath program exists in contrib install location
+  if ! test -e "$CONTRIB_DIR/bin/chrpath"; then
+    echo "chrpath not found in contrib installation, check build"
+    echo "rpathutils.sh exiting"
+    exit
+  fi
 
   EXEC_PATH=$1
   RPATH=$2
@@ -77,6 +81,14 @@ fixRpathForExec() {
 ######################################################################
 
 fixRpathForSharedLibs() {
+
+  # Check if chrpath program exists in contrib install location
+  if ! test -e "$CONTRIB_DIR/bin/chrpath"; then
+    echo "chrpath not found in contrib installation, check build"
+    echo "rpathutils.sh exiting"
+    exit
+  fi
+
 
   SHAREDLIB_PATH=$1
   RPATH=$2
