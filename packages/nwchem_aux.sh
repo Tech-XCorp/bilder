@@ -29,7 +29,7 @@ setNwchemTriggerVars() {
 #
 ######################################################################
 
-NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"3.0.0"}
+NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.6"}
 
 ######################################################################
 #
@@ -39,7 +39,7 @@ NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"3.0.0"}
 
 # NWCHEM has both serial and parallel builds
 NWCHEM_BUILDS=${NWCHEM_BUILDS:-"par"}
-NWCHEM_DEPS=fftw,fftw3,$MPI_BUILD,lapack,boost,hdf5,libxml2,chrpath
+NWCHEM_DEPS=$MPI_BUILD,Python,openblas,chrpath
 }
 setNwchemTriggerVars
 
