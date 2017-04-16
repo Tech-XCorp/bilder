@@ -22,8 +22,8 @@
 ######################################################################
 
 setMatplotlibTriggerVars() {
-  MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.4.3"}
-  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"1.5.3"}
+  MATPLOTLIB_BLDRVERSION_STD=${MATPLOTLIB_BLDRVERSION_STD:-"1.5.3"}
+  MATPLOTLIB_BLDRVERSION_EXP=${MATPLOTLIB_BLDRVERSION_EXP:-"2.0.0"}
   MATPLOTLIB_BUILDS=${MATPLOTLIB_BUILDS:-"pycsh"}
 # Dependencies listed in matplotlib-1.4.3-py2.7.egg-info/requires.txt
   MATPLOTLIB_DEPS=numpy,libpng,freetype,Python
