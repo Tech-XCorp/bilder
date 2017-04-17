@@ -23,27 +23,27 @@ source $PROJECT_DIR/bilder/rpathutils.sh
 
 ######################################################################
 #
-# Version
+# Trigger variables and versions set in qmcpack_aux.sh
 #
 ######################################################################
 
-LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
+mydir=`dirname $BASH_SOURCE`
+source $mydir/lammps_aux.sh
 
 
 ######################################################################
 #
-# Builds and deps
+# Set variables that should trigger a rebuild, but which by value change
+# here do not, so that build gets triggered by change of this file.
+# E.g: mask
 #
 ######################################################################
 
-LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
-LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools,chrpath
+setLammpsNonTriggerVars() {
+  LAMMPS_UMASK=002
+}
+setLammpsNonTriggerVars
 
-# These targets are not needed, but the flags below are
-# expecting the setup in these files, hardcoded Makefile-s use these
-# names as the ser/par executable targets
-SER_TARGET='mac'
-PAR_TARGET='mac_mpi'
 
 
 ######################################################################
@@ -53,6 +53,12 @@ PAR_TARGET='mac_mpi'
 ######################################################################
 
 buildLammps() {
+
+  # These targets are not needed, but the flags below are
+  # expecting the setup in these files, hardcoded Makefile-s use these
+  # names as the ser/par executable targets
+  SER_TARGET='mac'
+  PAR_TARGET='mac_mpi'
 
   # NOTE: all variables for make cmd line need ' ' quotes so other
   # args in line are parsed correctly

@@ -1,9 +1,9 @@
 #!/bin/sh
 ######################################################################
 #
-# @file    nwchem_aux.sh
+# @file    lammps_aux.sh
 #
-# @brief   Trigger vars and find information for nwchem.
+# @brief   Trigger vars and find information for lammps.
 #
 # @version $Rev: 3588 $ $Date: 2017-04-04 11:01:32 -0600 (Tue, 04 Apr 2017) $
 #
@@ -21,7 +21,7 @@
 #
 ######################################################################
 
-setNwchemTriggerVars() {
+setLammpsTriggerVars() {
 
 ######################################################################
 #
@@ -29,8 +29,7 @@ setNwchemTriggerVars() {
 #
 ######################################################################
 
-#NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.6"}
-NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.5"}
+LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 
 ######################################################################
 #
@@ -38,19 +37,19 @@ NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.5"}
 #
 ######################################################################
 
-# NWCHEM has both serial and parallel builds
-NWCHEM_BUILDS=${NWCHEM_BUILDS:-"par"}
-NWCHEM_DEPS=$MPI_BUILD,lapack,Python,chrpath
+# LAMMPS has both serial and parallel builds
+LAMMPS_BUILDS=${LAMMPS_BUILDS:-"ser,par"}
+LAMMPS_DEPS=fftw,fftw3,$MPI_BUILD,autotools,chrpath
 }
-setNwchemTriggerVars
+setLammpsTriggerVars
 
 
 ######################################################################
 #
-# Find nwchem
+# Find lammps
 #
 ######################################################################
 
-findNwchem() {
-  findContribPackage Nwchem nwchem ser par
+findLammps() {
+  findContribPackage Lammps lammps ser par
 }

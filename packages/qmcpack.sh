@@ -30,6 +30,7 @@ source $PROJECT_DIR/bilder/rpathutils.sh
 mydir=`dirname $BASH_SOURCE`
 source $mydir/qmcpack_aux.sh
 
+
 ######################################################################
 #
 # Set variables that should trigger a rebuild, but which by value change
