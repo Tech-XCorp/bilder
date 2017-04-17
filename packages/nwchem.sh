@@ -5,7 +5,7 @@
 #
 # @brief   Version and build information for nwchem.
 #
-# @version $Rev: 3599 $ $Date: 2017-04-07 16:13:04 -0600 (Fri, 07 Apr 2017) $
+# @version $Rev: 3635 $ $Date: 2017-04-17 17:23:43 -0600 (Mon, 17 Apr 2017) $
 #
 # Copyright &copy; 2013-2017, Tech-X Corporation, Boulder, CO.
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
@@ -23,12 +23,13 @@ source $PROJECT_DIR/bilder/rpathutils.sh
 
 ######################################################################
 #
-# Trigger variables and versions set in nwchem_aux.sh
+# Trigger variables and versions set in qmcpack_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
 source $mydir/nwchem_aux.sh
+
 
 ######################################################################
 #
@@ -44,6 +45,7 @@ setNwchemNonTriggerVars() {
 setNwchemNonTriggerVars
 
 
+
 ######################################################################
 #
 # Launch nwchem builds.
@@ -52,84 +54,47 @@ setNwchemNonTriggerVars
 
 buildNwchem() {
 
+  # NWChem not flexible enough for configure variables to be set, must
+  # set a series of environment variables
+
+  # Shared linking not working
+  # MPI must be available (not sure why option is available)
+  export USE_MPI="y"
+  export MPI_LIB="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/lib"
+  export MPI_INCLUDE="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/include"
+  export LIBPMPI="-lmpifort -lmpi"
+
+  # Python link currently broken in the 6.6 version. Leaving out for now
+  #export PYTHONVERSION="2.7"
+  #export PYTHONHOME="/scr_haswell/swsides/opt/contrib-qmcpack/Python-2.7.13-sersh"
+  #export PYTHONLIBTYPE="so"
+  #export PYTHONCONFIGDIR="config/../.."
+  #export PYTHONHOME="/scr_haswell/swsides/opt/contrib-qmcpack/Python-2.7.13-sersh"
+  #export PYTHONLIBTYPE="a"
+  #export PYTHONCONFIGDIR="config"
+
+  export BLASOPT="-L/scr_haswell/swsides/opt/contrib-nwchem/lapack/lib64  -llapack -lblas"
+  export BLAS_SIZE="8"
+  export USE_ARUR="n"
+
+  export NWCHEM_TOP="/scr_haswell/swsides/directpkgs/nwchem-6.6"
+  export NWCHEM_TARGET="LINUX64"
+
+
+  # Status
+  #  techo "========================================================================================"
+  #  techo "NWCHEM_SER_ARGS = $NWCHEM_SER_ARGS"
+  #  techo "NWCHEM_PAR_ARGS = $NWCHEM_PAR_ARGS"
+  #  techo "========================================================================================"
+
+  # Builds
   if bilderUnpack nwchem; then
 
-    LAPACK_LIB="lapack-sersh/lib64"
-    XML_LIB="libxml2-sersh"
+    # ARGS="$NWCHEM_SER_ARGS $SER_TARGET"
+    # makeNwchem ser "$ARGS"
 
-    # ================================================================
-    # Nwchem needs specific environment variables set for packages
-    # ================================================================
-
-    local NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS"
-    local NWCHEM_SER_OTHER_ARGS="$NWCHEM_SER_OTHER_ARGS"
-    local NWCHEM_PAR_OTHER_ARGS="$NWCHEM_PAR_OTHER_ARGS"
-
-    # Standard configure parameters
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS $TARBALL_NODEFLIB_FLAGS $CMAKE_SUPRA_SP_ARG"
-
-    # Ensure correct linker picked up
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS -DCMAKE_EXE_LINKER_FLAGS:STRING=-ldl"
-
-    # Adding compiler lib64 directory to rpath so initial
-    # build good (this assumes -fPIC -pipe). The LD_LIBRARY_PATH is set during this session,
-    # do NOT set for main environment. (Also try LIBGFORTRAN_DIR if this stops working)
-
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS \
-      -DCMAKE_CXX_FLAGS:STRING='-fPIC -pipe  -Wl,-rpath,$LD_LIBRARY_PATH'"
-
-    echo "NWCHEM_OTHER_ARGS=$NWCHEM_OTHER_ARGS"
-
-    # Add boost
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS -DBOOST_ROOT=$CONTRIB_DIR/boost"
-
-    # Add lapack
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS \
-     -DLAPACK_LIBRARIES='$CONTRIB_DIR/$LAPACK_LIB/liblapack.so;$CONTRIB_DIR/$LAPACK_LIB/libblas.so'"
-
-    # Add xml (shared libs)
-    # These parameters are broken and/or poorly documented even in the incl. cmake files
-    # Had to use the following variables to get around these problems, and even still
-    # the output from configure will be misleading (note setting LIBXML2_HOME does not work)
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS -DLibxml2_INCLUDE_DIRS=$CONTRIB_DIR/$XML_LIB/include"
-    NWCHEM_OTHER_ARGS="$NWCHEM_OTHER_ARGS -DLibxml2_LIBRARY_DIRS=$CONTRIB_DIR/$XML_LIB/lib"
-
-    # Add compiler and compiler flags
-    NWCHEM_SER_OTHER_ARGS="$NWCHEM_SER_OTHER_ARGS $CMAKE_COMPILERS_SER $CMAKE_COMPFLAGS_SER"
-    NWCHEM_PAR_OTHER_ARGS="$NWCHEM_PAR_OTHER_ARGS $CMAKE_COMPILERS_PAR $CMAKE_COMPFLAGS_PAR"
-
-    # Add fftw3
-    NWCHEM_SER_OTHER_ARGS="$NWCHEM_SER_OTHER_ARGS -DFFTW_HOME=$CONTRIB_DIR/fftw3"
-    NWCHEM_PAR_OTHER_ARGS="$NWCHEM_PAR_OTHER_ARGS -DFFTW_HOME=$CONTRIB_DIR/fftw3-par"
-
-    # Add hdf5
-    NWCHEM_SER_OTHER_ARGS="$NWCHEM_SER_OTHER_ARGS -DHDF5_ROOT=$CONTRIB_DIR/hdf5"
-    NWCHEM_PAR_OTHER_ARGS="$NWCHEM_PAR_OTHER_ARGS -DHDF5_ROOT=$CONTRIB_DIR/hdf5-par"
-
-    techo " "
-    techo "========================================================================================"
-    techo " NWCHEM arguments for bilder configure/build steps                                     "
-    techo "                                                                                        "
-    techo "   NWCHEM_OTHER_ARGS     = $NWCHEM_OTHER_ARGS                                         "
-    techo "   NWCHEM_SER_OTHER_ARGS = $NWCHEM_SER_OTHER_ARGS                                     "
-    techo "   NWCHEM_PAR_OTHER_ARGS = $NWCHEM_PAR_OTHER_ARGS                                     "
-    techo "                                                                                        "
-    techo "========================================================================================"
-    techo " "
-
-    # ================================================================
-    # Run bilder configure/build
-    # ================================================================
-
-    if bilderConfig -c nwchem ser "$NWCHEM_SER_OTHER_ARGS $NWCHEM_OTHER_ARGS"; then
-      bilderBuild nwchem ser "$NWCHEM_MAKEJ_ARGS"
-      echo""
-    fi
-
-    if bilderConfig -c nwchem par "-DENABLE_PARALLEL:BOOL=TRUE $NWCHEM_PAR_OTHER_ARGS $NWCHEM_OTHER_ARGS"; then
-      bilderBuild nwchem par "$NWCHEM_MAKEJ_ARGS"
-      echo""
-    fi
+    ARGS="$NWCHEM_PAR_ARGS $PAR_TARGET"
+    makeNwchem par "$ARGS"
 
   fi
 }
@@ -143,26 +108,26 @@ buildNwchem() {
 
 installNwchem() {
 
-  # putNwchem ser
-  putNwchem par
+#  putNwchem ser
+#  putNwchem par
 
-  # Only fix up libs for packaging on linux platform
-  # fixDynNwchem ser
-  fixDynNwchem par
+#  fixDynNwchem ser
+#  fixDynNwchem par
 
   # Clean out old tar files
-  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
+#  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
 
   # Tar up the nwchem pkg directory created by fixDynNwchem
-  echo ""
-  echo "Creating an archive file for installer for Nwchem"
-  echo ""
-  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
-  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
-  echo "$cmd1 + $cmd2"
-  $cmd1
-  $cmd2
+#  echo ""
+#  echo "Creating an archive file for installer for Nwchem"
+#  echo ""
+#  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
+#  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
+#  echo "$cmd1 + $cmd2"
+#  $cmd1
+#  $cmd2
 }
+
 
 
 ######################################################################
@@ -177,7 +142,144 @@ testNwchem() {
 
 
 
+######################################################################
+#                                                                    #
+#                      Helper script methods                         #
+#                                                                    #
+######################################################################
 
+
+######################################################################
+#
+# Fix the dynamic links in executable (for packaging)
+# * this is only for mpich-shared...
+#   1. Creates a special nwchem package directory
+#   2. Copies all .so files to lib and executable to bin directory
+#   3. Fixes RPATH manually with chrpath
+#
+######################################################################
+
+fixDynNwchem() {
+
+  # First argument
+  BLDTYPE=$1
+
+  echo "====================================================================================="
+  echo "                Running fixDynNwchem on the executable to package                    "
+  echo "                up libs and fix rpath settings for nwchem-$BLDTYPE                   "
+  echo "====================================================================================="
+
+  # Select exectuable name
+  if [ $BLDTYPE == "ser" ]; then
+    NWCHEM_EXE_NAME="nwchem_ser"
+  elif [ $BLDTYPE == "par" ]; then
+    NWCHEM_EXE_NAME="nwchem"
+  else
+    echo "Build name not recognized"
+  fi
+
+  NWCHEM_PKG_NAME="nwchem-pkg"
+  MPIPKG='mpich-shared'
+  LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_3='libstdc++'      # Located in LIBGFORTRAN_DIR
+
+  # Find paths for BLDTYPE value
+  local NWCHEM_INSTALL_TAG=$BLDR_INSTALL_DIR/nwchem-$NWCHEM_BLDRVERSION
+  local NWCHEM_INSTALL_DIR=${NWCHEM_INSTALL_TAG}-$BLDTYPE
+
+  # Set nwchem package directory
+  PKG_DIR="$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME"
+
+  # Check/create NWCHEM pkg directory
+  if ! test -d $PKG_DIR; then
+      mkdir -p $PKG_DIR
+  fi
+  # Check/create NWCHEM pkg lib directory
+  if ! test -d $PKG_DIR/lib; then
+      mkdir -p $PKG_DIR/lib
+  fi
+  # Check/create NWCHEM pkg bin directory
+  if ! test -d $PKG_DIR/bin; then
+      mkdir -p $PKG_DIR/bin
+  fi
+
+  # Copy over executable to package-able executable bin location
+  cmd="cp $NWCHEM_INSTALL_DIR/bin/$NWCHEM_EXE_NAME $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/bin"
+  echo "$cmd"
+  $cmd
+
+
+  # Needed Only fixing up libs for parallel version (because of mpi and related)
+  if [ $BLDTYPE == "par" ]; then
+
+    # Copy over MPI libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+
+    # Copy over LIB64 libs to package-able lib location
+    # NOTE: -a option must be used to maintain symbolic links
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+
+    # Syntax with $ORIGIN is very specific in order that correct format is
+    # maintained through a bash script to the format expected by cmd line chrpath call
+
+    # Uses helper method to run chrpath on executable(s)
+    fixRpathForExec "$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/bin" "\$ORIGIN/../lib"
+
+    # Uses helper method to run chrpath on all .so files in a directory
+    fixRpathForSharedLibs "$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"  "\$ORIGIN/../lib"
+
+  fi
+
+  echo "====================================================================================="
+}
+
+
+######################################################################
+#
+# Local helper function to make a particular Nwchem config
+#
+# Args:
+#  1: build type (eg par2d ser3d ....)
+#  2: args  (must have " " around script variable)
+#
+######################################################################
+
+makeNwchem() {
+
+  techo -2 "---------- Calling makeNwchem with $1 $2 --------"
+  BLDTYPE=$1
+  ARGS=$2
+
+  if bilderConfig nwchem $BLDTYPE; then
+
+    # 'by-hand configure' by copying all files in src to NWCHEM_BUILD_DIR
+    #local BLDDIR=NWCHEM_`genbashvar ${BLDTYPE}`_BUILD_DIR
+    #eval NWCHEM_BUILD_DIR=\$$BLDDIR
+    #techo -2 "NWCHEM_BUILD_DIR=$NWCHEM_BUILD_DIR"
+    #NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_DIR/..
+    #techo -2 "NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_TOPDIR"
+    #techo -2 "------------ Watch this copy line --------------"
+    #cmd="cp -R $NWCHEM_BUILD_TOPDIR/src/* $NWCHEM_BUILD_DIR"
+    #techo -2 "$cmd"
+    #$cmd
+
+    # Build nwchem (because of the bizarre make file structure
+    # this build is in-place in the src subdirectory)
+    # bilderBuild nwchem $BLDTYPE "$JMAKEARGS $ARGS"
+
+  fi
+}
 
 ######################################################################
 #
@@ -201,6 +303,8 @@ putNwchem() {
   local verval=`deref $vervar`
   local BLDTYPE=$1
   local NWCHEM_INSTALL_NAME=nwchem-${NWCHEM_BLDRVERSION}-$BLDTYPE
+
+  echo "putNwchem: builddir=$builddir"
 
   # see if nwchem build was attempted
   if test -z "$builddir"; then
@@ -246,119 +350,18 @@ putNwchem() {
   fi
 
   # Install command (if not build this time NWCHEM_BUILD_DIR fails)
-  cmd="cp -R $builddir/bin $NWCHEM_INSTALL_DIR"
+  if [ $BLDTYPE == "ser" ]; then
+      NWCHEM_INSTTARG="lmp_mac"
+      cmd="cp -R $builddir/$NWCHEM_INSTTARG $NWCHEM_INSTALL_DIR/bin/nwchem_ser"
+  else
+      NWCHEM_INSTTARG="lmp_mac_mpi"
+      cmd="cp -R $builddir/$NWCHEM_INSTTARG $NWCHEM_INSTALL_DIR/bin/nwchem"
+  fi
   techo -2 "$cmd"
   $cmd
 
+  echo "Default is to copy executable into $NWCHEM_INSTALL_DIR/bin"
+
   # Register install
-  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DIR nwchem,$BLDTYPE
-}
-
-
-
-
-######################################################################
-#
-# Fix the dynamic links in executable (for packaging)
-# this is only for mpich-shared...
-#   1. Creates a special nwchem package directory
-#   2. Copies all .so files to lib and executable to bin directory
-#   3. Fixes RPATH manually with chrpath
-#
-######################################################################
-
-fixDynNwchem() {
-
-  # First argument
-  BLDTYPE=$1
-
-  echo "====================================================================================="
-  echo "                Running fixDynNwchem on the executable to package                    "
-  echo "                up libs and fix rpath settings for nwchem-$BLDTYPE                   "
-  echo "====================================================================================="
-
-  # Select exectuable name
-  if [ $BLDTYPE == "ser" ]; then
-    NWCHEM_EXE_NAME="nwchem_ser"
-  elif [ $BLDTYPE == "par" ]; then
-    NWCHEM_EXE_NAME="nwchem"
-  else
-    echo "Build name not recognized"
-    exit
-  fi
-
-  NWCHEM_PKG_NAME="nwchem-pkg"
-  MPI_PKG='mpich-shared/lib'
-  XML_PKG='libxml2-sersh/lib'
-  LAPACK_PKG='lapack-sersh/lib64'
-
-  LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
-  LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
-  LIB64_PKG_3='libgomp'        # Located in LIBGFORTRAN_DIR
-  LIB64_PKG_4='libstdc++'      # Located in LIBGFORTRAN_DIR
-
-  # Find paths for BLDTYPE value
-  local NWCHEM_INSTALL_TAG=$BLDR_INSTALL_DIR/nwchem-$NWCHEM_BLDRVERSION
-  local NWCHEM_INSTALL_DIR=${NWCHEM_INSTALL_TAG}-$BLDTYPE
-
-  # Set nwchem package directory (in volatile dir)
-  PKG_DIR="$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME"
-
-  # Check/create NWCHEM pkg directory
-  if ! test -d $PKG_DIR; then
-      mkdir -p $PKG_DIR
-  fi
-  # Check/create NWCHEM pkg lib directory
-  if ! test -d $PKG_DIR/lib; then
-      mkdir -p $PKG_DIR/lib
-  fi
-  # Check/create NWCHEM pkg bin directory
-  if ! test -d $PKG_DIR/bin; then
-      mkdir -p $PKG_DIR/bin
-  fi
-
-  # Copy over executables to package-able bin location
-  cmd="cp -R $NWCHEM_INSTALL_DIR/bin $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME"
-  echo "$cmd"
-  $cmd
-
-  # Needed Only fixing up libs for parallel version (because of mpi and related)
-  if [ $BLDTYPE == "par" ]; then
-
-    # Copy over MPI libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-    # Copy over XML libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$XML_PKG/*.so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-    # Copy over LAPACK/BLAS libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-
-    # Copy over LIB64 libs to package-able lib location
-    # NOTE: -a option must be used to maintain symbolic links
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_4.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
-
-    # Uses helper method to run chrpath on a single executable
-    fixRpathForExec "$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/bin" "\$ORIGIN/../lib"
-
-    # Uses helper method to run chrpath on all .so files in a directory
-    fixRpathForSharedLibs "$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib" "\$ORIGIN/../lib"
-  fi
-
-  echo "====================================================================================="
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DID nwchem,$BLDTYPE
 }

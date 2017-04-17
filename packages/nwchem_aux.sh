@@ -29,8 +29,7 @@ setNwchemTriggerVars() {
 #
 ######################################################################
 
-#NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.6"}
-NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.5"}
+NWCHEM_BLDRVERSION=${NWCHEM_BLDRVERSION:-"6.6"}
 
 ######################################################################
 #
