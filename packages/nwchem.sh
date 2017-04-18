@@ -337,7 +337,7 @@ putNwchem() {
   if test -z "$builddir"; then
     echo "Not installing nwchem-$verval-$1 since not built."
     # Check for previous installation
-    if isInstalled -i $CONTRIB_DIR $NWCHEM_INSTALL_NAME; then
+    if isInstalled -i $BLDR_INSTALL_DIR $NWCHEM_INSTALL_NAME; then
       # Still make nwchem find-able
       # findContribPackage nwchem nwchem $BLDTYPE
       echo "Yes NWCHEM installed"
@@ -389,5 +389,5 @@ putNwchem() {
   echo "Default is to copy executable into $NWCHEM_INSTALL_DIR/bin"
 
   # Register install
-  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DID nwchem,$BLDTYPE
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DIR nwchem,$BLDTYPE
 }

@@ -95,10 +95,10 @@ buildLammps() {
   LAMMPS_PAR_ARGS="$LAMMPS_PAR_COMP_ARGS $LAMMPS_PAR_ARGS $LAMMPS_OTHER_ARGS"
 
   # Status
-  techo "========================================================================================"
-  techo "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
-  techo "LAMMPS_PAR_ARGS = $LAMMPS_PAR_ARGS"
-  techo "========================================================================================"
+  techo -1 "========================================================================================"
+  techo -1 "LAMMPS_SER_ARGS = $LAMMPS_SER_ARGS"
+  techo -1 "LAMMPS_PAR_ARGS = $LAMMPS_PAR_ARGS"
+  techo -1 "========================================================================================"
 
   # Builds
   if bilderUnpack lammps; then
@@ -269,7 +269,7 @@ fixDynLammps() {
 
 makeLammps() {
 
-  techo -2 "---------- Calling makeLammps with $1 $2 --------"
+  echo "---------- Calling makeLammps with $1 $2 --------"
   BLDTYPE=$1
   ARGS=$2
 
@@ -278,18 +278,18 @@ makeLammps() {
     # 'by-hand configure' by copying all files in src to LAMMPS_BUILD_DIR
     local BLDDIR=LAMMPS_`genbashvar ${BLDTYPE}`_BUILD_DIR
     eval LAMMPS_BUILD_DIR=\$$BLDDIR
-    techo -2 "LAMMPS_BUILD_DIR=$LAMMPS_BUILD_DIR"
+    echo "LAMMPS_BUILD_DIR=$LAMMPS_BUILD_DIR"
     LAMMPS_BUILD_TOPDIR=$LAMMPS_BUILD_DIR/..
-    techo -2 "LAMMPS_BUILD_TOPDIR=$LAMMPS_BUILD_TOPDIR"
-    techo -2 "------------ Watch this copy line --------------"
+    echo "LAMMPS_BUILD_TOPDIR=$LAMMPS_BUILD_TOPDIR"
+    echo "------------ Watch this copy line --------------"
     cmd="cp -R $LAMMPS_BUILD_TOPDIR/src/* $LAMMPS_BUILD_DIR"
-    techo -2 "$cmd"
+    echo "$cmd"
     $cmd
 
     # Special make target for serial
     # Going to STUBS directly because stubs target not working
     if [ $BLDTYPE == "ser" ]; then
-      techo -2 "-- Making stubs target by default"
+      echo "-- Making stubs target by default"
       cd $LAMMPS_BUILD_DIR/STUBS
       echo "current directory `pwd`"
       make
@@ -315,7 +315,7 @@ makeLammps() {
 
 putLammps() {
 
-  techo -2 "Calling putLammps with $1"
+  techo -1 "Calling putLammps with $1"
 
   local builddir
   # If there was a build, the builddir was set
@@ -330,14 +330,14 @@ putLammps() {
 
   # see if lammps build was attempted
   if test -z "$builddir"; then
-    techo -2 "Not installing lammps-$verval-$1 since not built."
+    echo "Not installing lammps-$verval-$1 since not built."
     # Check for previous installation
     if isInstalled -i $BLDR_INSTALL_DIR $LAMMPS_INSTALL_NAME; then
       # Still make lammps find-able
       # findContribPackage lammps lammps $BLDTYPE
       echo "Yes LAMMPS installed"
     else
-      techo -2 "WARNING: $LAMMPS_INSTALL_NAME not found, and not installing"
+      echo "WARNING: $LAMMPS_INSTALL_NAME not found, and not installing"
     fi
     return 1
   fi
@@ -352,7 +352,7 @@ putLammps() {
   resvarname=`genbashvar lammps_$1`_RES
   local res=`deref $resvarname`
   if test "$res" != 0; then
-    techo -2 "Not installing lammps-$verval-$1 since did not build."
+    echo "Not installing lammps-$verval-$1 since did not build."
     return 1
   fi
 
@@ -379,11 +379,11 @@ putLammps() {
       LAMMPS_INSTTARG="lmp_mac_mpi"
       cmd="cp -R $builddir/$LAMMPS_INSTTARG $LAMMPS_INSTALL_DIR/bin/lammps"
   fi
-  techo -2 "$cmd"
+  echo "$cmd"
   $cmd
 
   echo "Default is to copy executable into $LAMMPS_INSTALL_DIR/bin"
 
   # Register install
-  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DID lammps,$BLDTYPE
+  ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DIR lammps,$BLDTYPE
 }
