@@ -332,7 +332,7 @@ putLammps() {
   if test -z "$builddir"; then
     techo -2 "Not installing lammps-$verval-$1 since not built."
     # Check for previous installation
-    if isInstalled -i $CONTRIB_DIR $LAMMPS_INSTALL_NAME; then
+    if isInstalled -i $BLDR_INSTALL_DIR $LAMMPS_INSTALL_NAME; then
       # Still make lammps find-able
       # findContribPackage lammps lammps $BLDTYPE
       echo "Yes LAMMPS installed"
