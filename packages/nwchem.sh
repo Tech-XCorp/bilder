@@ -48,6 +48,75 @@ setNwchemNonTriggerVars
 
 ######################################################################
 #
+# Local helper function to make a particular Nwchem config
+#
+# Args:
+#  1: build type (eg par2d ser3d ....)
+#  2: args  (must have " " around script variable)
+#
+######################################################################
+
+makeNwchem() {
+
+  echo "---------- Calling makeNwchem with $1 $2 --------"
+  BLDTYPE=$1
+  ARGS=$2
+
+  echo "USE_MPI      =$USE_MPI"
+  echo "MPI_LIB      =$MPI_LIB"
+  echo "MPI_INCLUDE  =$MPI_INCLUDE"
+  # echo "LIBMPI       =$LIBMPI"
+  echo "BLASOPT      =$BLASOPT"
+  echo "BLAS_SIZE    =$BLAS_SIZE"
+  echo "USE_ARUR     =$USE_ARUR"
+  echo "NWCHEM_TOP   =$NWCHEM_TOP"
+  echo "NWCHEM_TARGET=$NWCHEM_TARGET"
+
+
+  if bilderConfig nwchem $BLDTYPE; then
+
+    # 'by-hand configure' by using nwchem manual script (its not very good)
+    local BLDDIR=NWCHEM_`genbashvar ${BLDTYPE}`_BUILD_DIR
+    eval NWCHEM_BUILD_DIR=\$$BLDDIR
+    NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_DIR/..
+    echo "NWCHEM_BUILD_DIR=$NWCHEM_BUILD_DIR"
+    echo "NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_TOPDIR"
+
+    echo ""
+    echo "Copying selected source directories to build directory"
+    echo ""
+    cmd="cp -R $NWCHEM_BUILD_TOPDIR/src $NWCHEM_BUILD_DIR"
+    echo "$cmd"
+    $cmd
+    cmd="cp -R $NWCHEM_BUILD_TOPDIR/web $NWCHEM_BUILD_DIR"
+    echo "$cmd"
+    $cmd
+    cmd="cp -R $NWCHEM_BUILD_TOPDIR/contrib $NWCHEM_BUILD_DIR"
+    echo "$cmd"
+    $cmd
+    cmd="cp -R $NWCHEM_BUILD_TOPDIR/QA $NWCHEM_BUILD_DIR"
+    echo "$cmd"
+    $cmd
+
+    #echo ""
+    #echo "Running make nwchem_config..."
+    #echo ""
+    # make nwchem_config NWCHEM_MODULES="all python" > test-config.log
+    #make nwchem_config NWCHEM_MODULES="all" > test-config.log
+    #sleep 2
+
+
+    # Build nwchem (because of the bizarre make file structure
+    # this build is in-place in the src subdirectory)
+    # bilderBuild nwchem $BLDTYPE "$JMAKEARGS $ARGS"
+
+  fi
+}
+
+
+
+######################################################################
+#
 # Launch nwchem builds.
 #
 ######################################################################
@@ -62,7 +131,7 @@ buildNwchem() {
   export USE_MPI="y"
   export MPI_LIB="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/lib"
   export MPI_INCLUDE="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/include"
-  export LIBPMPI="-lmpifort -lmpi"
+  #  export LIBMPI="-lmpifort -lmpi"
 
   # Python link currently broken in the 6.6 version. Leaving out for now
   #export PYTHONVERSION="2.7"
@@ -77,21 +146,27 @@ buildNwchem() {
   export BLAS_SIZE="8"
   export USE_ARUR="n"
 
-  export NWCHEM_TOP="/scr_haswell/swsides/directpkgs/nwchem-6.6"
+  export NWCHEM_TOP="/scr_haswell/swsides/directpkgs/nwchem-6.6/par" # Fix paths
   export NWCHEM_TARGET="LINUX64"
 
+  echo "USE_MPI      =$USE_MPI"
+  echo "MPI_LIB      =$MPI_LIB"
+  echo "MPI_INCLUDE  =$MPI_INCLUDE"
+  echo "LIBMPI       =$LIBMPI"
+  echo "BLASOPT      =$BLASOPT"
+  echo "BLAS_SIZE    =$BLAS_SIZE"
+  echo "USE_ARUR     =$USE_ARUR"
+  echo "NWCHEM_TOP   =$NWCHEM_TOP"
+  echo "NWCHEM_TARGET=$NWCHEM_TARGET"
 
-  # Status
-  #  techo "========================================================================================"
-  #  techo "NWCHEM_SER_ARGS = $NWCHEM_SER_ARGS"
-  #  techo "NWCHEM_PAR_ARGS = $NWCHEM_PAR_ARGS"
-  #  techo "========================================================================================"
 
   # Builds
   if bilderUnpack nwchem; then
 
     # ARGS="$NWCHEM_SER_ARGS $SER_TARGET"
     # makeNwchem ser "$ARGS"
+
+    echo "About to call makeNwchem"
 
     ARGS="$NWCHEM_PAR_ARGS $PAR_TARGET"
     makeNwchem par "$ARGS"
@@ -182,7 +257,6 @@ fixDynNwchem() {
   MPIPKG='mpich-shared'
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
-  LIB64_PKG_3='libstdc++'      # Located in LIBGFORTRAN_DIR
 
   # Find paths for BLDTYPE value
   local NWCHEM_INSTALL_TAG=$BLDR_INSTALL_DIR/nwchem-$NWCHEM_BLDRVERSION
@@ -226,9 +300,6 @@ fixDynNwchem() {
     cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
 
     # Syntax with $ORIGIN is very specific in order that correct format is
     # maintained through a bash script to the format expected by cmd line chrpath call
@@ -244,42 +315,6 @@ fixDynNwchem() {
   echo "====================================================================================="
 }
 
-
-######################################################################
-#
-# Local helper function to make a particular Nwchem config
-#
-# Args:
-#  1: build type (eg par2d ser3d ....)
-#  2: args  (must have " " around script variable)
-#
-######################################################################
-
-makeNwchem() {
-
-  techo -2 "---------- Calling makeNwchem with $1 $2 --------"
-  BLDTYPE=$1
-  ARGS=$2
-
-  if bilderConfig nwchem $BLDTYPE; then
-
-    # 'by-hand configure' by copying all files in src to NWCHEM_BUILD_DIR
-    #local BLDDIR=NWCHEM_`genbashvar ${BLDTYPE}`_BUILD_DIR
-    #eval NWCHEM_BUILD_DIR=\$$BLDDIR
-    #techo -2 "NWCHEM_BUILD_DIR=$NWCHEM_BUILD_DIR"
-    #NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_DIR/..
-    #techo -2 "NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_TOPDIR"
-    #techo -2 "------------ Watch this copy line --------------"
-    #cmd="cp -R $NWCHEM_BUILD_TOPDIR/src/* $NWCHEM_BUILD_DIR"
-    #techo -2 "$cmd"
-    #$cmd
-
-    # Build nwchem (because of the bizarre make file structure
-    # this build is in-place in the src subdirectory)
-    # bilderBuild nwchem $BLDTYPE "$JMAKEARGS $ARGS"
-
-  fi
-}
 
 ######################################################################
 #
@@ -308,14 +343,14 @@ putNwchem() {
 
   # see if nwchem build was attempted
   if test -z "$builddir"; then
-    techo -2 "Not installing nwchem-$verval-$1 since not built."
+    echo "Not installing nwchem-$verval-$1 since not built."
     # Check for previous installation
     if isInstalled -i $CONTRIB_DIR $NWCHEM_INSTALL_NAME; then
       # Still make nwchem find-able
       # findContribPackage nwchem nwchem $BLDTYPE
       echo "Yes NWCHEM installed"
     else
-      techo -2 "WARNING: $NWCHEM_INSTALL_NAME not found, and not installing"
+      echo "WARNING: $NWCHEM_INSTALL_NAME not found, and not installing"
     fi
     return 1
   fi
@@ -330,7 +365,7 @@ putNwchem() {
   resvarname=`genbashvar nwchem_$1`_RES
   local res=`deref $resvarname`
   if test "$res" != 0; then
-    techo -2 "Not installing nwchem-$verval-$1 since did not build."
+    echo "Not installing nwchem-$verval-$1 since did not build."
     return 1
   fi
 
@@ -343,7 +378,6 @@ putNwchem() {
   if ! test -d $NWCHEM_INSTALL_DIR; then
     mkdir $NWCHEM_INSTALL_DIR
   fi
-
   # Check/create install bin directory
   if ! test -d $NWCHEM_INSTALL_DIR/bin; then
     mkdir $NWCHEM_INSTALL_DIR/bin
@@ -357,7 +391,7 @@ putNwchem() {
       NWCHEM_INSTTARG="lmp_mac_mpi"
       cmd="cp -R $builddir/$NWCHEM_INSTTARG $NWCHEM_INSTALL_DIR/bin/nwchem"
   fi
-  techo -2 "$cmd"
+  echo -2 "$cmd"
   $cmd
 
   echo "Default is to copy executable into $NWCHEM_INSTALL_DIR/bin"

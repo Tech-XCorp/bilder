@@ -31,6 +31,7 @@ setLammpsTriggerVars() {
 
 LAMMPS_BLDRVERSION=${LAMMPS_BLDRVERSION:-"14Aug13"}
 
+
 ######################################################################
 #
 # Other values
