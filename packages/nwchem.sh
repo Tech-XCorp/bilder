@@ -58,20 +58,23 @@ setNwchemNonTriggerVars
 
 makeNwchem() {
 
-  echo "---------- Calling makeNwchem with $1 $2 --------"
   BLDTYPE=$1
   ARGS=$2
 
   echo "USE_MPI      =$USE_MPI"
   echo "MPI_LIB      =$MPI_LIB"
   echo "MPI_INCLUDE  =$MPI_INCLUDE"
-  # echo "LIBMPI       =$LIBMPI"
   echo "BLASOPT      =$BLASOPT"
   echo "BLAS_SIZE    =$BLAS_SIZE"
   echo "USE_ARUR     =$USE_ARUR"
   echo "NWCHEM_TOP   =$NWCHEM_TOP"
   echo "NWCHEM_TARGET=$NWCHEM_TARGET"
 
+  export PATH="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/bin:$PATH"
+
+  echo "========================================================================"
+  which mpicc
+  echo "========================================================================"
 
   if bilderConfig nwchem $BLDTYPE; then
 
@@ -82,33 +85,37 @@ makeNwchem() {
     echo "NWCHEM_BUILD_DIR=$NWCHEM_BUILD_DIR"
     echo "NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_TOPDIR"
 
+    export NWCHEM_TOP=$NWCHEM_BUILD_TOPDIR
+    export NWCHEM_TARGET="LINUX64"
+
     echo ""
-    echo "Copying selected source directories to build directory"
+    echo "======================================================================================"
+    echo "Manual configure steups"
+    echo "======================================================================================"
     echo ""
-    cmd="cp -R $NWCHEM_BUILD_TOPDIR/src $NWCHEM_BUILD_DIR"
-    echo "$cmd"
-    $cmd
-    cmd="cp -R $NWCHEM_BUILD_TOPDIR/web $NWCHEM_BUILD_DIR"
-    echo "$cmd"
-    $cmd
-    cmd="cp -R $NWCHEM_BUILD_TOPDIR/contrib $NWCHEM_BUILD_DIR"
-    echo "$cmd"
-    $cmd
-    cmd="cp -R $NWCHEM_BUILD_TOPDIR/QA $NWCHEM_BUILD_DIR"
-    echo "$cmd"
-    $cmd
 
-    #echo ""
-    #echo "Running make nwchem_config..."
-    #echo ""
-    # make nwchem_config NWCHEM_MODULES="all python" > test-config.log
-    #make nwchem_config NWCHEM_MODULES="all" > test-config.log
-    #sleep 2
+    echo "Removing $NWCHEM_BUILD_TOPDIR/src/tools/build and running make nwchem_config..."
+    rm -rf $NWCHEM_BUILD_TOPDIR/src/tools/build
 
+    echo "Current src build directory before executing nwchem_config $PWD"
+    cd $NWCHEM_BUILD_TOPDIR/src
 
-    # Build nwchem (because of the bizarre make file structure
-    # this build is in-place in the src subdirectory)
-    # bilderBuild nwchem $BLDTYPE "$JMAKEARGS $ARGS"
+    # Manual configure steps
+    local configOutput=$FQMAILHOST-nwchem-$BLDTYPE-config.txt
+    # make nwchem_config NWCHEM_MODULES="all python"
+    make nwchem_config NWCHEM_MODULES="all" > $NWCHEM_BUILD_TOPDIR/src/$configOutput 2>&1
+
+    echo ""
+    echo "======================================================================================"
+    echo "Building in-place in src directory will copy build to $NWCHEM_BUILD_DIR after make"
+    echo "======================================================================================"
+    echo ""
+
+    # Manual build steps
+    echo "NOTE: no bilder *.sh script written out because NWChem not consistent with bilder"
+    local buildOutput=$FQMAILHOST-nwchem-$BLDTYPE-build.txt
+    make -j $JMAKE > $NWCHEM_BUILD_TOPDIR/src/$buildOutput 2>&1
+    echo "building...."
 
   fi
 }
@@ -126,12 +133,12 @@ buildNwchem() {
   # NWChem not flexible enough for configure variables to be set, must
   # set a series of environment variables
 
-  # Shared linking not working
-  # MPI must be available (not sure why option is available)
+  # Shared linking not working, MPI must be available (not sure why option is available)
+  # Specifying LIBMPI is problematic
   export USE_MPI="y"
   export MPI_LIB="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/lib"
   export MPI_INCLUDE="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/include"
-  #  export LIBMPI="-lmpifort -lmpi"
+  #export LIBMPI="-lmpifort -lmpi"
 
   # Python link currently broken in the 6.6 version. Leaving out for now
   #export PYTHONVERSION="2.7"
@@ -146,27 +153,15 @@ buildNwchem() {
   export BLAS_SIZE="8"
   export USE_ARUR="n"
 
-  export NWCHEM_TOP="/scr_haswell/swsides/directpkgs/nwchem-6.6/par" # Fix paths
-  export NWCHEM_TARGET="LINUX64"
-
-  echo "USE_MPI      =$USE_MPI"
-  echo "MPI_LIB      =$MPI_LIB"
-  echo "MPI_INCLUDE  =$MPI_INCLUDE"
-  echo "LIBMPI       =$LIBMPI"
-  echo "BLASOPT      =$BLASOPT"
-  echo "BLAS_SIZE    =$BLAS_SIZE"
-  echo "USE_ARUR     =$USE_ARUR"
-  echo "NWCHEM_TOP   =$NWCHEM_TOP"
-  echo "NWCHEM_TARGET=$NWCHEM_TARGET"
-
+  techo "USE_MPI      =$USE_MPI"
+  techo "MPI_LIB      =$MPI_LIB"
+  techo "MPI_INCLUDE  =$MPI_INCLUDE"
+  techo "BLASOPT      =$BLASOPT"
+  techo "BLAS_SIZE    =$BLAS_SIZE"
+  techo "USE_ARUR     =$USE_ARUR"
 
   # Builds
   if bilderUnpack nwchem; then
-
-    # ARGS="$NWCHEM_SER_ARGS $SER_TARGET"
-    # makeNwchem ser "$ARGS"
-
-    echo "About to call makeNwchem"
 
     ARGS="$NWCHEM_PAR_ARGS $PAR_TARGET"
     makeNwchem par "$ARGS"
@@ -183,24 +178,21 @@ buildNwchem() {
 
 installNwchem() {
 
-#  putNwchem ser
-#  putNwchem par
-
-#  fixDynNwchem ser
-#  fixDynNwchem par
+  #  putNwchem par
+  #  fixDynNwchem par
 
   # Clean out old tar files
-#  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
+  #  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
 
   # Tar up the nwchem pkg directory created by fixDynNwchem
-#  echo ""
-#  echo "Creating an archive file for installer for Nwchem"
-#  echo ""
-#  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
-#  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
-#  echo "$cmd1 + $cmd2"
-#  $cmd1
-#  $cmd2
+    #  echo ""
+    #  echo "Creating an archive file for installer for Nwchem"
+    #  echo ""
+    #  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
+    #  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
+    #  echo "$cmd1 + $cmd2"
+    #  $cmd1
+    #  $cmd2
 }
 
 

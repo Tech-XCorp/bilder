@@ -207,7 +207,7 @@ putQmcpack() {
   if test -z "$builddir"; then
     techo -2 "Not installing qmcpack-$verval-$1 since not built."
     # Check for previous installation
-    if isInstalled -i $CONTRIB_DIR $QMCPACK_INSTALL_NAME; then
+    if isInstalled -i $BLDR_INSTALL_DIR $QMCPACK_INSTALL_NAME; then
       # Still make qmcpack find-able
       # findContribPackage qmcpack qmcpack $BLDTYPE
       echo "Yes QMCPACK installed"
