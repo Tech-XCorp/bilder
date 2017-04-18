@@ -240,7 +240,6 @@ putQmcpack() {
   if ! test -d $QMCPACK_INSTALL_DIR; then
     mkdir $QMCPACK_INSTALL_DIR
   fi
-
   # Check/create install bin directory
   if ! test -d $QMCPACK_INSTALL_DIR/bin; then
     mkdir $QMCPACK_INSTALL_DIR/bin

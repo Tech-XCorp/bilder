@@ -178,7 +178,7 @@ buildNwchem() {
 
 installNwchem() {
 
-  #  putNwchem par
+  putNwchem par
   #  fixDynNwchem par
 
   # Clean out old tar files
@@ -375,18 +375,10 @@ putNwchem() {
     mkdir $NWCHEM_INSTALL_DIR/bin
   fi
 
-  # Install command (if not build this time NWCHEM_BUILD_DIR fails)
-  if [ $BLDTYPE == "ser" ]; then
-      NWCHEM_INSTTARG="lmp_mac"
-      cmd="cp -R $builddir/$NWCHEM_INSTTARG $NWCHEM_INSTALL_DIR/bin/nwchem_ser"
-  else
-      NWCHEM_INSTTARG="lmp_mac_mpi"
-      cmd="cp -R $builddir/$NWCHEM_INSTTARG $NWCHEM_INSTALL_DIR/bin/nwchem"
-  fi
-  echo -2 "$cmd"
+  # Install command (if not build this time QMCPACK_BUILD_DIR fails)
+  cmd="cp -R $builddir/bin $NWCHEM_INSTALL_DIR"
+  techo -2 "$cmd"
   $cmd
-
-  echo "Default is to copy executable into $NWCHEM_INSTALL_DIR/bin"
 
   # Register install
   ${PROJECT_DIR}/bilder/setinstald.sh -i $BLDR_INSTALL_DIR nwchem,$BLDTYPE
