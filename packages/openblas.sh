@@ -51,14 +51,24 @@ buildOpenblas() {
     CYGWIN*)
       gccver=`x86_64-w64-mingw32-gcc.exe  --version | head -1 | sed -e 's/^.*) //'`
       OPENBLAS_ENV="PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/bin:'$PATH'"
-      OPENBLAS_ARGS="CC=x86_64-w64-mingw32-gcc.exe FC=x86_64-w64-mingw32-gfortran.exe LDFLAGS=-L/usr/lib/gcc/x86_64-w64-mingw32/$gccver DYNAMIC_ARCH=1 USE_THREAD=0 NO_PARALLEL_MAKE=0"
+      OPENBLAS_ARGS="CC=x86_64-w64-mingw32-gcc.exe FC=x86_64-w64-mingw32-gfortran.exe LDFLAGS=-L/usr/lib/gcc/x86_64-w64-mingw32/$gccver USE_THREAD=0 NO_PARALLEL_MAKE=0"
       ;;
     *)
-      OPENBLAS_ARGS="CC=$CC FC=$FC DYNAMIC_ARCH=1 USE_THREAD=0"
+      OPENBLAS_ARGS="CC=$CC FC=$FC USE_THREAD=0"
       ;;
   esac
 
+  if test -z "$OPENBLAS_TARGET_ARCH"; then
+    OPENBLAS_ARGS="${OPENBLAS_ARGS} DYNAMIC_ARCH=1"
+  else
+    OPENBLAS_ARGS="${OPENBLAS_ARGS} TARGET=${OPENBLAS_TARGET_ARCH}"
+  fi
+  techo "OPENBLAS_ARGS = ${OPENBLAS_ARGS}"
+
 # OpenBLAS builds ser and sersh by default
+  if bilderConfig -i -C : openblas ser; then
+    bilderBuild -m make openblas ser "$OPENBLAS_ARGS" "$OPENBLAS_ENV"
+  fi
   if bilderConfig -i -C : openblas sersh; then
     bilderBuild -m make openblas sersh "$OPENBLAS_ARGS" "$OPENBLAS_ENV"
   fi
