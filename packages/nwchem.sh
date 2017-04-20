@@ -70,7 +70,8 @@ makeNwchem() {
   echo "NWCHEM_TOP   =$NWCHEM_TOP"
   echo "NWCHEM_TARGET=$NWCHEM_TARGET"
 
-  export PATH="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/bin:$PATH" #SWS: change this
+  # Must set so compilers are found
+  export PATH="$CONTRIB_DIR/mpich-shared/bin:$PATH"
 
   echo "========================================================================"
   which mpicc
@@ -157,12 +158,13 @@ buildNwchem() {
   # set a series of environment variables
 
   # Shared linking not working, MPI must be available (not sure why option is available)
-  # Specifying LIBMPI is problematic
+  # Specifying LIBMPI is problematic when static is specified. Moving back to shared
   export USE_MPI="y"
-  export MPI_LIB="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/lib"
-  export MPI_INCLUDE="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/include"
+  export MPI_LIB="$CONTRIB_DIR/mpich-shared/lib"
+  export MPI_INCLUDE="$CONTRIB_DIR/mpich-shared/include"
 
-  export BLASOPT="-L/scr_haswell/swsides/opt/contrib-nwchem/lapack/lib64  -llapack -lblas"
+  export BLASOPT="-L$CONTRIB_DIR/lapack-sersh/lib64 -llapack -lblas -Wl,-rpath,$CONTRIB_DIR/lapack-sersh/lib64"
+
   export BLAS_SIZE="8"
   export USE_ARUR="n"
 
@@ -253,6 +255,9 @@ fixDynNwchem() {
   NWCHEM_EXE_NAME="nwchem"
 
   NWCHEM_PKG_NAME="nwchem-pkg"
+  LAPACK_PKG='lapack-sersh/lib64'
+  MPI_PKG='mpich-shared/lib'
+
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_3='libgcc_s'       # Located in LIBGFORTRAN_DIR
@@ -288,7 +293,14 @@ fixDynNwchem() {
   # Needed Only fixing up libs for parallel version (because of mpi and related)
   if [ $BLDTYPE == "par" ]; then
 
-    # MPI libs are statically linked for now
+    # Copy over MPI libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    # Copy over LAPACK/BLAS libs to package-able lib location
+    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
 
     # Copy over LIB64 libs to package-able lib location
     # NOTE: -a option must be used to maintain symbolic links
