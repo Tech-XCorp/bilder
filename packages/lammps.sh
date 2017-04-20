@@ -232,10 +232,10 @@ fixDynLammps() {
 
     # Copy over LIB64 libs to package-able lib location
     # NOTE: -a option must be used to maintain symbolic links
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.*so* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.*so* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"
     echo "$cmd"
     $cmd
     cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$LAMMPS_PKG_NAME/lib"

@@ -192,7 +192,7 @@ testQmcpack() {
 
 putQmcpack() {
 
-  techo -2 "Calling putQmcpack with $1"
+  techo "Calling putQmcpack with $1"
 
   local builddir
   # If there was a build, the builddir was set

@@ -70,7 +70,7 @@ makeNwchem() {
   echo "NWCHEM_TOP   =$NWCHEM_TOP"
   echo "NWCHEM_TARGET=$NWCHEM_TARGET"
 
-  export PATH="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/bin:$PATH"
+  export PATH="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/bin:$PATH" #SWS: change this
 
   echo "========================================================================"
   which mpicc
@@ -102,7 +102,7 @@ makeNwchem() {
 
     # Manual configure steps
     local configOutput=$FQMAILHOST-nwchem-$BLDTYPE-config.txt
-    # make nwchem_config NWCHEM_MODULES="all python"
+    # make nwchem_config NWCHEM_MODULES="all python" #SWS fix this
     make nwchem_config NWCHEM_MODULES="all" > $NWCHEM_BUILD_TOPDIR/src/$configOutput 2>&1
 
     echo ""
@@ -115,11 +115,34 @@ makeNwchem() {
     echo "NOTE: no bilder *.sh script written out because NWChem not consistent with bilder"
     local buildOutput=$FQMAILHOST-nwchem-$BLDTYPE-build.txt
     make -j $JMAKE > $NWCHEM_BUILD_TOPDIR/src/$buildOutput 2>&1
-    echo "building...."
+
+    #SWS: fake build
+    #echo "================== fake build "
+    #cmd="cp -R /home/research/swsides/bin $NWCHEM_BUILD_TOPDIR"
+    #echo $cmd
+    #$cmd
+
+    # Check/create NWCHEM build bin directory
+    if ! test -d $NWCHEM_BUILD_DIR/bin; then
+      mkdir -p $NWCHEM_BUILD_DIR/bin
+    fi
+
+    # Copy in-place src build binaries to bilder-named bin directory
+    cmd="cp $NWCHEM_BUILD_TOPDIR/bin/$NWCHEM_TARGET/* $NWCHEM_BUILD_DIR/bin"
+    echo "Copy in-place src build binaries to bilder-named directory"
+    echo "$cmd"
+    $cmd
+
+    # Move output .txt files to bilder-named directory
+    cmd="mv $NWCHEM_BUILD_TOPDIR/src/*nwchem*.txt $NWCHEM_BUILD_DIR"
+    echo "Move output .txt files to bilder-named directory"
+    echo "$cmd"
+    $cmd
 
   fi
-}
 
+  echo ""
+}
 
 
 ######################################################################
@@ -138,16 +161,6 @@ buildNwchem() {
   export USE_MPI="y"
   export MPI_LIB="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/lib"
   export MPI_INCLUDE="/scr_haswell/swsides/opt/contrib-nwchem/mpich-3.1.4-static/include"
-  #export LIBMPI="-lmpifort -lmpi"
-
-  # Python link currently broken in the 6.6 version. Leaving out for now
-  #export PYTHONVERSION="2.7"
-  #export PYTHONHOME="/scr_haswell/swsides/opt/contrib-qmcpack/Python-2.7.13-sersh"
-  #export PYTHONLIBTYPE="so"
-  #export PYTHONCONFIGDIR="config/../.."
-  #export PYTHONHOME="/scr_haswell/swsides/opt/contrib-qmcpack/Python-2.7.13-sersh"
-  #export PYTHONLIBTYPE="a"
-  #export PYTHONCONFIGDIR="config"
 
   export BLASOPT="-L/scr_haswell/swsides/opt/contrib-nwchem/lapack/lib64  -llapack -lblas"
   export BLAS_SIZE="8"
@@ -179,20 +192,20 @@ buildNwchem() {
 installNwchem() {
 
   putNwchem par
-  #  fixDynNwchem par
+  fixDynNwchem par
 
   # Clean out old tar files
-  #  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
+  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
 
   # Tar up the nwchem pkg directory created by fixDynNwchem
-    #  echo ""
-    #  echo "Creating an archive file for installer for Nwchem"
-    #  echo ""
-    #  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
-    #  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
-    #  echo "$cmd1 + $cmd2"
-    #  $cmd1
-    #  $cmd2
+  echo ""
+  echo "Creating an archive file for installer for Nwchem"
+  echo ""
+  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
+  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
+  echo "$cmd1 + $cmd2"
+  $cmd1
+  $cmd2
 }
 
 
@@ -237,22 +250,17 @@ fixDynNwchem() {
   echo "====================================================================================="
 
   # Select exectuable name
-  if [ $BLDTYPE == "ser" ]; then
-    NWCHEM_EXE_NAME="nwchem_ser"
-  elif [ $BLDTYPE == "par" ]; then
-    NWCHEM_EXE_NAME="nwchem"
-  else
-    echo "Build name not recognized"
-  fi
+  NWCHEM_EXE_NAME="nwchem"
 
   NWCHEM_PKG_NAME="nwchem-pkg"
-  MPIPKG='mpich-shared'
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
+  LIB64_PKG_3='libgcc_s'       # Located in LIBGFORTRAN_DIR
 
   # Find paths for BLDTYPE value
   local NWCHEM_INSTALL_TAG=$BLDR_INSTALL_DIR/nwchem-$NWCHEM_BLDRVERSION
   local NWCHEM_INSTALL_DIR=${NWCHEM_INSTALL_TAG}-$BLDTYPE
+
 
   # Set nwchem package directory
   PKG_DIR="$BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME"
@@ -270,8 +278,9 @@ fixDynNwchem() {
       mkdir -p $PKG_DIR/bin
   fi
 
-  # Copy over executable to package-able executable bin location
-  cmd="cp $NWCHEM_INSTALL_DIR/bin/$NWCHEM_EXE_NAME $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/bin"
+  # Copy over executables to package-able executable bin location
+  cmd="cp -R $NWCHEM_INSTALL_DIR/bin $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME"
+  echo "fixDynNwchem will call"
   echo "$cmd"
   $cmd
 
@@ -279,17 +288,17 @@ fixDynNwchem() {
   # Needed Only fixing up libs for parallel version (because of mpi and related)
   if [ $BLDTYPE == "par" ]; then
 
-    # Copy over MPI libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$MPIPKG/lib/*.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
-    echo "$cmd"
-    $cmd
+    # MPI libs are statically linked for now
 
     # Copy over LIB64 libs to package-able lib location
     # NOTE: -a option must be used to maintain symbolic links
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_1.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
     echo "$cmd"
     $cmd
-    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_2.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
+    echo "$cmd"
+    $cmd
+    cmd="cp -a $LIBGFORTRAN_DIR/$LIB64_PKG_3.*so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
     echo "$cmd"
     $cmd
 
@@ -320,7 +329,7 @@ fixDynNwchem() {
 
 putNwchem() {
 
-  techo -2 "Calling putNwchem with $1"
+  echo "Calling putNwchem with $1"
 
   local builddir
   # If there was a build, the builddir was set
@@ -331,7 +340,6 @@ putNwchem() {
   local BLDTYPE=$1
   local NWCHEM_INSTALL_NAME=nwchem-${NWCHEM_BLDRVERSION}-$BLDTYPE
 
-  echo "putNwchem: builddir=$builddir"
 
   # see if nwchem build was attempted
   if test -z "$builddir"; then
@@ -353,14 +361,6 @@ putNwchem() {
   # wait for build to complete
   waitAction nwchem-$1
 
-  # if build was successful, then continue
-  resvarname=`genbashvar nwchem_$1`_RES
-  local res=`deref $resvarname`
-  if test "$res" != 0; then
-    echo "Not installing nwchem-$verval-$1 since did not build."
-    return 1
-  fi
-
   # Generate install names
   echo "nwchem-$verval-$1 was built."
   local NWCHEM_INSTALL_TAG=$BLDR_INSTALL_DIR/nwchem-$NWCHEM_BLDRVERSION
@@ -375,9 +375,9 @@ putNwchem() {
     mkdir $NWCHEM_INSTALL_DIR/bin
   fi
 
-  # Install command (if not build this time QMCPACK_BUILD_DIR fails)
+  # Install command
   cmd="cp -R $builddir/bin $NWCHEM_INSTALL_DIR"
-  techo -2 "$cmd"
+  echo "$cmd"
   $cmd
 
   # Register install
