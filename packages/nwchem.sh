@@ -71,19 +71,6 @@ makeNwchem() {
   BLDTYPE=$1
   ARGS=$2
 
-  echo "USE_MPI      =$USE_MPI"
-  echo "MPI_LIB      =$MPI_LIB"
-  echo "MPI_INCLUDE  =$MPI_INCLUDE"
-  echo "BLASOPT      =$BLASOPT"
-  echo "BLAS_SIZE    =$BLAS_SIZE"
-  echo "USE_ARUR     =$USE_ARUR"
-  echo "NWCHEM_TOP   =$NWCHEM_TOP"
-  echo "NWCHEM_TARGET=$NWCHEM_TARGET"
-
-  # Must set so compilers are found
-  export PATH="$CONTRIB_DIR/$MPI_NAME/bin:$PATH"
-
-
   if bilderConfig nwchem $BLDTYPE; then
 
     # 'by-hand configure' by using nwchem manual script (its not very good)
@@ -92,10 +79,6 @@ makeNwchem() {
     NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_DIR/..
     echo "NWCHEM_BUILD_DIR=$NWCHEM_BUILD_DIR"
     echo "NWCHEM_BUILD_TOPDIR=$NWCHEM_BUILD_TOPDIR"
-
-    export NWCHEM_TOP=$NWCHEM_BUILD_TOPDIR
-    export NWCHEM_TARGET="LINUX64"
-    #export NWCHEM_MODULES="all python"
 
     echo ""
     echo "======================================================================================"
@@ -124,12 +107,6 @@ makeNwchem() {
     local buildOutput=$FQMAILHOST-nwchem-$BLDTYPE-build.txt
     make -j $JMAKE > $NWCHEM_BUILD_TOPDIR/src/$buildOutput 2>&1
 
-    #SWS: fake build
-    #echo "================== fake build "
-    #cmd="cp -R /home/research/swsides/bin $NWCHEM_BUILD_TOPDIR"
-    #echo $cmd
-    #$cmd
-
     # Check/create NWCHEM build bin directory
     if ! test -d $NWCHEM_BUILD_DIR/bin; then
       mkdir -p $NWCHEM_BUILD_DIR/bin
@@ -156,13 +133,12 @@ makeNwchem() {
 ######################################################################
 #
 # Launch nwchem builds.
+# NWChem not flexible enough for configure variables to be set, must
+# set a series of environment variables
 #
 ######################################################################
 
 buildNwchem() {
-
-  # NWChem not flexible enough for configure variables to be set, must
-  # set a series of environment variables
 
   #
   # Shared linking not working, MPI must be available (not sure why option is available)
@@ -175,6 +151,12 @@ buildNwchem() {
   export BLASOPT="-L$CONTRIB_DIR/lapack-sersh/lib64 -llapack -lblas -Wl,-rpath,$CONTRIB_DIR/lapack-sersh/lib64"
   export BLAS_SIZE="8"
   export USE_ARUR="n"
+  export NWCHEM_TOP=$NWCHEM_BUILD_TOPDIR
+  export NWCHEM_TARGET="LINUX64"
+  #export NWCHEM_MODULES="all python"
+
+  # Must set so compilers are found
+  export PATH="$CONTRIB_DIR/$MPI_NAME/bin:$PATH"
 
   techo ""
   techo "USE_MPI     =$USE_MPI"
@@ -184,13 +166,15 @@ buildNwchem() {
   techo "BLAS_SIZE   =$BLAS_SIZE"
   techo "USE_ARUR    =$USE_ARUR"
   techo "MPI_NAME    =$MPI_NAME"
+  techo "NWCHEM_TOP   =$NWCHEM_TOP"
+  techo "NWCHEM_TARGET=$NWCHEM_TARGET"
   techo ""
 
   # Builds
   if bilderUnpack nwchem; then
 
     ARGS="$NWCHEM_PAR_ARGS $PAR_TARGET"
-    # makeNwchem par "$ARGS"
+    makeNwchem par "$ARGS"
 
   fi
 }
