@@ -23,12 +23,22 @@ source $PROJECT_DIR/bilder/rpathutils.sh
 
 ######################################################################
 #
-# Trigger variables and versions set in qmcpack_aux.sh
+# Trigger variables and versions set in nwchem_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
 source $mydir/nwchem_aux.sh
+
+
+######################################################################
+#
+# Local common variables
+#
+######################################################################
+
+MPI_NAME="mpich-shared"
+NWCHEM_PKG_NAME="nwchem-pkg"
 
 
 ######################################################################
@@ -71,11 +81,8 @@ makeNwchem() {
   echo "NWCHEM_TARGET=$NWCHEM_TARGET"
 
   # Must set so compilers are found
-  export PATH="$CONTRIB_DIR/mpich-shared/bin:$PATH"
+  export PATH="$CONTRIB_DIR/$MPI_NAME/bin:$PATH"
 
-  echo "========================================================================"
-  which mpicc
-  echo "========================================================================"
 
   if bilderConfig nwchem $BLDTYPE; then
 
@@ -88,6 +95,7 @@ makeNwchem() {
 
     export NWCHEM_TOP=$NWCHEM_BUILD_TOPDIR
     export NWCHEM_TARGET="LINUX64"
+    #export NWCHEM_MODULES="all python"
 
     echo ""
     echo "======================================================================================"
@@ -103,7 +111,6 @@ makeNwchem() {
 
     # Manual configure steps
     local configOutput=$FQMAILHOST-nwchem-$BLDTYPE-config.txt
-    # make nwchem_config NWCHEM_MODULES="all python" #SWS fix this
     make nwchem_config NWCHEM_MODULES="all" > $NWCHEM_BUILD_TOPDIR/src/$configOutput 2>&1
 
     echo ""
@@ -157,32 +164,37 @@ buildNwchem() {
   # NWChem not flexible enough for configure variables to be set, must
   # set a series of environment variables
 
+  #
   # Shared linking not working, MPI must be available (not sure why option is available)
   # Specifying LIBMPI is problematic when static is specified. Moving back to shared
+  #
   export USE_MPI="y"
-  export MPI_LIB="$CONTRIB_DIR/mpich-shared/lib"
-  export MPI_INCLUDE="$CONTRIB_DIR/mpich-shared/include"
-
+  export MPI_LIB="$CONTRIB_DIR/$MPI_NAME/lib"
+  export MPI_INCLUDE="$CONTRIB_DIR/$MPI_NAME/include"
+  export LIBMPI="-lmpifort -lmpi -Wl,-rpath,$CONTRIB_DIR/$MPI_NAME/lib"
   export BLASOPT="-L$CONTRIB_DIR/lapack-sersh/lib64 -llapack -lblas -Wl,-rpath,$CONTRIB_DIR/lapack-sersh/lib64"
-
   export BLAS_SIZE="8"
   export USE_ARUR="n"
 
-  techo "USE_MPI      =$USE_MPI"
-  techo "MPI_LIB      =$MPI_LIB"
-  techo "MPI_INCLUDE  =$MPI_INCLUDE"
-  techo "BLASOPT      =$BLASOPT"
-  techo "BLAS_SIZE    =$BLAS_SIZE"
-  techo "USE_ARUR     =$USE_ARUR"
+  techo ""
+  techo "USE_MPI     =$USE_MPI"
+  techo "MPI_LIB     =$MPI_LIB"
+  techo "MPI_INCLUDE =$MPI_INCLUDE"
+  techo "BLASOPT     =$BLASOPT"
+  techo "BLAS_SIZE   =$BLAS_SIZE"
+  techo "USE_ARUR    =$USE_ARUR"
+  techo "MPI_NAME    =$MPI_NAME"
+  techo ""
 
   # Builds
   if bilderUnpack nwchem; then
 
     ARGS="$NWCHEM_PAR_ARGS $PAR_TARGET"
-    makeNwchem par "$ARGS"
+    # makeNwchem par "$ARGS"
 
   fi
 }
+
 
 
 ######################################################################
@@ -193,21 +205,10 @@ buildNwchem() {
 
 installNwchem() {
 
-  putNwchem par
-  fixDynNwchem par
+  putNwchem     par
+  fixDynNwchem  par
 
-  # Clean out old tar files
-  rm -rf $BLDR_INSTALL_DIR/nwchemInstall.tar.gz $BLDR_INSTALL_DIR/nwchemInstall.tar
-
-  # Tar up the nwchem pkg directory created by fixDynNwchem
-  echo ""
-  echo "Creating an archive file for installer for Nwchem"
-  echo ""
-  cmd1="tar -cvf $BLDR_INSTALL_DIR/nwchemInstall.tar -C $BLDR_INSTALL_DIR $NWCHEM_PKG_NAME"
-  cmd2="gzip $BLDR_INSTALL_DIR/nwchemInstall.tar"
-  echo "$cmd1 + $cmd2"
-  $cmd1
-  $cmd2
+  tarBldrInstallPkg nwchem $NWCHEM_PKG_NAME
 }
 
 
@@ -234,7 +235,7 @@ testNwchem() {
 ######################################################################
 #
 # Fix the dynamic links in executable (for packaging)
-# * this is only for mpich-shared...
+# * this is only for $MPI_NAME...
 #   1. Creates a special nwchem package directory
 #   2. Copies all .so files to lib and executable to bin directory
 #   3. Fixes RPATH manually with chrpath
@@ -254,9 +255,8 @@ fixDynNwchem() {
   # Select exectuable name
   NWCHEM_EXE_NAME="nwchem"
 
-  NWCHEM_PKG_NAME="nwchem-pkg"
   LAPACK_PKG='lapack-sersh/lib64'
-  MPI_PKG='mpich-shared/lib'
+  MPI_PKG="$MPI_NAME/lib"
 
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR
@@ -294,11 +294,11 @@ fixDynNwchem() {
   if [ $BLDTYPE == "par" ]; then
 
     # Copy over MPI libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -R $CONTRIB_DIR/$MPI_PKG/*.so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
     echo "$cmd"
     $cmd
     # Copy over LAPACK/BLAS libs to package-able lib location
-    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $BLDR_INSTALL_DIR/$QMCPACK_PKG_NAME/lib"
+    cmd="cp -R $CONTRIB_DIR/$LAPACK_PKG/*.so* $BLDR_INSTALL_DIR/$NWCHEM_PKG_NAME/lib"
     echo "$cmd"
     $cmd
 

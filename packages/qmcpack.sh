@@ -14,11 +14,11 @@
 
 ######################################################################
 #
-# Source common methods to fixup rpaths manually
+# Source common methods to fixup rpaths manually and make installer
 #
 ######################################################################
 
-source $PROJECT_DIR/bilder/rpathutils.sh
+source $PROJECT_DIR/bilder/pkgutils.sh
 
 
 ######################################################################
@@ -29,7 +29,18 @@ source $PROJECT_DIR/bilder/rpathutils.sh
 
 mydir=`dirname $BASH_SOURCE`
 source $mydir/qmcpack_aux.sh
+
+
+######################################################################
+#
+# Local common variables
+#
+######################################################################
+
 MPI_NAME="mpich-shared"
+QMCPACK_PKG_NAME="qmcpack-pkg"
+
+
 
 ######################################################################
 #
@@ -144,25 +155,10 @@ buildQmcpack() {
 
 installQmcpack() {
 
-  # putQmcpack ser
-  putQmcpack par
-
-  # Only fix up libs for packaging on linux platform
-  # fixDynQmcpack ser
+  putQmcpack    par
   fixDynQmcpack par
 
-  # Clean out old tar files
-  rm -rf $BLDR_INSTALL_DIR/qmcpackInstall.tar.gz $BLDR_INSTALL_DIR/qmcpackInstall.tar
-
-  # Tar up the qmcpack pkg directory created by fixDynQmcpack
-  echo ""
-  echo "Creating an archive file for installer for QMCPack"
-  echo ""
-  cmd1="tar -cvf $BLDR_INSTALL_DIR/qmcpackInstall.tar -C $BLDR_INSTALL_DIR $QMCPACK_PKG_NAME"
-  cmd2="gzip $BLDR_INSTALL_DIR/qmcpackInstall.tar"
-  echo "$cmd1 + $cmd2"
-  $cmd1
-  $cmd2
+  tarBldrInstallPkg qmcpack $QMCPACK_PKG_NAME
 }
 
 
@@ -260,7 +256,7 @@ putQmcpack() {
 ######################################################################
 #
 # Fix the dynamic links in executable (for packaging)
-# this is only for mpich-shared...
+# this is only for $MPI_NAME...
 #   1. Creates a special qmcpack package directory
 #   2. Copies all .so files to lib and executable to bin directory
 #   3. Fixes RPATH manually with chrpath
@@ -288,7 +284,7 @@ fixDynQmcpack() {
   fi
 
   QMCPACK_PKG_NAME="qmcpack-pkg"
-  MPI_PKG='mpich-shared/lib'
+  MPI_PKG='$MPI_NAME/lib'
   XML_PKG='libxml2-sersh/lib'
   LAPACK_PKG='lapack-sersh/lib64'
 

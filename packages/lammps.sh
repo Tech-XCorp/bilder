@@ -14,21 +14,31 @@
 
 ######################################################################
 #
-# Source common methods to fixup rpaths manually
+# Source common methods to fixup rpaths manually and make installer
 #
 ######################################################################
 
-source $PROJECT_DIR/bilder/rpathutils.sh
+source $PROJECT_DIR/bilder/pkgutils.sh
 
 
 ######################################################################
 #
-# Trigger variables and versions set in qmcpack_aux.sh
+# Trigger variables and versions set in lammps_aux.sh
 #
 ######################################################################
 
 mydir=`dirname $BASH_SOURCE`
 source $mydir/lammps_aux.sh
+
+
+######################################################################
+#
+# Local common variables
+#
+######################################################################
+
+MPI_NAME="mpich-shared"
+LAMMPS_PKG_NAME="lammps-pkg"
 
 
 ######################################################################
@@ -126,18 +136,7 @@ installLammps() {
   fixDynLammps ser
   fixDynLammps par
 
-  # Clean out old tar files
-  rm -rf $BLDR_INSTALL_DIR/lammpsInstall.tar.gz $BLDR_INSTALL_DIR/lammpsInstall.tar
-
-  # Tar up the lammps pkg directory created by fixDynLammps
-  echo ""
-  echo "Creating an archive file for installer for Lammps"
-  echo ""
-  cmd1="tar -cvf $BLDR_INSTALL_DIR/lammpsInstall.tar -C $BLDR_INSTALL_DIR $LAMMPS_PKG_NAME"
-  cmd2="gzip $BLDR_INSTALL_DIR/lammpsInstall.tar"
-  echo "$cmd1 + $cmd2"
-  $cmd1
-  $cmd2
+  tarBldrInstallPkg lammps $LAMMPS_PKG_NAME
 }
 
 
@@ -190,7 +189,6 @@ fixDynLammps() {
     echo "Build name not recognized"
   fi
 
-  LAMMPS_PKG_NAME="lammps-pkg"
   MPIPKG='mpich-shared'
   LIB64_PKG_1='libgfortran'    # Located in LIBGFORTRAN_DIR
   LIB64_PKG_2='libquadmath'    # Located in LIBGFORTRAN_DIR

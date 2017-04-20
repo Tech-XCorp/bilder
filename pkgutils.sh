@@ -1,9 +1,10 @@
 #!/bin/sh
 ######################################################################
 #
-# @file    rpathutils.sh
+# @file    pkgutils.sh
 #
 # @brief   Common methods to fix up rpath in binaries/shared-libs
+#          and create a tarball as an installer
 #
 # @version $Rev: 3578 $ $Date: 2017-04-13 08:20:53 -0600 (Thu, 13 Apr 2017) $
 #
@@ -11,7 +12,6 @@
 # See LICENSE file (EclipseLicense.txt) for conditions of use.
 #
 ######################################################################
-
 
 ######################################################################
 #
@@ -22,6 +22,39 @@
 ######################################################################
 
 
+
+######################################################################
+#
+# Takes a package directory in the bilder install directory area
+# and tar-s and gzip-s this directory. Cleans out old tar files
+# and prints out status info
+#
+# Args:
+#  1. prefix name of tar file (creates a ${1}Install.tar.gz file)
+#  2. name of package directory in the BLDR_INSTALL_DIR location
+#
+######################################################################
+
+tarBldrInstallPkg() {
+
+  local PKG_NAME=$1
+  local PKG_DIR=$2
+  local FULL_TAR_NAME=$BLDR_INSTALL_DIR/${PKG_NAME}-$FQMAILHOST.tar
+
+  # Clean out old tar files
+  rm -rf $FULL_TAR_NAME.gz $FULL_TAR_NAME
+
+  # Tar up the nwchem pkg directory created by fixDynNwchem
+  echo ""
+  echo "Creating an archive file for $PKG_NAME installer"
+  echo ""
+
+  cmd1="tar -cvf $FULL_TAR_NAME -C $BLDR_INSTALL_DIR $PKG_DIR"
+  cmd2="gzip $FULL_TAR_NAME"
+  echo "$cmd1 + $cmd2"
+  $cmd1
+  $cmd2
+}
 
 
 ######################################################################
@@ -88,7 +121,6 @@ fixRpathForSharedLibs() {
     echo "rpathutils.sh exiting"
     exit
   fi
-
 
   SHAREDLIB_PATH=$1
   RPATH=$2
