@@ -86,6 +86,10 @@ makeNwchem() {
     echo "======================================================================================"
     echo ""
 
+    # Set the top level build directory
+    export NWCHEM_TOP=$NWCHEM_BUILD_TOPDIR
+    techo "NWCHEM_TARGET=$NWCHEM_TARGET"
+
     echo "Removing $NWCHEM_BUILD_TOPDIR/src/tools/build and running make nwchem_config..."
     rm -rf $NWCHEM_BUILD_TOPDIR/src/tools/build
 
@@ -151,7 +155,6 @@ buildNwchem() {
   export BLASOPT="-L$CONTRIB_DIR/lapack-sersh/lib64 -llapack -lblas -Wl,-rpath,$CONTRIB_DIR/lapack-sersh/lib64"
   export BLAS_SIZE="8"
   export USE_ARUR="n"
-  export NWCHEM_TOP=$NWCHEM_BUILD_TOPDIR
   export NWCHEM_TARGET="LINUX64"
   #export NWCHEM_MODULES="all python"
 
@@ -167,7 +170,6 @@ buildNwchem() {
   techo "USE_ARUR    =$USE_ARUR"
   techo "MPI_NAME    =$MPI_NAME"
   techo "NWCHEM_TOP   =$NWCHEM_TOP"
-  techo "NWCHEM_TARGET=$NWCHEM_TARGET"
   techo ""
 
   # Builds
