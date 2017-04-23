@@ -1,0 +1,60 @@
+diff -ruN lapack-3.7.0/SRC/chbev_2stage.f lapack-3.7.0-new/SRC/chbev_2stage.f
+--- lapack-3.7.0/SRC/chbev_2stage.f	2016-12-23 16:01:32.000000000 -0700
++++ lapack-3.7.0-new/SRC/chbev_2stage.f	2017-04-23 14:55:38.200054362 -0600
+@@ -247,7 +247,7 @@
+       EXTERNAL           LSAME, SLAMCH, CLANHB, ILAENV
+ *     ..
+ *     .. External Subroutines ..
+-      EXTERNAL           SSCAL, SSTERF, XERBLA, CLASCL, CSTEQR
++      EXTERNAL           SSCAL, SSTERF, XERBLA, CLASCL, CSTEQR,
+      $                   CHETRD_2STAGE
+ *     ..
+ *     .. Intrinsic Functions ..
+diff -ruN lapack-3.7.0/SRC/dsbev_2stage.f lapack-3.7.0-new/SRC/dsbev_2stage.f
+--- lapack-3.7.0/SRC/dsbev_2stage.f	2016-12-23 16:01:32.000000000 -0700
++++ lapack-3.7.0-new/SRC/dsbev_2stage.f	2017-04-23 14:55:52.605054349 -0600
+@@ -239,7 +239,7 @@
+       EXTERNAL           LSAME, DLAMCH, DLANSB, ILAENV
+ *     ..
+ *     .. External Subroutines ..
+-      EXTERNAL           DLASCL, DSCAL, DSTEQR, DSTERF, XERBLA
++      EXTERNAL           DLASCL, DSCAL, DSTEQR, DSTERF, XERBLA,
+      $                   DSYTRD_SB2ST 
+ *     ..
+ *     .. Intrinsic Functions ..
+diff -ruN lapack-3.7.0/SRC/ssbev_2stage.f lapack-3.7.0-new/SRC/ssbev_2stage.f
+--- lapack-3.7.0/SRC/ssbev_2stage.f	2016-12-23 16:01:32.000000000 -0700
++++ lapack-3.7.0-new/SRC/ssbev_2stage.f	2017-04-23 14:56:13.591054330 -0600
+@@ -239,7 +239,7 @@
+       EXTERNAL           LSAME, SLAMCH, SLANSB, ILAENV
+ *     ..
+ *     .. External Subroutines ..
+-      EXTERNAL           SLASCL, SSCAL, SSTEQR, SSTERF, XERBLA
++      EXTERNAL           SLASCL, SSCAL, SSTEQR, SSTERF, XERBLA,
+      $                   SSYTRD_SB2ST 
+ *     ..
+ *     .. Intrinsic Functions ..
+diff -ruN lapack-3.7.0/SRC/zhbev_2stage.f lapack-3.7.0-new/SRC/zhbev_2stage.f
+--- lapack-3.7.0/SRC/zhbev_2stage.f	2016-12-23 16:01:32.000000000 -0700
++++ lapack-3.7.0-new/SRC/zhbev_2stage.f	2017-04-23 14:56:29.112054316 -0600
+@@ -247,7 +247,7 @@
+       EXTERNAL           LSAME, DLAMCH, ZLANHB, ILAENV
+ *     ..
+ *     .. External Subroutines ..
+-      EXTERNAL           DSCAL, DSTERF, XERBLA, ZLASCL, ZSTEQR
++      EXTERNAL           DSCAL, DSTERF, XERBLA, ZLASCL, ZSTEQR,
+      $                   ZHETRD_2STAGE
+ *     ..
+ *     .. Intrinsic Functions ..
+diff -ruN lapack-3.7.0/SRC/ztrevc3.f lapack-3.7.0-new/SRC/ztrevc3.f
+--- lapack-3.7.0/SRC/ztrevc3.f	2016-12-23 16:01:32.000000000 -0700
++++ lapack-3.7.0-new/SRC/ztrevc3.f	2017-04-23 14:56:42.367054303 -0600
+@@ -287,7 +287,7 @@
+       EXTERNAL           LSAME, ILAENV, IZAMAX, DLAMCH, DZASUM
+ *     ..
+ *     .. External Subroutines ..
+-      EXTERNAL           XERBLA, ZCOPY, ZDSCAL, ZGEMV, ZLATRS
++      EXTERNAL           XERBLA, ZCOPY, ZDSCAL, ZGEMV, ZLATRS,
+      $                   ZGEMM, DLABAD, ZLASET
+ *     ..
+ *     .. Intrinsic Functions ..
