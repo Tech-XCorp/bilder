@@ -76,11 +76,13 @@ PYC_F77=${PYC_F77:-"gfortran"}
 
 # Parallel compilers:
 # Note: None of the CMake tests work with the Intel MPI wrappers, so we have to
-# use the compilers directory and add the link line by hand. Your mileage may vary
-MPICC=${MPICC:-"icc"}
-MPICXX=${MPICXX:-"icpc"}
-MPIFC=${MPIFC:-"ifort"}
-MPIF77=${MPIF77:-"ifort"}
+# use the compilers directory and add the link line by hand.
+# JRC: working for me for intel 2017.  Will make change.  Pls revert
+# if fails.
+MPICC=${MPICC:-"mpiicc"}
+MPICXX=${MPICXX:-"mpiicpc"}
+MPIFC=${MPIFC:-"mpiifort"}
+MPIF77=${MPIF77:-"mpiifort"}
 
 # Compilation flags:
 # Do not set optimization flags as packages should add good defaults
